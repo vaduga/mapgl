@@ -1,4 +1,4 @@
-import './ol-layerswitcher.css';
+import { layerSwitcherRoot } from './LayerSwitcher.styles';
 import React, { useEffect, useState, useRef } from 'react';
 import {VisLayer} from "./VisLayer";
 import { Graph } from 'mapLib';
@@ -15,7 +15,9 @@ const LayerSwitcher = (props) => {
     const elementRef = useRef(null);
     const panelRef = useRef(null);
 
-    const hiddenClassName = `ol-control yo layer-switcher${LayerSwitcher.isTouchDevice_() ? ' touch' : ''}`;
+    const hiddenClassName =
+        `ol-control yo layer-switcher${LayerSwitcher.isTouchDevice_() ? ' touch' : ''}`;
+
     const shownClassName = 'shown';
 
     useEffect(() => {
@@ -40,8 +42,7 @@ const LayerSwitcher = (props) => {
     return (
         <div
             ref={elementRef}
-            className={`${hiddenClassName} ${panelVisible ? shownClassName : ''} ${className}`}
-            // style={style}
+            className={`${layerSwitcherRoot} ${hiddenClassName} ${panelVisible ? 'shown' : ''} ${className}`}
         >
                 <div style={{width: '38px', height: '38px'}} >
                 <button
