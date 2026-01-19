@@ -14,6 +14,7 @@ export const copyFilePatterns = [
   { from: '../LICENSE', to: '.' },
   { from: '../CHANGELOG.md', to: '.', force: true },
   { from: '**/*.json', to: '.' },
+  { from: '**/*.svg', to: '.' },
   { from: '**/query_help.md', to: '.', noErrorOnMissing: true },
   ...logoPaths.map((logoPath) => ({ from: logoPath, to: logoPath })),
   ...screenshotPaths.map((screenshotPath) => ({
