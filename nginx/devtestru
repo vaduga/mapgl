@@ -1,0 +1,78 @@
+
+server {
+
+  include /etc/nginx/sites-enabled/http_headers.conf;
+
+server_name dev.test.ru ;
+
+
+  location / {
+keepalive_timeout 600s;
+proxy_connect_timeout 600s;
+proxy_send_timeout 600s; 
+proxy_read_timeout 600s;
+    proxy_pass http://localhost:3000;
+    include /etc/nginx/sites-enabled/proxy.conf;
+
+ # for api get method
+  location /api/api {
+   proxy_pass http://localhost:3003;
+   include /etc/nginx/sites-enabled/proxy.conf;
+  }
+
+ 
+  location /ws {
+      proxy_pass http://localhost:8089;  # Set your Golang WebSocket server port
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+
+#include /etc/nginx/sites-enabled/proxy.conf;
+    }
+
+
+  
+   # Simple requests
+    if ($request_method ~* "(GET|POST)") {
+      add_header "Access-Control-Allow-Origin" *;      
+    }
+
+    # Preflighted requests
+    if ($request_method = OPTIONS ) {
+      add_header "Access-Control-Allow-Origin" *;      
+      add_header "Access-Control-Allow-Methods" "GET, POST, OPTIONS, HEAD";
+      add_header "Access-Control-Allow-Headers" "Authorization, Origin, X-Requested-With, Content-Type, Accept";
+      return 200;
+    }
+
+
+
+  }
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/play.mapgl.org/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/play.mapgl.org/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+
+
+}
+server {
+    if ($host = play.mapgl.org) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+  listen 80;
+
+server_name play.mapgl.org ;
+    return 404; # managed by Certbot
+
+
+}

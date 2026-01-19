@@ -1,0 +1,44 @@
+services:
+  grafana:
+    container_name: 'mapgl'
+    platform: 'linux/amd64'
+    image: "mapgl-grafana:latest"
+    build:
+      context: ./.config
+      args:
+        grafana_version: ${GRAFANA_VERSION:-10.1.5}
+    ports:
+      - 3000:3000/tcp
+      #- 8089:8089/tcp
+      #- 8082:8082/tcp
+    volumes:
+      - $PWD/dist:/var/lib/grafana/plugins/vaduga-mapgl-panel
+      - $PWD/.seed:/usr/share/grafana/public/seed
+      - $PWD/.seed/public_svg:/usr/share/grafana/public/img/icons/mapgl
+      - $PWD/provisioning:/etc/grafana/provisioning
+      - $PWD/docker_data/grafana_data:/var/lib/grafana
+      #- $PWD/docker_data/certs:/certs
+
+    env_file:
+      - $PWD/docker_data/grafana_conf/graf.env
+
+    restart: always
+    environment:
+      - GF_INSTALL_PLUGINS=frser-sqlite-datasource
+      - GF_PLUGIN_ALLOW_LOCAL_MODE=true
+      - GF_USERS_VIEWERS_CAN_EDIT=true
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      #- GF_LOG_LEVEL=debug
+      - GF_SERVE_FROM_SUB_PATH=true
+      - GF_FEATURE_TOGGLES_ENABLE=enableDatagridEditing, editPanelCSVDragAndDrop
+      # Set development mode so plugins can be loaded without the need to sign
+      #- GF_DEFAULT_APP_MODE="development"
+      - HTTP_USER="{{ grafana_user }}"
+      - HTTP_PASS="{{ grafana_passwd }}"
+
+
+
+
+
+
+

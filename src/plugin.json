@@ -1,0 +1,57 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
+  "type": "panel",
+  "name": "Mapgl",
+  "id": "vaduga-mapgl-panel",
+  "info": {
+    "keywords": [
+      "nodegraph",
+      "node graph",
+      "service graph",
+      "topology",
+      "network graph",
+      "map",
+      "geomap",
+      "zabbix",
+      "deckgl"
+    ],
+    "description": "Node Graph and Geomap with links",
+    "author": {
+      "name": "Vadim Pyatakov"
+    },
+    "logos": {
+      "small": "img/logo.svg",
+      "large": "img/logo.svg"
+    },
+    "links": [
+         {
+        "name": "Website",
+        "url": "https://mapgl.org"
+      },
+      {
+        "name": "License",
+        "url": "https://github.com/vaduga/mapgl/blob/main/LICENSE"
+      }
+    ],
+    "screenshots": [
+      {
+        "name": "Geomap",
+        "path": "img/screenshots/screenshot1.png"
+      },
+      {
+        "name": "Nodegraph",
+        "path": "img/screenshot/screenshot2.png"
+      },
+      {
+        "name": "Dataframe",
+        "path": "img/screenshot/screenshot3.png"
+      }
+    ],
+    "version": "%VERSION%",
+    "updated": "%TODAY%"
+  },
+  "dependencies": {
+    "grafanaDependency": ">=10.0.0",
+    "plugins": []
+  }
+}

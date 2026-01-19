@@ -1,0 +1,16 @@
+[
+  {
+    "keys": ["BRA"],
+    "latitude": 56.151576,
+    "longitude": 101.619117,
+    "name": "Bratsk"
+  },
+  {
+    "keys": ["MSK"],
+    "latitude": 55.550552,
+    "longitude": 37.562098,
+    "name": "Moscow"
+  }
+
+]
+

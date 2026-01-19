@@ -1,0 +1,5 @@
+{
+  "name": "mapLib/utils",
+  "main": "../dist/mapLib.js",
+  "types": "../dist/utils/index.d.ts"
+}
