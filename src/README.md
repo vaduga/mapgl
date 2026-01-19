@@ -23,12 +23,12 @@ Mapgl now fully supports native Grafana field config:  Thresholds, Mappings, Uni
 ### Screenshots
 
 <img
-src="/public/plugins/vaduga-mapgl-panel/img/screenshots/screenshot1.png"
+src="https://mapgl.org/img/screenshot1.png"
 alt="Geomap"
 width="900"
 />
 <img
-src="/public/plugins/vaduga-mapgl-panel/img/screenshots/screenshot2.png"
+src="https://mapgl.org/img/screenshot2.png"
 alt="NodeGraph"
 width="900"
 />
@@ -50,7 +50,7 @@ width="900"
 ### Data Format
 
 <img
-src="/public/plugins/vaduga-mapgl-panel/img/screenshots/screenshot3.png"
+src="https://mapgl.org/img/screenshot3.png"
 alt="NodeGraph"
 width="900"
 />  
