@@ -40,11 +40,11 @@
       },
       {
         "name": "Nodegraph",
-        "path": "img/screenshot/screenshot2.png"
+        "path": "img/screenshots/screenshot2.png"
       },
       {
         "name": "Dataframe",
-        "path": "img/screenshot/screenshot3.png"
+        "path": "img/screenshots/screenshot3.png"
       }
     ],
     "version": "%VERSION%",

@@ -72,9 +72,6 @@ mode,
       ],
 
     },
-      optimization: {
-
-      },
 
     plugins: [
       // new RemoveEmptyScriptsPlugin({})
