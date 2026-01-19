@@ -1,11 +1,13 @@
 [![Downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgrafana.com%2Fapi%2Fplugins%2Fvaduga-mapgl-panel&query=%24.downloads&logo=grafana&label=downloads
-)](https://grafana.com/grafana/plugins/vaduga-mapgl-panel)![GitHub](https://img.shields.io/github/stars/vaduga/mapgl?style=social&#41;]&#40;https://github.com/vaduga/mapgl-community&#41;)
+)](https://grafana.com/grafana/plugins/vaduga-mapgl-panel)
+[![GitHub](https://img.shields.io/github/stars/vaduga/mapgl?style=social)](https://github.com/vaduga/mapgl)
 [![Discord](https://img.shields.io/discord/973739619118088232?logo=discord&logoColor=%232490D7)](https://discord.gg/DZCAfzYwjC)
 [![Telegram Url](https://img.shields.io/badge/Telegram-blue?logo=telegram )](https://t.me/mapgrafana)
+[![Change Log](https://img.shields.io/badge/Change-log-blue.svg?style=flat)](https://github.com/vaduga/mapgl/blob/main/CHANGELOG.md)
 [![Project Site](https://img.shields.io/badge/Project-site-blue)](https://mapgl.org)
 [✉️][email]
 
-[//]: # ([![Change Log]&#40;https://img.shields.io/badge/Change-log-blue.svg?style=flat&#41;]&#40;https://github.com/vaduga/mapgl/blob/main/CHANGELOG.md&#41;)
+
 
 A sample node graph is loaded on every new panel to try out styles and modes
 ### v1 -> v2 data migration is not required
