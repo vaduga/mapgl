@@ -132,49 +132,21 @@ class PointStore {
     this.isShowCenter = viewState
   }
 
-  get getMode(): string {
-    return this.mode;
-  }
-
-  get getEditable() {
-    return this.editable;
-  }
-
   get getSelCoord() {
     return this.selCoord;
-  }
-
-  get getSelEdges() {
-    return this.selEdges
-  }
-
-  get getCommentOpenIdx() {
-    return this.commentOpenIdx;
   }
 
   setSelCoord = (newSelCoord) => {
     this.selCoord = newSelCoord;
   }
 
-  setMode = (mode) => {
-    this.mode = mode;
-  };
-
   setSelEdges =(edges: Edge[])=> {
     this.selEdges = edges
-  }
-
-  setCommentOpenIdx =(i)=> {
-    this.commentOpenIdx = i
   }
 
   setDrawerOpen =(flag)=> {
     this.isDrawerOpen = flag
   }
-
-  setEdgeListed =(flag)=> {
-    this.isEdgeListed = flag
-    }
 
   get getTooltipObject() {
     return this.tooltipObject;

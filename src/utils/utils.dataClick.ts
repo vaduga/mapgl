@@ -4,7 +4,6 @@ import {BiColProps} from "mapLib/utils";
 
 export const expandTooltip = (info: any, panel:any, eventBus: any, map: any, dataClickProps: any, selectGotoHandler: any) => {
     const {setSelCoord,
-        getMode,
         setIsShowCenter,
         setTooltipObject,
         setLocalViewState,

@@ -69,7 +69,6 @@ const Mapgl = ({panel, annots, initMapRef, fieldConfig, source, options, data, r
         setSelCoord,
         getSelectedNode,
         getSelectedIdxs,
-        getMode,
         setTooltipObject,
         setDrawerOpen,
         getSelCoord,
@@ -205,7 +204,6 @@ const Mapgl = ({panel, annots, initMapRef, fieldConfig, source, options, data, r
         //<editor-fold desc="dataClickProps">
         pId: panel.pId,
         setSelCoord,
-        getMode,
         setIsShowCenter,
         setTooltipObject,
         setLocalViewState,

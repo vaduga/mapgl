@@ -26,7 +26,6 @@
     "dev": "vite"
   },
   "dependencies": {
-    "@bytecodealliance/preview2-shim": "^0.17.6",
     "@msagl/core": "^1.1.23",
     "@turf/distance": "^7.3.2",
     "@turf/helpers": "^7.3.2",

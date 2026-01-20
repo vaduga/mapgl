@@ -11,28 +11,6 @@ import {AppEvents} from "@grafana/data";
 import {SelectNodeEvent} from "./bus.events";
 import {getBounds} from "./utils.plugin";
 
-
-/** For Yamaps3 external script loading
- * Extra security measure to check if the script has
- * already been included in the DOM
- */
-const scriptAlreadyExists = () =>
-    document.querySelector('script#ymaps3-script') !== null
-
-/**
- * Append the script to the document.
- * Whenever the script has been loaded it will
- * set the isLoaded state to true.
- */
-const appendYaScript = (yMapsKey: string | undefined, onLoadCallback) => {
-    const script = document.createElement('script')
-    script.id = 'ymaps3-script'
-    script.src = `https://api-maps.yandex.ru/3.0/?apikey=${yMapsKey}&lang=en_EN`
-    script.async = true
-    script.onload = () => onLoadCallback(true)
-    document.body.append(script)
-};
-
 function initViewExtent(view: ViewState, config: MapViewConfig, width, height, layers, visLayers, panel) {
     const v: any = centerPointRegistry.getIfExists(config.id);
     if (v) {
@@ -200,6 +178,5 @@ function denormalizeZoom(isWebmercator, normalizedZoom) {
 
 
 export {
-    scriptAlreadyExists,
-    appendYaScript, initViewExtent, getLayersExtent, selectGotoHandler
+    initViewExtent, getLayersExtent, selectGotoHandler
 }
