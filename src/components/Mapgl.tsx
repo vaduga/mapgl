@@ -2,7 +2,7 @@ import {FullscreenWidget, CompassWidget} from '@deck.gl/widgets';
 // @ts-ignore
 import styles from '!!raw-loader!@deck.gl/widgets/stylesheet.css';
 const styleTag = document.createElement('style');
-styleTag.innerHTML = styles as string;
+styleTag.textContent = styles as string;
 document.head.appendChild(styleTag);
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {flushSync} from 'react-dom';
