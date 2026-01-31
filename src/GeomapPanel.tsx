@@ -5,7 +5,7 @@ import {GrafanaTheme2, PanelData, PanelProps} from '@grafana/data';
 import {config} from '@grafana/runtime';
 import {PanelContext, PanelContextProvider, PanelContextRoot} from '@grafana/ui';
 import {Options, MapLayerState, MapViewConfig} from './types';
-import {defViewState, ViewState, LayerDragShift} from "mapLib/utils";
+import {defViewState, ViewState} from "mapLib/utils";
 import {notifyPanelEditor} from "./utils/geomap_utils";
 import {getActions} from "./utils/actions";
 import Mapgl from "./components/Mapgl";
@@ -35,7 +35,7 @@ interface State {
     svgIcons?;
 }
 
-import {CMN_NAMESPACE, CMN_NAMESPACE_PREFIX} from 'mapLib/utils'
+import {CMN_NAMESPACE} from 'mapLib/utils'
 import {Rule} from "./editor/Groups/rule-types";
 import {VisLayers} from "./store/visLayers";
 
@@ -73,7 +73,7 @@ export class GeomapPanel extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         const {options} = props
-        const {jitterPoints, nsPrefix, locLabelName} = options.common || {}
+        const {locLabelName} = options.common || {}
 
         this.pId = props.id
         this.isLogic = !options.basemap || options.basemap.type === ORTHO_BASEMAP_CONFIG.type

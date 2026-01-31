@@ -11,7 +11,7 @@ import {Node, Edge} from "mapLib";
 
 const includes = ['ack', 'msg', 'all_annots', 'liveUpd'] //liveStat
 
-const Tooltip = ({ data, panel, info, eventBus, setHoverInfo, time, timeZone, isClosed = false, isHyper, dataLayers}) => {
+const Tooltip = ({ data, panel, info, eventBus, setHoverInfo, time, isClosed = false, dataLayers}) => {
     if (!info || !Object.entries(info).length) {
         return null
     }
@@ -182,7 +182,7 @@ if (!x && !y && !coordinate) return
                         }
 
                         {/*{'name: '}*/}
-                        {!eNode && props.locName}
+                        {props.locName}
 
                     </li>}
 

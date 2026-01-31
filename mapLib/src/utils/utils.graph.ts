@@ -94,7 +94,7 @@ function pushPath (props: PushPathProps) {
     let edge = findEdgeA(edgeId)
     let edge_id
     if (!edge) {
-        const newVerticeIds = wasmVerticeIds //createEdge(wasmVerticeIds, layerIdx, wrap, aMetric, bMetric, cMetric) // new Uint32Array(wasmVerticeIds),
+        const newVerticeIds = wasmVerticeIds
         graph.getEdgeVerticeIds.push([newVerticeIds, layerIdx])
 
         edge_id = graph.getEdgeVerticeIds.length - 1

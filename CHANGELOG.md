@@ -1,5 +1,9 @@
 # Changelog Mapgl
 
+## 2.0.1
+- show head node id in edge tooltip
+- enlarge picked Arc edge
+
 ## 2.0.0
 - Node Graph with autolayout and spline edge routing that respects node boundary curves. In addition to Geo mode. 
 - Arc sections on nodes for any metrics. 

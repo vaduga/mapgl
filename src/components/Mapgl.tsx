@@ -1,6 +1,6 @@
 import {FullscreenWidget, CompassWidget} from '@deck.gl/widgets';
-// @ts-ignore
-import styles from '!!raw-loader!@deck.gl/widgets/stylesheet.css';
+
+import styles from '@deck.gl/widgets/stylesheet.css'
 const styleTag = document.createElement('style');
 styleTag.textContent = styles as string;
 document.head.appendChild(styleTag);
@@ -69,6 +69,7 @@ const Mapgl = ({panel, annots, initMapRef, fieldConfig, source, options, data, r
         setSelCoord,
         getSelectedNode,
         getSelectedIdxs,
+        getSelEdges,
         setTooltipObject,
         setDrawerOpen,
         getSelCoord,
@@ -227,6 +228,7 @@ const Mapgl = ({panel, annots, initMapRef, fieldConfig, source, options, data, r
         setVisRefresh,
         getSelectedNode,
         getSelectedIdxs,
+        getSelEdges,
         time,
         options,
         svgIcons: panel.svgIcons,
@@ -513,8 +515,7 @@ const Mapgl = ({panel, annots, initMapRef, fieldConfig, source, options, data, r
     }, [edgeLegend])
 
     const memoLegend = useMemo(()=> {
-        const legend = getGroupsLegend
-        if (!legend?.length) {return null}
+        if (!getGroupsLegend?.length) {return null}
 
         return (
                 <div className={s.nodesLegend}>
@@ -626,7 +627,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
         z-index: 2;
         position: absolute;
         top: ${theme.spacing(5)};
-        right: 0px;        
+        right: 0;        
         overflow: hidden;
         pointer-events: all;
     `,
@@ -634,7 +635,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
         z-index: 2;
         position: absolute;
         top: ${theme.spacing(10)};
-        right: 0px;
+        right: 0;
         overflow: hidden;
         pointer-events: all;
     `,

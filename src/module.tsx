@@ -127,13 +127,6 @@ export const plugin = new PanelPlugin<Options>(GeomapPanel)
                 //description: '',
                 settings: {},
             })
-        // .addBooleanSwitch({
-        //     category: ['Other'],
-        //     path: 'isGeocoder',
-        //     name: 'Geocoder',
-        //     description: "Turn off when multiple maps per dashboard",
-        //     defaultValue: false,
-        // })
 
 })
     .setDataSupport({

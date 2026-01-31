@@ -1,6 +1,6 @@
-import {makeAutoObservable, toJS} from 'mobx';
+import {makeAutoObservable} from 'mobx';
 import RootStore from './RootStore';
-import {blankHoverInfo, colTypes, FIXED_COLOR_LABEL, Info, QueryHost, ViewState} from 'mapLib/utils'
+import {blankHoverInfo, colTypes, Info, ViewState} from 'mapLib/utils'
 import {Edge, Graph, Node} from "mapLib";
 import {Deck} from "@deck.gl/core";
 import {SelectNodeEvent} from "../utils/bus.events";
@@ -134,6 +134,10 @@ class PointStore {
 
   get getSelCoord() {
     return this.selCoord;
+  }
+
+  get getSelEdges() {
+    return this.selEdges
   }
 
   setSelCoord = (newSelCoord) => {
