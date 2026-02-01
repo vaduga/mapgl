@@ -274,7 +274,7 @@ const Mapgl = ({panel, annots, initMapRef, fieldConfig, source, options, data, r
         const secLayers: any = []
         let newLayers: any = [];
 
-        const secDataLayers = panel.layers.slice(1).filter((el, i) => el.layer.colType !== colTypes.Markers && el.layer.features?.length)
+        const secDataLayers = panel.layers.slice(1).filter(el=> el.layer.colType !== colTypes.Markers && el.layer.features?.length)
         let poly = 0, path = 0, geojson = 0
         !isLogic && secDataLayers.forEach(l => {
             const features = l.layer.features
@@ -362,7 +362,7 @@ const Mapgl = ({panel, annots, initMapRef, fieldConfig, source, options, data, r
 
     //@ts-ignore
     const biCols: BinaryFeatureCollection[] = [graph]
-            .map((g, i) => {
+            .map(g => {
                 const {
                     colors,
                     muted,
@@ -520,7 +520,7 @@ const Mapgl = ({panel, annots, initMapRef, fieldConfig, source, options, data, r
         return (
                 <div className={s.nodesLegend}>
                 <VizLegend displayMode={LegendDisplayMode.List} placement="bottom" items={getGroupsLegend.filter((item,i)=>item.data.count || hasAnnots && i === getGroupsLegend.length-1)}
-                           onLabelClick={(item)=> {}}/>
+                           onLabelClick={()=> {}}/>
                 </div>
                 )
     }, [getGroupsLegend])
@@ -563,7 +563,7 @@ if (!isLogic) {
                         inertia: true
                     }
                 }
-                onClick={(info, event) => expandTooltip(info, panel, eventBus, panel.map, dataClickProps, selectGotoHandler)}
+                onClick={(info) => expandTooltip(info, panel, eventBus, panel.map, dataClickProps, selectGotoHandler)}
                 getCursor={(state) => (state.isHovering ? 'pointer' : 'grab')}
             >
                 {!isLogic && <MapLibre
@@ -580,7 +580,7 @@ if (!isLogic) {
 
             <div className={s.geocoder} ref={geocoderRef} id='geocoder-container'></div>
 
-            <Tooltip data={data} panel={panel} time={time} timeZone={timeZone} eventBus={eventBus} info={hoverInfo} setHoverInfo={setHoverInfo} isHyper={isHyper} dataLayers={options.dataLayers} />
+            <Tooltip data={data} panel={panel} time={time} eventBus={eventBus} info={hoverInfo} setHoverInfo={setHoverInfo} dataLayers={options.dataLayers} />
 
             {isShowEdgeLegend && memoEdgeLegend}
             {isShowLegend && memoLegend}

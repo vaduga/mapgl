@@ -570,22 +570,12 @@ export class Graph extends Node {
 
       if (geomEdge?.source) {
            if (geomEdge?.curve?.start) {
-
-            if (coordinates.length > 0) {
-            // Remove first coordinate of the first subarray
-            if (coordinates[0].length > 3) {
-              //coordinates[0] = coordinates[0].slice(1, -1);
-            }
-
-            if (coordinates.length > 1) {
-              // Remove last coordinate of the last subarray
-              const lastIndex = coordinates.length - 1;
-              if (coordinates[lastIndex].length > 3) {
-                //coordinates[lastIndex] = coordinates[lastIndex].slice(1, -1);
+             /// Remove node coordinates. Leave node boundary ports only.
+            coordinates.forEach((c: string | any[], i: any)=> {
+              if (c.length > 3) {
+                coordinates[i] = c.slice(1, -1)
               }
-            }
-
-          }
+            })
 
           } else {
             console.warn("Invalid controlPoints or polyPoints", locName, edge.id);

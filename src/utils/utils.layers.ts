@@ -14,6 +14,7 @@ import {NS_SEPARATOR, DeckLine} from 'mapLib/utils'
 import { Rule } from "editor/Groups/rule-types";
 import {NodesGeojsonLayer} from "../deckLayers/GeoJsonNodesLayer/nodes-geojson-layer";
 import {EdgesGeojsonLayer} from "../deckLayers/GeoJsonEdgesLayer/edges-geojson-layer";
+import {EdgeArrowLayer} from "../deckLayers/ArrowLayer/edge-arrow-layer";
 import {GeomapPanel} from "../GeomapPanel";
 import {colTypes} from "mapLib/utils"
 import {VisLayers} from "../store/visLayers";
@@ -22,7 +23,7 @@ async function genPrimaryLayers({
                               biCols,
                               lineFeatures,
                               commentFeatures,
-                              layerProps,
+                              layerProps
                           }) {
 
     let comments
@@ -107,6 +108,7 @@ async function genPrimaryLayers({
                 };
 
                 lines.push(lineLayer(props));
+                lines.push(EdgeArrowLayer(props));
 
             }
         }
