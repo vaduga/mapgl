@@ -11,6 +11,7 @@ type ArrowItem = {
   feature: ArrowFeature;
   placement: ArrowPlacement;
   lineIndex: number;
+  angle?: number;
 };
 
 function getLastPoints(d: ArrowFeature): {base: Position; tip: Position} | null {
@@ -112,20 +113,21 @@ function expandArrowItems(data: ArrowFeature[] = []): ArrowItem[] {
 
   data.forEach((feature, lineIndex) => {
     const arrow = feature?.properties?.edgeStyle?.arrow;
+    const angles = feature?.properties?.arrowAngles;
 
     if (arrow === 1) {
-      items.push({feature, placement: 'end', lineIndex});
+      items.push({feature, placement: 'end', lineIndex, angle: angles?.end});
       return;
     }
 
     if (arrow === -1) {
-      items.push({feature, placement: 'start', lineIndex});
+      items.push({feature, placement: 'start', lineIndex, angle: angles?.start});
       return;
     }
 
     if (arrow === 2) {
-      items.push({feature, placement: 'start', lineIndex});
-      items.push({feature, placement: 'end', lineIndex});
+      items.push({feature, placement: 'start', lineIndex, angle: angles?.start});
+      items.push({feature, placement: 'end', lineIndex, angle: angles?.end});
       return;
     }
   });
@@ -138,6 +140,7 @@ export const EdgeArrowLayer = (props) => {
     srcGraphId,
     getSelectedIdxs,
     linesCollection,
+    options,
     visible,
     isLogic,
     getVisLayers,
@@ -154,6 +157,7 @@ export const EdgeArrowLayer = (props) => {
     ? linesCollection
     : linesCollection?.features ?? [];
   const arrowData = expandArrowItems(baseData);
+  const units = options.common?.isMeters ? "meters" : "pixels"
 
   return new IconLayer({
     id: colTypes.Edges + '-arrow-' + srcGraphId,
@@ -166,7 +170,7 @@ export const EdgeArrowLayer = (props) => {
       const pts = d.placement === 'start' ? getFirstPoints(d.feature) : getLastPoints(d.feature);
       return pts ? pts.tip : [0, 0];
     },
-    getAngle: (d: ArrowItem) => getArrowAngle(d.feature, d.placement, !isLogic),
+    getAngle: (d: ArrowItem) => d.angle ?? getArrowAngle(d.feature, d.placement, !isLogic),
     getSize: (d: ArrowItem) =>
       getArrowSize(d.feature) * (selectedFeatureIndexes.includes(d.lineIndex) ? 2 : 1),
     getColor: (d: ArrowItem) => getArrowColor(d.feature, getGroupsLegend),
@@ -175,12 +179,11 @@ export const EdgeArrowLayer = (props) => {
     iconMapping,
     getIcon: () => 'triangle-n',
 
-    sizeUnits: 'pixels',
+    sizeUnits: units,
     sizeScale: 1,
-    sizeMinPixels: 6,
+    sizeMinPixels: 1,
     sizeMaxPixels: 30,
     depthTest: false,
-
 
     getFilterCategory: (d: ArrowItem) => {
       const {layerName} = d.feature?.properties || {};

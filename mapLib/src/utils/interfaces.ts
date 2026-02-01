@@ -78,6 +78,10 @@ export type BiColProps = {
   liveUpd?: string;
   ack?: boolean,
   msg?: string,
+  arrowAngles?: {
+    start: number;
+    end: number;
+  };
 };
 
 export type CoordsGuided = {item: CoordRef, gIdx: number, coords: Position}
@@ -209,7 +213,6 @@ export interface QueryHost extends Partial<Feature> {
   msg?: string;
   updatedAt: string;
 }
-
 
 
 

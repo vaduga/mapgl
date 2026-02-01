@@ -10,7 +10,7 @@ import {
     CoordRef,
     DeckLine, BiColProps
 } from "../utils/interfaces";
-import {CoordsConvert} from "../utils";
+import {CoordsConvert, getArrowAngles} from "../utils";
 import {paraboloid, getMidpoint, segregatePath} from '../utils/utils.graph'
 
 import {Units} from "@turf/helpers";
@@ -589,6 +589,7 @@ export class Graph extends Node {
       }
 
       const propsOverride = dataRecord /// as from frame initially (including duplicate records)
+      const arrowAngles = getArrowAngles(coordinates, !this.isLogic);
       const newFeature: DeckLine = {
         //id: counter,
         edgeId: edge.id,
@@ -601,7 +602,8 @@ export class Graph extends Node {
         properties: {
           ...(propsOverride ?? {}),
           locName,
-          segrPath
+          segrPath,
+          ...(arrowAngles ? {arrowAngles} : {})
         }
       }
 

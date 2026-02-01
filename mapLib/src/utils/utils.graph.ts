@@ -16,6 +16,61 @@ import {Position} from "geojson";
 
 import midpoint from "@turf/midpoint";
 
+type Vec2 = [number, number];
+type ArrowAngles = {start: number; end: number};
+
+function wrapDeltaLonDeg(dLon: number): number {
+    if (dLon > 180) return dLon - 360;
+    if (dLon < -180) return dLon + 360;
+    return dLon;
+}
+
+function getFirstPoints(coords: number[][][]): {base: number[]; tip: number[]} | null {
+    if (!coords?.length) return null;
+    const firstLine = coords[0];
+    if (!firstLine || firstLine.length < 2) return null;
+    const tip = firstLine[0];
+    const base = firstLine[1];
+    return {base, tip};
+}
+
+function getLastPoints(coords: number[][][]): {base: number[]; tip: number[]} | null {
+    if (!coords?.length) return null;
+    const lastLine = coords[coords.length - 1];
+    if (!lastLine || lastLine.length < 2) return null;
+    const tip = lastLine[lastLine.length - 1];
+    const base = lastLine[lastLine.length - 2];
+    return {base, tip};
+}
+
+function getArrowAngleFromPoints(base: number[], tip: number[], isGeo: boolean): number {
+    const [bx, by] = base as Vec2;
+    const [tx, ty] = tip as Vec2;
+
+    if (!isGeo) {
+        const dx = tx - bx;
+        const dy = ty - by;
+        return (Math.atan2(dy, dx) * 180) / Math.PI;
+    }
+
+    let dx = wrapDeltaLonDeg(tx - bx);
+    const dy = ty - by;
+    const midLatRad = (((by + ty) / 2) * Math.PI) / 180;
+    dx *= Math.cos(midLatRad);
+    return (Math.atan2(dy, dx) * 180) / Math.PI;
+}
+
+function getArrowAngles(coords: number[][][], isGeo: boolean): ArrowAngles | null {
+    const startPoints = getFirstPoints(coords);
+    const endPoints = getLastPoints(coords);
+    if (!startPoints || !endPoints) return null;
+    return {
+        start: getArrowAngleFromPoints(startPoints.base, startPoints.tip, isGeo),
+        end: getArrowAngleFromPoints(endPoints.base, endPoints.tip, isGeo),
+    };
+}
+
+
 function sortAnnotations (annotations: any[]) {
     return annotations.sort((a, b) => {
         const stateOrder = { 'Alerting': 1, 'Pending': 2, 'Normal': 3 };
@@ -373,6 +428,6 @@ function getMidpoint(
 export type { PushPathProps };
 
 export {
-    pushPath, sortAnnotations, paraboloid, segregatePath, runLayout, getMidpoint
+    pushPath, getArrowAngles, sortAnnotations, paraboloid, segregatePath, runLayout, getMidpoint
 };
 

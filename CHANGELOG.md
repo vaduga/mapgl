@@ -7,13 +7,14 @@
 - enlarge picked arc, edge, arrow
 
 ## 2.0.0
-- Node Graph with autolayout and spline edge routing that respects node boundary curves. In addition to Geo mode. 
+- Node Graph with autolayout and spline edge routing that respects node boundary curves. In addition to Geo mode.
 - Arc sections on nodes for any metrics. 
 - Style config extends Grafana Geomap styles-from-dimensions concept with overrides for user-defined node groups
 - Native Grafana Field config support: Thresholds, Mappings, Units, Overrides, Data links.
 - Bi-metric Arcs (ex., for TX/RX)
 - Ad-hoc filters by layers, node groups in the legend
 - Unified (Graph+Geo) single dataframe for nodes and edges (same as in v.1) avoids hardcoded dataframe requirements of the native Geomap/NodeGraph.
+- v1 -> v2 data migration is not required
 
 ## 1.6.1
 * fix cluster labels edit in thresholds to comply with braking < Tooltip > component since Grafana 10.3.0
