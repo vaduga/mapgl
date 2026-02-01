@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 0,
+  "id": 2,
   "links": [],
   "panels": [
     {
@@ -287,6 +287,7 @@
                 }
               },
               "edgeStyle": {
+                "arrow": -1,
                 "color": {
                   "field": "metric",
                   "fixed": "light-red"
@@ -452,6 +453,7 @@
                 }
               },
               "edgeStyle": {
+                "arrow": -1,
                 "color": {
                   "field": "metric",
                   "fixed": "light-blue"
@@ -715,5 +717,5 @@
   "timezone": "",
   "title": "Geo",
   "uid": "bc41f708-0b15-456b-ba0e-d2e16bbaef33",
-  "version": 212
+  "version": 1
 }

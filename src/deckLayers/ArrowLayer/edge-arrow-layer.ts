@@ -6,6 +6,12 @@ import {toRGB4Array} from '../../utils';
 import {colTypes, DeckLine, PointFeatureProperties, RGBAColor, ALERTING_STATES} from 'mapLib/utils';
 
 type ArrowFeature = DeckLine<Geometry, PointFeatureProperties>;
+type ArrowPlacement = 'start' | 'end';
+type ArrowItem = {
+  feature: ArrowFeature;
+  placement: ArrowPlacement;
+  lineIndex: number;
+};
 
 function getLastPoints(d: ArrowFeature): {base: Position; tip: Position} | null {
   const coords = d?.geometry?.coordinates;
@@ -19,6 +25,19 @@ function getLastPoints(d: ArrowFeature): {base: Position; tip: Position} | null 
   return {base, tip};
 }
 
+function getFirstPoints(d: ArrowFeature): {base: Position; tip: Position} | null {
+  const coords = d?.geometry?.coordinates;
+  if (!coords || !coords.length) return null;
+
+  const firstLine = coords[0];
+  if (!firstLine || firstLine.length < 2) return null;
+
+  // Reverse direction so the arrow points toward the start
+  const tip = firstLine[0];
+  const base = firstLine[1];
+  return {base, tip};
+}
+
 type Vec2 = [number, number];
 
 function wrapDeltaLonDeg(dLon: number): number {
@@ -29,10 +48,11 @@ function wrapDeltaLonDeg(dLon: number): number {
 }
 
 function getArrowAngle(
-    d: ArrowFeature,
-    isGeo: boolean
+  d: ArrowFeature,
+  placement: ArrowPlacement,
+  isGeo: boolean
 ): number {
-  const pts = getLastPoints(d);
+  const pts = placement === 'start' ? getFirstPoints(d) : getLastPoints(d);
   if (!pts) return 0;
 
   const [bx, by] = pts.base as Vec2;
@@ -87,6 +107,32 @@ function getArrowColor(
   return muted;
 }
 
+function expandArrowItems(data: ArrowFeature[] = []): ArrowItem[] {
+  const items: ArrowItem[] = [];
+
+  data.forEach((feature, lineIndex) => {
+    const arrow = feature?.properties?.edgeStyle?.arrow;
+
+    if (arrow === 1) {
+      items.push({feature, placement: 'end', lineIndex});
+      return;
+    }
+
+    if (arrow === -1) {
+      items.push({feature, placement: 'start', lineIndex});
+      return;
+    }
+
+    if (arrow === 2) {
+      items.push({feature, placement: 'start', lineIndex});
+      items.push({feature, placement: 'end', lineIndex});
+      return;
+    }
+  });
+
+  return items;
+}
+
 export const EdgeArrowLayer = (props) => {
   const {
     srcGraphId,
@@ -104,20 +150,26 @@ export const EdgeArrowLayer = (props) => {
   const categories = getVisLayers.getCategories();
   const categorySize = 1;
 
+  const baseData = Array.isArray(linesCollection)
+    ? linesCollection
+    : linesCollection?.features ?? [];
+  const arrowData = expandArrowItems(baseData);
+
   return new IconLayer({
     id: colTypes.Edges + '-arrow-' + srcGraphId,
-    data: linesCollection?.features ?? linesCollection,
+    data: arrowData,
     visible,
     pickable: false,
     billboard: false,
 //@ts-ignore
-    getPosition: (d: ArrowFeature) => {
-      const pts = getLastPoints(d);
+    getPosition: (d: ArrowItem) => {
+      const pts = d.placement === 'start' ? getFirstPoints(d.feature) : getLastPoints(d.feature);
       return pts ? pts.tip : [0, 0];
     },
-    getAngle: (d: ArrowFeature) => getArrowAngle(d, !isLogic),
-    getSize: (d: ArrowFeature, k) => getArrowSize(d) * (selectedFeatureIndexes.includes(k.index) ? 2 : 1),
-    getColor: (d: ArrowFeature) => getArrowColor(d, getGroupsLegend),
+    getAngle: (d: ArrowItem) => getArrowAngle(d.feature, d.placement, !isLogic),
+    getSize: (d: ArrowItem) =>
+      getArrowSize(d.feature) * (selectedFeatureIndexes.includes(d.lineIndex) ? 2 : 1),
+    getColor: (d: ArrowItem) => getArrowColor(d.feature, getGroupsLegend),
 
     iconAtlas,
     iconMapping,
@@ -130,8 +182,8 @@ export const EdgeArrowLayer = (props) => {
     depthTest: false,
 
 
-    getFilterCategory: (d) => {
-      const {layerName} = d.properties || {};
+    getFilterCategory: (d: ArrowItem) => {
+      const {layerName} = d.feature?.properties || {};
       return layerName;
     },
     filterCategories: categories,

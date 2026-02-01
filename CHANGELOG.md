@@ -1,10 +1,10 @@
 # Changelog Mapgl
 
 ## 2.0.1
-- arrows for edges
-- cut edges at node boundary ports 
+- arrows for edges in non-arcs mode
+- cut edges at node boundary ports to prevent overlapping with semi-transparent nodes. 
 - show head node id in edge tooltip
-- enlarge picked Arc edge
+- enlarge picked arc, edge, arrow
 
 ## 2.0.0
 - Node Graph with autolayout and spline edge routing that respects node boundary curves. In addition to Geo mode. 

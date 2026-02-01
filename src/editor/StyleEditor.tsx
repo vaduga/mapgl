@@ -166,7 +166,7 @@ export const StyleEditor = (props: Props) => {
                     }
                 />
             </Field>}
-            {!isAuxLayer && !hideText && <Field label={'Text label'} description={isEdge ? 'not visible in hyperedges mode': ''}>
+            {!isAuxLayer && !hideText && <Field label={'Text label'} description={isEdge ? 'for arcs only': ''}>
                 <TextDimensionEditor
                     value={value?.text ?? defaultTextConfig}
                     context={context}

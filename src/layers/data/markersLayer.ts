@@ -16,7 +16,6 @@ import {
   ExtendFrameGeometrySourceMode,
   ExtendMapLayerOptions,
 } from '../../extension';
-import {toJS} from "mobx";
 import {StyleEditor} from "../../editor/StyleEditor";
 import {defaultStyleConfig, StyleConfig} from "../../style/types";
 import {getStyleConfigState} from "../../style/utils";
@@ -56,7 +55,7 @@ const fixForNodes = {...defaultStyleConfig, size: {...defaultStyleConfig.size, f
 
 const defaultOptions: MarkersConfig = {
   style: {...fixForNodes, useGroups: true},
-  edgeStyle: {...defaultStyleConfig},
+  edgeStyle: {...defaultStyleConfig, arrow: 0},
   arcStyle: {
     sideA: {...defaultStyleConfig,
       arrow: 0,
@@ -511,6 +510,20 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                   },
                   showIf: (opts) => !!opts.parField,
                 })
+                .addMultiSelect({
+                    path: 'searchProperties',
+                    name: 'Search by',
+                    description: 'extra fields',
+                    settings: {
+                        allowCustomValue: false,
+                        options: [],
+                        placeholder: 'Search by location name',
+                        getOptions: getQueryFields,
+                    },
+                    showIf: (opts) => opts.type === colTypes.Markers,
+                    //showIf: (opts) => typeof opts.query !== 'undefined',
+                    defaultValue: '',
+                })
                 .addCustomEditor({
                   id: 'config.style',
                   category: ['Node Styles'],
@@ -534,6 +547,20 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                 });
               },
             })
+                .addRadio({
+                    path: 'config.edgeStyle.arrow',
+                    category: ['Edge Styles'],
+                    name: 'Arrow',
+                    settings: {
+                        options: [
+                            { label: 'None', value: 0 },
+                            { label: 'Forward', value: 1 },
+                            { label: 'Reverse', value: -1 },
+                            { label: 'Both', value: 2 },
+                        ],
+                    },
+                    defaultValue: defaultOptions.edgeStyle.arrow,
+                })
                 .addCustomEditor({
                   id: 'config.edgeStyle',
                   category: ['Edge Styles'],
@@ -546,7 +573,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                     //frameMatcher: (frame: DataFrame) => frame === frameEdges,
                   },
                   showIf: (opts, data) => !!opts.parField || useMockData,
-                  defaultValue: defaultOptions.style,
+                  defaultValue: defaultOptions.edgeStyle,
                 })
                 .addBooleanSwitch({
                   path: 'config.showStat2',
@@ -654,21 +681,6 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                  name: 'cluster label, SVG icon, circle color override',
                  editor: GroupsEditor,
                 })
-                .addMultiSelect({
-                  path: 'searchProperties',
-                  name: 'Search by',
-                  description: 'extra fields',
-                  settings: {
-                    allowCustomValue: false,
-                    options: [],
-                    placeholder: 'Search by location name',
-                    getOptions: getQueryFields,
-                  },
-                  showIf: (opts) => opts.type === colTypes.Markers,
-                  //showIf: (opts) => typeof opts.query !== 'undefined',
-                  defaultValue: '',
-                })
-
           }
                 }
       },

@@ -1,7 +1,7 @@
-var Qn = {}, rn = {}, wa;
-function Vl() {
-  if (wa) return rn;
-  wa = 1, Object.defineProperty(rn, "__esModule", { value: !0 });
+var Jn = {}, rn = {}, Aa;
+function kl() {
+  if (Aa) return rn;
+  Aa = 1, Object.defineProperty(rn, "__esModule", { value: !0 });
   class a {
     constructor(...i) {
       this._head = this._tail = null, this._length = 0, i.length > 0 && i.forEach((s) => {
@@ -104,11 +104,11 @@ function Vl() {
   }
   return rn.LinkedListItem = t, rn;
 }
-var Aa;
-function lc() {
-  if (Aa) return Qn;
-  Aa = 1, Object.defineProperty(Qn, "__esModule", { value: !0 });
-  const a = Vl();
+var Ta;
+function cc() {
+  if (Ta) return Jn;
+  Ta = 1, Object.defineProperty(Jn, "__esModule", { value: !0 });
+  const a = kl();
   class t extends a.LinkedList {
     constructor(...i) {
       super(...i);
@@ -123,16 +123,16 @@ function lc() {
       return this.removeHead();
     }
   }
-  return Qn.Queue = t, Qn;
+  return Jn.Queue = t, Jn;
 }
-var We = lc();
-let hc = class {
+var We = cc();
+let uc = class {
   //@ts-ignore
   static assert(t, e = null) {
     if (!t)
       throw e != null ? new Error(e) : new Error("condition does not hold");
   }
-}, ur = class {
+}, fr = class {
   static GeomObjectIndex = 0;
   static DrawingObjectIndex = 1;
   static AlgorithmDataIndex = 2;
@@ -140,7 +140,7 @@ let hc = class {
   /// Extra from Mapgl
   static NodeDataIndex = 4;
   static EdgeDataIndex = 5;
-}, jo = class {
+}, Uo = class {
   constructor() {
     this.attrs = [], this._parent = null;
   }
@@ -188,14 +188,18 @@ let hc = class {
     return !1;
   }
 };
-class Dl extends jo {
+class _l extends Uo {
   /** sets the attribute at the given position */
   setAttrProp(t, e, i) {
     const s = this.getAttr(t);
     s && (s[e] = i);
   }
 }
-let cc = class extends Dl {
+var gn;
+(function(a) {
+  a[a.None = 0] = "None", a[a.FromAncestor = 1] = "FromAncestor", a[a.ToAncestor = 2] = "ToAncestor";
+})(gn || (gn = {}));
+let dc = class extends _l {
   _id;
   /** the unique, in the parent graph, id of the edge */
   get id() {
@@ -215,10 +219,10 @@ let cc = class extends Dl {
     this._lineId = t;
   }
   get data() {
-    return this.getAttr(ur.EdgeDataIndex);
+    return this.getAttr(fr.EdgeDataIndex);
   }
   setData(t) {
-    this.setAttr(ur.EdgeDataIndex, t);
+    this.setAttr(fr.EdgeDataIndex, t);
   }
   add() {
     this.source !== this.target ? (this.source.outEdges.add(this), this.target.inEdges.add(this)) : this.source.selfEdges.add(this);
@@ -233,9 +237,9 @@ let cc = class extends Dl {
     return this.source.parent !== this.target.parent;
   }
   EdgeToAncestor() {
-    return this.source instanceof be && this.target.isDescendantOf(this.source) ? 1 : this.target instanceof be && this.source.isDescendantOf(this.target) ? 2 : 0;
+    return this.source instanceof be && this.target.isDescendantOf(this.source) ? gn.FromAncestor : this.target instanceof be && this.source.isDescendantOf(this.target) ? gn.ToAncestor : gn.None;
   }
-}, uc = class extends Dl {
+}, fc = class extends _l {
   removeOutEdge(t) {
     this.outEdges.delete(t);
   }
@@ -261,9 +265,12 @@ let cc = class extends Dl {
     super(), this.id = t;
   }
   *_edges() {
-    for (const t of this.inEdges) yield t;
-    for (const t of this.outEdges) yield t;
-    for (const t of this.selfEdges) yield t;
+    for (const t of this.inEdges)
+      yield t;
+    for (const t of this.outEdges)
+      yield t;
+    for (const t of this.selfEdges)
+      yield t;
   }
   get edges() {
     return this._edges();
@@ -281,13 +288,13 @@ let cc = class extends Dl {
     return this.outDegree + this.inDegree + this.selfDegree;
   }
   get data() {
-    return this.getAttr(ur.NodeDataIndex);
+    return this.getAttr(fr.NodeDataIndex);
   }
   setData(t) {
-    this.setAttr(ur.NodeDataIndex, t);
+    this.setAttr(fr.NodeDataIndex, t);
   }
 };
-var dc = {
+var gc = {
   0: "Invalid value for configuration 'enforceActions', expected 'never', 'always' or 'observed'",
   1: function(t, e) {
     return "Cannot apply '" + t + "' to '" + e.toString() + "': Field not found.";
@@ -362,26 +369,26 @@ var dc = {
   },
   38: "'ownKeys()' can only be used on observable objects",
   39: "'defineProperty()' can only be used on observable objects"
-}, fc = dc;
+}, pc = gc;
 function R(a) {
   for (var t = arguments.length, e = new Array(t > 1 ? t - 1 : 0), i = 1; i < t; i++)
     e[i - 1] = arguments[i];
   {
-    var s = typeof a == "string" ? a : fc[a];
+    var s = typeof a == "string" ? a : pc[a];
     throw typeof s == "function" && (s = s.apply(null, e)), new Error("[MobX] " + s);
   }
 }
-var gc = {};
-function qo() {
-  return typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : gc;
+var mc = {};
+function Xo() {
+  return typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : mc;
 }
-var kl = Object.assign, dr = Object.getOwnPropertyDescriptor, ci = Object.defineProperty, Wr = Object.prototype, fr = [];
-Object.freeze(fr);
-var _l = {};
-Object.freeze(_l);
-var pc = typeof Proxy < "u", mc = /* @__PURE__ */ Object.toString();
-function Wl() {
-  pc || R("`Proxy` objects are not available in the current environment. Please configure MobX to enable a fallback implementation.`");
+var Wl = Object.assign, gr = Object.getOwnPropertyDescriptor, ci = Object.defineProperty, zr = Object.prototype, pr = [];
+Object.freeze(pr);
+var Hl = {};
+Object.freeze(Hl);
+var Pc = typeof Proxy < "u", Sc = /* @__PURE__ */ Object.toString();
+function zl() {
+  Pc || R("`Proxy` objects are not available in the current environment. Please configure MobX to enable a fallback implementation.`");
 }
 function on(a) {
   A.verifyProxies && R("MobX is currently configured to be able to run in ES5 mode, but in ES5 MobX won't be able to " + a);
@@ -389,7 +396,7 @@ function on(a) {
 function si() {
   return ++A.mobxGuid;
 }
-function Uo(a) {
+function Qo(a) {
   var t = !1;
   return function() {
     if (!t)
@@ -411,23 +418,23 @@ function Ps(a) {
   }
   return !1;
 }
-function Hr(a) {
+function jr(a) {
   return a !== null && typeof a == "object";
 }
 function gi(a) {
-  if (!Hr(a))
+  if (!jr(a))
     return !1;
   var t = Object.getPrototypeOf(a);
   if (t == null)
     return !0;
   var e = Object.hasOwnProperty.call(t, "constructor") && t.constructor;
-  return typeof e == "function" && e.toString() === mc;
+  return typeof e == "function" && e.toString() === Sc;
 }
-function Hl(a) {
+function jl(a) {
   var t = a?.constructor;
   return t ? t.name === "GeneratorFunction" || t.displayName === "GeneratorFunction" : !1;
 }
-function zr(a, t, e) {
+function qr(a, t, e) {
   ci(a, t, {
     enumerable: !1,
     writable: !0,
@@ -435,7 +442,7 @@ function zr(a, t, e) {
     value: e
   });
 }
-function zl(a, t, e) {
+function ql(a, t, e) {
   ci(a, t, {
     enumerable: !1,
     writable: !1,
@@ -446,48 +453,48 @@ function zl(a, t, e) {
 function Es(a, t) {
   var e = "isMobX" + a;
   return t.prototype[e] = !0, function(i) {
-    return Hr(i) && i[e] === !0;
+    return jr(i) && i[e] === !0;
   };
 }
 function Zs(a) {
   return a != null && Object.prototype.toString.call(a) === "[object Map]";
 }
-function Pc(a) {
+function yc(a) {
   var t = Object.getPrototypeOf(a), e = Object.getPrototypeOf(t), i = Object.getPrototypeOf(e);
   return i === null;
 }
-function Ei(a) {
+function wi(a) {
   return a != null && Object.prototype.toString.call(a) === "[object Set]";
 }
-var jl = typeof Object.getOwnPropertySymbols < "u";
-function Sc(a) {
+var Ul = typeof Object.getOwnPropertySymbols < "u";
+function bc(a) {
   var t = Object.keys(a);
-  if (!jl)
+  if (!Ul)
     return t;
   var e = Object.getOwnPropertySymbols(a);
   return e.length ? [].concat(t, e.filter(function(i) {
-    return Wr.propertyIsEnumerable.call(a, i);
+    return zr.propertyIsEnumerable.call(a, i);
   })) : t;
 }
-var jr = typeof Reflect < "u" && Reflect.ownKeys ? Reflect.ownKeys : jl ? function(a) {
+var Ur = typeof Reflect < "u" && Reflect.ownKeys ? Reflect.ownKeys : Ul ? function(a) {
   return Object.getOwnPropertyNames(a).concat(Object.getOwnPropertySymbols(a));
 } : (
   /* istanbul ignore next */
   Object.getOwnPropertyNames
 );
-function Eo(a) {
+function Ao(a) {
   return typeof a == "string" ? a : typeof a == "symbol" ? a.toString() : new String(a).toString();
 }
-function ql(a) {
+function Xl(a) {
   return a === null ? null : typeof a == "object" ? "" + a : a;
 }
 function De(a, t) {
-  return Wr.hasOwnProperty.call(a, t);
+  return zr.hasOwnProperty.call(a, t);
 }
-var yc = Object.getOwnPropertyDescriptors || function(t) {
+var vc = Object.getOwnPropertyDescriptors || function(t) {
   var e = {};
-  return jr(t).forEach(function(i) {
-    e[i] = dr(t, i);
+  return Ur(t).forEach(function(i) {
+    e[i] = gr(t, i);
   }), e;
 };
 function ve(a, t) {
@@ -496,26 +503,26 @@ function ve(a, t) {
 function Ce(a, t, e) {
   return e ? a |= t : a &= ~t, a;
 }
-function Ta(a, t) {
+function Oa(a, t) {
   (t == null || t > a.length) && (t = a.length);
   for (var e = 0, i = Array(t); e < t; e++) i[e] = a[e];
   return i;
 }
-function bc(a, t) {
+function Cc(a, t) {
   for (var e = 0; e < t.length; e++) {
     var i = t[e];
-    i.enumerable = i.enumerable || !1, i.configurable = !0, "value" in i && (i.writable = !0), Object.defineProperty(a, Cc(i.key), i);
+    i.enumerable = i.enumerable || !1, i.configurable = !0, "value" in i && (i.writable = !0), Object.defineProperty(a, Ec(i.key), i);
   }
 }
 function $s(a, t, e) {
-  return t && bc(a.prototype, t), Object.defineProperty(a, "prototype", {
+  return t && Cc(a.prototype, t), Object.defineProperty(a, "prototype", {
     writable: !1
   }), a;
 }
 function Ls(a, t) {
   var e = typeof Symbol < "u" && a[Symbol.iterator] || a["@@iterator"];
   if (e) return (e = e.call(a)).next.bind(e);
-  if (Array.isArray(a) || (e = Ic(a)) || t) {
+  if (Array.isArray(a) || (e = wc(a)) || t) {
     e && (a = e);
     var i = 0;
     return function() {
@@ -530,24 +537,24 @@ function Ls(a, t) {
   throw new TypeError(`Invalid attempt to iterate non-iterable instance.
 In order to be iterable, non-array objects must have a [Symbol.iterator]() method.`);
 }
-function Li() {
-  return Li = Object.assign ? Object.assign.bind() : function(a) {
+function Ri() {
+  return Ri = Object.assign ? Object.assign.bind() : function(a) {
     for (var t = 1; t < arguments.length; t++) {
       var e = arguments[t];
       for (var i in e) ({}).hasOwnProperty.call(e, i) && (a[i] = e[i]);
     }
     return a;
-  }, Li.apply(null, arguments);
+  }, Ri.apply(null, arguments);
 }
-function Ul(a, t) {
-  a.prototype = Object.create(t.prototype), a.prototype.constructor = a, wo(a, t);
+function Ql(a, t) {
+  a.prototype = Object.create(t.prototype), a.prototype.constructor = a, To(a, t);
 }
-function wo(a, t) {
-  return wo = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function(e, i) {
+function To(a, t) {
+  return To = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function(e, i) {
     return e.__proto__ = i, e;
-  }, wo(a, t);
+  }, To(a, t);
 }
-function vc(a, t) {
+function Ic(a, t) {
   if (typeof a != "object" || !a) return a;
   var e = a[Symbol.toPrimitive];
   if (e !== void 0) {
@@ -557,35 +564,35 @@ function vc(a, t) {
   }
   return String(a);
 }
-function Cc(a) {
-  var t = vc(a, "string");
+function Ec(a) {
+  var t = Ic(a, "string");
   return typeof t == "symbol" ? t : t + "";
 }
-function Ic(a, t) {
+function wc(a, t) {
   if (a) {
-    if (typeof a == "string") return Ta(a, t);
+    if (typeof a == "string") return Oa(a, t);
     var e = {}.toString.call(a).slice(8, -1);
-    return e === "Object" && a.constructor && (e = a.constructor.name), e === "Map" || e === "Set" ? Array.from(a) : e === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(e) ? Ta(a, t) : void 0;
+    return e === "Object" && a.constructor && (e = a.constructor.name), e === "Map" || e === "Set" ? Array.from(a) : e === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(e) ? Oa(a, t) : void 0;
   }
 }
 var he = /* @__PURE__ */ Symbol("mobx-stored-annotations");
 function ui(a) {
   function t(e, i) {
-    if (Hn(i))
+    if (zn(i))
       return a.decorate_20223_(e, i);
-    Wn(e, i, a);
+    Hn(e, i, a);
   }
   return Object.assign(t, a);
 }
-function Wn(a, t, e) {
-  if (De(a, he) || zr(a, he, Li({}, a[he])), pr(e) && !De(a[he], t)) {
+function Hn(a, t, e) {
+  if (De(a, he) || qr(a, he, Ri({}, a[he])), Pr(e) && !De(a[he], t)) {
     var i = a.constructor.name + ".prototype." + t.toString();
     R("'" + i + "' is decorated with 'override', but no such decorated member was found on prototype.");
   }
-  Ec(a, e, t), pr(e) || (a[he][t] = e);
+  Ac(a, e, t), Pr(e) || (a[he][t] = e);
 }
-function Ec(a, t, e) {
-  if (!pr(t) && De(a[he], e)) {
+function Ac(a, t, e) {
+  if (!Pr(t) && De(a[he], e)) {
     var i = a.constructor.name + ".prototype." + e.toString(), s = a[he][e].annotationType_, n = t.annotationType_;
     R("Cannot apply '@" + n + "' to '" + i + "':" + (`
 The field is already decorated with '@` + s + "'.") + `
@@ -593,13 +600,13 @@ Re-decorating fields is not allowed.
 Use '@override' decorator for methods overridden by subclass.`);
   }
 }
-function wc(a) {
-  return De(a, he) || zr(a, he, Li({}, a[he])), a[he];
+function Tc(a) {
+  return De(a, he) || qr(a, he, Ri({}, a[he])), a[he];
 }
-function Hn(a) {
+function zn(a) {
   return typeof a == "object" && typeof a.kind == "string";
 }
-function qr(a, t) {
+function Xr(a, t) {
   t.includes(a.kind) || R("The decorator applied to '" + String(a.name) + "' cannot be used on a " + a.kind + " element");
 }
 var k = /* @__PURE__ */ Symbol("mobx administration"), ts = /* @__PURE__ */ (function() {
@@ -616,9 +623,9 @@ var k = /* @__PURE__ */ Symbol("mobx administration"), ts = /* @__PURE__ */ (fun
       return i();
     });
   }, t.reportObserved = function() {
-    return ah(this);
+    return hh(this);
   }, t.reportChanged = function() {
-    Me(), lh(this), Fe();
+    Me(), ch(this), Fe();
   }, t.toString = function() {
     return this.name_;
   }, $s(a, [{
@@ -650,35 +657,35 @@ var k = /* @__PURE__ */ Symbol("mobx administration"), ts = /* @__PURE__ */ (fun
 ts.isBeingObservedMask_ = 1;
 ts.isPendingUnobservationMask_ = 2;
 ts.diffValueMask_ = 4;
-var Xo = /* @__PURE__ */ Es("Atom", ts);
-function Xl(a, t, e) {
+var Yo = /* @__PURE__ */ Es("Atom", ts);
+function Yl(a, t, e) {
   t === void 0 && (t = xs), e === void 0 && (e = xs);
   var i = new ts(a);
-  return t !== xs && Fu(i, t), e !== xs && gh(i, e), i;
+  return t !== xs && Du(i, t), e !== xs && mh(i, e), i;
 }
-function Ac(a, t) {
-  return Ah(a, t);
+function Oc(a, t) {
+  return Oh(a, t);
 }
-function Tc(a, t) {
+function xc(a, t) {
   return Object.is ? Object.is(a, t) : a === t ? a !== 0 || 1 / a === 1 / t : a !== a && t !== t;
 }
-var gr = {
-  structural: Ac,
-  default: Tc
+var mr = {
+  structural: Oc,
+  default: xc
 };
 function Ss(a, t, e) {
-  return Tn(a) ? a : Array.isArray(a) ? It.array(a, {
+  return On(a) ? a : Array.isArray(a) ? It.array(a, {
     name: e
   }) : gi(a) ? It.object(a, void 0, {
     name: e
   }) : Zs(a) ? It.map(a, {
     name: e
-  }) : Ei(a) ? It.set(a, {
+  }) : wi(a) ? It.set(a, {
     name: e
-  }) : typeof a == "function" && !vs(a) && !An(a) ? Hl(a) ? Ws(a) : wn(e, a) : a;
+  }) : typeof a == "function" && !vs(a) && !Tn(a) ? jl(a) ? Ws(a) : An(e, a) : a;
 }
-function Oc(a, t, e) {
-  if (a == null || Un(a) || Yr(a) || es(a) || ai(a))
+function Lc(a, t, e) {
+  if (a == null || Xn(a) || Kr(a) || es(a) || ai(a))
     return a;
   if (Array.isArray(a))
     return It.array(a, {
@@ -695,33 +702,33 @@ function Oc(a, t, e) {
       name: e,
       deep: !1
     });
-  if (Ei(a))
+  if (wi(a))
     return It.set(a, {
       name: e,
       deep: !1
     });
   R("The shallow modifier / decorator can only used in combination with arrays, objects, maps and sets");
 }
-function Ur(a) {
+function Qr(a) {
   return a;
 }
-function xc(a, t) {
-  return Tn(a) && R("observable.struct should not be used with observable values"), Ah(a, t) ? t : a;
+function Rc(a, t) {
+  return On(a) && R("observable.struct should not be used with observable values"), Oh(a, t) ? t : a;
 }
-var Lc = "override";
-function pr(a) {
-  return a.annotationType_ === Lc;
+var Nc = "override";
+function Pr(a) {
+  return a.annotationType_ === Nc;
 }
-function zn(a, t) {
+function jn(a, t) {
   return {
     annotationType_: a,
     options_: t,
-    make_: Rc,
-    extend_: Nc,
-    decorate_20223_: Bc
+    make_: Bc,
+    extend_: Gc,
+    decorate_20223_: Mc
   };
 }
-function Rc(a, t, e, i) {
+function Bc(a, t, e, i) {
   var s;
   if ((s = this.options_) != null && s.bound)
     return this.extend_(a, t, e, !1) === null ? 0 : 1;
@@ -729,15 +736,15 @@ function Rc(a, t, e, i) {
     return this.extend_(a, t, e, !1) === null ? 0 : 2;
   if (vs(e.value))
     return 1;
-  var n = Ql(a, this, t, e, !1);
+  var n = Jl(a, this, t, e, !1);
   return ci(i, t, n), 2;
 }
-function Nc(a, t, e, i) {
-  var s = Ql(a, this, t, e);
+function Gc(a, t, e, i) {
+  var s = Jl(a, this, t, e);
   return a.defineProperty_(t, s, i);
 }
-function Bc(a, t) {
-  qr(t, ["method", "field"]);
+function Mc(a, t) {
+  Xr(t, ["method", "field"]);
   var e = t.kind, i = t.name, s = t.addInitializer, n = this, r = function(h) {
     var c, d, f, p;
     return ys((c = (d = n.options_) == null ? void 0 : d.name) != null ? c : i.toString(), h, (f = (p = n.options_) == null ? void 0 : p.autoAction) != null ? f : !1);
@@ -757,14 +764,14 @@ function Bc(a, t) {
   R("Cannot apply '" + n.annotationType_ + "' to '" + String(i) + "' (kind: " + e + "):" + (`
 '` + n.annotationType_ + "' can only be used on properties with a function value."));
 }
-function Gc(a, t, e, i) {
+function Fc(a, t, e, i) {
   var s = t.annotationType_, n = i.value;
   Lt(n) || R("Cannot apply '" + s + "' to '" + a.name_ + "." + e.toString() + "':" + (`
 '` + s + "' can only be used on properties with a function value."));
 }
-function Ql(a, t, e, i, s) {
+function Jl(a, t, e, i, s) {
   var n, r, o, l, h, c, d;
-  s === void 0 && (s = A.safeDescriptors), Gc(a, t, e, i);
+  s === void 0 && (s = A.safeDescriptors), Fc(a, t, e, i);
   var f = i.value;
   if ((n = t.options_) != null && n.bound) {
     var p;
@@ -788,48 +795,48 @@ function Ql(a, t, e, i, s) {
     writable: !s
   };
 }
-function Yl(a, t) {
+function Kl(a, t) {
   return {
     annotationType_: a,
     options_: t,
-    make_: Mc,
-    extend_: Fc,
-    decorate_20223_: Vc
+    make_: Vc,
+    extend_: Dc,
+    decorate_20223_: kc
   };
 }
-function Mc(a, t, e, i) {
+function Vc(a, t, e, i) {
   var s;
   if (i === a.target_)
     return this.extend_(a, t, e, !1) === null ? 0 : 2;
-  if ((s = this.options_) != null && s.bound && (!De(a.target_, t) || !An(a.target_[t])) && this.extend_(a, t, e, !1) === null)
+  if ((s = this.options_) != null && s.bound && (!De(a.target_, t) || !Tn(a.target_[t])) && this.extend_(a, t, e, !1) === null)
     return 0;
-  if (An(e.value))
+  if (Tn(e.value))
     return 1;
-  var n = Jl(a, this, t, e, !1, !1);
+  var n = Zl(a, this, t, e, !1, !1);
   return ci(i, t, n), 2;
 }
-function Fc(a, t, e, i) {
-  var s, n = Jl(a, this, t, e, (s = this.options_) == null ? void 0 : s.bound);
+function Dc(a, t, e, i) {
+  var s, n = Zl(a, this, t, e, (s = this.options_) == null ? void 0 : s.bound);
   return a.defineProperty_(t, n, i);
 }
-function Vc(a, t) {
+function kc(a, t) {
   var e;
-  qr(t, ["method"]);
+  Xr(t, ["method"]);
   var i = t.name, s = t.addInitializer;
-  return An(a) || (a = Ws(a)), (e = this.options_) != null && e.bound && s(function() {
+  return Tn(a) || (a = Ws(a)), (e = this.options_) != null && e.bound && s(function() {
     var n = this, r = n[i].bind(n);
     r.isMobXFlow = !0, n[i] = r;
   }), a;
 }
-function Dc(a, t, e, i) {
+function _c(a, t, e, i) {
   var s = t.annotationType_, n = i.value;
   Lt(n) || R("Cannot apply '" + s + "' to '" + a.name_ + "." + e.toString() + "':" + (`
 '` + s + "' can only be used on properties with a generator function value."));
 }
-function Jl(a, t, e, i, s, n) {
-  n === void 0 && (n = A.safeDescriptors), Dc(a, t, e, i);
+function Zl(a, t, e, i, s, n) {
+  n === void 0 && (n = A.safeDescriptors), _c(a, t, e, i);
   var r = i.value;
-  if (An(r) || (r = Ws(r)), s) {
+  if (Tn(r) || (r = Ws(r)), s) {
     var o;
     r = r.bind((o = a.proxy_) != null ? o : a.target_), r.isMobXFlow = !0;
   }
@@ -845,29 +852,29 @@ function Jl(a, t, e, i, s, n) {
     writable: !n
   };
 }
-function Qo(a, t) {
+function Jo(a, t) {
   return {
     annotationType_: a,
     options_: t,
-    make_: kc,
-    extend_: _c,
-    decorate_20223_: Wc
+    make_: Wc,
+    extend_: Hc,
+    decorate_20223_: zc
   };
 }
-function kc(a, t, e) {
+function Wc(a, t, e) {
   return this.extend_(a, t, e, !1) === null ? 0 : 1;
 }
-function _c(a, t, e, i) {
-  return Hc(a, this, t, e), a.defineComputedProperty_(t, Li({}, this.options_, {
+function Hc(a, t, e, i) {
+  return jc(a, this, t, e), a.defineComputedProperty_(t, Ri({}, this.options_, {
     get: e.get,
     set: e.set
   }), i);
 }
-function Wc(a, t) {
-  qr(t, ["getter"]);
+function zc(a, t) {
+  Xr(t, ["getter"]);
   var e = this, i = t.name, s = t.addInitializer;
   return s(function() {
-    var n = tn(this)[k], r = Li({}, e.options_, {
+    var n = tn(this)[k], r = Ri({}, e.options_, {
       get: a,
       context: this
     });
@@ -876,32 +883,32 @@ function Wc(a, t) {
     return this[k].getObservablePropValue_(i);
   };
 }
-function Hc(a, t, e, i) {
+function jc(a, t, e, i) {
   var s = t.annotationType_, n = i.get;
   n || R("Cannot apply '" + s + "' to '" + a.name_ + "." + e.toString() + "':" + (`
 '` + s + "' can only be used on getter(+setter) properties."));
 }
-function Xr(a, t) {
+function Yr(a, t) {
   return {
     annotationType_: a,
     options_: t,
-    make_: zc,
-    extend_: jc,
-    decorate_20223_: qc
+    make_: qc,
+    extend_: Uc,
+    decorate_20223_: Xc
   };
 }
-function zc(a, t, e) {
+function qc(a, t, e) {
   return this.extend_(a, t, e, !1) === null ? 0 : 1;
 }
-function jc(a, t, e, i) {
+function Uc(a, t, e, i) {
   var s, n;
-  return Uc(a, this, t, e), a.defineObservableProperty_(t, e.value, (s = (n = this.options_) == null ? void 0 : n.enhancer) != null ? s : Ss, i);
+  return Qc(a, this, t, e), a.defineObservableProperty_(t, e.value, (s = (n = this.options_) == null ? void 0 : n.enhancer) != null ? s : Ss, i);
 }
-function qc(a, t) {
+function Xc(a, t) {
   {
     if (t.kind === "field")
       throw R("Please use `@observable accessor " + String(t.name) + "` instead of `@observable " + String(t.name) + "`");
-    qr(t, ["accessor"]);
+    Xr(t, ["accessor"]);
   }
   var e = this, i = t.kind, s = t.name, n = /* @__PURE__ */ new WeakSet();
   function r(o, l) {
@@ -921,22 +928,22 @@ function qc(a, t) {
       }
     };
 }
-function Uc(a, t, e, i) {
+function Qc(a, t, e, i) {
   var s = t.annotationType_;
   "value" in i || R("Cannot apply '" + s + "' to '" + a.name_ + "." + e.toString() + "':" + (`
 '` + s + "' cannot be used on getter/setter properties"));
 }
-var Xc = "true", Qc = /* @__PURE__ */ Kl();
-function Kl(a) {
+var Yc = "true", Jc = /* @__PURE__ */ $l();
+function $l(a) {
   return {
-    annotationType_: Xc,
+    annotationType_: Yc,
     options_: a,
-    make_: Yc,
-    extend_: Jc,
-    decorate_20223_: Kc
+    make_: Kc,
+    extend_: Zc,
+    decorate_20223_: $c
   };
 }
-function Yc(a, t, e, i) {
+function Kc(a, t, e, i) {
   var s, n;
   if (e.get)
     return li.make_(a, t, e, i);
@@ -952,11 +959,11 @@ function Yc(a, t, e, i) {
   }
   if (i !== a.target_ && typeof e.value == "function") {
     var o;
-    if (Hl(e.value)) {
+    if (jl(e.value)) {
       var l, h = (l = this.options_) != null && l.autoBind ? Ws.bound : Ws;
       return h.make_(a, t, e, i);
     }
-    var c = (o = this.options_) != null && o.autoBind ? wn.bound : wn;
+    var c = (o = this.options_) != null && o.autoBind ? An.bound : An;
     return c.make_(a, t, e, i);
   }
   var d = ((s = this.options_) == null ? void 0 : s.deep) === !1 ? It.ref : It;
@@ -966,7 +973,7 @@ function Yc(a, t, e, i) {
   }
   return d.make_(a, t, e, i);
 }
-function Jc(a, t, e, i) {
+function Zc(a, t, e, i) {
   var s, n;
   if (e.get)
     return li.extend_(a, t, e, i);
@@ -982,90 +989,90 @@ function Jc(a, t, e, i) {
   var o = ((n = this.options_) == null ? void 0 : n.deep) === !1 ? It.ref : It;
   return o.extend_(a, t, e, i);
 }
-function Kc(a, t) {
+function $c(a, t) {
   R("'" + this.annotationType_ + "' cannot be used as a decorator");
 }
-var Zc = "observable", $c = "observable.ref", tu = "observable.shallow", eu = "observable.struct", Zl = {
+var tu = "observable", eu = "observable.ref", iu = "observable.shallow", su = "observable.struct", th = {
   deep: !0,
   name: void 0,
   defaultDecorator: void 0,
   proxy: !0
 };
-Object.freeze(Zl);
-function Yn(a) {
-  return a || Zl;
+Object.freeze(th);
+function Kn(a) {
+  return a || th;
 }
-var Ao = /* @__PURE__ */ Xr(Zc), iu = /* @__PURE__ */ Xr($c, {
-  enhancer: Ur
-}), su = /* @__PURE__ */ Xr(tu, {
-  enhancer: Oc
-}), nu = /* @__PURE__ */ Xr(eu, {
-  enhancer: xc
-}), $l = /* @__PURE__ */ ui(Ao);
-function Jn(a) {
-  return a.deep === !0 ? Ss : a.deep === !1 ? Ur : ou(a.defaultDecorator);
+var Oo = /* @__PURE__ */ Yr(tu), nu = /* @__PURE__ */ Yr(eu, {
+  enhancer: Qr
+}), ru = /* @__PURE__ */ Yr(iu, {
+  enhancer: Lc
+}), ou = /* @__PURE__ */ Yr(su, {
+  enhancer: Rc
+}), eh = /* @__PURE__ */ ui(Oo);
+function Zn(a) {
+  return a.deep === !0 ? Ss : a.deep === !1 ? Qr : lu(a.defaultDecorator);
 }
-function ru(a) {
+function au(a) {
   var t;
-  return a ? (t = a.defaultDecorator) != null ? t : Kl(a) : void 0;
+  return a ? (t = a.defaultDecorator) != null ? t : $l(a) : void 0;
 }
-function ou(a) {
+function lu(a) {
   var t, e;
   return a && (t = (e = a.options_) == null ? void 0 : e.enhancer) != null ? t : Ss;
 }
-function th(a, t, e) {
-  if (Hn(t))
-    return Ao.decorate_20223_(a, t);
+function ih(a, t, e) {
+  if (zn(t))
+    return Oo.decorate_20223_(a, t);
   if (Ps(t)) {
-    Wn(a, t, Ao);
+    Hn(a, t, Oo);
     return;
   }
-  return Tn(a) ? a : gi(a) ? It.object(a, t, e) : Array.isArray(a) ? It.array(a, t) : Zs(a) ? It.map(a, t) : Ei(a) ? It.set(a, t) : typeof a == "object" && a !== null ? a : It.box(a, t);
+  return On(a) ? a : gi(a) ? It.object(a, t, e) : Array.isArray(a) ? It.array(a, t) : Zs(a) ? It.map(a, t) : wi(a) ? It.set(a, t) : typeof a == "object" && a !== null ? a : It.box(a, t);
 }
-kl(th, $l);
-var au = {
+Wl(ih, eh);
+var hu = {
   box: function(t, e) {
-    var i = Yn(e);
-    return new ds(t, Jn(i), i.name, !0, i.equals);
+    var i = Kn(e);
+    return new ds(t, Zn(i), i.name, !0, i.equals);
   },
   array: function(t, e) {
-    var i = Yn(e);
-    return (A.useProxies === !1 || i.proxy === !1 ? rd : Yu)(t, Jn(i), i.name);
+    var i = Kn(e);
+    return (A.useProxies === !1 || i.proxy === !1 ? ad : Ku)(t, Zn(i), i.name);
   },
   map: function(t, e) {
-    var i = Yn(e);
-    return new bh(t, Jn(i), i.name);
+    var i = Kn(e);
+    return new Ch(t, Zn(i), i.name);
   },
   set: function(t, e) {
-    var i = Yn(e);
-    return new vh(t, Jn(i), i.name);
+    var i = Kn(e);
+    return new Ih(t, Zn(i), i.name);
   },
   object: function(t, e, i) {
     return As(function() {
-      return Vu(A.useProxies === !1 || i?.proxy === !1 ? tn({}, i) : Uu({}, i), t, e);
+      return ku(A.useProxies === !1 || i?.proxy === !1 ? tn({}, i) : Qu({}, i), t, e);
     });
   },
-  ref: /* @__PURE__ */ ui(iu),
-  shallow: /* @__PURE__ */ ui(su),
-  deep: $l,
-  struct: /* @__PURE__ */ ui(nu)
-}, It = /* @__PURE__ */ kl(th, au), eh = "computed", lu = "computed.struct", To = /* @__PURE__ */ Qo(eh), hu = /* @__PURE__ */ Qo(lu, {
-  equals: gr.structural
+  ref: /* @__PURE__ */ ui(nu),
+  shallow: /* @__PURE__ */ ui(ru),
+  deep: eh,
+  struct: /* @__PURE__ */ ui(ou)
+}, It = /* @__PURE__ */ Wl(ih, hu), sh = "computed", cu = "computed.struct", xo = /* @__PURE__ */ Jo(sh), uu = /* @__PURE__ */ Jo(cu, {
+  equals: mr.structural
 }), li = function(t, e) {
-  if (Hn(e))
-    return To.decorate_20223_(t, e);
+  if (zn(e))
+    return xo.decorate_20223_(t, e);
   if (Ps(e))
-    return Wn(t, e, To);
+    return Hn(t, e, xo);
   if (gi(t))
-    return ui(Qo(eh, t));
+    return ui(Jo(sh, t));
   Lt(t) || R("First argument to `computed` should be an expression."), Lt(e) && R("A setter as second argument is no longer supported, use `{ set: fn }` option instead");
   var i = gi(e) ? e : {};
   return i.get = t, i.name || (i.name = t.name || ""), new He(i);
 };
-Object.assign(li, To);
-li.struct = /* @__PURE__ */ ui(hu);
-var Oa, xa, mr = 0, cu = 1, uu = (Oa = (xa = /* @__PURE__ */ dr(function() {
-}, "name")) == null ? void 0 : xa.configurable) != null ? Oa : !1, La = {
+Object.assign(li, xo);
+li.struct = /* @__PURE__ */ ui(uu);
+var xa, La, Sr = 0, du = 1, fu = (xa = (La = /* @__PURE__ */ gr(function() {
+}, "name")) == null ? void 0 : La.configurable) != null ? xa : !1, Ra = {
   value: "action",
   configurable: !0,
   writable: !1,
@@ -1074,29 +1081,29 @@ var Oa, xa, mr = 0, cu = 1, uu = (Oa = (xa = /* @__PURE__ */ dr(function() {
 function ys(a, t, e, i) {
   e === void 0 && (e = !1), Lt(t) || R("`action` can only be invoked on functions"), (typeof a != "string" || !a) && R("actions should have valid names, got: '" + a + "'");
   function s() {
-    return du(a, e, t, i || this, arguments);
+    return gu(a, e, t, i || this, arguments);
   }
   return s.isMobxAction = !0, s.toString = function() {
     return t.toString();
-  }, uu && (La.value = a, ci(s, "name", La)), s;
+  }, fu && (Ra.value = a, ci(s, "name", Ra)), s;
 }
-function du(a, t, e, i, s) {
-  var n = fu(a, t, i, s);
+function gu(a, t, e, i, s) {
+  var n = pu(a, t, i, s);
   try {
     return e.apply(i, s);
   } catch (r) {
     throw n.error_ = r, r;
   } finally {
-    gu(n);
+    mu(n);
   }
 }
-function fu(a, t, e, i) {
+function pu(a, t, e, i) {
   var s = Wt() && !!a, n = 0;
   if (s) {
     n = Date.now();
-    var r = i ? Array.from(i) : fr;
+    var r = i ? Array.from(i) : pr;
     Ie({
-      type: Zo,
+      type: ta,
       name: a,
       object: e,
       arguments: r
@@ -1105,38 +1112,38 @@ function fu(a, t, e, i) {
   var o = A.trackingDerivation, l = !t || !o;
   Me();
   var h = A.allowStateChanges;
-  l && (ws(), h = Yo(!0));
-  var c = Ko(!0), d = {
+  l && (ws(), h = Ko(!0));
+  var c = $o(!0), d = {
     runAsAction_: l,
     prevDerivation_: o,
     prevAllowStateChanges_: h,
     prevAllowStateReads_: c,
     notifySpy_: s,
     startTime_: n,
-    actionId_: cu++,
-    parentActionId_: mr
+    actionId_: du++,
+    parentActionId_: Sr
   };
-  return mr = d.actionId_, d;
+  return Sr = d.actionId_, d;
 }
-function gu(a) {
-  mr !== a.actionId_ && R(30), mr = a.parentActionId_, a.error_ !== void 0 && (A.suppressReactionErrors = !0), Jo(a.prevAllowStateChanges_), gn(a.prevAllowStateReads_), Fe(), a.runAsAction_ && xi(a.prevDerivation_), a.notifySpy_ && Ee({
+function mu(a) {
+  Sr !== a.actionId_ && R(30), Sr = a.parentActionId_, a.error_ !== void 0 && (A.suppressReactionErrors = !0), Zo(a.prevAllowStateChanges_), pn(a.prevAllowStateReads_), Fe(), a.runAsAction_ && Li(a.prevDerivation_), a.notifySpy_ && Ee({
     time: Date.now() - a.startTime_
   }), A.suppressReactionErrors = !1;
 }
-function Yo(a) {
+function Ko(a) {
   var t = A.allowStateChanges;
   return A.allowStateChanges = a, t;
 }
-function Jo(a) {
+function Zo(a) {
   A.allowStateChanges = a;
 }
-var pu = "create", ds = /* @__PURE__ */ (function(a) {
+var Pu = "create", ds = /* @__PURE__ */ (function(a) {
   function t(i, s, n, r, o) {
     var l;
-    if (n === void 0 && (n = "ObservableValue@" + si()), r === void 0 && (r = !0), o === void 0 && (o = gr.default), l = a.call(this, n) || this, l.enhancer = void 0, l.name_ = void 0, l.equals = void 0, l.hasUnreportedChange_ = !1, l.interceptors_ = void 0, l.changeListeners_ = void 0, l.value_ = void 0, l.dehancer = void 0, l.enhancer = s, l.name_ = n, l.equals = o, l.value_ = s(i, void 0, n), r && Wt()) {
+    if (n === void 0 && (n = "ObservableValue@" + si()), r === void 0 && (r = !0), o === void 0 && (o = mr.default), l = a.call(this, n) || this, l.enhancer = void 0, l.name_ = void 0, l.equals = void 0, l.hasUnreportedChange_ = !1, l.interceptors_ = void 0, l.changeListeners_ = void 0, l.value_ = void 0, l.dehancer = void 0, l.enhancer = s, l.name_ = n, l.equals = o, l.value_ = s(i, void 0, n), r && Wt()) {
       var h;
       bs({
-        type: pu,
+        type: Pu,
         object: l,
         observableKind: "value",
         debugObjectName: l.name_,
@@ -1145,7 +1152,7 @@ var pu = "create", ds = /* @__PURE__ */ (function(a) {
     }
     return l;
   }
-  Ul(t, a);
+  Ql(t, a);
   var e = t.prototype;
   return e.dehanceValue = function(s) {
     return this.dehancer !== void 0 ? this.dehancer(s) : s;
@@ -1185,7 +1192,7 @@ var pu = "create", ds = /* @__PURE__ */ (function(a) {
   }, e.get = function() {
     return this.reportObserved(), this.dehanceValue(this.value_);
   }, e.intercept_ = function(s) {
-    return jn(this, s);
+    return qn(this, s);
   }, e.observe_ = function(s, n) {
     return n && s({
       observableKind: "value",
@@ -1194,7 +1201,7 @@ var pu = "create", ds = /* @__PURE__ */ (function(a) {
       type: Je,
       newValue: this.value_,
       oldValue: void 0
-    }), qn(this, s);
+    }), Un(this, s);
   }, e.raw = function() {
     return this.value_;
   }, e.toJSON = function() {
@@ -1202,17 +1209,17 @@ var pu = "create", ds = /* @__PURE__ */ (function(a) {
   }, e.toString = function() {
     return this.name_ + "[" + this.value_ + "]";
   }, e.valueOf = function() {
-    return ql(this.get());
+    return Xl(this.get());
   }, e[Symbol.toPrimitive] = function() {
     return this.valueOf();
   }, t;
 })(ts), He = /* @__PURE__ */ (function() {
   function a(e) {
-    this.dependenciesState_ = J.NOT_TRACKING_, this.observing_ = [], this.newObserving_ = null, this.observers_ = /* @__PURE__ */ new Set(), this.runId_ = 0, this.lastAccessedBy_ = 0, this.lowestObserverState_ = J.UP_TO_DATE_, this.unboundDepsCount_ = 0, this.value_ = new Pr(null), this.name_ = void 0, this.triggeredBy_ = void 0, this.flags_ = 0, this.derivation = void 0, this.setter_ = void 0, this.isTracing_ = ke.NONE, this.scope_ = void 0, this.equals_ = void 0, this.requiresReaction_ = void 0, this.keepAlive_ = void 0, this.onBOL = void 0, this.onBUOL = void 0, e.get || R(31), this.derivation = e.get, this.name_ = e.name || "ComputedValue@" + si(), e.set && (this.setter_ = ys(this.name_ + "-setter", e.set)), this.equals_ = e.equals || (e.compareStructural || e.struct ? gr.structural : gr.default), this.scope_ = e.context, this.requiresReaction_ = e.requiresReaction, this.keepAlive_ = !!e.keepAlive;
+    this.dependenciesState_ = J.NOT_TRACKING_, this.observing_ = [], this.newObserving_ = null, this.observers_ = /* @__PURE__ */ new Set(), this.runId_ = 0, this.lastAccessedBy_ = 0, this.lowestObserverState_ = J.UP_TO_DATE_, this.unboundDepsCount_ = 0, this.value_ = new yr(null), this.name_ = void 0, this.triggeredBy_ = void 0, this.flags_ = 0, this.derivation = void 0, this.setter_ = void 0, this.isTracing_ = ke.NONE, this.scope_ = void 0, this.equals_ = void 0, this.requiresReaction_ = void 0, this.keepAlive_ = void 0, this.onBOL = void 0, this.onBUOL = void 0, e.get || R(31), this.derivation = e.get, this.name_ = e.name || "ComputedValue@" + si(), e.set && (this.setter_ = ys(this.name_ + "-setter", e.set)), this.equals_ = e.equals || (e.compareStructural || e.struct ? mr.structural : mr.default), this.scope_ = e.context, this.requiresReaction_ = e.requiresReaction, this.keepAlive_ = !!e.keepAlive;
   }
   var t = a.prototype;
   return t.onBecomeStale_ = function() {
-    vu(this);
+    Iu(this);
   }, t.onBO = function() {
     this.onBOL && this.onBOL.forEach(function(i) {
       return i();
@@ -1224,13 +1231,13 @@ var pu = "create", ds = /* @__PURE__ */ (function(a) {
   }, t.get = function() {
     if (this.isComputing && R(32, this.name_, this.derivation), A.inBatch === 0 && // !globalState.trackingDerivatpion &&
     this.observers_.size === 0 && !this.keepAlive_)
-      Oo(this) && (this.warnAboutUntrackedRead_(), Me(), this.value_ = this.computeValue_(!1), Fe());
-    else if (ah(this), Oo(this)) {
+      Lo(this) && (this.warnAboutUntrackedRead_(), Me(), this.value_ = this.computeValue_(!1), Fe());
+    else if (hh(this), Lo(this)) {
       var i = A.trackingContext;
-      this.keepAlive_ && !i && (A.trackingContext = this), this.trackAndCompute() && bu(this), A.trackingContext = i;
+      this.keepAlive_ && !i && (A.trackingContext = this), this.trackAndCompute() && Cu(this), A.trackingContext = i;
     }
     var s = this.value_;
-    if (rr(s))
+    if (ar(s))
       throw s.cause;
     return s;
   }, t.set = function(i) {
@@ -1247,7 +1254,7 @@ var pu = "create", ds = /* @__PURE__ */ (function(a) {
     var i = this.value_, s = (
       /* see #1208 */
       this.dependenciesState_ === J.NOT_TRACKING_
-    ), n = this.computeValue_(!0), r = s || rr(i) || rr(n) || !this.equals_(i, n);
+    ), n = this.computeValue_(!0), r = s || ar(i) || ar(n) || !this.equals_(i, n);
     return r && (this.value_ = n, Wt() && bs({
       observableKind: "computed",
       debugObjectName: this.name_,
@@ -1258,23 +1265,23 @@ var pu = "create", ds = /* @__PURE__ */ (function(a) {
     })), r;
   }, t.computeValue_ = function(i) {
     this.isComputing = !0;
-    var s = Yo(!1), n;
+    var s = Ko(!1), n;
     if (i)
-      n = ih(this, this.derivation, this.scope_);
+      n = nh(this, this.derivation, this.scope_);
     else if (A.disableErrorBoundaries === !0)
       n = this.derivation.call(this.scope_);
     else
       try {
         n = this.derivation.call(this.scope_);
       } catch (r) {
-        n = new Pr(r);
+        n = new yr(r);
       }
-    return Jo(s), this.isComputing = !1, n;
+    return Zo(s), this.isComputing = !1, n;
   }, t.suspend_ = function() {
-    this.keepAlive_ || (xo(this), this.value_ = void 0, this.isTracing_ !== ke.NONE && console.log("[mobx.trace] Computed value '" + this.name_ + "' was suspended and it will recompute on the next access."));
+    this.keepAlive_ || (Ro(this), this.value_ = void 0, this.isTracing_ !== ke.NONE && console.log("[mobx.trace] Computed value '" + this.name_ + "' was suspended and it will recompute on the next access."));
   }, t.observe_ = function(i, s) {
     var n = this, r = !0, o = void 0;
-    return Ru(function() {
+    return Bu(function() {
       var l = n.get();
       if (!r || s) {
         var h = ws();
@@ -1285,7 +1292,7 @@ var pu = "create", ds = /* @__PURE__ */ (function(a) {
           object: n,
           newValue: l,
           oldValue: o
-        }), xi(h);
+        }), Li(h);
       }
       r = !1, o = l;
     });
@@ -1294,7 +1301,7 @@ var pu = "create", ds = /* @__PURE__ */ (function(a) {
   }, t.toString = function() {
     return this.name_ + "[" + this.derivation.toString() + "]";
   }, t.valueOf = function() {
-    return ql(this.get());
+    return Xl(this.get());
   }, t[Symbol.toPrimitive] = function() {
     return this.valueOf();
   }, $s(a, [{
@@ -1344,7 +1351,7 @@ He.isRunningSetterMask_ = 2;
 He.isBeingObservedMask_ = 4;
 He.isPendingUnobservationMask_ = 8;
 He.diffValueMask_ = 16;
-var Qr = /* @__PURE__ */ Es("ComputedValue", He), J;
+var Jr = /* @__PURE__ */ Es("ComputedValue", He), J;
 (function(a) {
   a[a.NOT_TRACKING_ = -1] = "NOT_TRACKING_", a[a.UP_TO_DATE_ = 0] = "UP_TO_DATE_", a[a.POSSIBLY_STALE_ = 1] = "POSSIBLY_STALE_", a[a.STALE_ = 2] = "STALE_";
 })(J || (J = {}));
@@ -1352,13 +1359,13 @@ var ke;
 (function(a) {
   a[a.NONE = 0] = "NONE", a[a.LOG = 1] = "LOG", a[a.BREAK = 2] = "BREAK";
 })(ke || (ke = {}));
-var Pr = function(t) {
+var yr = function(t) {
   this.cause = void 0, this.cause = t;
 };
-function rr(a) {
-  return a instanceof Pr;
+function ar(a) {
+  return a instanceof yr;
 }
-function Oo(a) {
+function Lo(a) {
   switch (a.dependenciesState_) {
     case J.UP_TO_DATE_:
       return !1;
@@ -1366,22 +1373,22 @@ function Oo(a) {
     case J.STALE_:
       return !0;
     case J.POSSIBLY_STALE_: {
-      for (var t = Ko(!0), e = ws(), i = a.observing_, s = i.length, n = 0; n < s; n++) {
+      for (var t = $o(!0), e = ws(), i = a.observing_, s = i.length, n = 0; n < s; n++) {
         var r = i[n];
-        if (Qr(r)) {
+        if (Jr(r)) {
           if (A.disableErrorBoundaries)
             r.get();
           else
             try {
               r.get();
             } catch {
-              return xi(e), gn(t), !0;
+              return Li(e), pn(t), !0;
             }
           if (a.dependenciesState_ === J.STALE_)
-            return xi(e), gn(t), !0;
+            return Li(e), pn(t), !0;
         }
       }
-      return nh(a), xi(e), gn(t), !1;
+      return oh(a), Li(e), pn(t), !1;
     }
   }
 }
@@ -1389,12 +1396,12 @@ function hi(a) {
   var t = a.observers_.size > 0;
   !A.allowStateChanges && (t || A.enforceActions === "always") && console.warn("[MobX] " + (A.enforceActions ? "Since strict-mode is enabled, changing (observed) observable values without using an action is not allowed. Tried to modify: " : "Side effects like changing state are not allowed at this point. Are you trying to modify state from, for example, a computed value or the render function of a React component? You can wrap side effects in 'runInAction' (or decorate functions with 'action') if needed. Tried to modify: ") + a.name_);
 }
-function mu(a) {
+function Su(a) {
   !A.allowStateReads && A.observableRequiresReaction && console.warn("[mobx] Observable '" + a.name_ + "' being read outside a reactive context.");
 }
-function ih(a, t, e) {
-  var i = Ko(!0);
-  nh(a), a.newObserving_ = new Array(
+function nh(a, t, e) {
+  var i = $o(!0);
+  oh(a), a.newObserving_ = new Array(
     // Reserve constant space for initial dependencies, dynamic space otherwise.
     // See https://github.com/mobxjs/mobx/pull/3833
     a.runId_ === 0 ? 100 : a.observing_.length
@@ -1408,79 +1415,79 @@ function ih(a, t, e) {
     try {
       n = t.call(e);
     } catch (r) {
-      n = new Pr(r);
+      n = new yr(r);
     }
-  return A.inBatch--, A.trackingDerivation = s, Su(a), Pu(a), gn(i), n;
+  return A.inBatch--, A.trackingDerivation = s, bu(a), yu(a), pn(i), n;
 }
-function Pu(a) {
+function yu(a) {
   a.observing_.length === 0 && (typeof a.requiresObservable_ == "boolean" ? a.requiresObservable_ : A.reactionRequiresObservable) && console.warn("[mobx] Derivation '" + a.name_ + "' is created/updated without reading any observable value.");
 }
-function Su(a) {
+function bu(a) {
   for (var t = a.observing_, e = a.observing_ = a.newObserving_, i = J.UP_TO_DATE_, s = 0, n = a.unboundDepsCount_, r = 0; r < n; r++) {
     var o = e[r];
     o.diffValue === 0 && (o.diffValue = 1, s !== r && (e[s] = o), s++), o.dependenciesState_ > i && (i = o.dependenciesState_);
   }
   for (e.length = s, a.newObserving_ = null, n = t.length; n--; ) {
     var l = t[n];
-    l.diffValue === 0 && rh(l, a), l.diffValue = 0;
+    l.diffValue === 0 && ah(l, a), l.diffValue = 0;
   }
   for (; s--; ) {
     var h = e[s];
-    h.diffValue === 1 && (h.diffValue = 0, yu(h, a));
+    h.diffValue === 1 && (h.diffValue = 0, vu(h, a));
   }
   i !== J.UP_TO_DATE_ && (a.dependenciesState_ = i, a.onBecomeStale_());
 }
-function xo(a) {
+function Ro(a) {
   var t = a.observing_;
   a.observing_ = [];
   for (var e = t.length; e--; )
-    rh(t[e], a);
+    ah(t[e], a);
   a.dependenciesState_ = J.NOT_TRACKING_;
 }
-function sh(a) {
+function rh(a) {
   var t = ws();
   try {
     return a();
   } finally {
-    xi(t);
+    Li(t);
   }
 }
 function ws() {
   var a = A.trackingDerivation;
   return A.trackingDerivation = null, a;
 }
-function xi(a) {
+function Li(a) {
   A.trackingDerivation = a;
 }
-function Ko(a) {
+function $o(a) {
   var t = A.allowStateReads;
   return A.allowStateReads = a, t;
 }
-function gn(a) {
+function pn(a) {
   A.allowStateReads = a;
 }
-function nh(a) {
+function oh(a) {
   if (a.dependenciesState_ !== J.UP_TO_DATE_) {
     a.dependenciesState_ = J.UP_TO_DATE_;
     for (var t = a.observing_, e = t.length; e--; )
       t[e].lowestObserverState_ = J.UP_TO_DATE_;
   }
 }
-var ro = function() {
+var ao = function() {
   this.version = 6, this.UNCHANGED = {}, this.trackingDerivation = null, this.trackingContext = null, this.runId = 0, this.mobxGuid = 0, this.inBatch = 0, this.pendingUnobservations = [], this.pendingReactions = [], this.isRunningReactions = !1, this.allowStateChanges = !1, this.allowStateReads = !0, this.enforceActions = !0, this.spyListeners = [], this.globalReactionErrorHandlers = [], this.computedRequiresReaction = !1, this.reactionRequiresObservable = !1, this.observableRequiresReaction = !1, this.disableErrorBoundaries = !1, this.suppressReactionErrors = !1, this.useProxies = !0, this.verifyProxies = !1, this.safeDescriptors = !0;
-}, oo = !0, A = /* @__PURE__ */ (function() {
-  var a = /* @__PURE__ */ qo();
-  return a.__mobxInstanceCount > 0 && !a.__mobxGlobals && (oo = !1), a.__mobxGlobals && a.__mobxGlobals.version !== new ro().version && (oo = !1), oo ? a.__mobxGlobals ? (a.__mobxInstanceCount += 1, a.__mobxGlobals.UNCHANGED || (a.__mobxGlobals.UNCHANGED = {}), a.__mobxGlobals) : (a.__mobxInstanceCount = 1, a.__mobxGlobals = /* @__PURE__ */ new ro()) : (setTimeout(function() {
+}, lo = !0, A = /* @__PURE__ */ (function() {
+  var a = /* @__PURE__ */ Xo();
+  return a.__mobxInstanceCount > 0 && !a.__mobxGlobals && (lo = !1), a.__mobxGlobals && a.__mobxGlobals.version !== new ao().version && (lo = !1), lo ? a.__mobxGlobals ? (a.__mobxInstanceCount += 1, a.__mobxGlobals.UNCHANGED || (a.__mobxGlobals.UNCHANGED = {}), a.__mobxGlobals) : (a.__mobxInstanceCount = 1, a.__mobxGlobals = /* @__PURE__ */ new ao()) : (setTimeout(function() {
     R(35);
-  }, 1), new ro());
+  }, 1), new ao());
 })();
-function yu(a, t) {
+function vu(a, t) {
   a.observers_.add(t), a.lowestObserverState_ > t.dependenciesState_ && (a.lowestObserverState_ = t.dependenciesState_);
 }
-function rh(a, t) {
-  a.observers_.delete(t), a.observers_.size === 0 && oh(a);
+function ah(a, t) {
+  a.observers_.delete(t), a.observers_.size === 0 && lh(a);
 }
-function oh(a) {
+function lh(a) {
   a.isPendingUnobservation === !1 && (a.isPendingUnobservation = !0, A.pendingUnobservations.push(a));
 }
 function Me() {
@@ -1488,7 +1495,7 @@ function Me() {
 }
 function Fe() {
   if (--A.inBatch === 0) {
-    uh();
+    fh();
     for (var a = A.pendingUnobservations, t = 0; t < a.length; t++) {
       var e = a[t];
       e.isPendingUnobservation = !1, e.observers_.size === 0 && (e.isBeingObserved && (e.isBeingObserved = !1, e.onBUO()), e instanceof He && e.suspend_());
@@ -1496,30 +1503,30 @@ function Fe() {
     A.pendingUnobservations = [];
   }
 }
-function ah(a) {
-  mu(a);
+function hh(a) {
+  Su(a);
   var t = A.trackingDerivation;
-  return t !== null ? (t.runId_ !== a.lastAccessedBy_ && (a.lastAccessedBy_ = t.runId_, t.newObserving_[t.unboundDepsCount_++] = a, !a.isBeingObserved && A.trackingContext && (a.isBeingObserved = !0, a.onBO())), a.isBeingObserved) : (a.observers_.size === 0 && A.inBatch > 0 && oh(a), !1);
+  return t !== null ? (t.runId_ !== a.lastAccessedBy_ && (a.lastAccessedBy_ = t.runId_, t.newObserving_[t.unboundDepsCount_++] = a, !a.isBeingObserved && A.trackingContext && (a.isBeingObserved = !0, a.onBO())), a.isBeingObserved) : (a.observers_.size === 0 && A.inBatch > 0 && lh(a), !1);
 }
-function lh(a) {
+function ch(a) {
   a.lowestObserverState_ !== J.STALE_ && (a.lowestObserverState_ = J.STALE_, a.observers_.forEach(function(t) {
-    t.dependenciesState_ === J.UP_TO_DATE_ && (t.isTracing_ !== ke.NONE && hh(t, a), t.onBecomeStale_()), t.dependenciesState_ = J.STALE_;
+    t.dependenciesState_ === J.UP_TO_DATE_ && (t.isTracing_ !== ke.NONE && uh(t, a), t.onBecomeStale_()), t.dependenciesState_ = J.STALE_;
   }));
 }
-function bu(a) {
+function Cu(a) {
   a.lowestObserverState_ !== J.STALE_ && (a.lowestObserverState_ = J.STALE_, a.observers_.forEach(function(t) {
-    t.dependenciesState_ === J.POSSIBLY_STALE_ ? (t.dependenciesState_ = J.STALE_, t.isTracing_ !== ke.NONE && hh(t, a)) : t.dependenciesState_ === J.UP_TO_DATE_ && (a.lowestObserverState_ = J.UP_TO_DATE_);
+    t.dependenciesState_ === J.POSSIBLY_STALE_ ? (t.dependenciesState_ = J.STALE_, t.isTracing_ !== ke.NONE && uh(t, a)) : t.dependenciesState_ === J.UP_TO_DATE_ && (a.lowestObserverState_ = J.UP_TO_DATE_);
   }));
 }
-function vu(a) {
+function Iu(a) {
   a.lowestObserverState_ === J.UP_TO_DATE_ && (a.lowestObserverState_ = J.POSSIBLY_STALE_, a.observers_.forEach(function(t) {
     t.dependenciesState_ === J.UP_TO_DATE_ && (t.dependenciesState_ = J.POSSIBLY_STALE_, t.onBecomeStale_());
   }));
 }
-function hh(a, t) {
+function uh(a, t) {
   if (console.log("[mobx.trace] '" + a.name_ + "' is invalidated due to a change in: '" + t.name_ + "'"), a.isTracing_ === ke.BREAK) {
     var e = [];
-    ch(Du(a), e, 1), new Function(`debugger;
+    dh(_u(a), e, 1), new Function(`debugger;
 /*
 Tracing '` + a.name_ + `'
 
@@ -1537,13 +1544,13 @@ The dependencies for this derivation are:
     `)();
   }
 }
-function ch(a, t, e) {
+function dh(a, t, e) {
   if (t.length >= 1e3) {
     t.push("(and many more)");
     return;
   }
   t.push("" + "	".repeat(e - 1) + a.name), a.dependencies && a.dependencies.forEach(function(i) {
-    return ch(i, t, e + 1);
+    return dh(i, t, e + 1);
   });
 }
 var Yi = /* @__PURE__ */ (function() {
@@ -1554,12 +1561,12 @@ var Yi = /* @__PURE__ */ (function() {
   return t.onBecomeStale_ = function() {
     this.schedule_();
   }, t.schedule_ = function() {
-    this.isScheduled || (this.isScheduled = !0, A.pendingReactions.push(this), uh());
+    this.isScheduled || (this.isScheduled = !0, A.pendingReactions.push(this), fh());
   }, t.runReaction_ = function() {
     if (!this.isDisposed) {
       Me(), this.isScheduled = !1;
       var i = A.trackingContext;
-      if (A.trackingContext = this, Oo(this)) {
+      if (A.trackingContext = this, Lo(this)) {
         this.isTrackPending = !0;
         try {
           this.onInvalidate_(), this.isTrackPending && Wt() && bs({
@@ -1582,8 +1589,8 @@ var Yi = /* @__PURE__ */ (function() {
       })), this.isRunning = !0;
       var r = A.trackingContext;
       A.trackingContext = this;
-      var o = ih(this, i, void 0);
-      A.trackingContext = r, this.isRunning = !1, this.isTrackPending = !1, this.isDisposed && xo(this), rr(o) && this.reportExceptionInDerivation_(o.cause), s && Ee({
+      var o = nh(this, i, void 0);
+      A.trackingContext = r, this.isRunning = !1, this.isTrackPending = !1, this.isDisposed && Ro(this), ar(o) && this.reportExceptionInDerivation_(o.cause), s && Ee({
         time: Date.now() - n
       }), Fe();
     }
@@ -1605,7 +1612,7 @@ var Yi = /* @__PURE__ */ (function() {
       return r(i, s);
     });
   }, t.dispose = function() {
-    this.isDisposed || (this.isDisposed = !0, this.isRunning || (Me(), xo(this), Fe()));
+    this.isDisposed || (this.isDisposed = !0, this.isRunning || (Me(), Ro(this), Fe()));
   }, t.getDisposer_ = function(i) {
     var s = this, n = function r() {
       s.dispose(), i == null || i.removeEventListener == null || i.removeEventListener("abort", r);
@@ -1614,7 +1621,7 @@ var Yi = /* @__PURE__ */ (function() {
   }, t.toString = function() {
     return "Reaction[" + this.name_ + "]";
   }, t.trace = function(i) {
-    i === void 0 && (i = !1), zu(this, i);
+    i === void 0 && (i = !1), qu(this, i);
   }, $s(a, [{
     key: "isDisposed",
     get: function() {
@@ -1662,22 +1669,22 @@ Yi.isScheduledMask_ = 2;
 Yi.isTrackPendingMask_ = 4;
 Yi.isRunningMask_ = 8;
 Yi.diffValueMask_ = 16;
-var Ra = 100, Cu = function(t) {
+var Na = 100, Eu = function(t) {
   return t();
 };
-function uh() {
-  A.inBatch > 0 || A.isRunningReactions || Cu(Iu);
+function fh() {
+  A.inBatch > 0 || A.isRunningReactions || Eu(wu);
 }
-function Iu() {
+function wu() {
   A.isRunningReactions = !0;
   for (var a = A.pendingReactions, t = 0; a.length > 0; ) {
-    ++t === Ra && (console.error("Reaction doesn't converge to a stable state after " + Ra + " iterations." + (" Probably there is a cycle in the reactive function: " + a[0])), a.splice(0));
+    ++t === Na && (console.error("Reaction doesn't converge to a stable state after " + Na + " iterations." + (" Probably there is a cycle in the reactive function: " + a[0])), a.splice(0));
     for (var e = a.splice(0), i = 0, s = e.length; i < s; i++)
       e[i].runReaction_();
   }
   A.isRunningReactions = !1;
 }
-var Sr = /* @__PURE__ */ Es("Reaction", Yi);
+var br = /* @__PURE__ */ Es("Reaction", Yi);
 function Wt() {
   return !!A.spyListeners.length;
 }
@@ -1687,48 +1694,48 @@ function bs(a) {
       t[e](a);
 }
 function Ie(a) {
-  var t = Li({}, a, {
+  var t = Ri({}, a, {
     spyReportStart: !0
   });
   bs(t);
 }
-var Eu = {
+var Au = {
   type: "report-end",
   spyReportEnd: !0
 };
 function Ee(a) {
-  bs(a ? Li({}, a, {
+  bs(a ? Ri({}, a, {
     type: "report-end",
     spyReportEnd: !0
-  }) : Eu);
+  }) : Au);
 }
-function wu(a) {
-  return A.spyListeners.push(a), Uo(function() {
+function Tu(a) {
+  return A.spyListeners.push(a), Qo(function() {
     A.spyListeners = A.spyListeners.filter(function(t) {
       return t !== a;
     });
   });
 }
-var Zo = "action", Au = "action.bound", dh = "autoAction", Tu = "autoAction.bound", Ou = "<unnamed action>", Lo = /* @__PURE__ */ zn(Zo), xu = /* @__PURE__ */ zn(Au, {
+var ta = "action", Ou = "action.bound", gh = "autoAction", xu = "autoAction.bound", Lu = "<unnamed action>", No = /* @__PURE__ */ jn(ta), Ru = /* @__PURE__ */ jn(Ou, {
   bound: !0
-}), Ro = /* @__PURE__ */ zn(dh, {
+}), Bo = /* @__PURE__ */ jn(gh, {
   autoAction: !0
-}), Lu = /* @__PURE__ */ zn(Tu, {
+}), Nu = /* @__PURE__ */ jn(xu, {
   autoAction: !0,
   bound: !0
 });
-function fh(a) {
+function ph(a) {
   var t = function(i, s) {
     if (Lt(i))
-      return ys(i.name || Ou, i, a);
+      return ys(i.name || Lu, i, a);
     if (Lt(s))
       return ys(i, s, a);
-    if (Hn(s))
-      return (a ? Ro : Lo).decorate_20223_(i, s);
+    if (zn(s))
+      return (a ? Bo : No).decorate_20223_(i, s);
     if (Ps(s))
-      return Wn(i, s, a ? Ro : Lo);
+      return Hn(i, s, a ? Bo : No);
     if (Ps(i))
-      return ui(zn(a ? dh : Zo, {
+      return ui(jn(a ? gh : ta, {
         name: i,
         autoAction: a
       }));
@@ -1736,25 +1743,25 @@ function fh(a) {
   };
   return t;
 }
-var Ne = /* @__PURE__ */ fh(!1);
-Object.assign(Ne, Lo);
-var wn = /* @__PURE__ */ fh(!0);
-Object.assign(wn, Ro);
-Ne.bound = /* @__PURE__ */ ui(xu);
-wn.bound = /* @__PURE__ */ ui(Lu);
+var Ne = /* @__PURE__ */ ph(!1);
+Object.assign(Ne, No);
+var An = /* @__PURE__ */ ph(!0);
+Object.assign(An, Bo);
+Ne.bound = /* @__PURE__ */ ui(Ru);
+An.bound = /* @__PURE__ */ ui(Nu);
 function vs(a) {
   return Lt(a) && a.isMobxAction === !0;
 }
-function Ru(a, t) {
+function Bu(a, t) {
   var e, i, s, n;
-  t === void 0 && (t = _l), Lt(a) || R("Autorun expects a function as first argument"), vs(a) && R("Autorun does not accept actions since actions are untrackable");
+  t === void 0 && (t = Hl), Lt(a) || R("Autorun expects a function as first argument"), vs(a) && R("Autorun does not accept actions since actions are untrackable");
   var r = (e = (i = t) == null ? void 0 : i.name) != null ? e : a.name || "Autorun@" + si(), o = !t.scheduler && !t.delay, l;
   if (o)
     l = new Yi(r, function() {
       this.track(d);
     }, t.onError, t.requiresObservable);
   else {
-    var h = Bu(t), c = !1;
+    var h = Mu(t), c = !1;
     l = new Yi(r, function() {
       c || (c = !0, h(function() {
         c = !1, l.isDisposed || l.track(d);
@@ -1766,34 +1773,34 @@ function Ru(a, t) {
   }
   return (s = t) != null && (s = s.signal) != null && s.aborted || l.schedule_(), l.getDisposer_((n = t) == null ? void 0 : n.signal);
 }
-var Nu = function(t) {
+var Gu = function(t) {
   return t();
 };
-function Bu(a) {
+function Mu(a) {
   return a.scheduler ? a.scheduler : a.delay ? function(t) {
     return setTimeout(t, a.delay);
-  } : Nu;
+  } : Gu;
 }
-var Gu = "onBO", Mu = "onBUO";
-function Fu(a, t, e) {
-  return ph(Gu, a, t, e);
+var Fu = "onBO", Vu = "onBUO";
+function Du(a, t, e) {
+  return Ph(Fu, a, t, e);
 }
-function gh(a, t, e) {
-  return ph(Mu, a, t, e);
+function mh(a, t, e) {
+  return Ph(Vu, a, t, e);
 }
-function ph(a, t, e, i) {
+function Ph(a, t, e, i) {
   var s = Hs(t), n = Lt(i) ? i : e, r = a + "L";
   return s[r] ? s[r].add(n) : s[r] = /* @__PURE__ */ new Set([n]), function() {
     var o = s[r];
     o && (o.delete(n), o.size === 0 && delete s[r]);
   };
 }
-function Vu(a, t, e, i) {
-  arguments.length > 4 && R("'extendObservable' expected 2-4 arguments"), typeof a != "object" && R("'extendObservable' expects an object as first argument"), es(a) && R("'extendObservable' should not be used on maps, use map.merge instead"), gi(t) || R("'extendObservable' only accepts plain objects as second argument"), (Tn(t) || Tn(e)) && R("Extending an object with another observable (object) is not supported");
-  var s = yc(t);
+function ku(a, t, e, i) {
+  arguments.length > 4 && R("'extendObservable' expected 2-4 arguments"), typeof a != "object" && R("'extendObservable' expects an object as first argument"), es(a) && R("'extendObservable' should not be used on maps, use map.merge instead"), gi(t) || R("'extendObservable' only accepts plain objects as second argument"), (On(t) || On(e)) && R("Extending an object with another observable (object) is not supported");
+  var s = vc(t);
   return As(function() {
     var n = tn(a, i)[k];
-    jr(s).forEach(function(r) {
+    Ur(s).forEach(function(r) {
       n.extend_(
         r,
         s[r],
@@ -1803,99 +1810,99 @@ function Vu(a, t, e, i) {
     });
   }), a;
 }
-function Du(a, t) {
-  return mh(Hs(a, t));
+function _u(a, t) {
+  return Sh(Hs(a, t));
 }
-function mh(a) {
+function Sh(a) {
   var t = {
     name: a.name_
   };
-  return a.observing_ && a.observing_.length > 0 && (t.dependencies = ku(a.observing_).map(mh)), t;
+  return a.observing_ && a.observing_.length > 0 && (t.dependencies = Wu(a.observing_).map(Sh)), t;
 }
-function ku(a) {
+function Wu(a) {
   return Array.from(new Set(a));
 }
-var _u = 0;
-function Ph() {
+var Hu = 0;
+function yh() {
   this.message = "FLOW_CANCELLED";
 }
-Ph.prototype = /* @__PURE__ */ Object.create(Error.prototype);
-var ao = /* @__PURE__ */ Yl("flow"), Wu = /* @__PURE__ */ Yl("flow.bound", {
+yh.prototype = /* @__PURE__ */ Object.create(Error.prototype);
+var ho = /* @__PURE__ */ Kl("flow"), zu = /* @__PURE__ */ Kl("flow.bound", {
   bound: !0
 }), Ws = /* @__PURE__ */ Object.assign(function(t, e) {
-  if (Hn(e))
-    return ao.decorate_20223_(t, e);
+  if (zn(e))
+    return ho.decorate_20223_(t, e);
   if (Ps(e))
-    return Wn(t, e, ao);
+    return Hn(t, e, ho);
   arguments.length !== 1 && R("Flow expects single argument with generator function");
   var i = t, s = i.name || "<unnamed flow>", n = function() {
-    var o = this, l = arguments, h = ++_u, c = Ne(s + " - runid: " + h + " - init", i).apply(o, l), d, f = void 0, p = new Promise(function(P, y) {
+    var o = this, l = arguments, h = ++Hu, c = Ne(s + " - runid: " + h + " - init", i).apply(o, l), d, f = void 0, p = new Promise(function(P, y) {
       var C = 0;
       d = y;
-      function w(T) {
+      function w(x) {
         f = void 0;
         var V;
         try {
-          V = Ne(s + " - runid: " + h + " - yield " + C++, c.next).call(c, T);
+          V = Ne(s + " - runid: " + h + " - yield " + C++, c.next).call(c, x);
         } catch (M) {
           return y(M);
         }
         I(V);
       }
-      function N(T) {
+      function N(x) {
         f = void 0;
         var V;
         try {
-          V = Ne(s + " - runid: " + h + " - yield " + C++, c.throw).call(c, T);
+          V = Ne(s + " - runid: " + h + " - yield " + C++, c.throw).call(c, x);
         } catch (M) {
           return y(M);
         }
         I(V);
       }
-      function I(T) {
-        if (Lt(T?.then)) {
-          T.then(I, y);
+      function I(x) {
+        if (Lt(x?.then)) {
+          x.then(I, y);
           return;
         }
-        return T.done ? P(T.value) : (f = Promise.resolve(T.value), f.then(w, N));
+        return x.done ? P(x.value) : (f = Promise.resolve(x.value), f.then(w, N));
       }
       w(void 0);
     });
     return p.cancel = Ne(s + " - runid: " + h + " - cancel", function() {
       try {
-        f && Na(f);
+        f && Ba(f);
         var P = c.return(void 0), y = Promise.resolve(P.value);
-        y.then(xs, xs), Na(y), d(new Ph());
+        y.then(xs, xs), Ba(y), d(new yh());
       } catch (C) {
         d(C);
       }
     }), p;
   };
   return n.isMobXFlow = !0, n;
-}, ao);
-Ws.bound = /* @__PURE__ */ ui(Wu);
-function Na(a) {
+}, ho);
+Ws.bound = /* @__PURE__ */ ui(zu);
+function Ba(a) {
   Lt(a.cancel) && a.cancel();
 }
-function An(a) {
+function Tn(a) {
   return a?.isMobXFlow === !0;
 }
-function Hu(a, t) {
-  return a ? Un(a) || !!a[k] || Xo(a) || Sr(a) || Qr(a) : !1;
+function ju(a, t) {
+  return a ? Xn(a) || !!a[k] || Yo(a) || br(a) || Jr(a) : !1;
 }
-function Tn(a) {
-  return arguments.length !== 1 && R("isObservable expects only 1 argument. Use isObservableProp to inspect the observability of a property"), Hu(a);
+function On(a) {
+  return arguments.length !== 1 && R("isObservable expects only 1 argument. Use isObservableProp to inspect the observability of a property"), ju(a);
 }
-function zu() {
+function qu() {
   for (var a = !1, t = arguments.length, e = new Array(t), i = 0; i < t; i++)
     e[i] = arguments[i];
   typeof e[e.length - 1] == "boolean" && (a = e.pop());
-  var s = ju(e);
+  var s = Uu(e);
   if (!s)
     return R("'trace(break?)' can only be used inside a tracked computed value or a Reaction. Consider passing in the computed value or reaction explicitly");
   s.isTracing_ === ke.NONE && console.log("[mobx.trace] '" + s.name_ + "' tracing enabled"), s.isTracing_ = a ? ke.BREAK : ke.LOG;
 }
-function ju(a) {
+function Uu(a) {
   switch (a.length) {
     case 0:
       return A.trackingDerivation;
@@ -1905,7 +1912,7 @@ function ju(a) {
       return Hs(a[0], a[1]);
   }
 }
-function wi(a, t) {
+function Ai(a, t) {
   t === void 0 && (t = void 0), Me();
   try {
     return a.apply(t);
@@ -1916,7 +1923,7 @@ function wi(a, t) {
 function ss(a) {
   return a[k];
 }
-var qu = {
+var Xu = {
   has: function(t, e) {
     return A.trackingDerivation && on("detect new properties using the 'in' operator. Use 'has' from 'mobx' instead."), ss(t).has_(e);
   },
@@ -1942,16 +1949,16 @@ var qu = {
     R(13);
   }
 };
-function Uu(a, t) {
+function Qu(a, t) {
   var e, i;
-  return Wl(), a = tn(a, t), (i = (e = a[k]).proxy_) != null ? i : e.proxy_ = new Proxy(a, qu);
+  return zl(), a = tn(a, t), (i = (e = a[k]).proxy_) != null ? i : e.proxy_ = new Proxy(a, Xu);
 }
 function Be(a) {
   return a.interceptors_ !== void 0 && a.interceptors_.length > 0;
 }
-function jn(a, t) {
+function qn(a, t) {
   var e = a.interceptors_ || (a.interceptors_ = []);
-  return e.push(t), Uo(function() {
+  return e.push(t), Qo(function() {
     var i = e.indexOf(t);
     i !== -1 && e.splice(i, 1);
   });
@@ -1963,15 +1970,15 @@ function Ge(a, t) {
       ;
     return t;
   } finally {
-    xi(e);
+    Li(e);
   }
 }
 function Ze(a) {
   return a.changeListeners_ !== void 0 && a.changeListeners_.length > 0;
 }
-function qn(a, t) {
+function Un(a, t) {
   var e = a.changeListeners_ || (a.changeListeners_ = []);
-  return e.push(t), Uo(function() {
+  return e.push(t), Qo(function() {
     var i = e.indexOf(t);
     i !== -1 && e.splice(i, 1);
   });
@@ -1982,21 +1989,21 @@ function $e(a, t) {
     i = i.slice();
     for (var s = 0, n = i.length; s < n; s++)
       i[s](t);
-    xi(e);
+    Li(e);
   }
 }
-function Sh(a, t, e) {
+function bh(a, t, e) {
   return As(function() {
     var i, s = tn(a, e)[k];
-    t && a[he] && R("makeObservable second arg must be nullish when using decorators. Mixing @decorator syntax with annotations is not supported."), (i = t) != null || (t = wc(a)), jr(t).forEach(function(n) {
+    t && a[he] && R("makeObservable second arg must be nullish when using decorators. Mixing @decorator syntax with annotations is not supported."), (i = t) != null || (t = Tc(a)), Ur(t).forEach(function(n) {
       return s.make_(n, t[n]);
     });
   }), a;
 }
-var Ba = "splice", Je = "update", Xu = 1e4, Qu = {
+var Ga = "splice", Je = "update", Yu = 1e4, Ju = {
   get: function(t, e) {
     var i = t[k];
-    return e === k ? i : e === "length" ? i.getArrayLength_() : typeof e == "string" && !isNaN(e) ? i.get_(parseInt(e)) : De(yr, e) ? yr[e] : t[e];
+    return e === k ? i : e === "length" ? i.getArrayLength_() : typeof e == "string" && !isNaN(e) ? i.get_(parseInt(e)) : De(vr, e) ? vr[e] : t[e];
   },
   set: function(t, e, i) {
     var s = t[k];
@@ -2005,7 +2012,7 @@ var Ba = "splice", Je = "update", Xu = 1e4, Qu = {
   preventExtensions: function() {
     R(15);
   }
-}, $o = /* @__PURE__ */ (function() {
+}, ea = /* @__PURE__ */ (function() {
   function a(e, i, s, n) {
     e === void 0 && (e = "ObservableArray@" + si()), this.owned_ = void 0, this.legacyMode_ = void 0, this.atom_ = void 0, this.values_ = [], this.interceptors_ = void 0, this.changeListeners_ = void 0, this.enhancer_ = void 0, this.dehancer = void 0, this.proxy_ = void 0, this.lastKnownLength_ = 0, this.owned_ = s, this.legacyMode_ = n, this.atom_ = new ts(e), this.enhancer_ = function(r, o) {
       return i(r, o, e + "[..]");
@@ -2017,7 +2024,7 @@ var Ba = "splice", Je = "update", Xu = 1e4, Qu = {
   }, t.dehanceValues_ = function(i) {
     return this.dehancer !== void 0 && i.length > 0 ? i.map(this.dehancer) : i;
   }, t.intercept_ = function(i) {
-    return jn(this, i);
+    return qn(this, i);
   }, t.observe_ = function(i, s) {
     return s === void 0 && (s = !1), s && i({
       observableKind: "array",
@@ -2029,7 +2036,7 @@ var Ba = "splice", Je = "update", Xu = 1e4, Qu = {
       addedCount: this.values_.length,
       removed: [],
       removedCount: 0
-    }), qn(this, i);
+    }), Un(this, i);
   }, t.getArrayLength_ = function() {
     return this.atom_.reportObserved(), this.values_.length;
   }, t.setArrayLength_ = function(i) {
@@ -2043,21 +2050,21 @@ var Ba = "splice", Je = "update", Xu = 1e4, Qu = {
       } else
         this.spliceWithArray_(i, s - i);
   }, t.updateArrayLength_ = function(i, s) {
-    i !== this.lastKnownLength_ && R(16), this.lastKnownLength_ += s, this.legacyMode_ && s > 0 && Eh(i + s + 1);
+    i !== this.lastKnownLength_ && R(16), this.lastKnownLength_ += s, this.legacyMode_ && s > 0 && Ah(i + s + 1);
   }, t.spliceWithArray_ = function(i, s, n) {
     var r = this;
     hi(this.atom_);
     var o = this.values_.length;
-    if (i === void 0 ? i = 0 : i > o ? i = o : i < 0 && (i = Math.max(0, o + i)), arguments.length === 1 ? s = o - i : s == null ? s = 0 : s = Math.max(0, Math.min(s, o - i)), n === void 0 && (n = fr), Be(this)) {
+    if (i === void 0 ? i = 0 : i > o ? i = o : i < 0 && (i = Math.max(0, o + i)), arguments.length === 1 ? s = o - i : s == null ? s = 0 : s = Math.max(0, Math.min(s, o - i)), n === void 0 && (n = pr), Be(this)) {
       var l = Ge(this, {
         object: this.proxy_,
-        type: Ba,
+        type: Ga,
         index: i,
         removedCount: s,
         added: n
       });
       if (!l)
-        return fr;
+        return pr;
       s = l.removedCount, n = l.added;
     }
     n = n.length === 0 ? n : n.map(function(d) {
@@ -2068,7 +2075,7 @@ var Ba = "splice", Je = "update", Xu = 1e4, Qu = {
     var c = this.spliceItemsIntoValues_(i, s, n);
     return (s !== 0 || n.length !== 0) && this.notifyArraySplice_(i, n, c), this.dehanceValues_(c);
   }, t.spliceItemsIntoValues_ = function(i, s, n) {
-    if (n.length < Xu) {
+    if (n.length < Yu) {
       var r;
       return (r = this.values_).splice.apply(r, [i, s].concat(n));
     } else {
@@ -2096,7 +2103,7 @@ var Ba = "splice", Je = "update", Xu = 1e4, Qu = {
       observableKind: "array",
       object: this.proxy_,
       debugObjectName: this.atom_.name_,
-      type: Ba,
+      type: Ga,
       index: i,
       removed: n,
       added: s,
@@ -2137,15 +2144,15 @@ var Ba = "splice", Je = "update", Xu = 1e4, Qu = {
     }
   }, a;
 })();
-function Yu(a, t, e, i) {
-  return e === void 0 && (e = "ObservableArray@" + si()), i === void 0 && (i = !1), Wl(), As(function() {
-    var s = new $o(e, t, i, !1);
-    zl(s.values_, k, s);
-    var n = new Proxy(s.values_, Qu);
+function Ku(a, t, e, i) {
+  return e === void 0 && (e = "ObservableArray@" + si()), i === void 0 && (i = !1), zl(), As(function() {
+    var s = new ea(e, t, i, !1);
+    ql(s.values_, k, s);
+    var n = new Proxy(s.values_, Ju);
     return s.proxy_ = n, a && a.length && s.spliceWithArray_(0, 0, a), n;
   });
 }
-var yr = {
+var vr = {
   clear: function() {
     return this.splice(0);
   },
@@ -2233,10 +2240,10 @@ rt("forEach", ni);
 rt("map", ni);
 rt("some", ni);
 rt("toReversed", ni);
-rt("reduce", yh);
-rt("reduceRight", yh);
+rt("reduce", vh);
+rt("reduceRight", vh);
 function rt(a, t) {
-  typeof Array.prototype[a] == "function" && (yr[a] = t(a));
+  typeof Array.prototype[a] == "function" && (vr[a] = t(a));
 }
 function Ae(a) {
   return function() {
@@ -2256,7 +2263,7 @@ function ni(a) {
     });
   };
 }
-function yh(a) {
+function vh(a) {
   return function() {
     var t = this, e = this[k];
     e.atom_.reportObserved();
@@ -2266,15 +2273,15 @@ function yh(a) {
     }, i[a].apply(i, arguments);
   };
 }
-var Ju = /* @__PURE__ */ Es("ObservableArrayAdministration", $o);
-function Yr(a) {
-  return Hr(a) && Ju(a[k]);
+var Zu = /* @__PURE__ */ Es("ObservableArrayAdministration", ea);
+function Kr(a) {
+  return jr(a) && Zu(a[k]);
 }
-var Ku = {}, Wi = "add", br = "delete", bh = /* @__PURE__ */ (function() {
+var $u = {}, Wi = "add", Cr = "delete", Ch = /* @__PURE__ */ (function() {
   function a(e, i, s) {
     var n = this;
-    i === void 0 && (i = Ss), s === void 0 && (s = "ObservableMap@" + si()), this.enhancer_ = void 0, this.name_ = void 0, this[k] = Ku, this.data_ = void 0, this.hasMap_ = void 0, this.keysAtom_ = void 0, this.interceptors_ = void 0, this.changeListeners_ = void 0, this.dehancer = void 0, this.enhancer_ = i, this.name_ = s, Lt(Map) || R(18), As(function() {
-      n.keysAtom_ = Xl(n.name_ + ".keys()"), n.data_ = /* @__PURE__ */ new Map(), n.hasMap_ = /* @__PURE__ */ new Map(), e && n.merge(e);
+    i === void 0 && (i = Ss), s === void 0 && (s = "ObservableMap@" + si()), this.enhancer_ = void 0, this.name_ = void 0, this[k] = $u, this.data_ = void 0, this.hasMap_ = void 0, this.keysAtom_ = void 0, this.interceptors_ = void 0, this.changeListeners_ = void 0, this.dehancer = void 0, this.enhancer_ = i, this.name_ = s, Lt(Map) || R(18), As(function() {
+      n.keysAtom_ = Yl(n.name_ + ".keys()"), n.data_ = /* @__PURE__ */ new Map(), n.hasMap_ = /* @__PURE__ */ new Map(), e && n.merge(e);
     });
   }
   var t = a.prototype;
@@ -2286,8 +2293,8 @@ var Ku = {}, Wi = "add", br = "delete", bh = /* @__PURE__ */ (function() {
       return this.has_(i);
     var n = this.hasMap_.get(i);
     if (!n) {
-      var r = n = new ds(this.has_(i), Ur, this.name_ + "." + Eo(i) + "?", !1);
-      this.hasMap_.set(i, r), gh(r, function() {
+      var r = n = new ds(this.has_(i), Qr, this.name_ + "." + Ao(i) + "?", !1);
+      this.hasMap_.set(i, r), mh(r, function() {
         return s.hasMap_.delete(i);
       });
     }
@@ -2310,7 +2317,7 @@ var Ku = {}, Wi = "add", br = "delete", bh = /* @__PURE__ */ (function() {
     var s = this;
     if (hi(this.keysAtom_), Be(this)) {
       var n = Ge(this, {
-        type: br,
+        type: Cr,
         object: this,
         name: i
       });
@@ -2321,12 +2328,12 @@ var Ku = {}, Wi = "add", br = "delete", bh = /* @__PURE__ */ (function() {
       var r = Wt(), o = Ze(this), l = o || r ? {
         observableKind: "map",
         debugObjectName: this.name_,
-        type: br,
+        type: Cr,
         object: this,
         oldValue: this.data_.get(i).value_,
         name: i
       } : null;
-      return r && Ie(l), wi(function() {
+      return r && Ie(l), Ai(function() {
         var h;
         s.keysAtom_.reportChanged(), (h = s.hasMap_.get(i)) == null || h.setNewValue_(!1);
         var c = s.data_.get(i);
@@ -2350,8 +2357,8 @@ var Ku = {}, Wi = "add", br = "delete", bh = /* @__PURE__ */ (function() {
     }
   }, t.addValue_ = function(i, s) {
     var n = this;
-    hi(this.keysAtom_), wi(function() {
-      var h, c = new ds(s, n.enhancer_, n.name_ + "." + Eo(i), !1);
+    hi(this.keysAtom_), Ai(function() {
+      var h, c = new ds(s, n.enhancer_, n.name_ + "." + Ao(i), !1);
       n.data_.set(i, c), s = c.value_, (h = n.hasMap_.get(i)) == null || h.setNewValue_(!0), n.keysAtom_.reportChanged();
     });
     var r = Wt(), o = Ze(this), l = o || r ? {
@@ -2371,7 +2378,7 @@ var Ku = {}, Wi = "add", br = "delete", bh = /* @__PURE__ */ (function() {
     return this.keysAtom_.reportObserved(), this.data_.keys();
   }, t.values = function() {
     var i = this, s = this.keys();
-    return Ga({
+    return Ma({
       next: function() {
         var r = s.next(), o = r.done, l = r.value;
         return {
@@ -2382,7 +2389,7 @@ var Ku = {}, Wi = "add", br = "delete", bh = /* @__PURE__ */ (function() {
     });
   }, t.entries = function() {
     var i = this, s = this.keys();
-    return Ga({
+    return Ma({
       next: function() {
         var r = s.next(), o = r.done, l = r.value;
         return {
@@ -2400,20 +2407,20 @@ var Ku = {}, Wi = "add", br = "delete", bh = /* @__PURE__ */ (function() {
     }
   }, t.merge = function(i) {
     var s = this;
-    return es(i) && (i = new Map(i)), wi(function() {
-      gi(i) ? Sc(i).forEach(function(n) {
+    return es(i) && (i = new Map(i)), Ai(function() {
+      gi(i) ? bc(i).forEach(function(n) {
         return s.set(n, i[n]);
       }) : Array.isArray(i) ? i.forEach(function(n) {
         var r = n[0], o = n[1];
         return s.set(r, o);
-      }) : Zs(i) ? (Pc(i) || R(19, i), i.forEach(function(n, r) {
+      }) : Zs(i) ? (yc(i) || R(19, i), i.forEach(function(n, r) {
         return s.set(r, n);
       })) : i != null && R(20, i);
     }), this;
   }, t.clear = function() {
     var i = this;
-    wi(function() {
-      sh(function() {
+    Ai(function() {
+      rh(function() {
         for (var s = Ls(i.keys()), n; !(n = s()).done; ) {
           var r = n.value;
           i.delete(r);
@@ -2422,8 +2429,8 @@ var Ku = {}, Wi = "add", br = "delete", bh = /* @__PURE__ */ (function() {
     });
   }, t.replace = function(i) {
     var s = this;
-    return wi(function() {
-      for (var n = Zu(i), r = /* @__PURE__ */ new Map(), o = !1, l = Ls(s.data_.keys()), h; !(h = l()).done; ) {
+    return Ai(function() {
+      for (var n = td(i), r = /* @__PURE__ */ new Map(), o = !1, l = Ls(s.data_.keys()), h; !(h = l()).done; ) {
         var c = h.value;
         if (!n.has(c)) {
           var d = s.delete(c);
@@ -2446,12 +2453,12 @@ var Ku = {}, Wi = "add", br = "delete", bh = /* @__PURE__ */ (function() {
         if (s.data_.size !== r.size)
           s.keysAtom_.reportChanged();
         else
-          for (var T = s.data_.keys(), V = r.keys(), M = T.next(), X = V.next(); !M.done; ) {
+          for (var x = s.data_.keys(), V = r.keys(), M = x.next(), X = V.next(); !M.done; ) {
             if (M.value !== X.value) {
               s.keysAtom_.reportChanged();
               break;
             }
-            M = T.next(), X = V.next();
+            M = x.next(), X = V.next();
           }
       s.data_ = r;
     }), this;
@@ -2460,9 +2467,9 @@ var Ku = {}, Wi = "add", br = "delete", bh = /* @__PURE__ */ (function() {
   }, t.toJSON = function() {
     return Array.from(this);
   }, t.observe_ = function(i, s) {
-    return s === !0 && R("`observe` doesn't support fireImmediately=true in combination with maps."), qn(this, i);
+    return s === !0 && R("`observe` doesn't support fireImmediately=true in combination with maps."), Un(this, i);
   }, t.intercept_ = function(i) {
-    return jn(this, i);
+    return qn(this, i);
   }, $s(a, [{
     key: "size",
     get: function() {
@@ -2474,11 +2481,11 @@ var Ku = {}, Wi = "add", br = "delete", bh = /* @__PURE__ */ (function() {
       return "Map";
     }
   }]);
-})(), es = /* @__PURE__ */ Es("ObservableMap", bh);
-function Ga(a) {
-  return a[Symbol.toStringTag] = "MapIterator", ea(a);
+})(), es = /* @__PURE__ */ Es("ObservableMap", Ch);
+function Ma(a) {
+  return a[Symbol.toStringTag] = "MapIterator", sa(a);
 }
-function Zu(a) {
+function td(a) {
   if (Zs(a) || es(a))
     return a;
   if (Array.isArray(a))
@@ -2491,13 +2498,13 @@ function Zu(a) {
   } else
     return R(21, a);
 }
-var $u = {}, vh = /* @__PURE__ */ (function() {
+var ed = {}, Ih = /* @__PURE__ */ (function() {
   function a(e, i, s) {
     var n = this;
-    i === void 0 && (i = Ss), s === void 0 && (s = "ObservableSet@" + si()), this.name_ = void 0, this[k] = $u, this.data_ = /* @__PURE__ */ new Set(), this.atom_ = void 0, this.changeListeners_ = void 0, this.interceptors_ = void 0, this.dehancer = void 0, this.enhancer_ = void 0, this.name_ = s, Lt(Set) || R(22), this.enhancer_ = function(r, o) {
+    i === void 0 && (i = Ss), s === void 0 && (s = "ObservableSet@" + si()), this.name_ = void 0, this[k] = ed, this.data_ = /* @__PURE__ */ new Set(), this.atom_ = void 0, this.changeListeners_ = void 0, this.interceptors_ = void 0, this.dehancer = void 0, this.enhancer_ = void 0, this.name_ = s, Lt(Set) || R(22), this.enhancer_ = function(r, o) {
       return i(r, o, s);
     }, As(function() {
-      n.atom_ = Xl(n.name_), e && n.replace(e);
+      n.atom_ = Yl(n.name_), e && n.replace(e);
     });
   }
   var t = a.prototype;
@@ -2505,8 +2512,8 @@ var $u = {}, vh = /* @__PURE__ */ (function() {
     return this.dehancer !== void 0 ? this.dehancer(i) : i;
   }, t.clear = function() {
     var i = this;
-    wi(function() {
-      sh(function() {
+    Ai(function() {
+      rh(function() {
         for (var s = Ls(i.data_.values()), n; !(n = s()).done; ) {
           var r = n.value;
           i.delete(r);
@@ -2531,7 +2538,7 @@ var $u = {}, vh = /* @__PURE__ */ (function() {
       i = n.newValue;
     }
     if (!this.has(i)) {
-      wi(function() {
+      Ai(function() {
         s.data_.add(s.enhancer_(i, void 0)), s.atom_.reportChanged();
       });
       var r = Wt(), o = Ze(this), l = o || r ? {
@@ -2548,7 +2555,7 @@ var $u = {}, vh = /* @__PURE__ */ (function() {
     var s = this;
     if (Be(this)) {
       var n = Ge(this, {
-        type: br,
+        type: Cr,
         object: this,
         oldValue: i
       });
@@ -2559,11 +2566,11 @@ var $u = {}, vh = /* @__PURE__ */ (function() {
       var r = Wt(), o = Ze(this), l = o || r ? {
         observableKind: "set",
         debugObjectName: this.name_,
-        type: br,
+        type: Cr,
         object: this,
         oldValue: i
       } : null;
-      return r && Ie(l), wi(function() {
+      return r && Ie(l), Ai(function() {
         s.atom_.reportChanged(), s.data_.delete(i);
       }), o && $e(this, l), r && Ee(), !0;
     }
@@ -2572,7 +2579,7 @@ var $u = {}, vh = /* @__PURE__ */ (function() {
     return this.atom_.reportObserved(), this.data_.has(this.dehanceValue_(i));
   }, t.entries = function() {
     var i = this.values();
-    return Ma({
+    return Fa({
       next: function() {
         var n = i.next(), r = n.value, o = n.done;
         return o ? {
@@ -2589,7 +2596,7 @@ var $u = {}, vh = /* @__PURE__ */ (function() {
   }, t.values = function() {
     this.atom_.reportObserved();
     var i = this, s = this.data_.values();
-    return Ma({
+    return Fa({
       next: function() {
         var r = s.next(), o = r.value, l = r.done;
         return l ? {
@@ -2602,19 +2609,19 @@ var $u = {}, vh = /* @__PURE__ */ (function() {
       }
     });
   }, t.intersection = function(i) {
-    if (Ei(i) && !ai(i))
+    if (wi(i) && !ai(i))
       return i.intersection(this);
     var s = new Set(this);
     return s.intersection(i);
   }, t.union = function(i) {
-    if (Ei(i) && !ai(i))
+    if (wi(i) && !ai(i))
       return i.union(this);
     var s = new Set(this);
     return s.union(i);
   }, t.difference = function(i) {
     return new Set(this).difference(i);
   }, t.symmetricDifference = function(i) {
-    if (Ei(i) && !ai(i))
+    if (wi(i) && !ai(i))
       return i.symmetricDifference(this);
     var s = new Set(this);
     return s.symmetricDifference(i);
@@ -2623,23 +2630,23 @@ var $u = {}, vh = /* @__PURE__ */ (function() {
   }, t.isSupersetOf = function(i) {
     return new Set(this).isSupersetOf(i);
   }, t.isDisjointFrom = function(i) {
-    if (Ei(i) && !ai(i))
+    if (wi(i) && !ai(i))
       return i.isDisjointFrom(this);
     var s = new Set(this);
     return s.isDisjointFrom(i);
   }, t.replace = function(i) {
     var s = this;
-    return ai(i) && (i = new Set(i)), wi(function() {
+    return ai(i) && (i = new Set(i)), Ai(function() {
       Array.isArray(i) ? (s.clear(), i.forEach(function(n) {
         return s.add(n);
-      })) : Ei(i) ? (s.clear(), i.forEach(function(n) {
+      })) : wi(i) ? (s.clear(), i.forEach(function(n) {
         return s.add(n);
       })) : i != null && R("Cannot initialize set from " + i);
     }), this;
   }, t.observe_ = function(i, s) {
-    return s === !0 && R("`observe` doesn't support fireImmediately=true in combination with sets."), qn(this, i);
+    return s === !0 && R("`observe` doesn't support fireImmediately=true in combination with sets."), Un(this, i);
   }, t.intercept_ = function(i) {
-    return jn(this, i);
+    return qn(this, i);
   }, t.toJSON = function() {
     return Array.from(this);
   }, t.toString = function() {
@@ -2657,13 +2664,13 @@ var $u = {}, vh = /* @__PURE__ */ (function() {
       return "Set";
     }
   }]);
-})(), ai = /* @__PURE__ */ Es("ObservableSet", vh);
-function Ma(a) {
-  return a[Symbol.toStringTag] = "SetIterator", ea(a);
+})(), ai = /* @__PURE__ */ Es("ObservableSet", Ih);
+function Fa(a) {
+  return a[Symbol.toStringTag] = "SetIterator", sa(a);
 }
-var Fa = /* @__PURE__ */ Object.create(null), Va = "remove", No = /* @__PURE__ */ (function() {
+var Va = /* @__PURE__ */ Object.create(null), Da = "remove", Go = /* @__PURE__ */ (function() {
   function a(e, i, s, n) {
-    i === void 0 && (i = /* @__PURE__ */ new Map()), n === void 0 && (n = Qc), this.target_ = void 0, this.values_ = void 0, this.name_ = void 0, this.defaultAnnotation_ = void 0, this.keysAtom_ = void 0, this.changeListeners_ = void 0, this.interceptors_ = void 0, this.proxy_ = void 0, this.isPlainObject_ = void 0, this.appliedAnnotations_ = void 0, this.pendingKeys_ = void 0, this.target_ = e, this.values_ = i, this.name_ = s, this.defaultAnnotation_ = n, this.keysAtom_ = new ts(this.name_ + ".keys"), this.isPlainObject_ = gi(this.target_), Th(this.defaultAnnotation_) || R("defaultAnnotation must be valid annotation"), this.appliedAnnotations_ = {};
+    i === void 0 && (i = /* @__PURE__ */ new Map()), n === void 0 && (n = Jc), this.target_ = void 0, this.values_ = void 0, this.name_ = void 0, this.defaultAnnotation_ = void 0, this.keysAtom_ = void 0, this.changeListeners_ = void 0, this.interceptors_ = void 0, this.proxy_ = void 0, this.isPlainObject_ = void 0, this.appliedAnnotations_ = void 0, this.pendingKeys_ = void 0, this.target_ = e, this.values_ = i, this.name_ = s, this.defaultAnnotation_ = n, this.keysAtom_ = new ts(this.name_ + ".keys"), this.isPlainObject_ = gi(this.target_), xh(this.defaultAnnotation_) || R("defaultAnnotation must be valid annotation"), this.appliedAnnotations_ = {};
   }
   var t = a.prototype;
   return t.getObservablePropValue_ = function(i) {
@@ -2710,17 +2717,17 @@ var Fa = /* @__PURE__ */ Object.create(null), Va = "remove", No = /* @__PURE__ *
       return i in this.target_;
     this.pendingKeys_ || (this.pendingKeys_ = /* @__PURE__ */ new Map());
     var s = this.pendingKeys_.get(i);
-    return s || (s = new ds(i in this.target_, Ur, this.name_ + "." + Eo(i) + "?", !1), this.pendingKeys_.set(i, s)), s.get();
+    return s || (s = new ds(i in this.target_, Qr, this.name_ + "." + Ao(i) + "?", !1), this.pendingKeys_.set(i, s)), s.get();
   }, t.make_ = function(i, s) {
     if (s === !0 && (s = this.defaultAnnotation_), s !== !1) {
-      if (_a(this, s, i), !(i in this.target_)) {
+      if (Wa(this, s, i), !(i in this.target_)) {
         var n;
         if ((n = this.target_[he]) != null && n[i])
           return;
         R(1, s.annotationType_, this.name_ + "." + i.toString());
       }
-      for (var r = this.target_; r && r !== Wr; ) {
-        var o = dr(r, i);
+      for (var r = this.target_; r && r !== zr; ) {
+        var o = gr(r, i);
         if (o) {
           var l = s.make_(this, i, o, r);
           if (l === 0)
@@ -2730,14 +2737,14 @@ var Fa = /* @__PURE__ */ Object.create(null), Va = "remove", No = /* @__PURE__ *
         }
         r = Object.getPrototypeOf(r);
       }
-      ka(this, s, i);
+      _a(this, s, i);
     }
   }, t.extend_ = function(i, s, n, r) {
     if (r === void 0 && (r = !1), n === !0 && (n = this.defaultAnnotation_), n === !1)
       return this.defineProperty_(i, s, r);
-    _a(this, n, i);
+    Wa(this, n, i);
     var o = n.extend_(this, i, s, r);
-    return o && ka(this, n, i), o;
+    return o && _a(this, n, i), o;
   }, t.defineProperty_ = function(i, s, n) {
     n === void 0 && (n = !1), hi(this.keysAtom_);
     try {
@@ -2755,7 +2762,7 @@ var Fa = /* @__PURE__ */ Object.create(null), Va = "remove", No = /* @__PURE__ *
         if (!o)
           return null;
         var l = o.newValue;
-        s.value !== l && (s = Li({}, s, {
+        s.value !== l && (s = Ri({}, s, {
           value: l
         }));
       }
@@ -2787,7 +2794,7 @@ var Fa = /* @__PURE__ */ Object.create(null), Va = "remove", No = /* @__PURE__ *
           return null;
         s = l.newValue;
       }
-      var h = Da(i), c = {
+      var h = ka(i), c = {
         configurable: A.safeDescriptors ? this.isPlainObject_ : !0,
         enumerable: !0,
         get: h.get,
@@ -2822,7 +2829,7 @@ var Fa = /* @__PURE__ */ Object.create(null), Va = "remove", No = /* @__PURE__ *
           return null;
       }
       s.name || (s.name = this.name_ + "." + i.toString()), s.context = this.proxy_ || this.target_;
-      var l = Da(i), h = {
+      var l = ka(i), h = {
         configurable: A.safeDescriptors ? this.isPlainObject_ : !0,
         enumerable: !1,
         get: l.get,
@@ -2845,7 +2852,7 @@ var Fa = /* @__PURE__ */ Object.create(null), Va = "remove", No = /* @__PURE__ *
       var n = Ge(this, {
         object: this.proxy_ || this.target_,
         name: i,
-        type: Va
+        type: Da
       });
       if (!n)
         return null;
@@ -2856,16 +2863,16 @@ var Fa = /* @__PURE__ */ Object.create(null), Va = "remove", No = /* @__PURE__ *
       var o = Ze(this), l = Wt(), h = this.values_.get(i), c = void 0;
       if (!h && (o || l)) {
         var d;
-        c = (d = dr(this.target_, i)) == null ? void 0 : d.value;
+        c = (d = gr(this.target_, i)) == null ? void 0 : d.value;
       }
       if (s) {
         if (!Reflect.deleteProperty(this.target_, i))
           return !1;
       } else
         delete this.target_[i];
-      if (delete this.appliedAnnotations_[i], h && (this.values_.delete(i), h instanceof ds && (c = h.value_), lh(h)), this.keysAtom_.reportChanged(), (r = this.pendingKeys_) == null || (r = r.get(i)) == null || r.set(i in this.target_), o || l) {
+      if (delete this.appliedAnnotations_[i], h && (this.values_.delete(i), h instanceof ds && (c = h.value_), ch(h)), this.keysAtom_.reportChanged(), (r = this.pendingKeys_) == null || (r = r.get(i)) == null || r.set(i in this.target_), o || l) {
         var f = {
-          type: Va,
+          type: Da,
           observableKind: "object",
           object: this.proxy_ || this.target_,
           debugObjectName: this.name_,
@@ -2879,9 +2886,9 @@ var Fa = /* @__PURE__ */ Object.create(null), Va = "remove", No = /* @__PURE__ *
     }
     return !0;
   }, t.observe_ = function(i, s) {
-    return s === !0 && R("`observe` doesn't support the fire immediately property for observable objects."), qn(this, i);
+    return s === !0 && R("`observe` doesn't support the fire immediately property for observable objects."), Un(this, i);
   }, t.intercept_ = function(i) {
-    return jn(this, i);
+    return qn(this, i);
   }, t.notifyPropertyAddition_ = function(i, s) {
     var n, r = Ze(this), o = Wt();
     if (r || o) {
@@ -2897,24 +2904,24 @@ var Fa = /* @__PURE__ */ Object.create(null), Va = "remove", No = /* @__PURE__ *
     }
     (n = this.pendingKeys_) == null || (n = n.get(i)) == null || n.set(!0), this.keysAtom_.reportChanged();
   }, t.ownKeys_ = function() {
-    return this.keysAtom_.reportObserved(), jr(this.target_);
+    return this.keysAtom_.reportObserved(), Ur(this.target_);
   }, t.keys_ = function() {
     return this.keysAtom_.reportObserved(), Object.keys(this.target_);
   }, a;
 })();
 function tn(a, t) {
   var e;
-  if (t && Un(a) && R("Options can't be provided for already observable objects."), De(a, k))
-    return wh(a) instanceof No || R("Cannot convert '" + vr(a) + `' into observable object:
+  if (t && Xn(a) && R("Options can't be provided for already observable objects."), De(a, k))
+    return Th(a) instanceof Go || R("Cannot convert '" + Ir(a) + `' into observable object:
 The target is already observable of different type.
 Extending builtins is not supported.`), a;
   Object.isExtensible(a) || R("Cannot make the designated object observable; it is not extensible");
-  var i = (e = t?.name) != null ? e : (gi(a) ? "ObservableObject" : a.constructor.name) + "@" + si(), s = new No(a, /* @__PURE__ */ new Map(), String(i), ru(t));
-  return zr(a, k, s), a;
+  var i = (e = t?.name) != null ? e : (gi(a) ? "ObservableObject" : a.constructor.name) + "@" + si(), s = new Go(a, /* @__PURE__ */ new Map(), String(i), au(t));
+  return qr(a, k, s), a;
 }
-var td = /* @__PURE__ */ Es("ObservableObjectAdministration", No);
-function Da(a) {
-  return Fa[a] || (Fa[a] = {
+var id = /* @__PURE__ */ Es("ObservableObjectAdministration", Go);
+function ka(a) {
+  return Va[a] || (Va[a] = {
     get: function() {
       return this[k].getObservablePropValue_(a);
     },
@@ -2923,15 +2930,15 @@ function Da(a) {
     }
   });
 }
-function Un(a) {
-  return Hr(a) ? td(a[k]) : !1;
+function Xn(a) {
+  return jr(a) ? id(a[k]) : !1;
 }
-function ka(a, t, e) {
+function _a(a, t, e) {
   var i;
   a.appliedAnnotations_[e] = t, (i = a.target_[he]) == null || delete i[e];
 }
-function _a(a, t, e) {
-  if (Th(t) || R("Cannot annotate '" + a.name_ + "." + e.toString() + "': Invalid annotation."), !pr(t) && De(a.appliedAnnotations_, e)) {
+function Wa(a, t, e) {
+  if (xh(t) || R("Cannot annotate '" + a.name_ + "." + e.toString() + "': Invalid annotation."), !Pr(t) && De(a.appliedAnnotations_, e)) {
     var i = a.name_ + "." + e.toString(), s = a.appliedAnnotations_[e].annotationType_, n = t.annotationType_;
     R("Cannot apply '" + n + "' to '" + i + "':" + (`
 The field is already annotated with '` + s + "'.") + `
@@ -2939,28 +2946,28 @@ Re-annotating fields is not allowed.
 Use 'override' annotation for methods overridden by subclass.`);
   }
 }
-var ed = /* @__PURE__ */ Ih(0), id = /* @__PURE__ */ (function() {
+var sd = /* @__PURE__ */ wh(0), nd = /* @__PURE__ */ (function() {
   var a = !1, t = {};
   return Object.defineProperty(t, "0", {
     set: function() {
       a = !0;
     }
   }), Object.create(t)[0] = 1, a === !1;
-})(), lo = 0, Ch = function() {
+})(), co = 0, Eh = function() {
 };
-function sd(a, t) {
+function rd(a, t) {
   Object.setPrototypeOf ? Object.setPrototypeOf(a.prototype, t) : a.prototype.__proto__ !== void 0 ? a.prototype.__proto__ = t : a.prototype = t;
 }
-sd(Ch, Array.prototype);
-var ta = /* @__PURE__ */ (function(a) {
+rd(Eh, Array.prototype);
+var ia = /* @__PURE__ */ (function(a) {
   function t(i, s, n, r) {
     var o;
     return n === void 0 && (n = "ObservableArray@" + si()), r === void 0 && (r = !1), o = a.call(this) || this, As(function() {
-      var l = new $o(n, s, r, !0);
-      l.proxy_ = o, zl(o, k, l), i && i.length && o.spliceWithArray(0, 0, i), id && Object.defineProperty(o, "0", ed);
+      var l = new ea(n, s, r, !0);
+      l.proxy_ = o, ql(o, k, l), i && i.length && o.spliceWithArray(0, 0, i), nd && Object.defineProperty(o, "0", sd);
     }), o;
   }
-  Ul(t, a);
+  Ql(t, a);
   var e = t.prototype;
   return e.concat = function() {
     this[k].atom_.reportObserved();
@@ -2970,12 +2977,12 @@ var ta = /* @__PURE__ */ (function(a) {
       this.slice(),
       //@ts-ignore
       n.map(function(o) {
-        return Yr(o) ? o.slice() : o;
+        return Kr(o) ? o.slice() : o;
       })
     );
   }, e[Symbol.iterator] = function() {
     var i = this, s = 0;
-    return ea({
+    return sa({
       next: function() {
         return s < i.length ? {
           value: i[s++],
@@ -3000,12 +3007,12 @@ var ta = /* @__PURE__ */ (function(a) {
       return "Array";
     }
   }]);
-})(Ch);
-Object.entries(yr).forEach(function(a) {
+})(Eh);
+Object.entries(vr).forEach(function(a) {
   var t = a[0], e = a[1];
-  t !== "concat" && zr(ta.prototype, t, e);
+  t !== "concat" && qr(ia.prototype, t, e);
 });
-function Ih(a) {
+function wh(a) {
   return {
     enumerable: !1,
     configurable: !0,
@@ -3017,23 +3024,23 @@ function Ih(a) {
     }
   };
 }
-function nd(a) {
-  ci(ta.prototype, "" + a, Ih(a));
+function od(a) {
+  ci(ia.prototype, "" + a, wh(a));
 }
-function Eh(a) {
-  if (a > lo) {
-    for (var t = lo; t < a + 100; t++)
-      nd(t);
-    lo = a;
+function Ah(a) {
+  if (a > co) {
+    for (var t = co; t < a + 100; t++)
+      od(t);
+    co = a;
   }
 }
-Eh(1e3);
-function rd(a, t, e) {
-  return new ta(a, t, e);
+Ah(1e3);
+function ad(a, t, e) {
+  return new ia(a, t, e);
 }
 function Hs(a, t) {
   if (typeof a == "object" && a !== null) {
-    if (Yr(a))
+    if (Kr(a))
       return t !== void 0 && R(23), a[k].atom_;
     if (ai(a))
       return a.atom_;
@@ -3041,52 +3048,52 @@ function Hs(a, t) {
       if (t === void 0)
         return a.keysAtom_;
       var e = a.data_.get(t) || a.hasMap_.get(t);
-      return e || R(25, t, vr(a)), e;
+      return e || R(25, t, Ir(a)), e;
     }
-    if (Un(a)) {
+    if (Xn(a)) {
       if (!t)
         return R(26);
       var i = a[k].values_.get(t);
-      return i || R(27, t, vr(a)), i;
+      return i || R(27, t, Ir(a)), i;
     }
-    if (Xo(a) || Qr(a) || Sr(a))
+    if (Yo(a) || Jr(a) || br(a))
       return a;
-  } else if (Lt(a) && Sr(a[k]))
+  } else if (Lt(a) && br(a[k]))
     return a[k];
   R(28);
 }
-function wh(a, t) {
-  if (a || R(29), Xo(a) || Qr(a) || Sr(a) || es(a) || ai(a))
+function Th(a, t) {
+  if (a || R(29), Yo(a) || Jr(a) || br(a) || es(a) || ai(a))
     return a;
   if (a[k])
     return a[k];
   R(24, a);
 }
-function vr(a, t) {
+function Ir(a, t) {
   var e;
   if (t !== void 0)
     e = Hs(a, t);
   else {
     if (vs(a))
       return a.name;
-    Un(a) || es(a) || ai(a) ? e = wh(a) : e = Hs(a);
+    Xn(a) || es(a) || ai(a) ? e = Th(a) : e = Hs(a);
   }
   return e.name_;
 }
 function As(a) {
-  var t = ws(), e = Yo(!0);
+  var t = ws(), e = Ko(!0);
   Me();
   try {
     return a();
   } finally {
-    Fe(), Jo(e), xi(t);
+    Fe(), Zo(e), Li(t);
   }
 }
-var Wa = Wr.toString;
-function Ah(a, t, e) {
-  return e === void 0 && (e = -1), Bo(a, t, e);
+var Ha = zr.toString;
+function Oh(a, t, e) {
+  return e === void 0 && (e = -1), Mo(a, t, e);
 }
-function Bo(a, t, e, i, s) {
+function Mo(a, t, e, i, s) {
   if (a === t)
     return a !== 0 || 1 / a === 1 / t;
   if (a == null || t == null)
@@ -3096,8 +3103,8 @@ function Bo(a, t, e, i, s) {
   var n = typeof a;
   if (n !== "function" && n !== "object" && typeof t != "object")
     return !1;
-  var r = Wa.call(a);
-  if (r !== Wa.call(t))
+  var r = Ha.call(a);
+  if (r !== Ha.call(t))
     return !1;
   switch (r) {
     // Strings, numbers, regular expressions, dates, and booleans are compared by value.
@@ -3117,7 +3124,7 @@ function Bo(a, t, e, i, s) {
       e >= 0 && e++;
       break;
   }
-  a = Ha(a), t = Ha(t);
+  a = za(a), t = za(t);
   var o = r === "[object Array]";
   if (!o) {
     if (typeof a != "object" || typeof t != "object")
@@ -3136,7 +3143,7 @@ function Bo(a, t, e, i, s) {
     if (c = a.length, c !== t.length)
       return !1;
     for (; c--; )
-      if (!Bo(a[c], t[c], e - 1, i, s))
+      if (!Mo(a[c], t[c], e - 1, i, s))
         return !1;
   } else {
     var d = Object.keys(a), f = d.length;
@@ -3144,40 +3151,40 @@ function Bo(a, t, e, i, s) {
       return !1;
     for (var p = 0; p < f; p++) {
       var P = d[p];
-      if (!(De(t, P) && Bo(a[P], t[P], e - 1, i, s)))
+      if (!(De(t, P) && Mo(a[P], t[P], e - 1, i, s)))
         return !1;
     }
   }
   return i.pop(), s.pop(), !0;
 }
-function Ha(a) {
-  return Yr(a) ? a.slice() : Zs(a) || es(a) || Ei(a) || ai(a) ? Array.from(a.entries()) : a;
+function za(a) {
+  return Kr(a) ? a.slice() : Zs(a) || es(a) || wi(a) || ai(a) ? Array.from(a.entries()) : a;
 }
-var za, od = ((za = qo().Iterator) == null ? void 0 : za.prototype) || {};
-function ea(a) {
-  return a[Symbol.iterator] = ad, Object.assign(Object.create(od), a);
+var ja, ld = ((ja = Xo().Iterator) == null ? void 0 : ja.prototype) || {};
+function sa(a) {
+  return a[Symbol.iterator] = hd, Object.assign(Object.create(ld), a);
 }
-function ad() {
+function hd() {
   return this;
 }
-function Th(a) {
+function xh(a) {
   return (
     // Can be function
     a instanceof Object && typeof a.annotationType_ == "string" && Lt(a.make_) && Lt(a.extend_)
   );
 }
 ["Symbol", "Map", "Set"].forEach(function(a) {
-  var t = qo();
+  var t = Xo();
   typeof t[a] > "u" && R("MobX requires global '" + a + "' to be available or polyfilled");
 });
 typeof __MOBX_DEVTOOLS_GLOBAL_HOOK__ == "object" && __MOBX_DEVTOOLS_GLOBAL_HOOK__.injectMobx({
-  spy: wu,
+  spy: Tu,
   extras: {
-    getDebugName: vr
+    getDebugName: Ir
   },
   $mobx: k
 });
-let ja = class {
+let qa = class {
   remove(t) {
     this.nodeMap.delete(t.id);
   }
@@ -3195,14 +3202,15 @@ let ja = class {
   //private _edgeMap: Record<string, Edge> = {};
   _edgeMap = {};
   *nodes_() {
-    for (const t of this.nodeMap.values()) yield t;
+    for (const t of this.nodeMap.values())
+      yield t;
   }
   *graphs_() {
     for (const t of this.nodes_())
       t instanceof be && (yield t);
   }
   constructor() {
-    Sh(this, {
+    bh(this, {
       nodeMap: It,
       _edgeMap: It,
       getNodeMap: li,
@@ -3270,7 +3278,7 @@ let ja = class {
     return !0;
   }
 };
-class Oh {
+class Lh {
   /** this in the index of where the attribute is positioned in the attribute array of the entity */
   bind(t) {
     this.entity && this.entity.setAttr(t, this);
@@ -3286,7 +3294,7 @@ _e.GeomObjectIndex = 0;
 _e.DrawingObjectIndex = 1;
 _e.AlgorithmDataIndex = 2;
 _e.ViewerIndex = 3;
-class $ extends Oh {
+class $ extends Lh {
   constructor(t) {
     super(t, _e.GeomObjectIndex);
   }
@@ -3327,14 +3335,14 @@ m.intersectionEpsilon = 1e-4;
 m.distanceEpsilon = Math.pow(10, -m.distanceEpsilonPrecision);
 m.squareOfDistanceEpsilon = Math.pow(10, -m.distanceEpsilonPrecision * 2);
 m.tolerance = 1e-8;
-function ld(a, t) {
+function cd(a, t) {
   return (a ? 1 : 0) - (t ? 1 : 0);
 }
 function yt(a, t) {
   const e = a - t;
   return e < 0 ? -1 : e === 0 ? 0 : 1;
 }
-function or(a, t) {
+function lr(a, t) {
   const e = yt(a.y, t.y);
   return e || yt(a.x, t.x);
 }
@@ -3342,10 +3350,10 @@ function D(a, t) {
   const e = a - t;
   return -m.distanceEpsilon <= e && e <= m.distanceEpsilon;
 }
-function ho(a, t) {
-  return Cr(a, t) > 0;
+function uo(a, t) {
+  return Er(a, t) > 0;
 }
-function Cr(a, t) {
+function Er(a, t) {
   const e = a - t;
   return e <= -m.distanceEpsilon ? -1 : e >= m.distanceEpsilon ? 1 : 0;
 }
@@ -3618,10 +3626,10 @@ class ei {
     return e.point = t, e;
   }
 }
-var bi;
+var vi;
 (function(a) {
   a[a.Corner = 0] = "Corner", a[a.VertexA = 1] = "VertexA", a[a.otherCorner = 2] = "otherCorner", a[a.VertexB = 3] = "VertexB";
-})(bi || (bi = {}));
+})(vi || (vi = {}));
 class Q {
   // Return true if the parallelogram contains the point
   contains(t) {
@@ -3636,13 +3644,13 @@ class Q {
   }
   vertex(t) {
     switch (t) {
-      case bi.Corner:
+      case vi.Corner:
         return this.corner;
-      case bi.VertexA:
+      case vi.VertexA:
         return this.aPlusCorner;
-      case bi.otherCorner:
+      case vi.otherCorner:
         return this.otherCorner;
-      case bi.VertexB:
+      case vi.VertexB:
         return this.bPlusCorner;
       default:
         return;
@@ -3674,7 +3682,7 @@ class Q {
     return !(d < l - m.distanceEpsilon || c > h + m.distanceEpsilon);
   }
   static separByB(t, e) {
-    const i = m.distanceEpsilon, s = e.vertex(0).sub(t.corner).dot(t.bRot), n = [bi.VertexA, bi.otherCorner, bi.VertexB];
+    const i = m.distanceEpsilon, s = e.vertex(0).sub(t.corner).dot(t.bRot), n = [vi.VertexA, vi.otherCorner, vi.VertexB];
     if (s > t.abRot + i) {
       for (const r of n)
         if (e.vertex(r).sub(t.corner).dot(t.bRot) <= t.abRot + i)
@@ -3701,7 +3709,7 @@ class Q {
   static getParallelogramOfAGroup(t) {
     let e = 0, i = 0, s = 0, n = 0, r = !0;
     for (const o of t) {
-      const l = hd(o);
+      const l = ud(o);
       for (const h of l) {
         const c = h.x, d = h.y;
         r ? (r = !1, e = i = c, s = n = d) : (c < e ? e = c : c > i && (i = c), d < s ? s = d : d > n && (n = d));
@@ -3710,7 +3718,7 @@ class Q {
     return Q.parallelogramByCornerSideSide(new u(e, s), new u(0, n - s), new u(i - e, 0));
   }
 }
-function* hd(a) {
+function* ud(a) {
   yield a.corner, yield a.aPlusCorner, yield a.otherCorner, yield a.bPlusCorner;
 }
 class v {
@@ -3888,7 +3896,7 @@ class v {
   }
   // The bounding box of the line
   get boundingBox() {
-    return O.mkPP(this.start, this.end);
+    return T.mkPP(this.start, this.end);
   }
   // clones the curve.
   clone() {
@@ -3941,13 +3949,13 @@ class v {
     const C = Math.abs(l);
     let w = C, N = C;
     C < m.tolerance ? (P = 0, w = 1, y = p, N = d) : (P = u.crossProduct(r, o), y = u.crossProduct(n, o), l < 0 && (P = -P, y = -y), P < 0 ? (P = 0, y = p, N = d) : P > w && (P = w = 1, y = p + c, N = d)), y < 0 ? (y = 0, -f < 0 ? P = 0 : -f > h ? P = w : (P = -f, w = h)) : y > N && (y = N = 1, -f + c < 0 ? P = 0 : -f + c > h ? P = w : (P = -f + c, w = h));
-    const I = Math.abs(P) < m.tolerance ? 0 : P / w, T = Math.abs(y) < m.tolerance ? 0 : y / N;
+    const I = Math.abs(P) < m.tolerance ? 0 : P / w, x = Math.abs(y) < m.tolerance ? 0 : y / N;
     return {
       parab: I,
-      parcd: T,
+      parcd: x,
       // get the difference of the two closest points
       //           const dP = w + (parab * u) - (parcd * v),
-      dist: o.add(n.mul(I).sub(r.mul(T))).length
+      dist: o.add(n.mul(I).sub(r.mul(x))).length
       // return the closest distance
     };
   }
@@ -3955,11 +3963,11 @@ class v {
 function Rs(a, t, e) {
   return a.x >= Math.min(t.x, e.x) - m.distanceEpsilon && a.y >= Math.min(t.y, e.y) - m.distanceEpsilon && a.x <= Math.max(t.x, e.x) + m.distanceEpsilon && a.y <= Math.max(t.y, e.y) + m.distanceEpsilon;
 }
-function xh(a, t, e, i) {
+function Rh(a, t, e, i) {
   const s = u.getTriangleOrientation(a, t, e), n = u.getTriangleOrientation(a, t, i), r = u.getTriangleOrientation(e, i, a), o = u.getTriangleOrientation(e, i, t);
   return !!(s != n && r != o || s == L.Collinear && Rs(e, a, t) || n == L.Collinear && Rs(i, a, t) || r == L.Collinear && Rs(a, e, i) || o == L.Collinear && Rs(t, e, i));
 }
-function cd(a, t, e, i, s) {
+function dd(a, t, e, i, s) {
   return {
     parallelogram: e,
     seg: i,
@@ -4001,7 +4009,7 @@ class Ct {
     if (Ct.WithinEpsilon(i, t, e, s)) {
       const c = Ct.createParallelogramOnSubSeg(t, e, i);
       if (c !== void 0)
-        return cd(t, e, c, i, s);
+        return dd(t, e, c, i, s);
     }
     return Ct.createNodeWithSegmentSplit(t, e, i, s);
   }
@@ -4028,7 +4036,7 @@ class Mi {
     this.par0 = t, this.par1 = e, this.x = i, this.seg0 = s, this.seg1 = n;
   }
 }
-class Ir {
+class wr {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   static closestPoint(t, e, i, s, n) {
     let l = i, h = 0, c = 0, d, f = !1;
@@ -4123,7 +4131,7 @@ class j {
     if (D(this.parStart, 0) && D(this.parEnd, Math.PI * 2))
       this.box = this.fullBox();
     else {
-      this.box = O.mkPP(this.start, this.end);
+      this.box = T.mkPP(this.start, this.end);
       let t;
       for (let e = Math.ceil(this.parStart / (Math.PI / 2)); (t = e * Math.PI / 2) < this.parEnd; e++)
         t > this.parStart && this.box.add(this.value(t));
@@ -4185,7 +4193,7 @@ class j {
       f < o && (o = f, r = c);
     }
     r === 0 && i === Math.PI * 2 && (e = -Math.PI);
-    let l = Ir.closestPoint(this, t, r, e, i);
+    let l = wr.closestPoint(this, t, r, e, i);
     return l < 0 && (l += 2 * Math.PI), l;
   }
   // return length of the curve segment [start,end] : not implemented
@@ -4210,7 +4218,7 @@ class j {
     }
     let o = !1;
     n === 0 && this.parEnd === Math.PI * 2 && (o = !0, e = this.parStart, this.parStart = -Math.PI);
-    let l = Ir.closestPoint(this, t, n, this.parStart, this.parEnd);
+    let l = wr.closestPoint(this, t, n, this.parStart, this.parEnd);
     return l < 0 && (l += 2 * Math.PI), o && (this.parStart = e), l;
   }
   // left derivative at t
@@ -4241,14 +4249,14 @@ class j {
   //returns the box of the ellipse that this ellipse is a part of
   fullBox() {
     const t = this.aAxis.add(this.bAxis);
-    return O.mkPP(this.center.add(t), this.center.sub(t));
+    return T.mkPP(this.center.add(t), this.center.sub(t));
   }
   /**is it a proper arc? meaning that it just a part of a circle */
   isArc() {
     return Math.abs(this.aAxis.dot(this.bAxis)) < m.tolerance && Math.abs(this.aAxis.length - this.bAxis.length) < m.tolerance && u.closeDistEps(this.aAxis.rotate90Ccw(), this.bAxis);
   }
 }
-class ud {
+class fd {
   initValues() {
     this.a = this.curveA.value(this.si), this.b = this.curveB.value(this.ti), this.a_b = this.a.sub(this.b), this.ad = this.curveA.derivative(this.si), this.add = this.curveA.secondDerivative(this.si), this.bd = this.curveB.derivative(this.ti), this.bdd = this.curveB.secondDerivative(this.ti);
   }
@@ -4468,7 +4476,7 @@ class st {
   // mutable! changes "this"
   // Returns the curved moved by delta
   translate(t) {
-    this.b[0] = this.b[0].add(t), this.b[1] = this.b[1].add(t), this.b[2] = this.b[2].add(t), this.b[3] = this.b[3].add(t), this.c = this.b[1].sub(this.b[0]).mul(3), this.e = this.b[2].sub(this.b[1]).mul(3).sub(this.c), this.l = this.b[3].sub(this.b[0]).sub(this.c).sub(this.e), this.bbox && (this.bbox = O.translate(this.bbox, t)), this.pBoxNode = null;
+    this.b[0] = this.b[0].add(t), this.b[1] = this.b[1].add(t), this.b[2] = this.b[2].add(t), this.b[3] = this.b[3].add(t), this.c = this.b[1].sub(this.b[0]).mul(3), this.e = this.b[2].sub(this.b[1]).mul(3).sub(this.c), this.l = this.b[3].sub(this.b[0]).sub(this.c).sub(this.e), this.bbox && (this.bbox = T.translate(this.bbox, t)), this.pBoxNode = null;
   }
   // Returns the curved scaled by x and y
   scaleFromOrigin(t, e) {
@@ -4497,7 +4505,7 @@ class st {
   }
   // the segment bounding box
   get boundingBox() {
-    return this.bbox ? this.bbox : this.bbox = O.mkOnPoints(this.b);
+    return this.bbox ? this.bbox : this.bbox = T.mkOnPoints(this.b);
   }
   // Return the transformed curve
   transform(t) {
@@ -4512,7 +4520,7 @@ class st {
       const l = t.sub(this.value(o * s + e)), h = l.dot(l);
       h < r && (r = h, n = o * s + e);
     }
-    return Ir.closestPoint(this, t, n, e, i);
+    return wr.closestPoint(this, t, n, e, i);
   }
   // clones the curve.
   clone() {
@@ -4577,7 +4585,7 @@ class st {
       const r = t.sub(this.value(n * 0.125)), o = r.dot(r);
       o < s && (s = o, i = n * 0.125);
     }
-    return Ir.closestPoint(this, t, i, 0, 1);
+    return wr.closestPoint(this, t, i, 0, 1);
   }
   //
   curvatureSecondDerivative(t) {
@@ -4616,23 +4624,23 @@ class st {
     return c > t + m.distanceEpsilon ? 1 : c < t - m.distanceEpsilon ? -1 : 0;
   }
 }
-function dd(a) {
+function gd(a) {
   return a.seg.value(a.par);
 }
-function fd(a) {
+function pd(a) {
   return a.seg.derivative(a.par);
 }
-function gd(a) {
+function md(a) {
   return a.seg.secondDerivative(a.par);
 }
-function pd(a) {
+function Pd(a) {
   return a.seg.thirdDerivative(a.par);
 }
 var F;
 (function(a) {
   a[a.Outside = 0] = "Outside", a[a.Boundary = 1] = "Boundary", a[a.Inside = 2] = "Inside";
 })(F || (F = {}));
-function md(a) {
+function Sd(a) {
   if (a instanceof j)
     return { tag: "ellipse", segData: a.toJSON() };
   if (a instanceof v)
@@ -4661,7 +4669,7 @@ class g {
     return e;
   }
   toJSON() {
-    return { segs: this.segs.map((t) => md(t)) };
+    return { segs: this.segs.map((t) => Sd(t)) };
   }
   static CurvesIntersect(t, e) {
     return t === e || g.intersectionOne(t, e, !1) != null;
@@ -4742,7 +4750,7 @@ class g {
   translate(t) {
     for (const e of this.segs)
       e.translate(t);
-    this.boundingBox_ && (this.boundingBox_ = O.translate(this.boundingBox_, t)), this.pBNode = null;
+    this.boundingBox_ && (this.boundingBox_ = T.translate(this.boundingBox_, t)), this.pBNode = null;
   }
   adjustStartEndEndParametersToDomain(t) {
     if (t.start > t.end) {
@@ -5114,19 +5122,19 @@ class g {
   }
   // Returns the point on the curve corresponding to parameter t
   value(t) {
-    return dd(this.getSegParam(t));
+    return gd(this.getSegParam(t));
   }
   // first derivative at t
   derivative(t) {
-    return fd(this.getSegParam(t));
+    return pd(this.getSegParam(t));
   }
   // second derivative
   secondDerivative(t) {
-    return gd(this.getSegParam(t));
+    return md(this.getSegParam(t));
   }
   // third derivative
   thirdDerivative(t) {
-    return pd(this.getSegParam(t));
+    return Pd(this.getSegParam(t));
   }
   // For curves A(s) and B(t), when we have some evidence that
   // there is at most one intersection point, and we have a guess for the parameters (s0, t0)...
@@ -5282,7 +5290,7 @@ class g {
   }
   */
   static minDistWithinIntervals(t, e, i, s, n, r, o, l) {
-    const h = new ud(t, e, i, s, n, r, o, l);
+    const h = new fd(t, e, i, s, n, r, o, l);
     return h.solve(), h.success ? {
       aSol: h.aSolution,
       bSol: h.bSolution,
@@ -5336,7 +5344,7 @@ class g {
     if (this.boundingBox_)
       return this.boundingBox_;
     if (this.segs.length === 0)
-      this.boundingBox_ = O.mkEmpty();
+      this.boundingBox_ = T.mkEmpty();
     else {
       const t = this.segs[0].boundingBox.clone();
       for (let e = 1; e < this.segs.length; e++)
@@ -5727,7 +5735,7 @@ class B {
     };
   }
   init() {
-    this.bBox = O.rectangleOnPoint(this.startPoint.point);
+    this.bBox = T.rectangleOnPoint(this.startPoint.point);
     for (const t of this.skip(1))
       this.bBox.add(t.point);
     this.updateCount(), this.calculatePbNode(), this.initIsRequired = !1;
@@ -5916,7 +5924,7 @@ class B {
     return this.setInitIsRequired(), this;
   }
 }
-class Ai {
+class Ti {
   pad(t) {
     this.width += t * 2;
   }
@@ -5925,13 +5933,13 @@ class Ai {
     this.width = t, this.height = e;
   }
 }
-class O {
+class T {
   /** this function will not work correctly for transformations that are not translations, or rotations by n*90, or a combination of those */
   transform(t) {
-    return O.mkPP(t.multiplyPoint(this.leftTop), t.multiplyPoint(this.rightBottom));
+    return T.mkPP(t.multiplyPoint(this.leftTop), t.multiplyPoint(this.rightBottom));
   }
   translate(t) {
-    return O.mkSizeCenter(this.size, this.center.add(t));
+    return T.mkSizeCenter(this.size, this.center.add(t));
   }
   /** Returns true iff the rectangles are geometrically identical */
   equal(t) {
@@ -5944,7 +5952,7 @@ class O {
   /** make a rectangle with the given size and center */
   static mkSizeCenter(t, e) {
     const i = t.width / 2, s = t.height / 2;
-    return new O({
+    return new T({
       left: e.x - i,
       right: e.x + i,
       bottom: e.y - s,
@@ -5970,7 +5978,7 @@ class O {
     return this.intersects(t);
   }
   unite(t) {
-    return O.rectangleOfTwo(this, t);
+    return T.rectangleOfTwo(this, t);
   }
   contains_point_radius(t, e) {
     return this.containsWithPadding(t, e);
@@ -5982,11 +5990,11 @@ class O {
   // intersection (possibly empty) of rectangles
   intersection(t) {
     if (!this.intersects(t)) {
-      const r = O.mkEmpty();
+      const r = T.mkEmpty();
       return r.setToEmpty(), r;
     }
     const e = Math.max(this.left, t.left), i = Math.min(this.right, t.right), s = Math.max(this.bottom, t.bottom), n = Math.min(this.top, t.top);
-    return new O({ left: e, bottom: s, right: i, top: n });
+    return new T({ left: e, bottom: s, right: i, top: n });
   }
   // the center of the bounding box
   get center() {
@@ -6004,7 +6012,7 @@ class O {
   }
   // creates an empty rectangle
   static mkEmpty() {
-    return new O({ left: 0, right: -1, bottom: 0, top: -1 });
+    return new T({ left: 0, right: -1, bottom: 0, top: -1 });
   }
   get left() {
     return this.left_;
@@ -6059,7 +6067,7 @@ class O {
   }
   // create a box of two points
   static mkPP(t, e) {
-    const i = new O({
+    const i = new T({
       left: t.x,
       right: t.x,
       top: t.y,
@@ -6069,27 +6077,27 @@ class O {
   }
   // create rectangle from a point
   static rectangleOnPoint(t) {
-    return new O({ left: t.x, right: t.x, top: t.y, bottom: t.y });
+    return new T({ left: t.x, right: t.x, top: t.y, bottom: t.y });
   }
   static mkLeftBottomSize(t, e, i) {
     const s = t + i.width, n = e + i.height;
-    return new O({ left: t, right: s, top: n, bottom: e });
+    return new T({ left: t, right: s, top: n, bottom: e });
   }
   // create a box on points (x0,y0), (x1,y1)
   static getRectangleOnCoords(t, e, i, s) {
-    const n = new O({ left: t, bottom: e, right: t, top: e });
+    const n = new T({ left: t, bottom: e, right: t, top: e });
     return n.add(new u(i, s)), n;
   }
   // Create rectangle that is the bounding box of the given points
   static mkOnPoints(t) {
-    const e = O.mkEmpty();
+    const e = T.mkEmpty();
     for (const i of t)
       e.add(i);
     return e;
   }
   // Create rectangle that is the bounding box of the given Rectangles
   static mkOnRectangles(t) {
-    const e = O.mkEmpty();
+    const e = T.mkEmpty();
     for (const i of t)
       e.addRecSelf(i);
     return e;
@@ -6120,7 +6128,7 @@ class O {
   }
   // rectangle containing both a and b
   static rectangleOfTwo(t, e) {
-    const i = new O({
+    const i = new T({
       left: t.left_,
       right: t.right_,
       top: t.top_,
@@ -6156,7 +6164,7 @@ class O {
   }
   /**  Returns a new Rectangle which is the transform the input rectangle */
   static transform(t, e) {
-    return O.mkPP(e.multiplyPoint(t.leftTop), e.multiplyPoint(t.rightBottom));
+    return T.mkPP(e.multiplyPoint(t.leftTop), e.multiplyPoint(t.rightBottom));
   }
   // returns true if the rectangle contains the point
   contains(t) {
@@ -6192,7 +6200,7 @@ class O {
   }
   // Returns the intersection of two rectangles.
   static intersect(t, e) {
-    return t.intersects(e) ? O.mkPP(new u(Math.max(t.left, e.left), Math.max(t.bottom, e.bottom)), new u(Math.min(t.right, e.right), Math.min(t.top, e.top))) : O.mkEmpty();
+    return t.intersects(e) ? T.mkPP(new u(Math.max(t.left, e.left), Math.max(t.bottom, e.bottom)), new u(Math.min(t.right, e.right), Math.min(t.top, e.top))) : T.mkEmpty();
   }
   perimeter() {
     const t = new B();
@@ -6202,11 +6210,11 @@ class O {
     this.width = this.width * t, this.height = this.height * t;
   }
   clone() {
-    return new O({ left: this.left, right: this.right, top: this.top, bottom: this.bottom });
+    return new T({ left: this.left, right: this.right, top: this.top, bottom: this.bottom });
   }
   // gets or sets the Size
   get size() {
-    return new Ai(this.width, this.height);
+    return new Ti(this.width, this.height);
   }
   set size(t) {
     this.width = t.width, this.height = t.height;
@@ -6214,7 +6222,7 @@ class O {
   // constructor with Size and center
   static creatRectangleWithSize(t, e) {
     const i = t.width / 2, s = e.x - i, n = e.x + i, r = t.height / 2, o = e.y - r, l = e.y + r;
-    return new O({ left: s, right: n, top: l, bottom: o });
+    return new T({ left: s, right: n, top: l, bottom: o });
   }
   // adding a point with a Size
   addPointWithSize(t, e) {
@@ -6641,10 +6649,10 @@ class E {
     return new E(E.OppositeDir(t.Dir));
   }
 }
-class Jr extends $ {
+class Zr extends $ {
   /** clones but does not bind to the entity and does not set the parent edge*/
   clone() {
-    const t = new Jr(null, null);
+    const t = new Zr(null, null);
     return t.isPositioned = this.isPositioned, t._boundingBox = this._boundingBox.clone(), t.attachmentSegmentEnd = this.attachmentSegmentEnd, t.attachmentSegmentStart = this.attachmentSegmentStart, t;
   }
   get isPositioned() {
@@ -6654,7 +6662,7 @@ class Jr extends $ {
     this._isPositioned = t;
   }
   constructor(t, e) {
-    super(t), this._isPositioned = !1, e && (this.boundingBox = O.mkPP(new u(0, 0), new u(e.width, e.height)));
+    super(t), this._isPositioned = !1, e && (this.boundingBox = T.mkPP(new u(0, 0), new u(e.width, e.height)));
   }
   get boundingBox() {
     return this._boundingBox;
@@ -6700,7 +6708,7 @@ class Kt extends $ {
   *getCurvePoints(t) {
     for (const e of t.segs)
       if (yield e.start, e instanceof st) {
-        const i = Pd(e);
+        const i = yd(e);
         i && (yield i);
       }
     yield t.end;
@@ -6731,7 +6739,7 @@ class Kt extends $ {
         for (let e = this.smoothedPolyline.headSite, i = this.smoothedPolyline.headSite; e != null; e = e.next, i = i.next)
           e.point = i.point.add(t);
       if (this.sourceArrowhead != null && this.sourceArrowhead.tipPosition && (this.sourceArrowhead.tipPosition = this.sourceArrowhead.tipPosition.add(t)), this.targetArrowhead != null && this.targetArrowhead.tipPosition && (this.targetArrowhead.tipPosition = this.targetArrowhead.tipPosition.add(t)), this.edge.label) {
-        const e = Jr.getGeom(this.edge.label);
+        const e = Zr.getGeom(this.edge.label);
         e && e.translate(t);
       }
     }
@@ -6771,7 +6779,7 @@ class Kt extends $ {
     e = e.rotate90Cw().mul(Math.tan(t * 0.5 * (Math.PI / 180))), yield e.add(this.curve.end), yield this.curve.end.sub(e);
   }
   get boundingBox() {
-    const t = O.mkEmpty();
+    const t = T.mkEmpty();
     if (this.smoothedPolyline != null)
       for (const i of this.smoothedPolyline)
         t.add(i);
@@ -6807,14 +6815,14 @@ class Kt extends $ {
     return this.edge.EdgeToAncestor();
   }
 }
-function Pd(a) {
+function yd(a) {
   return u.lineLineIntersection(a.b[0], a.b[1], a.b[2], a.b[3]);
 }
-var Kn = {}, qa;
-function Sd() {
-  if (qa) return Kn;
-  qa = 1, Object.defineProperty(Kn, "__esModule", { value: !0 });
-  const a = Vl();
+var $n = {}, Ua;
+function bd() {
+  if (Ua) return $n;
+  Ua = 1, Object.defineProperty($n, "__esModule", { value: !0 });
+  const a = kl();
   class t extends a.LinkedList {
     constructor(...i) {
       super(...i);
@@ -6832,13 +6840,13 @@ function Sd() {
       return this.removeHead();
     }
   }
-  return Kn.Stack = t, Kn;
+  return $n.Stack = t, $n;
 }
-var mt = Sd(), at;
+var mt = bd(), at;
 (function(a) {
   a[a.Continue = 0] = "Continue", a[a.Stop = 1] = "Stop";
 })(at || (at = {}));
-function yd(a, t, e, i, s, n) {
+function vd(a, t, e, i, s, n) {
   for (let o = 0; o < a.length; o++) {
     if (o === t || o === e)
       continue;
@@ -6851,20 +6859,20 @@ function Et(a) {
     return null;
   if (a.length === 1)
     return a[0];
-  const t = { b0: a[0].irect, seed0: 1 }, e = bd(a, t), i = [], s = [];
+  const t = { b0: a[0].irect, seed0: 1 }, e = Cd(a, t), i = [], s = [];
   i.push(a[t.seed0]), s.push(a[e]);
   const n = { box0: a[t.seed0].irect, box1: a[e].irect };
-  yd(a, t.seed0, e, i, s, n);
-  const r = Lh(a.length);
+  vd(a, t.seed0, e, i, s, n);
+  const r = Nh(a.length);
   return r.irect = n.box0.add_rect(n.box1), r.Left = Et(i), r.Right = Et(s), r;
 }
-function Ua(a, t) {
+function Xa(a, t) {
   return a.add_rect(t).area;
 }
-function bd(a, t) {
-  let e = Ua(t.b0, a[t.seed0].irect);
+function Cd(a, t) {
+  let e = Xa(t.b0, a[t.seed0].irect);
   for (let s = 2; s < a.length; s++) {
-    const n = Ua(t.b0, a[s].irect);
+    const n = Xa(t.b0, a[s].irect);
     n > e && (t.seed0 = s, e = n);
   }
   let i;
@@ -6882,24 +6890,24 @@ function bd(a, t) {
   }
   return i;
 }
-function Er(a, t) {
+function Ar(a, t) {
   if (a == null || t == null)
     return null;
   const e = Array.from(a).map((i) => Bt(i, t(i)));
   return Et(e);
 }
-function Lh(a) {
-  const t = new ia();
+function Nh(a) {
+  const t = new na();
   return t.Count = a, t;
 }
 function Bt(a, t) {
-  const e = new ia();
+  const e = new na();
   return e.UserData = a, e.irect = t, e.Count = 1, e;
 }
-function Go(a, t, e) {
-  return a.irect.intersects_rect(e) ? t(a.UserData) === at.Continue ? a.Left != null ? Go(a.Left, t, e) === at.Continue && Go(a.Right, t, e) === at.Continue ? at.Continue : at.Stop : at.Continue : at.Stop : at.Continue;
+function Fo(a, t, e) {
+  return a.irect.intersects_rect(e) ? t(a.UserData) === at.Continue ? a.Left != null ? Fo(a.Left, t, e) === at.Continue && Fo(a.Right, t, e) === at.Continue ? at.Continue : at.Stop : at.Continue : at.Stop : at.Continue;
 }
-class ia {
+class na {
   toString() {
     return this.IsLeaf ? this.Count.toString() + " " + this.UserData : this.Count.toString();
   }
@@ -6960,11 +6968,11 @@ class ia {
   }
   // Returns all leaves whose rectangles intersect hitRectangle (or all leaves before hitTest returns false).
   VisitTree(t, e) {
-    Go(this, t, e);
+    Fo(this, t, e);
   }
   //
   Clone() {
-    const t = Lh(this.Count);
+    const t = Nh(this.Count);
     return t.UserData = this.UserData, t.irect = this.irect, this.Left != null && (t.Left = this.Left.Clone()), this.Right != null && (t.Right = this.Right.Clone()), t;
   }
   // yields all leaves which rectangles intersect the given one. We suppose that leaves are all nodes having UserData not a null.
@@ -7004,7 +7012,7 @@ class ia {
 }
 class ie {
   constructor(t, e) {
-    or(t, e) < 0 ? (this._first = t, this._second = e) : (this._first = e, this._second = t);
+    lr(t, e) < 0 ? (this._first = t, this._second = e) : (this._first = e, this._second = t);
   }
   get first() {
     return this._first;
@@ -7016,8 +7024,8 @@ class ie {
     return Z(this._first, this._second);
   }
   CompareTo(t) {
-    const e = or(this._first, t._first);
-    return e !== 0 ? e : or(this._second, t._second);
+    const e = lr(this._first, t._first);
+    return e !== 0 ? e : lr(this._second, t._second);
   }
   static equal(t, e) {
     return t._first.equal(e._first) && t._second.equal(e._second);
@@ -7026,7 +7034,7 @@ class ie {
     return this._first + (" " + this._second);
   }
 }
-let xt = class Rh {
+let xt = class Bh {
   delete(t) {
     return this.deletexy(t.x, t.y);
   }
@@ -7037,7 +7045,7 @@ let xt = class Rh {
     return this.size_;
   }
   static mk(t) {
-    const e = new Rh();
+    const e = new Bh();
     for (const i of t)
       e.add(i);
     return e;
@@ -7088,7 +7096,7 @@ function zs(a, t) {
     t.has(i) || e.add(i);
   return e;
 }
-function vd(a, t) {
+function Id(a, t) {
   const e = new xt();
   for (const i of a)
     t.has(i) || e.add(i);
@@ -7114,7 +7122,7 @@ function Hi(a, t) {
       a.has(i) && e.add(i);
   return e;
 }
-function Cd(a) {
+function Ed(a) {
   if (a.length === 0)
     return /* @__PURE__ */ new Set();
   let t = a[0];
@@ -7126,7 +7134,7 @@ function an(a, t) {
   for (const e of t)
     a.add(e);
 }
-function wr(a, t) {
+function Tr(a, t) {
   if (a.size !== t.size)
     return !1;
   for (const e of a)
@@ -7134,14 +7142,14 @@ function wr(a, t) {
       return !1;
   return !0;
 }
-function Xn(a, t) {
+function Qn(a, t) {
   const e = [];
   for (const i of a)
     for (const s of t(i))
       e.push(s);
   return e;
 }
-function Ar(a, t, e) {
+function Or(a, t, e) {
   let i = a.get(t);
   i || (i = /* @__PURE__ */ new Set(), a.set(t, i)), i.add(e);
 }
@@ -7149,19 +7157,19 @@ function Ts(a, t, e) {
   let i = a.get(t);
   i || (i = new Array(), a.set(t, i)), i.push(e);
 }
-function Nh(a, t, e) {
+function Gh(a, t, e) {
   let i = a.get(t);
   i || (i = /* @__PURE__ */ new Set(), a.set(t, i)), i.add(e);
 }
-function Id(a, t, e) {
-  Nh(a, new ie(t[0], t[1]), e);
+function wd(a, t, e) {
+  Gh(a, new ie(t[0], t[1]), e);
 }
-function Ed(a, t, e) {
+function Ad(a, t, e) {
   const i = a.get(t);
   i && i.delete(e);
 }
-function Xa(a, t, e) {
-  Ed(a, new ie(t[0], t[1]), e);
+function Qa(a, t, e) {
+  Ad(a, new ie(t[0], t[1]), e);
 }
 class lt {
   static assert(t, e = null) {
@@ -7173,7 +7181,7 @@ var fs;
 (function(a) {
   a[a.None = 0] = "None", a[a.FromAncestor = 1] = "FromAncestor", a[a.ToAncestor = 2] = "ToAncestor";
 })(fs || (fs = {}));
-class Bh extends jo {
+class Mh extends Uo {
   constructor(t, e) {
     super(), this.source = t, this.target = e, t !== e ? (t.outEdges.add(this), e.inEdges.add(this)) : t.selfEdges.add(this);
   }
@@ -7193,7 +7201,7 @@ class Bh extends jo {
     return this.source instanceof di && this.target.isDescendantOf(this.source) ? fs.FromAncestor : this.target instanceof di && this.source.isDescendantOf(this.target) ? fs.ToAncestor : fs.None;
   }
 }
-class wd extends jo {
+class Td extends Uo {
   removeOutEdge(t) {
     this.outEdges.delete(t);
   }
@@ -7237,7 +7245,7 @@ class wd extends jo {
     return this.outDegree + this.inDegree + this.selfDegree;
   }
 }
-class Ad {
+class Od {
   constructor() {
     this.nodeMap = /* @__PURE__ */ new Map();
   }
@@ -7311,7 +7319,7 @@ class Ad {
     return !0;
   }
 }
-let di = class Si extends wd {
+let di = class yi extends Td {
   remove(t) {
     this.nodeCollection.remove(t);
   }
@@ -7375,7 +7383,7 @@ let di = class Si extends wd {
       yield e.target;
     for (const e of t.inEdges)
       yield e.source;
-    t instanceof Si && (yield* t.shallowNodes), t.parent != this && (yield t.parent);
+    t instanceof yi && (yield* t.shallowNodes), t.parent != this && (yield t.parent);
   }
   hasSomeAttrOnIndex(t) {
     for (const e of this.nodesBreadthFirst)
@@ -7398,14 +7406,14 @@ let di = class Si extends wd {
   }
   hasSubgraphs() {
     for (const t of this.shallowNodes)
-      if (t instanceof Si)
+      if (t instanceof yi)
         return !0;
     return !1;
   }
   /** iterates breadth first  */
   *subgraphsBreadthFirst() {
     for (const t of this.nodesBreadthFirst)
-      t instanceof Si && (yield t);
+      t instanceof yi && (yield t);
   }
   isEmpty() {
     return this.shallowNodeCount === 0;
@@ -7416,7 +7424,7 @@ let di = class Si extends wd {
       return;
     const s = this.nodeCollection.findShallow(e);
     if (s != null)
-      return new Bh(i, s);
+      return new Mh(i, s);
   }
   /** Iterates over the nodes of the current graph but not entering the subgraphs.
    *  Yields the top subgraphs among the nodes as well
@@ -7433,10 +7441,10 @@ let di = class Si extends wd {
   /** iterates breadth first  */
   *nodesBreadthFirst_() {
     for (const t of this.nodeCollection.nodesShallow)
-      yield t, t instanceof Si && (yield* t.nodesBreadthFirst);
+      yield t, t instanceof yi && (yield* t.nodesBreadthFirst);
   }
   constructor(t = "__graph__") {
-    super(t), this.nodeCollection = new Ad();
+    super(t), this.nodeCollection = new Od();
   }
   /**
    * Finds the node with the givin id belonging to a graph or one of its subgraphs.
@@ -7446,7 +7454,7 @@ let di = class Si extends wd {
     if (e)
       return e;
     for (const i of this.shallowNodes)
-      if (i instanceof Si) {
+      if (i instanceof yi) {
         const s = i.findNodeRecursive(t);
         if (s)
           return s;
@@ -7508,7 +7516,7 @@ let di = class Si extends wd {
   get nodeCountDeep() {
     let t = this.nodeCollection.size;
     for (const e of this.shallowNodes)
-      e instanceof Si && (t += e.nodeCountDeep);
+      e instanceof yi && (t += e.nodeCountDeep);
     return t;
   }
   get edgeCount() {
@@ -7554,14 +7562,14 @@ let di = class Si extends wd {
     for (const t of this.shallowNodes)
       yield t;
     for (const t of this.shallowNodes)
-      t instanceof Si && (yield* t.allSuccessorsWidthFirst());
+      t instanceof yi && (yield* t.allSuccessorsWidthFirst());
   }
   *allSuccessorsDepthFirst() {
     for (const t of this.shallowNodes)
-      t instanceof Si && (yield* t.allSuccessorsDepthFirst()), yield t;
+      t instanceof yi && (yield* t.allSuccessorsDepthFirst()), yield t;
   }
 };
-function* Td(a) {
+function* xd(a) {
   const t = /* @__PURE__ */ new Set(), e = new We.Queue();
   for (const n of a.shallowNodes) {
     if (t.has(n))
@@ -7585,7 +7593,7 @@ function* Td(a) {
     o.has(n) || (r.enqueue(n), o.add(n));
   }
 }
-function Od(a, t) {
+function Ld(a, t) {
   let e = /* @__PURE__ */ new Map();
   const i = a.nodeCountDeep;
   let s = 1 / i;
@@ -7608,7 +7616,7 @@ function Od(a, t) {
   }
   return e;
 }
-function ar(a, t) {
+function hr(a, t) {
   return t.has(a.source) && t.has(a.target);
 }
 class Yt extends $ {
@@ -7717,11 +7725,11 @@ class ht {
     this.cancelToken = t;
   }
 }
-class On {
+class xn {
 }
-On.GoldenRatio = (1 + Math.sqrt(5)) / 2;
-On.GoldenRatioRemainder = 2 - On.GoldenRatio;
-class Ci extends ht {
+xn.GoldenRatio = (1 + Math.sqrt(5)) / 2;
+xn.GoldenRatioRemainder = 2 - xn.GoldenRatio;
+class Ii extends ht {
   constructor(t, e) {
     super(null), this.desiredAspectRatio = 1.2, this.bestPacking = null, this.cachedCosts = /* @__PURE__ */ new Map(), this.rectangles = t, this.desiredAspectRatio = e;
   }
@@ -7734,8 +7742,8 @@ class Ci extends ht {
     return this.bestPacking != null ? this.bestPacking.PackedHeight : 0;
   }
   Pack(t, e, i) {
-    const s = Ci.GetGoldenSectionStep(t, e), n = Math.max(i / 10, (e - t) / Ci.MaxSteps);
-    e += n, this.bestPackingCost = Number.MAX_VALUE, this.rectangles.length === 1 ? this.PackLimit(t) : this.rectangles.length === 2 ? (this.PackLimit(t), this.PackLimit(e)) : this.rectangles.length > 2 && Ci.GoldenSectionSearch((o) => this.PackLimit(o), t, s, e, n);
+    const s = Ii.GetGoldenSectionStep(t, e), n = Math.max(i / 10, (e - t) / Ii.MaxSteps);
+    e += n, this.bestPackingCost = Number.MAX_VALUE, this.rectangles.length === 1 ? this.PackLimit(t) : this.rectangles.length === 2 ? (this.PackLimit(t), this.PackLimit(e)) : this.rectangles.length > 2 && Ii.GoldenSectionSearch((o) => this.PackLimit(o), t, s, e, n);
     const r = this.bestPacking.getRects();
     for (let o = 0; o < this.rectangles.length; o++)
       this.rectangles[o] = r[o];
@@ -7757,7 +7765,7 @@ class Ci extends ht {
   static GoldenSectionSearch(t, e, i, s, n) {
     if (Math.abs(e - s) < n)
       return t(e) < t(s) ? e : s;
-    const r = Ci.GetGoldenSectionStep(i, s), o = t(i), l = t(r), h = () => Ci.GoldenSectionSearch(t, r, i, e, n), c = () => Ci.GoldenSectionSearch(t, i, r, s, n);
+    const r = Ii.GetGoldenSectionStep(i, s), o = t(i), l = t(r), h = () => Ii.GoldenSectionSearch(t, r, i, e, n), c = () => Ii.GoldenSectionSearch(t, i, r, s, n);
     if (l < o)
       return c();
     if (l > o)
@@ -7766,11 +7774,11 @@ class Ci extends ht {
     return t(f) < t(d) ? f : d;
   }
   static GetGoldenSectionStep(t, e) {
-    return t < e ? t + On.GoldenRatioRemainder * (e - t) : t - On.GoldenRatioRemainder * (t - e);
+    return t < e ? t + xn.GoldenRatioRemainder * (e - t) : t - xn.GoldenRatioRemainder * (t - e);
   }
 }
-Ci.MaxSteps = 1e3;
-class xd extends ht {
+Ii.MaxSteps = 1e3;
+class Rd extends ht {
   get PackedWidth() {
     return this.packedWidth;
   }
@@ -7794,13 +7802,13 @@ class xd extends ht {
     return t;
   }
 }
-class Tr extends xd {
+class xr extends Rd {
   // Constructor for packing, call Run to do the actual pack.
   // Each RectangleToPack.Rectangle is updated in place.
   // Pack rectangles tallest to shortest, left to right until wrapWidth is reached,
   // then wrap to right-most rectangle still with vertical space to fit the next rectangle
   constructor(t, e, i = !1) {
-    super(null), this.rectsToCenters = /* @__PURE__ */ new Map(), this.rectanglesByDescendingHeight = i ? t : Tr.SortRectangles(t), this.wrapWidth = e;
+    super(null), this.rectsToCenters = /* @__PURE__ */ new Map(), this.rectanglesByDescendingHeight = i ? t : xr.SortRectangles(t), this.wrapWidth = e;
   }
   // Sort rectangles by height
   static SortRectangles(t) {
@@ -7831,13 +7839,13 @@ class Tr extends xd {
     this.PackedWidth = s, this.PackedHeight = n;
   }
 }
-class Gh extends Ci {
+class Fh extends Ii {
   // Constructor for packing, call Run to do the actual pack.
   // Each RectangleToPack.Rectangle is updated in place.
   // Performs a Golden Section Search on packing width for the
   // closest aspect ratio to the specified desired aspect ratio
   constructor(t, e) {
-    super(Tr.SortRectangles(t), e), this.createPacking = (i, s) => new Tr(i, s, !0);
+    super(xr.SortRectangles(t), e), this.createPacking = (i, s) => new xr(i, s, !0);
   }
   // Performs a Golden Section Search on packing width for the
   // closest aspect ratio to the specified desired aspect ratio
@@ -7850,43 +7858,43 @@ class Gh extends Ci {
     this.Pack(e, i, t);
   }
 }
-function pn(a) {
-  return new Or(Et(a.map(([t, e]) => Bt(e, t))));
+function mn(a) {
+  return new Lr(Et(a.map(([t, e]) => Bt(e, t))));
 }
-function Ld(a, t) {
+function Nd(a, t) {
   a.UserData = t.UserData, a.Left = t.Left, a.Right = t.Right, a.Count--, a.irect = t.irect;
 }
-function Qa(a) {
+function Ya(a) {
   for (let t = a.Parent; t != null; t = t.Parent)
     t.Count--, t.irect = t.Left.irect.add_rect(t.Right.irect);
 }
-function Rd(a, t) {
+function Bd(a, t) {
   const e = new Array();
   for (const s of a.GetAllLeafNodes())
     s !== t && e.push(s);
   const i = Et(e);
   a.Count = i.Count, a.Left = i.Left, a.Right = i.Right, a.irect = i.Left.irect.add_rect(i.Right.irect);
 }
-function Nd(a) {
+function Gd(a) {
   for (let t = a.Parent; t != null; t = t.Parent)
-    if (!Mh(t))
+    if (!Vh(t))
       return t;
   return null;
 }
-function Mh(a) {
+function Vh(a) {
   return 2 * a.Left.Count >= a.Right.Count && 2 * a.Right.Count >= a.Left.Count;
 }
-function Mo(a, t, e, i) {
-  return a.irect.intersects_rect(t) ? a.IsLeaf ? i(a.UserData) ? --e.bound !== 0 : !0 : Mo(a.Left, t, e, i) && Mo(a.Right, t, e, i) : !0;
+function Vo(a, t, e, i) {
+  return a.irect.intersects_rect(t) ? a.IsLeaf ? i(a.UserData) ? --e.bound !== 0 : !0 : Vo(a.Left, t, e, i) && Vo(a.Right, t, e, i) : !0;
 }
-class Or {
+class Lr {
   // Removes everything from the tree
   // <
   clear() {
     this.RootNode = null;
   }
   NumberOfIntersectedIsLessThanBound(t, e, i) {
-    return Mo(this._rootNode, t, { bound: e }, i);
+    return Vo(this._rootNode, t, { bound: e }, i);
   }
   get RootNode() {
     return this._rootNode;
@@ -7977,22 +7985,22 @@ class Or {
       return this.RootNode.Count === 1 ? this.RootNode = null : this.RemoveLeaf(i), i.UserData;
   }
   RemoveLeaf(t) {
-    const e = Nd(t);
+    const e = Gd(t);
     if (e != null)
-      Rd(e, t), Qa(e);
+      Bd(e, t), Ya(e);
     else {
       const i = t.Parent;
-      i == null ? this._rootNode = new ia() : (Ld(i, t.IsLeftChild ? i.Right : i.Left), Qa(i));
+      i == null ? this._rootNode = new na() : (Nd(i, t.IsLeftChild ? i.Right : i.Left), Ya(i));
     }
   }
   UnbalancedNode(t) {
     for (let e = t.Parent; e != null; e = e.Parent)
-      if (!Mh(e))
+      if (!Vh(e))
         return e;
     return null;
   }
 }
-class Bd extends O {
+class Md extends T {
   constructor(t) {
     super(t), this.radX = t.radX, this.radY = t.radY, this.roundedRect_ = pt.mkRectangleWithRoundedCorners(this.width, this.height, t.radX, t.radY, this.center);
   }
@@ -8006,14 +8014,14 @@ class Bd extends O {
     this.left = t.left, this.right = t.right, this.top = t.top, this.bottom = t.bottom, this.isEmpty() || (this.roundedRect_ = pt.mkRectangleWithRoundedCorners(t.width, t.height, this.radX, this.radY, this.center));
   }
 }
-function Gd(a, t) {
-  const e = t.map((n) => [n, n.boundingBox]), i = e.map((n) => n[1]), s = new Gh(i, 1.5);
+function Fd(a, t) {
+  const e = t.map((n) => [n, n.boundingBox]), i = e.map((n) => n[1]), s = new Fh(i, 1.5);
   s.run();
   for (const [n, r] of e) {
     const o = r.leftBottom.sub(n.boundingBox.leftBottom);
     n.translate(o);
   }
-  a.boundingBox = new O({
+  a.boundingBox = new T({
     left: 0,
     bottom: 0,
     right: s.PackedWidth,
@@ -8041,7 +8049,7 @@ class Nt extends Yt {
   }
   /** Calculate bounding box from children, not updating the bounding boxes recursively. */
   calculateBoundsFromChildren() {
-    const t = O.mkEmpty();
+    const t = T.mkEmpty();
     for (const e of this.shallowNodes)
       t.addRecSelf(e.boundingBox);
     return t.padEverywhere(this.margins), t;
@@ -8118,8 +8126,8 @@ class Nt extends Yt {
   }
   /** this does not change the graph bounding box */
   getPumpedGraphWithMarginsBox() {
-    const t = { b: O.mkEmpty() };
-    return sa(this, t), t.b.padEverywhere(this.margins), t.b;
+    const t = { b: T.mkEmpty() };
+    return ra(this, t), t.b.padEverywhere(this.margins), t.b;
   }
   /** sets the bounding box and the boundary curve as well */
   pumpTheBoxToTheGraphWithMargins() {
@@ -8183,7 +8191,7 @@ class Nt extends Yt {
     for (const t of this.graph.shallowEdges)
       yield $.getGeom(t);
   }
-  static mk(t, e = new Ai(0, 0)) {
+  static mk(t, e = new Ti(0, 0)) {
     const i = new Nt(new di(t));
     return i.labelSize = e, i;
   }
@@ -8200,7 +8208,7 @@ class Nt extends Yt {
     return i.labelSize = e, i;
   }
   constructor(t) {
-    super(t), this.margins = { left: 10, top: 10, bottom: 10, right: 10 }, this.radX = 10, this.radY = 10, this.rrect = new Bd({ left: 0, right: -1, top: 20, bottom: 0, radX: this.radX, radY: this.radY });
+    super(t), this.margins = { left: 10, top: 10, bottom: 10, right: 10 }, this.radX = 10, this.radY = 10, this.rrect = new Md({ left: 0, right: -1, top: 20, bottom: 0, radX: this.radX, radY: this.radY });
   }
   get deepNodeCount() {
     let t = 0;
@@ -8248,7 +8256,7 @@ class Nt extends Yt {
     this.labelSize && (t.top += this.labelSize.height + 2, t.width < this.labelSize.width && (t.width = this.labelSize.width));
   }
 }
-function sa(a, t) {
+function ra(a, t) {
   for (const i of a.shallowEdges) {
     if (!e(i))
       continue;
@@ -8259,7 +8267,7 @@ function sa(a, t) {
     }
   }
   for (const i of a.shallowNodes)
-    "shallowEdges" in i && sa(i, t), !(i.underCollapsedGraph() || !i.boundingBox) && t.b.addRecSelf(i.boundingBox);
+    "shallowEdges" in i && ra(i, t), !(i.underCollapsedGraph() || !i.boundingBox) && t.b.addRecSelf(i.boundingBox);
   a instanceof Nt && a.addLabelToGraphBB(t.b);
   function e(i) {
     if (i == null || i.curve == null || i.underCollapsedGraph())
@@ -8359,7 +8367,7 @@ class Ki {
     return t;
   }
 }
-class Zn {
+class tr {
   get curveClips() {
     return this._curveClips;
   }
@@ -8389,7 +8397,7 @@ class Zn {
   addElement(t) {
     if (t instanceof Yt)
       this.nodes.push(t);
-    else if (t instanceof Jr)
+    else if (t instanceof Zr)
       this.labels.push(t);
     else if ("curve" in t)
       if (t.curve instanceof g)
@@ -8476,9 +8484,9 @@ class qs {
     return this.UserData ? this.UserData.toString() : "null";
   }
 }
-class na {
+class oa {
 }
-class Te extends na {
+class Te extends oa {
   // a curve associated with the port
   // constructor
   constructor(t, e) {
@@ -8551,7 +8559,7 @@ class Zi extends Te {
     return this.CurveDelegate();
   }
 }
-class co {
+class fo {
   constructor(t, e, i, s, n) {
     this.color = t, e !== void 0 && (this.item = e), i !== void 0 && (this.parent = i), s !== void 0 && (this.left = s), n !== void 0 && (this.right = n);
   }
@@ -8568,10 +8576,10 @@ class we {
     return this.allNodes();
   }
   constructor(t) {
-    this.comparer = t, this.count = 0, this.root = this.nil = new co(_.Black);
+    this.comparer = t, this.count = 0, this.root = this.nil = new fo(_.Black);
   }
   clear() {
-    this.root = this.nil = new co(_.Black);
+    this.root = this.nil = new fo(_.Black);
   }
   toNull(t) {
     return t !== this.nil ? t : null;
@@ -8677,7 +8685,7 @@ class we {
     let e = this.nil, i = this.root, s = 0;
     for (; i !== this.nil; )
       e = i, s = this.comparer(t, i.item), i = s < 0 ? i.left : i.right;
-    const n = new co(_.Black, t, e, this.nil, this.nil);
+    const n = new fo(_.Black, t, e, this.nil, this.nil);
     return e === this.nil ? this.root = n : s < 0 ? e.left = n : e.right = n, this.toNull(n);
   }
   insertPrivate(t) {
@@ -8706,7 +8714,7 @@ class we {
     return t + "}";
   }
 }
-class ra {
+class aa {
   *[Symbol.iterator]() {
     for (let t = 1; t <= this.heapSize; t++)
       yield this.A[t];
@@ -8750,9 +8758,9 @@ class ra {
     return this.A[1];
   }
 }
-class Bi {
+class Gi {
 }
-class en extends Bi {
+class en extends Gi {
   get Site() {
     return this.Vertex.point;
   }
@@ -8763,12 +8771,12 @@ class en extends Bi {
     return this.Vertex.polyline;
   }
 }
-class Md extends en {
+class Vd extends en {
   constructor(t) {
     super(t);
   }
 }
-class Fd {
+class Dd {
   constructor(t) {
     this.lineSweeper = t;
   }
@@ -8790,7 +8798,7 @@ class Fd {
     return t.Start.add(t.Direction.mul(i));
   }
 }
-class Vd extends Bi {
+class kd extends Gi {
   constructor(t) {
     super(), this.site = t;
   }
@@ -8798,9 +8806,9 @@ class Vd extends Bi {
     return this.site;
   }
 }
-class Fh {
+class Dh {
   constructor(t, e) {
-    this.PreviousZ = Number.NEGATIVE_INFINITY, this.z = Number.NEGATIVE_INFINITY, this.Obstacles = t ?? [], this.SweepDirection = e, this.DirectionPerp = e.rotate(-Math.PI / 2), this.EventQueue = new ra((i, s) => this.Compare(i, s)), this.ObstacleSideComparer = new Fd(this), this.LeftObstacleSideTree = new we((i, s) => this.ObstacleSideComparer.Compare(i, s)), this.RightObstacleSideTree = new we((i, s) => this.ObstacleSideComparer.Compare(i, s));
+    this.PreviousZ = Number.NEGATIVE_INFINITY, this.z = Number.NEGATIVE_INFINITY, this.Obstacles = t ?? [], this.SweepDirection = e, this.DirectionPerp = e.rotate(-Math.PI / 2), this.EventQueue = new aa((i, s) => this.Compare(i, s)), this.ObstacleSideComparer = new Dd(this), this.LeftObstacleSideTree = new we((i, s) => this.ObstacleSideComparer.Compare(i, s)), this.RightObstacleSideTree = new we((i, s) => this.ObstacleSideComparer.Compare(i, s));
   }
   get EventQueue() {
     return this.eventQueue;
@@ -8858,11 +8866,11 @@ class Fh {
       this.EnqueueLowestPointsOnObstacles(t);
     if (this.Ports != null)
       for (const t of this.Ports.values())
-        this.EnqueueEvent(new Vd(t));
+        this.EnqueueEvent(new kd(t));
   }
   EnqueueLowestPointsOnObstacles(t) {
     const e = this.GetLowestPoint(t);
-    this.EnqueueEvent(new Md(e));
+    this.EnqueueEvent(new Vd(e));
   }
   GetLowestPoint(t) {
     let e = t.startPoint, i = t.startPoint.next;
@@ -8895,9 +8903,9 @@ class Fh {
     return i < s ? -1 : i > s ? 1 : (i = this.directionPerp.dot(t), s = this.directionPerp.dot(e), i < s ? -1 : i > s ? 1 : 0);
   }
 }
-var uo = {}, Ya;
-function Dd() {
-  return Ya || (Ya = 1, (function(a) {
+var go = {}, Ja;
+function _d() {
+  return Ja || (Ja = 1, (function(a) {
     Object.defineProperty(a, "__esModule", { value: !0 }), a.StringBuilder = a.String = a.emptyString = void 0, a.isNullOrWhiteSpace = e, a.joinString = i, a.formatString = s;
     let t = `\r
 `;
@@ -9076,9 +9084,9 @@ function Dd() {
       }
     }
     a.StringBuilder = r;
-  })(uo)), uo;
+  })(go)), go;
 }
-var Gt = Dd();
+var Gt = _d();
 class ce {
   static closeuv(t, e) {
     return u.closeDistEps(t.point, ce.u, 0.1) && u.closeDistEps(e.point, ce.v, 0.1);
@@ -9129,22 +9137,22 @@ class ii {
     return this.m.size;
   }
   setxy(t, e, i) {
-    this.m.set($n(t, e), i);
+    this.m.set(er(t, e), i);
   }
   set(t, e) {
     this.setxy(t.x, t.y, e);
   }
   delete(t, e) {
-    return this.m.delete($n(t, e));
+    return this.m.delete(er(t, e));
   }
   hasxy(t, e) {
-    return this.m.has($n(t, e));
+    return this.m.has(er(t, e));
   }
   has(t) {
     return this.hasxy(t.x, t.y);
   }
   getxy(t, e) {
-    return this.m.get($n(t, e));
+    return this.m.get(er(t, e));
   }
   get(t) {
     return this.getxy(t.x, t.y);
@@ -9168,7 +9176,7 @@ class ii {
     yield* this.m.values();
   }
 }
-function $n(a, t) {
+function er(a, t) {
   return a.toString() + "," + t.toString();
 }
 class ks {
@@ -9450,12 +9458,12 @@ class wt {
       t.ClearEdges();
   }
 }
-class oa {
+class la {
   constructor() {
     this.Removed = !1;
   }
 }
-class Ns extends oa {
+class Ns extends la {
   get Start() {
     return this.start;
   }
@@ -9472,7 +9480,7 @@ class Ns extends oa {
     return "BrokenConeSide: " + (this.Start + ("," + this.End));
   }
 }
-class fo {
+class po {
   get Removed() {
     return this.removed;
   }
@@ -9507,7 +9515,7 @@ class fo {
     this.leftSide = t, this.leftSide.Cone = this;
   }
 }
-class Ja extends Bi {
+class Ka extends Gi {
   get ConeToClose() {
     return this.coneToClose;
   }
@@ -9521,7 +9529,7 @@ class Ja extends Bi {
     return "ConeClosureEvent " + this.site;
   }
 }
-class ri extends oa {
+class ri extends la {
   constructor(t) {
     super(), this.Cone = t;
   }
@@ -9535,7 +9543,7 @@ class ri extends oa {
     return "ConeLeftSide " + this.Start + (" " + this.Direction);
   }
 }
-class Fi extends oa {
+class Fi extends la {
   constructor(t) {
     super(), this.Cone = t;
   }
@@ -9549,7 +9557,7 @@ class Fi extends oa {
     return "ConeRightSide " + this.Start + " " + this.Direction;
   }
 }
-class xr {
+class Rr {
   SetOperand(t) {
     this.x = this.IntersectionOfSegmentAndSweepLine(t);
   }
@@ -9558,7 +9566,7 @@ class xr {
   }
   Compare(t, e) {
     const i = t instanceof Ns, s = e instanceof Ns;
-    return i ? s ? this.CompareBrokenSides(t, e) : this.CompareObstacleSideAndConeSide(e) : s ? this.CompareConeSideAndObstacleSide(t, e) : xr.CompareNotIntersectingSegs(t, e);
+    return i ? s ? this.CompareBrokenSides(t, e) : this.CompareObstacleSideAndConeSide(e) : s ? this.CompareConeSideAndObstacleSide(t, e) : Rr.CompareNotIntersectingSegs(t, e);
   }
   static CompareNotIntersectingSegs(t, e) {
     switch (u.getTriangleOrientation(t.Start, e.Start, e.Start.add(e.Direction))) {
@@ -9583,10 +9591,10 @@ class xr {
     return t.Start.add(t.Direction.mul(i));
   }
   CompareBrokenSides(t, e) {
-    return t.EndVertex === e.EndVertex ? xr.CompareNotIntersectingSegs(t.ConeSide, e.ConeSide) : u.getTriangleOrientation(this.x, e.start, e.EndVertex.point) === L.Counterclockwise ? -1 : 1;
+    return t.EndVertex === e.EndVertex ? Rr.CompareNotIntersectingSegs(t.ConeSide, e.ConeSide) : u.getTriangleOrientation(this.x, e.start, e.EndVertex.point) === L.Counterclockwise ? -1 : 1;
   }
 }
-class ln extends Bi {
+class ln extends Gi {
   get EndVertex() {
     return this.endVertex;
   }
@@ -9600,7 +9608,7 @@ class ln extends Bi {
     return "LeftIntersectionEvent " + this.intersectionPoint;
   }
 }
-class aa {
+class ha {
   get Direction() {
     return this.End.sub(this.Start);
   }
@@ -9608,7 +9616,7 @@ class aa {
     return this.Start + " " + this.End;
   }
 }
-class la extends aa {
+class ca extends ha {
   Init(t) {
     this.StartVertex = t;
   }
@@ -9625,7 +9633,7 @@ class la extends aa {
     return this.EndVertex.point;
   }
 }
-class Bs extends la {
+class Bs extends ca {
   constructor(t) {
     super(t), this.end = t.nextOnPolyline.point;
   }
@@ -9641,7 +9649,7 @@ class ls extends en {
     super(t);
   }
 }
-class Ka extends Bi {
+class Za extends Gi {
   get EndVertex() {
     return this.endVertex;
   }
@@ -9658,7 +9666,7 @@ class Ka extends Bi {
     return "RightIntersectionEvent " + this.intersectionPoint;
   }
 }
-class Gs extends la {
+class Gs extends ca {
   constructor(t) {
     super(t), this.end = t.prevOnPolyline.point;
   }
@@ -9674,9 +9682,9 @@ class hs extends en {
     super(t);
   }
 }
-class qt extends Fh {
+class qt extends Dh {
   constructor(t, e, i, s, n, r, o) {
-    super(t, e), this.visibilityGraph = n, this.ConeRightSideDirection = i, this.ConeLeftSideDirection = s, this.coneSideComparer = new xr(this), this.leftConeSides = new we((l, h) => this.coneSideComparer.Compare(l, h)), this.rightConeSides = new we((l, h) => this.coneSideComparer.Compare(l, h)), this.Ports = r, this.BorderPolyline = o, this.PortEdgesCreator = (l, h) => new pi(l, h, 0);
+    super(t, e), this.visibilityGraph = n, this.ConeRightSideDirection = i, this.ConeLeftSideDirection = s, this.coneSideComparer = new Rr(this), this.leftConeSides = new we((l, h) => this.coneSideComparer.Compare(l, h)), this.rightConeSides = new we((l, h) => this.coneSideComparer.Compare(l, h)), this.Ports = r, this.BorderPolyline = o, this.PortEdgesCreator = (l, h) => new pi(l, h, 0);
   }
   static Sweep(t, e, i, s, n, r) {
     new qt(t, e, e.rotate(-i / 2), e.rotate(i / 2), s, n, r).Calculate();
@@ -9805,7 +9813,7 @@ class qt extends Fh {
     return e.next != null ? (s = ei.mkFromPoint(i), s.prev = e, s.next = e.next, e.next.prev = s, e.next = s) : (s = ei.mkFromPoint(i), s.prev = e, e.next = s, t.endPoint = s), s.polyline = t, t.setInitIsRequired(), s;
   }
   ProcessEvent(t) {
-    t instanceof en ? this.ProcessVertexEvent(t) : t instanceof Ka ? this.ProcessRightIntersectionEvent(t) : t instanceof ln ? this.ProcessLeftIntersectionEvent(t) : (t instanceof Ja ? t.ConeToClose.Removed || this.RemoveCone(t.ConeToClose) : this.ProcessPortObstacleEvent(t), this.Z = this.GetZS(t));
+    t instanceof en ? this.ProcessVertexEvent(t) : t instanceof Za ? this.ProcessRightIntersectionEvent(t) : t instanceof ln ? this.ProcessLeftIntersectionEvent(t) : (t instanceof Ka ? t.ConeToClose.Removed || this.RemoveCone(t.ConeToClose) : this.ProcessPortObstacleEvent(t), this.Z = this.GetZS(t));
   }
   // #if TEST_MSAGL
   //        protected override bool TreesAreCorrect() {
@@ -9848,7 +9856,7 @@ class qt extends Fh {
   CreateConeClosureEvent(t, e) {
     const i = u.RayIntersectsRayInteriors(t.start, t.Direction, e.Start, e.Direction);
     if (i) {
-      const s = new Ja(i, t.Cone);
+      const s = new Ka(i, t.Cone);
       this.EnqueueEvent(s);
     }
   }
@@ -9979,7 +9987,7 @@ class qt extends Fh {
   }
   CaseToTheLeftOfLineOrOnLineConeRp(t, e) {
     this.EnqueueRightVertexEvent(new hs(e));
-    const i = new fo(t.Vertex.point, this), s = new Ns(i.Apex, e, new ri(i));
+    const i = new po(t.Vertex.point, this), s = new Ns(i.Apex, e, new ri(i));
     i.LeftSide = s, i.RightSide = new Fi(i);
     const n = this.InsertToTree(this.rightConeSides, i.RightSide);
     this.LookForIntersectionWithConeRightSide(n);
@@ -9994,7 +10002,7 @@ class qt extends Fh {
     }
   }
   CreateRightIntersectionEvent(t, e, i) {
-    return new Ka(t, e, i);
+    return new Za(t, e, i);
   }
   GetLastNodeToTheLeftOfPointInRightSegmentTree(t) {
     return this.rightConeSides.findLast((e) => qt.PointIsToTheRightOfSegment(t, e));
@@ -10043,7 +10051,7 @@ class qt extends Fh {
       this.EnqueueEvent(new ls(e)), this.GetZP(h) > m.distanceEpsilon && (this.LookForIntersectionOfObstacleSideAndRightConeSide(t.Site, e), this.InsertLeftSide(new Bs(t.Vertex)));
     else {
       this.EnqueueEvent(new ls(e));
-      const c = new fo(t.Vertex.point, this), d = new Ns(t.Vertex.point, e, new Fi(c));
+      const c = new po(t.Vertex.point, this), d = new Ns(t.Vertex.point, e, new Fi(c));
       c.RightSide = d, c.LeftSide = new ri(c), this.LookForIntersectionWithConeLeftSide(this.InsertToTree(this.leftConeSides, c.LeftSide));
       const f = this.InsertToTree(this.rightConeSides, d);
       this.FixConeRightSideIntersections(d, f), this.GetZP(h) > m.distanceEpsilon && this.InsertLeftSide(new Bs(t.Vertex));
@@ -10079,7 +10087,7 @@ class qt extends Fh {
     }
   }
   CreateConeOnVertex(t) {
-    const e = new fo(t.Site, this);
+    const e = new po(t.Site, this);
     e.LeftSide = new ri(e), e.RightSide = new Fi(e);
     const i = this.InsertToTree(this.leftConeSides, e.LeftSide), s = this.InsertToTree(this.rightConeSides, e.RightSide);
     this.LookForIntersectionWithConeRightSide(s), this.LookForIntersectionWithConeLeftSide(i);
@@ -10288,7 +10296,7 @@ class Us extends ht {
     qt.Sweep(this._obstacles, t, this.coneAngle, i, this.Ports, e);
   }
 }
-class $t extends na {
+class $t extends oa {
   mk(t, e) {
     const i = new $t(t);
     return i.HookSize = e, i;
@@ -10339,7 +10347,7 @@ class Ve extends Zi {
     return new Ve(t, e);
   }
 }
-class Oe extends na {
+class Oe extends oa {
   get Location() {
     return this.curve.value(this.parameter);
   }
@@ -10462,7 +10470,7 @@ Dt.DefaultCapacityOverflowCoefficientMultiplier = 1e3;
 Dt.DefaultPathLengthImportance = 500;
 Dt.DefaultInkImportance = 0.01;
 Dt.DefaultEdgeSeparation = 0.5;
-class Fo extends qs {
+class Do extends qs {
   get BoundaryCurve() {
     return this.node.boundaryCurve;
   }
@@ -10492,25 +10500,25 @@ class ze {
       if (!(e instanceof Nt))
         continue;
       const s = e;
-      for (const n of go(s)) {
+      for (const n of mo(s)) {
         const r = t.get(n);
         r && i.AddChild(r);
       }
     }
   }
   static ProcessAncestorDescendantCouple(t, e, i) {
-    let s = tr(e);
+    let s = ir(e);
     do {
-      for (const n of go(s))
+      for (const n of mo(s))
         ze.CreateShapeIfNeeeded(n, i);
       if (s === t)
         break;
-      s = tr(s);
+      s = ir(s);
     } while (!0);
     ze.CreateShapeIfNeeeded(s, i);
   }
   static CreateShapeIfNeeeded(t, e) {
-    e.has(t) || e.set(t, new Fo(t));
+    e.has(t) || e.set(t, new Do(t));
   }
   static NumberOfActiveNodesIsUnderThreshold(t, e, i) {
     const s = /* @__PURE__ */ new Set();
@@ -10523,23 +10531,23 @@ class ze {
     return !0;
   }
   static SetOfActiveNodesIsLargerThanThreshold(t, e, i, s) {
-    let n = tr(e);
+    let n = ir(e);
     for (; ; ) {
-      for (const r of go(n))
+      for (const r of mo(n))
         if (i.add(r), i.size > s)
           return !0;
       if (n === t)
         break;
-      n = tr(n);
+      n = ir(n);
     }
     return i.add(n), i.size > s;
   }
 }
-function tr(a) {
+function ir(a) {
   const t = a.node.parent;
   return $.getGeom(t);
 }
-function* go(a) {
+function* mo(a) {
   for (const t of a.graph.shallowNodes)
     yield $.getGeom(t);
 }
@@ -10621,13 +10629,13 @@ class Xe {
     this.stack = { point: this.hullPoints[t].point, next: this.stack };
   }
   SortAllPointsWithoutPivot() {
-    this.hullPoints.sort(kd(this.pivot));
+    this.hullPoints.sort(Wd(this.pivot));
   }
   static createConvexHullAsClosedPolyline(t) {
     return B.mkClosedFromPoints(Array.from(Xe.CalculateConvexHull(t)));
   }
 }
-function kd(a) {
+function Wd(a) {
   return (t, e) => {
     if (t === e)
       return 0;
@@ -10656,13 +10664,13 @@ function ae(a, t, e) {
   a.irect.intersects_rect(t.irect) && (a.Left == null ? t.Left == null ? e(a.UserData, t.UserData) : (ae(a, t.Left, e), ae(a, t.Right, e)) : t.Left != null ? (ae(a.Left, t.Left, e), ae(a.Left, t.Right, e), ae(a.Right, t.Left, e), ae(a.Right, t.Right, e)) : (ae(a.Left, t, e), ae(a.Right, t, e)));
 }
 function Xt(a, t, e) {
-  a.irect.intersects_rect(t.irect) && (a === t ? Wd(a, e) : a.Left == null ? t.Left == null ? e(a.UserData, t.UserData) : (Xt(a, t.Left, e), Xt(a, t.Right, e)) : t.Left != null ? (Xt(a.Left, t.Left, e), Xt(a.Left, t.Right, e), Xt(a.Right, t.Left, e), Xt(a.Right, t.Right, e)) : (Xt(a.Left, t, e), Xt(a.Right, t, e)));
+  a.irect.intersects_rect(t.irect) && (a === t ? zd(a, e) : a.Left == null ? t.Left == null ? e(a.UserData, t.UserData) : (Xt(a, t.Left, e), Xt(a, t.Right, e)) : t.Left != null ? (Xt(a.Left, t.Left, e), Xt(a.Left, t.Right, e), Xt(a.Right, t.Left, e), Xt(a.Right, t.Right, e)) : (Xt(a.Left, t, e), Xt(a.Right, t, e)));
 }
 function xe(a, t, e) {
   if (!a.irect.intersects_rect(t.irect))
     return !1;
   if (a === t)
-    return _d(a, e);
+    return Hd(a, e);
   if (a.Left == null) {
     if (t.Left == null)
       return e(a.UserData, t.UserData);
@@ -10675,14 +10683,14 @@ function xe(a, t, e) {
     return !0;
   return !1;
 }
-function _d(a, t) {
+function Hd(a, t) {
   return a.Left == null ? !1 : xe(a.Left, a.Left, t) || xe(a.Left, a.Right, t) || xe(a.Right, a.Right, t);
 }
-function Wd(a, t) {
+function zd(a, t) {
   a.Left != null && (Xt(a.Left, a.Left, t), Xt(a.Left, a.Right, t), Xt(a.Right, a.Right, t));
 }
-const Za = BigInt("6364136223846793005"), po = (BigInt(1) << BigInt(32)) - BigInt(1), Pi = (BigInt(1) << BigInt(64)) - BigInt(1);
-class Kr {
+const $a = BigInt("6364136223846793005"), Po = (BigInt(1) << BigInt(32)) - BigInt(1), Si = (BigInt(1) << BigInt(64)) - BigInt(1);
+class $r {
   /**
    * A PRNG class. Provides two main methods:
    *
@@ -10698,7 +10706,7 @@ class Kr {
   // The state and sequence are stored as bigints, but anything that is
   // coercible to a bigint should be a valid seed.
   constructor(t, e) {
-    this._state = BigInt(0), this._inc = (BigInt(e) << BigInt(1) | BigInt(1)) & Pi, this._random_b(), this._state = this._state + BigInt(t) & Pi, this._random_b();
+    this._state = BigInt(0), this._inc = (BigInt(e) << BigInt(1) | BigInt(1)) & Si, this._random_b(), this._state = this._state + BigInt(t) & Si, this._random_b();
   }
   /**
    * This is the source of randomness for all other random methods.
@@ -10712,9 +10720,9 @@ class Kr {
    */
   _random_b() {
     const t = this._state;
-    this._state = t * Za + this._inc & Pi;
+    this._state = t * $a + this._inc & Si;
     const e = (t >> BigInt(18) ^ t) >> BigInt(27), i = t >> BigInt(59), s = i ^ BigInt(31);
-    return (e >> i | e << s) & po;
+    return (e >> i | e << s) & Po;
   }
   /**
    * Advances the internal state of the generator `delta` steps. Delta can be
@@ -10725,11 +10733,11 @@ class Kr {
    * log(delta) time.
    */
   _advance(t) {
-    t &= Pi;
-    let e = BigInt(1), i = Za, s = BigInt(0), n = this._inc;
+    t &= Si;
+    let e = BigInt(1), i = $a, s = BigInt(0), n = this._inc;
     for (; t > 0; )
-      t & BigInt(1) && (e = e * i & Pi, s = s * i + n & Pi), n = (i + BigInt(1)) * n & Pi, i = i * i & Pi, t >>= BigInt(1);
-    this._state = e * this._state + s & Pi;
+      t & BigInt(1) && (e = e * i & Si, s = s * i + n & Si), n = (i + BigInt(1)) * n & Si, i = i * i & Si, t >>= BigInt(1);
+    this._state = e * this._state + s & Si;
   }
   /**
    * Produces a uniformly distributed integer, r, with 0 ≤ r < bound.
@@ -10743,11 +10751,11 @@ class Kr {
    * @param bound The lower bound for the number.
    */
   randint(t) {
-    if (t > po)
+    if (t > Po)
       throw new TypeError(`Bound too large: ${t}`);
     if (t <= 0)
       throw new TypeError(`Empty sample space for r: 0 ≤ r < ${t}`);
-    const e = BigInt(t), i = (po ^ e) % e;
+    const e = BigInt(t), i = (Po ^ e) % e;
     for (; ; ) {
       const s = this._random_b();
       if (s >= i)
@@ -10765,42 +10773,42 @@ class Kr {
 }
 let gs;
 function Xs(a) {
-  return gs == null && (gs = new Kr(0, 0)), gs.randint(a);
+  return gs == null && (gs = new $r(0, 0)), gs.randint(a);
 }
-function Zr(a) {
-  gs = new Kr(a, 0);
+function to(a) {
+  gs = new $r(a, 0);
 }
 function Cs() {
-  return gs == null && (gs = new Kr(0, 0)), gs.random();
+  return gs == null && (gs = new $r(0, 0)), gs.random();
 }
 function* Qs(a) {
   const t = new Array(a.nodeCount).fill(!1), e = new We.Queue();
   for (let i = 0; i < a.nodeCount; i++)
     if (!t[i]) {
       const s = new Array();
-      for ($a(i, e, t); e.length > 0; ) {
+      for (tl(i, e, t); e.length > 0; ) {
         const n = e.dequeue();
         s.push(n);
-        for (const r of Hd(a, n))
-          $a(r, e, t);
+        for (const r of jd(a, n))
+          tl(r, e, t);
       }
       yield s;
     }
 }
-function* Hd(a, t) {
+function* jd(a, t) {
   for (const e of a.outEdges[t])
     yield e.target;
   for (const e of a.inEdges[t])
     yield e.source;
 }
-function $a(a, t, e) {
+function tl(a, t, e) {
   e[a] === !1 && (t.enqueue(a), e[a] = !0);
 }
-function Lr(a) {
+function Nr(a) {
   const t = new te();
   return t.SetEdges(a, te.vertexCount(a)), t;
 }
-function Vh(a) {
+function kh(a) {
   const t = new te();
   return t.SetEdges(a, te.vertexCount(a)), t;
 }
@@ -10894,7 +10902,7 @@ var Mt;
 (function(a) {
   a[a.Increasing = 0] = "Increasing", a[a.Decreasing = 1] = "Decreasing", a[a.Extremum = 2] = "Extremum";
 })(Mt || (Mt = {}));
-class er {
+class sr {
   // the sequence values
   get Sequence() {
     return this.f;
@@ -10962,7 +10970,7 @@ class er {
     return t === e || this.f(t) >= this.f(e) ? t : e;
   }
 }
-class zd {
+class qd {
   toArray() {
     const t = [];
     for (let e = 0; e < this.length; e++)
@@ -10982,13 +10990,13 @@ class zd {
   }
   // following Chazelle, Dobkin
   FindMinimum() {
-    return this.f(0) === this.f(this.length - 1) ? new er(this.f, this.length).FindMinimum() : new er(this.GetAdjustedSequenceForMinimum(), this.length).FindMinimum();
+    return this.f(0) === this.f(this.length - 1) ? new sr(this.f, this.length).FindMinimum() : new sr(this.GetAdjustedSequenceForMinimum(), this.length).FindMinimum();
   }
   FindMaximum() {
-    return this.f(0) === this.f(this.length - 1) ? new er(this.f, this.length).FindMaximum() : new er(this.GetAdjustedSequenceForMaximum(), this.length).FindMaximum();
+    return this.f(0) === this.f(this.length - 1) ? new sr(this.f, this.length).FindMaximum() : new sr(this.GetAdjustedSequenceForMaximum(), this.length).FindMaximum();
   }
 }
-class $r {
+class eo {
   constructor(t, e) {
     this.P = t, this.Q = e;
   }
@@ -11085,7 +11093,7 @@ class $r {
       b1: void 0,
       b2: void 0
     };
-    if (this.GetAnglesAtTheMedian(e, i, s, n, r), !this.InternalCut(t, e, i, r.a1, r.a2, r.b1, r.b2) && !$r.OneOfChunksContainsOnlyOneVertex(t, e, i, r.a1, r.b1) && !this.OnlyOneChunkContainsExactlyTwoVertices(t, { mp: e, mq: i }, r)) {
+    if (this.GetAnglesAtTheMedian(e, i, s, n, r), !this.InternalCut(t, e, i, r.a1, r.a2, r.b1, r.b2) && !eo.OneOfChunksContainsOnlyOneVertex(t, e, i, r.a1, r.b1) && !this.OnlyOneChunkContainsExactlyTwoVertices(t, { mp: e, mq: i }, r)) {
       if (t.p2 === this.P.Next(t.p1) && t.q1 === this.Q.Next(t.q2)) {
         const o = v.minDistBetweenLineSegments(this.P.pnt(t.p1), this.P.pnt(t.p2), this.Q.pnt(t.q1), this.Q.pnt(t.q2));
         o.parab === 0 ? t.p2 = t.p1 : o.parab === 1 ? t.p1 = t.p2 : o.parcd === 0 ? t.q2 = t.q1 : o.parcd === 1 && (t.q1 = t.q2);
@@ -11253,7 +11261,7 @@ class ue {
   // p and q are the closest points
   // The function doesn't work if the polygons intersect each other
   static Distance(t, e) {
-    const s = new $r(t, e).FindClosestPoints();
+    const s = new eo(t, e).FindClosestPoints();
     return {
       p: s.pClosest,
       q: s.qClosest,
@@ -11281,7 +11289,7 @@ class ue {
     return i;
   }
   GetTangentPoints(t, e) {
-    const i = new zd(this.GetSequenceDelegate(e), this.count);
+    const i = new qd(this.GetSequenceDelegate(e), this.count);
     t.leftTangentPoint = i.FindMaximum(), t.rightTangentPoint = i.FindMinimum();
   }
   GetSequenceDelegate(t) {
@@ -11408,9 +11416,9 @@ class G {
     const s = /* @__PURE__ */ new Set();
     for (const h of e)
       s.add(h[0]), s.add(h[1]);
-    const n = Array.from(s), r = G.MapToInt(n), o = Vh(Array.from(e).map((h) => new U(r.get(h[0]), r.get(h[1])))), l = Qs(o);
+    const n = Array.from(s), r = G.MapToInt(n), o = kh(Array.from(e).map((h) => new U(r.get(h[0]), r.get(h[1])))), l = Qs(o);
     for (const h of l) {
-      const c = h.map((P) => n[P]), d = Xn(c, (P) => P), f = Xe.createConvexHullAsClosedPolyline(d), p = new Array();
+      const c = h.map((P) => n[P]), d = Qn(c, (P) => P), f = Xe.createConvexHullAsClosedPolyline(d), p = new Array();
       for (const P of c)
         t.delete(P), i != null && (p.push(...i.get(P)), i.delete(P));
       i?.set(f, p), t.add(f);
@@ -11474,7 +11482,7 @@ class G {
     return u.getTriangleOrientation(e, s, i) === L.Counterclockwise;
   }
   static CreatePaddedPolyline(t, e, i = !1) {
-    const s = new B(), n = i ? jd(t) : t;
+    const s = new B(), n = i ? Ud(t) : t;
     if (!G.PadCorner(s, n.endPoint.prev, n.endPoint, n.startPoint, e) || !G.PadCorner(s, n.endPoint, n.startPoint, n.startPoint.next, e))
       return G.CreatePaddedPolyline(B.mkClosedFromPoints(Array.from(Xe.CalculateConvexHull(n))), e);
     for (let r = n.startPoint; r.next.next != null; r = r.next)
@@ -11484,7 +11492,7 @@ class G {
   }
 }
 G.LooseDistCoefficient = 2.1;
-function jd(a) {
+function Ud(a) {
   const t = new B(), e = 0.01;
   for (let i = a.startPoint; i; i = i.next) {
     const s = i.point.x + e * Cs(), n = i.point.y + e * Cs();
@@ -11492,7 +11500,7 @@ function jd(a) {
   }
   return t.closed = a.closed, t;
 }
-class ha {
+class ua {
   get TightPolyline() {
     return this.tightPoly;
   }
@@ -11500,26 +11508,26 @@ class ha {
     this.tightPoly = t;
   }
   static mk(t, e, i) {
-    const s = new ha();
+    const s = new ua();
     return s.TightPolyline = t, s.LooseShape = e, s.Distance = i, s;
   }
   toString() {
     return (this.TightPolyline == null ? "null" : this.TightPolyline.toString().substring(0, 5)) + "," + (this.LooseShape == null ? "null" : this.LooseShape.toString().substring(0, 5));
   }
 }
-class ca {
+class da {
   constructor(t, e, i, s) {
     this.loosePolylinesToNodes = /* @__PURE__ */ new Map(), this.MainShape = t, this.TightPadding = e, this.LoosePadding = i, this.ShapesToTightLooseCouples = s;
   }
   Calculate(t) {
-    Zr(3), this.MainShape.Children.length !== 0 && (this.CreateTightObstacles(), this.CreateTigthLooseCouples(t), this.OverlapsDetected && this.FillTheMapOfShapeToTightLooseCouples());
+    to(3), this.MainShape.Children.length !== 0 && (this.CreateTightObstacles(), this.CreateTigthLooseCouples(t), this.OverlapsDetected && this.FillTheMapOfShapeToTightLooseCouples());
   }
   FillTheMapOfShapeToTightLooseCouples() {
     const t = Et(this.MainShape.Children.map((e) => Bt(e, e.BoundingBox)));
     ae(t, this.coupleHierarchy, this.TryMapShapeToTightLooseCouple.bind(this));
   }
   TryMapShapeToTightLooseCouple(t, e) {
-    ca.ShapeIsInsideOfPoly(t, e.TightPolyline) && this.ShapesToTightLooseCouples.set(t, e);
+    da.ShapeIsInsideOfPoly(t, e.TightPolyline) && this.ShapesToTightLooseCouples.set(t, e);
   }
   // this test is valid in our situation where the tight polylines are disjoint and the shape can cross only one of them
   static ShapeIsInsideOfPoly(t, e) {
@@ -11528,7 +11536,7 @@ class ca {
   CreateTigthLooseCouples(t) {
     const e = new Array();
     for (const i of this.tightHierarchy.GetAllLeaves()) {
-      const s = G.FindMaxPaddingForTightPolyline(this.tightHierarchy, i, this.LoosePadding), n = G.LoosePolylineWithFewCorners(i, s, t), r = new qs(n), o = ha.mk(i, r, s), l = this.tightToShapes.get(i);
+      const s = G.FindMaxPaddingForTightPolyline(this.tightHierarchy, i, this.LoosePadding), n = G.LoosePolylineWithFewCorners(i, s, t), r = new qs(n), o = ua.mk(i, r, s), l = this.tightToShapes.get(i);
       for (const h of l)
         this.ShapesToTightLooseCouples.set(h, o);
       e.push(o);
@@ -11542,7 +11550,7 @@ class ca {
   }
   InitialTightPolyline(t) {
     let e = G.PaddedPolylineBoundaryOfNode(t.BoundaryCurve, this.TightPadding);
-    const i = Xn(this.LoosePolylinesUnderShape(t), (n) => n).filter((n) => g.PointRelativeToCurveLocation(n, e) === F.Outside);
+    const i = Qn(this.LoosePolylinesUnderShape(t), (n) => n).filter((n) => g.PointRelativeToCurveLocation(n, e) === F.Outside);
     if (i.length == 0)
       return this.tightToShapes && this.tightToShapes.set(e, [t]), e;
     const s = Array.from(e).concat(i);
@@ -11552,7 +11560,7 @@ class ca {
     return t.Children.map((e) => this.ShapesToTightLooseCouples.get(e).LooseShape.BoundaryCurve);
   }
 }
-class qd {
+class Xd {
   // value
   constructor(t, e, i) {
     this.indexToA = t, this.priority = e, this.v = i;
@@ -11574,7 +11582,7 @@ class is {
   }
   Enqueue(t, e) {
     let i = ++this.heapSize;
-    const s = new qd(i, e, t);
+    const s = new Xd(i, e, t);
     for (this.cache.set(t, s), this.A[i] = s; i > 1 && this.compare(this.A[i >> 1].priority, e) > 0; )
       this.SwapWithParent(i), i >>= 1;
   }
@@ -11642,7 +11650,7 @@ class is {
     return t.ToString();
   }
 }
-class xn {
+class Ln {
   constructor(t, e, i) {
     this.upperBound = Number.POSITIVE_INFINITY, this._visGraph = i, this._visGraph.ClearPrevEdgesTable();
     for (const s of i.Vertices())
@@ -11661,10 +11669,10 @@ class xn {
     return this._visGraph.PreviosVertex(this.current) == null ? null : this.CalculatePath();
   }
   PassableOutEdge(t) {
-    return t.Source === this.source || this.targets.has(t.Target) || !xn.IsForbidden(t);
+    return t.Source === this.source || this.targets.has(t.Target) || !Ln.IsForbidden(t);
   }
   PassableInEdge(t) {
-    return this.targets.has(t.Source) || t.Target === this.source || !xn.IsForbidden(t);
+    return this.targets.has(t.Source) || t.Target === this.source || !Ln.IsForbidden(t);
   }
   static IsForbidden(t) {
     return t.IsPassable != null && !t.IsPassable() || t instanceof pi;
@@ -11684,7 +11692,7 @@ class xn {
     return t.push(this.source), t.reverse();
   }
 }
-class Rr {
+class Br {
   get LengthMultiplier() {
     return this._lengthMultiplier;
   }
@@ -11724,10 +11732,10 @@ class Rr {
   //  for (const edge of path) Assert.assert(this.PassableOutEdge(edge) || this.PassableInEdge(edge))
   // }
   PassableOutEdge(t) {
-    return t.Source === this._source || t.Target === this._target || !Rr.IsForbidden(t);
+    return t.Source === this._source || t.Target === this._target || !Br.IsForbidden(t);
   }
   PassableInEdge(t) {
-    return t.Source === this._target || t.Target === this._source || !Rr.IsForbidden(t);
+    return t.Source === this._target || t.Target === this._source || !Br.IsForbidden(t);
   }
   static IsForbidden(t) {
     return t.IsPassable != null && !t.IsPassable() || t instanceof pi;
@@ -11752,11 +11760,11 @@ class Rr {
     return e.push(this._source), e.reverse();
   }
 }
-var Ti;
+var Oi;
 (function(a) {
   a[a.Regular = 0] = "Regular", a[a.Tangent = 1] = "Tangent";
-})(Ti || (Ti = {}));
-class tl {
+})(Oi || (Oi = {}));
+class el {
   toString() {
     return Gt.String.format("{0},{1}", this.Start, this.End);
   }
@@ -11788,7 +11796,7 @@ class tl {
     this.rbNode = t;
   }
 }
-class el {
+class il {
   // the complimentary tangent
   get Comp() {
     return this.comp;
@@ -11838,7 +11846,7 @@ class el {
     return Gt.String.format("{0},{1}", this.Start, this.End);
   }
 }
-class il {
+class sl {
   get PointOnTangentAndInsertedDiagonal() {
     return this.pointOnTheRay;
   }
@@ -11908,11 +11916,11 @@ class zi extends ht {
     if (!(this.tangents.length < 2))
       for (let t = 1; t < this.tangents.length; t++) {
         const e = this.tangents[t];
-        e.Diagonal != null ? (e.Diagonal.RbNode === this.activeDiagonalTree.treeMinimum() && this.AddVisibleEdge(e), e.IsHigh && this.RemoveDiagonalFromActiveNodes(e.Diagonal)) : e.IsLow && (this.activeDiagonalComparer.PointOnTangentAndInsertedDiagonal = e.End.point, this.InsertActiveDiagonal(new tl(e, e.Comp)), e.Diagonal.RbNode === this.activeDiagonalTree.treeMinimum() && this.AddVisibleEdge(e));
+        e.Diagonal != null ? (e.Diagonal.RbNode === this.activeDiagonalTree.treeMinimum() && this.AddVisibleEdge(e), e.IsHigh && this.RemoveDiagonalFromActiveNodes(e.Diagonal)) : e.IsLow && (this.activeDiagonalComparer.PointOnTangentAndInsertedDiagonal = e.End.point, this.InsertActiveDiagonal(new el(e, e.Comp)), e.Diagonal.RbNode === this.activeDiagonalTree.treeMinimum() && this.AddVisibleEdge(e));
       }
   }
   AddVisibleEdge(t) {
-    wt.AddEdgeVV(sl(this.visibilityGraph, t.start), sl(this.visibilityGraph, t.End));
+    wt.AddEdgeVV(nl(this.visibilityGraph, t.start), nl(this.visibilityGraph, t.End));
   }
   // this function will also add the first tangent to the visible edges if needed
   InitActiveDiagonals() {
@@ -11920,7 +11928,7 @@ class zi extends ht {
       return;
     const t = this.tangents[0], e = t.start.point, i = t.End.point;
     for (const s of this.diagonals)
-      zi.RayIntersectDiagonal(e, i, s) && (this.activeDiagonalComparer.PointOnTangentAndInsertedDiagonal = il.IntersectDiagonalWithRay(e, i, s), this.InsertActiveDiagonal(s));
+      zi.RayIntersectDiagonal(e, i, s) && (this.activeDiagonalComparer.PointOnTangentAndInsertedDiagonal = sl.IntersectDiagonalWithRay(e, i, s), this.InsertActiveDiagonal(s));
     if (t.Diagonal.RbNode === this.activeDiagonalTree.treeMinimum() && this.AddVisibleEdge(t), t.IsLow === !1) {
       const s = t.Diagonal;
       this.RemoveDiagonalFromActiveNodes(s);
@@ -11957,22 +11965,22 @@ class zi extends ht {
     this.tangents.sort(zi.TangentComparison);
   }
   ProcessPolygonQ(t) {
-    const e = new $r(this.currentPolygon, t);
+    const e = new eo(this.currentPolygon, t);
     this.useLeftPTangents ? e.CalculateLeftTangents() : e.CalculateRightTangents();
     let i = this.useLeftPTangents ? e.leftPLeftQ : e.rightPLeftQ;
-    const s = new el(this.currentPolygon.pp(i[0]), t.pp(i[1]));
+    const s = new il(this.currentPolygon.pp(i[0]), t.pp(i[1]));
     s.IsLow = !0, s.SeparatingPolygons = !this.useLeftPTangents, i = this.useLeftPTangents ? e.leftPRightQ : e.rightPRightQ;
-    const n = new el(this.currentPolygon.pp(i[0]), t.pp(i[1]));
-    n.IsLow = !1, n.SeparatingPolygons = this.useLeftPTangents, s.Comp = n, n.Comp = s, this.tangents.push(s), this.tangents.push(n), this.diagonals.push(new tl(s, n));
+    const n = new il(this.currentPolygon.pp(i[0]), t.pp(i[1]));
+    n.IsLow = !1, n.SeparatingPolygons = this.useLeftPTangents, s.Comp = n, n.Comp = s, this.tangents.push(s), this.tangents.push(n), this.diagonals.push(new el(s, n));
   }
   constructor(t, e, i) {
-    super(null), this.polygons = [], this.activeDiagonalComparer = new il(), this.polygons = t, this.visibilityGraph = i, this.addedPolygons = e;
+    super(null), this.polygons = [], this.activeDiagonalComparer = new sl(), this.polygons = t, this.visibilityGraph = i, this.addedPolygons = e;
   }
 }
-function sl(a, t) {
+function nl(a, t) {
   return a.FindVertex(t.point);
 }
-class ua {
+class fa {
   get Pivot() {
     return this.pivot;
   }
@@ -12004,7 +12012,7 @@ class ua {
     return this.IntersectEdgeWithRayPPP(t.point, t.nextOnPolyline.point, e);
   }
   static constructorPP(t, e) {
-    const i = new ua();
+    const i = new fa();
     return i.pivot = t, i.pointOnTheRay = e, i;
   }
 }
@@ -12038,7 +12046,7 @@ class hn {
     return Gt.String.format("Stem({0},{1})", this.Start, this.End);
   }
 }
-class Oi {
+class xi {
   get QVertex() {
     return this.qV;
   }
@@ -12052,7 +12060,7 @@ class Oi {
     const n = e.FindVertex(i);
     if (n != null)
       return n;
-    const r = new Oi(t, e, i, s);
+    const r = new xi(t, e, i, s);
     return r.FillGraph(), r.QVertex;
   }
   FillGraph() {
@@ -12111,7 +12119,7 @@ class Oi {
   constructor(t, e, i, s) {
     this.sideNodes = /* @__PURE__ */ new Map(), this.visibleBoundaries = /* @__PURE__ */ new Map(), this.sortedListOfPolypoints = new Array(), this.holes = Array.from(t), this.visibilityGraph = e, this.q = i, this.qPolylinePoint = ei.mkFromPoint(this.q), this.QVertex = this.visibilityGraph.AddVertexP(this.qPolylinePoint.point), this.visibilityKind = s;
     const n = new _s(this.q);
-    this.heapForSorting = new ra(n.IComparer.bind(n));
+    this.heapForSorting = new aa(n.IComparer.bind(n));
   }
   Sweep() {
     for (const t of this.sortedListOfPolypoints)
@@ -12119,7 +12127,7 @@ class Oi {
   }
   // this code will work for convex holes
   SweepPolylinePoint(t) {
-    const e = Oi.GetIncomingSide(t), i = this.GetOutgoingSide(t);
+    const e = xi.GetIncomingSide(t), i = this.GetOutgoingSide(t);
     this.activeEdgeComparer.IntersectionOfTheRayAndInsertedEdge = t.point;
     let s;
     if (s = this.sideNodes.get(e)) {
@@ -12137,7 +12145,7 @@ class Oi {
       throw new Error();
   }
   AddEdge(t) {
-    (this.visibilityKind === Ti.Regular || this.visibilityKind === Ti.Tangent && Oi.LineTouchesPolygon(this.QVertex.point, t)) && this.visibilityGraph.AddEdgeF(this.QVertex.point, t.point, (e, i) => new pi(e, i));
+    (this.visibilityKind === Oi.Regular || this.visibilityKind === Oi.Tangent && xi.LineTouchesPolygon(this.QVertex.point, t)) && this.visibilityGraph.AddEdgeF(this.QVertex.point, t.point, (e, i) => new pi(e, i));
   }
   static LineTouchesPolygon(t, e) {
     const i = e.polyline.prev(e).point, s = e.polyline.next(e).point, n = e.point;
@@ -12173,7 +12181,7 @@ class Oi {
       this.ComputeVisiblePartOfTheHole(t);
   }
   InitActiveEdgesAndActiveEdgesComparer() {
-    this.activeEdgeComparer = new ua(), this.activeEdgeComparer.pivot = this.q, this.activeSidesTree = new we(this.activeEdgeComparer.Compare.bind(this.activeEdgeComparer));
+    this.activeEdgeComparer = new fa(), this.activeEdgeComparer.pivot = this.q, this.activeSidesTree = new we(this.activeEdgeComparer.Compare.bind(this.activeEdgeComparer));
   }
   ComputeVisiblePartOfTheHole(t) {
     let e, i = !0;
@@ -12193,7 +12201,7 @@ class Oi {
 }
 class tt extends ht {
   constructor() {
-    super(...arguments), this.IgnoreTightPadding = !0, this.activeRectangle = O.mkEmpty(), this.activePolygons = new Array(), this.alreadyAddedOrExcludedPolylines = /* @__PURE__ */ new Set(), this.UseEdgeLengthMultiplier = !1, this.UseInnerPolylingShortcutting = !0, this.UsePolylineEndShortcutting = !0, this.AllowedShootingStraightLines = !0, this.LookForRoundedVertices = !1;
+    super(...arguments), this.IgnoreTightPadding = !0, this.activeRectangle = T.mkEmpty(), this.activePolygons = new Array(), this.alreadyAddedOrExcludedPolylines = /* @__PURE__ */ new Set(), this.UseEdgeLengthMultiplier = !1, this.UseInnerPolylingShortcutting = !0, this.UsePolylineEndShortcutting = !0, this.AllowedShootingStraightLines = !0, this.LookForRoundedVertices = !1;
   }
   rerouteEdge(t) {
     const e = t.smoothedPolyline ? B.mkFromPoints(t.smoothedPolyline) : B.mkFromPoints(t.getSmoothPolyPoints());
@@ -12278,7 +12286,7 @@ class tt extends ht {
     this.VisibilityGraph == null && (this.VisibilityGraph = new wt());
     let e = null;
     if (!this.activeRectangle.contains(t)) {
-      this.activeRectangle.isEmpty ? this.activeRectangle = O.mkPP(this.SourcePort.Location, t) : this.activeRectangle.add(t), e = this.GetAddedPolygonesAndMaybeExtendActiveRectangle();
+      this.activeRectangle.isEmpty ? this.activeRectangle = T.mkPP(this.SourcePort.Location, t) : this.activeRectangle.add(t), e = this.GetAddedPolygonesAndMaybeExtendActiveRectangle();
       for (const i of e)
         this.VisibilityGraph.AddHole(i.Polyline);
     }
@@ -12288,10 +12296,10 @@ class tt extends ht {
     this.targetVV != null && this.VisibilityGraph.RemoveVertex(this.targetVV), this.sourceVV != null && this.VisibilityGraph.RemoveVertex(this.sourceVV);
   }
   CalculateEdgeTargetVisibilityGraph(t) {
-    this.targetVV = Oi.CalculatePointVisibilityGraph(Array.from(this.GetActivePolylines()), this.VisibilityGraph, t, Ti.Tangent);
+    this.targetVV = xi.CalculatePointVisibilityGraph(Array.from(this.GetActivePolylines()), this.VisibilityGraph, t, Oi.Tangent);
   }
   CalculateSourcePortVisibilityGraph() {
-    this.sourceVV = Oi.CalculatePointVisibilityGraph(Array.from(this.GetActivePolylines()), this.VisibilityGraph, this.StartPointOfEdgeRouting, Ti.Tangent);
+    this.sourceVV = xi.CalculatePointVisibilityGraph(Array.from(this.GetActivePolylines()), this.VisibilityGraph, this.StartPointOfEdgeRouting, Oi.Tangent);
   }
   TakeBoundaryPortOutsideOfItsLoosePolyline(t, e, i) {
     const s = t.value(e);
@@ -12501,7 +12509,7 @@ class tt extends ht {
   // }
   GetShortestPolyline(t, e) {
     this.CleanTheGraphForShortestPath();
-    const s = new Rr(this.visibilityGraph, t, e).GetPath(this.UseEdgeLengthMultiplier);
+    const s = new Br(this.visibilityGraph, t, e).GetPath(this.UseEdgeLengthMultiplier);
     if (s == null)
       return null;
     let n = B.mkFromPoints(Array.from(s).map((r) => r.point)).RemoveCollinearVertices();
@@ -12600,14 +12608,14 @@ class tt extends ht {
     let e = null;
     const i = this.targetPort.Location;
     if (!this.activeRectangle.contains(i)) {
-      this.activeRectangle.isEmpty ? this.activeRectangle = O.mkPP(this.SourcePort.Location, i) : this.activeRectangle.add(i), e = this.GetAddedPolygonesAndMaybeExtendActiveRectangle();
+      this.activeRectangle.isEmpty ? this.activeRectangle = T.mkPP(this.SourcePort.Location, i) : this.activeRectangle.add(i), e = this.GetAddedPolygonesAndMaybeExtendActiveRectangle();
       for (const s of e)
         this.VisibilityGraph.AddHole(s.Polyline);
     }
     e == null ? (this.targetVV != null && this.VisibilityGraph.RemoveVertex(this.targetVV), this.CalculateEdgeTargetVisibilityGraphForFloatingPort(i, t), this.sourceVV == null && this.CalculateSourcePortVisibilityGraph()) : (this.RemovePointVisibilityGraphs(), new zi(e, this.activePolygons, this.VisibilityGraph).run(), Di(this.activePolygons, e), this.CalculateEdgeTargetVisibilityGraphForFloatingPort(i, t), this.CalculateSourcePortVisibilityGraph());
   }
   CalculateEdgeTargetVisibilityGraphForFloatingPort(t, e) {
-    this.UseSpanner ? this.targetVV = this.AddTransientVisibilityEdgesForPort(t, e) : this.targetVV = Oi.CalculatePointVisibilityGraph(this.GetActivePolylinesWithException(e), this.VisibilityGraph, t, Ti.Tangent);
+    this.UseSpanner ? this.targetVV = this.AddTransientVisibilityEdgesForPort(t, e) : this.targetVV = xi.CalculatePointVisibilityGraph(this.GetActivePolylinesWithException(e), this.VisibilityGraph, t, Oi.Tangent);
   }
   AddTransientVisibilityEdgesForPort(t, e) {
     let i = this.GetVertex(t);
@@ -12617,7 +12625,7 @@ class tt extends ht {
       for (const s of e)
         this.visibilityGraph.AddEdgeF(t, s, (n, r) => new pi(n, r));
     else
-      i = Oi.CalculatePointVisibilityGraph(this.GetActivePolylines(), this.VisibilityGraph, t, Ti.Tangent);
+      i = xi.CalculatePointVisibilityGraph(this.GetActivePolylines(), this.VisibilityGraph, t, Oi.Tangent);
     return i;
   }
   GetVertex(t) {
@@ -12821,7 +12829,7 @@ class tt extends ht {
   }
   GetShortestPolylineToMulitpleTargets(t, e) {
     this.CleanTheGraphForShortestPath();
-    const s = new xn(t, e, this.VisibilityGraph).GetPath();
+    const s = new Ln(t, e, this.VisibilityGraph).GetPath();
     if (s == null)
       return null;
     const n = new B();
@@ -12834,11 +12842,11 @@ class tt extends ht {
   }
   ExtendVisibilityGraphFromFloatingSourcePort() {
     const t = this.sourcePort;
-    this.StartPointOfEdgeRouting = t.Location, this.UseSpanner ? this.sourceVV = this.AddTransientVisibilityEdgesForPort(this.sourcePort.Location, this.SourceLoosePolyline) : this.sourceVV = Oi.CalculatePointVisibilityGraph(Array.from(this.GetActivePolylines()).filter((e) => e !== this.SourceLoosePolyline), this.VisibilityGraph, this.StartPointOfEdgeRouting, Ti.Tangent);
+    this.StartPointOfEdgeRouting = t.Location, this.UseSpanner ? this.sourceVV = this.AddTransientVisibilityEdgesForPort(this.sourcePort.Location, this.SourceLoosePolyline) : this.sourceVV = xi.CalculatePointVisibilityGraph(Array.from(this.GetActivePolylines()).filter((e) => e !== this.SourceLoosePolyline), this.VisibilityGraph, this.StartPointOfEdgeRouting, Oi.Tangent);
   }
   FigureOutSourceTargetPolylinesAndActiveRectangle() {
     let t = this.sourcePort.Curve.value(this.sourcePort.Curve.parStart);
-    this._sourceTightPolyline = tt.GetFirstHitPolyline(t, this.ObstacleCalculator.RootOfTightHierarchy), this.SourceLoosePolyline = tt.GetFirstHitPolyline(t, this.ObstacleCalculator.RootOfLooseHierarchy), t = this.targetPort.Curve.value(this.targetPort.Curve.parStart), this.targetTightPolyline = tt.GetFirstHitPolyline(t, this.ObstacleCalculator.RootOfTightHierarchy), this.targetLoosePolyline = tt.GetFirstHitPolyline(t, this.ObstacleCalculator.RootOfLooseHierarchy), this.activeRectangle = O.mkPP(new u(Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY), new u(Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY));
+    this._sourceTightPolyline = tt.GetFirstHitPolyline(t, this.ObstacleCalculator.RootOfTightHierarchy), this.SourceLoosePolyline = tt.GetFirstHitPolyline(t, this.ObstacleCalculator.RootOfLooseHierarchy), t = this.targetPort.Curve.value(this.targetPort.Curve.parStart), this.targetTightPolyline = tt.GetFirstHitPolyline(t, this.ObstacleCalculator.RootOfTightHierarchy), this.targetLoosePolyline = tt.GetFirstHitPolyline(t, this.ObstacleCalculator.RootOfLooseHierarchy), this.activeRectangle = T.mkPP(new u(Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY), new u(Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY));
   }
   *AllPolygons() {
     for (const t of this.ObstacleCalculator.LooseObstacles)
@@ -12967,7 +12975,7 @@ class vt {
   }
 }
 vt.defaultArrowheadLength = 5;
-class Ln {
+class Rn {
   constructor() {
     this.m = /* @__PURE__ */ new Map();
   }
@@ -12978,33 +12986,33 @@ class Ln {
     return this.m.size;
   }
   set(t, e) {
-    this.m.set(ir(t), e);
+    this.m.set(nr(t), e);
   }
   delete(t) {
-    this.m.delete(ir(t));
+    this.m.delete(nr(t));
   }
   has(t) {
-    return this.m.has(ir(t));
+    return this.m.has(nr(t));
   }
   getPP(t, e) {
     return this.get(new ie(t, e));
   }
   get(t) {
-    return this.m.get(ir(t));
+    return this.m.get(nr(t));
   }
   *keys() {
     for (const t of this.m.keys())
-      yield nl(t);
+      yield rl(t);
   }
   *[Symbol.iterator]() {
     for (const [t, e] of this.m)
-      yield [nl(t), e];
+      yield [rl(t), e];
   }
   *values() {
     yield* this.m.values();
   }
 }
-function nl(a) {
+function rl(a) {
   const t = a.split(" "), e = t[0], i = t[1];
   let s = e.split(",");
   const n = new u(Number(s[0]), Number(s[1]));
@@ -13012,13 +13020,13 @@ function nl(a) {
   const r = new u(Number(s[0]), Number(s[1]));
   return new ie(n, r);
 }
-function Ud(a, t) {
-  return [rl(a), rl(t)].sort().join(" ");
+function Qd(a, t) {
+  return [ol(a), ol(t)].sort().join(" ");
 }
-function ir(a) {
-  return Ud(a.first, a.second);
+function nr(a) {
+  return Qd(a.first, a.second);
 }
-function rl(a) {
+function ol(a) {
   return a.x.toString() + "," + a.y.toString();
 }
 class le {
@@ -13029,7 +13037,7 @@ class le {
   */
   static GetShapes(t, e = Array.from(t.shallowEdges)) {
     const i = /* @__PURE__ */ new Map();
-    Dh(t, i);
+    _h(t, i);
     for (const s of e) {
       let n = i.get(s.source);
       n && s.sourcePort != null && n.Ports.add(s.sourcePort), n = i.get(s.target), n && s.targetPort != null && n.Ports.add(s.targetPort);
@@ -13038,7 +13046,7 @@ class le {
   }
   /**   Creates a shape with a RelativeFloatingPort for the node center, attaches it to the shape and all edges */
   static CreateShapeWithCenterPort(t) {
-    const e = new Fo(t), i = Zi.mk(() => t.boundaryCurve, () => t.center);
+    const e = new Do(t), i = Zi.mk(() => t.boundaryCurve, () => t.center);
     e.Ports.add(i);
     for (const s of t.inEdges())
       le.FixPortAtTarget(i, s);
@@ -13050,7 +13058,7 @@ class le {
   }
   /**   Creates a ClusterBoundaryPort for the cluster boundary, attaches it to the shape and all edges */
   static CreateShapeWithClusterBoundaryPort(t) {
-    const e = new Fo(t), i = Ve.mk(() => t.boundaryCurve, () => t.center);
+    const e = new Do(t), i = Ve.mk(() => t.boundaryCurve, () => t.center);
     e.Ports.add(i);
     let s;
     for (const n of t.inEdges())
@@ -13068,25 +13076,25 @@ class le {
     e != null && e.targetPort == null && (e.targetPort = t);
   }
 }
-function Dh(a, t) {
+function _h(a, t) {
   for (const e of a.shallowNodes)
     if (e instanceof Nt) {
       const i = le.CreateShapeWithClusterBoundaryPort(e);
       t.set(e, i);
       const s = e;
       if (!s.isCollapsed) {
-        Dh(s, t);
+        _h(s, t);
         for (const n of s.shallowNodes)
           i.AddChild(t.get(n));
       }
     } else
       t.set(e, le.CreateShapeWithCenterPort(e));
 }
-var vi;
+var Ci;
 (function(a) {
   a[a.NotVisited = 0] = "NotVisited", a[a.InStack = 1] = "InStack", a[a.Visited = 2] = "Visited";
-})(vi || (vi = {}));
-let Xd = class {
+})(Ci || (Ci = {}));
+let Yd = class {
   constructor(t, e) {
     this.v = t, this.i = e;
   }
@@ -13096,28 +13104,28 @@ class $i {
     throw new Error("Method not implemented.");
   }
   static push(t, e, i, s) {
-    e[i] = vi.InStack, t.push(new Xd(i, s));
+    e[i] = Ci.InStack, t.push(new Yd(i, s));
   }
   static getFeedbackSet(t) {
     const e = new Ki();
     if (t == null || t.nodeCount === 0)
       return [];
-    const i = new Array(t.nodeCount).fill(vi.NotVisited);
+    const i = new Array(t.nodeCount).fill(Ci.NotVisited);
     for (let s = 0; s < t.nodeCount; s++) {
-      if (i[s] === vi.Visited)
+      if (i[s] === Ci.Visited)
         continue;
       const n = new mt.Stack();
       let r = 0;
       for ($i.push(n, i, s, r); n.size > 0; ) {
         const o = n.pop();
-        s = o.v, i[s] = vi.Visited, r = o.i;
+        s = o.v, i[s] = Ci.Visited, r = o.i;
         let l = t.outEdges[s];
         for (; r < l.length; r++) {
           const h = l[r];
           if (h.source === h.target)
             continue;
           const c = i[h.target];
-          c === vi.InStack ? e.set(h.source, h.target, h) : c === vi.NotVisited && ($i.push(n, i, s, r + 1), s = h.target, i[h.target] = vi.Visited, l = t.outEdges[s], r = -1);
+          c === Ci.InStack ? e.set(h.source, h.target, h) : c === Ci.NotVisited && ($i.push(n, i, s, r + 1), s = h.target, i[h.target] = Ci.Visited, l = t.outEdges[s], r = -1);
         }
       }
     }
@@ -13141,7 +13149,7 @@ class ji {
     return t > m.distanceEpsilon ? 1 : t < -m.distanceEpsilon ? -1 : 0;
   }
 }
-class Rn {
+class Nn {
   SetActiveState(t, e) {
     this.IsActive = t, this.VectorIndex = e, this.IsActive ? (this.Left.ActiveConstraintCount++, this.Right.ActiveConstraintCount++) : (this.Left.ActiveConstraintCount--, this.Right.ActiveConstraintCount--);
   }
@@ -13161,7 +13169,7 @@ class Rn {
   // well as any necessary padding), so the sizes are accounted for at that time
   // and ProjectionSolver classes are not aware of Variable sizes.
   static constructorVVNB(t, e, i, s) {
-    const n = new Rn(t);
+    const n = new Nn(t);
     return n.Left = t, n.Right = e, n.Gap = i, n.IsEquality = s, n.Lagrangian = 0, n.IsActive = !1, n;
   }
   // For Solver.ComputeDfDv's DummyParentNode's constraint only.
@@ -13188,9 +13196,9 @@ class Rn {
     return e === 0 && (e = this.Right.CompareTo(t.Right)), e === 0 && (e = yt(this.Gap, t.Gap)), e;
   }
 }
-class mn {
+class Pn {
   static constructorDCVV(t, e, i, s) {
-    const n = new mn(e);
+    const n = new Pn(e);
     return n.Set(t, e, i, s), n;
   }
   // For DummyParentNode only.
@@ -13207,12 +13215,12 @@ class mn {
     return Gt.String.format("{0} {1}{2} - {3}{4} ({5})", "", this.IsLeftToRight ? "" : "*", this.ConstraintToEval.Left.Name, this.IsLeftToRight ? "*" : "", this.ConstraintToEval.Right.Name, this.Depth);
   }
 }
-class Qd {
+class Jd {
   constructor(t, e) {
     this.Constraint = t, this.IsForward = e;
   }
 }
-class Nr {
+class Gr {
   constructor(t, e) {
     this.Variables = new Array(), t != null && this.AddVariable(t), this.allConstraints = e;
   }
@@ -13223,8 +13231,8 @@ class Nr {
   }
   ComputeDfDv(t) {
     this.allConstraints.DfDvStack = new mt.Stack();
-    const e = new Rn(t);
-    this.dfDvDummyParentNode = new mn(e);
+    const e = new Nn(t);
+    this.dfDvDummyParentNode = new Pn(e);
     const i = this.GetDfDvNode(this.dfDvDummyParentNode, e, t, null);
     for (this.allConstraints.DfDvStack.push(i); ; ) {
       const s = this.allConstraints.DfDvStack.top, n = this.allConstraints.DfDvStack.length;
@@ -13260,7 +13268,7 @@ class Nr {
     this.ProcessDfDvLeafNode(t);
   }
   GetDfDvNode(t, e, i, s) {
-    const n = this.allConstraints.DfDvRecycleStack.size > 0 ? this.allConstraints.DfDvRecycleStack.pop().Set(t, e, i, s) : mn.constructorDCVV(t, e, i, s);
+    const n = this.allConstraints.DfDvRecycleStack.size > 0 ? this.allConstraints.DfDvRecycleStack.pop().Set(t, e, i, s) : Pn.constructorDCVV(t, e, i, s);
     return n.Depth = n.Parent.Depth + 1, this.allConstraints.MaxConstraintTreeDepth < n.Depth && (this.allConstraints.MaxConstraintTreeDepth = n.Depth), n;
   }
   // Called by ComputeDfDv.
@@ -13277,7 +13285,7 @@ class Nr {
   CheckForConstraintPathTarget(t) {
     if (this.pathTargetVariable === t.VariableToEval) {
       for (; t.Parent !== this.dfDvDummyParentNode; )
-        this.constraintPath.push(new Qd(t.ConstraintToEval, t.IsLeftToRight)), t = t.Parent;
+        this.constraintPath.push(new Jd(t.ConstraintToEval, t.IsLeftToRight)), t = t.Parent;
       this.pathTargetVariable = null;
     }
   }
@@ -13315,7 +13323,7 @@ class Nr {
   }
   SplitOnConstraint(t) {
     this.allConstraints.DeactivateConstraint(t);
-    let e = new Nr(null, this.allConstraints);
+    let e = new Gr(null, this.allConstraints);
     return this.TransferConnectedVariables(e, t.Right, t.Left), e.Variables.length > 0 ? (this.UpdateReferencePos(), e.UpdateReferencePos()) : e = null, e;
   }
   // end Split()
@@ -13350,8 +13358,8 @@ class Nr {
   }
   RecurseGetConnectedVariables(t, e, i) {
     this.allConstraints.DfDvStack = new mt.Stack();
-    const s = new Rn(e);
-    for (this.dfDvDummyParentNode = new mn(s), this.allConstraints.DfDvStack.push(this.GetDfDvNode(this.dfDvDummyParentNode, s, e, i)), t.push(e); this.allConstraints.DfDvStack.length > 0; ) {
+    const s = new Nn(e);
+    for (this.dfDvDummyParentNode = new Pn(s), this.allConstraints.DfDvStack.push(this.GetDfDvNode(this.dfDvDummyParentNode, s, e, i)), t.push(e); this.allConstraints.DfDvStack.length > 0; ) {
       const n = this.allConstraints.DfDvStack.top, r = this.allConstraints.DfDvStack.length;
       if (!n.ChildrenHaveBeenPushed) {
         n.ChildrenHaveBeenPushed = !0;
@@ -13380,7 +13388,7 @@ class Nr {
     }
   }
 }
-class Yd {
+class Kd {
   get Count() {
     return this.Vector.length;
   }
@@ -13401,7 +13409,7 @@ class Yd {
     return this.Vector.toString();
   }
 }
-class Jd {
+class Zd {
   constructor() {
     this.nextConstraintIndex = 0, this.DfDvStack = new mt.Stack(), this.DfDvRecycleStack = new mt.Stack();
   }
@@ -13438,10 +13446,10 @@ class Jd {
     return this.Vector.toString();
   }
 }
-class da {
+class ga {
   // Constructor.
   constructor() {
-    this.GapTolerance = 1e-4, this.QpscConvergenceEpsilon = 1e-5, this.QpscConvergenceQuotient = 1e-6, this.OuterProjectIterationsLimit = -1, this.InnerProjectIterationsLimit = -1, this.TimeLimit = -1, this.Advanced = new fa();
+    this.GapTolerance = 1e-4, this.QpscConvergenceEpsilon = 1e-5, this.QpscConvergenceQuotient = 1e-6, this.OuterProjectIterationsLimit = -1, this.InnerProjectIterationsLimit = -1, this.TimeLimit = -1, this.Advanced = new pa();
   }
   // Deep-copy the AdvancedParameters.
   Clone() {
@@ -13449,27 +13457,27 @@ class da {
     return t.Advanced = this.Advanced.Clone(), t;
   }
   MemberwiseClone() {
-    const t = new da();
+    const t = new ga();
     return t.GapTolerance = this.GapTolerance, t.QpscConvergenceEpsilon = this.QpscConvergenceEpsilon, t.QpscConvergenceQuotient = this.QpscConvergenceQuotient, t.OuterProjectIterationsLimit = this.OuterProjectIterationsLimit, t.InnerProjectIterationsLimit = this.InnerProjectIterationsLimit, t.TimeLimit = this.TimeLimit, t;
   }
 }
-class fa {
+class pa {
   // Constructor.
   constructor() {
     this.ForceQpsc = !1, this.ScaleInQpsc = !0, this.MinSplitLagrangianThreshold = -1e-7, this.UseViolationCache = !0, this.ViolationCacheMinBlocksDivisor = 10, this.ViolationCacheMinBlocksCount = 100;
   }
   // Shallow-copy the object (there is nothing requiring deep-copy).
   Clone() {
-    const t = new fa();
+    const t = new pa();
     return t.ForceQpsc = this.ForceQpsc, t.ScaleInQpsc = this.ScaleInQpsc, t.MinSplitLagrangianThreshold = this.MinSplitLagrangianThreshold, t.UseViolationCache = this.UseViolationCache, t.ViolationCacheMinBlocksDivisor = this.ViolationCacheMinBlocksDivisor, t.ViolationCacheMinBlocksCount = this.ViolationCacheMinBlocksCount, t;
   }
 }
-class Kd {
+class $d {
   constructor(t) {
     this.Variable = t, this.OrigWeight = t.Weight, this.OrigScale = t.Scale, this.OrigDesiredPos = this.Variable.DesiredPos;
   }
 }
-class Zd {
+class tf {
   constructor(t, e) {
     this.Value = t, this.Column = e;
   }
@@ -13497,8 +13505,8 @@ class ge {
       for (const e of t.Neighbors)
         this.vectorPrevY[t.Ordinal] = this.vectorPrevY[t.Ordinal] + e.Weight, this.vectorPrevY[e.Neighbor.Ordinal] = this.vectorPrevY[e.Neighbor.Ordinal] - e.Weight;
     for (let e = 0; e < this.vectorPrevY.length; e++)
-      this.vectorPrevY[e] !== 0 && (this.newMatrixRow.push(new Zd(this.vectorPrevY[e] * 2, e)), this.vectorPrevY[e] = 0);
-    this.matrixQ[t.Ordinal] = Array.from(this.newMatrixRow), this.newMatrixRow = [], this.vectorQpscVars[t.Ordinal] = new Kd(t), t.Weight = 1;
+      this.vectorPrevY[e] !== 0 && (this.newMatrixRow.push(new tf(this.vectorPrevY[e] * 2, e)), this.vectorPrevY[e] = 0);
+    this.matrixQ[t.Ordinal] = Array.from(this.newMatrixRow), this.newMatrixRow = [], this.vectorQpscVars[t.Ordinal] = new $d(t), t.Weight = 1;
   }
   // end AddVariable()
   VariablesComplete() {
@@ -13613,7 +13621,7 @@ class ge {
       t[i] = e[i];
   }
 }
-class Br {
+class Mr {
   constructor() {
     this.NumberOfUnsatisfiableConstraints = 0, this.OuterProjectIterations = 0, this.InnerProjectIterationsTotal = 0, this.MinInnerProjectIterations = 0, this.MaxInnerProjectIterations = 0, this.MaxConstraintTreeDepth = 0, this.GoalFunctionValue = 0, this.TimeLimitExceeded = !1, this.OuterProjectIterationsLimitExceeded = !1, this.InnerProjectIterationsLimitExceeded = !1;
   }
@@ -13623,20 +13631,20 @@ class Br {
   }
   // Shallow-copy everything, including the contained list.
   Clone() {
-    const t = new Br();
+    const t = new Mr();
     return t.GoalFunctionValue = this.GoalFunctionValue, t.InnerProjectIterationsLimitExceeded = this.InnerProjectIterationsLimitExceeded, t.InnerProjectIterationsTotal = this.InnerProjectIterationsTotal, t.MaxConstraintTreeDepth = this.MaxConstraintTreeDepth, t.OuterProjectIterations = this.OuterProjectIterations, t.OuterProjectIterationsLimitExceeded = this.OuterProjectIterationsLimitExceeded, t.AlgorithmUsed = this.AlgorithmUsed, t.NumberOfUnsatisfiableConstraints = this.NumberOfUnsatisfiableConstraints, t.MaxInnerProjectIterations = this.MaxInnerProjectIterations, t;
   }
 }
-var Gr;
+var Fr;
 (function(a) {
   a[a.ProjectOnly = 0] = "ProjectOnly", a[a.QpscWithScaling = 1] = "QpscWithScaling", a[a.QpscWithoutScaling = 2] = "QpscWithoutScaling";
-})(Gr || (Gr = {}));
-class $d {
+})(Fr || (Fr = {}));
+class ef {
   constructor(t, e) {
     this.Neighbor = t, this.Weight = e;
   }
 }
-class tf {
+class sf {
   // The derivative value - essentially the weighted difference in position.
   get DfDv() {
     return 2 * (this.Weight * (this.ActualPos - this.DesiredPos)) / this.Scale;
@@ -13657,7 +13665,7 @@ class tf {
     this.ActiveConstraintCount = 0, this.OffsetInBlock = 0, this.ActualPos = this.DesiredPos;
   }
   AddNeighbor(t, e) {
-    this.Neighbors == null && (this.Neighbors = new Array()), this.Neighbors.push(new $d(t, e));
+    this.Neighbors == null && (this.Neighbors = new Array()), this.Neighbors.push(new ef(t, e));
   }
   // Gets a string representation of the Variable; calls UserData.ToString as part of this.
   // <returns>A string representation of the variable.</returns>
@@ -13680,12 +13688,12 @@ class tf {
     return yt(this.Ordinal, t.Ordinal);
   }
 }
-class Nn {
+class Bn {
   get IsFull() {
-    return this.numConstraints === Nn.MaxConstraints;
+    return this.numConstraints === Bn.MaxConstraints;
   }
   Clear() {
-    this.LowViolation = 0, this.numConstraints = 0, this.constraints || (this.constraints = new Array(Nn.MaxConstraints));
+    this.LowViolation = 0, this.numConstraints = 0, this.constraints || (this.constraints = new Array(Bn.MaxConstraints));
   }
   FilterBlock(t) {
     this.LowViolation = Number.MAX_VALUE;
@@ -13719,15 +13727,15 @@ class Nn {
     this.IsFull ? (this.constraints[i] = t, this.LowViolation = n) : (this.constraints[this.numConstraints++] = t, this.IsFull && (this.LowViolation = s));
   }
 }
-Nn.MaxConstraints = 20;
-class ol {
+Bn.MaxConstraints = 20;
+class al {
   constructor(t, e) {
     this.NumberOfLeftConstraints = 0, this.Constraints = t, this.NumberOfLeftConstraints = e;
   }
 }
-class ef {
+class nf {
   constructor() {
-    this.allBlocks = new Yd(), this.allConstraints = new Jd(), this.numberOfConstraints = 0, this.numberOfVariables = 0, this.equalityConstraints = new Array(), this.loadedVariablesAndConstraintLists = /* @__PURE__ */ new Map(), this.emptyConstraintList = new Array(0), this.updatedConstraints = new Array(), this.violationCache = new Nn(), this.violationCacheMinBlockCutoff = 0, this.nextVariableOrdinal = 0, this.solverParams = new da(), this.solverSolution = new Br();
+    this.allBlocks = new Kd(), this.allConstraints = new Zd(), this.numberOfConstraints = 0, this.numberOfVariables = 0, this.equalityConstraints = new Array(), this.loadedVariablesAndConstraintLists = /* @__PURE__ */ new Map(), this.emptyConstraintList = new Array(0), this.updatedConstraints = new Array(), this.violationCache = new Bn(), this.violationCacheMinBlockCutoff = 0, this.nextVariableOrdinal = 0, this.solverParams = new ga(), this.solverSolution = new Mr();
   }
   get IsQpsc() {
     return this.hasNeighbourPairs || this.solverParams.Advanced.ForceQpsc;
@@ -13755,8 +13763,8 @@ class ef {
   AddVariableANNN(t, e, i, s) {
     if (!this.allConstraints.IsEmpty)
       throw new Error("Cannot add Variables or Constraints once Solve() has been called");
-    const n = new tf(this.nextVariableOrdinal++, t, e, i, s), r = new Nr(n, this.allConstraints);
-    return n.Block = r, this.allBlocks.Add(r), this.numberOfVariables++, this.loadedVariablesAndConstraintLists.set(n, new ol(new Array(), 0)), n;
+    const n = new sf(this.nextVariableOrdinal++, t, e, i, s), r = new Gr(n, this.allConstraints);
+    return n.Block = r, this.allBlocks.Add(r), this.numberOfVariables++, this.loadedVariablesAndConstraintLists.set(n, new al(new Array(), 0)), n;
   }
   // end AddVariable()
   // Must be called before Solve() if the caller has updated variable Initial positions; this
@@ -13768,7 +13776,7 @@ class ef {
   // end UpdateVariables()
   // This enumerates all Variables created by AddVariable.
   get Variables() {
-    return Xn(this.allBlocks.Vector, (t) => t.Variables);
+    return Qn(this.allBlocks.Vector, (t) => t.Variables);
   }
   // The number of variables added to the Solver.
   get VariableCount() {
@@ -13810,8 +13818,8 @@ class ef {
       throw new Error("Cannot add Variables or Constraints once Solve() has been called");
     if (t === e)
       throw new Error("Cannot add a constraint between a variable and itself");
-    const n = this.loadedVariablesAndConstraintLists.get(t), r = this.loadedVariablesAndConstraintLists.get(e), o = Rn.constructorVVNB(t, e, i, s);
-    return this.loadedVariablesAndConstraintLists.set(t, new ol(n.Constraints, n.NumberOfLeftConstraints + 1)), n.Constraints.push(o), r.Constraints.push(o), this.numberOfConstraints++, s && this.equalityConstraints.push(o), o;
+    const n = this.loadedVariablesAndConstraintLists.get(t), r = this.loadedVariablesAndConstraintLists.get(e), o = Nn.constructorVVNB(t, e, i, s);
+    return this.loadedVariablesAndConstraintLists.set(t, new al(n.Constraints, n.NumberOfLeftConstraints + 1)), n.Constraints.push(o), r.Constraints.push(o), this.numberOfConstraints++, s && this.equalityConstraints.push(o), o;
   }
   // Add a constraint 'left + gap' is less than or equal to 'right'
   // The gap required between the variables.
@@ -13855,7 +13863,7 @@ class ef {
   SolvePar(t) {
     t && (this.solverParams = t.Clone()), this.solverParams.OuterProjectIterationsLimit < 0 && (this.solverParams.OuterProjectIterationsLimit = 100 * (Math.floor(Math.log2(this.numberOfVariables)) + 1)), this.solverParams.InnerProjectIterationsLimit < 0 && (this.solverParams.InnerProjectIterationsLimit = this.numberOfConstraints * 2 + 100 * (Math.max(0, Math.floor(Math.log2(this.numberOfConstraints))) + 1));
     const e = !this.allConstraints.IsEmpty;
-    if (this.CheckForUpdatedConstraints(), this.solverSolution = new Br(), this.solverSolution.MinInnerProjectIterations = Number.MAX_VALUE, this.allConstraints.MaxConstraintTreeDepth = 0, this.allConstraints.SolverParameters = this.solverParams, this.numberOfConstraints === 0) {
+    if (this.CheckForUpdatedConstraints(), this.solverSolution = new Mr(), this.solverSolution.MinInnerProjectIterations = Number.MAX_VALUE, this.allConstraints.MaxConstraintTreeDepth = 0, this.allConstraints.SolverParameters = this.solverParams, this.numberOfConstraints === 0) {
       if (!this.IsQpsc)
         return this.solverSolution.Clone();
     } else e || this.SetupConstraints();
@@ -13929,7 +13937,7 @@ class ef {
   }
   // Implements the full solve_QPSC from the Ipsep_Cola and Scaling papers.
   SolveQpsc() {
-    if (this.solverSolution.AlgorithmUsed = this.solverParams.Advanced.ScaleInQpsc ? Gr.QpscWithScaling : Gr.QpscWithoutScaling, !this.QpscMakeFeasible())
+    if (this.solverSolution.AlgorithmUsed = this.solverParams.Advanced.ScaleInQpsc ? Fr.QpscWithScaling : Fr.QpscWithoutScaling, !this.QpscMakeFeasible())
       return;
     const t = new ge(this.solverParams, this.numberOfVariables);
     for (const i of this.allBlocks.Vector)
@@ -13950,7 +13958,7 @@ class ef {
     for (const e of t)
       for (const i of e.Variables) {
         i.Reinitialize();
-        const s = new Nr(i, this.allConstraints);
+        const s = new Gr(i, this.allConstraints);
         this.allBlocks.Add(s);
       }
     this.allConstraints.Reinitialize(), this.violationCache.Clear();
@@ -14027,12 +14035,12 @@ class ef {
       for (const o of r.LeftConstraints)
         if (!o.IsActive && !o.IsUnsatisfiable) {
           const l = o.Left.ActualPos * o.Left.Scale + (o.Gap - o.Right.ActualPos * o.Right.Scale);
-          ho(l, t) && (e != null && t > this.violationCache.LowViolation && this.violationCache.Insert(e, t), t = o.Violation, e = o);
+          uo(l, t) && (e != null && t > this.violationCache.LowViolation && this.violationCache.Insert(e, t), t = o.Violation, e = o);
         }
       for (const o of r.RightConstraints)
         if (!o.IsActive && !o.IsUnsatisfiable && o.Left.Block !== this.lastModifiedBlock) {
           const l = o.Left.ActualPos * o.Left.Scale + (o.Gap - o.Right.ActualPos * o.Right.Scale);
-          ho(l, t) && (e != null && t > this.violationCache.LowViolation && this.violationCache.Insert(e, t), t = l, e = o);
+          uo(l, t) && (e != null && t > this.violationCache.LowViolation && this.violationCache.Insert(e, t), t = l, e = o);
         }
     }
     const s = this.violationCache.FindIfGreater(t);
@@ -14048,12 +14056,12 @@ class ef {
         continue;
       const n = s.Left.ActualPos * s.Left.Scale + (s.Gap - s.Right.ActualPos * s.Right.Scale);
       let r = null, o = 0;
-      ho(n, t) && (t > this.violationCache.LowViolation && (r = i, o = t), t = n, i = s), e && (r == null && s !== i && (!this.violationCache.IsFull || n > this.violationCache.LowViolation) && (r = s, o = n), r != null && o > this.violationCache.LowViolation && this.violationCache.Insert(r, o));
+      uo(n, t) && (t > this.violationCache.LowViolation && (r = i, o = t), t = n, i = s), e && (r == null && s !== i && (!this.violationCache.IsFull || n > this.violationCache.LowViolation) && (r = s, o = n), r != null && o > this.violationCache.LowViolation && this.violationCache.Insert(r, o));
     }
     return i;
   }
 }
-class Bn {
+class Gn {
   // Constructor.
   constructor() {
     this.variables = /* @__PURE__ */ new Map(), this.fixedVars = /* @__PURE__ */ new Map(), this.FailToAdjustEpsilon = 1e-3, this.InitSolver();
@@ -14151,7 +14159,7 @@ class Bn {
   AdjustConstraintsForMovedFixedVars() {
     const t = /* @__PURE__ */ new Set();
     for (const [e, i] of this.fixedVars.entries())
-      Bn.Close(i, this.GetVariableResolvedPosition(e)) || t.add(e);
+      Gn.Close(i, this.GetVariableResolvedPosition(e)) || t.add(e);
     return t.size === 0 ? !1 : this.AdjustConstraintsForMovedFixedVarSet(t);
   }
   static Close(t, e) {
@@ -14201,13 +14209,13 @@ class Bn {
   }
   //
   InitSolver() {
-    this.solver = new ef(), this.variables.clear();
+    this.solver = new nf(), this.variables.clear();
   }
   // Add a variable with a known and unchanging position.
   // Caller's unique identifier for the node
   // Desired position.
   AddFixedVariable(t, e) {
-    this.AddVariableWithIdealPositionNNN(t, e, Bn.FixedVarWeight), this.fixedVars.set(t, e);
+    this.AddVariableWithIdealPositionNNN(t, e, Gn.FixedVarWeight), this.fixedVars.set(t, e);
   }
   //
   ContainsVariable(t) {
@@ -14223,8 +14231,8 @@ class Bn {
     return this.solution;
   }
 }
-Bn.FixedVarWeight = 1e9;
-class sf {
+Gn.FixedVarWeight = 1e9;
+class rf {
   constructor() {
     this.lowBound = Number.NEGATIVE_INFINITY, this.upperBound = Number.POSITIVE_INFINITY;
   }
@@ -14250,10 +14258,10 @@ class sf {
     return this.lowBound + (" " + (this.Position + (" " + this.upperBound)));
   }
 }
-class nf {
+class of {
   // desired variable separation
   constructor(t) {
-    this.idealPositions = /* @__PURE__ */ new Map(), this.varList = new Array(), this.constraints = /* @__PURE__ */ new Set(), this.solverShell = new Bn(), this.boundsToInt = /* @__PURE__ */ new Map(), this.varSepartion = t;
+    this.idealPositions = /* @__PURE__ */ new Map(), this.varList = new Array(), this.constraints = /* @__PURE__ */ new Set(), this.solverShell = new Gn(), this.boundsToInt = /* @__PURE__ */ new Map(), this.varSepartion = t;
   }
   //        delegate Array<NudgerConstraint> Edges(int i);
   //
@@ -14326,7 +14334,7 @@ class nf {
     this.AddVariableNNBN(t, e, !0, 0);
   }
   AddVariableNNBN(t, e, i, s) {
-    const n = new sf();
+    const n = new rf();
     n.Position = e, n.IsFixed = i, n.Width = s, this.varList.push(n);
   }
 }
@@ -14496,7 +14504,7 @@ q.colors = [
   "Khaki",
   "AntiqueWhite"
 ];
-class rf extends ce {
+class af extends ce {
   constructor(t, e) {
     super(t, e), this.RightNeighbors = /* @__PURE__ */ new Set(), this.setOfLongestSegs = /* @__PURE__ */ new Set(), this.RightBound = Number.POSITIVE_INFINITY, this.LeftBound = Number.NEGATIVE_INFINITY, this.Direction = E.DirectionFromPointToPoint(t.point, e.point);
   }
@@ -14516,7 +14524,7 @@ class rf extends ce {
     t = Math.min(t, this.RightBound), this.LeftBound = Math.max(t, this.LeftBound);
   }
 }
-class Ri {
+class Ni {
   constructor(t) {
     this.Point = t;
   }
@@ -14540,11 +14548,11 @@ class Ri {
       this.SetNewNext(i[t]);
   }
   SetNewNext(t) {
-    const e = new Ri(t), i = this.Next;
+    const e = new Ni(t), i = this.Next;
     this.Next = e, e.Next = i;
   }
 }
-class Mr {
+class Vr {
   toString() {
     return this.Source + (" " + this.Target);
   }
@@ -14570,7 +14578,7 @@ class Mr {
     return D(t.x * e.y - t.y * e.x, 0);
   }
   static EdgesAreParallel(t, e) {
-    return Mr.VectorsAreParallel(t.AxisEdge.TargetPoint.sub(t.AxisEdge.SourcePoint), e.AxisEdge.TargetPoint.sub(e.AxisEdge.SourcePoint));
+    return Vr.VectorsAreParallel(t.AxisEdge.TargetPoint.sub(t.AxisEdge.SourcePoint), e.AxisEdge.TargetPoint.sub(e.AxisEdge.SourcePoint));
   }
   get Direction() {
     return this.Reversed ? E.OppositeDir(this.AxisEdge.Direction) : this.AxisEdge.Direction;
@@ -14604,7 +14612,7 @@ class Vt {
     for (i.done || t.SetFirstEdge(i.value); (i = e.next()).done === !1; )
       t.AddEdge(i.value);
     function* s() {
-      if (t.PathPoints instanceof Ri)
+      if (t.PathPoints instanceof Ni)
         for (let n = t.PathPoints; n != null; n = n.Next)
           yield n.Point;
       else
@@ -14621,10 +14629,10 @@ class Vt {
     switch (E.DirectionFromPointToPoint(t, e)) {
       case S.East:
       case S.North:
-        return new Mr(this.GetAxisEdge(t, e), i);
+        return new Vr(this.GetAxisEdge(t, e), i);
       case S.South:
       case S.West: {
-        const n = new Mr(this.GetAxisEdge(e, t), i);
+        const n = new Vr(this.GetAxisEdge(e, t), i);
         return n.Reversed = !0, n;
       }
       default:
@@ -14632,7 +14640,7 @@ class Vt {
     }
   }
   GetAxisEdge(t, e) {
-    return this.PathVisibilityGraph.AddEdgeF(t, e, (i, s) => new rf(i, s));
+    return this.PathVisibilityGraph.AddEdgeF(t, e, (i, s) => new af(i, s));
   }
   InitPathOrder() {
     for (const t of this.PathVisibilityGraph.Edges)
@@ -14715,7 +14723,7 @@ class Vt {
   }
 }
 Vt.NotOrdered = Number.MAX_VALUE;
-class of extends Bi {
+class lf extends Gi {
   constructor(t, e) {
     super(), this.site = e, this.AxisEdge = t;
   }
@@ -14723,7 +14731,7 @@ class of extends Bi {
     return this.site;
   }
 }
-class al extends Bi {
+class ll extends Gi {
   constructor(t, e) {
     super(), this.site = e, this.AxisEdge = t;
   }
@@ -14731,7 +14739,7 @@ class al extends Bi {
     return this.site;
   }
 }
-class af {
+class hf {
   get Edges() {
     return this.edges;
   }
@@ -14748,7 +14756,7 @@ class af {
     return this.edges.size === 0;
   }
 }
-class Ii extends Fh {
+class Ei extends Dh {
   //
   // edges to find the empty space around
   constructor(t, e, i, s, n) {
@@ -14765,7 +14773,7 @@ class Ii extends Fh {
       this.ProcessEvent(this.EventQueue.Dequeue());
   }
   ProcessEvent(t) {
-    t instanceof en ? this.ProcessVertexEvent(t) : (this.Z = this.GetZP(t.Site), t instanceof al ? this.ProcessLowEdgeEvent(t) : this.ProcessHighEdgeEvent(t));
+    t instanceof en ? this.ProcessVertexEvent(t) : (this.Z = this.GetZP(t.Site), t instanceof ll ? this.ProcessLowEdgeEvent(t) : this.ProcessHighEdgeEvent(t));
   }
   ProcessHighEdgeEvent(t) {
     const e = t.AxisEdge;
@@ -14822,7 +14830,7 @@ class Ii extends Fh {
     t.BoundFromRight(s.dot(this.DirectionPerp));
   }
   GetActiveSideFromRight(t) {
-    return this.LeftObstacleSideTree.findFirst((e) => Ii.PointToTheLeftOfLineOrOnLineLocal(t, e.Start, e.End));
+    return this.LeftObstacleSideTree.findFirst((e) => Ei.PointToTheLeftOfLineOrOnLineLocal(t, e.Start, e.End));
   }
   ConstraintEdgeWithObstaclesAtZFromLeft(t, e) {
     const i = this.GetActiveSideFromLeft(e);
@@ -14832,13 +14840,13 @@ class Ii extends Fh {
     t.BoundFromLeft(s.dot(this.DirectionPerp));
   }
   static PointToTheLeftOfLineOrOnLineLocal(t, e, i) {
-    return u.signedDoubledTriangleArea(t, e, i) > -Ii.AreaComparisonEpsilon;
+    return u.signedDoubledTriangleArea(t, e, i) > -Ei.AreaComparisonEpsilon;
   }
   static PointToTheRightOfLineOrOnLineLocal(t, e, i) {
-    return u.signedDoubledTriangleArea(e, i, t) < Ii.AreaComparisonEpsilon;
+    return u.signedDoubledTriangleArea(e, i, t) < Ei.AreaComparisonEpsilon;
   }
   GetActiveSideFromLeft(t) {
-    return this.RightObstacleSideTree.findLast((e) => Ii.PointToTheRightOfLineOrOnLineLocal(t, e.Start, e.End));
+    return this.RightObstacleSideTree.findLast((e) => Ei.PointToTheRightOfLineOrOnLineLocal(t, e.Start, e.End));
   }
   // ReSharper disable UnusedMember.Local
   // ShowPointAndEdge(point: Point, edge: AxisEdge) {
@@ -14926,7 +14934,7 @@ class Ii extends Fh {
   // }
   GetOrCreateAxisEdgesContainer(t) {
     const e = t.Source.point, i = this.GetAxisEdgesContainerNode(e);
-    return i ?? this.edgeContainersTree.insert(new af(e));
+    return i ?? this.edgeContainersTree.insert(new hf(e));
   }
   //
   // the point has to be on the same line as the container
@@ -14986,23 +14994,23 @@ class Ii extends Fh {
       this.EnqueueEventsForEdge(t);
   }
   EnqueueEventsForEdge(t) {
-    this.EdgeIsParallelToSweepDir(t) && (this.EnqueueEvent(Ii.EdgeLowPointEvent(t, t.Source.point)), this.EnqueueEvent(Ii.EdgeHighPointEvent(t, t.Target.point)));
+    this.EdgeIsParallelToSweepDir(t) && (this.EnqueueEvent(Ei.EdgeLowPointEvent(t, t.Source.point)), this.EnqueueEvent(Ei.EdgeHighPointEvent(t, t.Target.point)));
   }
   EdgeIsParallelToSweepDir(t) {
     return t.Direction === this.SweepPole || t.Direction === E.OppositeDir(this.SweepPole);
   }
   static EdgeHighPointEvent(t, e) {
-    return new of(t, e);
+    return new lf(t, e);
   }
   static EdgeLowPointEvent(t, e) {
-    return new al(t, e);
+    return new ll(t, e);
   }
   CompareAA(t, e) {
     return yt(t.Source.dot(this.DirectionPerp), e.Source.dot(this.DirectionPerp));
   }
 }
-Ii.AreaComparisonEpsilon = m.intersectionEpsilon;
-class lf extends aa {
+Ei.AreaComparisonEpsilon = m.intersectionEpsilon;
+class cf extends ha {
   constructor(t) {
     super(), this.CompassDirection = S.None, this.edges = new Array(), this._isFixed = !1, this.Id = -1, this.IdealPosition = 0, this.Id = t;
   }
@@ -15194,7 +15202,7 @@ class Ms {
   ReplacePiece(t, e, i, s) {
     let n = t;
     for (const r of i) {
-      const o = new Ri(r);
+      const o = new Ni(r);
       n.Next = o, n = o, this.verticesToPathOffsets.get(r).set(s, n);
     }
     n.Next = e;
@@ -15320,10 +15328,10 @@ class zt {
   }
   static CreateLinkedVertexOfEdgePath(t) {
     const e = t.PathPoints;
-    let i = new Ri(e[0]);
+    let i = new Ni(e[0]);
     const s = i;
     for (let n = 1; n < e.length; n++)
-      i.Next = new Ri(e[n]), i = i.Next;
+      i.Next = new Ni(e[n]), i = i.Next;
     return s;
   }
 }
@@ -15344,7 +15352,7 @@ class ns {
 }
 class rs {
   constructor(t, e) {
-    this.segTree = new Or(null), this.crossedOutPaths = /* @__PURE__ */ new Set(), this.HierarchyOfObstacles = new Or(e), this.Paths = t;
+    this.segTree = new Lr(null), this.crossedOutPaths = /* @__PURE__ */ new Set(), this.HierarchyOfObstacles = new Lr(e), this.Paths = t;
   }
   static RemoveStaircases(t, e) {
     new rs(t, e).Calculate();
@@ -15413,9 +15421,9 @@ class rs {
   RemoveStaircasePNB(t, e, i) {
     this.RemoveSegs(t);
     const s = new Array(t.length - 2);
-    cf(t, s, e + 1);
+    df(t, s, e + 1);
     const n = t[e + 1], r = t[e + 3];
-    return s[e + 1] = i ? new u(r.x, n.y) : new u(n.x, r.y), hf(t, e + 4, s, e + 2, s.length - e - 2), this.InsertNewSegs(s, e), s;
+    return s[e + 1] = i ? new u(r.x, n.y) : new u(n.x, r.y), uf(t, e + 4, s, e + 2, s.length - e - 2), this.InsertNewSegs(s, e), s;
   }
   RemoveSegs(t) {
     for (let e = 0; e < t.length - 1; e++)
@@ -15443,14 +15451,14 @@ class rs {
     this.segTree.Add(rs.Rect(i), i);
   }
   static Rect(t) {
-    return O.mkPP(t.Start, t.End);
+    return T.mkPP(t.Start, t.End);
   }
 }
-function hf(a, t, e, i, s) {
+function uf(a, t, e, i, s) {
   for (; s-- > 0; )
     e[i++] = a[t++];
 }
-function cf(a, t, e) {
+function df(a, t, e) {
   let i = 0;
   for (; e-- > 0; )
     t[i++] = a[i++];
@@ -15556,7 +15564,7 @@ class nt {
     }
   }
   PositionShiftedEdqges() {
-    this.Solver = new nf(this.EdgeSeparation);
+    this.Solver = new of(this.EdgeSeparation);
     for (let t = 0; t < this.LongestNudgedSegs.length; t++)
       this.CreateVariablesOfLongestSegment(this.LongestNudgedSegs[t]);
     this.CreateConstraintsOfTheOrder(), this.CreateConstraintsBetweenLongestSegments(), this.Solver.SolveByRegularSolver(), this.ShiftPathEdges();
@@ -15880,7 +15888,7 @@ class nt {
     return e === S.North ? t.Start.x : -t.Start.y;
   }
   FindFreeSpaceInDirection(t) {
-    this.BoundAxisEdgesByRectsKnownInAdvance(), new Ii(this.NudgingDirection, this.Obstacles, this.axisEdgesToObstaclesTheyOriginatedFrom, this.PathOrders, t).FindFreeSpace();
+    this.BoundAxisEdgesByRectsKnownInAdvance(), new Ei(this.NudgingDirection, this.Obstacles, this.axisEdgesToObstaclesTheyOriginatedFrom, this.PathOrders, t).FindFreeSpace();
   }
   BoundAxisEdgesByRectsKnownInAdvance() {
     for (const t of this.Paths)
@@ -15897,12 +15905,12 @@ class nt {
   }
   GetMinCommonAncestors(t) {
     this.PortToShapes == null && (this.PortToShapes = nt.MapPortsToShapes(this.AncestorsSets.keys()));
-    const e = uf(this.AncestorsForPort(t.sourcePort), this.AncestorsForPort(t.targetPort));
+    const e = ff(this.AncestorsForPort(t.sourcePort), this.AncestorsForPort(t.targetPort));
     return Array.from(e).filter((i) => !i.Children.some((s) => e.has(s)));
   }
   AncestorsForPort(t) {
     const e = this.PortToShapes.get(t);
-    return e ? this.AncestorsSets.get(e) : new Set(this.HierarchyOfGroups.AllHitItems(O.mkPP(t.Location, t.Location), null));
+    return e ? this.AncestorsSets.get(e) : new Set(this.HierarchyOfGroups.AllHitItems(T.mkPP(t.Location, t.Location), null));
   }
   BoundAxisEdgeAdjacentToObstaclePort(t, e) {
     t.Curve == null ? this.BoundAxisByPoint(t.Location, e) : t.Curve.boundingBox.contains(t.Location) && this.BoundAxisEdgeByRect(t.Curve.boundingBox, e);
@@ -15945,7 +15953,7 @@ class nt {
     const i = E.OppositeDir(this.NudgingDirection);
     for (const s of t.PathEdges()) {
       const n = s.Direction;
-      n === this.NudgingDirection || n === i ? (e == null ? (s.LongestNudgedSegment = e = new lf(this.LongestNudgedSegs.length), this.LongestNudgedSegs.push(e)) : s.LongestNudgedSegment = e, s.IsFixed && (e.IsFixed = !0)) : (s.LongestNudgedSegment = null, e = null);
+      n === this.NudgingDirection || n === i ? (e == null ? (s.LongestNudgedSegment = e = new cf(this.LongestNudgedSegs.length), this.LongestNudgedSegs.push(e)) : s.LongestNudgedSegment = e, s.IsFixed && (e.IsFixed = !0)) : (s.LongestNudgedSegment = null, e = null);
     }
   }
   static BuildPolylineForPath(t) {
@@ -16033,7 +16041,7 @@ class nt {
       yield q.mkDebugCurveTWCI(200, t + o * l, i, v.mkPP(n[l], n[l + 1]));
   }
 }
-function uf(a, t) {
+function ff(a, t) {
   const e = /* @__PURE__ */ new Set();
   if (a.size < t.size)
     for (const i of a)
@@ -16043,12 +16051,12 @@ function uf(a, t) {
       a.has(i) && e.add(i);
   return e;
 }
-class df {
+class gf {
   constructor(t, e) {
     this.Crossings = [], this.Location = t, this.Crossings = e;
   }
 }
-class Pn {
+class Sn {
   Count() {
     return this.ListOfPointsAndCrossings.length;
   }
@@ -16056,7 +16064,7 @@ class Pn {
     this.ListOfPointsAndCrossings = [], this.index = 0, this.ListOfPointsAndCrossings = new Array();
   }
   Add(t, e) {
-    this.ListOfPointsAndCrossings.push(new df(t, e));
+    this.ListOfPointsAndCrossings.push(new gf(t, e));
   }
   Pop() {
     return this.ListOfPointsAndCrossings[this.index++];
@@ -16117,16 +16125,16 @@ class Pn {
     return Gt.String.format("{0} [{1}]", this.ListOfPointsAndCrossings.length, this.index);
   }
 }
-class x {
+class O {
   // Determine the direction of an edge.
   static EdgeDirectionVE(t) {
-    return x.EdgeDirectionVV(t.Source, t.Target);
+    return O.EdgeDirectionVV(t.Source, t.Target);
   }
   static EdgeDirectionVV(t, e) {
     return b.GetDirections(t.point, e.point);
   }
   static GetEdgeEnd(t, e) {
-    const i = x.EdgeDirectionVE(t);
+    const i = O.EdgeDirectionVE(t);
     return e === i ? t.Target : t.Source;
   }
   static FindAdjacentVertex(t, e) {
@@ -16148,58 +16156,58 @@ class x {
     return null;
   }
   static FindBendPointBetween(t, e, i) {
-    return x.IsVerticalD(i) ? new u(e.x, t.y) : new u(t.x, e.y);
+    return O.IsVerticalD(i) ? new u(e.x, t.y) : new u(t.x, e.y);
   }
   static SegmentIntersectionPPP(t, e, i) {
     const s = b.GetDirections(t, e);
-    return x.IsVerticalD(s) ? new u(t.x, i.y) : new u(i.x, t.y);
+    return O.IsVerticalD(s) ? new u(t.x, i.y) : new u(i.x, t.y);
   }
   static SegmentIntersectionSP(t, e) {
-    return x.SegmentIntersectionPPP(t.Start, t.End, e);
+    return O.SegmentIntersectionPPP(t.Start, t.End, e);
   }
   static SegmentsIntersection(t, e) {
-    return x.IntervalsIntersect(t.Start, t.End, e.Start, e.End);
+    return O.IntervalsIntersect(t.Start, t.End, e.Start, e.End);
   }
   static SegmentsIntersectLL(t, e) {
-    return x.IntervalsIntersect(t.start, t.end, e.start, e.end);
+    return O.IntervalsIntersect(t.start, t.end, e.start, e.end);
   }
   static IntervalsOverlapSS(t, e) {
-    return x.IntervalsOverlapPPPP(t.Start, t.End, e.Start, e.End);
+    return O.IntervalsOverlapPPPP(t.Start, t.End, e.Start, e.End);
   }
   static IntervalsOverlapPPPP(t, e, i, s) {
-    return x.IntervalsAreCollinear(t, e, i, s) && b.ComparePP(t, s) !== b.ComparePP(e, i);
+    return O.IntervalsAreCollinear(t, e, i, s) && b.ComparePP(t, s) !== b.ComparePP(e, i);
   }
   static IntervalsAreCollinear(t, e, i, s) {
-    const n = x.IsVerticalPP(t, e);
-    return x.IsVerticalPP(i, s) === n ? n ? b.Equal(t.x, i.x) : b.Equal(t.y, i.y) : !1;
+    const n = O.IsVerticalPP(t, e);
+    return O.IsVerticalPP(i, s) === n ? n ? b.Equal(t.x, i.x) : b.Equal(t.y, i.y) : !1;
   }
   static IntervalsAreSame(t, e, i, s) {
     return b.EqualPP(t, i) && b.EqualPP(e, s);
   }
   static IntervalsIntersect(t, e, i, s) {
-    const n = x.SegmentIntersectionPPP(t, e, i);
-    return x.PointIsOnSegmentPPP(t, e, n) && x.PointIsOnSegmentPPP(i, s, n) ? n : void 0;
+    const n = O.SegmentIntersectionPPP(t, e, i);
+    return O.PointIsOnSegmentPPP(t, e, n) && O.PointIsOnSegmentPPP(i, s, n) ? n : void 0;
   }
   static SegmentIntersectionEP(t, e) {
-    return x.SegmentIntersectionPPP(t.SourcePoint, t.TargetPoint, e);
+    return O.SegmentIntersectionPPP(t.SourcePoint, t.TargetPoint, e);
   }
   static PointIsOnSegmentPPP(t, e, i) {
     return b.EqualPP(t, i) || b.EqualPP(e, i) || b.GetDirections(t, i) === b.GetDirections(i, e);
   }
   static PointIsOnSegmentSP(t, e) {
-    return x.PointIsOnSegmentPPP(t.Start, t.End, e);
+    return O.PointIsOnSegmentPPP(t.Start, t.End, e);
   }
   static IsVerticalD(t) {
     return (t & (S.North | S.South)) !== 0;
   }
   static IsVerticalE(t) {
-    return x.IsVerticalD(b.GetDirections(t.SourcePoint, t.TargetPoint));
+    return O.IsVerticalD(b.GetDirections(t.SourcePoint, t.TargetPoint));
   }
   static IsVerticalPP(t, e) {
-    return x.IsVerticalD(b.GetDirections(t, e));
+    return O.IsVerticalD(b.GetDirections(t, e));
   }
   static IsVertical(t) {
-    return x.IsVerticalD(b.GetDirections(t.start, t.end));
+    return O.IsVerticalD(b.GetDirections(t.start, t.end));
   }
   static IsAscending(t) {
     return (t & (S.North | S.East)) !== 0;
@@ -16210,16 +16218,16 @@ class x {
   }
   static SortAscending(t, e) {
     const i = b.GetDirections(t, e);
-    return S.None === i || x.IsAscending(i) ? [t, e] : [e, t];
+    return S.None === i || O.IsAscending(i) ? [t, e] : [e, t];
   }
   static RectangleBorderIntersect(t, e, i) {
     switch (i) {
       case S.North:
       case S.South:
-        return new u(e.x, x.GetRectangleBound(t, i));
+        return new u(e.x, O.GetRectangleBound(t, i));
       case S.East:
       case S.West:
-        return new u(x.GetRectangleBound(t, i), e.y);
+        return new u(O.GetRectangleBound(t, i), e.y);
       default:
         throw new Error();
     }
@@ -16298,7 +16306,7 @@ class Pt {
     return this.IsHorizontal ? Pt.VerticalInstance : Pt.HorizontalInstance;
   }
   static GetInstance(t) {
-    return x.IsVerticalD(t) ? Pt.VerticalInstance : Pt.HorizontalInstance;
+    return O.IsVerticalD(t) ? Pt.VerticalInstance : Pt.HorizontalInstance;
   }
   ToString() {
     return this.Dir.toString();
@@ -16306,7 +16314,7 @@ class Pt {
 }
 Pt.HorizontalInstance = new Pt(S.East);
 Pt.VerticalInstance = new Pt(S.North);
-class W extends aa {
+class W extends ha {
   static mk(t, e) {
     return new W(
       t,
@@ -16343,7 +16351,7 @@ class W extends aa {
     return t.x === e.x;
   }
   MergeGroupBoundaryCrossingList(t) {
-    t != null && (this.GroupBoundaryPointAndCrossingsList == null && (this.GroupBoundaryPointAndCrossingsList = new Pn()), this.GroupBoundaryPointAndCrossingsList.MergeFrom(t));
+    t != null && (this.GroupBoundaryPointAndCrossingsList == null && (this.GroupBoundaryPointAndCrossingsList = new Sn()), this.GroupBoundaryPointAndCrossingsList.MergeFrom(t));
   }
   TrimGroupBoundaryCrossingList() {
     this.GroupBoundaryPointAndCrossingsList != null && this.GroupBoundaryPointAndCrossingsList.Trim(this.Start, this.End);
@@ -16403,10 +16411,10 @@ class W extends aa {
   //   followed by all closes (per EventQueue opening), so we may add multiple discrete
   //   segments, which ScanSegmentTree will merge.
   static Subsume(t, e, i, s, n, r, o, l) {
-    return l.extendStart = !0, l.extendEnd = !0, t.seg == null || !x.IntervalsOverlapPPPP(t.seg.Start, t.seg.End, e, i) ? !1 : t.seg.Weight !== s ? t.seg.Start === e && t.seg.End === i ? (t.seg.Weight = Math.min(t.seg.Weight, s), !0) : !1 : (l.extendStart = r.CompareScanCoord(e, t.seg.Start) === -1, l.extendEnd = r.CompareScanCoord(i, t.seg.End) === 1, (l.extendStart || l.extendEnd) && (o.Remove(t.seg), t.seg.startPoint = r.Min(t.seg.Start, e), t.seg.endPoint = r.Max(t.seg.End, i), t.seg = o.InsertUnique(t.seg).item, t.seg.MergeGroupBoundaryCrossingList(n)), !0);
+    return l.extendStart = !0, l.extendEnd = !0, t.seg == null || !O.IntervalsOverlapPPPP(t.seg.Start, t.seg.End, e, i) ? !1 : t.seg.Weight !== s ? t.seg.Start === e && t.seg.End === i ? (t.seg.Weight = Math.min(t.seg.Weight, s), !0) : !1 : (l.extendStart = r.CompareScanCoord(e, t.seg.Start) === -1, l.extendEnd = r.CompareScanCoord(i, t.seg.End) === 1, (l.extendStart || l.extendEnd) && (o.Remove(t.seg), t.seg.startPoint = r.Min(t.seg.Start, e), t.seg.endPoint = r.Max(t.seg.End, i), t.seg = o.InsertUnique(t.seg).item, t.seg.MergeGroupBoundaryCrossingList(n)), !0);
   }
   IntersectsSegment(t) {
-    return x.SegmentsIntersection(this, t) !== void 0;
+    return O.SegmentsIntersection(this, t) !== void 0;
   }
   toString() {
     return "[" + this.Start + " -> " + this.End + (this.IsOverlapped ? " olap" : " free") + "]";
@@ -16451,7 +16459,7 @@ class W extends aa {
     for (; this.GroupBoundaryPointAndCrossingsList.CurrentIsBeforeOrAt(e); ) {
       const n = this.GroupBoundaryPointAndCrossingsList.Pop();
       let r = null, o = null;
-      b.ComparePP(n.Location, this.Start) > 0 && (r = Pn.ToCrossingArray(n.Crossings, this.ScanDirection.OppositeDirection)), b.ComparePP(n.Location, this.End) < 0 && (o = Pn.ToCrossingArray(n.Crossings, this.ScanDirection.Dir)), s = !0;
+      b.ComparePP(n.Location, this.Start) > 0 && (r = Sn.ToCrossingArray(n.Crossings, this.ScanDirection.OppositeDirection)), b.ComparePP(n.Location, this.End) < 0 && (o = Sn.ToCrossingArray(n.Crossings, this.ScanDirection.Dir)), s = !0;
       const l = (i = t.FindVertex(n.Location)) !== null && i !== void 0 ? i : t.AddVertexP(n.Location);
       t.AddVertexP(n.Location), r != null || o != null ? (this.AddLowCrossings(t, l, r), this.AddHighCrossings(t, l, o)) : this.LowestVisibilityVertex == null ? this.SetInitialVisibilityVertex(l) : this.AppendHighestVisibilityVertex(l);
     }
@@ -16494,7 +16502,7 @@ class W extends aa {
 W.NormalWeight = ce.DefaultWeight;
 W.ReflectionWeight = 5;
 W.OverlappedWeight = 500;
-class ll {
+class hl {
   // A class that records an entry from a specific direction for a vertex.
   // Vertex that this VertexEntry enters
   // The previous VertexEntry along this path; null for a path source
@@ -16515,7 +16523,7 @@ class ll {
     return this.Vertex.point + (" " + (this.Direction + (" " + (this.IsClosed + (" " + this.Cost)))));
   }
 }
-class mo {
+class So {
   constructor() {
     this.Clear();
   }
@@ -16535,7 +16543,7 @@ class K {
     return this.CombinedCost(t, e) + this.sourceCostAdjustment;
   }
   constructor() {
-    this.nextNeighbors = [new mo(), new mo(), new mo()], this.LengthImportance = 1, this.BendsImportance = 1;
+    this.nextNeighbors = [new So(), new So(), new So()], this.LengthImportance = 1, this.BendsImportance = 1;
   }
   InitPath(t, e, i) {
     if (e === i || !this.InitEntryDirectionsAtTarget(i))
@@ -16651,7 +16659,7 @@ class K {
     r < this.upperBoundOnCost && (e.VertexEntries == null && this.visitedVertices.push(e), this.EnqueueEntry(t, e, s.length, s.numberOfBends, r));
   }
   EnqueueEntry(t, e, i, s, n) {
-    const r = new ll(e, t, i, s, n);
+    const r = new hl(e, t, i, s, n);
     e.SetVertexEntry(r), this.queue.Enqueue(r, r.Cost);
   }
   static GetLengthAndNumberOfBendsToNeighborVertex(t, e, i, s) {
@@ -16716,7 +16724,7 @@ class K {
     r !== t.Direction && (o = this.nextNeighbors[r === s ? 1 : 0]), o.Set(n, e.Weight);
   }
   EnqueueInitialVerticesFromSource(t) {
-    const e = new ll(this.Source, null, 0, 0, t);
+    const e = new hl(this.Source, null, 0, 0, t);
     e.IsClosed = !0;
     for (const i of this.Source.OutEdges)
       K.IsPassable(i) && this.ExtendPathToNeighborVertex(e, i.Target, i.Weight);
@@ -16768,7 +16776,7 @@ K.AddOneTurn = [
   15
   //15
 ];
-class Sn {
+class yn {
   constructor(t) {
     this.bendPenaltyAsAPercentageOfDistance = K.DefaultBendPenaltyAsAPercentageOfDistance, this.currentPassTargetEntries = new Array(4), this.bendPenaltyAsAPercentageOfDistance = t;
   }
@@ -16796,7 +16804,7 @@ class Sn {
       bestCost: Number.MAX_VALUE / W.OverlappedWeight
     };
     let o = Number.POSITIVE_INFINITY;
-    const l = Sn.Barycenter(e), h = Sn.Barycenter(s), c = K.ManhattanDistance(l, h);
+    const l = yn.Barycenter(e), h = yn.Barycenter(s), c = K.ManhattanDistance(l, h);
     n.BendsImportance = Math.max(1e-3, c * (this.bendPenaltyAsAPercentageOfDistance * 0.01));
     const d = n.LengthImportance, f = i != null ? this.currentPassTargetEntries : null, p = [];
     for (const C of e)
@@ -16807,15 +16815,15 @@ class Sn {
       if (u.closeDistEps(C.point, w.point))
         continue;
       const N = y(C, l) * d, I = y(w, h) * d;
-      let T = r.bestCost;
+      let x = r.bestCost;
       if (i != null) {
         for (let X = 0; X < f.length; X++)
           f[X] = null;
-        T = n.MultistageAdjustedCostBound(r.bestCost);
+        x = n.MultistageAdjustedCostBound(r.bestCost);
       }
-      const V = n.GetPathWithCost(t, C, N, f, w, I, T);
+      const V = n.GetPathWithCost(t, C, N, f, w, I, x);
       if (f != null) {
-        Sn.UpdateTargetEntriesForEachDirection(i, f, r);
+        yn.UpdateTargetEntriesForEachDirection(i, f, r);
         continue;
       }
       if (V == null)
@@ -16844,7 +16852,7 @@ class Sn {
     return e.div(t.length);
   }
 }
-class ff {
+class pf {
   get PathPoints() {
     return this._pathPoints;
   }
@@ -16865,7 +16873,7 @@ class ff {
     return this.FirstEdge.Source;
   }
   ArrayOfPathPoints() {
-    return this._pathPoints instanceof Ri ? Array.from(hl(this._pathPoints)) : this._pathPoints;
+    return this._pathPoints instanceof Ni ? Array.from(cl(this._pathPoints)) : this._pathPoints;
   }
   *PathEdges() {
     for (let t = this.FirstEdge; t != null; t = t.Next)
@@ -16880,21 +16888,21 @@ class ff {
   //
   toString() {
     const t = new Gt.StringBuilder();
-    this.PathPoints instanceof Ri && t.Append("L");
-    for (const e of hl(this.PathPoints))
+    this.PathPoints instanceof Ni && t.Append("L");
+    for (const e of cl(this.PathPoints))
       t.Append(e.toString());
     return t.ToString();
   }
 }
-function* hl(a) {
-  if (a instanceof Ri)
+function* cl(a) {
+  if (a instanceof Ni)
     for (let t = a; t != null; t = t.Next)
       yield t.Point;
   else
     for (const t of a)
       yield t;
 }
-class kh extends la {
+class Wh extends ca {
   get Obstacle() {
     return this.obstacle;
   }
@@ -16902,18 +16910,18 @@ class kh extends la {
     this.obstacle = t;
   }
   constructor(t, e, i, s) {
-    super(e), this.Slope = 0, this.SlopeInverse = 0, this.Obstacle = t, this.endVertex = s ? e.nextOnPolyline : e.prevOnPolyline, i.IsPerpendicularPP(e.point, this.endVertex.point) || (this.Slope = x.Slope(e.point, this.endVertex.point, i), this.SlopeInverse = 1 / this.Slope);
+    super(e), this.Slope = 0, this.SlopeInverse = 0, this.Obstacle = t, this.endVertex = s ? e.nextOnPolyline : e.prevOnPolyline, i.IsPerpendicularPP(e.point, this.endVertex.point) || (this.Slope = O.Slope(e.point, this.endVertex.point, i), this.SlopeInverse = 1 / this.Slope);
   }
   get EndVertex() {
     return this.endVertex;
   }
 }
-class Qe extends kh {
+class Qe extends Wh {
   constructor(t, e, i) {
     super(t, e, i, i.IsHorizontal);
   }
 }
-class yn extends kh {
+class bn extends Wh {
   constructor(t, e, i) {
     super(t, e, i, i.IsVertical);
   }
@@ -16951,7 +16959,7 @@ class Ot {
     return n.CreateInitialSides(n.PaddedPolyline.startPoint, i), n;
   }
   CreateInitialSides(t, e) {
-    this.ActiveLowSide = new Qe(this, t, e), this.ActiveHighSide = new yn(this, t, e), e.IsFlatS(this.ActiveHighSide) && (this.ActiveHighSide = new yn(this, this.ActiveHighSide.EndVertex, e));
+    this.ActiveLowSide = new Qe(this, t, e), this.ActiveHighSide = new bn(this, t, e), e.IsFlatS(this.ActiveHighSide) && (this.ActiveHighSide = new bn(this, this.ActiveHighSide.EndVertex, e));
   }
   constructor(t, e) {
     t != null && (this.PaddedPolyline = G.PaddedPolylineBoundaryOfNode(t.BoundaryCurve, e), Ot.RoundVerticesAndSimplify(this.PaddedPolyline), this.IsRectangle = this.IsPolylineRectangle(), this.InputShape = t, this.Ports = new Set(this.InputShape.Ports));
@@ -17021,7 +17029,7 @@ class Ot {
 }
 Ot.FirstSentinelOrdinal = 1;
 Ot.FirstNonSentinelOrdinal = 10;
-class gf {
+class mf {
   get Obstacle() {
     return this.ObstaclePort.Obstacle;
   }
@@ -17032,7 +17040,7 @@ class gf {
     return E.IsPureDirection(b.GetDirections(this.VisibilityBorderIntersect, this.ObstaclePort.Location));
   }
   get IsVertical() {
-    return x.IsVertical(this.MaxVisibilitySegment);
+    return O.IsVertical(this.MaxVisibilitySegment);
   }
   // If the port has entrances that are collinear, don't do the optimization for non-collinear ones.
   get WantVisibilityIntersection() {
@@ -17043,7 +17051,7 @@ class gf {
   }
   constructor(t, e, i, s) {
     this.IsOverlapped = !1, this.unpaddedToPaddedBorderWeight = W.NormalWeight, this.ObstaclePort = t, this.UnpaddedBorderIntersect = e, this.OutwardDirection = i;
-    const n = v.mkPP(this.UnpaddedBorderIntersect, x.RectangleBorderIntersect(t.Obstacle.VisibilityBoundingBox, this.UnpaddedBorderIntersect, i)), r = g.getAllIntersections(n, t.Obstacle.VisibilityPolyline, !0);
+    const n = v.mkPP(this.UnpaddedBorderIntersect, O.RectangleBorderIntersect(t.Obstacle.VisibilityBoundingBox, this.UnpaddedBorderIntersect, i)), r = g.getAllIntersections(n, t.Obstacle.VisibilityPolyline, !0);
     this.VisibilityBorderIntersect = u.RoundPoint(r[0].x);
     const o = { pacList: null };
     this.MaxVisibilitySegment = s.CreateMaxVisibilitySegment(this.VisibilityBorderIntersect, this.OutwardDirection, o), this.pointAndCrossingsList = o.pacList, (this.Obstacle.isOverlapped || this.Obstacle.IsGroup && !this.Obstacle.IsInConvexHull) && (this.IsOverlapped = s.IntersectionIsInsideAnotherObstacle(null, this.Obstacle, this.VisibilityBorderIntersect, Pt.GetInstance(this.OutwardDirection)), (!this.Obstacle.IsGroup || this.IsOverlapped || this.InteriorEdgeCrossesObstacle(s)) && (this.unpaddedToPaddedBorderWeight = W.OverlappedWeight)), this.Obstacle.IsInConvexHull && this.unpaddedToPaddedBorderWeight === W.NormalWeight && this.SetUnpaddedToPaddedBorderWeightFromHullSiblingOverlaps(s);
@@ -17052,18 +17060,18 @@ class gf {
     (this.Obstacle.IsGroup ? this.InteriorEdgeCrossesObstacle(t) : this.InteriorEdgeCrossesConvexHullSiblings()) && (this.unpaddedToPaddedBorderWeight = W.OverlappedWeight);
   }
   InteriorEdgeCrossesObstacle(t) {
-    const e = O.mkPP(this.UnpaddedBorderIntersect, this.VisibilityBorderIntersect);
+    const e = T.mkPP(this.UnpaddedBorderIntersect, this.VisibilityBorderIntersect);
     return this.InteriorEdgeCrossesObstacleRFI(e, (i) => i.VisibilityPolyline, Array.from(t.Root.GetLeafRectangleNodesIntersectingRectangle(e)).filter((i) => !i.UserData.IsGroup && i.UserData !== this.Obstacle).map((i) => i.UserData));
   }
   InteriorEdgeCrossesConvexHullSiblings() {
-    const t = O.mkPP(this.UnpaddedBorderIntersect, this.VisibilityBorderIntersect);
+    const t = T.mkPP(this.UnpaddedBorderIntersect, this.VisibilityBorderIntersect);
     return this.InteriorEdgeCrossesObstacleRFI(t, (e) => e.PaddedPolyline, this.Obstacle.ConvexHull.Obstacles.filter((e) => e !== this.Obstacle));
   }
   InteriorEdgeCrossesObstacleRFI(t, e, i) {
     let s = null;
     for (const n of i) {
       const r = e(n);
-      if (!x.RectangleInteriorsIntersect(t, r.boundingBox))
+      if (!O.RectangleInteriorsIntersect(t, r.boundingBox))
         continue;
       if (s = s ?? v.mkPP(this.UnpaddedBorderIntersect, this.VisibilityBorderIntersect), g.intersectionOne(
         s,
@@ -17081,7 +17089,7 @@ class gf {
   HasGroupCrossingBeforePoint(t) {
     if (!this.HasGroupCrossings)
       return !1;
-    const e = x.IsAscending(this.OutwardDirection) ? this.pointAndCrossingsList.First : this.pointAndCrossingsList.Last;
+    const e = O.IsAscending(this.OutwardDirection) ? this.pointAndCrossingsList.First : this.pointAndCrossingsList.Last;
     return b.GetDirections(this.MaxVisibilitySegment.start, e.Location) === b.GetDirections(e.Location, t);
   }
   AddToAdjacentVertex(t, e, i, s) {
@@ -17101,12 +17109,12 @@ class gf {
     return Gt.String.format("{0} {1}~{2} {3}", this.ObstaclePort.Location, this.UnpaddedBorderIntersect, this.VisibilityBorderIntersect, this.OutwardDirection);
   }
 }
-class pf {
+class Pf {
   constructor(t, e) {
-    this.HasCollinearEntrances = !1, this.VisibilityRectangle = O.mkEmpty(), this.Port = t, this.Obstacle = e, this.PortEntrances = new Array(), this.Location = u.RoundPoint(this.Port.Location);
+    this.HasCollinearEntrances = !1, this.VisibilityRectangle = T.mkEmpty(), this.Port = t, this.Obstacle = e, this.PortEntrances = new Array(), this.Location = u.RoundPoint(this.Port.Location);
   }
   CreatePortEntrance(t, e, i) {
-    const s = new gf(this, t, e, i);
+    const s = new mf(this, t, e, i);
     this.PortEntrances.push(s), this.VisibilityRectangle.add(s.MaxVisibilitySegment.end), this.HasCollinearEntrances = this.HasCollinearEntrances || s.IsCollinearWithPort;
   }
   ClearVisibility() {
@@ -17134,7 +17142,7 @@ class pf {
     return this.Port + this.Obstacle.toString();
   }
 }
-class mf {
+class Sf {
   get Point() {
     return this.Vertex.point;
   }
@@ -17155,7 +17163,7 @@ class mf {
   // existing Edge that adjoins the point.  We take 'dir' as an input parameter for edge
   // extension because we may be on the edge so can't calculate the direction.
   AddEdgeToAdjacentEdge(t, e, i, s) {
-    const n = x.SegmentIntersectionEP(e, this.Point);
+    const n = O.SegmentIntersectionEP(e, this.Point);
     let r = t.VisGraph.FindVertex(n);
     return r != null ? this.AddToAdjacentVertex(t, r, i, s) : r = t.AddEdgeToTargetEdge(this.Vertex, e, n), this.ExtendEdgeChain(t, r, i, s), r;
   }
@@ -17192,7 +17200,7 @@ class mf {
     return this.Vertex.toString();
   }
 }
-class ga {
+class ma {
   constructor(t, e) {
     this.BoundaryWidth = m.distanceEpsilon, this.Group = t, this.DirectionToInside = e;
   }
@@ -17203,8 +17211,8 @@ class ga {
     return Gt.String.format("{0} {1}", this.DirectionToInside, this.Group);
   }
 }
-ga.BoundaryWidth = m.distanceEpsilon;
-class Po extends Bi {
+ma.BoundaryWidth = m.distanceEpsilon;
+class yo extends Gi {
   constructor(t) {
     super(), this.site = t;
   }
@@ -17212,17 +17220,17 @@ class Po extends Bi {
     return this.site;
   }
 }
-class to extends en {
+class io extends en {
   constructor(t, e) {
     super(e), this.Obstacle = t;
   }
 }
-class lr extends to {
+class cr extends io {
   constructor(t, e) {
     super(t, e);
   }
 }
-class Pf {
+class yf {
   AddPendingPerpendicularCoord(t) {
     this.pendingPerpCoords == null && (this.pendingPerpCoords = new Array()), this.pendingPerpCoords.push(t);
   }
@@ -17290,12 +17298,12 @@ class Pf {
     }
   }
 }
-class cl {
+class ul {
   constructor(t, e) {
     this.CurrentSlotIndex = 0, this.vector = [], this.IsHorizontal = e;
     const i = Array.from(t).sort((s, n) => s > n ? 1 : s < n ? -1 : 0);
     for (const s of i)
-      this.vector.push(new Pf(s));
+      this.vector.push(new yf(s));
   }
   get Length() {
     return this.vector.length;
@@ -17389,7 +17397,7 @@ class cl {
     return (this.IsHorizontal ? "(H) count" : "(V) count === ") + this.vector.length;
   }
 }
-class Is extends Bi {
+class Is extends Gi {
   // Called by StoreLookaheadSite only.
   constructor(t, e, i) {
     super(), this.InitialObstacle = t, this.ReflectingObstacle = e, this.site = i;
@@ -17410,9 +17418,9 @@ class Is extends Bi {
     return this.site;
   }
 }
-class ul {
+class dl {
   constructor() {
-    this.eventTree = new ra((t, e) => this.Compare(t, e));
+    this.eventTree = new aa((t, e) => this.Compare(t, e));
   }
   Reset(t) {
     this.scanDirection = t;
@@ -17440,7 +17448,7 @@ class ul {
     return i = s - n, i || this.scanDirection.CompareScanCoord(t.Site, e.Site);
   }
 }
-class _h {
+class Hh {
   constructor() {
     this.pointCrossingMap = new ii(), this.pointList = new Array();
   }
@@ -17453,7 +17461,7 @@ class _h {
       if (l.Group === e)
         return l;
     }
-    const r = new ga(e, i);
+    const r = new ma(e, i);
     return s.push(r), r;
   }
   Clear() {
@@ -17470,7 +17478,7 @@ class _h {
     for (const n of this.pointCrossingMap.keys())
       b.ComparePP(n, t) >= 0 && b.ComparePP(n, e) <= 0 && this.pointList.push(n);
     this.pointList.sort((n, r) => n.compareTo(r));
-    const i = new Pn(), s = this.pointList.length;
+    const i = new Sn(), s = this.pointList.length;
     for (let n = 0; n < s; n++) {
       const r = this.pointList[n];
       i.Add(r, this.pointCrossingMap.get(r));
@@ -17481,12 +17489,12 @@ class _h {
     return Gt.String.format("{0}", this.pointCrossingMap.size);
   }
 }
-class dl extends Is {
+class fl extends Is {
   constructor(t, e, i) {
     super(t.ReflectingObstacle, e.Obstacle, i), this.Side = e;
   }
 }
-class Sf {
+class bf {
   constructor(t) {
     this.staleSites = new Array(), this.scanDirection = t, this.eventTree = new we((e, i) => this.CompareBB(e, i)), this.findFirstPred = (e) => this.CompareToFindFirstPoint(e.Site) >= 0;
   }
@@ -17540,27 +17548,27 @@ class Sf {
     return this.scanDirection.CompareScanCoord(t, e);
   }
 }
-class fl extends to {
+class gl extends io {
   constructor(t, e) {
     super(t, e);
   }
 }
-class gl extends to {
+class pl extends io {
   constructor(t, e) {
     super(t, e);
   }
 }
-class pl extends to {
+class ml extends io {
   constructor(t, e) {
     super(t, e);
   }
 }
-class ml extends Is {
+class Pl extends Is {
   constructor(t, e, i) {
     super(t.ReflectingObstacle, e.obstacle, i), this.Side = e;
   }
 }
-class Pl {
+class Sl {
   // Dereferences the node if non-null to return the side Item.
   get LowNeighborSide() {
     return this.LowNeighbor == null ? null : this.LowNeighbor.item;
@@ -17573,7 +17581,7 @@ class Pl {
     this.LowNeighbor = null, this.LowOverlapEnd = null, this.GroupSideInterveningBeforeLowNeighbor = null, this.HighNeighbor = null, this.HighOverlapEnd = null, this.GroupSideInterveningBeforeHighNeighbor = null;
   }
   SetSides(t, e, i, s) {
-    if (x.IsAscending(t)) {
+    if (O.IsAscending(t)) {
       this.HighNeighbor = e, this.HighOverlapEnd = i, this.GroupSideInterveningBeforeHighNeighbor = s;
       return;
     }
@@ -17624,7 +17632,7 @@ class ti {
       t && t.clear();
   }
 }
-class Sl {
+class yl {
   constructor(t, e) {
     this.Polyline = t, this.Obstacles = Array.from(e), this.PrimaryObstacle = this.Obstacles[0], Ot.RoundVerticesAndSimplify(this.Polyline);
   }
@@ -17649,7 +17657,7 @@ class Ys {
 }
 class ct {
   constructor() {
-    this.CurrentGroupBoundaryCrossingMap = new _h(), this.overlapPairs = new ti(), this.hasOverlaps = !1, this.lookupIntPair = new U(-1, -1);
+    this.CurrentGroupBoundaryCrossingMap = new Hh(), this.overlapPairs = new ti(), this.hasOverlaps = !1, this.lookupIntPair = new U(-1, -1);
   }
   get GraphBox() {
     return this.Root.irect;
@@ -17763,7 +17771,7 @@ class ct {
     }
   }
   CreateClumps() {
-    const t = Lr(Array.from(this.overlapPairs.values())), e = Qs(t);
+    const t = Nr(Array.from(this.overlapPairs.values())), e = Qs(t);
     for (const i of e) {
       if (i.length === 1)
         continue;
@@ -17774,12 +17782,12 @@ class ct {
   }
   CreateConvexHulls() {
     let t = !1;
-    const e = Lr(Array.from(this.overlapPairs.values())), i = Qs(e);
+    const e = Nr(Array.from(this.overlapPairs.values())), i = Qs(e);
     for (const s of i) {
       if (s.length === 1)
         continue;
       t = !0;
-      const n = s.map(this.OrdinalToObstacle), r = Xn(n, (l) => l.VisibilityPolyline), o = new Sl(Xe.createConvexHullAsClosedPolyline(r), n);
+      const n = s.map(this.OrdinalToObstacle), r = Qn(n, (l) => l.VisibilityPolyline), o = new yl(Xe.createConvexHullAsClosedPolyline(r), n);
       for (const l of n)
         l.SetConvexHull(o);
     }
@@ -17806,7 +17814,7 @@ class ct {
   }
   static GrowGroupAroundLoosePolyline(t, e) {
     const i = Array.from(t.VisibilityPolyline).concat(Array.from(e));
-    t.SetConvexHull(new Sl(Xe.createConvexHullAsClosedPolyline(i), [t]));
+    t.SetConvexHull(new yl(Xe.createConvexHullAsClosedPolyline(i), [t]));
   }
   static ObstaclesIntersect(t, e, i) {
     return g.CurvesIntersect(t.VisibilityPolyline, e.VisibilityPolyline) ? (i.aIsInsideB = !1, i.bIsInsideA = !1, !0) : (i.aIsInsideB = ct.FirstPolylineStartIsInsideSecondPolyline(t.VisibilityPolyline, e.VisibilityPolyline), i.bIsInsideA = !i.aIsInsideB && ct.FirstPolylineStartIsInsideSecondPolyline(e.VisibilityPolyline, t.VisibilityPolyline), t.IsRectangle && e.IsRectangle ? !1 : ct.ObstaclesAreCloseEnoughToBeConsideredTouching(t, e, i.aIsInsideB, i.bIsInsideA) ? (i.aIsInsideB = !1, i.bIsInsideA = !1, !0) : !1);
@@ -17857,7 +17865,7 @@ class ct {
   }
   // Create a LineSegment that contains the max visibility from startPoint in the desired direction.
   CreateMaxVisibilitySegment(t, e, i) {
-    const s = x.RectangleBorderIntersect(this.GraphBox, t, e);
+    const s = O.RectangleBorderIntersect(this.GraphBox, t, e);
     if (b.GetDirections(t, s) === S.None)
       return i.pacList = null, v.mkPP(t, t);
     const n = this.RestrictSegmentWithObstacles(t, s);
@@ -17882,9 +17890,9 @@ class ct {
     return this.insideHitTestIgnoreObstacle1 = null, this.insideHitTestIgnoreObstacle2 = null, this.insideHitTestScanDirection = e, this.Root.FirstHitNodeWithPredicate(t, this.InsideObstacleHitTest.bind(this)) != null;
   }
   InsideObstacleHitTest(t, e) {
-    if (e === this.insideHitTestIgnoreObstacle1 || e === this.insideHitTestIgnoreObstacle2 || e.IsGroup || !x.PointIsInRectangleInterior(t, e.VisibilityBoundingBox))
+    if (e === this.insideHitTestIgnoreObstacle1 || e === this.insideHitTestIgnoreObstacle2 || e.IsGroup || !O.PointIsInRectangleInterior(t, e.VisibilityBoundingBox))
       return at.Continue;
-    const i = x.RectangleBorderIntersect(e.VisibilityBoundingBox, t, this.insideHitTestScanDirection.dir).add(this.insideHitTestScanDirection.DirectionAsPoint), s = x.RectangleBorderIntersect(e.VisibilityBoundingBox, t, this.insideHitTestScanDirection.OppositeDirection).sub(this.insideHitTestScanDirection.DirectionAsPoint), n = v.mkPP(s, i), r = g.getAllIntersections(n, e.VisibilityPolyline, !0);
+    const i = O.RectangleBorderIntersect(e.VisibilityBoundingBox, t, this.insideHitTestScanDirection.dir).add(this.insideHitTestScanDirection.DirectionAsPoint), s = O.RectangleBorderIntersect(e.VisibilityBoundingBox, t, this.insideHitTestScanDirection.OppositeDirection).sub(this.insideHitTestScanDirection.DirectionAsPoint), n = v.mkPP(s, i), r = g.getAllIntersections(n, e.VisibilityPolyline, !0);
     if (r.length === 2) {
       const o = u.RoundPoint(r[0].x), l = u.RoundPoint(r[1].x);
       if (!b.EqualPP(t, o) && !b.EqualPP(t, l) && t.compareTo(o) !== t.compareTo(l) && !D(Math.floor(r[0].par1), Math.floor(r[1].par1)))
@@ -17914,7 +17922,7 @@ class ct {
     this.restrictedIntersectionTestSegment = v.mkPP(new u(s, r), new u(n, o));
   }
   RecurseRestrictRayWithObstacles(t) {
-    if (!x.RectangleInteriorsIntersect(this.currentRestrictedRay.boundingBox, t.irect))
+    if (!O.RectangleInteriorsIntersect(this.currentRestrictedRay.boundingBox, t.irect))
       return;
     const e = t.UserData;
     if (e != null) {
@@ -17952,7 +17960,7 @@ class ct {
         if (u.closeIntersections(r, this.currentRestrictedRay.start) || u.closeIntersections(r, this.currentRestrictedRay.end))
           return;
       }
-      this.restrictedRayLengthSquared = s, this.currentRestrictedRay.end = Ys.MungeClosestIntersectionInfo(this.currentRestrictedRay.start, i, !x.IsVerticalPP(this.currentRestrictedRay.start, this.currentRestrictedRay.end));
+      this.restrictedRayLengthSquared = s, this.currentRestrictedRay.end = Ys.MungeClosestIntersectionInfo(this.currentRestrictedRay.start, i, !O.IsVerticalPP(this.currentRestrictedRay.start, this.currentRestrictedRay.end));
     }
   }
   AddGroupIntersectionsToRestrictedRay(t, e) {
@@ -17966,7 +17974,7 @@ class ct {
     }
   }
 }
-class yf {
+class vf {
   constructor(t, e) {
     this.scanDirection = t, this.SideTree = new we((i, s) => this.Compare(i, s)), this.linePositionAtLastInsertOrRemove = e;
   }
@@ -17995,7 +18003,7 @@ class yf {
     return this.SideTree.next(t);
   }
   Next(t, e) {
-    return x.IsAscending(t) ? this.SideTree.next(e) : this.SideTree.previous(e);
+    return O.IsAscending(t) ? this.SideTree.next(e) : this.SideTree.previous(e);
   }
   Lowest() {
     return this.SideTree.treeMinimum();
@@ -18008,12 +18016,12 @@ class yf {
     let n = i.compareTo(s);
     if (n === 0) {
       const r = t instanceof Qe, o = e instanceof Qe;
-      n = ld(r, o), n === 0 && (n = yt(t.Obstacle.Ordinal, e.Obstacle.Ordinal));
+      n = cd(r, o), n === 0 && (n = yt(t.Obstacle.Ordinal, e.Obstacle.Ordinal));
     }
     return n;
   }
 }
-class sr {
+class rr {
   constructor(t) {
     this.lookupSegment = W.mk(new u(0, 0), new u(0, 1)), this.ScanDirection = t, this.segmentTree = new we((e, i) => this.Compare(e, i)), this.findIntersectorPred = (e) => this.CompareIntersector(e), this.findPointPred = (e) => this.CompareToPoint(e);
   }
@@ -18132,7 +18140,7 @@ class sr {
     return i === 0 && (i = this.ScanDirection.Compare(t.End, e.End) * -1), i;
   }
 }
-class bf extends ks {
+class Cf extends ks {
   constructor(t) {
     super(t);
   }
@@ -18145,7 +18153,7 @@ class bf extends ks {
 }
 class ut {
   constructor(t) {
-    this.ObstacleTree = new ct(), this.CurrentGroupBoundaryCrossingMap = new _h(), this.LowNeighborSides = new Pl(), this.HighNeighborSides = new Pl(), this.ScanDirection = Pt.HorizontalInstance, this.eventQueue = new ul(), this.HorizontalScanSegments = new sr(Pt.HorizontalInstance), this.VerticalScanSegments = new sr(Pt.VerticalInstance), this.wantReflections = t;
+    this.ObstacleTree = new ct(), this.CurrentGroupBoundaryCrossingMap = new Hh(), this.LowNeighborSides = new Sl(), this.HighNeighborSides = new Sl(), this.ScanDirection = Pt.HorizontalInstance, this.eventQueue = new dl(), this.HorizontalScanSegments = new rr(Pt.HorizontalInstance), this.VerticalScanSegments = new rr(Pt.VerticalInstance), this.wantReflections = t;
   }
   get ParallelScanSegments() {
     return this.ScanDirection.IsHorizontal ? this.HorizontalScanSegments : this.VerticalScanSegments;
@@ -18155,7 +18163,7 @@ class ut {
   }
   static NewVisibilityGraph() {
     const t = new wt();
-    return t.VertexFactory = (e) => new bf(e), t;
+    return t.VertexFactory = (e) => new Cf(e), t;
   }
   // Generate the visibility graph along which edges will be routed.
   GenerateVisibilityGraph() {
@@ -18196,12 +18204,12 @@ class ut {
     return this.ScanDirection.IsHorizontal ? t.nextOnPolyline : t.prevOnPolyline;
   }
   InitializeEventQueue(t) {
-    this.ScanDirection = t, this.eventQueue.Reset(this.ScanDirection), this.EnqueueBottomVertexEvents(), this.scanLine = new yf(this.ScanDirection, this.ObstacleTree.GraphBox.leftBottom), this.lookaheadScan = new Sf(this.ScanDirection);
+    this.ScanDirection = t, this.eventQueue.Reset(this.ScanDirection), this.EnqueueBottomVertexEvents(), this.scanLine = new vf(this.ScanDirection, this.ObstacleTree.GraphBox.leftBottom), this.lookaheadScan = new bf(this.ScanDirection);
   }
   EnqueueBottomVertexEvents() {
     for (const t of this.ObstacleTree.GetAllPrimaryObstacles()) {
       const e = this.GetOpenVertex(t.VisibilityPolyline);
-      this.eventQueue.Enqueue(new lr(t, e));
+      this.eventQueue.Enqueue(new cr(t, e));
     }
   }
   // end EnqueueBottomVertexEvents
@@ -18226,7 +18234,7 @@ class ut {
   // and vice-versa, then the "side" of a lowNbor is a highSide, and vice versa.
   StoreLookaheadSite(t, e, i, s) {
     if (this.wantReflections && !this.IsPerpendicular(e)) {
-      if (!s && !x.PointIsInRectangleInterior(i, e.Obstacle.VisibilityBoundingBox))
+      if (!s && !O.PointIsInRectangleInterior(i, e.Obstacle.VisibilityBoundingBox))
         return;
       this.SideReflectsUpward(e) && this.lookaheadScan.Find(i) == null && this.lookaheadScan.Add(new Is(t, e.Obstacle, i));
     }
@@ -18240,10 +18248,10 @@ class ut {
   LoadReflectionEventsBB(t, e) {
     if (t == null || this.SideReflectsUpward(t) || this.IsPerpendicular(t))
       return;
-    const i = O.mkPP(t.Start, t.End), s = O.mkPP(e.Start, e.End);
+    const i = T.mkPP(t.Start, t.End), s = T.mkPP(e.Start, e.End);
     if (this.ScanDirection.IsHorizontal ? !i.intersectsOnX(s) : !i.intersectsOnY(s))
       return;
-    const n = O.intersect(i, s), r = n.leftBottom, o = n.rightTop;
+    const n = T.intersect(i, s), r = n.leftBottom, o = n.rightTop;
     let l = this.lookaheadScan.FindFirstInRange(r, o);
     for (; l != null; ) {
       const h = ut.ScanLineIntersectSidePBS(l.item.Site, t, this.ScanDirection.PerpendicularInstance);
@@ -18257,7 +18265,7 @@ class ut {
       if (e == null)
         return !1;
       if (t.PreviousSite.IsStaircaseStep(t.ReflectingObstacle)) {
-        if (!x.PointIsInRectangleInterior(t.Site, t.ReflectingObstacle.VisibilityBoundingBox) || !this.InsertPerpendicularReflectionSegment(t.PreviousSite.Site, t.Site))
+        if (!O.PointIsInRectangleInterior(t.Site, t.ReflectingObstacle.VisibilityBoundingBox) || !this.InsertPerpendicularReflectionSegment(t.PreviousSite.Site, t.Site))
           return !1;
         if (i != null && t.IsStaircaseStep(i.Obstacle))
           return this.ScanLineCrossesObstacle(t.Site, i.Obstacle);
@@ -18273,7 +18281,7 @@ class ut {
   }
   AddReflectionEvent(t, e, i) {
     const s = e;
-    s != null ? this.eventQueue.Enqueue(new ml(t, s, i)) : this.eventQueue.Enqueue(new dl(t, e, i));
+    s != null ? this.eventQueue.Enqueue(new Pl(t, s, i)) : this.eventQueue.Enqueue(new fl(t, e, i));
   }
   AddSideToScanLine(t, e) {
     const i = this.scanLine.Insert(t, e);
@@ -18286,12 +18294,12 @@ class ut {
     return this.ScanDirection.Compare(t, e);
   }
   Clear() {
-    this.ObstacleTree.Clear(), this.eventQueue = new ul(), this.HorizontalScanSegments = new sr(Pt.HorizontalInstance), this.VerticalScanSegments = new sr(Pt.VerticalInstance), this.VisibilityGraph = null;
+    this.ObstacleTree.Clear(), this.eventQueue = new dl(), this.HorizontalScanSegments = new rr(Pt.HorizontalInstance), this.VerticalScanSegments = new rr(Pt.VerticalInstance), this.VisibilityGraph = null;
   }
   ProcessEvents() {
     for (; this.eventQueue.Count > 0; ) {
       const t = this.eventQueue.Dequeue();
-      t instanceof lr ? this.ProcessEventO(t) : t instanceof fl ? this.ProcessEventLB(t) : t instanceof gl ? this.ProcessEventHB(t) : t instanceof pl ? this.ProcessEventCV(t) : t instanceof ml ? this.ProcessEventLR(t) : t instanceof dl ? this.ProcessEventHR(t) : this.ProcessCustomEvent(t), this.LowNeighborSides.Clear(), this.HighNeighborSides.Clear();
+      t instanceof cr ? this.ProcessEventO(t) : t instanceof gl ? this.ProcessEventLB(t) : t instanceof pl ? this.ProcessEventHB(t) : t instanceof ml ? this.ProcessEventCV(t) : t instanceof Pl ? this.ProcessEventLR(t) : t instanceof fl ? this.ProcessEventHR(t) : this.ProcessCustomEvent(t), this.LowNeighborSides.Clear(), this.HighNeighborSides.Clear();
     }
   }
   ProcessCustomEvent(t) {
@@ -18310,7 +18318,7 @@ class ut {
     this.LowNeighborSides.Clear(), this.HighNeighborSides.Clear(), this.FindNeighbors(t, e, this.LowNeighborSides), this.FindNeighbors(t, i, this.HighNeighborSides);
   }
   FindNeighbors(t, e, i) {
-    const s = t instanceof lr ? e.item.Start : e.item.End, n = { lowNborSideNode: null, highNborSideNode: null };
+    const s = t instanceof cr ? e.item.Start : e.item.End, n = { lowNborSideNode: null, highNborSideNode: null };
     this.FindInitialNeighborSides(e, n), this.SkipToNeighbor(this.ScanDirection.OppositeDirection, e.item, s, n.lowNborSideNode, i), this.SkipToNeighbor(this.ScanDirection.Dir, e.item, s, n.highNborSideNode, i);
   }
   SkipToNeighbor(t, e, i, s, n) {
@@ -18321,7 +18329,7 @@ class ut {
           this.ProcessGroupSideEncounteredOnTraversalToNeighbor(s, i, t) && o == null && (o = s.item);
           continue;
         }
-        if (s.item instanceof yn === x.IsAscending(t)) {
+        if (s.item instanceof bn === O.IsAscending(t)) {
           this.ScanLineCrossesObstacle(i, s.item.Obstacle) && (r = s, o = null);
           continue;
         }
@@ -18333,7 +18341,7 @@ class ut {
   ProcessGroupSideEncounteredOnTraversalToNeighbor(t, e, i) {
     if (!this.ScanLineCrossesObstacle(e, t.item.Obstacle))
       return !1;
-    const s = t.item instanceof Qe === x.IsAscending(i) ? i : E.OppositeDir(i), n = this.ScanLineIntersectSide(e, t.item);
+    const s = t.item instanceof Qe === O.IsAscending(i) ? i : E.OppositeDir(i), n = this.ScanLineIntersectSide(e, t.item);
     return this.CurrentGroupBoundaryCrossingMap.AddIntersection(n, t.item.Obstacle, s), !0;
   }
   FindNeighborsAndProcessVertexEvent(t, e, i) {
@@ -18349,7 +18357,7 @@ class ut {
     this.SideReflectsUpward(o) && this.LoadReflectionEvents(s.ActiveLowSide);
     const l = (i = this.HighNeighborSides.GroupSideInterveningBeforeHighNeighbor) !== null && i !== void 0 ? i : this.HighNeighborSides.HighNeighborSide;
     if (this.SideReflectsUpward(l) && this.LoadReflectionEvents(s.ActiveHighSide), s.ActiveHighSide.Start !== s.ActiveLowSide.Start) {
-      const h = new yn(s, t.Vertex, this.ScanDirection);
+      const h = new bn(s, t.Vertex, this.ScanDirection);
       this.lookaheadScan.RemoveSitesForFlatBottom(h.Start, h.End);
     }
     this.EnqueueLowBendVertexEvent(s.ActiveLowSide), this.EnqueueHighBendOrCloseVertexEvent(s.ActiveHighSide);
@@ -18361,10 +18369,10 @@ class ut {
   }
   // end this.ProcessEvent(LowBendVertexEvent)
   EnqueueLowBendVertexEvent(t) {
-    this.eventQueue.Enqueue(new fl(t.Obstacle, t.EndVertex));
+    this.eventQueue.Enqueue(new gl(t.Obstacle, t.EndVertex));
   }
   ProcessEventHB(t) {
-    const e = t.Obstacle, i = new yn(e, t.Vertex, this.ScanDirection);
+    const e = t.Obstacle, i = new bn(e, t.Vertex, this.ScanDirection);
     this.RemoveSideFromScanLine(this.scanLine.Find(e.ActiveHighSide), t.Site);
     const s = this.AddSideToScanLine(i, t.Site);
     if (e.ActiveHighSide = i, this.EnqueueHighBendOrCloseVertexEvent(e.ActiveHighSide), this.wantReflections && this.ScanDirection.IsHorizontal && i.Start.x === e.VisibilityBoundingBox.right && this.SideReflectsUpward(i)) {
@@ -18374,7 +18382,7 @@ class ut {
   }
   EnqueueHighBendOrCloseVertexEvent(t) {
     const e = t.Obstacle, i = this.ScanDirection.IsHorizontal ? t.EndVertex.prevOnPolyline : t.EndVertex.nextOnPolyline;
-    this.ScanDirection.ComparePerpCoord(i.point, t.End) > 0 ? this.eventQueue.Enqueue(new gl(e, t.EndVertex)) : this.eventQueue.Enqueue(new pl(e, t.EndVertex));
+    this.ScanDirection.ComparePerpCoord(i.point, t.End) > 0 ? this.eventQueue.Enqueue(new pl(e, t.EndVertex)) : this.eventQueue.Enqueue(new ml(e, t.EndVertex));
   }
   // end this.ProcessEvent(HighBendVertexEvent)
   CreateCloseEventSegmentsAndFindNeighbors(t) {
@@ -18438,7 +18446,7 @@ class Se extends ut {
       this.xCoordAccumulator.add(t.VisibilityBoundingBox.left), this.xCoordAccumulator.add(t.VisibilityBoundingBox.right), this.yCoordAccumulator.add(t.VisibilityBoundingBox.top), this.yCoordAccumulator.add(t.VisibilityBoundingBox.bottom);
   }
   CreateSegmentVectorsAndPopulateCoordinateMaps() {
-    this.horizontalScanSegmentVector = new cl(this.yCoordAccumulator, !0), this.verticalScanSegmentVector = new cl(this.xCoordAccumulator, !1);
+    this.horizontalScanSegmentVector = new ul(this.yCoordAccumulator, !0), this.verticalScanSegmentVector = new ul(this.xCoordAccumulator, !1);
     for (let t = 0; t < this.horizontalScanSegmentVector.Length; t++)
       this.horizontalCoordMap.set(this.horizontalScanSegmentVector.Item(t).Coord, t);
     for (let t = 0; t < this.verticalScanSegmentVector.Length; t++)
@@ -18453,17 +18461,17 @@ class Se extends ut {
   AddAxisCoordinateEvents(t) {
     if (t.IsHorizontal) {
       for (const e of this.yCoordAccumulator)
-        this.eventQueue.Enqueue(new Po(new u(this.ObstacleTree.GraphBox.left - Se.SentinelOffset, e)));
+        this.eventQueue.Enqueue(new yo(new u(this.ObstacleTree.GraphBox.left - Se.SentinelOffset, e)));
       return;
     }
     for (const e of this.xCoordAccumulator)
-      this.eventQueue.Enqueue(new Po(new u(e, this.ObstacleTree.GraphBox.bottom - Se.SentinelOffset)));
+      this.eventQueue.Enqueue(new yo(new u(e, this.ObstacleTree.GraphBox.bottom - Se.SentinelOffset)));
   }
   ProcessCustomEvent(t) {
     this.ProcessAxisCoordinate(t) || this.ProcessCustomEvent(t);
   }
   ProcessAxisCoordinate(t) {
-    return t instanceof Po ? (this.CreateScanSegmentsOnAxisCoordinate(t.Site), !0) : !1;
+    return t instanceof yo ? (this.CreateScanSegmentsOnAxisCoordinate(t.Site), !0) : !1;
   }
   InsertPerpendicularReflectionSegment(t, e) {
     return !1;
@@ -18476,15 +18484,15 @@ class Se extends ut {
     s.add(i.Site);
     const n = this.LowNeighborSides.LowNeighbor.item, r = this.HighNeighborSides.HighNeighbor.item, o = this.ScanDirection.Dir, l = this.ScanDirection.OppositeDirection, h = this.ScanLineIntersectSide(i.Site, n), c = this.ScanLineIntersectSide(i.Site, r);
     if (this.ObstacleTree.GraphBox.contains(h)) {
-      const f = x.RectangleBorderIntersect(n.Obstacle.VisibilityBoundingBox, h, o);
+      const f = O.RectangleBorderIntersect(n.Obstacle.VisibilityBoundingBox, h, o);
       b.IsPureLower(f, i.Site) && this.boundingBoxSteinerPoints.add(f);
     }
     if (this.ObstacleTree.GraphBox.contains(c)) {
-      const f = x.RectangleBorderIntersect(r.Obstacle.VisibilityBoundingBox, c, l);
+      const f = O.RectangleBorderIntersect(r.Obstacle.VisibilityBoundingBox, c, l);
       b.IsPureLower(i.Site, f) && this.boundingBoxSteinerPoints.add(f);
     }
     const d = { lowCorner: void 0, highCorner: void 0 };
-    Se.GetBoundingCorners(t.item.Obstacle.VisibilityBoundingBox, i instanceof lr, this.ScanDirection.IsHorizontal, d), (b.IsPureLower(h, d.lowCorner) || n.Obstacle.IsInSameClump(i.Obstacle)) && s.add(d.lowCorner), (b.IsPureLower(d.highCorner, c) || r.Obstacle.IsInSameClump(i.Obstacle)) && s.add(d.highCorner);
+    Se.GetBoundingCorners(t.item.Obstacle.VisibilityBoundingBox, i instanceof cr, this.ScanDirection.IsHorizontal, d), (b.IsPureLower(h, d.lowCorner) || n.Obstacle.IsInSameClump(i.Obstacle)) && s.add(d.lowCorner), (b.IsPureLower(d.highCorner, c) || r.Obstacle.IsInSameClump(i.Obstacle)) && s.add(d.highCorner);
   }
   static GetBoundingCorners(t, e, i, s) {
     if (e) {
@@ -18543,7 +18551,7 @@ class Se extends ut {
     this.VisibilityGraph = Se.NewVisibilityGraph(), this.GenerateSparseIntersectionsAlongHorizontalAxis(), this.GenerateSparseIntersectionsAlongVerticalAxis(), this.ConnectAdjoiningScanSegments(), this.horizontalScanSegmentVector.CreateSparseVerticesAndEdges(this.VisibilityGraph), this.verticalScanSegmentVector.CreateSparseVerticesAndEdges(this.VisibilityGraph);
   }
   GenerateSparseIntersectionsAlongHorizontalAxis() {
-    this.currentAxisPointComparer = or;
+    this.currentAxisPointComparer = lr;
     const t = Array.from(this.horizontalVertexPoints.values()).sort(this.currentAxisPointComparer), e = Array.from(this.boundingBoxSteinerPoints.values()).sort(this.currentAxisPointComparer);
     this.ScanDirection = Pt.HorizontalInstance, this.SetVectorsAndCoordMaps(this.ScanDirection), this.GenerateSparseIntersections(t, e);
   }
@@ -18667,7 +18675,7 @@ class me {
     }
   }
   static FindBracketingVertices(t, e, i, s) {
-    for (s.bracketSource = t; s.bracketTarget = x.FindAdjacentVertex(s.bracketSource, i), s.bracketTarget != null; ) {
+    for (s.bracketSource = t; s.bracketTarget = O.FindAdjacentVertex(s.bracketSource, i), s.bracketTarget != null; ) {
       if (u.closeDistEps(s.bracketTarget.point, e))
         return !0;
       if (i !== b.GetDirections(s.bracketTarget.point, e))
@@ -18703,11 +18711,11 @@ class me {
     this.edgesToRestore = [];
   }
   FindNextEdge(t, e) {
-    return x.FindAdjacentEdge(t, e);
+    return O.FindAdjacentEdge(t, e);
   }
   FindPerpendicularOrContainingEdge(t, e, i) {
     for (; ; ) {
-      const s = x.FindAdjacentVertex(t, e);
+      const s = O.FindAdjacentVertex(t, e);
       if (s == null)
         break;
       const n = b.GetDirections(s.point, i);
@@ -18723,14 +18731,14 @@ class me {
     let n = t;
     const r = s;
     for (; S.None !== r; ) {
-      const l = x.FindAdjacentVertex(n, s);
+      const l = O.FindAdjacentVertex(n, s);
       if (l == null || (E.OppositeDir(s) & b.GetDirections(l.point, i)) !== 0)
         break;
       n = l, e & b.GetDirections(n.point, i);
     }
     let o;
     for (; o = this.FindPerpendicularOrContainingEdge(n, e, i), !(o != null || n === t); )
-      n = x.FindAdjacentVertex(n, E.OppositeDir(s));
+      n = O.FindAdjacentVertex(n, E.OppositeDir(s));
     return o;
   }
   ConnectVertexToTargetVertex(t, e, i, s) {
@@ -18741,7 +18749,7 @@ class me {
       this.FindOrAddEdgeVV(t, e);
       return;
     }
-    const r = x.FindBendPointBetween(t.point, e.point, i), o = this.FindOrAddVertex(r);
+    const r = O.FindBendPointBetween(t.point, e.point, i), o = this.FindOrAddVertex(r);
     this.FindOrAddEdge(t, o, s), this.FindOrAddEdge(o, e, s);
   }
   AddEdgeToTargetEdge(t, e, i) {
@@ -18755,7 +18763,7 @@ class me {
     const r = b.GetDirections(i.start, i.end);
     if (r === S.None)
       return;
-    const o = x.GetRectangleBound(e, r), l = x.IsVerticalD(r) ? u.RoundPoint(new u(t.point.x, o)) : u.RoundPoint(new u(o, t.point.y));
+    const o = O.GetRectangleBound(e, r), l = O.IsVerticalD(r) ? u.RoundPoint(new u(t.point.x, o)) : u.RoundPoint(new u(o, t.point.y));
     if (u.closeDistEps(l, t.point) || b.GetDirections(t.point, l) !== r)
       return;
     let h = i;
@@ -18764,8 +18772,8 @@ class me {
   ExtendEdgeChain(t, e, i, s, n, r) {
     if (b.GetDirections(t.point, i.end) !== e)
       return;
-    let l = E.RotateLeft(e), h = x.FindAdjacentVertex(t, l);
-    if (h == null && (l = E.OppositeDir(l), h = x.FindAdjacentVertex(t, l), h == null))
+    let l = E.RotateLeft(e), h = O.FindAdjacentVertex(t, l);
+    if (h == null && (l = E.OppositeDir(l), h = O.FindAdjacentVertex(t, l), h == null))
       return;
     const c = E.OppositeDir(l), d = { spliceTarget: null };
     this.ExtendSpliceWorker(h, e, c, i, s, r, d) && this.ExtendSpliceWorker(d.spliceTarget, e, l, i, s, r, d), this.SpliceGroupBoundaryCrossings(n, t, i);
@@ -18775,8 +18783,8 @@ class me {
       return;
     t.Reset();
     let s = i.start, n = i.end, r = b.GetDirections(s, n);
-    x.IsAscending(r) || (s = i.end, n = i.start, r = E.OppositeDir(r)), e = me.TraverseToFirstVertexAtOrAbove(e, s, E.OppositeDir(r));
-    for (let o = e; o != null; o = x.FindAdjacentVertex(o, r)) {
+    O.IsAscending(r) || (s = i.end, n = i.start, r = E.OppositeDir(r)), e = me.TraverseToFirstVertexAtOrAbove(e, s, E.OppositeDir(r));
+    for (let o = e; o != null; o = O.FindAdjacentVertex(o, r)) {
       const l = b.ComparePP(o.point, n) >= 0;
       for (; t.CurrentIsBeforeOrAt(o.point); ) {
         const h = t.Pop();
@@ -18790,7 +18798,7 @@ class me {
     let s = t;
     const n = E.OppositeDir(i);
     for (; ; ) {
-      const r = x.FindAdjacentVertex(s, i);
+      const r = O.FindAdjacentVertex(s, i);
       if (r == null || b.GetDirections(r.point, e) === n)
         break;
       s = r;
@@ -18799,7 +18807,7 @@ class me {
   }
   SpliceGroupBoundaryCrossing(t, e, i) {
     var s, n;
-    const r = Pn.ToCrossingArray(e.Crossings, i);
+    const r = Sn.ToCrossingArray(e.Crossings, i);
     if (r != null) {
       const o = (s = this.VisGraph.FindVertex(e.Location)) !== null && s !== void 0 ? s : this.AddVertex(e.Location);
       t.point.equal(o.point) || this.FindOrAddEdgeVV(t, o);
@@ -18810,11 +18818,11 @@ class me {
   // The return value is whether we should try a second pass if this is called on the first pass,
   // using spliceTarget to wrap up dead-ends on the target side.
   ExtendSpliceWorker(t, e, i, s, n, r, o) {
-    let l = x.FindAdjacentVertex(t, i);
-    o.spliceTarget = x.FindAdjacentVertex(l, i);
+    let l = O.FindAdjacentVertex(t, i);
+    o.spliceTarget = O.FindAdjacentVertex(l, i);
     const h = { spliceSource: t };
     for (; me.GetNextSpliceSource(h, i, e); ) {
-      const c = x.FindBendPointBetween(l.point, h.spliceSource.point, E.OppositeDir(i));
+      const c = O.FindBendPointBetween(l.point, h.spliceSource.point, E.OppositeDir(i));
       if (me.IsPointPastSegmentEnd(n, c))
         break;
       if (o.spliceTarget = me.GetSpliceTarget(h, i, c), o.spliceTarget == null) {
@@ -18837,12 +18845,12 @@ class me {
     return o.spliceTarget != null;
   }
   static GetNextSpliceSource(t, e, i) {
-    let s = x.FindAdjacentVertex(t.spliceSource, i);
+    let s = O.FindAdjacentVertex(t.spliceSource, i);
     if (s == null)
       for (s = t.spliceSource; ; ) {
-        if (s = x.FindAdjacentVertex(s, E.OppositeDir(e)), s == null)
+        if (s = O.FindAdjacentVertex(s, E.OppositeDir(e)), s == null)
           return !1;
-        const n = x.FindAdjacentVertex(s, i);
+        const n = O.FindAdjacentVertex(s, i);
         if (n != null) {
           s = n;
           break;
@@ -18853,9 +18861,9 @@ class me {
   static GetSpliceTarget(t, e, i) {
     const s = b.GetDirections(t.spliceSource.point, i);
     let n = s, r = t.spliceSource;
-    for (; n === s && (t.spliceSource = r, r = x.FindAdjacentVertex(t.spliceSource, e), r != null); ) {
+    for (; n === s && (t.spliceSource = r, r = O.FindAdjacentVertex(t.spliceSource, e), r != null); ) {
       if (u.closeDistEps(r.point, i)) {
-        r = x.FindAdjacentVertex(r, e);
+        r = O.FindAdjacentVertex(r, e);
         break;
       }
       n = b.GetDirections(r.point, i);
@@ -18867,13 +18875,13 @@ class me {
     return s || (i = this.FindNextEdge(e, E.RotateRight(t)), s = i == null ? !1 : W.NormalWeight === i.Weight), !s || this.ObstacleTree.PointIsInsideAnObstaclePD(e.point, t);
   }
   IsSkippableSpliceSourceWithNullSpliceTarget(t, e) {
-    if (me.IsSkippableSpliceSourceEdgeWithNullTarget(x.FindAdjacentEdge(t, e)))
+    if (me.IsSkippableSpliceSourceEdgeWithNullTarget(O.FindAdjacentEdge(t, e)))
       return !0;
-    const i = x.FindAdjacentEdge(t, E.OppositeDir(e));
+    const i = O.FindAdjacentEdge(t, E.OppositeDir(e));
     return me.IsSkippableSpliceSourceEdgeWithNullTarget(i) || me.IsReflectionEdge(i);
   }
   static IsSkippableSpliceSourceEdgeWithNullTarget(t) {
-    return t != null && t.IsPassable != null && D(t.Length, ga.BoundaryWidth);
+    return t != null && t.IsPassable != null && D(t.Length, ma.BoundaryWidth);
   }
   static IsReflectionEdge(t) {
     return t != null && t.Weight === W.ReflectionWeight;
@@ -18885,7 +18893,7 @@ class me {
     return Gt.String.format("{0} {1}", this.AddedVertices.length, this.edgesToRestore.length);
   }
 }
-class bn {
+class vn {
   // Extension of port visibility splices into the visibility graph.
   get LimitPortVisibilitySpliceToEndpointBoundingBox() {
     return this.TransUtil.LimitPortVisibilitySpliceToEndpointBoundingBox;
@@ -18925,7 +18933,7 @@ class bn {
     const i = u.RoundPoint(e.Location);
     if (F.Outside === g.PointRelativeToCurveLocation(i, t.InputShape.BoundaryCurve) || t.InputShape.BoundaryCurve !== e.Curve && F.Outside === g.PointRelativeToCurveLocation(i, e.Curve))
       return null;
-    const s = new pf(e, t);
+    const s = new Pf(e, t);
     return this.obstaclePortMap.set(e, s), s;
   }
   FindVertices(t) {
@@ -18988,7 +18996,7 @@ class bn {
       t.IsTransparentAncestor = !0, this.activeAncestors.push(t);
   }
   FindAncestorsAndObstaclePort(t, e) {
-    return e.oport = this.FindObstaclePort(t), this.AncestorSets.size === 0 ? null : e.oport != null ? this.AncestorSets.get(e.oport.Obstacle.InputShape) : new Set(Array.from(this.ObstacleTree.Root.AllHitItems(O.mkPP(t.Location, t.Location), (i) => i.IsGroup)).map((i) => i.InputShape));
+    return e.oport = this.FindObstaclePort(t), this.AncestorSets.size === 0 ? null : e.oport != null ? this.AncestorSets.get(e.oport.Obstacle.InputShape) : new Set(Array.from(this.ObstacleTree.Root.AllHitItems(T.mkPP(t.Location, t.Location), (i) => i.IsGroup)).map((i) => i.InputShape));
   }
   ActivateAncestors(t, e, i) {
     for (const s of js(t, e)) {
@@ -19002,7 +19010,7 @@ class bn {
     this.activeAncestors = [];
   }
   RemoveControlPointsFromGraph() {
-    this.ClearActiveAncestors(), this.RemoveObstaclePortsFromGraph(), this.RemoveFreePointsFromGraph(), this.TransUtil.RemoveFromGraph(), this.portSpliceLimitRectangle = O.mkEmpty();
+    this.ClearActiveAncestors(), this.RemoveObstaclePortsFromGraph(), this.RemoveFreePointsFromGraph(), this.TransUtil.RemoveFromGraph(), this.portSpliceLimitRectangle = T.mkEmpty();
   }
   RemoveObstaclePortsFromGraph() {
     for (const t of this.obstaclePortsInGraph)
@@ -19075,21 +19083,21 @@ class bn {
         for (const n of i.PortEntrances) {
           if (!n.WantVisibilityIntersection)
             continue;
-          const r = s.IsVertical === n.IsVertical ? bn.GetPathPointsFromOverlappingCollinearVisibility(s, n) : bn.GetPathPointsFromIntersectingVisibility(s, n);
+          const r = s.IsVertical === n.IsVertical ? vn.GetPathPointsFromOverlappingCollinearVisibility(s, n) : vn.GetPathPointsFromIntersectingVisibility(s, n);
           if (r != null)
             return r;
         }
     return null;
   }
   static GetPathPointsFromOverlappingCollinearVisibility(t, e) {
-    return !x.IntervalsAreSame(t.MaxVisibilitySegment.start, t.MaxVisibilitySegment.end, e.MaxVisibilitySegment.end, e.MaxVisibilitySegment.start) || t.HasGroupCrossings || e.HasGroupCrossings || u.closeDistEps(t.UnpaddedBorderIntersect, e.UnpaddedBorderIntersect) ? null : [t.UnpaddedBorderIntersect, e.UnpaddedBorderIntersect];
+    return !O.IntervalsAreSame(t.MaxVisibilitySegment.start, t.MaxVisibilitySegment.end, e.MaxVisibilitySegment.end, e.MaxVisibilitySegment.start) || t.HasGroupCrossings || e.HasGroupCrossings || u.closeDistEps(t.UnpaddedBorderIntersect, e.UnpaddedBorderIntersect) ? null : [t.UnpaddedBorderIntersect, e.UnpaddedBorderIntersect];
   }
   static GetPathPointsFromIntersectingVisibility(t, e) {
-    const i = x.SegmentsIntersectLL(t.MaxVisibilitySegment, e.MaxVisibilitySegment);
+    const i = O.SegmentsIntersectLL(t.MaxVisibilitySegment, e.MaxVisibilitySegment);
     return !i || t.HasGroupCrossingBeforePoint(i) || e.HasGroupCrossingBeforePoint(i) ? null : [t.UnpaddedBorderIntersect, i, e.UnpaddedBorderIntersect];
   }
   CreateObstaclePortEntrancesFromPoints(t) {
-    const e = this.graphGenerator.ObstacleTree.GraphBox, i = O.mkPP(u.RoundPoint(t.PortCurve.boundingBox.leftBottom), u.RoundPoint(t.PortCurve.boundingBox.rightTop)), s = u.RoundPoint(t.PortLocation);
+    const e = this.graphGenerator.ObstacleTree.GraphBox, i = T.mkPP(u.RoundPoint(t.PortCurve.boundingBox.leftBottom), u.RoundPoint(t.PortCurve.boundingBox.rightTop)), s = u.RoundPoint(t.PortLocation);
     let n = !1;
     const r = { xx0: null, xx1: null };
     if (!b.Equal(s.y, i.top) && !b.Equal(s.y, i.bottom)) {
@@ -19129,9 +19137,9 @@ class bn {
   CreatePortEntrance(t, e, i, s) {
     e.CreatePortEntrance(i, s, this.ObstacleTree);
     const n = Pt.GetInstance(s);
-    let r = x.GetRectangleBound(t, s) - n.Coord(i);
+    let r = O.GetRectangleBound(t, s) - n.Coord(i);
     if (r < 0 && (r = -r), r > m.intersectionEpsilon) {
-      const o = E.VectorDirection(bn.GetDerivative(e, i));
+      const o = E.VectorDirection(vn.GetDerivative(e, i));
       let l;
       s | E.OppositeDir(s), S.None !== (s & o) && (l = E.OppositeDir(l)), e.CreatePortEntrance(i, l, this.ObstacleTree);
     }
@@ -19150,18 +19158,18 @@ class bn {
     this.FindorCreateNearestPerpEdgePPDNT(t.MaxVisibilitySegment.end, t.VisibilityBorderIntersect, t.OutwardDirection, s, i) != null && t.AddToAdjacentVertex(this.TransUtil, i.targetVertex, this.portSpliceLimitRectangle, this.RouteToCenterOfObstacles);
   }
   InBoundsGraphBoxIntersect(t, e) {
-    return x.RectangleBorderIntersect(this.graphGenerator.ObstacleTree.GraphBox, t, e);
+    return O.RectangleBorderIntersect(this.graphGenerator.ObstacleTree.GraphBox, t, e);
   }
   FindorCreateNearestPerpEdgePPDN(t, e, i, s) {
     const n = { targetVertex: null };
     return this.FindorCreateNearestPerpEdgePPDNT(t, e, i, s, n);
   }
   FindorCreateNearestPerpEdgePPDNT(t, e, i, s, n) {
-    const r = x.SortAscending(t, e), o = r[0], l = r[1], h = x.IsVerticalD(i) ? this.HScanSegments : this.VScanSegments, c = x.IsAscending(i) ? h.FindLowestIntersector(o, l) : h.FindHighestIntersector(o, l);
+    const r = O.SortAscending(t, e), o = r[0], l = r[1], h = O.IsVerticalD(i) ? this.HScanSegments : this.VScanSegments, c = O.IsAscending(i) ? h.FindLowestIntersector(o, l) : h.FindHighestIntersector(o, l);
     if (c == null)
       return n.targetVertex = null, null;
-    const d = x.SegmentIntersectionSP(c, o);
-    return this.FindOrCreateNearestPerpEdgeFromNearestPerpSegment(x.IsAscending(i) ? o : l, c, d, s, n);
+    const d = O.SegmentIntersectionSP(c, o);
+    return this.FindOrCreateNearestPerpEdgeFromNearestPerpSegment(O.IsAscending(i) ? o : l, c, d, s, n);
   }
   FindOrCreateNearestPerpEdgeFromNearestPerpSegment(t, e, i, s, n) {
     var r;
@@ -19183,13 +19191,13 @@ class bn {
     }
     h &= ~l;
     const c = this.TransUtil.FindNearestPerpendicularOrContainingEdge(o.segsegVertex, h, t);
-    return c == null ? (n.targetVertex = this.TransUtil.AddVertex(i), this.TransUtil.FindOrAddEdge(n.targetVertex, e.HighestVisibilityVertex, e.Weight)) : (o.segsegVertex = x.GetEdgeEnd(c, E.OppositeDir(h)), i = x.SegmentIntersectionPPP(t, i, o.segsegVertex.point), b.EqualPP(o.segsegVertex.point, i) ? (n.targetVertex = o.segsegVertex, this.TransUtil.FindNextEdge(o.segsegVertex, h)) : (n.targetVertex = this.TransUtil.FindOrAddVertex(i), this.TransUtil.FindOrAddEdge(o.segsegVertex, n.targetVertex, s)));
+    return c == null ? (n.targetVertex = this.TransUtil.AddVertex(i), this.TransUtil.FindOrAddEdge(n.targetVertex, e.HighestVisibilityVertex, e.Weight)) : (o.segsegVertex = O.GetEdgeEnd(c, E.OppositeDir(h)), i = O.SegmentIntersectionPPP(t, i, o.segsegVertex.point), b.EqualPP(o.segsegVertex.point, i) ? (n.targetVertex = o.segsegVertex, this.TransUtil.FindNextEdge(o.segsegVertex, h)) : (n.targetVertex = this.TransUtil.FindOrAddVertex(i), this.TransUtil.FindOrAddEdge(o.segsegVertex, n.targetVertex, s)));
   }
   FindOrCreateSegmentIntersectionVertexAndAssociatedEdge(t, e, i, s, n) {
     const o = (i.IsVertical ? this.HScanSegments : this.VScanSegments).FindHighestIntersector(i.Start, e);
     if (o == null)
       return n.segsegVertex = null, n.targetVertex = this.TransUtil.AddVertex(e), this.TransUtil.FindOrAddEdge(n.targetVertex, i.LowestVisibilityVertex, i.Weight);
-    const l = x.SegmentsIntersection(i, o);
+    const l = O.SegmentsIntersection(i, o);
     if (n.segsegVertex = this.VisGraph.FindVertex(l), !n.segsegVertex) {
       n.segsegVertex = this.TransUtil.AddVertex(l);
       const h = this.AddEdgeToClosestSegmentEnd(i, n.segsegVertex, i.Weight);
@@ -19210,14 +19218,14 @@ class bn {
   }
   GetPortRectangle(t) {
     const e = this.obstaclePortMap.get(t);
-    return e ? e.Obstacle.VisibilityBoundingBox.clone() : O.mkOnPoints([u.RoundPoint(t.Location)]);
+    return e ? e.Obstacle.VisibilityBoundingBox.clone() : T.mkOnPoints([u.RoundPoint(t.Location)]);
   }
   AddToLimitRectangle(t) {
     this.graphGenerator.IsInBoundsP(t) && this.portSpliceLimitRectangle.add(t);
   }
   FindOrCreateFreePoint(t) {
     let e = this.freePointMap.get(t);
-    return e ? e.GetVertex(this.TransUtil, t) : (e = new mf(this.TransUtil, t), this.freePointMap.set(t, e)), this.freePointsInGraph.add(e), this.freePointLocationsUsedByRouteEdges.add(t), e;
+    return e ? e.GetVertex(this.TransUtil, t) : (e = new Sf(this.TransUtil, t), this.freePointMap.set(t, e)), this.freePointsInGraph.add(e), this.freePointLocationsUsedByRouteEdges.add(t), e;
   }
   // This is private because it depends on LimitRectangle
   AddFreePointToGraph(t) {
@@ -19247,9 +19255,9 @@ class bn {
       const h = this.FindorCreateNearestPerpEdgePPDN(e, i, s, W.NormalWeight);
       h != null && (n = t.AddEdgeToAdjacentEdge(this.TransUtil, h, r, this.portSpliceLimitRectangle));
     }
-    const o = x.FindAdjacentVertex(n, E.RotateLeft(r));
+    const o = O.FindAdjacentVertex(n, E.RotateLeft(r));
     o != null && this.TransUtil.ConnectVertexToTargetVertex(t.Vertex, o, r, W.NormalWeight);
-    const l = x.FindAdjacentVertex(n, E.RotateRight(r));
+    const l = O.FindAdjacentVertex(n, E.RotateRight(r));
     l != null && this.TransUtil.ConnectVertexToTargetVertex(t.Vertex, l, r, W.NormalWeight);
   }
   ConnectFreePointToLateralEdge(t, e) {
@@ -19402,7 +19410,7 @@ class bt extends ht {
   // but may select suboptimal paths</param>
   // Use obstacle bounding boxes in visibility graph
   constructor(t, e, i) {
-    super(null), this.Padding = 0, this.CornerFitRadius = 0, this.edgeSeparatian = 3, this.BendPenaltyAsAPercentageOfDistance = 0, this.ShapeToObstacleMap = /* @__PURE__ */ new Map(), this.EdgesToRoute = new Array(), this.removeStaircases = !0, this.selfEdges = new Array(), this.Padding = e, this.CornerFitRadius = i, this.BendPenaltyAsAPercentageOfDistance = K.DefaultBendPenaltyAsAPercentageOfDistance, this.GraphGenerator = new Se(), this.PortManager = new bn(this.GraphGenerator), this.AddShapes(t);
+    super(null), this.Padding = 0, this.CornerFitRadius = 0, this.edgeSeparatian = 3, this.BendPenaltyAsAPercentageOfDistance = 0, this.ShapeToObstacleMap = /* @__PURE__ */ new Map(), this.EdgesToRoute = new Array(), this.removeStaircases = !0, this.selfEdges = new Array(), this.Padding = e, this.CornerFitRadius = i, this.BendPenaltyAsAPercentageOfDistance = K.DefaultBendPenaltyAsAPercentageOfDistance, this.GraphGenerator = new Se(), this.PortManager = new vn(this.GraphGenerator), this.AddShapes(t);
   }
   // The graph whose edges are being routed.
   // The minimum padding from an obstacle's curve to its enclosing polyline.
@@ -19425,7 +19433,7 @@ class bt extends ht {
     this.GenerateVisibilityGraph(), this.GeneratePaths();
   }
   GeneratePaths() {
-    const t = this.EdgesToRoute.map((e) => new ff(e));
+    const t = this.EdgesToRoute.map((e) => new pf(e));
     this.FillEdgePathsWithShortestPaths(t), this.NudgePaths(t), this.RouteSelfEdges(), this.FinaliseEdgeGeometries();
   }
   RouteSelfEdges() {
@@ -19436,7 +19444,7 @@ class bt extends ht {
   }
   FillEdgePathsWithShortestPaths(t) {
     this.PortManager.BeginRouteEdges();
-    const e = new Sn(this.BendPenaltyAsAPercentageOfDistance);
+    const e = new yn(this.BendPenaltyAsAPercentageOfDistance);
     for (const i of t)
       this.AddControlPointsAndGeneratePath(e, i);
     this.PortManager.EndRouteEdges();
@@ -19611,7 +19619,7 @@ class qi {
     return Gt.String.format("{0}->{1}", this.Source, this.Target);
   }
 }
-let vf = class fn {
+let If = class fn {
   static FindClosestPoints(t, e) {
     const i = g.minDistWithinIntervals(t, e, t.parStart, t.parEnd, e.parStart, e.parEnd, (t.parStart + t.parEnd) / 2, (e.parStart + e.parEnd) / 2);
     if (i)
@@ -19715,7 +19723,7 @@ class Ye {
   updateEdgeLabelPosition(t) {
     if (this.edge.label != null) {
       const e = this.LayerEdges.length / 2, i = this.LayerEdges[e];
-      vf.updateLabel(this.edge, t[i.Source]);
+      If.updateLabel(this.edge, t[i.Source]);
     }
   }
   [Symbol.iterator]() {
@@ -19728,7 +19736,7 @@ class Ye {
       yield t.Target;
   }
 }
-class Cf {
+class Ef {
   constructor() {
     this.maxLayerOfGeomGraph = /* @__PURE__ */ new Set(), this.minLayerOfGeomGraph = /* @__PURE__ */ new Set(), this.sameLayerConstraints = new Array(), this.upDownConstraints = new Array(), this.gluedUpDownIntConstraints = new ti(), this.sameLayerDictionaryOfRepresentatives = /* @__PURE__ */ new Map(), this.representativeToItsLayer = /* @__PURE__ */ new Map(), this.maxLayerInt = new Array(), this.minLayerInt = new Array(), this.sameLayerInts = new Array(), this.upDownInts = new Array();
   }
@@ -19876,10 +19884,10 @@ class Cf {
     return t;
   }
 }
-function If(a, t) {
+function wf(a, t) {
   return [a, t];
 }
-class Ef {
+class Af {
   constructor() {
     this.leftRightConstraints = new Array(), this.leftRightNeighbors = new Array(), this.nodeToBlockRoot = /* @__PURE__ */ new Map(), this.upDownVerticalConstraints = new Array(), this.BlockRootToBlock = /* @__PURE__ */ new Map();
   }
@@ -19909,7 +19917,7 @@ class Ef {
       }
   }
   BasicGraphFromLeftRightIntNeibs() {
-    return Lr(Array.from(this.LeftRightIntNeibs.values()).map((t) => new U(t.x, t.y)));
+    return Nr(Array.from(this.LeftRightIntNeibs.values()).map((t) => new U(t.x, t.y)));
   }
   NodeIndex(t) {
     const e = this.nodeIdToIndex.get(t.id);
@@ -19932,8 +19940,8 @@ class Ef {
   //       }
   //makes left-right relations to be between neighb blocks and removes cycles in these relations
   LiftLeftRightRelationsToNeibBlocks() {
-    this.LeftRighInts = ti.mk(this.leftRightConstraints.map((e) => If(this.NodeIndex(e[0]), this.NodeIndex(e[1]))).filter((e) => e[0] !== -1 && e[1] !== -1).map((e) => new U(this.NodeToBlockRootSoft(e[0]), this.NodeToBlockRootSoft(e[1]))).filter((e) => e.x !== e.x));
-    const t = $i.getFeedbackSet(Lr(Array.from(this.LeftRighInts.values())));
+    this.LeftRighInts = ti.mk(this.leftRightConstraints.map((e) => wf(this.NodeIndex(e[0]), this.NodeIndex(e[1]))).filter((e) => e[0] !== -1 && e[1] !== -1).map((e) => new U(this.NodeToBlockRootSoft(e[0]), this.NodeToBlockRootSoft(e[1]))).filter((e) => e.x !== e.x));
+    const t = $i.getFeedbackSet(Nr(Array.from(this.LeftRighInts.values())));
     for (const e of t)
       this.LeftRighInts.remove(new U(e.source, e.target));
   }
@@ -19949,13 +19957,13 @@ var Jt;
 (function(a) {
   a[a.Spline = 0] = "Spline", a[a.SplineBundling = 1] = "SplineBundling", a[a.StraightLine = 2] = "StraightLine", a[a.SugiyamaSplines = 3] = "SugiyamaSplines", a[a.Rectilinear = 4] = "Rectilinear", a[a.RectilinearToCenter = 5] = "RectilinearToCenter", a[a.None = 6] = "None";
 })(Jt || (Jt = {}));
-class Gn {
+class Mn {
   toJSON() {
     const t = {};
     return this.EdgeRoutingMode != Jt.Spline && (t.edgeRoutingMode = Jt.Spline), this.ConeAngle != 30 * (Math.PI / 180) && (t.coneAngle = this.ConeAngle), this.padding != 3 && (t.padding = this.padding), this.polylinePadding != 1.5 && (t.polylinePadding = this.polylinePadding), this.bundlingSettings && (t.bundlingSettingsJSON = this.bundlingSettings.toJSON()), t;
   }
   static fromJSON(t) {
-    const e = new Gn();
+    const e = new Mn();
     return t.edgeRoutingMode && (t.edgeRoutingMode = e.edgeRoutingMode), t.coneAngle && (e.coneAngle = t.coneAngle), t.padding && (e.padding = t.padding), t.polylinePadding && (e.polylinePadding = t.polylinePadding), t.bundlingSettingsJSON && (e.bundlingSettings = Dt.createFromJSON(t.bundlingSettingsJSON)), t.routingToParentConeAngle && (e.routingToParentConeAngle = t.routingToParentConeAngle), t.simpleSelfLoopsForParentEdgesThreshold && (e.simpleSelfLoopsForParentEdgesThreshold = t.simpleSelfLoopsForParentEdgesThreshold), t.incrementalRoutingThreshold && (e.incrementalRoutingThreshold = t.incrementalRoutingThreshold), t.routeMultiEdgesAsBundles && (e.routeMultiEdgesAsBundles = t.routeMultiEdgesAsBundles), t.KeepOriginalSpline && (e.KeepOriginalSpline = t.KeepOriginalSpline), e;
   }
   constructor() {
@@ -20022,11 +20030,11 @@ class Gn {
 }
 class Js {
   constructor() {
-    this.edgeRoutingSettings = new Gn(), this.nodeSeparation = 10, this.packingAspectRatio = 1.5;
+    this.edgeRoutingSettings = new Mn(), this.nodeSeparation = 10, this.packingAspectRatio = 1.5;
   }
   static fromJSON(t) {
     const e = new Js();
-    return t.nodeSeparation != 10 && (e.nodeSeparation = t.nodeSeparation), t.packingAspectRatio && (e.packingAspectRatio = t.packingAspectRatio), t.edgeRoutingSettings && (e.edgeRoutingSettings = Gn.fromJSON(t.edgeRoutingSettings)), e;
+    return t.nodeSeparation != 10 && (e.nodeSeparation = t.nodeSeparation), t.packingAspectRatio && (e.packingAspectRatio = t.packingAspectRatio), t.edgeRoutingSettings && (e.edgeRoutingSettings = Mn.fromJSON(t.edgeRoutingSettings)), e;
   }
   toJSON() {
     let t = !1;
@@ -20079,7 +20087,7 @@ class sn {
     return t ? this.LayerSeparation / 2 : this.LayerSeparation;
   }
   constructor() {
-    this.commonSettings = new Js(), this.verticalConstraints = new Cf(), this.horizontalConstraints = new Ef(), this.NoGainAdjacentSwapStepsBound = 5, this.NoGainStepsForOrderingMultiplier = 1, this.AspectRatio = 0, this.MaxNumberOfPassesInOrdering = 24, this.BrandesThreshold = 600, this.LabelCornersPreserveCoefficient = 0.1, this.MinNodeHeight = 72 * 0.5 / 4, this.MinNodeWidth = 72 * 0.75 / 4, this.SnapToGridByY = Ks.None, this.yLayerSep = 30, this.transform = _t.getIdentity(), this.GridSizeByY = 0, this.GridSizeByX = 0, this.commonSettings.edgeRoutingSettings.EdgeRoutingMode = Jt.SugiyamaSplines;
+    this.commonSettings = new Js(), this.verticalConstraints = new Ef(), this.horizontalConstraints = new Af(), this.NoGainAdjacentSwapStepsBound = 5, this.NoGainStepsForOrderingMultiplier = 1, this.AspectRatio = 0, this.MaxNumberOfPassesInOrdering = 24, this.BrandesThreshold = 600, this.LabelCornersPreserveCoefficient = 0.1, this.MinNodeHeight = 72 * 0.5 / 4, this.MinNodeWidth = 72 * 0.75 / 4, this.SnapToGridByY = Ks.None, this.yLayerSep = 30, this.transform = _t.getIdentity(), this.GridSizeByY = 0, this.GridSizeByX = 0, this.commonSettings.edgeRoutingSettings.EdgeRoutingMode = Jt.SugiyamaSplines;
   }
   transformIsRotation(t) {
     const e = _t.rotation(t);
@@ -20119,7 +20127,7 @@ class sn {
     }
   }
 }
-class Wh extends ht {
+class zh extends ht {
   // Dijkstra algorithm. Computes graph-theoretic distances from a node to
   // all other nodes in a graph with nonnegative edge lengths.
   // The distance between a node and itself is 0; the distance between a pair of
@@ -20160,7 +20168,7 @@ class Wh extends ht {
     }
   }
 }
-class pa extends ht {
+class Pa extends ht {
   // The resulting distances between every pair of nodes in the graph.
   get Result() {
     return this.result;
@@ -20178,7 +20186,7 @@ class pa extends ht {
     this.result = new Array(this.graph.shallowNodeCount);
     let t = 0;
     for (const e of this.graph.shallowNodes) {
-      const i = new Wh(this.graph, e, this.length);
+      const i = new zh(this.graph, e, this.length);
       i.run(), this.Result[t++] = i.Result;
     }
   }
@@ -20200,7 +20208,7 @@ class pa extends ht {
     let i = 0;
     if (t.edgeCount === 0)
       return i;
-    const s = new pa(t, e);
+    const s = new Pa(t, e);
     s.run();
     const n = s.Result;
     let r = 0;
@@ -20222,7 +20230,7 @@ class pa extends ht {
     return i;
   }
 }
-class wf extends ht {
+class Tf extends ht {
   // A square matrix with shortest path distances.
   get Result() {
     return this.result;
@@ -20240,7 +20248,7 @@ class wf extends ht {
     let i = t[0];
     this.pivotArray[0] = 0;
     for (let s = 0; ; s++) {
-      const n = new Wh(this.graph, i, this.length);
+      const n = new zh(this.graph, i, this.length);
       if (n.run(), this.Result[s] = n.Result, s + 1 < this.pivotArray.length) {
         let r = 0;
         for (let o = 0; o < this.Result[s].length; o++)
@@ -20251,7 +20259,7 @@ class wf extends ht {
     }
   }
 }
-class Af {
+class Of {
   // Rotates a 2D configuration clockwise by a given angle
   // The angle is given in degrees
   static Rotate(t, e, i) {
@@ -20477,7 +20485,7 @@ class et {
       }
   }
 }
-class Tf {
+class xf {
   constructor(t, e) {
     this.constrained = !1, this.Capacity = 1e6, gt.AbovePP(t.point, e.point) === 1 ? (this.upperSite = t, this.lowerSite = e) : (this.lowerSite = t, this.upperSite = e), this.upperSite.AddEdgeToSite(this);
   }
@@ -20511,7 +20519,7 @@ class Tf {
     return this.upperSite === t ? this.lowerSite : this.upperSite;
   }
 }
-class vn {
+class Cn {
   cleanRemovedEdges() {
     for (const t of this.Edges)
       t.CcwTriangle === null && t.CwTriangle === null && this.Edges.splice(this.Edges.indexOf(t), 1);
@@ -20520,7 +20528,7 @@ class vn {
     this.Owner = null, this.InEdges = new Array(), this.point = t;
   }
   static mkSO(t, e) {
-    const i = new vn(t);
+    const i = new Cn(t);
     return i.Owner = e, i;
   }
   AddEdgeToSite(t) {
@@ -20588,7 +20596,7 @@ class Os {
     return "(" + this.LeftSite.toString() + ", " + this.Edge.toString() + "," + this.RightSite.toString() + ")";
   }
 }
-class yl {
+class bl {
   has(t) {
     return t === this.item0 || t === this.item1 || t === this.item2;
   }
@@ -20644,7 +20652,7 @@ class yl {
 }
 class ee {
   constructor() {
-    this.Edges = new yl(), this.Sites = new yl();
+    this.Edges = new bl(), this.Sites = new bl();
   }
   containsPoint(t) {
     return ee.PointLocationForTriangle(t, this) !== F.Outside;
@@ -20669,7 +20677,7 @@ class ee {
     return !1;
   }
   abIntersectsTrianglSide(t, e, i) {
-    return xh(t, e, i.lowerSite.point, i.upperSite.point);
+    return Rh(t, e, i.lowerSite.point, i.upperSite.point);
   }
   static mkSSSD(t, e, i, s) {
     const n = u.getTriangleOrientation(t.point, e.point, i.point), r = new ee();
@@ -20738,7 +20746,7 @@ class ee {
     return this.Sites.getItem(e + 2);
   }
   BoundingBox() {
-    const t = O.mkPP(this.Sites.getItem(0).point, this.Sites.getItem(1).point);
+    const t = T.mkPP(this.Sites.getItem(0).point, this.Sites.getItem(1).point);
     return t.add(this.Sites.getItem(2).point), t;
   }
   static mkSSSEED(t, e, i, s, n, r) {
@@ -20749,7 +20757,7 @@ class ee {
     return this.Sites.getItem(0).toString() + "," + this.Sites.getItem(1).toString() + "," + this.Sites.getItem(2).toString();
   }
 }
-class bl {
+class vl {
   constructor(t) {
     this.Edge = t;
   }
@@ -20821,7 +20829,7 @@ class Ft extends ht {
     return t;
   }
   static CreatePerimeterElementFromEdge(t) {
-    const e = new bl(t);
+    const e = new vl(t);
     return t.CwTriangle != null ? (e.Start = t.upperSite, e.End = t.lowerSite) : (e.End = t.upperSite, e.Start = t.lowerSite), e;
   }
   RemoveP1AndP2Triangles() {
@@ -20834,7 +20842,7 @@ class Ft extends ht {
   static RemoveTriangleWithEdges(t, e) {
     t.delete(e);
     for (const i of e.Edges)
-      i.CwTriangle === e ? i.CwTriangle = null : i.CcwTriangle = null, i.CwTriangle == null && i.CcwTriangle == null && Vo(i.upperSite.Edges, i);
+      i.CwTriangle === e ? i.CwTriangle = null : i.CcwTriangle = null, i.CwTriangle == null && i.CcwTriangle == null && ko(i.upperSite.Edges, i);
   }
   static RemoveTriangleButLeaveEdges(t, e) {
     t.delete(e);
@@ -20977,7 +20985,7 @@ class Ft extends ht {
     this.triangles.add(s);
     const n = s.Edges.getItem(2);
     this.LegalizeEdge(t.Start, s.OppositeEdge(t.Start)), s = (e = n.CcwTriangle) !== null && e !== void 0 ? e : n.CwTriangle, this.LegalizeEdge(i.End, s.OppositeEdge(i.End));
-    const r = new bl(n);
+    const r = new vl(n);
     return r.Start = t.Start, r.End = i.End, t.Prev.Next = r, r.Prev = t.Prev, r.Next = i.Next, i.Next.Prev = r, r;
   }
   // aNode is to the left of bNode, and they are consecutive
@@ -21075,7 +21083,7 @@ class Ft extends ht {
       this.triangles.add(s), this.LegalizeEdge(t, s.Edges.getItem(0));
     } else {
       const s = e.Edge;
-      Vo(s.upperSite.Edges, s);
+      ko(s.upperSite.Edges, s);
       let n = (i = s.CcwTriangle) !== null && i !== void 0 ? i : s.CwTriangle;
       const r = n.OppositeSite(s);
       Ft.RemoveTriangleButLeaveEdges(this.triangles, n), n = ee.mkSSSD(e.LeftSite, r, t, this.createEdgeDelegate);
@@ -21088,15 +21096,15 @@ class Ft extends ht {
   }
   LegalizeEdgeForOtherCwTriangle(t, e) {
     const i = e.CwTriangle.Edges.index(e);
-    if (vl(t, e.upperSite, e.CwTriangle.Sites.getItem(i + 2), e.lowerSite)) {
-      const s = Cl(t, e);
+    if (Cl(t, e.upperSite, e.CwTriangle.Sites.getItem(i + 2), e.lowerSite)) {
+      const s = Il(t, e);
       this.LegalizeEdge(t, s.CwTriangle.OppositeEdge(t)), this.LegalizeEdge(t, s.CcwTriangle.OppositeEdge(t));
     }
   }
   LegalizeEdgeForOtherCcwTriangle(t, e) {
     const i = e.CcwTriangle.Edges.index(e);
-    if (vl(t, e.lowerSite, e.CcwTriangle.Sites.getItem(i + 2), e.upperSite)) {
-      const s = Cl(t, e);
+    if (Cl(t, e.lowerSite, e.CcwTriangle.Sites.getItem(i + 2), e.upperSite)) {
+      const s = Il(t, e);
       this.LegalizeEdge(t, s.CwTriangle.OppositeEdge(t)), this.LegalizeEdge(t, s.CcwTriangle.OppositeEdge(t));
     }
   }
@@ -21158,7 +21166,7 @@ class Ft extends ht {
     const h = ee.mkSSSD(s, n, o, this.createEdgeDelegate);
     this.triangles.add(h), this.addedTriangles.push(h), t < l && this.TriangulatePolygon1(t, l - 1, i, s, o, r), l < e && this.TriangulatePolygon1(l + 1, e, i, o, n, r);
     function c(d) {
-      return r ? Do(d, s, o, n) : Do(d, s, n, o);
+      return r ? _o(d, s, o, n) : _o(d, s, n, o);
     }
   }
   TraceEdgeThroughTriangles() {
@@ -21271,27 +21279,27 @@ class Ft extends ht {
       }
   }
 }
-function Vo(a, t) {
+function ko(a, t) {
   if (a.length === 0)
     return;
   const e = a.findIndex((i) => t === i);
   e >= 0 && (e !== a.length - 1 && (a[e] = a[a.length - 1]), a.pop());
 }
-function vl(a, t, e, i) {
-  return Of(a, t, e, i) && Do(a, t, e, i);
+function Cl(a, t, e, i) {
+  return Lf(a, t, e, i) && _o(a, t, e, i);
 }
-function Of(a, t, e, i) {
+function Lf(a, t, e, i) {
   return u.getTriangleOrientation(t.point, a.point, e.point) === L.Clockwise && u.getTriangleOrientation(e.point, a.point, i.point) === L.Clockwise;
 }
-function Do(a, t, e, i) {
+function _o(a, t, e, i) {
   const s = t.point.x - a.point.x, n = t.point.y - a.point.y, r = e.point.x - a.point.x, o = e.point.y - a.point.y, l = i.point.x - a.point.x, h = i.point.y - a.point.y, c = s * s + n * n, d = r * r + o * o, f = l * l + h * h;
   return s * (o * f - h * d) - r * (n * f - h * c) + l * (n * d - o * c) > m.tolerance;
 }
-function Cl(a, t) {
+function Il(a, t) {
   let e, i;
   t.CcwTriangle.Contains(a) ? (e = t.CcwTriangle, i = t.CwTriangle) : (e = t.CwTriangle, i = t.CcwTriangle);
   const s = e.Edges.index(t), n = i.Edges.index(t), r = i.Sites.getItem(n + 2), o = e.Edges.getItem(s + 1), l = i.Edges.getItem(n + 1), h = gt.GetOrCreateEdge(a, r);
-  return e.Sites.setItem(s + 1, r), e.Edges.setItem(s, l), e.Edges.setItem(s + 1, h), i.Sites.setItem(n + 1, a), i.Edges.setItem(n, o), i.Edges.setItem(n + 1, h), l.lowerSite === r ? l.CcwTriangle = e : l.CwTriangle = e, o.lowerSite === a ? o.CcwTriangle = i : o.CwTriangle = i, h.upperSite === a ? (h.CcwTriangle = i, h.CwTriangle = e) : (h.CcwTriangle = e, h.CwTriangle = i), Vo(t.upperSite.Edges, t), h;
+  return e.Sites.setItem(s + 1, r), e.Edges.setItem(s, l), e.Edges.setItem(s + 1, h), i.Sites.setItem(n + 1, a), i.Edges.setItem(n, o), i.Edges.setItem(n + 1, h), l.lowerSite === r ? l.CcwTriangle = e : l.CwTriangle = e, o.lowerSite === a ? o.CcwTriangle = i : o.CwTriangle = i, h.upperSite === a ? (h.CcwTriangle = i, h.CwTriangle = e) : (h.CcwTriangle = e, h.CwTriangle = i), ko(t.upperSite.Edges, t), h;
 }
 class gt extends ht {
   // constructor
@@ -21320,14 +21328,14 @@ class gt extends ht {
   }
   AddSite(t, e) {
     let i;
-    return (i = this.PointsToSites.get(t)) ? i.Owner = e : (i = vn.mkSO(t, e), this.PointsToSites.set(t, i)), i;
+    return (i = this.PointsToSites.get(t)) ? i.Owner = e : (i = Cn.mkSO(t, e), this.PointsToSites.set(t, i)), i;
   }
   AddP1AndP2() {
-    const t = O.mkEmpty();
+    const t = T.mkEmpty();
     for (const i of this.PointsToSites.keys())
       t.add(i);
     const e = 10;
-    this.P1 = new vn(t.leftBottom.add(new u(-e, -10))), this.P2 = new vn(t.rightBottom.add(new u(e, -10)));
+    this.P1 = new Cn(t.leftBottom.add(new u(-e, -10))), this.P2 = new Cn(t.rightBottom.add(new u(e, -10)));
   }
   AddPolylineToAllInputSites(t) {
     if (this.simplifyObstacles)
@@ -21361,7 +21369,7 @@ class gt extends ht {
     }
   }
   static CreateEdgeOnOrderedCouple(t, e) {
-    return new Tf(t, e);
+    return new xf(t, e);
   }
   GetTriangles() {
     return this.sweeper.triangles;
@@ -21417,15 +21425,15 @@ class gt extends ht {
     return this.rectangleNodeOnTriangles == null && (this.rectangleNodeOnTriangles = Et(Array.from(this.GetTriangles().values()).map((t) => Bt(t, t.BoundingBox())))), this.rectangleNodeOnTriangles;
   }
 }
-function Hh(a) {
+function jh(a) {
   const t = Array.from(a.GetAllLeaves()), e = a.irect, i = e.diagonal / 4, s = e.clone();
-  return s.pad(i), xf(t.concat([s.perimeter()]));
+  return s.pad(i), Rf(t.concat([s.perimeter()]));
 }
-function xf(a) {
+function Rf(a) {
   const t = new gt(null, a, null);
   return t.run(), t;
 }
-class Cn {
+class In {
   // constructor
   constructor(t, e) {
     this.start = t, this.end = e;
@@ -21438,7 +21446,7 @@ class Cn {
     return i.add_d(e.start), i.add_d(e.end), i;
   }
   clone() {
-    return new Cn(this.start, this.end);
+    return new In(this.start, this.end);
   }
   contains_point(t) {
     return this.contains_d(t);
@@ -21449,7 +21457,7 @@ class Cn {
   }
   intersection_rect(t) {
     const e = t;
-    return new Cn(Math.max(this.start, e.start), Math.min(this.end, e.end));
+    return new In(Math.max(this.start, e.start), Math.min(this.end, e.end));
   }
   intersects_rect(t) {
     const e = t;
@@ -21460,7 +21468,7 @@ class Cn {
   }
   //
   static mkInterval(t, e) {
-    const i = new Cn(t.start, t.end);
+    const i = new In(t.start, t.end);
     return i.add_d(e.start), i.add_d(e.end), i;
   }
   // expanding the range to hold v
@@ -21490,7 +21498,7 @@ class Cn {
     return t.start > this.end + m.distanceEpsilon ? !1 : !(t.end < this.start - m.distanceEpsilon);
   }
 }
-class zh {
+class qh {
   get Count() {
     return this.heapSize;
   }
@@ -21546,9 +21554,9 @@ class zh {
     }
   }
 }
-class Lf {
+class Nf {
   constructor(t, e, i, s) {
-    this._numberOfOverlaps = 0, this._proximityEdges = t, this._nodeSizes = e, this._nodePositions = i, this._forLayers = s, this._q = new zh(e.length * 2);
+    this._numberOfOverlaps = 0, this._proximityEdges = t, this._nodeSizes = e, this._nodePositions = i, this._forLayers = s, this._q = new qh(e.length * 2);
   }
   Run() {
     return this.InitQueue(), this.FindOverlaps(), this._numberOfOverlaps;
@@ -21564,7 +21572,7 @@ class Lf {
   }
   AddIntervalToTree(t) {
     const e = this.GetInterval(t);
-    this._intervalTree == null && (this._intervalTree = pn([])), this._intervalTree.Add(e, t);
+    this._intervalTree == null && (this._intervalTree = mn([])), this._intervalTree.Add(e, t);
   }
   FindOverlapsWithInterval(t) {
     if (this._intervalTree == null)
@@ -21579,7 +21587,7 @@ class Lf {
   }
   GetInterval(t) {
     const e = this._nodeSizes[t].width / 2, i = this._nodePositions[t].x;
-    return new Cn(i - e, i + e);
+    return new In(i - e, i + e);
   }
   InitQueue() {
     for (let t = 0; t < this._nodeSizes.length; t++) {
@@ -21588,9 +21596,9 @@ class Lf {
     }
   }
 }
-class Il {
+class El {
   constructor(t, e, i) {
-    this.treeNodes = /* @__PURE__ */ new Set(), this.hedgehog = /* @__PURE__ */ new Map(), this.graph = t, this.weight = e, this.root = i, this.q = new zh(this.graph.nodeCount);
+    this.treeNodes = /* @__PURE__ */ new Set(), this.hedgehog = /* @__PURE__ */ new Map(), this.graph = t, this.weight = e, this.root = i, this.q = new qh(this.graph.nodeCount);
   }
   NodeIsInTree(t) {
     return this.treeNodes.has(t);
@@ -21643,7 +21651,7 @@ class Il {
     }
   }
 }
-class ma {
+class Sa {
   // Computes the minimum spanning tree on a set of edges
   static GetMst(t, e) {
     if (t.length === 0)
@@ -21652,15 +21660,15 @@ class ma {
     for (let o = 0; o < t.length; o++)
       s.setPair(i[o], t[o]);
     const n = fi(i, e);
-    return new Il(n, (o) => s.get(o.source, o.target).weight, i[0].source).GetTreeEdges().map((o) => s.get(o.source, o.target));
+    return new El(n, (o) => s.get(o.source, o.target).weight, i[0].source).GetTreeEdges().map((o) => s.get(o.source, o.target));
   }
   // Computes the minimum spanning tree on a DT with given weights.
   static GetMstOnCdt(t, e) {
     const i = Array.from(t.PointsToSites.values()), s = /* @__PURE__ */ new Map();
     for (let l = 0; l < i.length; l++)
       s.set(i[l], l);
-    const n = ma.GetEdges(i, s), r = Vh(Array.from(n.keys()));
-    return new Il(r, (l) => e(n.get(l.source, l.target)), 0).GetTreeEdges().map((l) => n.get(l.source, l.target));
+    const n = Sa.GetEdges(i, s), r = kh(Array.from(n.keys()));
+    return new El(r, (l) => e(n.get(l.source, l.target)), 0).GetTreeEdges().map((l) => n.get(l.source, l.target));
   }
   static GetEdges(t, e) {
     const i = new Ki();
@@ -21672,7 +21680,7 @@ class ma {
     return i;
   }
 }
-class Pa {
+class ya {
   constructor() {
     this.epsilon = 0.01, this.iterationsMax = 1e3, this.stopOnMaxIterat = !1, this.nodeSeparation = 4, this.randomizationSeed = 1, this.randomizationShift = 0.1;
   }
@@ -21720,7 +21728,7 @@ class Pa {
   }
   // Clones the settings together with the stressmajorization settings
   Clone() {
-    const t = new Pa();
+    const t = new ya();
     return t.Epsilon = this.Epsilon, t.IterationsMax = this.IterationsMax, t.StopOnMaxIterat = this.StopOnMaxIterat, t.NodeSeparation = this.NodeSeparation, t.RandomizationSeed = this.RandomizationSeed, t.RandomizationShift = this.randomizationShift, t;
   }
 }
@@ -21731,7 +21739,7 @@ class qe {
   }
   // Removes the overlap by using the default settings.
   static RemoveOverlaps(t, e) {
-    const i = new Pa();
+    const i = new ya();
     i.RandomizationShift = 1, i.NodeSeparation = e, new qe(i, t).RemoveOverlaps();
   }
   // Removes the overlaps for the given graph.
@@ -21741,7 +21749,7 @@ class qe {
       return;
     }
     const t = { nodePositions: new Array(), nodeSizes: new Array() };
-    for (Rf(this._settings, this._nodes, t, this._settings.RandomizationShift), this.lastRunNumberIterations = 0; this.OneIteration(t.nodePositions, t.nodeSizes, !1); )
+    for (Bf(this._settings, this._nodes, t, this._settings.RandomizationShift), this.lastRunNumberIterations = 0; this.OneIteration(t.nodePositions, t.nodeSizes, !1); )
       this.lastRunNumberIterations++;
     for (; this.OneIteration(t.nodePositions, t.nodeSizes, !0); )
       this.lastRunNumberIterations++;
@@ -21793,15 +21801,15 @@ class qe {
       if (o === 0 && c === 0 || o === 0 && !i)
         return !1;
     }
-    const h = ma.GetMst(l, t.length);
+    const h = Sa.GetMst(l, t.length);
     return qe.MoveNodePositions(h, t, h[0].source), !0;
   }
   FindProximityEdgesWithSweepLine(t, e, i) {
-    return new Lf(t, e, i, this._overlapForLayers).Run();
+    return new Nf(t, e, i, this._overlapForLayers).Run();
   }
   // Returns an edge with: i, j, t(overlapFactor), ideal distance, edge weight.
   static GetIdealEdge(t, e, i, s, n) {
-    const r = { overlapFactor: 0 }, o = qe.GetIdealEdgeLength(t, e, i, s, n, r), l = i.sub(s).length, h = O.mkSizeCenter(n[t], i), c = O.mkSizeCenter(n[e], s), d = r.overlapFactor > 1 ? l - o : qe.GetDistanceRects(h, c);
+    const r = { overlapFactor: 0 }, o = qe.GetIdealEdgeLength(t, e, i, s, n, r), l = i.sub(s).length, h = T.mkSizeCenter(n[t], i), c = T.mkSizeCenter(n[e], s), d = r.overlapFactor > 1 ? l - o : qe.GetDistanceRects(h, c);
     return {
       source: Math.min(t, e),
       target: Math.max(t, e),
@@ -21884,13 +21892,13 @@ class qe {
     return this.lastRunNumberIterations;
   }
 }
-function Rf(a, t, e, i) {
-  e.nodePositions = t.map((s) => s.center), i && Nf(e.nodePositions, new Kr(0, 0), i), e.nodeSizes = t.map((s) => {
+function Bf(a, t, e, i) {
+  e.nodePositions = t.map((s) => s.center), i && Gf(e.nodePositions, new $r(0, 0), i), e.nodeSizes = t.map((s) => {
     const n = s.boundingBox.size;
     return n.width += a.NodeSeparation, n.height += a.NodeSeparation, n;
   });
 }
-function Nf(a, t, e) {
+function Gf(a, t, e) {
   const i = new xt();
   for (let s = 0; s < a.length; s++) {
     let n = a[s];
@@ -21902,7 +21910,7 @@ function Nf(a, t, e) {
     a[s] = n, i.add(n);
   }
 }
-class Mn extends ht {
+class Fn extends ht {
   // Constructs the multidimensional scaling algorithm.
   constructor(t, e, i, s) {
     super(i), this.settings = t, this.graph = e, this.length = s;
@@ -21936,11 +21944,11 @@ class Mn extends ht {
       i.x[0] = i.y[0] = 0;
       return;
     }
-    const n = Math.min(e.PivotNumber, t.shallowNodeCount), r = e.GetNumberOfIterationsWithMajorization(t.shallowNodeCount), o = e.Exponent, l = new Array(n), h = new wf(t, l, s);
+    const n = Math.min(e.PivotNumber, t.shallowNodeCount), r = e.GetNumberOfIterationsWithMajorization(t.shallowNodeCount), o = e.Exponent, l = new Array(n), h = new Tf(t, l, s);
     h.run();
     const c = h.Result;
-    if (et.LandmarkClassicalScaling(c, i, l), Mn.ScaleToAverageEdgeLength(t, i.x, i.y, s), r > 0) {
-      const d = new pa(t, s);
+    if (et.LandmarkClassicalScaling(c, i, l), Fn.ScaleToAverageEdgeLength(t, i.x, i.y, s), r > 0) {
+      const d = new Pa(t, s);
       d.run();
       const f = d.Result, p = et.ExponentialWeightMatrix(f, o);
       et.DistanceScalingSubset(f, i.x, i.y, p, r);
@@ -21948,7 +21956,7 @@ class Mn extends ht {
   }
   LayoutConnectedGraphWithMds() {
     const t = { x: [], y: [] };
-    Mn.LayoutGraphWithMds(this.graph, this.settings, t, this.length), this.settings.RotationAngle !== 0 && Af.Rotate(t.x, t.y, this.settings.RotationAngle);
+    Fn.LayoutGraphWithMds(this.graph, this.settings, t, this.length), this.settings.RotationAngle !== 0 && Of.Rotate(t.x, t.y, this.settings.RotationAngle);
     let e = 0;
     for (const i of this.graph.shallowNodes)
       i.boundingBox && (i.center = new u(t.x[e] * this.settings.ScaleX, t.y[e] * this.settings.ScaleY)), e++;
@@ -22009,19 +22017,19 @@ class Mn extends ht {
   // Pack the given graph components to the specified aspect ratio
   static PackGraphs(t, e) {
     if (t.length === 0)
-      return O.mkEmpty();
+      return T.mkEmpty();
     if (t.length === 1)
       return t[0].boundingBox;
     const i = t.map((r) => r.boundingBox), s = new Array();
     for (const r of t)
       s.push({ g: r, lb: r.boundingBox.leftBottom.clone() });
-    const n = new Gh(i, e.PackingAspectRatio);
+    const n = new Fh(i, e.PackingAspectRatio);
     n.run();
     for (const { g: r, lb: o } of s) {
       const l = r.boundingBox.leftBottom.sub(o);
       r.translate(l);
     }
-    return new O({
+    return new T({
       left: 0,
       bottom: 0,
       right: n.PackedWidth,
@@ -22029,12 +22037,12 @@ class Mn extends ht {
     });
   }
 }
-class Fn {
+class Vn {
   constructor() {
     this.commonSettings = new Js(), this.pivotNumber = 50, this.iterationsWithMajorization = 30, this.scaleX = 100, this.scaleY = 100, this.exponent = -2, this.rotationAngle = 0, this._removeOverlaps = !0, this._callIterationsWithMajorizationThreshold = 2e3, this.adjustScale = !1;
   }
   static fromJSON(t) {
-    const e = new Fn();
+    const e = new Vn();
     return t.pivotNumber && (e.pivotNumber = t.pivotNumber), t.iterationsWithMajorization && (e.iterationsWithMajorization = t.iterationsWithMajorization), t.scaleX && (e.scaleX = t.scaleX), t.scaleY && (e.scaleY = t.scaleY), t.exponent && (e.exponent = t.exponent), t.rotationAngle && (e.rotationAngle = t.rotationAngle), t.removeOverlaps != null && (e._removeOverlaps = t.removeOverlaps), t._callIterationsWithMajorizationThreshold && (e._callIterationsWithMajorizationThreshold = t._callIterationsWithMajorizationThreshold), e;
   }
   toJSON() {
@@ -22119,7 +22127,7 @@ class Fn {
     this._callIterationsWithMajorizationThreshold = t;
   }
 }
-class jh extends ht {
+class Uh extends ht {
   get scaleX() {
     return this.settings.ScaleX;
   }
@@ -22140,10 +22148,10 @@ class jh extends ht {
   }
   // Executes the actual algorithm.
   run() {
-    new Mn(this.settings, this.graph, this.cancelToken, this.length).run();
+    new Fn(this.settings, this.graph, this.cancelToken, this.length).run();
   }
 }
-function qh(a, t, e) {
+function Xh(a, t, e) {
   if (t)
     for (const i of t) {
       if (e && e.canceled)
@@ -22244,9 +22252,9 @@ var re;
 (function(a) {
   a[a.Any = 0] = "Any", a[a.Port = 1] = "Port", a[a.Starboard = 2] = "Starboard", a[a.Top = 3] = "Top", a[a.Bottom = 4] = "Bottom", a[a.Left = 5] = "Left", a[a.Right = 6] = "Right";
 })(re || (re = {}));
-class Bf {
+class Mf {
 }
-class Gf {
+class Ff {
   constructor() {
     this.points = [], this.coveredLength = 0;
   }
@@ -22269,9 +22277,9 @@ var Fs;
 (function(a) {
   a[a.AlongCurve = 0] = "AlongCurve", a[a.Horizontal = 1] = "Horizontal";
 })(Fs || (Fs = {}));
-class El {
+class wl {
   constructor(t) {
-    this.location = t, this.boundingBox = O.rectangleOnPoint(t);
+    this.location = t, this.boundingBox = T.rectangleOnPoint(t);
   }
 }
 class cn {
@@ -22279,7 +22287,7 @@ class cn {
     this.data = e, this.boundingBox = t;
   }
 }
-class Mf {
+class Vf {
   constructor(t) {
     this.innerPoints = [], this.outerPoints = [], this.placementSide = re.Any, this.placementOffset = 0.5, this.edgePoints = t, this.placementSide;
   }
@@ -22314,7 +22322,7 @@ class z extends ht {
   }
   InitializeObstacles(t, e) {
     const i = this.GetEdgeObstacles(e);
-    this.obstacleMaps[1] = pn(t.map((s) => [s.boundingBox, new cn(s.boundingBox, s)])), this.obstacleMaps[2] = pn(i.map((s) => [s.boundingBox, new cn(s.boundingBox, s)]));
+    this.obstacleMaps[1] = mn(t.map((s) => [s.boundingBox, new cn(s.boundingBox, s)])), this.obstacleMaps[2] = mn(i.map((s) => [s.boundingBox, new cn(s.boundingBox, s)]));
   }
   static CurvePoints(t, e) {
     const i = [], s = t.end.sub(t.start).lengthSquared / (e * e);
@@ -22344,15 +22352,15 @@ class z extends ht {
       if (i.curve == null)
         continue;
       const s = z.CurvePoints(i.curve, this.CollisionGranularity);
-      this.edgeInfos.set(i, new Mf(s));
+      this.edgeInfos.set(i, new Vf(s));
       for (const n of s)
-        e.push(new El(n[1]));
+        e.push(new wl(n[1]));
     }
     return e;
   }
   /**       Adds the label to the label obstacle map.*/
   AddLabelObstacle(t) {
-    this.labelObstacleMap == null ? (this.labelObstacleMap = pn([[t.boundingBox, t]]), this.obstacleMaps[0] = this.labelObstacleMap) : this.labelObstacleMap.Add(t.boundingBox, t);
+    this.labelObstacleMap == null ? (this.labelObstacleMap = mn([[t.boundingBox, t]]), this.obstacleMaps[0] = this.labelObstacleMap) : this.labelObstacleMap.Add(t.boundingBox, t);
   }
   //     Places the given labels.
   run() {
@@ -22388,7 +22396,7 @@ class z extends ht {
     const e = t.parent, i = e.curve, s = this.edgeInfos.get(e).edgePoints, n = this.StartIndex(t, s.map((f) => f[1])), r = s[n][1];
     let o = i.derivative(s[n][0]);
     o.length < m.distanceEpsilon && (o = new u(1, 1)), o = o.normalize();
-    const l = new Ai(t.width, t.height), h = this.getLabelInfo(t), c = z.GetPossibleSides(h.placementSide, o)[0], d = z.GetLabelBounds(r, o, l, c);
+    const l = new Ti(t.width, t.height), h = this.getLabelInfo(t), c = z.GetPossibleSides(h.placementSide, o)[0], d = z.GetLabelBounds(r, o, l, c);
     this.SetLabelBounds(this.getLabelInfo(t), d);
   }
   StartIndex(t, e) {
@@ -22405,8 +22413,8 @@ class z extends ht {
     t.positionCenter(i.div(e.innerPoints.length + e.outerPoints.length));
   }
   PlaceEdgeLabelHorizontally(t) {
-    const e = t.label, s = this.getLabelInfo(e).edgePoints, n = new Ai(e.width, e.height);
-    let r = -1, o = O.mkEmpty();
+    const e = t.label, s = this.getLabelInfo(e).edgePoints, n = new Ti(e.width, e.height);
+    let r = -1, o = T.mkEmpty();
     const l = t.curve;
     for (const h of z.ExpandingSearch(this.StartIndex(e, s.map((c) => c[1])), 0, s.length)) {
       const c = s[h];
@@ -22447,7 +22455,7 @@ class z extends ht {
       const c = Math.acos(Math.abs(n.x) / o), d = o / Math.sin(c), f = o / Math.cos(c);
       l += (n.x > 0 ? 1 : -1) * f, h += (n.y > 0 ? -1 : 1) * Math.min(d, i.height / 2);
     }
-    return O.mkLeftBottomSize(l, h, i);
+    return T.mkLeftBottomSize(l, h, i);
   }
   //     Sets the label's position to be the given bounds.
   SetLabelBounds(t, e) {
@@ -22489,11 +22497,11 @@ class z extends ht {
   PlaceEdgeLabelOnCurve(t) {
     const e = t.parent, i = this.getLabelInfo(t);
     i.innerPoints = null;
-    const s = i.edgePoints, n = 3, r = t.height / 2, o = new Ai(r, r), l = t.width;
+    const s = i.edgePoints, n = 3, r = t.height / 2, o = new Ti(r, r), l = t.width;
     for (const h of z.ExpandingSearch(this.StartIndex(t, s), 0, s.length)) {
       const c = this.GetSidesAndEdgeCurve(t, e, s, h);
       for (const d of c) {
-        const f = new Gf(), p = { coveredLength: 0 };
+        const f = new Ff(), p = { coveredLength: 0 };
         if (this.ProcessExpandingSearchOnSide(h, s, e.curve, d, r, n, o, p, f, l), p.coveredLength >= l)
           return this.CaseOfCoveredLengthGreaterThanLabelLength(t, f, p.coveredLength, l, o), !0;
       }
@@ -22516,7 +22524,7 @@ class z extends ht {
     for (const n of t) {
       const r = n.Center;
       e.push(n.Inner), i.push(n.Outer);
-      const o = new cn(O.mkSizeCenter(new Ai(s.width * 2, s.height * 2), r), null);
+      const o = new cn(T.mkSizeCenter(new Ti(s.width * 2, s.height * 2), r), null);
       this.AddLabelObstacle(o);
     }
   }
@@ -22529,7 +22537,7 @@ class z extends ht {
       if (this.Conflict(C, n, o))
         break;
       {
-        const w = new Bf();
+        const w = new Mf();
         if (w.Center = C, w.Inner = p.add(y.mul(r)), w.Outer = p.add(y.mul(2 * n + r)), l.coveredLength = d <= t ? h.AddFirst(w) : h.AddLast(w), l.coveredLength >= c)
           break;
       }
@@ -22560,13 +22568,13 @@ class z extends ht {
   /**   Determines the index of the first obstacle map that the point intersects.
     Returns the index of the first obstacle map that the point intersects. int.MaxValue if there is no intersection.*/
   ConflictIndex(t, e, i) {
-    const s = O.creatRectangleWithSize(new Ai(i.width * 2, i.height * 2), t), n = e * e;
+    const s = T.creatRectangleWithSize(new Ti(i.width * 2, i.height * 2), t), n = e * e;
     for (let r = 0; r < this.obstacleMaps.length; r++)
       if (this.obstacleMaps[r] != null) {
         for (let o = 0; o < this.obstacleMaps.length; o++)
           if (this.obstacleMaps[o] != null)
             for (const l of this.obstacleMaps[o].GetAllIntersecting(s))
-              if (l instanceof El) {
+              if (l instanceof wl) {
                 if (t.sub(l.location).lengthSquared < n)
                   return o;
               } else
@@ -22579,7 +22587,7 @@ z.MinGranularity = 5;
 z.MaxGranularity = 50;
 z.LowerEdgeBound = 500;
 z.UpperEdgeBound = 3e3;
-class yi extends Oh {
+class bi extends Lh {
   clone() {
     throw new Error("Method not implemented.");
   }
@@ -22593,11 +22601,11 @@ class yi extends Oh {
     return t.getAttr(_e.AlgorithmDataIndex);
   }
 }
-function ko(a) {
-  const t = yi.getAlgData(a.node);
+function Wo(a) {
+  const t = bi.getAlgData(a.node);
   return t == null ? null : t.data;
 }
-class Ff {
+class Df {
   //  local cache of node center (which in the MSAGL node has to be computed from the bounding box)
   get Center() {
     return this.center;
@@ -22619,9 +22627,9 @@ class Ff {
     return "FINode(" + (this.index + ("):" + this.geomNode));
   }
 }
-class Vf {
+class kf {
   constructor(t) {
-    this._length = 1, this.mEdge = t, this.sourceFiNode = ko(this.mEdge.source), this.targetFiNode = ko(this.mEdge.target);
+    this._length = 1, this.mEdge = t, this.sourceFiNode = Wo(this.mEdge.source), this.targetFiNode = Wo(this.mEdge.target);
   }
   get source() {
     return this.sourceFiNode.index;
@@ -22723,35 +22731,35 @@ class Ut {
   }
 }
 Ut.count = 0;
-function Df(a) {
+function _f(a) {
   const t = a.slice();
-  return kf(t), _o(t, a.length, [], 0);
+  return Wf(t), Ho(t, a.length, [], 0);
 }
-function kf(a) {
+function Wf(a) {
   let t, e, i;
   for (i = a.length - 1; i > 0; i--)
     t = Xs(i + 1), e = a[i], a[i] = a[t], a[t] = e;
   return a;
 }
-function _o(a, t, e, i) {
+function Ho(a, t, e, i) {
   let s = null;
-  return i === 3 ? s = _f(e[0], e[1], e[2]) : t === 1 && i === 0 ? s = { x: a[0].x, y: a[0].y, r: 0 } : t === 0 && i === 2 ? s = wl(e[0], e[1]) : t === 1 && i === 1 ? s = wl(e[0], a[0]) : (s = _o(a, t - 1, e, i), Wf(a[t - 1], s) || (e[i++] = a[t - 1], s = _o(a, t - 1, e, i))), s;
+  return i === 3 ? s = Hf(e[0], e[1], e[2]) : t === 1 && i === 0 ? s = { x: a[0].x, y: a[0].y, r: 0 } : t === 0 && i === 2 ? s = Al(e[0], e[1]) : t === 1 && i === 1 ? s = Al(e[0], a[0]) : (s = Ho(a, t - 1, e, i), zf(a[t - 1], s) || (e[i++] = a[t - 1], s = Ho(a, t - 1, e, i))), s;
 }
-function _f(a, t, e) {
+function Hf(a, t, e) {
   const i = a.x, s = a.y, n = t.x, r = t.y, o = e.x, l = e.y, h = n - i, c = r - s, d = o - i, f = l - s, p = h * (n + i) * 0.5 + c * (r + s) * 0.5, P = d * (o + i) * 0.5 + f * (l + s) * 0.5, y = h * f - c * d, C = (f * p - c * P) / y, w = (-d * p + h * P) / y;
   return { x: C, y: w, r: Math.sqrt((i - C) * (i - C) + (s - w) * (s - w)) };
 }
-function wl(a, t) {
+function Al(a, t) {
   const e = a.x, i = a.y, s = t.x, n = t.y, r = 0.5 * (e + s), o = 0.5 * (i + n);
   return { x: r, y: o, r: Math.sqrt((e - r) * (e - r) + (i - o) * (i - o)) };
 }
-function Wf(a, t) {
+function zf(a, t) {
   return (t.x - a.x) * (t.x - a.x) + (t.y - a.y) * (t.y - a.y) <= t.r * t.r;
 }
-class Hf {
+class jf {
   /**  linear-time computation using the move-to-front heuristic by Welzl */
   static LinearComputation(t) {
-    const e = Df(t), i = new Ut();
+    const e = _f(t), i = new Ut();
     return i.Center = new u(e.x, e.y), i.Radius = e.r, i;
   }
   //  Computing the minimum enclosing disc the naive way for testing purposes.
@@ -22787,7 +22795,7 @@ class Re {
     const n = i.shift(s.z0), r = e.shift(s.z0);
     s.a = new Array(s.p);
     for (let o = 0; o < s.p; o++)
-      s.a[o] = So(r[o], n[o]);
+      s.a[o] = bo(r[o], n[o]);
     return s;
   }
   static factorial(t) {
@@ -22803,7 +22811,7 @@ class Re {
     let i = dt.constructorN(0);
     for (let s = 1; s <= t; s++) {
       const n = dt.constructorN(Re.binomial(t - 1, s - 1));
-      i = So(i, Ui(this.a[s], Ui(dt.Pow(e, t - s), n)));
+      i = bo(i, Ui(this.a[s], Ui(dt.Pow(e, t - s), n)));
     }
     return i;
   }
@@ -22811,7 +22819,7 @@ class Re {
     const e = new Array(this.p), i = e[0] = this.a[0], s = un(this.z0, t);
     for (let n = 1; n < this.p; n++) {
       const r = dt.constructorN(n);
-      e[n] = So(Ui(jf(i), yo(dt.Pow(s, n), r)), this.sum(n, s));
+      e[n] = bo(Ui(Uf(i), vo(dt.Pow(s, n), r)), this.sum(n, s));
     }
     return e;
   }
@@ -22833,8 +22841,8 @@ class Re {
   //  Compute approximate force at point v due to potential energy moments
   ApproximateForce(t) {
     const e = new dt(t.x, t.y), i = un(e, this.z0);
-    let s = yo(this.a[0], i), n = i, r = 0;
-    for (; s = un(s, yo(zf(this.a[r], r), n)), r++, r != this.p; )
+    let s = vo(this.a[0], i), n = i, r = 0;
+    for (; s = un(s, vo(qf(this.a[r], r), n)), r++, r != this.p; )
       n = Ui(n, i);
     return new u(s.re, -s.im);
   }
@@ -22870,22 +22878,22 @@ class dt {
     }
   }
 }
-function So(a, t) {
+function bo(a, t) {
   return new dt(a.re + t.re, a.im + t.im);
 }
 function Ui(a, t) {
   return new dt(a.re * t.re - a.im * t.im, a.re * t.im + t.re * a.im);
 }
-function zf(a, t) {
+function qf(a, t) {
   return new dt(a.re * t, a.im * t);
 }
 function un(a, t) {
   return new dt(a.re - t.re, a.im - t.im);
 }
-function jf(a) {
+function Uf(a) {
   return new dt(-a.re, -a.im);
 }
-function yo(a, t) {
+function vo(a, t) {
   const e = t.re * t.re + t.im * t.im;
   if (e == 0)
     return dt.constructorN(0);
@@ -22896,12 +22904,12 @@ var Le;
 (function(a) {
   a[a.Horizontal = 0] = "Horizontal", a[a.Vertical = 1] = "Vertical";
 })(Le || (Le = {}));
-class Uh {
+class Qh {
   intersects(t) {
     return t.med.Center.sub(this.med.Center).length < t.med.Radius + this.med.Radius;
   }
 }
-class qf extends Uh {
+class Xf extends Qh {
   constructor(t, e, i) {
     super(), this.med = t, this.parent = e.parent, this.parent != null && (this.parent.leftChild == e ? this.parent.leftChild = this : this.parent.rightChild = this), this.leftChild = e, this.rightChild = i, e.parent = this, i.parent = this;
   }
@@ -22909,7 +22917,7 @@ class qf extends Uh {
     this.leftChild.computeMultipoleCoefficients(t), this.rightChild.computeMultipoleCoefficients(t), this.multipoleCoefficients = Re.constructorPMM(this.med.Center, this.leftChild.multipoleCoefficients, this.rightChild.multipoleCoefficients);
   }
 }
-class Fr extends Uh {
+class Dr extends Qh {
   constructor(t) {
     super(), this.particles = t, this.ComputeMinimumEnclosingDisc();
   }
@@ -22921,7 +22929,7 @@ class Fr extends Uh {
     this.ps = new Array(t);
     for (let e = 0; e < t; e++)
       this.ps[e] = this.particles[0][e].point;
-    return this.med = Hf.LinearComputation(this.ps);
+    return this.med = jf.LinearComputation(this.ps);
   }
   Min(t) {
     return this.particles[t][0].pos(t);
@@ -22947,7 +22955,7 @@ class Fr extends Uh {
       p.splitLeft ? o[i][c++] = p : l[i][h++] = p;
     }
     const d = this.med;
-    return this.particles = o, this.ComputeMinimumEnclosingDisc(), t.rightSibling = new Fr(l), new qf(d, this, t.rightSibling);
+    return this.particles = o, this.ComputeMinimumEnclosingDisc(), t.rightSibling = new Dr(l), new Xf(d, this, t.rightSibling);
   }
   ComputeForces() {
     for (const t of this.particles[0])
@@ -22955,7 +22963,7 @@ class Fr extends Uh {
         t != e && (t.force = t.force.add(Re.Force(t.point, e.point)));
   }
 }
-class Uf {
+class Qf {
   pos(t) {
     return t == Le.Horizontal ? this.point.x : this.point.y;
   }
@@ -22964,7 +22972,7 @@ class Uf {
     this.point = t, this.force = new u(0, 0);
   }
 }
-class Xf {
+class Yf {
   particlesBy(t) {
     return this.particles.map((e) => e).sort((e, i) => e.pos(t) - i.pos(t));
   }
@@ -22973,11 +22981,11 @@ class Xf {
     this.particles = t;
     const i = new Array();
     i.push(this.particlesBy(Le.Horizontal)), i.push(this.particlesBy(Le.Vertical)), this.leaves = new Array();
-    let s = new Fr(i);
+    let s = new Dr(i);
     this.leaves.push(s);
     const n = { rightSibling: null };
     this.root = s.Split(n), this.leaves.push(n.rightSibling);
-    const r = new Qf(e);
+    const r = new Jf(e);
     for (r.EnqueueLL(s, n.rightSibling); r.length > 0; )
       s = r.dequeue(), s.Split(n), this.leaves.push(n.rightSibling), r.EnqueueLL(s, n.rightSibling);
   }
@@ -22990,7 +22998,7 @@ class Xf {
       for (i.push(this.root); i.length > 0; ) {
         const s = i.pop();
         if (e.intersects(s))
-          if (s instanceof Fr)
+          if (s instanceof Dr)
             for (const n of e.particles[0])
               for (const r of s.particles[0])
                 n != r && (n.force = n.force.add(Re.Force(n.point, r.point)));
@@ -23005,7 +23013,7 @@ class Xf {
     }
   }
 }
-class Qf extends We.Queue {
+class Jf extends We.Queue {
   constructor(t) {
     super(), this.B = t;
   }
@@ -23013,10 +23021,10 @@ class Qf extends We.Queue {
     t.Size() > this.B && this.enqueue(t), e.Size() > this.B && this.enqueue(e);
   }
 }
-class Vn extends ht {
+class Dn extends ht {
   //  Create the graph data structures.
   constructor(t, e, i) {
-    if (super(null), this.clustersInfo = /* @__PURE__ */ new Map(), this.clusterEdges = new Array(), this.graph = t, this.settings = e, this.initFiNodesEdges(), this.edges = Array.from(this.graph.shallowEdges).map((s) => yi.getAlgData(s.edge).data), this.nodes = Array.from(this.graph.shallowNodes).map((s) => yi.getAlgData(s.node).data), this.components = new Array(), this.settings.InterComponentForces)
+    if (super(null), this.clustersInfo = /* @__PURE__ */ new Map(), this.clusterEdges = new Array(), this.graph = t, this.settings = e, this.initFiNodesEdges(), this.edges = Array.from(this.graph.shallowEdges).map((s) => bi.getAlgData(s.edge).data), this.nodes = Array.from(this.graph.shallowNodes).map((s) => bi.getAlgData(s.node).data), this.components = new Array(), this.settings.InterComponentForces)
       this.components.push(this.nodes);
     else {
       this.basicGraph = fi(this.edges, this.nodes.length);
@@ -23033,12 +23041,12 @@ class Vn extends ht {
   initFiNodesEdges() {
     let t = 0;
     for (const e of this.graph.shallowNodes) {
-      const i = new Ff(t++, e);
-      new yi(e.node, i);
+      const i = new Df(t++, e);
+      new bi(e.node, i);
     }
     for (const e of this.graph.shallowEdges) {
-      const i = new Vf(e);
-      new yi(e.edge, i);
+      const i = new kf(e);
+      new bi(e.edge, i);
     }
   }
   //  Controls which constraints are applied of CalculateLayout.  Setter enforces feasibility at that level.
@@ -23087,8 +23095,8 @@ class Vn extends ht {
       const i = new Array(t.length), s = 2 * (Math.PI / e);
       let n = 0;
       for (let o = 0; o < e; o++)
-        i[o] = new Uf(t[o].Center.add(new u(Math.cos(n), Math.sin(n)).mul(1e-5))), n += s;
-      new Xf(i, 8).ComputeForces(5);
+        i[o] = new Qf(t[o].Center.add(new u(Math.cos(n), Math.sin(n)).mul(1e-5))), n += s;
+      new Yf(i, 8).ComputeForces(5);
       for (let o = 0; o < t.length; o++)
         this.AddRepulsiveForce(t[o], i[o].force);
     } else
@@ -23104,7 +23112,7 @@ class Vn extends ht {
     if (e != null)
       return e.barycenter;
     let i = new u(0, 0);
-    if (t.shallowNodeCount || Yf(t)) {
+    if (t.shallowNodeCount || Kf(t)) {
       const s = this.clustersInfo.get(t);
       if ((s == null || s.weight == null) && this.computeWeight(t), s.weight != null) {
         for (const n of t.shallowNodes)
@@ -23126,13 +23134,13 @@ class Vn extends ht {
     if (t != null) {
       this.SetBarycenter(t);
       for (const e of this.clusterEdges) {
-        const i = $.getGeom(e.source), s = $.getGeom(e.target), n = yi.getAlgData(e.source).data, r = yi.getAlgData(e.target).data, o = i.hasOwnProperty("shallowNodes"), l = o ? this.clustersInfo.get(i).barycenter : i.center, h = s.hasOwnProperty("shallowNodes"), c = h ? this.clustersInfo.get(s).barycenter : s.center;
+        const i = $.getGeom(e.source), s = $.getGeom(e.target), n = bi.getAlgData(e.source).data, r = bi.getAlgData(e.target).data, o = i.hasOwnProperty("shallowNodes"), l = o ? this.clustersInfo.get(i).barycenter : i.center, h = s.hasOwnProperty("shallowNodes"), c = h ? this.clustersInfo.get(s).barycenter : s.center;
         let d = l.sub(c);
         const f = d.length, p = 1e-8 * (this.settings.AttractiveInterClusterForceConstant * (f * Math.log(f + 0.1)));
         if (d = d.mul(p), o) {
           const P = i;
           for (const y of P.shallowNodes) {
-            const C = yi.getAlgData(y.node).data;
+            const C = bi.getAlgData(y.node).data;
             C.force = C.force.add(d);
           }
         } else
@@ -23140,7 +23148,7 @@ class Vn extends ht {
         if (h) {
           const P = s;
           for (const y of P.shallowNodes) {
-            const C = yi.getAlgData(y.node).data;
+            const C = bi.getAlgData(y.node).data;
             C.force = C.force.sub(d);
           }
         } else
@@ -23149,7 +23157,7 @@ class Vn extends ht {
       for (const e of t.subgraphsDepthFirst) {
         const i = this.clustersInfo.get(e).barycenter;
         for (const s of e.shallowNodes)
-          Vn.AddGravityForce(i, this.settings.ClusterGravity, ko(s));
+          Dn.AddGravityForce(i, this.settings.ClusterGravity, Wo(s));
       }
     }
   }
@@ -23169,7 +23177,7 @@ class Vn extends ht {
       let i = Number.NEGATIVE_INFINITY;
       for (let s = 0; s < t.length; s++) {
         const n = t[s];
-        Vn.AddGravityForce(e, this.settings.GravityConstant, n), n.force.length > i && (i = n.force.length);
+        Dn.AddGravityForce(e, this.settings.GravityConstant, n), n.force.length > i && (i = n.force.length);
       }
       if (i > 100)
         for (let s = 0; s < t.length; s++)
@@ -23260,7 +23268,7 @@ class Vn extends ht {
     }
   }
 }
-function Yf(a) {
+function Kf(a) {
   for (const t of a.Clusters)
     return !0;
   return !1;
@@ -23401,7 +23409,7 @@ class Qi {
   }
   //  Initialize the layout algorithm
   InitializeLayout(t, e) {
-    this.algorithm = new Vn(t, this, e), this.ResetLayout();
+    this.algorithm = new Dn(t, this, e), this.ResetLayout();
   }
   //
   Uninitialize() {
@@ -23541,7 +23549,7 @@ class Qi {
     return t.ApplyForces = !1, t.ApproximateRepulsion = !0, t.ApproximateRouting = !0, t.AttractiveForceConstant = 1, t.AttractiveInterClusterForceConstant = 1, t.AvoidOverlaps = !0, t.ClusterGravity = 1, t.Decay = 0.9, t.DisplacementThreshold = 5e-8, t.Friction = 0.8, t.GravityConstant = 1, t.InitialStepSize = 2, t.InterComponentForces = !1, t.Iterations = 0, t.LogScaleEdgeForces = !1, t.MaxConstraintLevel = 2, t.MaxIterations = 20, t.MinConstraintLevel = 0, t.MinorIterations = 1, t.ProjectionIterations = 5, t.RepulsiveForceConstant = 2, t.RespectEdgePorts = !1, t.RouteEdges = !1, t.RungeKuttaIntegration = !0, t.NodeSeparation = 20, t;
   }
 }
-class Jf {
+class Zf {
   constructor(t) {
     this.topNodes = t;
   }
@@ -23590,8 +23598,8 @@ class Jf {
       yield Yt.getGeom(t);
   }
   pumpTheBoxToTheGraphWithMargins() {
-    const t = { b: O.mkEmpty() };
-    return sa(this, t), this.boundingBox = t.b;
+    const t = { b: T.mkEmpty() };
+    return ra(this, t), this.boundingBox = t.b;
   }
   get shallowNodeCount() {
     return this.topNodes.length;
@@ -23602,7 +23610,7 @@ class Jf {
       Yt.getGeom(e).translate(t);
   }
 }
-class Al {
+class Tl {
   //  Linearly interpolates a result between the minResult and the maxResult based on the location of the value between the lowerThreshold and the upperThreshold.
   //  <returns>The linearly interpolated result.  Between minResult and maxResult, inclusive.</returns>
   static LinearInterpolation(t, e, i, s, n) {
@@ -23624,7 +23632,7 @@ class Al {
     return s + (1 - r) * (n - s);
   }
 }
-class Kf extends ht {
+class $f extends ht {
   //  Static layout of graph by gradually adding constraints.
   //  Uses PivotMds to find initial layout.
   //  Breaks the graph into connected components (nodes of the same cluster are considered
@@ -23639,20 +23647,20 @@ class Kf extends ht {
     if (this.SingleComponent)
       this.componentCount = 1, this.LayoutComponent(this.graph);
     else {
-      const t = Array.from(this.graph.graph.getClusteredConnectedComponents()).map((e) => new Jf(e));
+      const t = Array.from(this.graph.graph.getClusteredConnectedComponents()).map((e) => new Zf(e));
       this.componentCount = t.length;
       for (const e of t)
         this.LayoutComponent(e);
-      this.graph.boundingBox = Mn.PackGraphs(t, this.settings.commonSettings);
+      this.graph.boundingBox = Fn.PackGraphs(t, this.settings.commonSettings);
     }
   }
   LayoutComponent(t) {
     if (t.shallowNodeCount > 1) {
-      if (this.settings.MaxIterations = Al.NegativeLinearInterpolation(t.shallowNodeCount, 50, 500, 5, 10), this.settings.MinorIterations = Al.NegativeLinearInterpolation(t.shallowNodeCount, 50, 500, 3, 20), this.settings.MinConstraintLevel == 0) {
-        const i = new Fn();
-        i.removeOverlaps = !1, i.IterationsWithMajorization = 0, new jh(t, null, () => 1, new Fn()).run();
+      if (this.settings.MaxIterations = Tl.NegativeLinearInterpolation(t.shallowNodeCount, 50, 500, 5, 10), this.settings.MinorIterations = Tl.NegativeLinearInterpolation(t.shallowNodeCount, 50, 500, 3, 20), this.settings.MinConstraintLevel == 0) {
+        const i = new Vn();
+        i.removeOverlaps = !1, i.IterationsWithMajorization = 0, new Uh(t, null, () => 1, new Vn()).run();
       }
-      const e = new Vn(t, this.settings, this.settings.MinConstraintLevel);
+      const e = new Dn(t, this.settings, this.settings.MinConstraintLevel);
       for (const i of this.GetConstraintLevels(t)) {
         if (i > this.settings.MaxConstraintLevel)
           break;
@@ -23675,10 +23683,10 @@ class Kf extends ht {
     return e.add(0), this.settings.AvoidOverlaps && t.shallowNodeCount < 2e3 && e.add(2), e;
   }
 }
-function Xh(a) {
-  a.layoutSettings || (a.layoutSettings = Qh(a));
+function Yh(a) {
+  a.layoutSettings || (a.layoutSettings = Jh(a));
 }
-function Zf(a) {
+function tg(a) {
   let t = a.parent;
   for (; t; ) {
     if (t.layoutSettings)
@@ -23687,8 +23695,8 @@ function Zf(a) {
   }
   return null;
 }
-function Qh(a) {
-  const t = Zf(a);
+function Jh(a) {
+  const t = tg(a);
   if (t)
     return t;
   if (a.graph.shallowNodeCount > 2e3 || a.graph.deepEdgesCount > 4e3)
@@ -23701,21 +23709,21 @@ function Qh(a) {
     }
   return i ? new sn() : new Qi();
 }
-function $f(a, t, e = () => 1) {
-  if (Xh(a), a.layoutSettings instanceof sn)
-    new ic(a, a.layoutSettings, t).run();
-  else if (a.layoutSettings instanceof Fn)
-    new jh(a, t, e, a.layoutSettings).run();
+function eg(a, t, e = () => 1) {
+  if (Yh(a), a.layoutSettings instanceof sn)
+    new nc(a, a.layoutSettings, t).run();
+  else if (a.layoutSettings instanceof Vn)
+    new Uh(a, t, e, a.layoutSettings).run();
   else if (a.layoutSettings instanceof Qi) {
-    const i = new Kf(a, a.layoutSettings);
+    const i = new $f(a, a.layoutSettings);
     i.SingleComponent = !0, i.run();
   } else
     throw new Error("not implemented");
 }
-function tg(a, t = null) {
-  Xh(a), Kh(a, t, $f, Jh, Gd), rg(a);
+function ig(a, t = null) {
+  Yh(a), $h(a, t, eg, Zh, Fd), ag(a);
 }
-function Yh(a) {
+function Kh(a) {
   do {
     if (a.layoutSettings && a.layoutSettings.commonSettings.edgeRoutingSettings)
       return a.layoutSettings.commonSettings.edgeRoutingSettings;
@@ -23725,20 +23733,20 @@ function Yh(a) {
     else
       break;
   } while (!0);
-  const t = new Gn();
+  const t = new Mn();
   return t.EdgeRoutingMode = Jt.Spline, t;
 }
-function Jh(a, t, e) {
-  const i = Yh(a);
-  i.EdgeRoutingMode === Jt.Rectilinear ? sg(a, t) : i.EdgeRoutingMode === Jt.Spline || i.EdgeRoutingMode === Jt.SplineBundling ? vg(a, t, e) : i.EdgeRoutingMode === Jt.StraightLine ? qh(a, t, e) : i.EdgeRoutingMode !== Jt.None && new it(a, t).run(), Zh(a, t);
+function Zh(a, t, e) {
+  const i = Kh(a);
+  i.EdgeRoutingMode === Jt.Rectilinear ? rg(a, t) : i.EdgeRoutingMode === Jt.Spline || i.EdgeRoutingMode === Jt.SplineBundling ? Ig(a, t, e) : i.EdgeRoutingMode === Jt.StraightLine ? Xh(a, t, e) : i.EdgeRoutingMode !== Jt.None && new it(a, t).run(), tc(a, t);
 }
-function Kh(a, t, e, i, s, n = 1, r = () => 1) {
+function $h(a, t, e, i, s, n = 1, r = () => 1) {
   if (a.graph.isEmpty())
     return;
-  a.shallowNodes.next(), a.parent == null && (Zr(n), ng(a));
+  a.shallowNodes.next(), a.parent == null && (to(n), og(a));
   const o = f();
   d(a);
-  const l = eg(a.graph), h = ig(a);
+  const l = sg(a.graph), h = ng(a);
   if (p(), l.forEach((P) => {
     P[0].edge.remove(), P[1].add();
   }), h.forEach((P) => {
@@ -23746,7 +23754,7 @@ function Kh(a, t, e, i, s, n = 1, r = () => 1) {
       y.parent = a.graph;
   }), o.forEach((P) => P.add()), a.graph.parent == null) {
     const P = c(a);
-    i(a, P, t), Zh(a, P), a.pumpTheBoxToTheGraphWithMargins();
+    i(a, P, t), tc(a, P), a.pumpTheBoxToTheGraphWithMargins();
   }
   function c(P) {
     const y = [];
@@ -23760,7 +23768,7 @@ function Kh(a, t, e, i, s, n = 1, r = () => 1) {
   }
   function d(P) {
     for (const y of P.shallowNodes)
-      y instanceof Nt && Kh(y, t, e, i, s);
+      y instanceof Nt && $h(y, t, e, i, s);
   }
   function f() {
     const P = /* @__PURE__ */ new Set(), y = a.graph;
@@ -23790,7 +23798,7 @@ function Kh(a, t, e, i, s, n = 1, r = () => 1) {
     }
   }
 }
-function eg(a) {
+function sg(a) {
   const t = new Array();
   for (const e of a.nodesBreadthFirst) {
     const i = a.liftNode(e);
@@ -23800,51 +23808,51 @@ function eg(a) {
         if (r == null || i === e && r === n || i === r)
           continue;
         s.remove();
-        const o = new Bh(i, r), l = new Kt(o);
+        const o = new Mh(i, r), l = new Kt(o);
         t.push([l, s]);
       }
   }
   return t;
 }
-function ig(a) {
+function ng(a) {
   var t;
-  const e = a.graph, i = Td(e), s = [];
+  const e = a.graph, i = xd(e), s = [];
   let n = 0;
   for (const r of i) {
     const o = new di(e.id + n++);
     o.parent = e;
     const l = new Nt(o);
-    l.layoutSettings = (t = a.layoutSettings) !== null && t !== void 0 ? t : Qh(a);
+    l.layoutSettings = (t = a.layoutSettings) !== null && t !== void 0 ? t : Jh(a);
     for (const h of r)
       h.parent = o, o.addNode(h);
     s.push(l);
   }
   return s;
 }
-function sg(a, t, e, i = 1, s = 3, n = 3) {
+function rg(a, t, e, i = 1, s = 3, n = 3) {
   const r = bt.constructorGNAN(a, t, i, s);
   r.edgeSeparatian = n, r.run();
 }
-function Zh(a, t) {
+function tc(a, t) {
   if (t.length === 0)
     return;
   z.constructorGA(a, t).run();
 }
-function ng(a) {
+function og(a) {
   for (const t of a.deepEdges)
     t.label && (t.label.isPositioned = !1);
 }
-function rg(a) {
+function ag(a) {
   const t = a.boundingBox.leftBottom;
   if (t.x < 0 || t.y < 0) {
     const e = new u(-t.x, -t.y);
     a.translate(e);
   }
 }
-class Sa {
+class ba {
   static constructorStatic(t, e) {
-    const i = new Sa();
-    i.edges = t, i.nodeBoundaries = e, i.boundingBox = O.mkEmpty();
+    const i = new ba();
+    i.edges = t, i.nodeBoundaries = e, i.boundingBox = T.mkEmpty();
     for (const s of i.nodeBoundaries)
       i.boundingBox = i.boundingBox.addRec(s.boundingBox);
     return i;
@@ -23856,11 +23864,11 @@ class Sa {
     this.nodeBoundaries.add(t), this.boundingBox.addRec(t.boundingBox);
   }
 }
-var Wo;
+var zo;
 (function(a) {
   a[a.Success = 0] = "Success", a[a.Overlaps = 1] = "Overlaps", a[a.EdgeSeparationIsTooLarge = 2] = "EdgeSeparationIsTooLarge";
-})(Wo || (Wo = {}));
-class hr {
+})(zo || (zo = {}));
+class ur {
   get CurrentPiercedEdge() {
     return this.currentPiercedEdge;
   }
@@ -23921,11 +23929,11 @@ class hr {
     return this.currentPiercedEdge == null ? this.currentPiercedEdge = this.FindFirstPiercedEdge() : this.FindNextPierced(), this.currentPiercedEdge != null;
   }
 }
-class ya {
+class va {
   EdgeIsLegal_(t, e, i, s) {
     if (gt.PointIsInsideOfTriangle(e, i))
       return !0;
-    const n = new hr(i, t, e);
+    const n = new ur(i, t, e);
     for (; n.MoveNext(); ) {
       const r = n.CurrentPiercedEdge;
       if (r.constrained) {
@@ -23968,7 +23976,7 @@ class ya {
         const d = c.Owner;
         if (s.has(d))
           continue;
-        const f = ya.FindPolylinePoint(d, c.point), p = v.minDistBetweenLineSegments(f.point, f.nextOnPolyline.point, e, i), P = p.dist, y = p.parab, C = p.parcd, w = v.minDistBetweenLineSegments(f.point, f.prevOnPolyline.point, e, i), N = w.dist, I = w.parab, T = w.parcd;
+        const f = va.FindPolylinePoint(d, c.point), p = v.minDistBetweenLineSegments(f.point, f.nextOnPolyline.point, e, i), P = p.dist, y = p.parab, C = p.parcd, w = v.minDistBetweenLineSegments(f.point, f.prevOnPolyline.point, e, i), N = w.dist, I = w.parab, x = w.parcd;
         let V, M, X;
         if (P < N) {
           if (X = P, X > n)
@@ -23977,7 +23985,7 @@ class ya {
         } else {
           if (X = N, X > n)
             continue;
-          V = f.point.add(f.prevOnPolyline.point.sub(f.point).mul(I)), M = e.add(i.sub(e).mul(T));
+          V = f.point.add(f.prevOnPolyline.point.sub(f.point).mul(I)), M = e.add(i.sub(e).mul(x));
         }
         r.get(d) || r.set(d, [V, M]);
       }
@@ -23987,7 +23995,7 @@ class ya {
   ThreadLineSegmentThroughTriangles(t, e, i, s, n) {
     if (gt.PointIsInsideOfTriangle(i, t))
       return n.push(t), !0;
-    const r = new hr(t, e, i);
+    const r = new ur(t, e, i);
     for (n.push(t); r.MoveNext(); ) {
       n.push(r.CurrentTriangle);
       const o = r.CurrentPiercedEdge;
@@ -24027,7 +24035,7 @@ class ya {
     const s = t.Position, n = t.cdtTriangle, r = e.Position;
     if (gt.PointIsInsideOfTriangle(r, n))
       return !0;
-    const o = new hr(n, s, r);
+    const o = new ur(n, s, r);
     for (; o.MoveNext(); ) {
       const l = o.CurrentPiercedEdge;
       if (l.constrained) {
@@ -24091,7 +24099,7 @@ class Ue {
     ]);
   }
 }
-class og {
+class lg {
   constructor(t, e, i, s) {
     this.Width = e, this.Polyline = t, this.sourceAndTargetLoosePolylines = i, this.Index = s;
   }
@@ -24102,7 +24110,7 @@ class og {
     this.Length = t, this.IdealLength = this.Polyline.end.sub(this.Polyline.start).length;
   }
 }
-class ag {
+class hg {
   constructor(t, e, i) {
     this.metroline = t, this.station = e, this.polyPoint = i;
   }
@@ -24113,7 +24121,7 @@ class ag {
     return this.polyPoint;
   }
 }
-class lg {
+class cg {
   constructor(t, e, i) {
     this.Radius = 0, this.BundleBases = /* @__PURE__ */ new Map(), this.MetroNodeInfos = new Array(), this._cachedIdealRadius = 0, this.SerialNumber = t, this.IsReal = e, this.Position = i;
   }
@@ -24151,7 +24159,7 @@ class lg {
     this.EnterableTightPolylines == null && (this.EnterableTightPolylines = /* @__PURE__ */ new Set()), this.EnterableTightPolylines.add(t);
   }
 }
-class hg {
+class ug {
   constructor() {
     this.Width = 0, this.Metrolines = new Array(), this.cachedBundleCost = 0;
   }
@@ -24261,7 +24269,7 @@ class Qt {
     return p = Math.min(p, 2 * o.MaxHubRadius), p = Math.max(p, t), p;
   }
 }
-class eo {
+class so {
   constructor(t, e, i, s) {
     this.metroGraphData = t, this.bundlingSettings = e, this.costCalculator = i, this.cdt = s;
   }
@@ -24275,7 +24283,7 @@ class eo {
   }
   UpdateCostCache(t) {
     const e = this.cdt.getRectangleNodeOnTriangles();
-    t.cdtTriangle = e.FirstHitNodeWithPredicate(t.Position, eo.testPointInside).UserData, t.cachedIdealRadius = Qt.CalculateIdealHubRadiusWithNeighborsMBS(this.metroGraphData, this.bundlingSettings, t), t.cachedRadiusCost = this.costCalculator.RadiusCost(t, t.Position), t.cachedBundleCost = 0;
+    t.cdtTriangle = e.FirstHitNodeWithPredicate(t.Position, so.testPointInside).UserData, t.cachedIdealRadius = Qt.CalculateIdealHubRadiusWithNeighborsMBS(this.metroGraphData, this.bundlingSettings, t), t.cachedRadiusCost = this.costCalculator.RadiusCost(t, t.Position), t.cachedBundleCost = 0;
     for (const i of t.Neighbors) {
       i.IsReal || (i.cachedIdealRadius = Qt.CalculateIdealHubRadiusWithNeighborsMBS(this.metroGraphData, this.bundlingSettings, i), i.cachedRadiusCost = this.costCalculator.RadiusCost(i, i.Position));
       const s = this.metroGraphData.GetIjInfo(t, i);
@@ -24286,7 +24294,7 @@ class eo {
     return gt.PointIsInsideOfTriangle(t, e) ? at.Stop : at.Continue;
   }
 }
-class $h {
+class ec {
   constructor() {
     this.mainMap = /* @__PURE__ */ new Map();
   }
@@ -24323,9 +24331,9 @@ class $h {
         yield [t, i];
   }
 }
-class cg {
+class dg {
   constructor(t, e, i, s, n, r, o, l) {
-    this.cachedEnterableLooseForEnd = new ii(), this.bundlingSettings = s, this.regularEdges = t, n != null ? this.cdt = n : this.cdt = Hh(e), this.EdgeLooseEnterable = r, this.EdgeTightEnterable = o, this.LoosePolylineOfPort = l, this.looseIntersections = new Ue(this, s, e, (h) => h.getELP()), this.tightIntersections = new Ue(this, s, i, (h) => h.EnterableTightPolylines), this.cdtIntersections = new ya(this, s), this.Initialize(!1);
+    this.cachedEnterableLooseForEnd = new ii(), this.bundlingSettings = s, this.regularEdges = t, n != null ? this.cdt = n : this.cdt = jh(e), this.EdgeLooseEnterable = r, this.EdgeTightEnterable = o, this.LoosePolylineOfPort = l, this.looseIntersections = new Ue(this, s, e, (h) => h.getELP()), this.tightIntersections = new Ue(this, s, i, (h) => h.EnterableTightPolylines), this.cdtIntersections = new va(this, s), this.Initialize(!1);
   }
   get Ink() {
     return this.ink;
@@ -24433,7 +24441,7 @@ class cg {
   }
   RegisterStation(t, e) {
     if (!this.PointToStations.has(t.point)) {
-      const i = new lg(this.Stations.length, e, t.point);
+      const i = new cg(this.Stations.length, e, t.point);
       this.PointToStations.set(t.point, i), this.Stations.push(i);
     }
   }
@@ -24445,7 +24453,7 @@ class cg {
     }
   }
   InitEdgeData(t, e) {
-    const i = new og(t.curve, this.bundlingSettings.ActualEdgeWidth(t), this.EdgeSourceAndTargetFunc(t), e);
+    const i = new lg(t.curve, this.bundlingSettings.ActualEdgeWidth(t), this.EdgeSourceAndTargetFunc(t), e);
     this.metrolines.push(i), this.PointToStations.get(i.Polyline.start).BoundaryCurve = t.sourcePort.Curve, this.PointToStations.get(i.Polyline.end).BoundaryCurve = t.targetPort.Curve;
   }
   EdgeSourceAndTargetFunc(t) {
@@ -24457,7 +24465,7 @@ class cg {
     for (const e of this.metrolines) {
       let i = this.PointToStations.get(e.Polyline.start), s;
       for (let n = e.Polyline.startPoint; n.next != null; n = n.next, i = s)
-        s = this.PointToStations.get(n.next.point), Ar(t, i, s), Ar(t, s, i);
+        s = this.PointToStations.get(n.next.point), Or(t, i, s), Or(t, s, i);
     }
     for (const e of this.Stations)
       e.Neighbors = Array.from(t.get(e));
@@ -24470,10 +24478,10 @@ class cg {
   }
   GetCreateOrderedIjInfo(t, e) {
     let i = this.edgeInfoDictionary.get(t, e);
-    return i || (i = new hg(), this.edgeInfoDictionary.set(t, e, i), i);
+    return i || (i = new ug(), this.edgeInfoDictionary.set(t, e, i), i);
   }
   InitializeEdgeNodeInfo(t) {
-    this.edgeInfoDictionary = new $h(), this.InitAllMetroNodeInfos(t), this.SortAllNeighbors(), this.InitEdgeIjInfos(), this.ink = 0;
+    this.edgeInfoDictionary = new ec(), this.InitAllMetroNodeInfos(t), this.SortAllNeighbors(), this.InitEdgeIjInfos(), this.ink = 0;
     for (const e of this.VirtualEdges())
       this.ink += e[0].Position.sub(e[1].Position).length;
   }
@@ -24486,7 +24494,7 @@ class cg {
   InitMetroNodeInfos(t) {
     for (let e = t.Polyline.startPoint; e != null; e = e.next) {
       const i = this.PointToStations.get(e.point);
-      i.MetroNodeInfos.push(new ag(t, i, e));
+      i.MetroNodeInfos.push(new hg(t, i, e));
     }
   }
   InitNodeEnterableLoosePolylines(t, e) {
@@ -24550,7 +24558,7 @@ class cg {
   InitializeCdtInfo() {
     const t = this.cdt.getRectangleNodeOnTriangles();
     for (const e of this.Stations)
-      e.cdtTriangle = t.FirstHitNodeWithPredicate(e.Position, eo.testPointInside).UserData;
+      e.cdtTriangle = t.FirstHitNodeWithPredicate(e.Position, so.testPointInside).UserData;
   }
   PointIsAcceptableForEdge(t, e) {
     if (this.LoosePolylineOfPort == null)
@@ -24561,10 +24569,10 @@ class cg {
 }
 function cs(a, t, e) {
   const i = u.crossProduct(a, e), s = a.dot(e), n = u.crossProduct(a, t), r = a.dot(t);
-  return D(n, 0) && cr(r, 0) ? D(i, 0) && cr(s, 0) ? 0 : 1 : D(i, 0) && cr(s, 0) ? -1 : D(n, 0) || D(i, 0) || n * i > 0 ? Cr(u.crossProduct(e, t), 0) : -Cr(Math.sign(n), 0);
+  return D(n, 0) && dr(r, 0) ? D(i, 0) && dr(s, 0) ? 0 : 1 : D(i, 0) && dr(s, 0) ? -1 : D(n, 0) || D(i, 0) || n * i > 0 ? Er(u.crossProduct(e, t), 0) : -Er(Math.sign(n), 0);
 }
-function cr(a, t) {
-  return Cr(a, t) >= 0;
+function dr(a, t) {
+  return Er(a, t) >= 0;
 }
 class ft {
   constructor(t, e) {
@@ -24647,7 +24655,7 @@ class ft {
     let i = t.cachedBundleCost;
     for (const s of t.Neighbors) {
       const n = this.BundleCost(t, s, e);
-      if (cr(n, ft.Inf))
+      if (dr(n, ft.Inf))
         return -ft.Inf;
       i -= n;
     }
@@ -24666,7 +24674,7 @@ class ft {
   }
 }
 ft.Inf = 1e9;
-class ug {
+class fg {
   get Polylines() {
     return Array.from(this.polylineToEdgeGeom.keys());
   }
@@ -24687,14 +24695,14 @@ class ug {
       this.RegisterPolylinePointInPathsThroughP(e);
   }
   RegisterPolylinePointInPathsThroughP(t) {
-    dg(this.pathsThroughPoints, t.point, t);
+    gg(this.pathsThroughPoints, t.point, t);
   }
   UnregisterPolylinePointsInPathsThrough(t) {
     for (const e of t)
       this.UnregisterPolylinePointInPathsThrough(e);
   }
   UnregisterPolylinePointInPathsThrough(t) {
-    fg(this.pathsThroughPoints, t.point, t);
+    pg(this.pathsThroughPoints, t.point, t);
   }
   SwitchFlips() {
     const t = new Set(this.Polylines), e = new We.Queue();
@@ -24729,7 +24737,7 @@ class ug {
   }
   ProcessFlip(t, e) {
     const i = t.polyline, s = e.polyline, n = t.point, r = e.point, o = this.polylineToEdgeGeom.get(i), l = this.polylineToEdgeGeom.get(s);
-    if (o.lineWidth !== l.lineWidth || this.metroGraphData.EdgeLooseEnterable == null || !wr(this.metroGraphData.EdgeLooseEnterable.get(o), this.metroGraphData.EdgeLooseEnterable.get(l)))
+    if (o.lineWidth !== l.lineWidth || this.metroGraphData.EdgeLooseEnterable == null || !Tr(this.metroGraphData.EdgeLooseEnterable.get(o), this.metroGraphData.EdgeLooseEnterable.get(l)))
       return !1;
     let h = this.FindPointsOnPolyline(i, n, r);
     const c = h[0], d = h[1], f = h[2];
@@ -24800,7 +24808,7 @@ class ug {
   }
   Swap(t, e, i, s, n, r) {
     const o = this.GetRangeOnPolyline(this.Next(t, n), i, n), l = this.GetRangeOnPolyline(this.Next(e, r), s, r);
-    this.ChangePolylineSegment(t, i, n, l), this.ChangePolylineSegment(e, s, r, o), Dn.RemoveSelfCyclesFromPolyline(t.polyline), Dn.RemoveSelfCyclesFromPolyline(e.polyline);
+    this.ChangePolylineSegment(t, i, n, l), this.ChangePolylineSegment(e, s, r, o), kn.RemoveSelfCyclesFromPolyline(t.polyline), kn.RemoveSelfCyclesFromPolyline(e.polyline);
   }
   ChangePolylineSegment(t, e, i, s) {
     let n = t;
@@ -24848,15 +24856,15 @@ class ug {
     return !(t.startPoint.prev != null || t.endPoint.next != null);
   }
 }
-function dg(a, t, e) {
+function gg(a, t, e) {
   let i = a.get(t);
   i || (i = /* @__PURE__ */ new Set(), a.set(t, i)), i.add(e);
 }
-function fg(a, t, e) {
+function pg(a, t, e) {
   const i = a.get(t);
   i && (i.delete(e), i.size === 0 && a.deleteP(t));
 }
-class Dn {
+class kn {
   constructor(t, e) {
     this.foundCrossings = new xt(), this.crossingsThatShouldBecomeHubs = new xt(), this.metroGraphData = t, this.polylineAcceptsPoint = e;
   }
@@ -24869,7 +24877,7 @@ class Dn {
     return this.metroGraphData.Edges.map((t) => t.curve);
   }
   Edges() {
-    const t = new Ln();
+    const t = new Rn();
     for (const e of this.Vertices())
       e.next && t.set(new ie(e.point, e.next.point), 0);
     return Array.from(t.keys());
@@ -24877,12 +24885,12 @@ class Dn {
   run() {
     if (this.metroGraphData.Edges.length === 0)
       return !1;
-    const t = new Ln(), e = new Or(null);
+    const t = new Rn(), e = new Lr(null);
     for (const o of this.Vertices()) {
-      const l = O.mkOnPoints([o.point]);
+      const l = T.mkOnPoints([o.point]);
       l.pad(m.intersectionEpsilon), e.Add(l, o.point);
     }
-    const i = Er(this.Edges(), (o) => O.mkPP(o.first, o.second));
+    const i = Ar(this.Edges(), (o) => T.mkPP(o.first, o.second));
     Xt(i, i, (o, l) => this.IntersectTwoEdges.bind(o, l, t, e)), this.SortInsertedPoints(t);
     const s = this.InsertPointsIntoPolylines(t), n = this.FixPaths(), r = this.RemoveUnimportantCrossings();
     return n || s || r;
@@ -24933,7 +24941,7 @@ class Dn {
   RemoveSelfCycles() {
     let t = !1;
     for (const e of this.Polylines)
-      Dn.RemoveSelfCyclesFromPolyline(e) && (t = !0);
+      kn.RemoveSelfCyclesFromPolyline(e) && (t = !0);
     return t;
   }
   // returns removed points
@@ -24959,7 +24967,7 @@ class Dn {
   //    return false;
   // }
   ReduceEdgeCrossings() {
-    const t = new ug(this.metroGraphData);
+    const t = new fg(this.metroGraphData);
     t.Run();
     for (const e of t.GetChangedHubs())
       this.crossingsThatShouldBecomeHubs.add(e);
@@ -24967,7 +24975,7 @@ class Dn {
   }
   RemoveUnimportantCrossings() {
     let t = !1;
-    this.pointsToDelete = vd(this.foundCrossings, this.crossingsThatShouldBecomeHubs);
+    this.pointsToDelete = Id(this.foundCrossings, this.crossingsThatShouldBecomeHubs);
     for (const e of this.Polylines)
       this.RemoveUnimportantCrossingsFromPolyline(e) && (t = !0);
     return t;
@@ -24992,7 +25000,7 @@ class Dn {
     const i = t.RootNode.FirstHitNode(e);
     if (i != null)
       return i.UserData;
-    const s = O.mkOnPoints([e]);
+    const s = T.mkOnPoints([e]);
     return s.pad(m.intersectionEpsilon), t.Add(s, e), e;
   }
   AddVertexToSplittingList(t, e, i) {
@@ -25004,7 +25012,7 @@ class Dn {
     return !1;
   }
 }
-class Tl {
+class Ol {
   isCorrectlyOrienected() {
     return u.getTriangleOrientation(this.Curve.boundingBox.center, this.Curve.value(this.parEnd), this.Curve.value(this.parStart)) !== L.Counterclockwise;
   }
@@ -25203,7 +25211,7 @@ class ki {
   }
 }
 ki.FeasibleWidthEpsilon = 0.1;
-class Ol {
+class xl {
   get Segment() {
     return this.segment;
   }
@@ -25231,9 +25239,9 @@ class H {
     for (const t of this.metroGraphData.Stations)
       for (const e of t.Neighbors)
         if (t.SerialNumber < e.SerialNumber) {
-          const i = new Tl(this.metroGraphData.RealEdgeCount(t, e), t.BoundaryCurve, t.Position, t.IsReal);
+          const i = new Ol(this.metroGraphData.RealEdgeCount(t, e), t.BoundaryCurve, t.Position, t.IsReal);
           t.BundleBases.set(e, i);
-          const s = new Tl(this.metroGraphData.RealEdgeCount(t, e), e.BoundaryCurve, e.Position, e.IsReal);
+          const s = new Ol(this.metroGraphData.RealEdgeCount(t, e), e.BoundaryCurve, e.Position, e.IsReal);
           e.BundleBases.set(t, s), g.PointRelativeToCurveLocation(e.Position, t.BoundaryCurve) !== F.Outside ? (i.IsParent = !0, Ts(this.internalBases, t, i), Ts(this.externalBases, e, s)) : g.PointRelativeToCurveLocation(t.Position, e.BoundaryCurve) !== F.Outside ? (s.IsParent = !0, Ts(this.externalBases, t, i), Ts(this.internalBases, e, s)) : (Ts(this.externalBases, t, i), Ts(this.externalBases, e, s));
           const n = this.metroGraphData.tightIntersections.ObstaclesToIgnoreForBundle(t, e), r = new ki(i, s, n, Array.from(this.metroOrdering.GetOrder(t, e)).map((o) => o.Width / 2));
           i.OutgoingBundleInfo = s.IncomingBundleInfo = r, this.Bundles.push(r);
@@ -25271,7 +25279,7 @@ class H {
       this.CreateOrientedSegsOnLineVertex(t, e);
   }
   CreateOrientedSegsOnLineVertex(t, e) {
-    const i = this.metroGraphData.PointToStations.get(e.prev.point), s = this.metroGraphData.PointToStations.get(e.point), n = this.metroGraphData.PointToStations.get(e.next.point), r = s.BundleBases.get(i), o = s.BundleBases.get(n), l = this.metroOrdering.GetLineIndexInOrder(i, s, t), h = this.metroOrdering.GetLineIndexInOrder(n, s, t), c = r.OrientedHubSegments[l] = new Ol(null, !1, l, r), d = o.OrientedHubSegments[h] = new Ol(null, !0, h, o);
+    const i = this.metroGraphData.PointToStations.get(e.prev.point), s = this.metroGraphData.PointToStations.get(e.point), n = this.metroGraphData.PointToStations.get(e.next.point), r = s.BundleBases.get(i), o = s.BundleBases.get(n), l = this.metroOrdering.GetLineIndexInOrder(i, s, t), h = this.metroOrdering.GetLineIndexInOrder(n, s, t), c = r.OrientedHubSegments[l] = new xl(null, !1, l, r), d = o.OrientedHubSegments[h] = new xl(null, !0, h, o);
     d.Other = c, c.Other = d;
   }
   UpdateSourceAndTargetBases() {
@@ -25318,7 +25326,7 @@ class H {
       }
   }
   ShrinkBasesToMakeTwoConsecutiveNeighborsHappy(t, e) {
-    const i = gg(t, e);
+    const i = mg(t, e);
     if (i == null || D(i.start, i.end))
       return;
     const s = i.rbaseMiddle, n = i.lbaseMiddle;
@@ -25462,14 +25470,14 @@ H.MaxParameterChange = 8 / 360;
 H.MinParameterChange = 0.1 / 360;
 H.CostThreshold = 1e-5;
 H.CostDeltaThreshold = 0.01;
-function gg(a, t) {
+function mg(a, t) {
   const e = Vi(a.Curve);
   let i = a.ParEnd, s = a.ParStart < a.ParEnd ? a.ParStart : a.ParStart - e, n = t.ParEnd, r = t.ParStart < t.ParEnd ? t.ParStart : t.ParStart - e;
   i > n ? i - r > e && (r += e, n += e) : n - s > e && (s += e, i += e);
   const o = Math.min(i, n), l = Math.max(s, r);
   return l <= o ? { start: l, end: o, rbaseMiddle: (s + i) / 2, lbaseMiddle: (r + n) / 2 } : null;
 }
-class pg {
+class Pg {
   constructor() {
     this.Metrolines = new Array();
   }
@@ -25477,7 +25485,7 @@ class pg {
     this.Metrolines.push(t);
   }
 }
-class Vr {
+class kr {
   // Initialize bundle graph and build the ordering
   constructor(t) {
     this.Metrolines = t, this.BuildOrder();
@@ -25498,12 +25506,12 @@ class Vr {
   }
   /**   Do the main job */
   BuildOrder() {
-    this.bundles = new Ln();
+    this.bundles = new Rn();
     for (const t of this.Metrolines)
       for (let e = t.Polyline.startPoint; e.next != null; e = e.next) {
         const i = new ie(e.point, e.next.point);
         let s = this.bundles.get(i);
-        s || this.bundles.set(i, s = new pg()), s.Add(t);
+        s || this.bundles.set(i, s = new Pg()), s.Add(t);
       }
     for (const t of this.bundles)
       this.BuildOrderPP(t[0], t[1]);
@@ -25532,7 +25540,7 @@ class Vr {
     }
     if (y != null && P != null) {
       const C = f.point;
-      return -Vr.IsLeft(o(f).point.sub(C), y.point.sub(C), P.point.sub(C));
+      return -kr.IsLeft(o(f).point.sub(C), y.point.sub(C), P.point.sub(C));
     }
     for (f = r, p = h; (y = o(f)) != null && (P = c(p)) != null && y.point.equal(P.point); ) {
       const C = new ie(y.point, f.point);
@@ -25542,7 +25550,7 @@ class Vr {
     }
     if (y != null && P != null) {
       const C = f.point;
-      return Vr.IsLeft(l(f).point.sub(C), y.point.sub(C), P.point.sub(C));
+      return kr.IsLeft(l(f).point.sub(C), y.point.sub(C), P.point.sub(C));
     }
     return yt(t.Index, e.Index);
   }
@@ -25587,7 +25595,7 @@ class Y extends ht {
   }
   // bundle-map ordering
   CreateMetroOrdering() {
-    this.metroOrdering = new Vr(this.metroGraphData.Metrolines);
+    this.metroOrdering = new kr(this.metroGraphData.Metrolines);
   }
   FinalizePaths() {
     this.CreateBundleBases(), this.CreateSegmentsInsideHubs(), this.CreateCurves();
@@ -25771,7 +25779,7 @@ class Y extends ht {
   // fans the couple i,i+1
   FanCouple(t, e, i, s) {
     const n = t.OrientedHubSegments[e], r = t.OrientedHubSegments[e + 1];
-    if (n == null || xh(n.Segment.start, n.Segment.end, r.Segment.start, r.Segment.end) || u.getTriangleOrientation(n.value(0), n.value(0.5), n.value(1)) != u.getTriangleOrientation(r.value(0), r.value(0.5), r.value(1)))
+    if (n == null || Rh(n.Segment.start, n.Segment.end, r.Segment.start, r.Segment.end) || u.getTriangleOrientation(n.value(0), n.value(0.5), n.value(1)) != u.getTriangleOrientation(r.value(0), r.value(0.5), r.value(1)))
       return !1;
     const l = this.BaseLength(n), h = this.BaseLength(r);
     return Math.abs(l - h) < m.intersectionEpsilon ? !1 : l > h ? this.AdjustLongerSeg(n, r, i, s) : this.AdjustLongerSeg(r, n, i, s);
@@ -25791,11 +25799,11 @@ class Y extends ht {
     let I = this.NicelyAligned(h, e, i, s, n, r);
     do {
       if (I === -1) {
-        const T = u.middle(h.B(1), P), V = u.middle(h.B(2), y);
-        C = h.B(1), w = h.B(2), h = new st(c, T, V, d);
+        const x = u.middle(h.B(1), P), V = u.middle(h.B(2), y);
+        C = h.B(1), w = h.B(2), h = new st(c, x, V, d);
       } else {
-        const T = u.middle(h.B(1), C), V = (h.B(2), w);
-        P = h.B(1), y = h.B(2), h = new st(c, T, V, d);
+        const x = u.middle(h.B(1), C), V = (h.B(2), w);
+        P = h.B(1), y = h.B(2), h = new st(c, x, V, d);
       }
       if ((I = this.NicelyAligned(h, e, i, s, n, r)) === 0)
         return t.Segment = h, t.Other.Segment = h, !0;
@@ -25826,7 +25834,7 @@ class At {
     return new At(t, e).FixRoutingP(i);
   }
   constructor(t, e) {
-    this.stepsWithProgress = 0, this.metroGraphData = t, this.bundlingSettings = e, this.costCalculator = new ft(this.metroGraphData, this.bundlingSettings), this.cache = new eo(this.metroGraphData, this.bundlingSettings, this.costCalculator, this.metroGraphData.cdt);
+    this.stepsWithProgress = 0, this.metroGraphData = t, this.bundlingSettings = e, this.costCalculator = new ft(this.metroGraphData, this.bundlingSettings), this.cache = new so(this.metroGraphData, this.bundlingSettings, this.costCalculator, this.metroGraphData.cdt);
   }
   // Use constraint edge routing to reduce ink
   FixRoutingP(t) {
@@ -25903,14 +25911,14 @@ class At {
     if (e.length === 0)
       return !1;
     let i = this.BuildStepLength(t, e);
-    if (i < At.MinStep && (e = mg(), i = this.BuildStepLength(t, e), i < At.MinStep))
+    if (i < At.MinStep && (e = Sg(), i = this.BuildStepLength(t, e), i < At.MinStep))
       return !1;
     const s = e.mul(i), n = t.Position.add(s);
     return this.metroGraphData.PointToStations.has(n) || !this.moveIsLegalForAdjacentBundles(t, n) ? !1 : (this.metroGraphData.MoveNode(t, n), this.cache.UpdateCostCache(t), !0);
   }
   /** checking the node position and neigborhood bundles */
   moveIsLegalForAdjacentBundles(t, e) {
-    for (const i of this.metroGraphData.looseIntersections.obstacleTree.AllHitItems(O.mkOnPoints([e]), (s) => g.PointRelativeToCurveLocation(e, s) !== F.Outside))
+    for (const i of this.metroGraphData.looseIntersections.obstacleTree.AllHitItems(T.mkOnPoints([e]), (s) => g.PointRelativeToCurveLocation(e, s) !== F.Outside))
       if (t.getELP().has(i) === !1)
         return !1;
     for (const i of t.Neighbors) {
@@ -26000,7 +26008,7 @@ At.MaxIterations = 100;
 At.MaxStep = 50;
 At.MinStep = 1;
 At.MinRelativeChange = 5e-4;
-function mg() {
+function Sg() {
   return new u(1 + 2 * Cs(), 1 + 2 * Cs());
 }
 class as {
@@ -26046,7 +26054,7 @@ class as {
     const t = this.metroGraphData.VirtualStations().map(e);
     return Et(t);
     function e(i) {
-      const s = i.Position, n = Math.max(i.Radius, 5), r = new u(n, n), o = O.mkPP(s.add(r), s.sub(r));
+      const s = i.Position, n = Math.max(i.Radius, 5), r = new u(n, n), o = T.mkPP(s.add(r), s.sub(r));
       return Bt(i, o);
     }
   }
@@ -26062,7 +26070,7 @@ class as {
     }
   }
   TryToGlueStations(t, e, i, s) {
-    if (!wr(t.getELP(), e.getELP()))
+    if (!Tr(t.getELP(), e.getELP()))
       return !1;
     const n = t.Position.sub(e.Position).length, r = Math.max(t.Radius, 5), o = Math.max(e.Radius, 5);
     n >= r + o || this.TryGlueOrdered(t, e, s, i) || this.TryGlueOrdered(e, t, s, i);
@@ -26141,13 +26149,13 @@ class as {
   // Unbundle unnecessary edges:
   //  instead of one bundle (a->bcd) we get two bundles (a->b,a->cd) with smaller ink
   UnglueEdgesFromBundleToSaveInk(t) {
-    const e = new Ln();
+    const e = new Rn();
     this.ink = this.metroGraphData.Ink, this.polylineLength = /* @__PURE__ */ new Map();
     for (const n of this.metroGraphData.Metrolines) {
       this.polylineLength.set(n, n.Length);
       for (let r = n.Polyline.startPoint; r.next != null; r = r.next) {
         const o = new ie(r.point, r.next.point);
-        Nh(e, o, n);
+        Gh(e, o, n);
       }
     }
     const i = new xt();
@@ -26173,7 +26181,7 @@ class as {
   }
   // allowed iff line (a,c) is legal and inkgain > 0
   SeparationShortcutAllowed(t, e, i) {
-    const s = t.point, n = t.next.point, r = t.next.next.point, o = this.metroGraphData.PointToStations.get(s), l = this.metroGraphData.PointToStations.get(n), h = this.metroGraphData.PointToStations.get(r), c = js(o.getELP(), h.getELP()), d = Cd([i, l.getELP(), c]);
+    const s = t.point, n = t.next.point, r = t.next.next.point, o = this.metroGraphData.PointToStations.get(s), l = this.metroGraphData.PointToStations.get(n), h = this.metroGraphData.PointToStations.get(r), c = js(o.getELP(), h.getELP()), d = Ed([i, l.getELP(), c]);
     return !(!this.metroGraphData.cdtIntersections.EdgeIsLegalSSPPS(o, h, d) || this.GetInkgain(t, e, s, n, r) < 0);
   }
   GetInkgain(t, e, i, s, n) {
@@ -26193,8 +26201,8 @@ class as {
     const w = this.metroGraphData.GetWidthAN(Array.from(l), this.bundlingSettings.EdgeSeparation), N = this.metroGraphData.GetWidthAN(Array.from(zs(r, l)), this.bundlingSettings.EdgeSeparation);
     let I = Qt.GetMinRadiusForTwoAdjacentBundlesNPPPNNB(C, i, n, s, w, N, this.bundlingSettings);
     I > C && (h -= ft.RError(I, C, this.bundlingSettings)), C = this.GetCurrentHubRadius(this.metroGraphData.PointToStations.get(n));
-    const T = this.metroGraphData.GetWidthAN(Array.from(zs(o, l)), this.bundlingSettings.EdgeSeparation);
-    return I = Qt.GetMinRadiusForTwoAdjacentBundlesNPPPNNB(C, n, s, i, T, w, this.bundlingSettings), I > C && (h -= ft.RError(I, C, this.bundlingSettings)), h;
+    const x = this.metroGraphData.GetWidthAN(Array.from(zs(o, l)), this.bundlingSettings.EdgeSeparation);
+    return I = Qt.GetMinRadiusForTwoAdjacentBundlesNPPPNNB(C, n, s, i, x, w, this.bundlingSettings), I > C && (h -= ft.RError(I, C, this.bundlingSettings)), h;
   }
   RemoveShortcuttedPolypoint(t, e) {
     const i = t.point, s = t.next.point, n = t.next.next.point, [r, o, l] = this.FindPolylines(t, e), h = Z(i, s), c = Z(s, n), d = Z(i, n);
@@ -26207,7 +26215,7 @@ class as {
     }
     for (const p of l) {
       const P = Array.from(p.Polyline.polylinePoints()).find((y) => y.point.equal(s));
-      this.RemovePolypoint(P), Xa(e, [i, s], p), Xa(e, [s, n], p), Id(e, [i, n], p);
+      this.RemovePolypoint(P), Qa(e, [i, s], p), Qa(e, [s, n], p), wd(e, [i, n], p);
     }
   }
   FindPolylines(t, e) {
@@ -26229,7 +26237,7 @@ class as {
   GlueCollinearNeighborsSPN(t, e, i) {
     if (t.Neighbors.length <= 1)
       return !1;
-    const s = new $h(), n = t.Neighbors;
+    const s = new ec(), n = t.Neighbors;
     for (let r = 0; r < n.length; r++)
       this.TryToGlueEdges(t, n[r], n[(r + 1) % n.length], s, i);
     if (s.isEmpty)
@@ -26263,7 +26271,7 @@ class as {
     return t.Position.add(n.mul(s / 2));
   }
   EdgeGluingIsAllowedSSS(t, e, i) {
-    if (e.IsReal || i.IsReal || !wr(e.getELP(), i.getELP()) || !this.metroGraphData.cdtIntersections.EdgeIsLegal(e, i, e.Position, i.Position))
+    if (e.IsReal || i.IsReal || !Tr(e.getELP(), i.getELP()) || !this.metroGraphData.cdtIntersections.EdgeIsLegal(e, i, e.Position, i.Position))
       return !1;
     const s = this.metroGraphData.looseIntersections.ObstaclesToIgnoreForBundle(t, i);
     return !(tt.IntersectionsOfLineAndRectangleNodeOverPolylineLR(v.mkPP(t.Position, e.Position), this.metroGraphData.LooseTree).find((l) => !s.has(l.seg1)) || tt.IntersectionsOfLineAndRectangleNodeOverPolylineLR(v.mkPP(e.Position, i.Position), this.metroGraphData.LooseTree).find((l) => !s.has(l.seg1)) || this.ComputeCostDeltaAfterEdgeGluing(t, e, i, e.Position) < 0);
@@ -26339,11 +26347,11 @@ class as {
   }
   // switch flips
   RemoveDoublePathCrossings() {
-    const t = new Dn(this.metroGraphData, this.metroGraphData.PointIsAcceptableForEdge.bind(this)).run();
+    const t = new kn(this.metroGraphData, this.metroGraphData.PointIsAcceptableForEdge.bind(this)).run();
     return t && (this.metroGraphData.Initialize(!1), At.FixRouting(this.metroGraphData, this.bundlingSettings)), t;
   }
 }
-class Dr {
+class _r {
   constructor(t, e, i) {
     this.upperBound = Number.POSITIVE_INFINITY, this._visGraph = i, i.ClearPrevEdgesTable();
     for (const s of i.Vertices())
@@ -26364,10 +26372,10 @@ class Dr {
     return this._visGraph.PreviosVertex(this._current) == null ? null : this.CalculatePath();
   }
   PassableOutEdge(t) {
-    return this.targets.has(t.Target) || !Dr.IsForbidden(t);
+    return this.targets.has(t.Target) || !_r.IsForbidden(t);
   }
   PassableInEdge(t) {
-    return this.targets.has(t.Source) || !Dr.IsForbidden(t);
+    return this.targets.has(t.Source) || !_r.IsForbidden(t);
   }
   static IsForbidden(t) {
     return (t.IsPassable != null && !t.IsPassable() || t) instanceof pi;
@@ -26387,9 +26395,9 @@ class Dr {
     return t.push(e), t.reverse();
   }
 }
-class In extends ht {
+class En extends ht {
   constructor(t, e, i, s, n, r, o, l, h, c) {
-    super(null), this.bundlingSettings = s, this.bundlingSettings.edgeWidthShrinkCoeff = 1, this.edgesToRoute = t, this.regularEdges = t.filter((d) => d.source !== d.target), this.VisibilityGraph = i, this.shortestPathRouter = e, this.LoosePadding = n, this.LooseHierarchy = o, this.TightHierarchy = r, this.EdgeLooseEnterable = l, this.EdgeTightEnterable = h, this.loosePolylineOfPort = c, Zr(0);
+    super(null), this.bundlingSettings = s, this.bundlingSettings.edgeWidthShrinkCoeff = 1, this.edgesToRoute = t, this.regularEdges = t.filter((d) => d.source !== d.target), this.VisibilityGraph = i, this.shortestPathRouter = e, this.LoosePadding = n, this.LooseHierarchy = o, this.TightHierarchy = r, this.EdgeLooseEnterable = l, this.EdgeTightEnterable = h, this.loosePolylineOfPort = c, to(0);
   }
   ThereAreOverlaps(t) {
     return xe(t, t, g.CurvesIntersect);
@@ -26400,13 +26408,13 @@ class In extends ht {
   // 3. order paths
   run() {
     if (this.ThereAreOverlaps(this.TightHierarchy)) {
-      this.Status = Wo.Overlaps;
+      this.Status = zo.Overlaps;
       return;
     }
     this.FixLocationsForHookAnywherePorts(this.edgesToRoute), this.RoutePathsWithSteinerDijkstra(), this.FixChildParentEdges(), this.bundlingSettings.StopAfterShortestPaths || this.OrderOptimizeNudgeEtc(), this.RouteSelfEdges(), this.FixArrowheads();
   }
   OrderOptimizeNudgeEtc() {
-    const t = new cg(this.regularEdges, this.LooseHierarchy, this.TightHierarchy, this.bundlingSettings, this.shortestPathRouter.cdt, this.EdgeLooseEnterable, this.EdgeTightEnterable, this.loosePolylineOfPort);
+    const t = new dg(this.regularEdges, this.LooseHierarchy, this.TightHierarchy, this.bundlingSettings, this.shortestPathRouter.cdt, this.EdgeLooseEnterable, this.EdgeTightEnterable, this.loosePolylineOfPort);
     as.FixRouting(t, this.bundlingSettings), new Y(t, this.bundlingSettings).run();
   }
   // set endpoint of the edge from child to parent (cluster) to the boundary of the parent
@@ -26452,13 +26460,13 @@ class In extends ht {
     return e instanceof Ve ? this.FigureOutHookLocationForClusterOtherPort(t, e, i) : this.FigureOutHookLocationForSimpleOtherPort(t, e, i);
   }
   FigureOutHookLocationForClusterOtherPort(t, e, i) {
-    const s = this.shortestPathRouter.MakeTransparentShapesOfEdgeGeometry(i), r = new Dr(Array.from(e.LoosePolyline).map(this.VisibilityGraph.FindVertex.bind), Array.from(t).map(this.VisibilityGraph.FindVertex.bind), this.VisibilityGraph).GetPath();
+    const s = this.shortestPathRouter.MakeTransparentShapesOfEdgeGeometry(i), r = new _r(Array.from(e.LoosePolyline).map(this.VisibilityGraph.FindVertex.bind), Array.from(t).map(this.VisibilityGraph.FindVertex.bind), this.VisibilityGraph).GetPath();
     for (const o of s)
       o.IsTransparent = !1;
     return r[r.length - 1].point;
   }
   FigureOutHookLocationForSimpleOtherPort(t, e, i) {
-    const s = e.Location, n = this.shortestPathRouter.MakeTransparentShapesOfEdgeGeometry(i), o = new xn(this.VisibilityGraph.FindVertex(s), Array.from(t).map((l) => this.VisibilityGraph.FindVertex(l)), this.VisibilityGraph).GetPath();
+    const s = e.Location, n = this.shortestPathRouter.MakeTransparentShapesOfEdgeGeometry(i), o = new Ln(this.VisibilityGraph.FindVertex(s), Array.from(t).map((l) => this.VisibilityGraph.FindVertex(l)), this.VisibilityGraph).GetPath();
     for (const l of n)
       l.IsTransparent = !1;
     return o[o.length - 1].point;
@@ -26488,7 +26496,7 @@ class In extends ht {
     const e = /* @__PURE__ */ new Map();
     for (const i of t.keys())
       for (const s of t.get(i))
-        Ar(e, s, i);
+        Or(e, s, i);
     return e;
   }
   CalculateEdgeWidthShrinkCoeff(t) {
@@ -26523,8 +26531,8 @@ class In extends ht {
       vt.trimSplineAndCalculateArrowheadsII(t, t.source.boundaryCurve, t.target.boundaryCurve, t.curve, !1);
   }
 }
-In.SuperLoosePaddingCoefficient = 1.1;
-class Pg {
+En.SuperLoosePaddingCoefficient = 1.1;
+class yg {
   constructor(t, e, i) {
     this.numberOfPassedPaths = 0, this.VisibilityEdge = t, this.Source = e, this.Target = i;
   }
@@ -26547,7 +26555,7 @@ class Pg {
     this.numberOfPassedPaths--;
   }
 }
-class Sg {
+class bg {
   get Prev() {
     return this.PrevEdge == null ? null : this.PrevEdge.Source === this ? this.PrevEdge.Target : this.PrevEdge.Source;
   }
@@ -26575,7 +26583,7 @@ class _i {
     for (const t of this.vertexArray) {
       const e = t.VisibilityVertex;
       for (const i of e.InEdges) {
-        const s = new Pg(i, this.VisibilityVerticesToSdVerts.get(i.Source), this.VisibilityVerticesToSdVerts.get(i.Target)), n = this.VisibilityVerticesToSdVerts.get(i.Source);
+        const s = new yg(i, this.VisibilityVerticesToSdVerts.get(i.Source), this.VisibilityVerticesToSdVerts.get(i.Target)), n = this.VisibilityVerticesToSdVerts.get(i.Source);
         t.InBoneEdges.push(s), n.OutBoneEdges.push(s);
       }
     }
@@ -26583,7 +26591,7 @@ class _i {
   CreateRoutingGraph() {
     this.vertexArray = [], this.VisibilityVerticesToSdVerts = /* @__PURE__ */ new Map();
     for (const t of this.VisibilityGraph.Vertices()) {
-      const e = new Sg(t);
+      const e = new bg(t);
       this.vertexArray.push(e), this.VisibilityVerticesToSdVerts.set(t, e);
     }
     this.CreateGraphElements();
@@ -26726,7 +26734,7 @@ class _i {
     const e = t.SourcePoint, i = t.Source.Triangle, s = /* @__PURE__ */ new Set(), n = t.TargetPoint;
     if (gt.PointIsInsideOfTriangle(n, i))
       return s;
-    const r = new hr(i, e, n);
+    const r = new ur(i, e, n);
     for (; r.MoveNext(); ) {
       const o = r.CurrentPiercedEdge;
       this.Gates.has(o) && s.add(o);
@@ -26804,7 +26812,7 @@ class _i {
     }
   }
   SetVertexTriangles() {
-    const t = Et(Array.from(this.cdt.GetTriangles()).map((i) => Bt(i, i.BoundingBox()))), e = Et(this.vertexArray.map((i) => Bt(i, O.mkOnPoints([i.Point]))));
+    const t = Et(Array.from(this.cdt.GetTriangles()).map((i) => Bt(i, i.BoundingBox()))), e = Et(this.vertexArray.map((i) => Bt(i, T.mkOnPoints([i.Point]))));
     ae(t, e, (i, s) => this.TryToAssigenTriangleToVertex(i, s));
   }
   TryToAssigenTriangleToVertex(t, e) {
@@ -26819,17 +26827,17 @@ class _i {
       this.sourceLoosePoly = this.SetPortVerticesAndObstacles(e.sourcePort, !0), this.targetLoosePoly = this.SetPortVerticesAndObstacles(e.targetPort, !1);
       for (const i of this.EdgesToRoutes.get(e))
         for (const s of this.CrossedCdtEdgesOfBoneEdge(i))
-          this.AdjacentToSourceOrTarget(s) || Ar(t, e, s);
+          this.AdjacentToSourceOrTarget(s) || Or(t, e, s);
     }
   }
 }
-class kr {
+class Wr {
   constructor(t, e, i, s, n) {
-    this.multiEdges = t, this.interactiveEdgeRouter = e, this.bundlingSettings = s, this.bundlingSettings.edgeWidthShrinkCoeff = 1, this.transparentShapeSetter = n, this.nodeTree = Er(i, (r) => r.boundingBox);
+    this.multiEdges = t, this.interactiveEdgeRouter = e, this.bundlingSettings = s, this.bundlingSettings.edgeWidthShrinkCoeff = 1, this.transparentShapeSetter = n, this.nodeTree = Ar(i, (r) => r.boundingBox);
   }
   run() {
     for (const t of this.GetIndependantPreGraphs())
-      new In(t.edges, new _i(this.transparentShapeSetter, null, null), this.interactiveEdgeRouter.VisibilityGraph, this.bundlingSettings, this.interactiveEdgeRouter.LoosePadding, this.interactiveEdgeRouter.TightHierarchy, this.interactiveEdgeRouter.LooseHierarchy, null, null, null).run();
+      new En(t.edges, new _i(this.transparentShapeSetter, null, null), this.interactiveEdgeRouter.VisibilityGraph, this.bundlingSettings, this.interactiveEdgeRouter.LoosePadding, this.interactiveEdgeRouter.TightHierarchy, this.interactiveEdgeRouter.LooseHierarchy, null, null, null).run();
   }
   GetPortCurve(t) {
     return this.nodeTree.FirstHitNodeWithPredicate(t.Location, (i, s) => g.PointRelativeToCurveLocation(i, s) !== F.Outside ? at.Stop : at.Continue).UserData;
@@ -26845,7 +26853,7 @@ class kr {
     return t;
   }
   UniteConnectedPreGraphs(t) {
-    const e = kr.GetIntersectionGraphOfPreGraphs(t.preGraphs);
+    const e = Wr.GetIntersectionGraphOfPreGraphs(t.preGraphs);
     if (e == null)
       return;
     const i = Qs(e), s = new Array();
@@ -26864,11 +26872,11 @@ class kr {
       t.AddNodeBoundary(i);
   }
   static GetIntersectionGraphOfPreGraphs(t) {
-    const e = kr.EnumeratePairsOfIntersectedPreGraphs(t);
+    const e = Wr.EnumeratePairsOfIntersectedPreGraphs(t);
     return e.length ? fi(e, t.length) : null;
   }
   static EnumeratePairsOfIntersectedPreGraphs(t) {
-    const e = Array.from(Array(t.length).keys()), i = Er(e, (n) => t[n].boundingBox), s = new Array();
+    const e = Array.from(Array(t.length).keys()), i = Ar(e, (n) => t[n].boundingBox), s = new Array();
     return Xt(i, i, (n, r) => s.push(new U(n, r))), s;
   }
   CreateInitialPregraphs() {
@@ -26880,10 +26888,10 @@ class kr {
     const r = this.nodeTree.GetNodeItemsIntersectingRectangle(n);
     for (const o of r)
       e.add(o);
-    return Sa.constructorStatic(t, e);
+    return ba.constructorStatic(t, e);
   }
 }
-class yg {
+class vg {
   constructor() {
     this.triangles = /* @__PURE__ */ new Set();
   }
@@ -26899,7 +26907,7 @@ class yg {
     if (t == null)
       return !1;
     const i = (e = t.Sites.item0.Owner) !== null && e !== void 0 ? e : t.Sites.item1.Owner;
-    return i === this.sourcePoly || i === this.targetPoly || !bg(t);
+    return i === this.sourcePoly || i === this.targetPoly || !Cg(t);
   }
   /** following "https://page.mi.fu-berlin.de/mulzer/notes/alggeo/polySP.pdf" */
   run(t) {
@@ -27035,15 +27043,15 @@ class yg {
     for (let I = s; I != null; I = I.next)
       l.addPoint(I.point);
     this.poly = l;
-    function h(I, T) {
-      if (T[I - 1].left !== T[I].left) {
-        o = T[I].left;
+    function h(I, x) {
+      if (x[I - 1].left !== x[I].left) {
+        o = x[I].left;
         let M = n;
         for (; !(C(M) || f(M)); M = M.prev)
           ;
         C(M) ? P() : N(M);
       } else {
-        o = T[I].right;
+        o = x[I].right;
         let M = r;
         for (; !(C(M) || p(M)); M = M.prev)
           ;
@@ -27067,10 +27075,10 @@ class yg {
       for (; !c(I); )
         I = I.next;
       if (!C(I)) {
-        let T = s;
-        for (; !T.point.equal(I.point); T = T.next)
-          t.push(T.point);
-        s.point = T.point, s.next = T.next, e = T.point, r.point.equal(s.point) && (r.prev = r.next = null);
+        let x = s;
+        for (; !x.point.equal(I.point); x = x.next)
+          t.push(x.point);
+        s.point = x.point, s.next = x.next, e = x.point, r.point.equal(s.point) && (r.prev = r.next = null);
       }
       i.point = e, n.point = o, n.prev = i, i.next = n;
     }
@@ -27079,10 +27087,10 @@ class yg {
       for (; !d(I); )
         I = I.next;
       if (!C(I)) {
-        let T = i;
-        for (; !T.point.equal(I.point); T = T.next)
-          t.push(T.point);
-        i.point = T.point, i.next = T.next, e = T.point, n.point.equal(i.point) && (n.prev = i.next = null);
+        let x = i;
+        for (; !x.point.equal(I.point); x = x.next)
+          t.push(x.point);
+        i.point = x.point, i.next = x.next, e = x.point, n.point.equal(i.point) && (n.prev = i.next = null);
       }
       s.point = e, r.point = o, r.prev = s, s.next = r;
     }
@@ -27134,7 +27142,7 @@ class yg {
     return t;
   }
 }
-function bg(a) {
+function Cg(a) {
   return a.Sites.item0.Owner == null || a.Sites.item1.Owner == null || a.Sites.item2.Owner == null ? !0 : a.Sites.item0.Owner == a.Sites.item1.Owner && a.Sites.item0.Owner == a.Sites.item2.Owner;
 }
 class it extends ht {
@@ -27187,7 +27195,7 @@ class it extends ht {
   }
   /** Uses the existing routes and optimizing them only to avoid 'activeNodes'.   */
   rerouteOnSubsetOfNodes(t) {
-    this.RouteMultiEdgesAsBundles = !1, this.edges = Array.from(this.geomGraph.deepEdges).filter((i) => ar(i.edge, t));
+    this.RouteMultiEdgesAsBundles = !1, this.edges = Array.from(this.geomGraph.deepEdges).filter((i) => hr(i.edge, t));
     const e = le.GetShapes(this.geomGraph, this.edges);
     this.rootShapes = e.filter((i) => i.Parents == null || i.Parents.length === 0), this.GetOrCreateRoot(), this.CalculateShapeToBoundaries(this.root), this.calcLooseShapesToNodes(), this.CalculatePortsToShapes(), this.rerouteOnActiveNodes(t), this.RemoveRoot();
   }
@@ -27197,7 +27205,7 @@ class it extends ht {
         this.loosePolylinesToNodes.set(s.LooseShape.BoundaryCurve, /* @__PURE__ */ new Set([i.node.node]));
       return;
     }
-    const t = Er(this.geomGraph.nodesBreadthFirst, (i) => i.boundingBox), e = this.GetLooseHierarchy();
+    const t = Ar(this.geomGraph.nodesBreadthFirst, (i) => i.boundingBox), e = this.GetLooseHierarchy();
     ae(e, t, (i, s) => {
       if (g.CurveIsInsideOther(s.boundaryCurve, i)) {
         let n = this.loosePolylinesToNodes.get(i);
@@ -27209,7 +27217,7 @@ class it extends ht {
     });
   }
   RouteOnRoot() {
-    Zr(0), this.CalculatePortsToShapes(), this.CalculatePortsToEnterableShapes(), this.CalculateShapeToBoundaries(this.root), !(this.OverlapsDetected && !this.ContinueOnOverlaps) && (this.BindLooseShapes(), this.SetLoosePolylinesForAnywherePorts(), this.CalculateVisibilityGraph(), this.RouteOnVisGraph());
+    to(0), this.CalculatePortsToShapes(), this.CalculatePortsToEnterableShapes(), this.CalculateShapeToBoundaries(this.root), !(this.OverlapsDetected && !this.ContinueOnOverlaps) && (this.BindLooseShapes(), this.SetLoosePolylinesForAnywherePorts(), this.CalculateVisibilityGraph(), this.RouteOnVisGraph());
   }
   CalculatePortsToEnterableShapes() {
     this.portsToEnterableShapes = /* @__PURE__ */ new Map();
@@ -27260,7 +27268,7 @@ class it extends ht {
     for (const i of t.Children)
       this.CalculateShapeToBoundaries(i);
     const e = Number.POSITIVE_INFINITY;
-    this.obstacleCalculator = new ca(t, this.tightPadding, Math.min(this.AdjustedLoosePadding, e), this.shapesToTightLooseCouples), this.obstacleCalculator.Calculate(0.01), this.OverlapsDetected || (this.OverlapsDetected = this.obstacleCalculator.OverlapsDetected);
+    this.obstacleCalculator = new da(t, this.tightPadding, Math.min(this.AdjustedLoosePadding, e), this.shapesToTightLooseCouples), this.obstacleCalculator.Calculate(0.01), this.OverlapsDetected || (this.OverlapsDetected = this.obstacleCalculator.OverlapsDetected);
   }
   get OverlapsDetected() {
     return this._overlapsDetected;
@@ -27269,13 +27277,13 @@ class it extends ht {
     this._overlapsDetected = t;
   }
   get AdjustedLoosePadding() {
-    return this.BundlingSettings == null ? this.LoosePadding : this.LoosePadding * In.SuperLoosePaddingCoefficient;
+    return this.BundlingSettings == null ? this.LoosePadding : this.LoosePadding * En.SuperLoosePaddingCoefficient;
   }
   GroupEdgesByPassport() {
     const t = new Array();
     for (const e of this.edges) {
       const i = this.EdgePassport(e);
-      let s = t.find((n) => wr(n.passport, i));
+      let s = t.find((n) => Tr(n.passport, i));
       s || (s = { passport: i, edges: [] }, t.push(s)), s.edges.push(e);
     }
     return t;
@@ -27348,13 +27356,13 @@ class it extends ht {
       if (this.SplitOnRegularAndMultiedges(t.edges, n), n.regularEdges.length > 0)
         for (let r = 0; r < n.regularEdges.length; r++) {
           const o = n.regularEdges[r];
-          lt.assert(ar(o.edge, s)), this.rerouteEdge(e, o);
+          lt.assert(hr(o.edge, s)), this.rerouteEdge(e, o);
         }
       n.multiEdges != null && (this.ScaleDownLooseHierarchy(e, i), this.RouteMultiEdges(n.multiEdges, e, t.passport));
     } else
       for (let r = 0; r < t.edges.length; r++) {
         const o = t.edges[r];
-        ar(o.edge, s) && this.rerouteEdge(e, o);
+        hr(o.edge, s) && this.rerouteEdge(e, o);
       }
   }
   /** poly gives the polyline to reroute */
@@ -27366,7 +27374,7 @@ class it extends ht {
     }
   }
   getCdtFromPassport(t) {
-    const e = /* @__PURE__ */ new Set(), i = [], s = O.mkEmpty();
+    const e = /* @__PURE__ */ new Set(), i = [], s = T.mkEmpty();
     for (const o of t) {
       const l = this.LoosePolyOfOriginalShape(o);
       if (l != null) {
@@ -27412,10 +27420,10 @@ class it extends ht {
       for (const l of o.Children)
         s.push(l.BoundaryCurve);
     const n = new Dt();
-    n.InkImportance = 1e-5, n.EdgeSeparation = this.MultiEdgesSeparation, new kr(t, e, s, n, (o) => this.makeTransparentShapesOfEdgeAndGetTheShapes(o)).run();
+    n.InkImportance = 1e-5, n.EdgeSeparation = this.MultiEdgesSeparation, new Wr(t, e, s, n, (o) => this.makeTransparentShapesOfEdgeAndGetTheShapes(o)).run();
   }
   SplitOnRegularAndMultiedges(t, e) {
-    const i = new Ln();
+    const i = new Rn();
     for (const s of t)
       it.IsEdgeToParent(s) ? e.regularEdges.push(s) : it.RegisterInPortLocationsToEdges(s, i);
     e.multiEdges = null;
@@ -27432,7 +27440,7 @@ class it extends ht {
   }
   CreateInteractiveEdgeRouter(t) {
     const e = new Set(t.map((s) => this.shapesToTightLooseCouples.get(s).LooseShape.BoundaryCurve)), i = new tt(this.cancelToken);
-    return i.pathOptimizer = new yg(), i.ObstacleCalculator = new G(t.map((s) => s.BoundaryCurve), this.tightPadding, this.loosePadding, !1), i.VisibilityGraph = this.visGraph, i.TightHierarchy = this.CreateTightObstacleHierarachy(t), i.LooseHierarchy = it.CreateLooseObstacleHierarachy(Array.from(e)), i.UseSpanner = !0, i.LookForRoundedVertices = !0, i.TightPadding = this.tightPadding, i.LoosePadding = this.LoosePadding, i.UseEdgeLengthMultiplier = this.UseEdgeLengthMultiplier, i.UsePolylineEndShortcutting = this.UsePolylineEndShortcutting, i.UseInnerPolylingShortcutting = this.UseInnerPolylingShortcutting, i.AllowedShootingStraightLines = this.AllowedShootingStraightLines, i.AddActivePolygons(Array.from(e).map((s) => new ue(s))), i;
+    return i.pathOptimizer = new vg(), i.ObstacleCalculator = new G(t.map((s) => s.BoundaryCurve), this.tightPadding, this.loosePadding, !1), i.VisibilityGraph = this.visGraph, i.TightHierarchy = this.CreateTightObstacleHierarachy(t), i.LooseHierarchy = it.CreateLooseObstacleHierarachy(Array.from(e)), i.UseSpanner = !0, i.LookForRoundedVertices = !0, i.TightPadding = this.tightPadding, i.LoosePadding = this.LoosePadding, i.UseEdgeLengthMultiplier = this.UseEdgeLengthMultiplier, i.UsePolylineEndShortcutting = this.UsePolylineEndShortcutting, i.UseInnerPolylingShortcutting = this.UseInnerPolylingShortcutting, i.AllowedShootingStraightLines = this.AllowedShootingStraightLines, i.AddActivePolygons(Array.from(e).map((s) => new ue(s))), i;
   }
   GetObstaclesFromPassport(t) {
     if (t.size === 0)
@@ -27475,8 +27483,8 @@ class it extends ht {
   }
   RouteBundles() {
     this.ScaleLooseShapesDown(), this.CalculateEdgeEnterablePolylines();
-    const t = this.GetLooseHierarchy(), e = Hh(t), i = new _i((n) => this.makeTransparentShapesOfEdgeAndGetTheShapes(n), e, this.FindCdtGates(e));
-    new In(this.edges, i, this.visGraph, this.BundlingSettings, this.LoosePadding, this.GetTightHierarchy(), t, this.enterableLoose, this.enterableTight, (n) => this.LoosePolyOfOriginalShape(this.portsToShapes.get(n))).run();
+    const t = this.GetLooseHierarchy(), e = jh(t), i = new _i((n) => this.makeTransparentShapesOfEdgeAndGetTheShapes(n), e, this.FindCdtGates(e));
+    new En(this.edges, i, this.visGraph, this.BundlingSettings, this.LoosePadding, this.GetTightHierarchy(), t, this.enterableLoose, this.enterableTight, (n) => this.LoosePolyOfOriginalShape(this.portsToShapes.get(n))).run();
   }
   CreateTheMapToParentLooseShapes(t, e) {
     for (const i of t.Children) {
@@ -27533,7 +27541,7 @@ class it extends ht {
   }
   ScaleLooseShapesDown() {
     for (const [, t] of this.shapesToTightLooseCouples)
-      t.LooseShape.BoundaryCurve = G.LoosePolylineWithFewCorners(t.TightPolyline, t.Distance / In.SuperLoosePaddingCoefficient, 0);
+      t.LooseShape.BoundaryCurve = G.LoosePolylineWithFewCorners(t.TightPolyline, t.Distance / En.SuperLoosePaddingCoefficient, 0);
   }
   /**
    * The set of shapes where the edge source and target ports shapes are citizens: the shapes who's interior the edge can cross
@@ -27633,7 +27641,7 @@ class it extends ht {
   }
   CalculateVisibilityGraph() {
     const t = this.LineSweeperPorts != null ? xt.mk(this.LineSweeperPorts) : new xt();
-    this.ProcessHookAnyWherePorts(t), this.portRTree = pn(Array.from(t.values()).map((e) => [O.rectangleOnPoint(e), e])), this.visGraph = new wt(), this.FillVisibilityGraphUnderShape(this.root);
+    this.ProcessHookAnyWherePorts(t), this.portRTree = mn(Array.from(t.values()).map((e) => [T.rectangleOnPoint(e), e])), this.visGraph = new wt(), this.FillVisibilityGraphUnderShape(this.root);
   }
   ProcessHookAnyWherePorts(t) {
     for (const e of this.edges)
@@ -27690,10 +27698,10 @@ class it extends ht {
     for (const n of s)
       switch (g.PointRelativeToCurveLocation(n, t)) {
         case F.Inside:
-          e.add(n), this.portRTree.Remove(O.rectangleOnPoint(n), n);
+          e.add(n), this.portRTree.Remove(T.rectangleOnPoint(n), n);
           break;
         case F.Boundary:
-          this.portRTree.Remove(O.rectangleOnPoint(n), n);
+          this.portRTree.Remove(T.rectangleOnPoint(n), n);
           const r = it.FindPointOnPolylineToInsertAfter(t, n);
           if (r != null)
             qt.InsertPointIntoPolylineAfter(t, r, n);
@@ -27776,11 +27784,11 @@ class it extends ht {
     }
   }
 }
-function vg(a, t, e) {
-  const i = Yh(a);
+function Ig(a, t, e) {
+  const i = Kh(a);
   new it(a, t, i.Padding, i.PolylinePadding, i.coneAngle, i.bundlingSettings, e).run();
 }
-class Op {
+class xp {
   /** retrieves the data for a single tile(x-y-z) */
   getTileData(t, e, i) {
     const s = this.levels[i];
@@ -27803,10 +27811,10 @@ class Op {
     let t = 0, e = 0, i = 0;
     for (const s of this.geomGraph.nodesBreadthFirst)
       s instanceof Nt || (i == 0 ? (t = s.width, e = s.height) : (t = (i * t + s.width) / (i + 1), e = (i * e + s.height) / (i + 1)), i++);
-    return new Ai(t * 10, e * 10);
+    return new Ti(t * 10, e * 10);
   }
   fillTheLowestLayer() {
-    const t = new Ki(), e = new Zn(this.topLevelTileRect), i = e.arrowheads, s = e.labels;
+    const t = new Ki(), e = new tr(this.topLevelTileRect), i = e.arrowheads, s = e.labels;
     for (const r of this.geomGraph.graph.deepEdges)
       n(r);
     e.nodes = Array.from(this.geomGraph.nodesBreadthFirst), t.set(0, 0, e), this.levels.push(t);
@@ -27827,7 +27835,7 @@ class Op {
    * Returns the number of created levels.
    */
   buildUpToLevel(t) {
-    if (this.fillTheLowestLayer(), this.minTileSize = this.getMinTileSize(), this.pageRank = Od(this.geomGraph.graph, 0.85), !this.needToSubdivide())
+    if (this.fillTheLowestLayer(), this.minTileSize = this.getMinTileSize(), this.pageRank = Ld(this.geomGraph.graph, 0.85), !this.needToSubdivide())
       return 1;
     for (let i = 1; i <= t && !this.subdivideLevel(i); i++)
       ;
@@ -28026,7 +28034,7 @@ class Op {
   regenerateCurveClipsUnderTileUpToLevel(t, e, i) {
     t.arrowheads = [], t.initCurveClips();
     for (const s of this.geomGraph.deepEdges)
-      if (ar(s.edge, i)) {
+      if (hr(s.edge, i)) {
         if (s.curve instanceof g)
           for (const n of s.curve.segs)
             t.addElement({ edge: s.edge, curve: n, startPar: n.parStart, endPar: n.parEnd });
@@ -28274,7 +28282,7 @@ class Op {
   getWHOnLevel(t) {
     for (let e = this.tileSizes.length; e <= t; e++) {
       const i = this.tileSizes[e - 1];
-      this.tileSizes.push(new Ai(i.width / 2, i.height / 2));
+      this.tileSizes.push(new Ti(i.width / 2, i.height / 2));
     }
     return { w: this.tileSizes[t].width, h: this.tileSizes[t].height };
   }
@@ -28289,43 +28297,43 @@ class Op {
   subdivideTile(t, e, i, s) {
     const { w: n, h: r } = this.getWHOnLevel(e), o = this.levels[e], l = t.x, h = t.y, c = this.topLevelTileRect.left + l * n * 2, d = this.topLevelTileRect.bottom + h * r * 2, f = new Array(4);
     for (let I = 0; I < 2; I++)
-      for (let T = 0; T < 2; T++)
-        f[I * 2 + T] = new U(l * 2 + I, h * 2 + T);
+      for (let x = 0; x < 2; x++)
+        f[I * 2 + x] = new U(l * 2 + I, h * 2 + x);
     s || this.generateSubtilesWithoutTileClips(c, n, d, r, f, i, e);
     const p = new v(c, d + r, c + 2 * n, d + r), P = new v(c + n, d, c + n, d + 2 * r);
     w();
     let y = 0, C = !0;
     for (const I of f) {
-      const T = o.get(I.x, I.y);
-      T != null && (y++, T.entityCount > this.tileCapacity && (C = !1));
+      const x = o.get(I.x, I.y);
+      x != null && (y++, x.entityCount > this.tileCapacity && (C = !1));
     }
     return { count: y, allSmall: C };
     function w() {
       for (const I of i.curveClips) {
-        const T = I.curve, V = N(T, I.startPar, I.endPar);
+        const x = I.curve, V = N(x, I.startPar, I.endPar);
         if (lt.assert(V.length >= 2), V.length == 2) {
-          const M = (V[0] + V[1]) / 2, X = T.value(M), Zt = X.x <= c + n ? 0 : 1, ot = X.y <= d + r ? 0 : 1, Ht = 2 * Zt + ot, se = f[Ht];
+          const M = (V[0] + V[1]) / 2, X = x.value(M), Zt = X.x <= c + n ? 0 : 1, ot = X.y <= d + r ? 0 : 1, Ht = 2 * Zt + ot, se = f[Ht];
           let Rt = o.getI(se);
           if (!Rt) {
             const ne = c + Zt * n, de = d + ot * r;
-            Rt = new Zn(new O({ left: ne, bottom: de, top: de + r, right: ne + n })), o.setPair(se, Rt);
+            Rt = new tr(new T({ left: ne, bottom: de, top: de + r, right: ne + n })), o.setPair(se, Rt);
           }
-          Rt.addCurveClip({ curve: T, edge: I.edge, startPar: V[0], endPar: V[1] });
+          Rt.addCurveClip({ curve: x, edge: I.edge, startPar: V[0], endPar: V[1] });
         } else
           for (let M = 0; M < V.length - 1; M++) {
-            const X = (V[M] + V[M + 1]) / 2, Zt = T.value(X), ot = Zt.x <= c + n ? 0 : 1, Ht = Zt.y <= d + r ? 0 : 1, se = 2 * ot + Ht, Rt = f[se];
+            const X = (V[M] + V[M + 1]) / 2, Zt = x.value(X), ot = Zt.x <= c + n ? 0 : 1, Ht = Zt.y <= d + r ? 0 : 1, se = 2 * ot + Ht, Rt = f[se];
             let ne = o.getI(Rt);
             if (!ne) {
               const de = c + ot * n, mi = d + Ht * r;
-              ne = new Zn(new O({ left: de, bottom: mi, top: mi + r, right: de + n })), o.setPair(Rt, ne);
+              ne = new tr(new T({ left: de, bottom: mi, top: mi + r, right: de + n })), o.setPair(Rt, ne);
             }
-            ne.addCurveClip({ curve: T, edge: I.edge, startPar: V[M], endPar: V[M + 1] });
+            ne.addCurveClip({ curve: x, edge: I.edge, startPar: V[M], endPar: V[M + 1] });
           }
       }
     }
-    function N(I, T, V) {
+    function N(I, x, V) {
       let M = Array.from(g.getAllIntersections(I, p, !0)).concat(Array.from(g.getAllIntersections(I, P, !0))).map((X) => X.par0);
-      return M.sort((X, Zt) => X - Zt), [T].concat(M.filter((X) => X >= T && X <= V)).concat(V);
+      return M.sort((X, Zt) => X - Zt), [x].concat(M.filter((X) => X >= x && X <= V)).concat(V);
     }
   }
   /** returns the updated value of allTilesAreSmall */
@@ -28341,7 +28349,7 @@ class Op {
     let l = 0;
     for (let h = 0; h < 2; h++)
       for (let c = 0; c < 2; c++) {
-        const d = new O({
+        const d = new T({
           left: t + e * h,
           right: t + e * (h + 1),
           bottom: i + s * c,
@@ -28365,24 +28373,24 @@ class Op {
     return s;
   }
   generateOneSubtileExceptEdgeClips(t, e) {
-    const i = new Zn(e);
+    const i = new tr(e);
     for (const s of t.nodes)
       s.boundingBox.intersects(e) && i.nodes.push(s);
     for (const s of t.labels)
       s.boundingBox.intersects(e) && i.labels.push(s);
     for (const s of t.arrowheads) {
-      const n = O.mkPP(s.base, s.tip), o = s.tip.sub(s.base).div(3).rotate90Cw();
+      const n = T.mkPP(s.base, s.tip), o = s.tip.sub(s.base).div(3).rotate90Cw();
       n.add(s.base.add(o)), n.add(s.base.sub(o)), n.intersects(e) && i.arrowheads.push(s);
     }
     return i.isEmpty() ? null : i;
   }
 }
-class En extends te {
+class wn extends te {
   constructor(t, e) {
     super(), this.SetEdges(t, e);
   }
 }
-class Cg {
+class Eg {
   *RegularMultiedges() {
     for (const [t, e] of this.Multiedges.keyValues())
       t.x !== t.y && (yield e);
@@ -28424,11 +28432,11 @@ class Cg {
     return this.Multiedges.has(t.x, t.y) ? this.Multiedges.get(t.x, t.y) : new Array();
   }
 }
-function Ho(a, t) {
+function jo(a, t) {
   for (let e = 0; e < a.length; e++)
     t[e] = a[e];
 }
-class Ni {
+class Bi {
   constructor(t) {
     this.initialize(t);
   }
@@ -28449,13 +28457,13 @@ class Ni {
     const s = new Array(this.layers.length - e);
     for (let r = 0; r < this.layers.length; r++)
       this.layers[r].length > 0 && (s[r - t[r]] = Array.from(this.layers[r]));
-    const n = new Ni(i);
+    const n = new Bi(i);
     return n.layers = s, n;
   }
   updateLayers(t) {
     this.layers == null && this.InitLayers();
     for (let e = 0; e < this.layers.length; e++)
-      Ho(t[e], this.layers[e]);
+      jo(t[e], this.layers[e]);
     this.UpdateXFromLayers();
   }
   UpdateXFromLayers() {
@@ -28476,7 +28484,7 @@ class Ni {
     const t = new Array(this.y.length), e = this.Layers.length - 1;
     for (let i = 0; i < this.y.length; i++)
       t[i] = e - this.y[i];
-    return new Ni(t);
+    return new Bi(t);
   }
   // Layers[i] is the array of vertices of i-th layer
   get Layers() {
@@ -28501,9 +28509,9 @@ class Ni {
     }
   }
 }
-class ba extends ht {
+class Ca extends ht {
   static Balance(t, e, i, s) {
-    new ba(t, e, i, s).run();
+    new Ca(t, e, i, s).run();
   }
   constructor(t, e, i, s) {
     super(s), this.jumpers = /* @__PURE__ */ new Set(), this.possibleJumperFeasibleIntervals = /* @__PURE__ */ new Map(), this.nodeCount = i, this.dag = t, this.layering = e, this.Init();
@@ -28691,7 +28699,7 @@ class ps {
   }
   ReversedClone() {
     const t = this.CreateReversedEdges();
-    return new ps(new En(t, this.BaseGraph.nodeCount));
+    return new ps(new wn(t, this.BaseGraph.nodeCount));
   }
   CreateReversedEdges() {
     const t = new Array();
@@ -28708,13 +28716,13 @@ class ps {
       yield e.Source;
   }
 }
-class kn {
+class _n {
   constructor(t, e, i, s) {
     this.la = e, this.database = i, this.layeredGraph = t, this.intGraph = s;
   }
   // the entry point of the class
   static InsertLayers(t, e, i, s) {
-    const n = new kn(t, e, i, s);
+    const n = new _n(t, e, i, s);
     return n.InsertLayers(), {
       layeredGraph: n.nLayeredGraph,
       la: n.Nla.DropEmptyLayers()
@@ -28797,7 +28805,7 @@ class kn {
             const l = ms.GetTarget(this.totalNodes, s, n, e);
             s.LayerEdges[n] = new qi(o, l, s.CrossingWeight);
           }
-          kn.RegisterDontStepOnVertex(this.database, s);
+          _n.RegisterDontStepOnVertex(this.database, s);
         }
     }
     this.nLayeredGraph = new ps(this.intGraph);
@@ -28839,7 +28847,7 @@ class kn {
   }
   // Allocating new layering and filling its y-layers
   InitNewLayering() {
-    this.Nla = new Ni(new Array(this.totalNodes));
+    this.Nla = new Bi(new Array(this.totalNodes));
     for (let i = 0; i < this.layeredGraph.NodeCount; i++)
       this.NLayering[i] = this.la.y[i] * 2;
     for (const [i, s] of this.database.Multiedges.keyValues())
@@ -28856,7 +28864,7 @@ class kn {
       e[i]++;
     for (let i = 0; i < e.length; i++)
       t[i] = new Array(e[i]);
-    this.Nla = new Ni(this.NLayering), this.Nla.Layers = t;
+    this.Nla = new Bi(this.NLayering), this.Nla.Layers = t;
   }
   // mark the vertex as one representing a label
   // or a middle of a multi edge
@@ -28931,7 +28939,7 @@ class ms {
               const c = ms.GetTarget(t, r, o, n);
               r.LayerEdges[o] = new qi(h, c, r.CrossingWeight);
             }
-          kn.RegisterDontStepOnVertex(this.database, r);
+          _n.RegisterDontStepOnVertex(this.database, r);
         }
       }
     this.NLayeredGraph = new ps(this.intGraph);
@@ -28943,7 +28951,7 @@ class ms {
     return i === 0 ? e.source : t.currentVV++;
   }
   InitNewLayering() {
-    this.Nla = new Ni(new Array(this.NLayeredGraph.NodeCount));
+    this.Nla = new Bi(new Array(this.NLayeredGraph.NodeCount));
     for (let i = 0; i < this.layeredGraph.NodeCount; i++)
       this.NLayering[i] = this.la.y[i];
     for (const [i, s] of this.database.Multiedges.keyValues())
@@ -28961,7 +28969,7 @@ class ms {
       e[i]++;
     for (let i = 0; i < e.length; i++)
       t[i] = new Array(e[i]);
-    this.Nla = new Ni(this.NLayering), this.Nla.Layers = t;
+    this.Nla = new Bi(this.NLayering), this.Nla.Layers = t;
   }
 }
 class dn {
@@ -29009,7 +29017,7 @@ class dn {
     return this.numberOfCrossings === 0;
   }
 }
-class Ig {
+class wg {
   constructor(t) {
     this.x = t;
   }
@@ -29018,7 +29026,7 @@ class Ig {
     return i !== 0 ? i : this.x[t.Target] - this.x[e.Target];
   }
 }
-class Eg {
+class Ag {
   constructor(t) {
     this.x = t;
   }
@@ -29027,15 +29035,15 @@ class Eg {
     return i !== 0 ? i : this.x[t.Source] - this.x[e.Source];
   }
 }
-function nr() {
+function or() {
   return Xs(2) === 0;
 }
-function wg(a, t, e) {
+function Tg(a, t, e) {
   const i = e.Layers[a + 1], s = e.Layers[a];
-  return s.length <= i.length ? Tg(s, t, e) : Ag(i, s, t, e);
+  return s.length <= i.length ? xg(s, t, e) : Og(i, s, t, e);
 }
-function Ag(a, t, e, i) {
-  const s = tc(t, e), n = new Eg(i.x);
+function Og(a, t, e, i) {
+  const s = ic(t, e), n = new Ag(i.x);
   s.sort((h, c) => n.Compare(h, c));
   let r = 1;
   for (; r < a.length; )
@@ -29051,8 +29059,8 @@ function Ag(a, t, e, i) {
   }
   return l;
 }
-function Tg(a, t, e) {
-  const i = tc(a, t), s = new Ig(e.x);
+function xg(a, t, e) {
+  const i = ic(a, t), s = new wg(e.x);
   i.sort((l, h) => s.Compare(l, h));
   let n = 1;
   for (; n < a.length; )
@@ -29068,13 +29076,13 @@ function Tg(a, t, e) {
   }
   return o;
 }
-function tc(a, t) {
-  return Xn(a, (e) => t.InEdges(e));
+function ic(a, t) {
+  return Qn(a, (e) => t.InEdges(e));
 }
-function xl(a, t) {
+function Ll(a, t) {
   let e = 0;
   for (let i = 0; i < t.Layers.length - 1; i++)
-    e += wg(i, a, t);
+    e += Tg(i, a, t);
   return e;
 }
 class Vs extends ht {
@@ -29107,7 +29115,7 @@ class Vs extends ht {
       const t = this.layerArrays.ReversedClone(), e = new Vs(this.properLayeredGraph.ReversedClone(), !1, t, this.startOfVirtNodes, this.hasCrossWeights, this.SugSettings, this.cancelToken);
       if (e.run(), dn.less(e.measure, this.measure)) {
         for (let i = 0; i < this.nOfLayers; i++)
-          Ho(t.Layers[i], this.layerArrays.Layers[this.nOfLayers - 1 - i]);
+          jo(t.Layers[i], this.layerArrays.Layers[this.nOfLayers - 1 - i]);
         this.layerArrays.UpdateXFromLayers();
       }
     }
@@ -29115,12 +29123,12 @@ class Vs extends ht {
   Calculate() {
     this.Init(), this.layerArraysCopy = Vs.CloneLayers(this.layers, this.layerArraysCopy);
     let t = 0;
-    this.measure = new dn(this.layerArraysCopy, xl(this.properLayeredGraph, this.layerArrays), this.startOfVirtNodes);
+    this.measure = new dn(this.layerArraysCopy, Ll(this.properLayeredGraph, this.layerArrays), this.startOfVirtNodes);
     for (let e = 0; e < this.MaxOfIterations && t < this.NoGainStepsBound && !this.measure.IsPerfect(); e++) {
       const i = e % 2 === 0;
       this.LayerByLayerSweep(i), this.AdjacentExchange();
-      const s = new dn(this.layerArrays.Layers, xl(this.properLayeredGraph, this.layerArrays), this.startOfVirtNodes);
-      dn.less(this.measure, s) ? (this.Restore(), t++) : (dn.less(s, this.measure) || nr()) && (t = 0, this.layerArraysCopy = Vs.CloneLayers(this.layers, this.layerArraysCopy), this.measure = s);
+      const s = new dn(this.layerArrays.Layers, Ll(this.properLayeredGraph, this.layerArrays), this.startOfVirtNodes);
+      dn.less(this.measure, s) ? (this.Restore(), t++) : (dn.less(s, this.measure) || or()) && (t = 0, this.layerArraysCopy = Vs.CloneLayers(this.layers, this.layerArraysCopy), this.measure = s);
     }
   }
   static CloneLayers(t, e) {
@@ -29130,7 +29138,7 @@ class Vs extends ht {
         e[i] = t[i].map((s) => s);
     } else
       for (let i = 0; i < t.length; i++)
-        Ho(t[i], e[i]);
+        jo(t[i], e[i]);
     return e;
   }
   Restore() {
@@ -29172,7 +29180,7 @@ class Vs extends ht {
           const c = i.get(l);
           if (typeof c != "number") {
             const d = c;
-            if (nr())
+            if (or())
               d.push(h);
             else {
               const f = Xs(d.length), p = d[f];
@@ -29180,7 +29188,7 @@ class Vs extends ht {
             }
           } else {
             const d = c, f = new Array();
-            i.set(l, f), nr() ? (f.push(d), f.push(h)) : (f.push(h), f.push(d));
+            i.set(l, f), or() ? (f.push(d), f.push(h)) : (f.push(h), f.push(d));
           }
         }
     }
@@ -29402,7 +29410,7 @@ class Vs extends ht {
   // swaps i-th element with i+1
   AdjacentSwapToTheRight(t, e) {
     const i = t[e], s = t[e + 1], n = this.SwapGain(i, s);
-    (n > 0 || n === 0 && nr()) && this.Swap(i, s);
+    (n > 0 || n === 0 && or()) && this.Swap(i, s);
   }
   SwapGain(t, e) {
     const i = this.CalcPair(t, e);
@@ -29446,17 +29454,17 @@ class Vs extends ht {
     return this.SwapGain(t, e) > 0 ? (this.Swap(t, e), !0) : !1;
   }
 }
-class _r {
+class Hr {
   constructor(t, e, i) {
     this.properLayeredGraph = t, this.layerArrays = e, this.nodePositions = i;
   }
   // Reorder only points having identical nodePositions
   static UpdateLayerArrays0(t, e, i) {
-    new _r(t, e, i).UpdateLayerArrays();
+    new Hr(t, e, i).UpdateLayerArrays();
   }
   // Reorder virtual nodes between the same pair of real nodes
   static UpdateLayerArrays1(t, e) {
-    const i = _r.BuildInitialNodePositions(t, e);
+    const i = Hr.BuildInitialNodePositions(t, e);
     this.UpdateLayerArrays0(t, e, i);
   }
   static BuildInitialNodePositions(t, e) {
@@ -29541,11 +29549,11 @@ class _r {
     this.layerArrays.UpdateXFromLayers();
   }
 }
-class io {
+class no {
   // Topological sort of a list of int edge tuples
   static getOrder(t, e) {
     const i = fi(e.map(([s, n]) => new U(s, n)), t);
-    return io.getOrderOnGraph(i);
+    return no.getOrderOnGraph(i);
   }
   // The function returns an array arr such that
   // every edge points forward in the array. The input has to be a DAG
@@ -29574,9 +29582,9 @@ class io {
     return s.reverse();
   }
 }
-class Og {
+class Lg {
   GetLayers() {
-    const t = io.getOrderOnGraph(this.graph), e = new Array(this.graph.nodeCount).fill(0);
+    const t = no.getOrderOnGraph(this.graph), e = new Array(this.graph.nodeCount).fill(0);
     let i = this.graph.nodeCount;
     for (; i-- > 0; ) {
       const s = t[i];
@@ -29589,7 +29597,7 @@ class Og {
   }
   checkTopoOrder(t) {
     for (const e of this.graph.edges)
-      if (xg(e, t))
+      if (Rg(e, t))
         return !1;
     return !0;
   }
@@ -29597,7 +29605,7 @@ class Og {
     this.graph = t;
   }
 }
-function xg(a, t) {
+function Rg(a, t) {
   const e = t.findIndex((s) => s === a.source), i = t.findIndex((s) => s === a.target);
   return e === -1 || i === -1 || e >= i;
 }
@@ -29622,18 +29630,18 @@ class oe {
   }
 }
 oe.infinity = Number.MAX_SAFE_INTEGER;
-function Lg(a) {
+function Ng(a) {
   const t = new Array();
   for (const e of a.edges)
     t.push(new oe(e));
   return fi(t, a.nodeCount);
 }
-class bo {
+class Co {
   constructor(t, e, i, s, n) {
     this.v = t, this.outEnum = e, this.i = i, this.inEnum = s, this.j = n;
   }
 }
-class ec {
+class sc {
   get weight() {
     return this.graph.edges.map((t) => t.weight * (this.layers[t.source] - this.layers[t.target])).reduce((t, e) => t + e, 0);
   }
@@ -29650,7 +29658,7 @@ class ec {
     this.vertices[t].parent = e;
   }
   constructor(t, e) {
-    this.layers = null, this.treeVertices = [], this.vertices = [], this.leaves = [], this.graph = Lg(t), this.networkCancelToken = e;
+    this.layers = null, this.treeVertices = [], this.vertices = [], this.leaves = [], this.graph = Ng(t), this.networkCancelToken = e;
     for (let i = 0; i < this.graph.nodeCount; i++)
       this.vertices.push({
         inTree: !1,
@@ -29803,19 +29811,19 @@ class ec {
   initLowLimParentAndLeavesOnSubtree(t, e) {
     const i = new mt.Stack();
     let s = this.graph.outEdges[e], n = -1, r = this.graph.inEdges[e], o = -1;
-    for (i.push(new bo(e, s, n, r, o)), this.vertices[e].low = t; i.length > 0; ) {
+    for (i.push(new Co(e, s, n, r, o)), this.vertices[e].low = t; i.length > 0; ) {
       const l = i.pop();
       e = l.v, s = l.outEnum, n = l.i, r = l.inEnum, o = l.j;
       let h;
       do {
         for (h = !0; ++n < s.length; ) {
           const c = s[n];
-          !c.inTree || this.vertices[c.target].low > 0 || (i.push(new bo(e, s, n, r, o)), e = c.target, this.setParent(e, c), this.setLow(e, t), s = this.graph.outEdges[e], n = -1, r = this.graph.inEdges[e], o = -1);
+          !c.inTree || this.vertices[c.target].low > 0 || (i.push(new Co(e, s, n, r, o)), e = c.target, this.setParent(e, c), this.setLow(e, t), s = this.graph.outEdges[e], n = -1, r = this.graph.inEdges[e], o = -1);
         }
         for (; ++o < r.length; ) {
           const c = r[o];
           if (!(!c.inTree || this.vertices[c.source].low > 0)) {
-            i.push(new bo(e, s, n, r, o)), e = c.source, this.setLow(e, t), this.setParent(e, c), s = this.graph.outEdges[e], n = -1, r = this.graph.inEdges[e], o = -1, h = !1;
+            i.push(new Co(e, s, n, r, o)), e = c.source, this.setLow(e, t), this.setParent(e, c), s = this.graph.outEdges[e], n = -1, r = this.graph.inEdges[e], o = -1, h = !1;
             break;
           }
         }
@@ -29981,7 +29989,7 @@ class ec {
       }
   }
   initLayers() {
-    const t = new Og(this.graph);
+    const t = new Lg(this.graph);
     return this.layers = t.GetLayers();
   }
   run() {
@@ -29996,9 +30004,9 @@ class ec {
     }
   }
 }
-class Rg {
+class Bg {
   GetLayers() {
-    return new ec(this.graph, this.Cancel).GetLayers();
+    return new sc(this.graph, this.Cancel).GetLayers();
   }
   ShrunkComponent(t) {
     const e = [];
@@ -30009,7 +30017,7 @@ class Rg {
         o.separation = r.separation, o.weight = r.weight, e.push(o);
       }
     }
-    return new En(e, t.size);
+    return new wn(e, t.size);
   }
   constructor(t, e) {
     this.graph = t, this.Cancel = e;
@@ -30511,7 +30519,7 @@ class us {
           this.TryToGetRightNeighbor(n, r) && t.push(new Ye(s, this.root[r.neighbor], null)), n = this.align[n];
         } while (n !== s);
       }
-    const e = fi(t, this.nOfVertices), i = io.getOrderOnGraph(e);
+    const e = fi(t, this.nOfVertices), i = no.getOrderOnGraph(e);
     for (const s of i)
       if (s === this.root[s]) {
         let n = 0, r = !0, o = s;
@@ -30585,7 +30593,7 @@ class us {
   }
 }
 us.infinity = 1e7;
-class Ng extends te {
+class Gg extends te {
   // weight multiplier for edges with two virtual nodes
   /* internal */
   constructor(t, e, i, s, n) {
@@ -31248,7 +31256,7 @@ class Xi extends ht {
   }
   createRegularSplines() {
     for (const t of this.Database.RegularMultiedges()) {
-      if (Bg(t))
+      if (Mg(t))
         continue;
       const e = t.length, i = e === 1 && this.MayOptimizeEdge(t[0]);
       for (let s = Math.floor(e / 2); s < e; s++)
@@ -31258,7 +31266,7 @@ class Xi extends ht {
     }
   }
   MayOptimizeEdge(t) {
-    return !(this.ProperLayeredGraph.OutDegreeIsMoreThanOne(t.source) || this.ProperLayeredGraph.InDegreeIsMoreThanOne(t.target) || Ll(t.edge.source) || Ll(t.edge.target));
+    return !(this.ProperLayeredGraph.OutDegreeIsMoreThanOne(t.source) || this.ProperLayeredGraph.InDegreeIsMoreThanOne(t.target) || Rl(t.edge.source) || Rl(t.edge.target));
   }
   createSelfSplines() {
     for (const [t, e] of this.Database.Multiedges.keyValues()) {
@@ -31274,8 +31282,8 @@ class Xi extends ht {
           const C = y.createCurve();
           if (r.curve = C, n = o, r.edge.label != null) {
             n += r.edge.label.width;
-            const w = C.value((C.parStart + C.parEnd) / 2), N = new u(w.x + r.labelWidth / 2, s.y), I = new u(r.edge.label.width / 2, r.edge.label.height / 2), T = O.mkPP(N.add(I), N.sub(I));
-            r.edge.label.width = T.width, r.edge.label.height = T.height, r.edge.label.positionCenter(N);
+            const w = C.value((C.parStart + C.parEnd) / 2), N = new u(w.x + r.labelWidth / 2, s.y), I = new u(r.edge.label.width / 2, r.edge.label.height / 2), x = T.mkPP(N.add(I), N.sub(I));
+            r.edge.label.width = x.width, r.edge.label.height = x.height, r.edge.label.positionCenter(N);
           }
           vt.trimSplineAndCalculateArrowheadsII(r.edge, r.edge.source.boundaryCurve, r.edge.target.boundaryCurve, C, !1);
         }
@@ -31334,7 +31342,7 @@ class Xi extends ht {
     return t === 0 ? kt.Top : t < e.count ? kt.Internal : kt.Bottom;
   }
 }
-function Bg(a) {
+function Mg(a) {
   if (a.length < 4)
     return !1;
   for (const t of a)
@@ -31342,10 +31350,10 @@ function Bg(a) {
       return !1;
   return !0;
 }
-function Ll(a) {
+function Rl(a) {
   return a.node.selfEdges.size > 0;
 }
-class ic extends ht {
+class nc extends ht {
   /** return true if the ratio is less than 1/50 or greater than 50 */
   get extremeAspectRatio() {
     const t = this.originalGraph.boundingBox, e = t.width / t.height;
@@ -31377,21 +31385,21 @@ class ic extends ht {
       const c = new Ye(l, h, o);
       r.push(c);
     }
-    this.IntGraph = new En(r, t.shallowNodeCount), this.IntGraph.nodes = s, this.database = new Cg(s.length);
+    this.IntGraph = new wn(r, t.shallowNodeCount), this.IntGraph.nodes = s, this.database = new Eg(s.length);
     for (const o of this.IntGraph.edges)
       this.database.registerOriginalEdgeInMultiedges(o);
     this.cycleRemoval();
   }
   run() {
     if (this.originalGraph.shallowNodeCount === 0) {
-      this.originalGraph.boundingBox = O.mkEmpty();
+      this.originalGraph.boundingBox = T.mkEmpty();
       return;
     }
-    Qg(this.originalGraph, this.sugiyamaSettings.transform), this.engineLayerArrays = this.calculateLayers(), this.sugiyamaSettings.edgeRoutingSettings.EdgeRoutingMode === Jt.SugiyamaSplines && this.runPostLayering(), Yg(this.originalGraph, this.sugiyamaSettings.transform);
+    Jg(this.originalGraph, this.sugiyamaSettings.transform), this.engineLayerArrays = this.calculateLayers(), this.sugiyamaSettings.edgeRoutingSettings.EdgeRoutingMode === Jt.SugiyamaSplines && this.runPostLayering(), Kg(this.originalGraph, this.sugiyamaSettings.transform);
   }
   runPostLayering() {
     const t = this.sugiyamaSettings.commonSettings.edgeRoutingSettings, e = this.constrainedOrdering != null ? Jt.Spline : t.EdgeRoutingMode;
-    this.extremeAspectRatio ? qh(this.originalGraph, Array.from(this.originalGraph.deepEdges), this.cancelToken) : e === Jt.SugiyamaSplines ? this.calculateEdgeSplines() : Jh(this.originalGraph, Array.from(this.originalGraph.deepEdges), this.cancelToken);
+    this.extremeAspectRatio ? Xh(this.originalGraph, Array.from(this.originalGraph.deepEdges), this.cancelToken) : e === Jt.SugiyamaSplines ? this.calculateEdgeSplines() : Zh(this.originalGraph, Array.from(this.originalGraph.deepEdges), this.cancelToken);
   }
   SetLabels() {
     throw new Error("not implementedt");
@@ -31446,8 +31454,8 @@ class ic extends ht {
   }
   YLayeringAndOrdering(t) {
     let e = t.GetLayers();
-    ba.Balance(this.gluedDagSkeletonForLayering, e, this.GetNodeCountsOfGluedDag(), null), e = this.ExtendLayeringToUngluedSameLayerVertices(e);
-    let i = new Ni(e);
+    Ca.Balance(this.gluedDagSkeletonForLayering, e, this.GetNodeCountsOfGluedDag(), null), e = this.ExtendLayeringToUngluedSameLayerVertices(e);
+    let i = new Bi(e);
     if (this.HorizontalConstraints == null || this.HorizontalConstraints.IsEmpty)
       return i = this.YLayeringAndOrderingWithoutHorizontalConstraints(i), i;
     throw new Error("not implemented");
@@ -31458,7 +31466,7 @@ class ic extends ht {
     const e = t.length;
     let i = 0;
     for (const n of this.database.SkeletonEdges()) {
-      const r = Dg(t, n);
+      const r = _g(t, n);
       r > 0 && (n.LayerEdges = new Array(r));
       let o = 0;
       if (r > 1) {
@@ -31481,21 +31489,21 @@ class ic extends ht {
           s[o.Target] = r--;
       } else
         s[n.source] = t[n.source], s[n.target] = t[n.target];
-    return this.properLayeredGraph = new ps(new En(Array.from(this.database.SkeletonEdges()), t.length)), this.properLayeredGraph.BaseGraph.nodes = this.IntGraph.nodes, new Ni(s);
+    return this.properLayeredGraph = new ps(new wn(Array.from(this.database.SkeletonEdges()), t.length)), this.properLayeredGraph.BaseGraph.nodes = this.IntGraph.nodes, new Bi(s);
   }
   YLayeringAndOrderingWithoutHorizontalConstraints(t) {
     const e = this.CreateProperLayeredGraph(t.y);
-    return Vs.OrderLayers(this.properLayeredGraph, e, this.originalGraph.shallowNodeCount, this.sugiyamaSettings, this.cancelToken), _r.UpdateLayerArrays1(this.properLayeredGraph, e), e;
+    return Vs.OrderLayers(this.properLayeredGraph, e, this.originalGraph.shallowNodeCount, this.sugiyamaSettings, this.cancelToken), Hr.UpdateLayerArrays1(this.properLayeredGraph, e), e;
   }
   CalculateYLayers() {
-    const t = this.YLayeringAndOrdering(new Rg(this.gluedDagSkeletonForLayering, this.cancelToken));
+    const t = this.YLayeringAndOrdering(new Bg(this.gluedDagSkeletonForLayering, this.cancelToken));
     return this.constrainedOrdering != null ? t : this.InsertLayersIfNeeded(t);
   }
   InsertLayersIfNeeded(t) {
     this.InsertVirtualEdgesIfNeeded(t);
     const e = this.AnalyzeNeedToInsertLayersAndHasMultiedges(t);
     if (e.needToInsertLayers) {
-      const i = kn.InsertLayers(this.properLayeredGraph, t, this.database, this.IntGraph);
+      const i = _n.InsertLayers(this.properLayeredGraph, t, this.database, this.IntGraph);
       this.properLayeredGraph = i.layeredGraph, t = i.la, this.LayersAreDoubled = !0;
     } else if (e.multipleEdges) {
       const i = ms.InsertPaths(this.properLayeredGraph, t, this.database, this.IntGraph);
@@ -31541,7 +31549,7 @@ class ic extends ht {
     return t.x.length >= this.sugiyamaSettings.BrandesThreshold;
   }
   CalculateAnchorsAndYPositions(t) {
-    this.anchors = Mg(this.database, this.properLayeredGraph, this.originalGraph, this.IntGraph, this.sugiyamaSettings), Fg(t, 500, this.originalGraph, this.database, this.IntGraph, this.sugiyamaSettings, this.LayersAreDoubled);
+    this.anchors = Vg(this.database, this.properLayeredGraph, this.originalGraph, this.IntGraph, this.sugiyamaSettings), Dg(t, 500, this.originalGraph, this.database, this.IntGraph, this.sugiyamaSettings, this.LayersAreDoubled);
   }
   // put some labels to the left of the splines if it makes sense
   OptimizeEdgeLabelsLocations() {
@@ -31549,9 +31557,9 @@ class ic extends ht {
       const e = this.anchors[t];
       if (e.labelIsToTheRightOfTheSpline) {
         const i = this.GetSuccessorAndPredecessor(t);
-        if (!Hg(e, i.predecessor, i.successor)) {
+        if (!jg(e, i.predecessor, i.successor)) {
           const s = i.predecessor.origin.sub(e.origin).length + i.successor.origin.sub(e.origin).length, n = e.right - e.leftAnchor, r = new u(n, e.y);
-          i.predecessor.origin.sub(r).length + i.successor.origin.sub(r).length < s && sc(e);
+          i.predecessor.origin.sub(r).length + i.successor.origin.sub(r).length < s && rc(e);
         }
       }
     }
@@ -31580,7 +31588,7 @@ class ic extends ht {
     for (const s of this.database.Anchors)
       s.bottomAnchor = s.bottomAnchor * t, s.topAnchor = s.topAnchor * t, s.y = e + t * (s.y - e);
     const i = this.originalGraph.height * t;
-    this.originalGraph.boundingBox = new O({
+    this.originalGraph.boundingBox = new T({
       left: this.originalGraph.boundingBox.left,
       top: e + i / 2,
       right: this.originalGraph.boundingBox.right,
@@ -31592,7 +31600,7 @@ class ic extends ht {
     for (const s of this.database.Anchors)
       s.leftAnchor = s.leftAnchor * t, s.rightAnchor = s.rightAnchor * t, s.x = e + t * (s.x - e);
     const i = this.originalGraph.width * t;
-    this.originalGraph.boundingBox = new O({
+    this.originalGraph.boundingBox = new T({
       left: e - i / 2,
       top: this.originalGraph.boundingBox.top,
       right: e + i / 2,
@@ -31602,7 +31610,7 @@ class ic extends ht {
   CalculateOriginalGraphBox() {
     if (this.anchors.length === 0)
       return;
-    const t = new O({
+    const t = new T({
       left: this.anchors[0].left,
       top: this.anchors[0].top,
       right: this.anchors[0].right,
@@ -31649,7 +31657,7 @@ class ic extends ht {
     this.xLayoutGraph = this.CreateXLayoutGraph(t), this.CalculateXLayersByGansnerNorthOnProperLayeredGraph();
   }
   CalculateXLayersByGansnerNorthOnProperLayeredGraph() {
-    const t = new ec(this.xLayoutGraph, null).GetLayers();
+    const t = new sc(this.xLayoutGraph, null).GetLayers();
     for (let e = 0; e < this.database.Anchors.length; e++)
       this.anchors[e].x = t[e];
   }
@@ -31677,7 +31685,7 @@ class ic extends ht {
         const o = n[r], l = n[r - 1], h = new Ye(o, l, null), c = this.database.Anchors[o], d = this.database.Anchors[l], f = c.leftAnchor + (d.rightAnchor + this.sugiyamaSettings.NodeSeparation);
         h.separation = Math.ceil(f + 0.5), i.push(h);
       }
-    const s = new Ng(this.IntGraph, this.properLayeredGraph, t, i, e);
+    const s = new Gg(this.IntGraph, this.properLayeredGraph, t, i, e);
     return s.SetEdgeWeights(), s;
   }
   CalculateXPositionsByBrandes(t) {
@@ -31691,7 +31699,7 @@ class ic extends ht {
       const n = this.verticalConstraints.gluedIntEdge(s[0]);
       n.source !== n.target && t.set(n.source, n.target, n);
     }
-    const e = Array.from(this.verticalConstraints.gluedUpDownIntConstraints.values()).map((i) => Vg(i, null));
+    const e = Array.from(this.verticalConstraints.gluedUpDownIntConstraints.values()).map((i) => kg(i, null));
     for (const i of e)
       t.set(i.source, i.target, i);
     return Array.from(t.values());
@@ -31705,16 +31713,16 @@ class ic extends ht {
     };
     if (e.nodes != null) {
       const h = e.nodes[t];
-      qg(r, h, n);
+      Xg(r, h, n);
     }
-    Ug(t, r, s, n);
+    Qg(t, r, s, n);
     const o = n.MinNodeWidth / 2;
     r.leftAnchor < o && (r.leftAnchor = o), r.rightAnchor < o && (r.rightAnchor = o);
     const l = n.MinNodeHeight / 2;
     r.topAnchor < l && (r.topAnchor = l), r.bottomAnchor < l && (r.bottomAnchor = l), i[t] = Pe.mkAnchor(r.leftAnchor, r.rightAnchor, r.topAnchor, r.bottomAnchor, e.nodes[t], n.LabelCornersPreserveCoefficient), i[t].padding = 1;
   }
   CreateGluedDagSkeletonForLayering() {
-    this.gluedDagSkeletonForLayering = new En(this.GluedDagSkeletonEdges(), this.originalGraph.shallowNodeCount), this.SetGluedEdgesWeights();
+    this.gluedDagSkeletonForLayering = new wn(this.GluedDagSkeletonEdges(), this.originalGraph.shallowNodeCount), this.SetGluedEdgesWeights();
   }
   SetGluedEdgesWeights() {
     const t = new Ki();
@@ -31734,58 +31742,58 @@ class ic extends ht {
     return this.verticalConstraints.isEmpty ? new Array(this.IntGraph.nodeCount).fill(1) : this.verticalConstraints.getGluedNodeCounts();
   }
 }
-function Rl(a, t) {
+function Nl(a, t) {
   if (t === 0)
     return 0;
   const e = Math.floor(a / t), i = a - e * t;
   return Math.abs(i) < 1e-4 ? 0 : t - i;
 }
-function Gg(a, t) {
+function Fg(a, t) {
   for (const e of a)
     if (e < t)
       return !0;
   return !1;
 }
-function Mg(a, t, e, i, s) {
+function Vg(a, t, e, i, s) {
   const n = a.Anchors = new Array(t.NodeCount);
   for (let r = 0; r < n.length; r++)
     n[r] = new Pe(s.LabelCornersPreserveCoefficient);
   for (let r = 0; r < e.shallowNodeCount; r++)
-    ic.CalcAnchorsForOriginalNode(r, i, n, a, s);
+    nc.CalcAnchorsForOriginalNode(r, i, n, a, s);
   for (const r of a.AllIntEdges())
     if (r.LayerEdges != null) {
       for (const o of r.LayerEdges) {
         const l = o.Target;
         if (l !== r.target) {
           const h = n[l];
-          a.MultipleMiddles.has(l) ? (h.leftAnchor = h.rightAnchor = vo() * 4, h.topAnchor = h.bottomAnchor = Nl(s) / 2) : (h.leftAnchor = h.rightAnchor = vo() / 2, h.topAnchor = h.bottomAnchor = Nl(s) / 2);
+          a.MultipleMiddles.has(l) ? (h.leftAnchor = h.rightAnchor = Io() * 4, h.topAnchor = h.bottomAnchor = Bl(s) / 2) : (h.leftAnchor = h.rightAnchor = Io() / 2, h.topAnchor = h.bottomAnchor = Bl(s) / 2);
         }
       }
       if (r.hasLabel) {
         const o = r.LayerEdges[r.LayerEdges.length / 2].Source, l = n[o], h = r.labelWidth, c = r.labelHeight;
-        l.rightAnchor = h, l.leftAnchor = vo() * 8, l.topAnchor < c / 2 && (l.topAnchor = l.bottomAnchor = c / 2), l.labelIsToTheRightOfTheSpline = !0;
+        l.rightAnchor = h, l.leftAnchor = Io() * 8, l.topAnchor < c / 2 && (l.topAnchor = l.bottomAnchor = c / 2), l.labelIsToTheRightOfTheSpline = !0;
       }
     }
   return n;
 }
-function vo() {
+function Io() {
   return 1;
 }
-function Nl(a) {
+function Bl(a) {
   return a.MinNodeHeight * 1.5 / 8;
 }
-function Bl(a, t, e, i, s, n) {
+function Gl(a, t, e, i, s, n) {
   let r = 0;
   if (e > 0) {
-    const o = zg(t.Layers[e - 1], t.y, i);
+    const o = qg(t.Layers[e - 1], t.y, i);
     if (o.length) {
       const l = s.LayerSeparation / 3, h = n;
-      r = Math.max(...o.map((c) => jg(c, h, l, a)));
+      r = Math.max(...o.map((c) => Ug(c, h, l, a)));
     }
   }
   return r;
 }
-function Fg(a, t, e, i, s, n, r) {
+function Dg(a, t, e, i, s, n, r) {
   const o = i.Anchors;
   let l = e.margins.top + t, h = 0;
   for (const c of a.Layers) {
@@ -31794,16 +31802,16 @@ function Fg(a, t, e, i, s, n, r) {
       const N = o[w];
       N.bottomAnchor > d && (d = N.bottomAnchor), N.topAnchor > f && (f = N.topAnchor);
     }
-    kg(c, d, f, e.shallowNodeCount, i.Anchors);
-    const p = Bl(i, a, h, s, n, l), P = l + d + p;
+    Wg(c, d, f, e.shallowNodeCount, i.Anchors);
+    const p = Gl(i, a, h, s, n, l), P = l + d + p;
     let y = P + f;
-    if (_g(n)) {
-      y += Rl(y, n.GridSizeByY);
+    if (Hg(n)) {
+      y += Nl(y, n.GridSizeByY);
       for (const w of c)
         o[w].top = y;
-    } else if (Wg(n)) {
+    } else if (zg(n)) {
       let w = P - d;
-      w += Rl(w, w);
+      w += Nl(w, w);
       for (const N of c)
         o[N].bottom = w, y = Math.max(o[N].top, y);
     } else
@@ -31812,17 +31820,17 @@ function Fg(a, t, e, i, s, n, r) {
     const C = n.ActualLayerSeparation(r);
     l = y + C, h++;
   }
-  Bl(i, a, h, s, n, l);
+  Gl(i, a, h, s, n, l);
 }
-function Vg(a, t) {
+function kg(a, t) {
   const e = new Ye(a.x, a.y, t);
   return e.weight = 0, e.separation = 1, e;
 }
-function Dg(a, t) {
+function _g(a, t) {
   return a[t.source] - a[t.target];
 }
-function kg(a, t, e, i, s) {
-  if (Gg(a, i)) {
+function Wg(a, t, e, i, s) {
+  if (Fg(a, i)) {
     for (const n of a)
       if (n >= i) {
         const r = s[n];
@@ -31830,26 +31838,26 @@ function kg(a, t, e, i, s) {
       }
   }
 }
-function _g(a) {
+function Hg(a) {
   return a.SnapToGridByY === Ks.Top;
 }
-function Wg(a) {
+function zg(a) {
   return a.SnapToGridByY === Ks.Bottom;
 }
-function Hg(a, t, e) {
+function jg(a, t, e) {
   if (a.labelIsToTheRightOfTheSpline) {
     if (u.getTriangleOrientation(t.origin, a.origin, e.origin) === L.Clockwise)
       return !0;
     const i = a.leftAnchor, s = a.rightAnchor, n = a.x;
-    return sc(a), u.getTriangleOrientation(t.origin, a.origin, e.origin) === L.Counterclockwise ? !0 : (a.x = n, a.leftAnchor = i, a.rightAnchor = s, a.labelIsToTheRightOfTheSpline = !0, a.labelIsToTheLeftOfTheSpline = !1, !1);
+    return rc(a), u.getTriangleOrientation(t.origin, a.origin, e.origin) === L.Counterclockwise ? !0 : (a.x = n, a.leftAnchor = i, a.rightAnchor = s, a.labelIsToTheRightOfTheSpline = !0, a.labelIsToTheLeftOfTheSpline = !1, !1);
   }
   return !1;
 }
-function sc(a) {
+function rc(a) {
   const t = a.right, e = a.leftAnchor;
   a.leftAnchor = a.rightAnchor, a.rightAnchor = e, a.x = t - a.rightAnchor, a.labelIsToTheLeftOfTheSpline = !0, a.labelIsToTheRightOfTheSpline = !1;
 }
-function zg(a, t, e) {
+function qg(a, t, e) {
   const i = new ti();
   for (const s of a)
     if (!(s >= e.nodeCount))
@@ -31857,7 +31865,7 @@ function zg(a, t, e) {
         t[n.source] === t[n.target] && i.addNN(n.source, n.target);
   return Array.from(i.values());
 }
-function jg(a, t, e, i) {
+function Ug(a, t, e, i) {
   let s = 0;
   const n = i.GetMultiedgeI(a);
   for (const r of n) {
@@ -31867,14 +31875,14 @@ function jg(a, t, e, i) {
   }
   return s;
 }
-function qg(a, t, e) {
+function Xg(a, t, e) {
   a.rightAnchor = a.leftAnchor = (t.width + e.GridSizeByX) / 2, a.topAnchor = a.bottomAnchor = t.height / 2;
 }
-function Ug(a, t, e, i) {
-  const s = Xg(e, a, t, i);
+function Qg(a, t, e, i) {
+  const s = Yg(e, a, t, i);
   t.rightAnchor += s;
 }
-function Xg(a, t, e, i) {
+function Yg(a, t, e, i) {
   let s = 0;
   const n = a.GetMultiedge(t, t);
   if (n.length > 0) {
@@ -31884,7 +31892,7 @@ function Xg(a, t, e, i) {
   }
   return s;
 }
-function Qg(a, t) {
+function Jg(a, t) {
   if (t.isIdentity())
     return;
   const e = t.inverse();
@@ -31892,39 +31900,39 @@ function Qg(a, t) {
     i.transform(e);
   for (const i of a.shallowEdges)
     if (i.label != null) {
-      const s = O.mkPP(e.multiplyPoint(new u(0, 0)), e.multiplyPoint(new u(i.label.width, i.label.height)));
+      const s = T.mkPP(e.multiplyPoint(new u(0, 0)), e.multiplyPoint(new u(i.label.width, i.label.height)));
       i.label.width = s.width, i.label.height = s.height;
     }
 }
-function Yg(a, t) {
+function Kg(a, t) {
   if (!t.isIdentity()) {
     for (const e of a.shallowNodes)
       e.transform(t);
     for (const e of a.shallowEdges)
       if (e.label != null) {
-        const i = O.mkPP(t.multiplyPoint(new u(0, 0)), t.multiplyPoint(new u(e.label.width, e.label.height)));
+        const i = T.mkPP(t.multiplyPoint(new u(0, 0)), t.multiplyPoint(new u(e.label.width, e.label.height)));
         e.label.width = i.width, e.label.height = i.height;
       }
-    Jg(a, t), a.graph.parent == null && (a.boundingBox = null);
-  }
-}
-function Jg(a, t) {
-  for (const e of a.shallowEdges)
-    e.label && e.label.transform(t), Kg(t, e);
-}
-function Kg(a, t) {
-  if (t.curve != null) {
-    t.curve = t.curve.transform(a);
-    const e = t;
-    e.sourceArrowhead != null && (e.sourceArrowhead.tipPosition = a.multiplyPoint(e.sourceArrowhead.tipPosition)), e.targetArrowhead != null && (e.targetArrowhead.tipPosition = a.multiplyPoint(e.targetArrowhead.tipPosition)), Zg(t, a);
+    Zg(a, t), a.graph.parent == null && (a.boundingBox = null);
   }
 }
 function Zg(a, t) {
+  for (const e of a.shallowEdges)
+    e.label && e.label.transform(t), $g(t, e);
+}
+function $g(a, t) {
+  if (t.curve != null) {
+    t.curve = t.curve.transform(a);
+    const e = t;
+    e.sourceArrowhead != null && (e.sourceArrowhead.tipPosition = a.multiplyPoint(e.sourceArrowhead.tipPosition)), e.targetArrowhead != null && (e.targetArrowhead.tipPosition = a.multiplyPoint(e.targetArrowhead.tipPosition)), tp(t, a);
+  }
+}
+function tp(a, t) {
   if (a.smoothedPolyline != null)
     for (let e = a.smoothedPolyline.headSite; e != null; e = e.next)
       e.point = t.multiplyPoint(e.point);
 }
-var fe = 63710088e-1, nc = {
+var fe = 63710088e-1, oc = {
   centimeters: fe * 100,
   centimetres: fe * 100,
   degrees: 360 / (2 * Math.PI),
@@ -31941,46 +31949,46 @@ var fe = 63710088e-1, nc = {
   radians: 1,
   yards: fe * 1.0936
 };
-function $g(a, t, e = {}) {
+function ep(a, t, e = {}) {
   const i = { type: "Feature" };
   return (e.id === 0 || e.id) && (i.id = e.id), e.bbox && (i.bbox = e.bbox), i.properties = t || {}, i.geometry = a, i;
 }
-function Gl(a, t, e = {}) {
+function Ml(a, t, e = {}) {
   if (!a)
     throw new Error("coordinates is required");
   if (!Array.isArray(a))
     throw new Error("coordinates must be an Array");
   if (a.length < 2)
     throw new Error("coordinates must be at least 2 numbers long");
-  if (!Ml(a[0]) || !Ml(a[1]))
+  if (!Fl(a[0]) || !Fl(a[1]))
     throw new Error("coordinates must contain numbers");
-  return $g({
+  return ep({
     type: "Point",
     coordinates: a
   }, t, e);
 }
-function tp(a, t = "kilometers") {
-  const e = nc[t];
+function ip(a, t = "kilometers") {
+  const e = oc[t];
   if (!e)
     throw new Error(t + " units is invalid");
   return a * e;
 }
-function ep(a, t = "kilometers") {
-  const e = nc[t];
+function sp(a, t = "kilometers") {
+  const e = oc[t];
   if (!e)
     throw new Error(t + " units is invalid");
   return a / e;
 }
-function zo(a) {
+function qo(a) {
   return a % (2 * Math.PI) * 180 / Math.PI;
 }
 function Ke(a) {
   return a % 360 * Math.PI / 180;
 }
-function Ml(a) {
+function Fl(a) {
   return !isNaN(a) && a !== null && !Array.isArray(a);
 }
-function _n(a) {
+function Wn(a) {
   if (!a)
     throw new Error("coord is required");
   if (!Array.isArray(a)) {
@@ -31993,74 +32001,62 @@ function _n(a) {
     return [...a];
   throw new Error("coord must be GeoJSON Point or an Array of numbers");
 }
-function rc(a, t, e = {}) {
+function ac(a, t, e = {}) {
   if (e.final === !0)
-    return ip(a, t);
-  const i = _n(a), s = _n(t), n = Ke(i[0]), r = Ke(s[0]), o = Ke(i[1]), l = Ke(s[1]), h = Math.sin(r - n) * Math.cos(l), c = Math.cos(o) * Math.sin(l) - Math.sin(o) * Math.cos(l) * Math.cos(r - n);
-  return zo(Math.atan2(h, c));
+    return np(a, t);
+  const i = Wn(a), s = Wn(t), n = Ke(i[0]), r = Ke(s[0]), o = Ke(i[1]), l = Ke(s[1]), h = Math.sin(r - n) * Math.cos(l), c = Math.cos(o) * Math.sin(l) - Math.sin(o) * Math.cos(l) * Math.cos(r - n);
+  return qo(Math.atan2(h, c));
 }
-function ip(a, t) {
-  let e = rc(t, a);
+function np(a, t) {
+  let e = ac(t, a);
   return e = (e + 180) % 360, e;
 }
-function sp(a, t, e, i = {}) {
-  const s = _n(a), n = Ke(s[0]), r = Ke(s[1]), o = Ke(e), l = ep(t, i.units), h = Math.asin(
+function rp(a, t, e, i = {}) {
+  const s = Wn(a), n = Ke(s[0]), r = Ke(s[1]), o = Ke(e), l = sp(t, i.units), h = Math.asin(
     Math.sin(r) * Math.cos(l) + Math.cos(r) * Math.sin(l) * Math.cos(o)
   ), c = n + Math.atan2(
     Math.sin(o) * Math.sin(l) * Math.cos(r),
     Math.cos(l) - Math.sin(r) * Math.sin(h)
-  ), d = zo(c), f = zo(h);
-  return s[2] !== void 0 ? Gl([d, f, s[2]], i.properties) : Gl([d, f], i.properties);
+  ), d = qo(c), f = qo(h);
+  return s[2] !== void 0 ? Ml([d, f, s[2]], i.properties) : Ml([d, f], i.properties);
 }
-function oc(a, t, e = {}) {
-  var i = _n(a), s = _n(t), n = Ke(s[1] - i[1]), r = Ke(s[0] - i[0]), o = Ke(i[1]), l = Ke(s[1]), h = Math.pow(Math.sin(n / 2), 2) + Math.pow(Math.sin(r / 2), 2) * Math.cos(o) * Math.cos(l);
-  return tp(
+function lc(a, t, e = {}) {
+  var i = Wn(a), s = Wn(t), n = Ke(s[1] - i[1]), r = Ke(s[0] - i[0]), o = Ke(i[1]), l = Ke(s[1]), h = Math.pow(Math.sin(n / 2), 2) + Math.pow(Math.sin(r / 2), 2) * Math.cos(o) * Math.cos(l);
+  return ip(
     2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h)),
     e.units
   );
 }
-var np = oc;
-function rp(a, t) {
-  const e = oc(a, t), i = rc(a, t);
-  return sp(a, e / 2, i);
+var op = lc;
+function ap(a, t) {
+  const e = lc(a, t), i = ac(a, t);
+  return rp(a, e / 2, i);
 }
-var op = rp;
-function xp(a) {
+var lp = ap;
+function Lp(a) {
   return a.sort((t, e) => {
     const i = { Alerting: 1, Pending: 2, Normal: 3 }, s = t.newState.startsWith("Alerting") ? "Alerting" : t.newState.startsWith("Pending") ? "Pending" : "Normal", n = e.newState.startsWith("Alerting") ? "Alerting" : e.newState.startsWith("Pending") ? "Pending" : "Normal";
     return i[s] - i[n];
   });
 }
-function Lp(a) {
-  let {
-    graphA: t,
-    graphB: e,
-    panel: i,
-    parPath: s,
-    layerIdx: n,
-    edgeId: r,
-    dataRecord: o,
-    commentsData: l,
-    theme: h
-  } = a;
+function Rp(a) {
+  let { graphA: t, graphB: e, panel: i, parPath: s, layerIdx: n, edgeId: r, dataRecord: o, commentsData: l, theme: h } = a;
   const { isLogic: c, graph: d } = i, { setEdge: f, findNode: p } = t, P = t.nodeCollection.findEdge, y = s[0], C = s.at(-1);
   if (typeof C != "string" || typeof y != "string")
     return;
   let w = p(y);
   if (!p(C) || !w)
     return;
-  const I = [], T = [], V = [];
-  if (s.forEach(
-    (ot, Ht) => {
-      if (typeof ot == "string") {
-        const Rt = p(ot);
-        if (Rt) {
-          const ne = Rt.data.wasmId;
-          I.push(ne), T.push(ot), V.push(ot);
-        }
-      } else !i.isLogic && Array.isArray(ot) && (I.push(void 0), V.push(ot));
-    }
-  ), !I.length)
+  const I = [], x = [], V = [];
+  if (s.forEach((ot, Ht) => {
+    if (typeof ot == "string") {
+      const Rt = p(ot);
+      if (Rt) {
+        const ne = Rt.data.wasmId;
+        I.push(ne), x.push(ot), V.push(ot);
+      }
+    } else !i.isLogic && Array.isArray(ot) && (I.push(void 0), V.push(ot));
+  }), !I.length)
     return;
   const M = r ?? y + "-" + C;
   let X = P(M), Zt;
@@ -32073,11 +32069,11 @@ function Lp(a) {
       edge_id: Zt,
       edgeId: M
     }, se = [];
-    if (c && T.length > 2) {
-      const [Rt, ne] = s.length ? ac(V, i.positions, p) : [];
+    if (c && x.length > 2) {
+      const [Rt, ne] = s.length ? hc(V, i.positions, p) : [];
       Rt.forEach((de, mi) => {
-        const nn = mi ? "--" + mi : "", va = M + nn, so = de[0].item.id, no = de.at(-1).item.id, Gi = f(va, so, no);
-        Gi && (Gi.setData(Ht), se.push(Gi));
+        const nn = mi ? "--" + mi : "", Ia = M + nn, ro = de[0].item.id, oo = de.at(-1).item.id, Pi = f(Ia, ro, oo);
+        Pi && (Pi.setData(Ht), se.push(Pi));
       });
     } else {
       if (X = f(M, y, C, e), !X) {
@@ -32107,7 +32103,7 @@ function Lp(a) {
     }
   });
 }
-function ac(a, t, e) {
+function hc(a, t, e) {
   if (a.length === 0)
     return [[]];
   const i = a.map((l, h) => typeof l == "string" ? e(l) : l).filter((l) => l), s = [], n = [];
@@ -32120,17 +32116,17 @@ function ac(a, t, e) {
   }
   return [s, n];
 }
-function ap(a) {
+function hp(a) {
   return typeof a == "string";
 }
-function Fl(a) {
-  return a.map((t, e) => ap(t) ? e : -1).filter((t) => t !== -1);
+function Vl(a) {
+  return a.map((t, e) => hp(t) ? e : -1).filter((t) => t !== -1);
 }
-function lp(a, t, e) {
-  const i = Fl(a);
+function cp(a, t, e) {
+  const i = Vl(a);
   if (i.length < 2)
     return { parPath: a, wasmIds: t };
-  e.length !== Fl(a).length - 1 && console.warn("Polyline / segment mismatch", { polylines: e, parPath: a });
+  e.length !== Vl(a).length - 1 && console.warn("Polyline / segment mismatch", { polylines: e, parPath: a });
   const s = [], n = [];
   let r = 0;
   for (let l = 0; l < i.length - 1; l++) {
@@ -32143,41 +32139,42 @@ function lp(a, t, e) {
   const o = i.at(-1);
   return s.push(a[o]), n.push(t[o]), { parPath: s, wasmIds: n };
 }
-function hp(a) {
+function up(a) {
   const t = Kt.getGeom(a);
   return t?.source ? Array.from(t.getSmoothPolyPoints()).slice(1, -1).map((e) => [e.x, e.y]) : [];
 }
-function Rp(a) {
+function Np(a) {
   const t = a.graph, e = Nt.getGeom(t);
-  e.layoutSettings = new sn(), e.layoutSettings.layerDirection = je.RL, e.layoutSettings.LayerSeparation = 60, e.layoutSettings.commonSettings.NodeSeparation = 40, tg(e);
+  e.layoutSettings = new sn(), e.layoutSettings.layerDirection = je.RL, e.layoutSettings.LayerSeparation = 60, e.layoutSettings.commonSettings.NodeSeparation = 40, ig(e);
   const { getEdgeVerticeIds: i, wasm2Edges: s } = t;
   s.forEach((n) => {
-    const r = n[0], o = r.data.edge_id, l = r.data.parPath, h = i[o][0], c = n.map(hp), { parPath: d, wasmIds: f } = lp(l, h, c);
+    const r = n[0], o = r.data.edge_id, l = r.data.parPath, h = i[o][0], c = n.map(up), { parPath: d, wasmIds: f } = cp(l, h, c);
     r.data.parPath = d, i[o][0] = f;
   });
   for (const n of e.deepEdges)
     n.source, n.target, n.curve;
   for (const n of e.nodesBreadthFirst) {
     const r = n.node;
-    if (!r.data) continue;
+    if (!r.data)
+      continue;
     const { feature: o, wasmId: l } = r.data;
     a.positions[l * 2] = n.center.x, a.positions[l * 2 + 1] = n.center.y;
   }
 }
-function cp(a, t, e, i, s) {
+function dp(a, t, e, i, s) {
   const n = e - t, r = a * s;
   if (r === 0)
     return t + n * i;
   const o = n / r, l = o * o + 1, h = t, c = i;
   return Math.sqrt(c * (l - c)) * r + h;
 }
-function up(a, t, e) {
+function fp(a, t, e) {
   return e ? [
     (a[0] + t[0]) / 2,
     (a[1] + t[1]) / 2
-  ] : op(a, t).geometry.coordinates;
+  ] : lp(a, t).geometry.coordinates;
 }
-function Np(a, t, e = !0) {
+function Bp(a, t, e = !0) {
   if (a.id) {
     const i = a.data.wasmId, s = t.positions[i * 2], n = t.positions[i * 2 + 1];
     if (s !== void 0 && !n !== void 0)
@@ -32186,7 +32183,7 @@ function Np(a, t, e = !0) {
     return e ? a.slice(0, 2) : a;
   return null;
 }
-function dp(a, t, e, i = !0) {
+function gp(a, t, e, i = !0) {
   return a.map((n, r) => {
     if (typeof n == "string") {
       const o = t[r], l = e[o * 2], h = e[o * 2 + 1];
@@ -32196,15 +32193,15 @@ function dp(a, t, e, i = !0) {
     return null;
   }).filter((n) => n);
 }
-const Bp = "#4ec2fc", fp = 1.5, gp = "default", pp = "#0a55a1", Gp = "#000000", Mp = "#299c46", Fp = "#9acd32", Vp = "#299C46", mp = "#ed8128", Pp = "#f53636", Dp = "#ed473b", Sp = pp, kp = "rgba(154, 205, 50)", yp = "#9acd32", _p = {
-  color: yp,
-  lineWidth: fp,
-  label: gp
-}, Wp = "#f0fc", Hp = "#e034b8cc", zp = "#ffdd57e6", jp = "#205299cc", qp = "#ffd70033", Up = "#20529933", Xp = "#ffd70026", Qp = "#42a4f533", Yp = "#e6ca5ce6", Jp = "#dfff7bcc", Kp = "#2fa1deb3", Zp = "#f0f0f0", $p = "#e0be8b", Co = { Alerting: "#e0226e", Pending: "#ff9900", Normal: "#1b855e" }, tm = "#cfe3d4", em = 0.5, Io = {
-  255: [Co.Alerting, "Alerting", [224, 34, 110, 254]],
-  222: [Co.Pending, "Pending", [255, 153, 0, 254]],
-  111: [Co.Normal, "Normal", [27, 133, 94, 254]]
-}, im = { Alerting: Io[255], Pending: Io[222], Normal: Io[111] }, sm = 20, nm = "new rule", rm = !0, om = "", am = "cisco/atm-switch", lm = -5, hm = 40, cm = 45, um = 16, dm = 2, fm = {}, gm = {
+const Gp = "#4ec2fc", pp = 1.5, mp = "default", Pp = "#0a55a1", Mp = "#000000", Fp = "#299c46", Vp = "#9acd32", Dp = "#299C46", Sp = "#ed8128", yp = "#f53636", kp = "#ed473b", bp = Pp, _p = "rgba(154, 205, 50)", vp = "#9acd32", Wp = {
+  color: vp,
+  lineWidth: pp,
+  label: mp
+}, Hp = "#f0fc", zp = "#e034b8cc", jp = "#ffdd57e6", qp = "#205299cc", Up = "#ffd70033", Xp = "#20529933", Qp = "#ffd70026", Yp = "#42a4f533", Jp = "#e6ca5ce6", Kp = "#dfff7bcc", Zp = "#2fa1deb3", $p = "#f0f0f0", tm = "#e0be8b", Eo = { Alerting: "#e0226e", Pending: "#ff9900", Normal: "#1b855e" }, em = "#cfe3d4", im = 0.5, wo = {
+  255: [Eo.Alerting, "Alerting", [224, 34, 110, 254]],
+  222: [Eo.Pending, "Pending", [255, 153, 0, 254]],
+  111: [Eo.Normal, "Normal", [27, 133, 94, 254]]
+}, sm = { Alerting: wo[255], Pending: wo[222], Normal: wo[111] }, nm = 20, rm = "new rule", om = !0, am = "", lm = "cisco/atm-switch", hm = -5, cm = 40, um = 45, dm = 16, fm = 2, gm = {}, pm = {
   shape: "binary-feature-collection",
   points: {
     type: "Point",
@@ -32230,18 +32227,21 @@ const Bp = "#4ec2fc", fp = 1.5, gp = "default", pp = "#0a55a1", Gp = "#000000", 
     globalFeatureIds: { value: new Uint16Array(), size: 1 },
     properties: []
   }
-}, pm = [
-  mp,
-  Pp,
-  Sp
-], mm = "fixed", Pm = ".", Sm = 25, ym = "mapgl", bm = "xy-namespaces", vm = "cmn", Cm = "external", Im = "annots & alerts query (built-in)", Em = "source", wm = {
+}, mm = [
+  Sp,
+  yp,
+  bp
+], Pm = "fixed", Sm = ".", ym = 25, bm = "mapgl", vm = "xy-namespaces", Cm = "cmn", Im = "external", Em = "annots & alerts query (built-in)", wm = "source", Am = {
   longitude: 0,
   latitude: 0,
   zoom: 1,
   yZoom: 2
 };
-var bp = /* @__PURE__ */ ((a) => (a.GeoJson = "geojson", a.Polygons = "polygons", a.Path = "path", a.Markers = "markers", a.Nodes = "nodes", a.Edges = "edges", a.Hyperedges = "routed", a.Clusters = "clusters", a.SVG = "icon", a.Circle = "circle", a.Label = "label", a.Comments = "comments", a.Hull = "convex-hull", a.Text = "text", a.Bboxes = "bboxes", a))(bp || {});
-class be extends uc {
+var Dl;
+(function(a) {
+  a.GeoJson = "geojson", a.Polygons = "polygons", a.Path = "path", a.Markers = "markers", a.Nodes = "nodes", a.Edges = "edges", a.Hyperedges = "routed", a.Clusters = "clusters", a.SVG = "icon", a.Circle = "circle", a.Label = "label", a.Comments = "comments", a.Hull = "convex-hull", a.Text = "text", a.Bboxes = "bboxes";
+})(Dl || (Dl = {}));
+class be extends fc {
   root;
   isLogic = !1;
   comments = {};
@@ -32256,7 +32256,7 @@ class be extends uc {
   /** Is a panel root graph */
   isRoot = !1;
   constructor(t = "__graph__", e = !1, i = !0) {
-    super(t), this.isRoot = e, this.isLogic = i, this.findNode = this.findNode.bind(this), this.addNode = this.addNode.bind(this), this.setEdge = this.setEdge.bind(this), this._bumpVersion = this._bumpVersion.bind(this), this.setRoot = this.setRoot.bind(this), this.findNodeRecursive = this.findNodeRecursive.bind(this), Sh(this, {
+    super(t), this.isRoot = e, this.isLogic = i, this.findNode = this.findNode.bind(this), this.addNode = this.addNode.bind(this), this.setEdge = this.setEdge.bind(this), this._bumpVersion = this._bumpVersion.bind(this), this.setRoot = this.setRoot.bind(this), this.findNodeRecursive = this.findNodeRecursive.bind(this), bh(this, {
       version: It,
       _bumpVersion: Ne,
       getVersion: li,
@@ -32327,7 +32327,8 @@ class be extends uc {
   *getClusteredConnectedComponents() {
     const t = /* @__PURE__ */ new Set(), e = new We.Queue();
     for (const i of this.nodesBreadthFirst) {
-      if (t.has(i)) continue;
+      if (t.has(i))
+        continue;
       t.add(i), e.enqueue(i);
       const s = /* @__PURE__ */ new Set();
       do {
@@ -32348,9 +32349,11 @@ class be extends uc {
   }
   hasSomeAttrOnIndex(t) {
     for (const e of this.nodesBreadthFirst)
-      if (e.getAttr(t)) return !0;
+      if (e.getAttr(t))
+        return !0;
     for (const e of this.deepEdges)
-      if (e.getAttr(t)) return !0;
+      if (e.getAttr(t))
+        return !0;
     return !1;
   }
   *graphs() {
@@ -32359,11 +32362,14 @@ class be extends uc {
   }
   noEmptySubgraphs() {
     for (const t of this.subgraphsBreadthFirst())
-      if (t.shallowNodeCount === 0) return !1;
+      if (t.shallowNodeCount === 0)
+        return !1;
     return !0;
   }
   hasSubgraphs() {
-    for (const t of this.shallowNodes) if (t instanceof be) return !0;
+    for (const t of this.shallowNodes)
+      if (t instanceof be)
+        return !0;
     return !1;
   }
   /** iterates breadth first  */
@@ -32376,10 +32382,12 @@ class be extends uc {
   }
   setEdge(t, e, i, s) {
     const n = this.nodeCollection.findShallow(e);
-    if (n == null) return;
+    if (n == null)
+      return;
     const r = s ? s.nodeCollection.findShallow(i) : this.nodeCollection.findShallow(i);
-    if (r == null) return;
-    const o = new cc(t, n, r);
+    if (r == null)
+      return;
+    const o = new dc(t, n, r);
     return this.isLogic && new Kt(o), this.nodeCollection.addEdge(o), o;
   }
   /** Iterates over the nodes of the current graph but not entering the subgraphs.
@@ -32415,7 +32423,8 @@ class be extends uc {
     for (const i of this.shallowNodes)
       if (i instanceof be) {
         const s = i.findNodeRecursive(t);
-        if (s) return s;
+        if (s)
+          return s;
       }
     return null;
   }
@@ -32466,10 +32475,10 @@ class be extends uc {
   }
   /** adds a node to the graph */
   addNode(t) {
-    return hc.assert(this.findNodeRecursive(t.id) == null), t.parent = this, this.nodeCollection.addNode(t), t;
+    return uc.assert(this.findNodeRecursive(t.id) == null), t.parent = this, this.nodeCollection.addNode(t), t;
   }
   /// was private originally
-  nodeCollection = new ja();
+  nodeCollection = new qa();
   get shallowNodeCount() {
     return this.nodeCollection.nodeShallowCount;
   }
@@ -32532,7 +32541,7 @@ class be extends uc {
    * Clean up all the nodes in the graph.
    */
   resetNodes = () => {
-    this.nodeCollection = new ja(), this.positionRanges = [];
+    this.nodeCollection = new qa(), this.positionRanges = [];
   };
   get getNodes() {
     return this.nodeCollection.nodesShallow;
@@ -32580,28 +32589,20 @@ class be extends uc {
         return;
       const f = h?.dataRecord;
       h?.edge_id;
-      const {
-        parPath: p
-      } = h || {}, P = p[0];
+      const { parPath: p } = h || {}, P = p[0];
       let y = p;
       const C = this.wasm_edge_vertice_ids[r][0];
-      let w = dp(y, C, s, !0);
-      const [N, I] = p.length ? ac(y, w, d) : [];
-      let T = I;
+      let w = gp(y, C, s, !0);
+      const [N, I] = p.length ? hc(y, w, d) : [];
+      let x = I;
       N.length || Array.isArray(p) && N.push([{
         item: P,
         gIdx: 0
       }, { item: p.at(-1), gIdx: 1 }]);
       const V = Kt.getGeom(o);
-      if (V?.source)
-        if (V?.curve?.start) {
-          if (T.length > 0 && (T[0].length > 3, T.length > 1)) {
-            const Gi = T.length - 1;
-            T[Gi].length > 3;
-          }
-        } else
-          console.warn("Invalid controlPoints or polyPoints", P, o.id), T = [T];
-      if (!T.length)
+      if (V?.source && (V?.curve?.start ? x.forEach((Pi, Yn) => {
+        Pi.length > 3 && (x[Yn] = Pi.slice(1, -1));
+      }) : (console.warn("Invalid controlPoints or polyPoints", P, o.id), x = [x])), !x.length)
         return;
       const M = f, X = {
         //id: counter,
@@ -32609,7 +32610,7 @@ class be extends uc {
         type: "Feature",
         geometry: {
           type: "MultiLineString",
-          coordinates: T
+          coordinates: x
         },
         rowIndex: f?.rowIndex,
         // can't pick original index without explicitely stating it
@@ -32618,28 +32619,28 @@ class be extends uc {
           locName: P,
           segrPath: N
         }
-      }, Zt = X.properties, ot = T[0][0], Ht = T.at(-1).at(-1);
+      }, Zt = X.properties, ot = x[0][0], Ht = x.at(-1).at(-1);
       e[c.id] || (e[c.id] = []), e[c.id].push(X), o.setLineId(e[c.id].length - 1);
       const { arcStyle: se } = Zt, Rt = se?.arcConfig.height, ne = { units: "meters" };
-      function de(Gi, Ca) {
-        const Ia = Ca[0] - Gi[0], Ea = Ca[1] - Gi[1];
-        return Math.sqrt(Ia * Ia + Ea * Ea);
+      function de(Pi, Yn) {
+        const Ea = Yn[0] - Pi[0], wa = Yn[1] - Pi[1];
+        return Math.sqrt(Ea * Ea + wa * wa);
       }
-      const mi = this.isLogic ? de(ot, Ht) : np(ot, Ht, ne), nn = cp(mi, 0, 0, 0.5, Rt !== void 0 ? Rt : 0.5), so = [
-        ...up(ot, Ht, this.isLogic),
+      const mi = this.isLogic ? de(ot, Ht) : op(ot, Ht, ne), nn = dp(mi, 0, 0, 0.5, Rt !== void 0 ? Rt : 0.5), ro = [
+        ...fp(ot, Ht, this.isLogic),
         nn
-      ], no = {
+      ], oo = {
         sourcePosition: ot,
         targetPosition: Ht,
-        midPoint: so,
+        midPoint: ro,
         properties: Zt,
         edgeId: o.id
       };
-      t[c.id] || (t[c.id] = []), t[c.id].push(no);
+      t[c.id] || (t[c.id] = []), t[c.id].push(oo);
     }), [e, t];
   }
 }
-class Am {
+class Tm {
   colType;
   layerName;
   __state = {};
@@ -32678,81 +32679,81 @@ class Am {
   }
 }
 export {
-  im as ALERTING_NUMS,
-  Co as ALERTING_STATES,
-  Io as ALERT_MAP,
-  Im as ANNOTS_LABEL,
-  $p as ANNOT_CLUSTER_BK_COLOR,
-  ur as AttributeRegistry,
-  tm as BBOX_OUTLINE_COLOR,
-  em as BBOX_OUTLINE_WIDTH,
-  Cm as CMN_NAMESPACE,
-  vm as CMN_NAMESPACE_PREFIX,
-  dp as CoordsConvert,
+  sm as ALERTING_NUMS,
+  Eo as ALERTING_STATES,
+  wo as ALERT_MAP,
+  Em as ANNOTS_LABEL,
+  tm as ANNOT_CLUSTER_BK_COLOR,
+  fr as AttributeRegistry,
+  em as BBOX_OUTLINE_COLOR,
+  im as BBOX_OUTLINE_WIDTH,
+  Im as CMN_NAMESPACE,
+  Cm as CMN_NAMESPACE_PREFIX,
+  gp as CoordsConvert,
   pt as CurveFactory,
-  qp as DARK_AUTO_HIGHLIGHT,
-  zp as DARK_CENTER_PLOT,
-  Xp as DARK_HULL_HIGHLIGHT,
-  Zp as DEFAULT_CLUSTER_BK_COLOR,
-  cm as DEFAULT_CLUSTER_ICON_SIZE,
-  um as DEFAULT_CLUSTER_MAX_ZOOM,
-  hm as DEFAULT_CLUSTER_SCALE,
-  gp as DEFAULT_COLOR_LABEL,
-  Fp as DEFAULT_COLOR_PICKER,
-  Bp as DEFAULT_COMMENT_COLOR,
-  Pp as DEFAULT_CRITICAL_COLOR,
-  Hp as DEFAULT_EDIT_HANDLE_COLOR,
-  om as DEFAULT_ICON_NAME,
-  am as DEFAULT_ICON_NAME2,
-  rm as DEFAULT_ICON_RULE_IS_COLLAPSED,
-  nm as DEFAULT_ICON_RULE_LABEL,
-  sm as DEFAULT_ICON_SIZE,
-  fp as DEFAULT_LINE_WIDTH,
-  yp as DEFAULT_NO_DATA_COLOR,
-  kp as DEFAULT_NO_DATA_COLOR_RGBA,
-  Sp as DEFAULT_NO_THRESHOLD_COLOR,
-  Dp as DEFAULT_NUMS_COLOR,
-  Mp as DEFAULT_OK_COLOR,
-  Vp as DEFAULT_OK_COLOR_SELECTED,
-  lm as DEFAULT_SVG_ICON_V_OFFSET,
-  mp as DEFAULT_WARNING_COLOR,
-  cc as Edge,
+  Up as DARK_AUTO_HIGHLIGHT,
+  jp as DARK_CENTER_PLOT,
+  Qp as DARK_HULL_HIGHLIGHT,
+  $p as DEFAULT_CLUSTER_BK_COLOR,
+  um as DEFAULT_CLUSTER_ICON_SIZE,
+  dm as DEFAULT_CLUSTER_MAX_ZOOM,
+  cm as DEFAULT_CLUSTER_SCALE,
+  mp as DEFAULT_COLOR_LABEL,
+  Vp as DEFAULT_COLOR_PICKER,
+  Gp as DEFAULT_COMMENT_COLOR,
+  yp as DEFAULT_CRITICAL_COLOR,
+  zp as DEFAULT_EDIT_HANDLE_COLOR,
+  am as DEFAULT_ICON_NAME,
+  lm as DEFAULT_ICON_NAME2,
+  om as DEFAULT_ICON_RULE_IS_COLLAPSED,
+  rm as DEFAULT_ICON_RULE_LABEL,
+  nm as DEFAULT_ICON_SIZE,
+  pp as DEFAULT_LINE_WIDTH,
+  vp as DEFAULT_NO_DATA_COLOR,
+  _p as DEFAULT_NO_DATA_COLOR_RGBA,
+  bp as DEFAULT_NO_THRESHOLD_COLOR,
+  kp as DEFAULT_NUMS_COLOR,
+  Fp as DEFAULT_OK_COLOR,
+  Dp as DEFAULT_OK_COLOR_SELECTED,
+  hm as DEFAULT_SVG_ICON_V_OFFSET,
+  Sp as DEFAULT_WARNING_COLOR,
+  dc as Edge,
   Jt as EdgeRoutingMode,
-  Wp as FEATURE_EDIT_HANDLE_COLOR,
-  mm as FIXED_COLOR_LABEL,
-  Am as FeatSource,
-  Gp as GLOBAL_BORDER_COLOR,
-  pp as GLOBAL_FILL_COLOR,
-  pm as GLOBAL_OVERRIDE_COLORS,
+  Hp as FEATURE_EDIT_HANDLE_COLOR,
+  Pm as FIXED_COLOR_LABEL,
+  Tm as FeatSource,
+  Mp as GLOBAL_BORDER_COLOR,
+  Pp as GLOBAL_FILL_COLOR,
+  mm as GLOBAL_OVERRIDE_COLORS,
   Nt as GeomGraph,
   Yt as GeomNode,
   be as Graph,
-  Up as LIGHT_AUTO_HIGHLIGHT,
-  jp as LIGHT_CENTER_PLOT,
-  Qp as LIGHT_HULL_HIGHLIGHT,
-  Yp as LINES_EDIT_HANDLE_COLOR,
-  Jp as LINES_SNAP_SOURCE_COLOR,
-  Kp as LINES_SNAP_TARGET_COLOR,
+  Xp as LIGHT_AUTO_HIGHLIGHT,
+  qp as LIGHT_CENTER_PLOT,
+  Yp as LIGHT_HULL_HIGHLIGHT,
+  Jp as LINES_EDIT_HANDLE_COLOR,
+  Kp as LINES_SNAP_SOURCE_COLOR,
+  Zp as LINES_SNAP_TARGET_COLOR,
   je as LayerDirectionEnum,
-  Em as MOC_LOC_FIELD,
-  Sm as NS_PADDING,
-  Pm as NS_SEPARATOR,
-  uc as Node,
+  wm as MOC_LOC_FIELD,
+  ym as NS_PADDING,
+  Sm as NS_SEPARATOR,
+  fc as Node,
   u as Point,
-  bm as RXDB_LOGIC_NAMESPACES,
-  ym as RXDB_NS_PREFIX,
-  dm as SEL_LINE_WIDTH_MULTIPLIER,
-  Np as SingleCoordsConvert,
+  vm as RXDB_LOGIC_NAMESPACES,
+  bm as RXDB_NS_PREFIX,
+  fm as SEL_LINE_WIDTH_MULTIPLIER,
+  Bp as SingleCoordsConvert,
   sn as SugiyamaLayoutSettings,
-  Op as TileMap,
-  fm as blankHoverInfo,
-  bp as colTypes,
-  wm as defViewState,
-  _p as defaultThreshold,
-  gm as emptyBiCol,
-  rp as getMiddleCoords,
-  tg as layoutGeomGraph,
-  Lp as pushPath,
-  Rp as runLayout,
-  xp as sortAnnotations
+  xp as TileMap,
+  gm as blankHoverInfo,
+  Dl as colTypes,
+  Am as defViewState,
+  Wp as defaultThreshold,
+  pm as emptyBiCol,
+  ap as getMiddleCoords,
+  ig as layoutGeomGraph,
+  Rp as pushPath,
+  Np as runLayout,
+  Lp as sortAnnotations
 };

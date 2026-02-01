@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 23,
+  "id": 4,
   "links": [],
   "panels": [
     {
@@ -160,6 +160,7 @@
                 }
               },
               "edgeStyle": {
+                "arrow": -1,
                 "color": {
                   "field": "metric",
                   "fixed": "light-red"
@@ -324,6 +325,7 @@
                 }
               },
               "edgeStyle": {
+                "arrow": -1,
                 "color": {
                   "field": "metric",
                   "fixed": "light-blue"
@@ -555,5 +557,5 @@
   "timezone": "",
   "title": "Node Graph",
   "uid": "a392c39f-284e-436e-81e3-3bbc77f88090",
-  "version": 65
+  "version": 1
 }
