@@ -192,7 +192,7 @@ function createDerivedLayers (visLayers: VisLayers, graph: Graph, isLogic, repla
    visLayers.addLayer('graph', 'graph','graph',false,true,false,null,false)
 
 
-    const hyperVar = useMockData ? '1' : replaceVariables(`$routed`)//(`$hyperedges`)
+    const hyperVar = useMockData ? '1' : replaceVariables(`$routed`)
     const parsed = parseInt(hyperVar, 10);
     const isHyper = !isNaN(parsed) && parsed > 0;
 

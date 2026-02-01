@@ -55,7 +55,7 @@ const fixForNodes = {...defaultStyleConfig, size: {...defaultStyleConfig.size, f
 
 const defaultOptions: MarkersConfig = {
   style: {...fixForNodes, useGroups: true},
-  edgeStyle: {...defaultStyleConfig, arrow: 0},
+  edgeStyle: {...defaultStyleConfig},
   arcStyle: {
     sideA: {...defaultStyleConfig,
       arrow: 0,
@@ -108,7 +108,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
 
     const graph = panel.graph
     const {
-      parField, edgeIdField, isWrapEdges
+      parField, edgeIdField
     } = options
     const locField = options.locField ?? MOC_LOC_FIELD
 
@@ -123,6 +123,13 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                   text: mockTextConfig,
               }),
           },
+          edgeStyle: {
+              ...defaultOptions.edgeStyle,
+              ...options.config?.edgeStyle,
+              ...(panel.useMockData && options.config?.edgeStyle.arrow === undefined && {
+                  arrow: 1,
+              }),
+          }
       };
 
     const style = await getStyleConfigState(config.style);
