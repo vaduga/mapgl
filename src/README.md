@@ -9,40 +9,38 @@
 
 
 
-A sample node graph is loaded on every new panel to try out styles and modes
-### v1 -> v2 data migration is not required
+Network **Geo map** / **Node Graph** with autolayout and spline edge routing.
 
-Version 2.0 introduces a **Node Graph** view with autolayout and spline edge routing. In addition to Geo mode.  
+Start new panel with a sample node graph to test styles and modes.
 
-Data model is compatible with v1 **Geo mode**, using the unified dataframe for nodes and edges.  
-Panel config schema and UI for styling has been redesigned to be in line with standard Grafana behaviors.
-
-Mapgl now fully supports native Grafana field config:  Thresholds, Mappings, Units, Overrides, Data links.
+Full support for native Grafana field config:  Thresholds, Mappings, Units, Overrides, Data links.
 
 ---
 ### Screenshots
 
 <img
-src="https://mapgl.org/img/screenshot1.png"
+src="https://mapgl.org/img/drilldown.png"
 alt="Geomap"
-width="900"
+width="600"
 />
 <img
-src="https://mapgl.org/img/screenshot2.png"
+src="https://mapgl.org/img/graph0.png"
 alt="NodeGraph"
-width="900"
+width="600"
 />
 
 
 ---
 
-### Network Topology 
+### Features 
 
 - **Node graph** with layered auto-layout or **Geomap view**
-- Arc sections on nodes for any metrics.
+- Webgl GPU-acceleration for rendering large data volumes
+- Arc sections on nodes for multiple metrics.
 - Multi-segment routes
+- Support for parallel routes
 - Network interface TX/RX load visualization using bi-metric arcs
-- Ad-hoc filters by layers, node groups in the legend
+- Ad-hoc filtering by layers, node groups in the legend
 - Dynamic drill-down data links to external panels
 
 ---

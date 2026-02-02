@@ -1,7 +1,7 @@
 # Changelog Mapgl
 
 ## 2.0.1
-- arrows for edges in 'routed' view mode
+- arrows config for edges in 'routed' view mode
 - parallel edges support for arcs/hyperedges in nodegraph view 
 - cut edges at node boundary ports to prevent overlapping with semi-transparent nodes. 
 - show head node id in edge tooltip
