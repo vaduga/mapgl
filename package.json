@@ -105,7 +105,8 @@
     "react-window": "^1.8.11"
   },
   "overrides": {
-    "@stylistic/eslint-plugin-ts": "^3.1.0"
+    "@stylistic/eslint-plugin-ts": "^3.1.0",
+    "fast-xml-parser": "^5.3.4"
   },
   "packageManager": "npm@11.7.0"
 }
