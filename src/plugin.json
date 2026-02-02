@@ -15,7 +15,7 @@
       "zabbix",
       "deckgl"
     ],
-    "description": "Node Graph and Geomap with links",
+    "description": "Node Graph and Network Geomap",
     "author": {
       "name": "Vadim Pyatakov"
     },
