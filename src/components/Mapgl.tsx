@@ -1,9 +1,5 @@
 import {FullscreenWidget, CompassWidget} from '@deck.gl/widgets';
-
-import styles from '@deck.gl/widgets/stylesheet.css'
-const styleTag = document.createElement('style');
-styleTag.textContent = styles as string;
-document.head.appendChild(styleTag);
+import('@deck.gl/widgets/stylesheet.css')
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {flushSync} from 'react-dom';
 import {css} from '@emotion/css';
