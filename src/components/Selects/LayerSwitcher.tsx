@@ -219,7 +219,7 @@ LayerSwitcher.renderLayer_ = (geomap, setVisRefresh, setMobxLegendRefresh, lyr, 
             label.htmlFor = checkboxId;
         }
 
-        label.innerHTML = lyrLabel;
+        label.textContent = lyrLabel;
         li.appendChild(label);
 
         const ul = document.createElement('ul');
@@ -253,7 +253,7 @@ LayerSwitcher.renderLayer_ = (geomap, setVisRefresh, setMobxLegendRefresh, lyr, 
         li.appendChild(input)
 
         label.htmlFor = checkboxId;
-        label.innerHTML = lyrLabel; //lyrName;
+        label.textContent = lyrLabel; //lyrName;
         li.appendChild(label);
     }
 
