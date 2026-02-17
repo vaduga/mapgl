@@ -1,5 +1,5 @@
 import {FullscreenWidget, CompassWidget} from '@deck.gl/widgets';
-import('@deck.gl/widgets/stylesheet.css')
+import {deckWidgetSkin} from "./deckWidgetSkin";
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {flushSync} from 'react-dom';
 import {css} from '@emotion/css';
@@ -620,13 +620,14 @@ const getStyles = (theme: GrafanaTheme2) => ({
         padding: 10px;
     `,
     fullscreen: css`
-        z-index: 2;
-        position: absolute;
-        top: ${theme.spacing(5)};
-        right: 0;        
-        overflow: hidden;
-        pointer-events: all;
-    `,
+    z-index: 2;
+    position: absolute;
+    top: ${theme.spacing(5)};
+    right: 0;
+    overflow: hidden;
+    pointer-events: all;
+    ${deckWidgetSkin}
+  `,
     compass: css`
         z-index: 2;
         position: absolute;
@@ -634,6 +635,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
         right: 0;
         overflow: hidden;
         pointer-events: all;
+        ${deckWidgetSkin}
     `,
     layerSwitcher: css`
         z-index: 200;
