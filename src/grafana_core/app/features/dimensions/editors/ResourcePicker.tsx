@@ -18,7 +18,7 @@ import {
 import { getPublicOrAbsoluteUrl } from '../resource';
 import { MediaType, ResourceFolderName, ResourcePickerSize } from '../types';
 import {closePopover} from "../../../../ui/src/utils/closePopover";
-import {SanitizedSvg} from "../../../../components/SVG/SanitizedSvg";
+import {SanitizedSVG} from "../../../../components/SVG/SanitizedSVG";
 import {ResourcePickerPopover} from "./ResourcePickerPopover";
 
 //import { ResourcePickerPopover } from './ResourcePickerPopover';
@@ -65,7 +65,7 @@ export const ResourcePicker = (props: Props) => {
 
     const renderSmallResourcePicker = () => {
         if (value && sanitizedSrc) {
-            return <SanitizedSvg src={sanitizedSrc} className={styles.icon} style={{ ...colorStyle }} />;
+            return <SanitizedSVG src={sanitizedSrc} className={styles.icon} style={{ ...colorStyle }} />;
         } else {
             return (
                 <LinkButton variant="primary" fill="text" size="sm">
@@ -81,7 +81,7 @@ export const ResourcePicker = (props: Props) => {
                     value={getDisplayName(src, name)}
                     placeholder={placeholder}
                     readOnly={true}
-                    prefix={sanitizedSrc && <SanitizedSvg cleanStyle={true} src={sanitizedSrc} className={styles.icon} style={{ ...colorStyle }} />}
+                    prefix={sanitizedSrc && <SanitizedSVG cleanStyle={true} src={sanitizedSrc} className={styles.icon} style={{ ...colorStyle }} />}
                     suffix={<Button aria-label="" icon="times" variant="secondary" fill="text" size="sm" onClick={onClear} />}
                 />
             // </InlineField>

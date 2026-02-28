@@ -1,16 +1,17 @@
 import { css, cx } from '@emotion/css';
-import Slider from 'rc-slider';
+import { Global } from '@emotion/react';
+import Slider from '@rc-component/slider';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { StandardEditorProps, GrafanaTheme2, SliderFieldConfigSettings } from '@grafana/data';
 import { useTheme2 } from '@grafana/ui';
-import { getStyles } from '../../../../components/Slider/styles';
+import { getSliderStyles } from '../../../../components/Slider/styles';
 
 import { NumberInput } from './NumberInput';
 
 type Props = StandardEditorProps<number, SliderFieldConfigSettings>;
 
-export const SliderValueEditor = ({ value, onChange, item }: Props) => {
+export const SliderValueEditor = ({ value, onChange, item, id }: Props) => {
     // Input reference
     const inputRef = useRef<HTMLSpanElement>(null);
 
@@ -45,7 +46,7 @@ export const SliderValueEditor = ({ value, onChange, item }: Props) => {
         const fontFamily = inputElement.getPropertyValue('font-family') || 'Arial';
         const wideNumericalCharacter = '0';
         const marginDigits = 4; // extra digits to account for things like negative, exponential, and controls
-        const inputPadding = 8;
+        const inputPadding = 8; // TODO: base this on input styling
         const maxDigits =
             Math.max((max + (step || 0)).toString().length, (max - (step || 0)).toString().length) + marginDigits;
         const refString = wideNumericalCharacter.repeat(maxDigits);
@@ -76,22 +77,25 @@ export const SliderValueEditor = ({ value, onChange, item }: Props) => {
             }
 
             setSliderValue(v);
-            onChange?.(v);
+
+            if (onChange) {
+                onChange(v);
+            }
         },
         [onChange]
     );
 
     // Styles
-    const styles = getStyles(theme, isHorizontal, Boolean(marks));
+    const styles = getSliderStyles(theme, isHorizontal, Boolean(marks));
     const stylesSlider = getStylesSlider(theme, inputWidth);
     const sliderInputClassNames = !isHorizontal ? [styles.sliderInputVertical] : [];
 
     return (
         <div className={cx(styles.container, styles.slider)}>
-            {/* Removed <Global /> entirely */}
+            {/** Slider tooltip's parent component is body and therefore we need Global component to do css overrides for it. */}
+            <Global styles={styles.slider} />
             <div className={cx(styles.sliderInput, ...sliderInputClassNames)}>
                 <Slider
-                    className={styles.slider} // fully scoped
                     min={min}
                     max={max}
                     step={step}
@@ -105,7 +109,7 @@ export const SliderValueEditor = ({ value, onChange, item }: Props) => {
                     included={included}
                 />
                 <span className={stylesSlider.numberInputWrapper} ref={inputRef}>
-          <NumberInput value={sliderValue} onChange={onSliderInputChange} max={max} min={min} step={step} />
+          <NumberInput id={id} value={sliderValue} onChange={onSliderInputChange} max={max} min={min} step={step} />
         </span>
             </div>
         </div>
@@ -124,13 +128,15 @@ function getTextWidth(text: string, font: string): number | null {
     return null;
 }
 
-const getStylesSlider = (theme: GrafanaTheme2, width: number) => ({
-    numberInputWrapper: css({
-        marginLeft: theme.spacing(3),
-        maxHeight: '32px',
-        maxWidth: width,
-        minWidth: width,
-        overflow: 'visible',
-        width: '100%',
-    }),
-});
+const getStylesSlider = (theme: GrafanaTheme2, width: number) => {
+    return {
+        numberInputWrapper: css({
+            marginLeft: theme.spacing(3),
+            maxHeight: '32px',
+            maxWidth: width,
+            minWidth: width,
+            overflow: 'visible',
+            width: '100%',
+        }),
+    };
+};

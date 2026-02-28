@@ -14,7 +14,7 @@ import { MapLayerState } from '../types';
 
 import { FrameSelectionEditor } from './FrameSelectionEditor';
 import {setOptionImmutably} from "../grafana_core/app/dashboard/components/PanelEditor/utils";
-import {PanelOptionsSupplier} from "../grafana_data/panel/PanelPlugin";
+import {PanelOptionsSupplier} from "@grafana/data/dist/types/panel/PanelPlugin";
 
 import {ExtendMapLayerOptions} from "../extension";
 import {addLocationFields} from "./MapView/locationEditor";

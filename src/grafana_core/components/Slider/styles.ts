@@ -1,7 +1,11 @@
 import { css } from '@emotion/css';
-import { GrafanaTheme2 } from '@grafana/data';
+import { css as cssCore } from '@emotion/react';
 
-export const getStyles = (theme: GrafanaTheme2, isHorizontal: boolean, hasMarks = false) => {
+import { GrafanaTheme2 } from '@grafana/data';
+import '@rc-component/slider/assets/index.css';
+
+export {getStyles as getSliderStyles}
+const getStyles = (theme: GrafanaTheme2, isHorizontal: boolean, hasMarks = false) => {
     const { spacing } = theme;
     const railColor = theme.colors.border.strong;
     const trackColor = theme.colors.primary.main;
@@ -16,30 +20,25 @@ export const getStyles = (theme: GrafanaTheme2, isHorizontal: boolean, hasMarks 
             paddingBottom: isHorizontal && hasMarks ? theme.spacing(1) : 'inherit',
             height: isHorizontal ? 'auto' : '100%',
         }),
-
-        // main slider container
+        // can't write this as an object since it needs to overwrite rc-slider styles
+        // object syntax doesn't support kebab case keys
+        // eslint-disable-next-line @emotion/syntax-preference
         slider: css`
-      width: 100%;
-
       .rc-slider {
         display: flex;
         flex-grow: 1;
-        margin-left: 7px; /* half handle size to align 0 value */
+        margin-left: 7px; // half the size of the handle to align handle to the left on 0 value
       }
-
       .rc-slider-mark {
         top: ${theme.spacing(1.75)};
       }
-
       .rc-slider-mark-text {
         color: ${theme.colors.text.disabled};
         font-size: ${theme.typography.bodySmall.fontSize};
       }
-
       .rc-slider-mark-text-active {
         color: ${theme.colors.text.primary};
       }
-
       .rc-slider-handle {
         border: none;
         background-color: ${handleColor};
@@ -54,6 +53,7 @@ export const getStyles = (theme: GrafanaTheme2, isHorizontal: boolean, hasMarks 
         ${hoverStyle};
       }
 
+      // The triple class names is needed because that's the specificity used in the source css :(
       .rc-slider-handle-dragging.rc-slider-handle-dragging.rc-slider-handle-dragging,
       .rc-slider-handle:focus-visible {
         box-shadow: 0 0 0 5px ${theme.colors.text.primary};
@@ -68,59 +68,59 @@ export const getStyles = (theme: GrafanaTheme2, isHorizontal: boolean, hasMarks 
       .rc-slider-track {
         background-color: ${trackColor};
       }
-
       .rc-slider-rail {
         background-color: ${railColor};
         cursor: pointer;
       }
+    `,
+        /** Global component from @emotion/core doesn't accept computed classname string returned from css from emotion.
+         * It accepts object containing the computed name and flattened styles returned from css from @emotion/core
+         * */
+        tooltip: cssCore`
+      body {
+        .rc-slider-tooltip {
+          cursor: grab;
+          user-select: none;
+          z-index: ${theme.zIndex.tooltip};
+        }
 
-      /* tooltip scoped to container instead of global body */
-      .rc-slider-tooltip {
-        cursor: grab;
-        user-select: none;
-        z-index: ${theme.zIndex.tooltip};
-      }
+        .rc-slider-tooltip-inner {
+          color: ${theme.colors.text.primary};
+          background-color: transparent !important;
+          border-radius: 0;
+          box-shadow: none;
+        }
 
-      .rc-slider-tooltip-inner {
-        color: ${theme.colors.text.primary};
-        background-color: transparent !important;
-        border-radius: 0;
-        box-shadow: none;
-      }
+        .rc-slider-tooltip-placement-top .rc-slider-tooltip-arrow {
+          display: none;
+        }
 
-      .rc-slider-tooltip-placement-top .rc-slider-tooltip-arrow {
-        display: none;
-      }
-
-      .rc-slider-tooltip-placement-top {
-        padding: 0;
+        .rc-slider-tooltip-placement-top {
+          padding: 0;
+        }
       }
     `,
-
         sliderInput: css({
             display: 'flex',
             flexDirection: 'row',
             alignItems: 'center',
             width: '100%',
         }),
-
         sliderInputVertical: css({
             flexDirection: 'column',
             height: '100%',
+
             '.rc-slider': {
                 margin: 0,
                 order: 2,
             },
         }),
-
         sliderInputField: css({
             marginLeft: theme.spacing(3),
-            width: '60px',
             input: {
                 textAlign: 'center',
             },
         }),
-
         sliderInputFieldVertical: css({
             margin: `0 0 ${theme.spacing(3)} 0`,
             order: 1,

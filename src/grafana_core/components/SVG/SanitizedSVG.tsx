@@ -8,7 +8,7 @@ import {addSVGattributes} from "../../../utils";
 
 type SanitizedSVGProps = Props & { cleanStyle?: boolean };
 
-export const SanitizedSvg = (props: SanitizedSVGProps) => {
+export const SanitizedSVG = (props: SanitizedSVGProps) => {
     const { cleanStyle, ...inlineSvgProps } = props;
     return <SVG {...inlineSvgProps} cacheRequests={true} preProcessor={getCleanSVGAndStyle} />;
 };
@@ -26,7 +26,6 @@ function getCleanSVG(code: string): string {
 }
 
 function getCleanSVGAndStyle(code: string): string {
-
     let clean = cache.get(code);
     if (!clean) {
         const {svgText} = addSVGattributes(code, true)
@@ -42,4 +41,3 @@ function getCleanSVGAndStyle(code: string): string {
 
     return clean;
 }
-

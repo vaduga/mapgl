@@ -1,70 +1,18 @@
 import { css } from '@emotion/css';
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 
-import { GrafanaTheme2, SelectableValue } from '@grafana/data';
-import { Field, FilterInput, Select, useStyles2 } from '@grafana/ui';
-import {
-    getDataSourceSrv as getDataSourceService,
-} from '@grafana/runtime';
-export const getDatasourceSrv = () => {
-    return getDataSourceService()
-};
-
+import { GrafanaTheme2 } from '@grafana/data';
+import { Combobox, ComboboxOption, Field, FilterInput, useStyles2 } from '@grafana/ui';
+import { getDataSourceSrv as getDataSourceService } from '@grafana/runtime';
 
 import { MediaType, ResourceFolderName } from '../types';
-
 import { ResourceCards } from './ResourceCards';
-import {getPublicOrAbsoluteUrl} from "../resource";
-import {CiscoIcons, DatabaseIcons, NetworkingIcons} from "../../../../../editor/Groups/data/iconOptions";
-import {PLUGIN_ID} from "../../../../../types";
+import { CiscoIcons, DatabaseIcons, NetworkingIcons } from '../../../../../editor/Groups/data/iconOptions';
+import { PLUGIN_ID } from '../../../../../types';
 
-const absPath= `public/plugins/${PLUGIN_ID}/img/icons/`
+export const getDatasourceSrv = () => getDataSourceService();
 
-const ciscoIconsFormatted = CiscoIcons.map((t) => {
-    return { label: t, value: `cisco/${t}`,
-        search: t.toLowerCase(),
-        imgUrl: absPath+'cisco/' + t+'.svg',
-    };
-});
-const networkingIconsFormatted = NetworkingIcons.map((t) => {
-    return { label: t, value:`networking/${t}`,
-    search: t.toLowerCase(),
-    imgUrl: absPath+'networking/' + t+'.svg',
-    };
-});
-const databaseIconsFormatted = DatabaseIcons.map((t) => {
-    return { label: t, value:`databases/${t}`,
-    search: t.toLowerCase(),
-    imgUrl: absPath+'databases/' + t+'.svg',
-    };
-});
-
-
-
-
-const foldersMap = {
-    [ResourceFolderName.Cisco] : ciscoIconsFormatted,
-    [ResourceFolderName.Networking] : networkingIconsFormatted,
-    [ResourceFolderName.Databases] : databaseIconsFormatted,
-
-}
-
-const getFolders = (mediaType: MediaType) => {
-    if (mediaType === MediaType.Icon) {
-        return [ResourceFolderName.Networking, ResourceFolderName.Databases, ResourceFolderName.Cisco, ResourceFolderName.Custom];
-    } else {
-        return [ResourceFolderName.BG];
-    }
-};
-
-const getFolderIfExists = (folders: Array<SelectableValue<string>>, path: string) => {
-    return folders.find((folder) => {
-
-        const substring = path.split('/').slice(0, -1).toString()
-        return folder?.value?.includes(substring)
-
-    }) ?? folders[0]
-};
+const absPath = `public/plugins/${PLUGIN_ID}/img/icons/`;
 
 export interface ResourceItem {
     label: string;
@@ -72,6 +20,49 @@ export interface ResourceItem {
     search: string;
     imgUrl: string;
 }
+
+const ciscoIconsFormatted: ResourceItem[] = CiscoIcons.map((t) => ({
+    label: t,
+    value: `cisco/${t}`,
+    search: t.toLowerCase(),
+    imgUrl: absPath + 'cisco/' + t + '.svg',
+}));
+
+const networkingIconsFormatted: ResourceItem[] = NetworkingIcons.map((t) => ({
+    label: t,
+    value: `networking/${t}`,
+    search: t.toLowerCase(),
+    imgUrl: absPath + 'networking/' + t + '.svg',
+}));
+
+const databaseIconsFormatted: ResourceItem[] = DatabaseIcons.map((t) => ({
+    label: t,
+    value: `databases/${t}`,
+    search: t.toLowerCase(),
+    imgUrl: absPath + 'databases/' + t + '.svg',
+}));
+
+const foldersMap: Partial<Record<ResourceFolderName, ResourceItem[]>> = {
+    [ResourceFolderName.Cisco]: ciscoIconsFormatted,
+    [ResourceFolderName.Networking]: networkingIconsFormatted,
+    [ResourceFolderName.Databases]: databaseIconsFormatted,
+};
+
+const getFolders = (mediaType: MediaType): ResourceFolderName[] => {
+    if (mediaType === MediaType.Icon) {
+        return [ResourceFolderName.Networking, ResourceFolderName.Databases, ResourceFolderName.Cisco, ResourceFolderName.Custom];
+    }
+    return [ResourceFolderName.BG];
+};
+
+/**
+ * Pick the folder option that matches `path` (which might be a full resource path),
+ * otherwise fall back to the first option.
+ */
+const getFolderIfExists = (folders: Array<ComboboxOption<string>>, path: string): ComboboxOption<string> => {
+    const substring = path.split('/').slice(0, -1).join('/'); // safer than toString()
+    return folders.find((opt) => opt.value.includes(substring)) ?? folders[0];
+};
 
 interface Props {
     value?: string;
@@ -86,48 +77,62 @@ export const FolderPickerTab = (props: Props) => {
     const { value, mediaType, folderName, newValue, setNewValue, maxFiles } = props;
     const styles = useStyles2(getStyles);
 
-    const folders = getFolders(mediaType).map((v) => ({
-        label: v,
-        value: v,
-    }));
+    // Build Combobox options (strict: value must be string, never undefined)
+    const folders = useMemo<ComboboxOption<string>[]>(() => {
+        return getFolders(mediaType).map((v) => ({
+            label: v,
+            value: v,
+        }));
+    }, [mediaType]);
 
-    const [searchQuery, setSearchQuery] = useState<string>();
+    const [searchQuery, setSearchQuery] = useState<string>('');
+    const [currentFolder, setCurrentFolder] = useState<ComboboxOption<string> | null>(() => {
+        return getFolderIfExists(folders, value?.length ? value : folderName);
+    });
 
-    const [currentFolder, setCurrentFolder] = useState<SelectableValue<string>>(
-        getFolderIfExists(folders, value?.length ? value : folderName)
-    );
     const [directoryIndex, setDirectoryIndex] = useState<ResourceItem[]>([]);
     const [filteredIndex, setFilteredIndex] = useState<ResourceItem[]>([]);
 
     const onChangeSearch = (query: string) => {
-        if (query) {
-            query = query.toLowerCase();
-            setFilteredIndex(directoryIndex.filter((card) => card.search.includes(query)));
+        const q = query?.trim().toLowerCase();
+        if (q) {
+            setFilteredIndex(directoryIndex.filter((card) => card.search.includes(q)));
         } else {
             setFilteredIndex(directoryIndex);
         }
     };
 
+    // If mediaType changes, folderOptions changes too — ensure currentFolder still points to a valid option
     useEffect(() => {
-        // we don't want to load everything before picking a folder
+        const initialPath = value?.length ? value : folderName;
+        setCurrentFolder(getFolderIfExists(folders, initialPath));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [folders]);
+
+    useEffect(() => {
         const folder = currentFolder?.value;
+        if (!folder) {
+            setDirectoryIndex([]);
+            setFilteredIndex([]);
+            return;
+        }
 
         if (folder === ResourceFolderName.Custom) {
             const filter =
                 mediaType === MediaType.Icon
-                    ? (item ) => item.name.endsWith('.svg')
-                    : (item ) => item.name.endsWith('.png') || item.name.endsWith('.gif');
+                    ? (item: any) => item.name.endsWith('.svg')
+                    : (item: any) => item.name.endsWith('.png') || item.name.endsWith('.gif');
 
             getDatasourceSrv()
                 .get('-- Grafana --')
                 .then((ds: any) => {
-                    const f = (ds).listFiles(folder.replace(/^public\//, ''), maxFiles)
+                    const f = ds.listFiles(folder.replace(/^public\//, ''), maxFiles);
 
                     f.subscribe({
-                        next: (frame) => {
+                        next: (frame: any) => {
 
                             const cards: ResourceItem[] = [];
-                            frame.forEach((item) => {
+                            frame.forEach((item: any) => {
                                 if (filter(item) || true) {
 
                                     const idx = item.name.lastIndexOf('.');
@@ -152,21 +157,15 @@ export const FolderPickerTab = (props: Props) => {
             return
         }
 
-        if (folder)
-        {
-
-            const cards: ResourceItem[] = foldersMap[folder]
-            setDirectoryIndex(cards);
-            setFilteredIndex(cards);
-        }
-
-
+        const cards = foldersMap[folder as ResourceFolderName] ?? [];
+        setDirectoryIndex(cards);
+        setFilteredIndex(cards);
     }, [mediaType, currentFolder, maxFiles]);
 
     return (
         <>
             <Field>
-                <Select options={folders} onChange={setCurrentFolder} value={currentFolder} menuShouldPortal={false} />
+                <Combobox options={folders} value={currentFolder} onChange={setCurrentFolder} />
             </Field>
             <Field>
                 <FilterInput

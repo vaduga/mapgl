@@ -1,7 +1,7 @@
 import { set, get as lodashGet } from 'lodash';
 
 import { StandardEditorContext, TransformerUIProps, PanelOptionsEditorBuilder } from '@grafana/data';
-import {PanelOptionsSupplier} from "../../../../../grafana_data/panel/PanelPlugin";
+import {PanelOptionsSupplier} from "@grafana/data/dist/types/panel/PanelPlugin";
 
 
 

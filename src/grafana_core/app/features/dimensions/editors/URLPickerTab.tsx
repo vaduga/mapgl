@@ -6,7 +6,7 @@ import { Field, Input, Label, useStyles2 } from '@grafana/ui';
 
 import { getPublicOrAbsoluteUrl } from '../resource';
 import { MediaType } from '../types';
-import {SanitizedSvg} from "../../../../components/SVG/SanitizedSvg";
+import {SanitizedSVG} from "../../../../components/SVG/SanitizedSVG";
 
 interface Props {
     newValue: string;
@@ -34,7 +34,7 @@ export const URLPickerTab = (props: Props) => {
             <div className={styles.iconContainer}>
                 <Field label="Preview">
                     <div className={styles.iconPreview}>
-                        {mediaType === MediaType.Icon && <SanitizedSvg src={imgSrc} className={styles.img} />}
+                        {mediaType === MediaType.Icon && <SanitizedSVG src={imgSrc} className={styles.img} />}
                         {mediaType === MediaType.Image && newValue && (
                             <img src={imgSrc} alt="Preview of the selected URL" className={styles.img} />
                         )}

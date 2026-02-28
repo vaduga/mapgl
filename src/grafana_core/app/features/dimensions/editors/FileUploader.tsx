@@ -5,7 +5,7 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { FileDropzone, useStyles2, Button, DropzoneFile, Field } from '@grafana/ui';
 
 import { MediaType } from '../types';
-import {SanitizedSvg} from "../../../../components/SVG/SanitizedSvg";
+import {SanitizedSVG} from "../../../../components/SVG/SanitizedSVG";
 
 interface Props {
     setFormData: Dispatch<SetStateAction<FormData>>;
@@ -37,7 +37,7 @@ export const FileUploader = ({ mediaType, setFormData, setUpload, error }: Props
     const Preview = () => (
         <Field label="Preview">
             <div className={styles.iconPreview}>
-                {mediaType === MediaType.Icon && <SanitizedSvg src={file} className={styles.img} />}
+                {mediaType === MediaType.Icon && <SanitizedSVG src={file} className={styles.img} />}
                 {mediaType === MediaType.Image && <img src={file} alt="Preview of the uploaded file" className={styles.img} />}
             </div>
         </Field>

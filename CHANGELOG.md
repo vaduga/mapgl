@@ -1,5 +1,7 @@
 # Changelog Mapgl
 
+## 2.0.2
+- Grafana 12.4.0 fix-ref: bump dependencies. **icon picker** drop-down for folders list is visible upon switching to 'Url' tab and back to 'Folders'. Final fix depends on fixing the breaking changes in @grafana/ui: 12.4.0 
 ## 2.0.1
 - arrows config for edges in 'routed' view mode
 - parallel edges support for arcs/hyperedges in nodegraph view 
