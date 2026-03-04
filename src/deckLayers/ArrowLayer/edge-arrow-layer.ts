@@ -1,7 +1,7 @@
 import {IconLayer} from '@deck.gl/layers';
 import {DataFilterExtension} from '@deck.gl/extensions';
 import {Geometry, Position} from 'geojson';
-import {iconAtlas, iconMapping} from './arrow-atlas';
+import {getIconAtlasImage, iconMapping} from './arrow-atlas';
 import {toRGB4Array} from '../../utils';
 import {colTypes, DeckLine, PointFeatureProperties, RGBAColor, ALERTING_STATES} from 'mapLib/utils';
 
@@ -175,7 +175,8 @@ export const EdgeArrowLayer = (props) => {
       getArrowSize(d.feature) * (selectedFeatureIndexes.includes(d.lineIndex) ? 2 : 1),
     getColor: (d: ArrowItem) => getArrowColor(d.feature, getGroupsLegend),
 
-    iconAtlas,
+    // Deck typings in this build are stricter than runtime support for HTMLImageElement.
+    iconAtlas: getIconAtlasImage() as any,
     iconMapping,
     getIcon: () => 'triangle-n',
 

@@ -43,6 +43,25 @@ const svgAtlas = `<?xml version="1.0" encoding="utf-8"?>
 
 export const iconAtlas = svgToDataURL(svgAtlas);
 
+let iconAtlasImage: HTMLImageElement | null = null;
+
+export function getIconAtlasImage(): string | HTMLImageElement {
+  if (typeof Image === 'undefined') {
+    return iconAtlas;
+  }
+
+  if (!iconAtlasImage) {
+    const img = new Image();
+    // Important for Deck/Luma texture initialization in some runtimes.
+    img.width = 256;
+    img.height = 128;
+    img.src = iconAtlas;
+    iconAtlasImage = img;
+  }
+
+  return iconAtlasImage;
+}
+
 const imageScale = 1;
 
 function scale(mapping: IconMapping, s: number): IconMapping {
