@@ -1,7 +1,7 @@
 import { css } from '@emotion/css';
 import React, { useRef } from 'react';
 import { GrafanaTheme2 } from '@grafana/data';
-import { t, Trans } from '@grafana/i18n';
+//import { t, Trans } from '@grafana/i18n';
 import {
     Button,
     InlineField,
@@ -42,18 +42,17 @@ export const ResourcePicker = (props: Props) => {
     const theme = useTheme2();
 
     const pickerTriggerRef = useRef<HTMLDivElement>(null);
-    const popoverElement = (props: { hidePopper?: () => void }) => {
-        return (
-            <ResourcePickerPopover
-                onChange={onChange}
-                value={value}
-                mediaType={mediaType}
-                folderName={folderName}
-                maxFiles={maxFiles}
-                hidePopper={props.hidePopper}
-            />
-        );
-    };
+    const hidePopperRef = useRef<(() => void) | null>(null);
+    const popoverElement = (
+        <ResourcePickerPopover
+            onChange={onChange}
+            value={value}
+            mediaType={mediaType}
+            folderName={folderName}
+            maxFiles={maxFiles}
+            hidePopper={() => hidePopperRef.current?.()}
+        />
+    );
 
     let sanitizedSrc = src;
     if (!sanitizedSrc && value) {
@@ -70,7 +69,8 @@ export const ResourcePicker = (props: Props) => {
         } else {
             return (
                 <LinkButton variant="primary" fill="text" size="sm">
-                    <Trans i18nKey="dimensions.resource-picker.render-small-resource-picker.set-icon">Set icon</Trans>
+                    Set icon
+                    {/*<Trans i18nKey="dimensions.resource-picker.render-small-resource-picker.set-icon">Set icon</Trans>*/}
                 </LinkButton>
             );
         }
@@ -103,6 +103,7 @@ export const ResourcePicker = (props: Props) => {
     return (
         <PopoverController content={popoverElement}>
             {(showPopper, hidePopper, popperProps) => {
+                hidePopperRef.current = hidePopper;
                 return (
                     <>
                         {pickerTriggerRef.current && (
@@ -113,7 +114,6 @@ export const ResourcePicker = (props: Props) => {
                                 onKeyDown={(event) => {
                                     closePopover(event, hidePopper);
                                 }}
-                                hidePopper={hidePopper}
                             />
                         )}
 
