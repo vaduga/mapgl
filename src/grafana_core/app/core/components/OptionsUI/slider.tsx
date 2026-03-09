@@ -1,5 +1,4 @@
 import { css, cx } from '@emotion/css';
-import { Global } from '@emotion/react';
 import Slider from '@rc-component/slider';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -92,10 +91,10 @@ export const SliderValueEditor = ({ value, onChange, item, id }: Props) => {
 
     return (
         <div className={cx(styles.container, styles.slider)}>
-            {/** Slider tooltip's parent component is body and therefore we need Global component to do css overrides for it. */}
-            <Global styles={styles.slider} />
+            {/* Removed <Global /> entirely */}
             <div className={cx(styles.sliderInput, ...sliderInputClassNames)}>
                 <Slider
+                    className={styles.slider} // fully scoped
                     min={min}
                     max={max}
                     step={step}
@@ -128,15 +127,13 @@ function getTextWidth(text: string, font: string): number | null {
     return null;
 }
 
-const getStylesSlider = (theme: GrafanaTheme2, width: number) => {
-    return {
-        numberInputWrapper: css({
-            marginLeft: theme.spacing(3),
-            maxHeight: '32px',
-            maxWidth: width,
-            minWidth: width,
-            overflow: 'visible',
-            width: '100%',
-        }),
-    };
-};
+const getStylesSlider = (theme: GrafanaTheme2, width: number) => ({
+    numberInputWrapper: css({
+        marginLeft: theme.spacing(3),
+        maxHeight: '32px',
+        maxWidth: width,
+        minWidth: width,
+        overflow: 'visible',
+        width: '100%',
+    }),
+});
