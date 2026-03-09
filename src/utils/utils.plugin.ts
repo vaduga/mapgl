@@ -263,9 +263,15 @@ async function loadSvgIcons(
 
         const res = await Promise.all(promises);
 
-        res.filter(v=> v !== null).forEach(([name, obj]) => {
-            svgIcons[name] = obj;
-        });
+        res
+            .filter(
+                (
+                    v
+                ): v is [string, { svgDataUrl: string; width?: number; height?: number }] => v !== null
+            )
+            .forEach(([name, obj]) => {
+                svgIcons[name] = obj;
+            });
 
         return svgIcons;
     } catch (err: any) {

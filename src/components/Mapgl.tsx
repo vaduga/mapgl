@@ -623,18 +623,14 @@ const getStyles = (theme: GrafanaTheme2) => ({
     z-index: 2;
     position: absolute;
     top: ${theme.spacing(5)};
-    right: 0;
-    overflow: hidden;
-    pointer-events: all;
+    right: 0;   
     ${deckWidgetSkin}
   `,
     compass: css`
         z-index: 2;
         position: absolute;
         top: ${theme.spacing(10)};
-        right: 0;
-        overflow: hidden;
-        pointer-events: all;
+        right: 0;        
         ${deckWidgetSkin}
     `,
     layerSwitcher: css`

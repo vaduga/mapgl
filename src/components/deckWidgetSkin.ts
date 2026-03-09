@@ -29,7 +29,11 @@ export const deckWidgetSkin = `
     height: calc(var(--button-size, 28px) - 2px);
     box-sizing: border-box;
     background: var(--button-background, #fff);
+    backdrop-filter: var(--button-backdrop-filter, unset);
+    border: var(--button-inner-stroke, unset);
     border-radius: calc(var(--button-corner-radius, 8px) - 1px);
+    
+    pointer-events: auto;
     cursor: pointer;
     outline: none;
     padding: 0;
