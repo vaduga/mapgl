@@ -1,8 +1,9 @@
 import { css } from '@emotion/css';
-import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
+import * as React from 'react';
 
-import { GrafanaTheme2 } from '@grafana/data';
-import { Combobox, ComboboxOption, Field, FilterInput, useStyles2 } from '@grafana/ui';
+import { GrafanaTheme2, SelectableValue } from '@grafana/data';
+import { Field, FilterInput, Select, useStyles2 } from '@grafana/ui';
 import { getDataSourceSrv as getDataSourceService } from '@grafana/runtime';
 
 import { MediaType, ResourceFolderName } from '../types';
@@ -59,9 +60,9 @@ const getFolders = (mediaType: MediaType): ResourceFolderName[] => {
  * Pick the folder option that matches `path` (which might be a full resource path),
  * otherwise fall back to the first option.
  */
-const getFolderIfExists = (folders: Array<ComboboxOption<string>>, path: string): ComboboxOption<string> => {
+const getFolderIfExists = (folders: Array<SelectableValue<string>>, path: string): SelectableValue<string> => {
     const substring = path.split('/').slice(0, -1).join('/'); // safer than toString()
-    return folders.find((opt) => opt.value.includes(substring)) ?? folders[0];
+    return folders.find((opt) => opt.value?.includes(substring)) ?? folders[0];
 };
 
 interface Props {
@@ -77,8 +78,8 @@ export const FolderPickerTab = (props: Props) => {
     const { value, mediaType, folderName, newValue, setNewValue, maxFiles } = props;
     const styles = useStyles2(getStyles);
 
-    // Build Combobox options (strict: value must be string, never undefined)
-    const folders = useMemo<ComboboxOption<string>[]>(() => {
+    // Build folder options (strict: value must be string, never undefined)
+    const folders = useMemo<SelectableValue<string>[]>(() => {
         return getFolders(mediaType).map((v) => ({
             label: v,
             value: v,
@@ -86,7 +87,7 @@ export const FolderPickerTab = (props: Props) => {
     }, [mediaType]);
 
     const [searchQuery, setSearchQuery] = useState<string>('');
-    const [currentFolder, setCurrentFolder] = useState<ComboboxOption<string> | null>(() => {
+    const [currentFolder, setCurrentFolder] = useState<SelectableValue<string> | null>(() => {
         return getFolderIfExists(folders, value?.length ? value : folderName);
     });
 
@@ -165,7 +166,7 @@ export const FolderPickerTab = (props: Props) => {
     return (
         <>
             <Field>
-                <Combobox options={folders} value={currentFolder} onChange={setCurrentFolder} />
+                <Select options={folders} value={currentFolder} onChange={setCurrentFolder} menuShouldPortal={true} />
             </Field>
             <Field>
                 <FilterInput

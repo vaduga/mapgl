@@ -28,7 +28,7 @@ export const getConfig = () => {
 };
 
 // The `enable_alpha` flag is no exposed directly, this is equivolant
-export const hasAlphaPanels = Boolean(config.panels?.debug?.state === PluginState.alpha);
+export const hasAlphaPanels = true
 
 import {ExtendMapLayerOptions} from "./extension";
 

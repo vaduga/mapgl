@@ -86,3 +86,5 @@ export enum ResourcePickerSize {
     SMALL = 'small',
     NORMAL = 'normal',
 }
+
+export interface DirectionDimensionOptions {}

@@ -1,21 +1,17 @@
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
+import * as React from 'react';
 
 import { FieldNamePickerConfigSettings, StandardEditorProps, StandardEditorsRegistryItem } from '@grafana/data';
 import { ResourceDimensionConfig, ResourceDimensionMode } from '@grafana/schema';
-import {Field, InlineField, InlineFieldRow, RadioButtonGroup} from '@grafana/ui';
-//import { FieldNamePicker } from '@grafana/ui/src/components/MatchersUI/FieldNamePicker';
+import { InlineField, InlineFieldRow } from '@grafana/ui';
 
-import { getPublicOrAbsoluteUrl, ResourceFolderName } from '../index';
-import { MediaType, ResourceDimensionOptions, ResourcePickerSize } from '../types';
+import { getPublicOrAbsoluteUrl } from '../resource';
+import { MediaType, ResourceDimensionOptions, ResourceFolderName, ResourcePickerSize } from '../types';
 
 import { ResourcePicker } from './ResourcePicker';
+//import { FieldNamePicker } from '@grafana/ui/src/components/MatchersUI/FieldNamePicker';
 import {FieldNamePicker} from "../../../../components/MatchersUI/FieldNamePicker";
 
-const resourceOptions = [
-    { label: 'Fixed', value: ResourceDimensionMode.Fixed, description: 'Fixed value' },
-    { label: 'Field', value: ResourceDimensionMode.Field, description: 'Use a string field result' },
-    //  { label: 'Mapping', value: ResourceDimensionMode.Mapping, description: 'Map the results of a value to an svg' },
-];
 
 const dummyFieldSettings = {
     settings: {},
@@ -80,15 +76,17 @@ export const ResourceDimensionEditor = (
         <>
             {mode !== ResourceDimensionMode.Fixed && (
                 <InlineFieldRow>
-                    <InlineField label="Field" labelWidth={labelWidth} grow={true}>
-                        <>
+                    <InlineField
+                        label={'Field'}
+                        labelWidth={labelWidth}
+                        grow={true}
+                    >
                         <FieldNamePicker
                             context={context}
                             value={value.field ?? ''}
                             onChange={onFieldChange}
                             item={dummyFieldSettings}
                         />
-                        </>
                     </InlineField>
                 </InlineFieldRow>
             )}
@@ -98,7 +96,7 @@ export const ResourceDimensionEditor = (
                     onClear={onClear}
                     value={value?.fixed}
                     src={srcPath}
-                    placeholder={item.settings?.placeholderText}
+                    placeholder={item.settings?.placeholderText ?? 'Select a value'}
                     name={niceName(value?.fixed) ?? ''}
                     mediaType={mediaType}
                     folderName={folderName}
@@ -108,7 +106,12 @@ export const ResourceDimensionEditor = (
             )}
             {mode === ResourceDimensionMode.Mapping && (
                 <InlineFieldRow>
-                    <InlineField label="Mappings" labelWidth={labelWidth} grow={true}>
+                    <InlineField
+                        label="Mappings"
+                        labelWidth={labelWidth}
+                        grow={true}
+                    >
+                        {/* eslint-disable-next-line @grafana/i18n/no-untranslated-strings*/}
                         <div>TODO mappings editor!</div>
                     </InlineField>
                 </InlineFieldRow>
