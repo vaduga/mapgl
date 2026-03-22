@@ -504,7 +504,7 @@ const Mapgl = ({panel, annots, initMapRef, fieldConfig, source, options, data, r
 
         return (
                 <div className={s.edgeLegend}>
-                    <VizLegend displayMode={LegendDisplayMode.List} placement="bottom" items={edgeLegend}/>
+                    <VizLegend className={s.compactLegend} displayMode={LegendDisplayMode.List} placement="bottom" items={edgeLegend}/>
                 </div>
         )
     }, [edgeLegend])
@@ -514,7 +514,7 @@ const Mapgl = ({panel, annots, initMapRef, fieldConfig, source, options, data, r
 
         return (
                 <div className={s.nodesLegend}>
-                <VizLegend displayMode={LegendDisplayMode.List} placement="bottom" items={getGroupsLegend.filter((item,i)=>item.data.count || hasAnnots && i === getGroupsLegend.length-1)}
+                <VizLegend className={s.compactLegend} displayMode={LegendDisplayMode.List} placement="bottom" items={getGroupsLegend.filter((item,i)=>item.data.count || hasAnnots && i === getGroupsLegend.length-1)}
                            onLabelClick={()=> {}}/>
                 </div>
                 )
@@ -570,8 +570,12 @@ if (!isLogic) {
 
             <Tooltip data={data} panel={panel} time={time} eventBus={eventBus} info={hoverInfo} setHoverInfo={setHoverInfo} dataLayers={options.dataLayers} />
 
-            {isShowEdgeLegend && memoEdgeLegend}
-            {isShowLegend && memoLegend}
+            {(isShowEdgeLegend || isShowLegend) && (
+                <div className={s.legendStack}>
+                    {isShowEdgeLegend && memoEdgeLegend}
+                    {isShowLegend && memoLegend}
+                </div>
+            )}
 
             {memoMenu}
             {memoPositionTracker}
@@ -620,25 +624,51 @@ const getStyles = (theme: GrafanaTheme2) => ({
         overflow: hidden;
         pointer-events: all;
     `,
-    edgeLegend: css`
+    legendStack: css`
         z-index: ${theme.zIndex.dropdown};
         position: absolute;
-        bottom: ${theme.spacing(3)};
-        //left: ${theme.spacing(10)};
-        //max-width: 85%;
-        padding-bottom: ${theme.spacing(0.625)};
+        bottom: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        pointer-events: none;
+    `,
+    edgeLegend: css`
         pointer-events: all;
         background: ${theme.colors.background.secondary};
     `,
     nodesLegend: css`
-        z-index: ${theme.zIndex.dropdown};
-        position: absolute;
-        bottom: 0; // ${theme.spacing(3)};
-        //left: ${theme.spacing(10)};
-        //max-width: 85%;
-        padding-bottom: ${theme.spacing(0.625)};
+        padding-bottom: ${theme.spacing(0.5)};
         pointer-events: all;
         background: ${theme.colors.background.secondary};
+    `,
+    compactLegend: css`
+        & > div {
+            padding: ${theme.spacing(0.25)} ${theme.spacing(0.375)};
+            gap: ${theme.spacing(0.25)} ${theme.spacing(0.75)};
+        }
+
+        & ul {
+            display: flex;
+            align-items: center;
+            gap: ${theme.spacing(0.25)};
+        }
+
+        & li > span {
+            padding-right: ${theme.spacing(0.5)};
+            font-size: calc(${theme.typography.bodySmall.fontSize} * 1);
+            line-height: 1.1;
+        }
+
+        & button {
+            font-size: inherit;
+            line-height: 1.1;
+        }
+
+        & svg {
+            width: ${theme.spacing(1.5)};
+            height: ${theme.spacing(1.5)};
+        }
     `,
     timeNcoords: css`
         position: absolute;
