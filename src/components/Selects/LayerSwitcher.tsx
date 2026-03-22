@@ -178,6 +178,10 @@ LayerSwitcher.renderLayer_ = (geomap, setVisRefresh, setMobxLegendRefresh, lyr, 
             li.classList.add(CSS_PREFIX + 'fold');
             li.classList.add(CSS_PREFIX + lyr.fold);
             const btn = document.createElement('button');
+            const icon = document.createElement('span');
+            icon.className = 'layer-switcher-group-icon';
+            icon.textContent = '>';
+            btn.appendChild(icon);
             btn.onclick = function (e) {
                 const evt = e || window.event;
                 LayerSwitcher.toggleFold_(lyr, li, geomap.visLayers);

@@ -165,7 +165,6 @@ export const EdgeArrowLayer = (props) => {
     visible,
     pickable: false,
     billboard: false,
-
     getPosition: (d: ArrowItem) => {
       const pts = d.placement === 'start' ? getFirstPoints(d.feature) : getLastPoints(d.feature);
       return pts ? pts.tip : [0, 0];
@@ -185,7 +184,6 @@ export const EdgeArrowLayer = (props) => {
     sizeMinPixels: 1,
     sizeMaxPixels: 30,
     depthTest: false,
-
     getFilterCategory: (d: ArrowItem) => {
       const {layerName} = d.feature?.properties || {};
       return layerName;

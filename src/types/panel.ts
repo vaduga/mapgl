@@ -30,7 +30,6 @@ export interface GeomapInstanceState {
   actions: GeomapLayerActions;
 }
 
-
 //-------------------
 // Runtime model
 //-------------------
