@@ -21,11 +21,6 @@ const Menu = ({ eventBus, options, data, panel}) => {
               </InlineField>
 
           </InlineFieldRow>
-          {/*<LayerSelect/>*/}
-
-      <InlineFieldRow>
-          <br/>
-      </InlineFieldRow>
 
       </div>
     )};
@@ -54,9 +49,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
       background: none;
       pointer-events: none;
 
-      > div,button, ul, input, p  {
-        margin-top: ${theme.spacing(0.5)};
-      }
     `,
     drawerBtn: css`
       pointer-events: all;
