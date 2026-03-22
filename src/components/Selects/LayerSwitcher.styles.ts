@@ -1,8 +1,28 @@
 import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 
-export const getStyles = (theme: GrafanaTheme2) => ({
-  root: css({
+export const getStyles = (theme: GrafanaTheme2) => {
+  const buttonSize = theme.spacing(3.5);
+  const buttonRadius = theme.shape.radius.default;
+  const buttonBorderWidth = theme.spacing(0.125);
+  const panelBorderWidth = theme.spacing(0.5);
+  const panelRadius = theme.shape.radius.default;
+  const compactSpacing = theme.spacing(0.75);
+  const microSpacing = theme.spacing(0.125);
+  const nestedIndent = theme.spacing(1.5);
+  const checkboxLabelGap = theme.spacing(0.75);
+  const labelLeftPadding = theme.spacing(3.375);
+  const inlineSelectOffsetX = theme.spacing(0.625);
+  const inlineSelectOffsetY = theme.spacing(0.375);
+  const scrollbarSize = theme.spacing(0.5);
+  const scrollbarRadius = theme.shape.radius.default;
+  const toggleButtonFontSize = theme.typography.h4.fontSize;
+  const toggleIconFontSize = theme.typography.h5.fontSize;
+  const groupButtonFontSize = theme.typography.bodySmall.fontSize;
+  const groupButtonSize = theme.typography.body.fontSize;
+
+  return {
+    root: css({
     '&.layer-switcher': {
       zIndex: theme.zIndex.dropdown,
       position: 'absolute',
@@ -14,15 +34,15 @@ export const getStyles = (theme: GrafanaTheme2) => ({
     '&.ol-control': {
       padding: 0,
       backgroundColor: 'transparent',
-      borderRadius: 'var(--button-corner-radius, 8px)',
+      borderRadius: `var(--button-corner-radius, ${buttonRadius})`,
     },
     '&.ol-control:hover': {
       backgroundColor: 'transparent',
     },
     '& .panel': {
       margin: `0 0 0 ${theme.spacing(1)}`,
-      border: `4px solid ${theme.colors.background.secondary}`,
-      borderRadius: '4px',
+      border: `${panelBorderWidth} solid ${theme.colors.background.secondary}`,
+      borderRadius: panelRadius,
       backgroundColor: theme.colors.background.primary,
       color: theme.colors.text.primary,
       display: 'none',
@@ -33,23 +53,23 @@ export const getStyles = (theme: GrafanaTheme2) => ({
       overflowY: 'auto',
     },
     '& button': {
-      width: 'var(--button-size, 28px)',
-      height: 'var(--button-size, 28px)',
+      width: `var(--button-size, ${buttonSize})`,
+      height: `var(--button-size, ${buttonSize})`,
       boxSizing: 'border-box',
-      borderRadius: 'var(--button-corner-radius, 8px)',
-      boxShadow: 'var(--button-shadow, 0px 0px 8px 0px rgba(0, 0, 0, 0.25))',
+      borderRadius: `var(--button-corner-radius, ${buttonRadius})`,
+      boxShadow: `var(--button-shadow, ${theme.shadows.z2})`,
       overflow: 'hidden',
       appearance: 'none',
-      backgroundSize: 'var(--button-size, 28px) var(--button-size, 28px)',
+      backgroundSize: `var(--button-size, ${buttonSize}) var(--button-size, ${buttonSize})`,
       backgroundRepeat: 'no-repeat',
       backgroundPosition: 'center',
       backgroundColor: theme.colors.background.primary,
       color: theme.colors.getContrastText(theme.colors.background.primary),
-      border: `1px solid ${theme.colors.border.weak}`,
+      border: `${buttonBorderWidth} solid ${theme.colors.border.weak}`,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontSize: '20px',
+      fontSize: toggleButtonFontSize,
       lineHeight: 1,
       padding: 0,
     },
@@ -61,9 +81,9 @@ export const getStyles = (theme: GrafanaTheme2) => ({
       alignItems: 'center',
       justifyContent: 'center',
       lineHeight: 1,
-      fontSize: '16px',
+      fontSize: toggleIconFontSize,
       fontWeight: 100,
-      letterSpacing: '-2px',
+      letterSpacing: '-0.125em',
       transformOrigin: 'center',
       color: theme.colors.getContrastText(theme.colors.background.primary),
     },
@@ -96,48 +116,57 @@ export const getStyles = (theme: GrafanaTheme2) => ({
     },
     '& ul': {
       listStyle: 'none',
-      margin: '1.6em 0.4em',
+      margin: `${theme.spacing(2)} ${compactSpacing}`,
       paddingLeft: 0,
     },
     '& ul ul': {
-      paddingLeft: '1.2em',
-      margin: '0.1em 0 0 0',
+      paddingLeft: nestedIndent,
+      margin: `${microSpacing} 0 0 0`,
     },
     '& li': {
       position: 'relative',
-      marginTop: '0.3em',
+      marginTop: theme.spacing(0.375),
     },
     '& li.group + li.group': {
-      marginTop: '0.4em',
+      marginTop: compactSpacing,
     },
     '& li.group > label': {
       fontWeight: 'bold',
     },
     '& li input': {
       position: 'absolute',
-      left: '1.2em',
-      height: '1em',
-      width: '1em',
-      fontSize: '1em',
+      left: nestedIndent,
+      height: theme.typography.body.fontSize,
+      width: theme.typography.body.fontSize,
+      fontSize: theme.typography.body.fontSize,
+      accentColor: theme.colors.primary.main,
     },
     '& li label': {
-      paddingLeft: '2.7em',
-      paddingRight: '1.2em',
+      paddingLeft: `calc(${labelLeftPadding} + ${checkboxLabelGap})`,
+      paddingRight: nestedIndent,
       display: 'inline-block',
-      marginTop: '1px',
+      marginTop: microSpacing,
     },
     '& li label > select': {
       display: 'inline-block',
-      height: '1.4em',
-      lineHeight: '1.4em',
+      height: theme.spacing(1.75),
+      lineHeight: theme.spacing(1.75),
       verticalAlign: 'bottom',
     },
     '& .layer-switcher-inline-select': {
-      transform: 'translate(5px, -3px)',
+      transform: `translate(${inlineSelectOffsetX}, -${inlineSelectOffsetY})`,
       width: 'fit-content',
-      maxWidth: '4em',
+      maxWidth: theme.spacing(5),
       outline: 'none',
       WebkitTapHighlightColor: 'transparent',
+    },
+    '& .layer-switcher-cluster-select': {
+      height: theme.spacing(2.5),
+      lineHeight: theme.spacing(2.5),
+      minWidth: theme.spacing(4),
+      fontSize: theme.typography.bodySmall.fontSize,
+      padding: `0 ${theme.spacing(0.5)}`,
+      verticalAlign: 'middle',
     },
     '& .layer-switcher-inline-select:focus, & .layer-switcher-inline-select:focus-visible': {
       outline: 'none',
@@ -150,15 +179,15 @@ export const getStyles = (theme: GrafanaTheme2) => ({
       margin: 0,
     },
     '&.touch ::-webkit-scrollbar': {
-      width: '4px',
+      width: scrollbarSize,
     },
     '&.touch ::-webkit-scrollbar-track': {
-      boxShadow: 'inset 0 0 6px rgba(0, 0, 0, 0.3)',
-      borderRadius: '10px',
+      backgroundColor: theme.colors.background.secondary,
+      borderRadius: scrollbarRadius,
     },
     '&.touch ::-webkit-scrollbar-thumb': {
-      borderRadius: '10px',
-      boxShadow: 'inset 0 0 6px rgba(0, 0, 0, 0.5)',
+      borderRadius: scrollbarRadius,
+      backgroundColor: theme.colors.border.weak,
     },
     '& .group button': {
       position: 'absolute',
@@ -166,8 +195,8 @@ export const getStyles = (theme: GrafanaTheme2) => ({
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
-      width: '0.9em',
-      height: '0.9em',
+      width: groupButtonSize,
+      height: groupButtonSize,
       margin: 0,
       padding: 0,
       borderRadius: 0,
@@ -175,7 +204,7 @@ export const getStyles = (theme: GrafanaTheme2) => ({
       boxShadow: 'none',
       background: theme.colors.background.primary,
       color: theme.colors.getContrastText(theme.colors.background.primary),
-      fontSize: '0.9em',
+      fontSize: groupButtonFontSize,
       lineHeight: 1,
     },
     '& .group button:hover, & .group button:focus': {
@@ -186,7 +215,7 @@ export const getStyles = (theme: GrafanaTheme2) => ({
       alignItems: 'center',
       justifyContent: 'center',
       color: theme.colors.getContrastText(theme.colors.background.primary),
-      fontSize: '1em',
+      fontSize: theme.typography.body.fontSize,
       lineHeight: 1,
       fontWeight: 400,
       transformOrigin: 'center',
@@ -204,10 +233,11 @@ export const getStyles = (theme: GrafanaTheme2) => ({
     },
   }),
   toggleWrapper: css({
-    width: 'var(--button-size, 28px)',
-    height: 'var(--button-size, 28px)',
+    width: `var(--button-size, ${buttonSize})`,
+    height: `var(--button-size, ${buttonSize})`,
     display: 'flex',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
   }),
-});
+  };
+};

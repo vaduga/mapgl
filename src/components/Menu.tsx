@@ -40,8 +40,8 @@ const getStyles = (theme: GrafanaTheme2) => ({
     `,
 
     myMenu: css`
-      color: grey;
-      font-size: 0.9em;
+      color: ${theme.colors.text.secondary};
+      font-size: ${theme.typography.bodySmall.fontSize};
       position: absolute;
       display: flex;
       flex-direction: column;
@@ -55,14 +55,14 @@ const getStyles = (theme: GrafanaTheme2) => ({
       pointer-events: none;
 
       > div,button, ul, input, p  {
-        margin-top: 3px;
+        margin-top: ${theme.spacing(0.5)};
       }
     `,
     drawerBtn: css`
       pointer-events: all;
     `,
     field: css`
-      margin-top: ${theme.spacing(0.1)};
+      margin-top: ${theme.spacing(0.25)};
       margin-right: ${theme.spacing(1.5)};
     `
 })

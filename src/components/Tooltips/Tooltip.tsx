@@ -10,6 +10,7 @@ import {SortOrder, TooltipDisplayMode} from "@grafana/schema";
 import {Node, Edge} from "mapLib";
 
 const includes = ['ack', 'msg', 'all_annots', 'liveUpd'] //liveStat
+const TOOLTIP_OFFSET = 10;
 
 const Tooltip = ({ data, panel, info, eventBus, setHoverInfo, time, isClosed = false, dataLayers}) => {
     if (!info || !Object.entries(info).length) {
@@ -131,7 +132,7 @@ if (!x && !y && !coordinate) return
 
             //&& parent === getSelectedNode --- would need pinned tooltip rerender
             return <li key={edgeId}>
-                <div style={{display: 'flex', alignItems: 'center', backgroundColor: undefined}}>
+                <div style={{display: 'flex', alignItems: 'center'}}>
                     <a onClick={() => {
                         selectGotoHandler({pId, value: node?.id, edge, eventBus, graphId: graph.id, select: true})
                         setTooltipObject({...getTooltipObject, object: {
@@ -149,7 +150,7 @@ if (!x && !y && !coordinate) return
                        style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
                     >
                         <span>{edgeId}</span>
-                        <div style={{marginLeft: '4px', display: 'flex'}}>
+                        <div className={s.seriesIcons}>
                             {sideA?.color && <SeriesIcon title={aField} color={toRgbaString(sideA.color)}/>}
                             {sideB?.color && <SeriesIcon title={bField} color={toRgbaString(sideB.color)}/>}
                         </div>
@@ -199,7 +200,7 @@ if (!x && !y && !coordinate) return
                     className={s.viz}
                     allowPointerEvents={pinned}
                     position={{ x,  y }}
-                    offset={{ x: 10, y: 10 }}
+                    offset={{ x: TOOLTIP_OFFSET, y: TOOLTIP_OFFSET }}
                     >
                 {<ConnectedEdges/>}
                 <DataHoverView {...hoverPayload}/>
@@ -213,12 +214,16 @@ if (!x && !y && !coordinate) return
               viz: css`
                   isolation: isolate;
                   z-index: ${theme.zIndex.tooltip} !important;
-              borderRadius: "10px";
+                  border-radius: ${theme.shape.radius.default};
                   ul {
                       list-style-type: none }
             `,
+              seriesIcons: css`
+                  margin-left: ${theme.spacing(0.5)};
+                  display: flex;
+              `,
               fab: css`                  
-                  margin-left: 5px;
+                  margin-left: ${theme.spacing(0.625)};
         //transform: scale(0.8);
         //position: absolute;
         //zIndex: 1;

@@ -1,4 +1,3 @@
-import {Graph as G} from 'mapLib'
 import {
   toRGB4Array,
 } from '../../utils';
@@ -7,8 +6,6 @@ import { GeoJsonLayer } from '@deck.gl/layers';
 import {Geometry} from "geojson";
 import {colTypes, PointFeatureProperties, RGBAColor, ALERTING_STATES} from "mapLib/utils";
 import {DataFilterExtension} from "@deck.gl/extensions";
-import {Matrix4} from "@math.gl/core";
-
 
 export const EdgesGeojsonLayer = (props) => {
   const {
@@ -30,6 +27,7 @@ export const EdgesGeojsonLayer = (props) => {
   const selectedFeatureIndexes = getSelectedIdxs?.get(colTypes.Edges)?.[srcGraphId] ?? []
 
   const categories= getVisLayers.getCategories()
+  console.log('categories', categories)
   const categorySize = 1
 
   const units = options.common?.isMeters ? "meters" : "pixels"

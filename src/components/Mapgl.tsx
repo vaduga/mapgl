@@ -86,7 +86,6 @@ const Mapgl = ({panel, annots, initMapRef, fieldConfig, source, options, data, r
     const containerRef = useRef<HTMLDivElement | null>(null);
     const { fullscreenContainer } = useFullscreenPortalBridge(containerRef);
 
-    const geocoderRef = useRef(null)
     const [visRefresh, setVisRefresh] = useState(Math.random()+1)
     const [hoverInfo, setHoverInfo] = useState({});
     const [layers, setLayers] = useState<Layer[]>([])
@@ -569,8 +568,6 @@ if (!isLogic) {
 
             </DeckGL>
 
-            <div className={s.geocoder} ref={geocoderRef} id='geocoder-container'></div>
-
             <Tooltip data={data} panel={panel} time={time} eventBus={eventBus} info={hoverInfo} setHoverInfo={setHoverInfo} dataLayers={options.dataLayers} />
 
             {isShowEdgeLegend && memoEdgeLegend}
@@ -599,20 +596,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
             display: none;
         }
         background-color: ${theme.colors.background.secondary};
-    `,
-    geocoder: css`
-        display: flex;
-        flex-direction: row-reverse;
-        //width: 10%;
-        position: absolute;
-        right: ${theme.spacing(1.7)};
-        top: ${theme.spacing(2)};
-    `,
-    textBox: css`
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        padding: 10px;
     `,
     fullscreen: css`
     z-index: ${theme.zIndex.dropdown};
@@ -643,9 +626,9 @@ const getStyles = (theme: GrafanaTheme2) => ({
         bottom: ${theme.spacing(3)};
         //left: ${theme.spacing(10)};
         //max-width: 85%;
-        padding-bottom: 5px;
+        padding-bottom: ${theme.spacing(0.625)};
         pointer-events: all;
-        background: ${theme.isDark ? theme.colors.background.secondary : '#EAEAEA'};
+        background: ${theme.colors.background.secondary};
     `,
     nodesLegend: css`
         z-index: ${theme.zIndex.dropdown};
@@ -653,15 +636,15 @@ const getStyles = (theme: GrafanaTheme2) => ({
         bottom: 0; // ${theme.spacing(3)};
         //left: ${theme.spacing(10)};
         //max-width: 85%;
-        padding-bottom: 5px;
+        padding-bottom: ${theme.spacing(0.625)};
         pointer-events: all;
-        background: ${theme.isDark ? theme.colors.background.secondary : '#EAEAEA'};
+        background: ${theme.colors.background.secondary};
     `,
     timeNcoords: css`
         position: absolute;
         z-index: ${theme.zIndex.dropdown};
-        font-size: small;
-        bottom: 5px;
-        right: 1%;
+        font-size: calc(${theme.typography.bodySmall.fontSize} * 0.85);
+        bottom: ${theme.spacing(0.5)};
+        right: ${theme.spacing(0.5)};
     `
 })

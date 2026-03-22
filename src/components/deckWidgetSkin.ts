@@ -6,34 +6,41 @@ const fullscreenEnter =
 const fullscreenExit =
     "url(\"data:image/svg+xml,%3Csvg%20viewBox%3D'0%200%2028%2028'%20xmlns%3D'http://www.w3.org/2000/svg'%3E%3Cpath%20fill%3D'black'%20d%3D'M10%2018H6v-2h4a1%201%200%200%201%201%201v4h-2v-3zm8%200v3h-2v-4a1%201%200%200%201%201-1h4v2h-3zM10%2010V7h2v4a1%201%200%200%201-1%201H6v-2h4zm8%200h3v2h-4a1%201%200%200%201-1-1V7h2v3z'/%3E%3C/svg%3E\")";
 
+export const getDeckWidgetSkin = (theme: GrafanaTheme2) => {
+  const widgetMargin = theme.spacing(1.5);
+  const buttonSize = theme.spacing(3.5);
+  const buttonRadius = theme.shape.radius.default;
+  const innerBorderWidth = theme.spacing(0.125);
+  const innerButtonSize = `calc(var(--button-size, ${buttonSize}) - ${theme.spacing(0.25)})`;
+  const innerButtonRadius = `calc(var(--button-corner-radius, ${buttonRadius}) - ${innerBorderWidth})`;
 
-export const getDeckWidgetSkin = (theme: GrafanaTheme2) => `
-  margin: var(--widget-margin, 12px);
+  return `
+  margin: var(--widget-margin, ${widgetMargin});
 
   /* Button containers */
   .deck-widget-button,
   .deck-widget-button-group {
-    background: var(--button-stroke, ${theme.isDark ? 'rgba(255, 255, 255, 0.18)' : 'rgba(255, 255, 255, 0.72)'});
-    border-radius: var(--button-corner-radius, 8px);
-    box-shadow: var(--button-shadow, 0px 0px 8px 0px rgba(0, 0, 0, 0.25));
+    background: var(--button-stroke, ${theme.colors.background.secondary});
+    border-radius: var(--button-corner-radius, ${buttonRadius});
+    box-shadow: var(--button-shadow, ${theme.shadows.z2});
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
   .deck-widget-button {
-    width: var(--button-size, 28px);
-    height: var(--button-size, 28px);
+    width: var(--button-size, ${buttonSize});
+    height: var(--button-size, ${buttonSize});
   }
 
   .deck-widget-button button {
-    width: calc(var(--button-size, 28px) - 2px);
-    height: calc(var(--button-size, 28px) - 2px);
+    width: ${innerButtonSize};
+    height: ${innerButtonSize};
     box-sizing: border-box;
     background: var(--button-background, ${theme.colors.background.primary});
     backdrop-filter: var(--button-backdrop-filter, unset);
-    border: var(--button-inner-stroke, 1px solid ${theme.colors.border.weak});
-    border-radius: calc(var(--button-corner-radius, 8px) - 1px);
+    border: var(--button-inner-stroke, ${innerBorderWidth} solid ${theme.colors.border.weak});
+    border-radius: ${innerButtonRadius};
     
     pointer-events: auto;
     cursor: pointer;
@@ -82,3 +89,4 @@ export const getDeckWidgetSkin = (theme: GrafanaTheme2) => `
     z-index: ${theme.zIndex.portal};
   }
 `;
+};

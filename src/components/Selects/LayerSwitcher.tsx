@@ -8,7 +8,7 @@ import { useStyles2 } from '@grafana/ui';
 const CSS_PREFIX = 'layer-switcher-';
 
 const LayerSwitcher = (props) => {
-    const { label, className, panel: geomap, setVisRefresh, setMobxLegendRefresh, setClusterMaxZoom} = props;
+    const { label, className, panel: geomap, setVisRefresh, setMobxLegendRefresh} = props;
     const {visLayers} = geomap
     const styles = useStyles2(getStyles);
 
@@ -152,6 +152,7 @@ LayerSwitcher.renderLayer_ = (geomap, setVisRefresh, setMobxLegendRefresh, lyr, 
     const {label: lyrLabel, name: lyrName} = lyr || {};
     const checkboxId = LayerSwitcher.uuid();
     const label = document.createElement('label');
+    const hasChildren = Array.isArray(lyr.children) //&& lyr.children.length > 0;
 
     const serviceGroups = ['graph', colTypes.Clusters, colTypes.Circle, colTypes.SVG, colTypes.Label, colTypes.Comments, colTypes.Edges, colTypes.Hyperedges ]
 
@@ -163,7 +164,7 @@ LayerSwitcher.renderLayer_ = (geomap, setVisRefresh, setMobxLegendRefresh, lyr, 
     }
 
     //@ts-ignore
-    if (lyr.group && lyr.children && !lyr['combine']) {
+    if (lyr.group && hasChildren && !lyr['combine']) {
         const hasGraph = geomap.visLayers.hasGraph()
 
         if (!serviceGroups.includes(lyr.group) || hasGraph)
@@ -245,7 +246,6 @@ LayerSwitcher.renderLayer_ = (geomap, setVisRefresh, setMobxLegendRefresh, lyr, 
             setMobxLegendRefresh(Math.random()+1);
             render(lyr);
         };
-
         li.appendChild(input)
 
         label.htmlFor = checkboxId;

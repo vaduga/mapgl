@@ -1,7 +1,7 @@
 import {css} from '@emotion/css';
 
 import {Field, FieldType, GrafanaTheme2, StandardEditorProps} from '@grafana/data';
-import {Button, ColorPicker, Tooltip, useStyles2} from '@grafana/ui';
+import {Button, ColorPicker, Tooltip, useStyles2, useTheme2} from '@grafana/ui';
 
 import React from 'react';
 import {FieldNamePicker} from '../grafana_core/components/MatchersUI/FieldNamePicker';
@@ -12,6 +12,7 @@ type ArcOptionsEditorProps = StandardEditorProps<ArcOption[], Settings, undefine
 
 export const ArcOptionsEditor = ({ value, onChange, context }: ArcOptionsEditorProps) => {
   const styles = useStyles2(getStyles);
+  const theme = useTheme2();
 
   const addArc = () => {
     const newArc = { field: '', fixed: '' };
@@ -53,7 +54,7 @@ export const ArcOptionsEditor = ({ value, onChange, context }: ArcOptionsEditorP
               <Tooltip content={'fixed color'}>
                 <div>
                   <ColorPicker
-                      color={arc.fixed || '#808080'}
+                      color={arc.fixed || theme.colors.text.secondary}
                       onChange={(val) => {
                         updateField(i, 'fixed', val);
                       }}

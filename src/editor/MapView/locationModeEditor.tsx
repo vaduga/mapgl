@@ -123,8 +123,8 @@ const getStyles = (theme: GrafanaTheme2) => {
       '& div': {
         padding: theme.spacing(0.5),
       },
-      marginBottom: '0px',
-      marginTop: '5px',
+      marginBottom: 0,
+      marginTop: theme.spacing(0.625),
       padding: theme.spacing(0.25),
     }),
   };

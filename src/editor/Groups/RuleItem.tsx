@@ -370,16 +370,13 @@ const getRuleStyles = (theme: GrafanaTheme2) => {
             padding-top: ${theme.spacing(1)};
                 //padding: 0 ${theme.spacing(1)};
         `,
-        nodeSelect: css`
-            margin: 5px 0px;
-        `,
         inlineField: css`
             flex: 1 0 auto;
         `,
         inlineRow: css`
             //display: flex;
             //align-items: center;
-            margin-top: 10px;
+            margin-top: ${theme.spacing(1.25)};
         `,
         voffset: css`
             //display: inline-block; /* Ensures the field takes only the space it needs */

@@ -169,13 +169,13 @@ export class VisLayers {
     /* ---------------- PRIVATE ---------------- */
 
     private getVisibleNamespaces(): string[] {
-        const out: string[] = [];
+        const out: Set<string> = new Set();
         for (const layer of this.visLayers) {
-            if (layer.group === "graph" || layer.group === "markers") {
+            if (layer.group === "graph" || layer.group === colTypes.Markers) {
                 collectVisibleNames(layer, out);
             }
         }
-        return out;
+        return Array.from(out);
     }
 }
 
@@ -234,6 +234,11 @@ function tryGetVisState(
         return [layer.visible, layer.indeterminate];
     }
 
+    for (const child of layer.children) {
+        const state = tryGetVisState(child, idx, name, group);
+        if (state) return state;
+    }
+
     if (idx === null && name) {
         if (
             layer.name === name &&
@@ -243,17 +248,12 @@ function tryGetVisState(
         }
     }
 
-    for (const child of layer.children) {
-        const state = tryGetVisState(child, idx, name, group);
-        if (state) return state;
-    }
-
     return null;
 }
 
-function collectVisibleNames(layer: VisLayer, out: string[]) {
-    if (layer.visible && !layer.indeterminate) {
-        out.push(layer.name);
+function collectVisibleNames(layer: VisLayer, out: Set<string>) {
+    if (layer.group === colTypes.Markers && !layer.children.length && layer.visible && !layer.indeterminate) {
+        out.add(layer.name);
     }
     for (const c of layer.children) {
         collectVisibleNames(c, out);

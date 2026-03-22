@@ -1,12 +1,10 @@
-import { Icon, useStyles2 } from '@grafana/ui';
+import { Icon } from '@grafana/ui';
 import React, { useCallback, useRef } from 'react';
 import { useRootStore } from '../../utils';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { GrafanaTheme2 } from '@grafana/data';
-import { css } from '@emotion/css';
+
 
 export const PositionTracker = ({ isLogic }: { isLogic: boolean }) => {
-    const s = useStyles2(getStyles);
     const { pointStore } = useRootStore();
     const { getSelCoord } = pointStore;
 
@@ -30,8 +28,23 @@ export const PositionTracker = ({ isLogic }: { isLogic: boolean }) => {
             ? getSelCoord
             : { coordinates: [' ', ' '], type: 'Point' };
 
+    const formatCoordinate = (value: unknown) => {
+        if (typeof value === 'number') {
+            return value.toFixed(6);
+        }
+
+        if (typeof value === 'string') {
+            const parsed = Number(value);
+            return Number.isFinite(parsed) ? parsed.toFixed(6) : value;
+        }
+
+        return value;
+    };
+
+    const formattedLon: any = formatCoordinate(coords.coordinates?.[0]);
+    const formattedLat: any = formatCoordinate(coords.coordinates?.[1]);
+
     return (
-        <div className={s.posTracker}>
             <div>
         <span onDoubleClick={() => selectNode(coordinatesRef.current)}>
           {!isLogic && (
@@ -48,7 +61,7 @@ export const PositionTracker = ({ isLogic }: { isLogic: boolean }) => {
                     selectNode(lonRef.current);
                 }}
             >
-              <span ref={lonRef}>{coords.coordinates?.[0]}</span>
+              <span ref={lonRef}>{formattedLon}</span>
             </span>
             ,
             <span
@@ -57,21 +70,13 @@ export const PositionTracker = ({ isLogic }: { isLogic: boolean }) => {
                     selectNode(latRef.current);
                 }}
             >
-              <span ref={latRef}>{coords.coordinates?.[1]}</span>
+              <span ref={latRef}>{formattedLat}</span>
             </span>
             ]
           </span>
             &nbsp;{isLogic ? 'x,y' : 'lon,lat'}
         </span>
-            </div>
         </div>
     );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
-    posTracker: css`
-        margin-right: ${theme.spacing(1)};
-        z-index: ${theme.zIndex.dropdown};
-        font-size: x-small;
-    `,
-});
