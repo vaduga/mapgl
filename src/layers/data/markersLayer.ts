@@ -685,7 +685,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                  category: ['Groups'],
                  id: 'config.groups',
                  path: 'config.groups',
-                 name: 'cluster label, SVG icon, circle color override',
+                 name: 'legend label, SVG icon, circle color override',
                  editor: GroupsEditor,
                 })
           }

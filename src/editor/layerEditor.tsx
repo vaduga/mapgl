@@ -164,9 +164,7 @@ export function getLayerEditor(opts: LayerEditorOptions): NestedPanelOptions<Ext
             allowCustomValue: true,
             options: [],
             placeholder: 'All Properties',
-            //@ts-ignore
             getOptions: options?.type === colTypes.GeoJson ? async (context)=> await getGeoJsonProps(context) : getQueryFields ?? [],
-
           },
           showIf: (opts) => opts.isShowTooltip,
           //showIf: (opts) => typeof opts.query !== 'undefined',

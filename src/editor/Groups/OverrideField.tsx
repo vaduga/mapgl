@@ -1,22 +1,19 @@
 import {
     AutoSizeInput,
-    Field,
     IconButton,
     InlineField,
-    InlineFieldRow,
     MultiSelect,
     Select,
-    useStyles2, useTheme2
+    useStyles2,
+    useTheme2
 } from "@grafana/ui";
 import {OverField, Rule} from "./rule-types";
-import React, {ReactNode, useEffect, useState} from "react";
-import {FieldType, GrafanaTheme2, SelectableValue, Threshold} from "@grafana/data";
+import React, {ReactNode} from "react";
+import {FieldType, GrafanaTheme2} from "@grafana/data";
 import {css} from "@emotion/css";
 import {FieldSelectEditor} from "./FieldSelectEditor";
 import {RuleOption} from "./RuleItem";
-import {findField} from "../../grafana_core/app/features/dimensions";
-import {config, } from "@grafana/runtime";
-import {getFieldConfigWithMinMax} from "@grafana/data";
+
 
 interface OverrideFieldProps {
     overrideField: OverField;
@@ -34,6 +31,7 @@ interface OverrideFieldProps {
 
 export const OverrideField: React.FC<OverrideFieldProps> = (options: OverrideFieldProps) => {
     const styles = useStyles2(getThresholdFieldStyles);
+    const theme = useTheme2();
 
 
     if (options.context.data && options.context.data.length > 0) {
@@ -68,11 +66,11 @@ export const OverrideField: React.FC<OverrideFieldProps> = (options: OverrideFie
                 if (t=== undefined) return null;
                 return(
                     {
-                        color: useTheme2().visualization.getColorByName(t.color),
+                        color: theme.visualization.getColorByName(t.color),
                         label: t.color,
                         value: t.value
                     })
-            }).filter(t=> t !== null);
+            }).filter(t=> t !== null) ?? [];
 
             const thrColors = options.overrideField.value //options.rule.thrIds
             const storedOptions = thrColors?.length ? tOptions?.filter(t=> thrColors.includes(t.label)) : []
@@ -80,8 +78,7 @@ export const OverrideField: React.FC<OverrideFieldProps> = (options: OverrideFie
             // setThresOpts(tOptions)
         // }, [combinedThresholds]);
         // const [selThresOpts, setSelThresOpts] = useState<ThresholdOption[]>()
-        // const [thresOpts, setThresOpts] = useState<ThresholdOption[]>()
-
+        // const [thresOpts, setThresOpts] = useState<ThresholdOption[]>() 
 
         const renderOption = (option) => (<div style={{display: 'flex', alignItems: 'center'}}>
                 <div

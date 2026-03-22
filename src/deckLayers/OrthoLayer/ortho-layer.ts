@@ -21,8 +21,6 @@ import {createDonutChart, svgToDataURL} from "./donutChart";
 import {GeoJsonLayer} from "@deck.gl/layers";
 import {DataFilterExtension} from "@deck.gl/extensions";
 import { isVisible } from '../../utils/utils.layers';
-import {Matrix4} from '@math.gl/core';
-
 
 export default class OrthoLayer <
     FeaturePropertiesT = any,
@@ -72,7 +70,7 @@ export default class OrthoLayer <
 
     updateState({props, oldProps, changeFlags}: UpdateParameters<this>): void {
         const rebuildIndex =
-            // @ts-ignore
+            //@ts-ignore
             changeFlags.dataChanged || props.maxZoom !== oldProps.maxZoom
 
         if (rebuildIndex) {

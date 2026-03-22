@@ -1,38 +1,33 @@
-import React, { FC, useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useId } from 'react';
 import { StandardEditorProps, SelectableValue } from '@grafana/data';
-import {Button, InlineField, InlineFieldRow, Select, VerticalGroup} from '@grafana/ui';
-import {Options, MapViewConfig, GeomapInstanceState} from '../../types';
-import { centerPointRegistry, MapCenterID } from '../../view';
-
+import { Trans, t } from '@grafana/i18n';
+import { Button, InlineField, InlineFieldRow, Select, Stack } from '@grafana/ui';
 import {NumberInput} from "../../grafana_core/app/core/components/OptionsUI/NumberInput";
+
+import {type Options, type MapViewConfig, GeomapInstanceState} from '../../types';
+import { centerPointRegistry, MapCenterID } from '../../view';
 
 import { CoordinatesMapViewEditor } from './CoordinatesMapViewEditor';
 import { FitMapViewEditor } from './FitMapViewEditor';
-import {Deck} from "@deck.gl/core";
 
-export const MapViewEditor: FC<StandardEditorProps<MapViewConfig, unknown, Options, GeomapInstanceState>> = ({
-  value,
-  onChange,
-  context,
-}: StandardEditorProps<MapViewConfig, unknown, Options, GeomapInstanceState>) => {
-//   const onChangeUpd = useCallback((c) => {
-// context.eventBus?.publish({type: 'mapView', payload: 'update', theme: ''})
-//     onChange(c)
-//   }, [onChange, context.eventBus]);
+export const MapViewEditor = ({
+                                  value,
+                                  onChange,
+                                  context,
+                              }: StandardEditorProps<MapViewConfig, unknown, Options, GeomapInstanceState>) => {
 
-  const {isLogic} = context.instanceState || {}
+    const {isLogic} = context.instanceState || {}
+    const labelWidth = 10;
 
-  const labelWidth = 10;
-
-  const views = useMemo(() => {
-    const ids: string[] = [];
-    if (value?.id) {
-      ids.push(value.id);
-    } else {
-      ids.push(centerPointRegistry.list()[0].id);
-    }
-    return centerPointRegistry.selectOptions(ids);
-  }, [value?.id]);
+    const views = useMemo(() => {
+        const ids: string[] = [];
+        if (value?.id) {
+            ids.push(value.id);
+        } else {
+            ids.push(centerPointRegistry.list()[0].id);
+        }
+        return centerPointRegistry.selectOptions(ids);
+    }, [value?.id]);
 
   const onSetCurrentView = useCallback(() => {
 
@@ -59,8 +54,6 @@ export const MapViewEditor: FC<StandardEditorProps<MapViewConfig, unknown, Optio
       // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, onChange, context.instanceState]);
 
-
-
     const onSelectView = useCallback(
         (selection: SelectableValue<string>) => {
             const v = centerPointRegistry.getIfExists(selection.value);
@@ -77,42 +70,53 @@ export const MapViewEditor: FC<StandardEditorProps<MapViewConfig, unknown, Optio
         [value, onChange]
     );
 
+    const viewInputId = useId();
+    const zoomInputId = useId();
 
+    return (
+        <>
+            <InlineFieldRow>
+                <InlineField label={t('geomap.map-view-editor.label-view', 'View')} labelWidth={labelWidth} grow={true}>
+                    <Select inputId={viewInputId} options={views.options} value={views.current} onChange={onSelectView} />
+                </InlineField>
+            </InlineFieldRow>
+            {value.id === MapCenterID.Coordinates && (
+                <CoordinatesMapViewEditor labelWidth={labelWidth} value={value} onChange={onChange} />
+            )}
+            {value.id === MapCenterID.Fit && (
+                <FitMapViewEditor labelWidth={labelWidth} value={value} onChange={onChange} context={context} />
+            )}
 
-  return (
-      <>
-          <InlineFieldRow>
-              <InlineField label="View" labelWidth={labelWidth} grow={true}>
-                  {/*menuShouldPortal*/}
-                  <Select options={views.options} value={views.current} onChange={onSelectView} />
-              </InlineField>
-          </InlineFieldRow>
-          {value.id === MapCenterID.Coordinates && (
-              <CoordinatesMapViewEditor labelWidth={labelWidth} value={value} onChange={onChange} />
-          )}
-          {value.id === MapCenterID.Fit && (
-              <FitMapViewEditor labelWidth={labelWidth} value={value} onChange={onChange} context={context} />
-          )}
+            <InlineFieldRow>
+                <InlineField
+                    label={
+                        value?.id === MapCenterID.Fit
+                            ? t('geomap.map-view-editor.label-max-zoom', 'Max Zoom')
+                            : t('geomap.map-view-editor.label-zoom', 'Zoom')
+                    }
+                    labelWidth={labelWidth}
+                    grow={true}
+                >
+                    <NumberInput
+                        id={zoomInputId}
+                        value={value?.zoom ?? 1}
+                        min={isLogic ? -5 : 1}
+                        max={isLogic ? 5 : 18}
+                        step={0.01}
+                        onChange={(v) => {
+                            onChange({ ...value, zoom: v });
+                        }}
+                    />
+                </InlineField>
+            </InlineFieldRow>
 
-          <InlineFieldRow>
-              <InlineField label={value?.id === MapCenterID.Fit ? 'Max Zoom' : 'Zoom'} labelWidth={labelWidth} grow={true}>
-                  <NumberInput
-                      value={value?.zoom ?? 1}
-                      min={isLogic ? -5 : 1}
-                      max={isLogic ? 5 : 18}
-                      step={0.1}
-                      onChange={(v) => {
-                          onChange({ ...value, zoom: v });
-                      }}
-                  />
-              </InlineField>
-          </InlineFieldRow>
-
-          <VerticalGroup>
-              <Button variant="secondary" size="sm" fullWidth onClick={onSetCurrentView}>
-                  <span>Use current map settings</span>
-              </Button>
-          </VerticalGroup>
-    </>
-  );
+            <Stack direction="column">
+                <Button variant="secondary" size="sm" fullWidth onClick={onSetCurrentView}>
+          <span>
+            <Trans i18nKey="geomap.map-view-editor.use-current-map-settings">Use current map settings</Trans>
+          </span>
+                </Button>
+            </Stack>
+        </>
+    );
 };

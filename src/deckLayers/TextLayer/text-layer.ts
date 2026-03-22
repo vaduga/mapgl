@@ -1,11 +1,9 @@
 
 import { TextLayer } from '@deck.gl/layers';
 // @ts-ignore
-import {CollisionFilterExtension, DataFilterExtension} from '@deck.gl/extensions';
+import {DataFilterExtension} from '@deck.gl/extensions';
 import {isVisible, toRGB4Array} from "../../utils";
-import {toJS} from "mobx";
 import {colTypes, BBOX_OUTLINE_COLOR, DEFAULT_NUMS_COLOR} from "mapLib/utils";
-import {Matrix4} from "@math.gl/core";
 
 const LineTextLayer = ({ id = '', data, baseLayer, theme, options, getVisLayers, visible, type = 'nums'}) => {
   let units
@@ -52,7 +50,6 @@ const LineTextLayer = ({ id = '', data, baseLayer, theme, options, getVisLayers,
           break;
       }
     },
-    // @ts-ignore
     getPosition: (d: any) => {
       switch (type) {
         case 'bbox':

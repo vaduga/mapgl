@@ -1,7 +1,8 @@
+import { t } from '@grafana/i18n';
 import { InlineFieldRow, InlineField } from '@grafana/ui';
 import React from 'react';
 
-import { MapViewConfig } from '../../types';
+import { type MapViewConfig } from '../../types';
 import {NumberInput} from "../../grafana_core/app/core/components/OptionsUI/NumberInput";
 
 type Props = {
@@ -20,17 +21,25 @@ export const CoordinatesMapViewEditor = ({ labelWidth, value, onChange }: Props)
   };
 
   return (
-    <>
-      <InlineFieldRow>
-        <InlineField label="Latitude" labelWidth={labelWidth} grow={true}>
-          <NumberInput value={value.lat} min={-90} max={90} step={0.001} onChange={onLatitudeChange} />
-        </InlineField>
-      </InlineFieldRow>
-      <InlineFieldRow>
-        <InlineField label="Longitude" labelWidth={labelWidth} grow={true}>
+      <>
+          <InlineFieldRow>
+          <InlineField
+           label={t('geomap.coordinates-map-view-editor.label-longitude', 'Longitude')}
+           labelWidth={labelWidth}
+           grow={true}
+           >
           <NumberInput value={value.lon} min={-180} max={180} step={0.001} onChange={onLongitudeChange} />
-        </InlineField>
-      </InlineFieldRow>
-    </>
+          </InlineField>
+        </InlineFieldRow>
+        <InlineFieldRow>
+          <InlineField
+              label={t('geomap.coordinates-map-view-editor.label-latitude', 'Latitude')}
+              labelWidth={labelWidth}
+              grow={true}
+          >
+            <NumberInput value={value.lat} min={-90} max={90} step={0.001} onChange={onLatitudeChange} />
+          </InlineField>
+        </InlineFieldRow>
+      </>
   );
 };

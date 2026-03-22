@@ -14,19 +14,19 @@ type ArrowItem = {
   angle?: number;
 };
 
-function getLastPoints(d: ArrowFeature): {base: Position; tip: Position} | null {
+function getLastPoints(d: ArrowFeature): {base: [number, number]; tip: [number, number]} | null {
   const coords = d?.geometry?.coordinates;
   if (!coords || !coords.length) return null;
 
   const lastLine = coords[coords.length - 1];
   if (!lastLine || lastLine.length < 2) return null;
 
-  const tip = lastLine[lastLine.length - 1];
-  const base = lastLine[lastLine.length - 2];
+  const tip = lastLine[lastLine.length - 1] as [number, number];
+  const base = lastLine[lastLine.length - 2] as [number, number];
   return {base, tip};
 }
 
-function getFirstPoints(d: ArrowFeature): {base: Position; tip: Position} | null {
+function getFirstPoints(d: ArrowFeature): {base: [number, number]; tip: [number, number]} | null {
   const coords = d?.geometry?.coordinates;
   if (!coords || !coords.length) return null;
 
@@ -34,8 +34,8 @@ function getFirstPoints(d: ArrowFeature): {base: Position; tip: Position} | null
   if (!firstLine || firstLine.length < 2) return null;
 
   // Reverse direction so the arrow points toward the start
-  const tip = firstLine[0];
-  const base = firstLine[1];
+  const tip = firstLine[0] as [number, number];
+  const base = firstLine[1] as [number, number];
   return {base, tip};
 }
 
@@ -165,7 +165,7 @@ export const EdgeArrowLayer = (props) => {
     visible,
     pickable: false,
     billboard: false,
-//@ts-ignore
+
     getPosition: (d: ArrowItem) => {
       const pts = d.placement === 'start' ? getFirstPoints(d.feature) : getLastPoints(d.feature);
       return pts ? pts.tip : [0, 0];

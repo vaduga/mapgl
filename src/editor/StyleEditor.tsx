@@ -44,8 +44,8 @@ type Props = StandardEditorProps<StyleConfig, StyleEditorOptions>;
 
 export const StyleEditor = (props: Props) => {
     const { value, onChange, item } = props;
-    // @ts-ignore
-    const {isAuxLayer, hideText, hideOpacity = false, isEdge} = item.settings
+
+    const {isAuxLayer, hideText, hideOpacity = false, isEdge} = item.settings || {}
     const context = useMemo(() => {
         if (!item.settings?.frameMatcher) {
             return props.context;

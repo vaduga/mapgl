@@ -142,9 +142,9 @@ export default class AnimatedBlobsLayer extends GradientArcLayer {
 
 
         // this.state.model?.setUniforms({
-             // @ts-ignore
+             // @t s-ignore
              //tailLength: this.props.tailLength,
-             // @ts-ignore
+             // @t s-ignore
              //animationSpeed: this.props.animationSpeed,
              //timestamp: (performance.now() / 1000) % 86400
          // });

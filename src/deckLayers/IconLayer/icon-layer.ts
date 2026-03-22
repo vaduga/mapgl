@@ -56,7 +56,6 @@ const svgico = svgToDataURL(`
     data,
     selectedFeatureIndexes: getSelectedFeIndexes?.get(colTypes.Comments) ?? [],
     getPosition: (d: any) => d.geometry.coordinates,
-    // @ts-ignore
     getColor: (d: any) => {
       const {iconColor} = d.properties
       return toRGB4Array(iconColor)

@@ -25,7 +25,7 @@ const MyPolygonsLayer = (props) => {
 
     const Poly = isVisible(getVisLayers, {index: null, name, group: colTypes.Polygons})
     const units = options.common?.isMeters ? "meters" : "pixels"
-    // @ts-ignore
+
     return new PolygonLayer({
         visible: colType === colTypes.Hull ? true : Poly,
         highlightColor,

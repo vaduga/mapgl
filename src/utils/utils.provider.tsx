@@ -16,10 +16,7 @@ interface RootStoreProviderProps {
 export const RootStoreProvider = ({ children, props }: RootStoreProviderProps) => {
   //only create the store once ( store is a singleton)
 
-  // @ts-ignore
-  const {graph} = usePanelContext()
-
-  const root = store ?? new RootStore({...props, graph});
+  const root = store ?? new RootStore(props);
   return <StoreContext.Provider value={root}>{children}</StoreContext.Provider>;
 }
 

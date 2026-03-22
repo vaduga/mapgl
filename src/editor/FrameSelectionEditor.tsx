@@ -1,84 +1,66 @@
-import React, { FC, useCallback, useMemo, useState } from 'react';
+import { useCallback } from 'react';
 
+import { FrameMatcherID, MatcherConfig, StandardEditorProps } from '@grafana/data';
+import { t } from '@grafana/i18n';
+;
+import React from "react";
 import {
-  FrameMatcherID,
-  getFieldDisplayName,
-  MatcherConfig,
-  SelectableValue,
-  StandardEditorProps,
-} from '@grafana/data';
-import { Select } from '@grafana/ui';
+    RefIDMultiPicker,
+    RefIDPicker,
+    stringsToRegexp
+} from "../grafana_core/components/MatchersUI/FieldsByFrameRefIdMatcher";
 
-const recoverRefIdMissing = (
-  newRefIds: SelectableValue[],
-  oldRefIds: SelectableValue[],
-  previousValue: string | undefined
-): SelectableValue | undefined => {
-  if (!previousValue) {
-    return;
-  }
-  // Previously selected value is missing from the new list.
-  // Find the value that is in the new list but isn't in the old list
-  let changedTo = newRefIds.find((refId) => {
-    return !oldRefIds.some((refId2) => {
-      return refId === refId2;
-    });
-  });
-  if (changedTo) {
-    // Found the new value, we assume the old value changed to this one, so we'll use it
-    return changedTo;
-  }
-  return;
-};
+type Props = StandardEditorProps<MatcherConfig>;
 
-export const FrameSelectionEditor: FC<StandardEditorProps<MatcherConfig>> = ({ value, context, onChange, item }) => {
-  const listOfRefId = useMemo(() => {
-    return context.data.map((f) => ({
-      value: f.refId,
-      label: `Query: ${f.refId} (size: ${f.length})`,
-      description: f.fields.map((f) => getFieldDisplayName(f)).join(', '),
-    }));
-  }, [context.data]);
-
-  const [priorSelectionState, updatePriorSelectionState] = useState({
-    refIds: [] as SelectableValue[],
-    value: undefined as string | undefined,
-  });
-
-  const currentValue = useMemo(() => {
-    return (
-      listOfRefId.find((refId) => refId.value === value?.options) ??
-      recoverRefIdMissing(listOfRefId, priorSelectionState.refIds, priorSelectionState.value)
-    );
-  }, [value, listOfRefId, priorSelectionState]);
-
+export const FrameSelectionEditor = ({ value, context, onChange, id }: Props) => {
   const onFilterChange = useCallback(
-    (v: SelectableValue<string>) => {
-      onChange(
-        v?.value
-          ? {
-              id: FrameMatcherID.byRefId,
-              options: v.value,
-            }
-          : undefined
-      );
-    },
-    [onChange]
+      (v: string) => {
+        onChange(
+            v?.length
+                ? {
+                  id: FrameMatcherID.byRefId,
+                  options: v,
+                }
+                : undefined
+        );
+      },
+      [onChange]
   );
 
-  if (listOfRefId !== priorSelectionState.refIds || currentValue?.value !== priorSelectionState.value) {
-    updatePriorSelectionState({
-      refIds: listOfRefId,
-      value: currentValue?.value,
-    });
-  }
   return (
-    <Select
-      options={listOfRefId}
-      onChange={onFilterChange}
-      isClearable={true}
-      placeholder="Change filter"
-      value={currentValue}
-    />
+      <RefIDPicker
+          id={id}
+          value={value?.options}
+          onChange={onFilterChange}
+          data={context.data}
+          placeholder={t('geomap.frame-selection-editor.placeholder-change-filter', 'Change filter')}
+      />
+  );
+};
+
+type FrameMultiSelectionEditorProps = Omit<StandardEditorProps<MatcherConfig>, 'item'>;
+
+export const FrameMultiSelectionEditor = ({ value, context, onChange }: FrameMultiSelectionEditorProps) => {
+  const onFilterChange = useCallback(
+      (v: string[]) => {
+        onChange(
+            v?.length
+                ? {
+                  id: FrameMatcherID.byRefId,
+                  options: stringsToRegexp(v),
+                }
+                : undefined
+        );
+      },
+      [onChange]
+  );
+
+  return (
+      <RefIDMultiPicker
+          value={value?.options}
+          onChange={onFilterChange}
+          data={context.data}
+          placeholder={t('geomap.frame-multi-selection-editor.placeholder-change-filter', 'Change filter')}
+      />
   );
 };
