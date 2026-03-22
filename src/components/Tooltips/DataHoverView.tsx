@@ -15,10 +15,10 @@ import {
 import {SortOrder, TooltipDisplayMode} from '@grafana/schema';
 import {TextLink, useStyles2} from '@grafana/ui';
 
-
-import {ExemplarHoverView} from '../../grafana_core/app/features/visualization/data-hover/ExemplarHoverView';
 import {renderValue} from "../../grafana_core/app/features/geo/utils/uiUtils";
 import {sortAnnotations} from "mapLib/utils";
+import {Trans} from "@grafana/i18n";
+import {getDataLinks} from "../../grafana_core/app/plugins/panel/status-history/utils";
 
 export interface Props {
   data?: DataFrame; // source data
@@ -119,15 +119,15 @@ export function getDisplayValuesAndLinks(
 
     const fieldDisplay = field.display ? field.display(value) : { text: `${value}`, numeric: +value };
 
-    if (field.getLinks) {
-      field.getLinks({ calculatedValue: fieldDisplay, valueRowIndex: rowIndex }).forEach((link) => {
-        const key = `${link.title}/${link.href}`;
-        if (!linkLookup.has(key) && mode === TooltipDisplayMode.Single && field === hoveredField) { /// me ->> && mode === TooltipDisplayMode.Single && field === hoveredField
-          links.push(link);
-          linkLookup.add(key);
-        }
-      });
-    }
+
+    getDataLinks(field, rowIndex).forEach((link) => {
+      const key = `${link.title}/${link.href}`;
+      if (!linkLookup.has(key) && mode === TooltipDisplayMode.Single && field === hoveredField) { /// me ->> && mode === TooltipDisplayMode.Single && field === hoveredField
+        links.push(link);
+        linkLookup.add(key);
+      }
+    });
+
 
     const allButAnnots = displayProps.includes(field.name) && field.name !== 'all_annots'
     if (displayProps.length === 4 || allButAnnots) {  //// 4 - is hardcoded included field names,
@@ -176,40 +176,39 @@ export const DataHoverView = ({ data, rowIndex, displayProps, baseProps, extraFi
 
   const { displayValues, links } = dispValuesAndLinks;
 
-  if (header === 'Exemplar') {
-    return <ExemplarHoverView displayValues={displayValues} links={links} header={header} />;
-  }
-
   return (
-    <div className={styles.wrapper}>
-      {header && (
-        <div className={styles.header}>
-          <span className={styles.title}>{header}</span>
-        </div>
-      )}
-      <table className={styles.infoWrap}>
-        <tbody>
+      <div className={styles.wrapper}>
+        {header && (
+            <div className={styles.header}>
+              <span className={styles.title}>{header}</span>
+            </div>
+        )}
+        <table className={styles.infoWrap}>
+          <tbody>
           {displayValues.map((displayValue, i) => (
-            <tr key={`${i}/${rowIndex}`}>
-              <th>{displayValue.name}</th>
-              <td>{renderValue(displayValue.valueString)}</td>
-            </tr>
+              <tr key={`${i}/${rowIndex}`}>
+                <th>{displayValue.name}</th>
+                <td>{renderValue(displayValue.valueString)}</td>
+              </tr>
           ))}
           {links.map((link, i) => (
-            <tr key={i}>
-              <th>Link</th>
-              <td colSpan={2}>
-                <TextLink href={link.href} external={link.target === '_blank'} weight={'medium'} inline={false}>
-                  {link.title}
-                </TextLink>
-              </td>
-            </tr>
+              <tr key={i}>
+                <th>
+                  <Trans i18nKey="visualization.data-hover-view.link">Link</Trans>
+                </th>
+                <td colSpan={2}>
+                  <TextLink href={link.href} external={link.target === '_blank'} weight={'medium'} inline={false}>
+                    {link.title}
+                  </TextLink>
+                </td>
+              </tr>
           ))}
-        </tbody>
-      </table>
-    </div>
+          </tbody>
+        </table>
+      </div>
   );
 };
+
 const getStyles = (theme: GrafanaTheme2, padding = 0) => {
   return {
     wrapper: css({

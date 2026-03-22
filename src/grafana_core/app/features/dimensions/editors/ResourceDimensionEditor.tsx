@@ -2,16 +2,15 @@ import { useCallback } from 'react';
 import * as React from 'react';
 
 import { FieldNamePickerConfigSettings, StandardEditorProps, StandardEditorsRegistryItem } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { ResourceDimensionConfig, ResourceDimensionMode } from '@grafana/schema';
-import { InlineField, InlineFieldRow } from '@grafana/ui';
+import { InlineField, InlineFieldRow, RadioButtonGroup } from '@grafana/ui';
+import {FieldNamePicker} from "../../../../components/MatchersUI/FieldNamePicker";
 
 import { getPublicOrAbsoluteUrl } from '../resource';
 import { MediaType, ResourceDimensionOptions, ResourceFolderName, ResourcePickerSize } from '../types';
 
 import { ResourcePicker } from './ResourcePicker';
-//import { FieldNamePicker } from '@grafana/ui/src/components/MatchersUI/FieldNamePicker';
-import {FieldNamePicker} from "../../../../components/MatchersUI/FieldNamePicker";
-
 
 const dummyFieldSettings = {
     settings: {},
@@ -77,7 +76,7 @@ export const ResourceDimensionEditor = (
             {mode !== ResourceDimensionMode.Fixed && (
                 <InlineFieldRow>
                     <InlineField
-                        label={'Field'}
+                        label={t('dimensions.resource-dimension-editor.label-field', 'Field')}
                         labelWidth={labelWidth}
                         grow={true}
                     >
@@ -107,7 +106,7 @@ export const ResourceDimensionEditor = (
             {mode === ResourceDimensionMode.Mapping && (
                 <InlineFieldRow>
                     <InlineField
-                        label="Mappings"
+                        label={t('dimensions.resource-dimension-editor.label-mappings', 'Mappings')}
                         labelWidth={labelWidth}
                         grow={true}
                     >

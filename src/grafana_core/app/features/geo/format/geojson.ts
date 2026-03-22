@@ -125,5 +125,5 @@ function ensureSingleType(info: FieldInfo): FieldType {
     });
     return FieldType.string;
   }
-  return <FieldType>info.types.values().next().value;
+  return info.types.values().next().value ?? FieldType.other;
 }

@@ -1,4 +1,5 @@
 import {FieldConfigProperty, PanelPlugin} from '@grafana/data';
+import { initPluginTranslations } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { commonOptionsBuilder } from '@grafana/ui';
 import React from 'react';
@@ -9,6 +10,8 @@ import { LayersEditor } from './editor/LayersEditor';
 import { MapViewEditor } from './editor/MapView/MapViewEditor';
 import {getLayerEditor} from "./editor/layerEditor";
 import {defaultMapViewConfig, Options, GeomapInstanceState} from './types';
+
+void initPluginTranslations('vaduga-mapgl-panel');
 
 export const plugin = new PanelPlugin<Options>(GeomapPanel)
     .setNoPadding()
@@ -133,4 +136,3 @@ export const plugin = new PanelPlugin<Options>(GeomapPanel)
         annotations: true,
         alertStates: true,
     });
-

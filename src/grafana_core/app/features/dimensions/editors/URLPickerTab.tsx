@@ -2,11 +2,12 @@ import { css } from '@emotion/css';
 import React, { Dispatch, SetStateAction } from 'react';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import { Field, Input, Label, useStyles2 } from '@grafana/ui';
+import {SanitizedSVG} from "../../../../components/SVG/SanitizedSVG";
 
 import { getPublicOrAbsoluteUrl } from '../resource';
 import { MediaType } from '../types';
-import {SanitizedSVG} from "../../../../components/SVG/SanitizedSVG";
 
 interface Props {
     newValue: string;
@@ -25,14 +26,13 @@ export const URLPickerTab = (props: Props) => {
         shortName = shortName.substring(0, 20) + '...';
     }
 
-
     return (
         <>
             <Field>
                 <Input onChange={(e) => setNewValue(e.currentTarget.value)} value={newValue} />
             </Field>
             <div className={styles.iconContainer}>
-                <Field label="Preview">
+                <Field label={t('dimensions.urlpicker-tab.label-preview', 'Preview')}>
                     <div className={styles.iconPreview}>
                         {mediaType === MediaType.Icon && <SanitizedSVG src={imgSrc} className={styles.img} />}
                         {mediaType === MediaType.Image && newValue && (
@@ -47,24 +47,24 @@ export const URLPickerTab = (props: Props) => {
 };
 
 const getStyles = (theme: GrafanaTheme2) => ({
-    iconContainer: css`
-    display: flex;
-    flex-direction: column;
-    width: 80%;
-    align-items: center;
-    align-self: center;
-  `,
-    iconPreview: css`
-    width: 238px;
-    height: 198px;
-    border: 1px solid ${theme.colors.border.medium};
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  `,
-    img: css`
-    width: 147px;
-    height: 147px;
-    fill: ${theme.colors.text.primary};
-  `,
+    iconContainer: css({
+        display: 'flex',
+        flexDirection: 'column',
+        width: '80%',
+        alignItems: 'center',
+        alignSelf: 'center',
+    }),
+    iconPreview: css({
+        width: '238px',
+        height: '198px',
+        border: `1px solid ${theme.colors.border.medium}`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+    }),
+    img: css({
+        width: '147px',
+        height: '147px',
+        fill: theme.colors.text.primary,
+    }),
 });

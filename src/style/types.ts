@@ -11,13 +11,24 @@ import {
 } from '@grafana/schema';
 import {DimensionSupplier} from '../grafana_core/app/features/dimensions';
 import {RGBAColor} from "mapLib/utils";
-import {ArcOption} from "../editor/types";
+
 
 export enum GeometryTypeId {
     Point = 'point',
     Line = 'line',
     Polygon = 'polygon',
     Any = '*any*',
+}
+
+export interface ArcOption {
+    /**
+     * The color of the arc.
+     */
+    fixed: string;
+    /**
+     * Field from which to get the value. Values should be less than 1, representing fraction of a circle.
+     */
+    field?: string;
 }
 
 // StyleConfig is saved in panel json and is used to configure how items get rendered

@@ -2,31 +2,32 @@ import { css } from '@emotion/css';
 import React, { useCallback, useMemo } from 'react';
 
 import { GrafanaTheme2, SelectableValue, StandardEditorProps } from '@grafana/data';
-import { Select, useStyles2 } from '@grafana/ui';
+import { Combobox, useStyles2 } from '@grafana/ui';
+
+import {useFieldDisplayNames, useMatcherSelectOptions} from "../../grafana_core/components/MatchersUI/utils";
 
 
-import {
-    ScaleDimensionOptions,
-    validateScaleConfig,
-    validateScaleOptions
-} from "../../grafana_core/app/features/dimensions";
-import {useFieldDisplayNames, useSelectOptions} from "../../grafana_core/components/MatchersUI/utils";
-
-
-const fixedValueOption: SelectableValue<string> = {
-    label: 'from calculations',
-    value: '_____fixed_____',
-};
 
 export const CapacityDimensionEditor = (props: StandardEditorProps) => {
     const { value, context, onChange, item } = props;
     const { settings } = item;
     const styles = useStyles2(getStyles);
 
+    const fixedValueOption = useMemo(
+        () => ({
+            label: 'Calculated',
+            value: '_____fixed_____',
+        }),
+        []
+    );
+
     const fieldName = value?.field;
     const isFixed = Boolean(!fieldName);
     const names = useFieldDisplayNames(context.data);
-    const selectOptions = useSelectOptions(names, fieldName, fixedValueOption, settings?.filteredFieldType);
+    const selectOptions = useMatcherSelectOptions(names, fieldName, {
+        firstItem: fixedValueOption,
+        fieldType: settings?.filteredFieldType,
+    });
 
     // Validate and update
     const validateAndDoChange = useCallback(
@@ -58,21 +59,17 @@ export const CapacityDimensionEditor = (props: StandardEditorProps) => {
 
     const selectedOption = isFixed ? fixedValueOption : selectOptions.find((v) => v.value === fieldName);
     return (
-        <>
-            <div>
-                <Select
+                <Combobox
                     value={selectedOption}
                     options={selectOptions}
                     onChange={onSelectChange}
-                    noOptionsMessage="No fields found"
+                    //noOptionsMessage="No fields found"
                 />
-            </div>
-        </>
     );
 };
 
 const getStyles = (theme: GrafanaTheme2) => ({
-    range: css`
-    padding-top: 8px;
-  `,
+    range: css({
+        paddingTop: theme.spacing(1),
+    }),
 });

@@ -1,15 +1,16 @@
-import { layerSwitcherRoot } from './LayerSwitcher.styles';
+import { getStyles } from './LayerSwitcher.styles';
 import React, { useEffect, useState, useRef } from 'react';
 import {VisLayer} from "./VisLayer";
-import { Graph } from 'mapLib';
 import {colTypes} from "mapLib/utils";
 import {GeomapPanel} from "../../GeomapPanel";
+import { useStyles2 } from '@grafana/ui';
 
 const CSS_PREFIX = 'layer-switcher-';
 
 const LayerSwitcher = (props) => {
-    const { theme, label, className, panel: geomap, setVisRefresh, setMobxLegendRefresh, setClusterMaxZoom} = props;
+    const { label, className, panel: geomap, setVisRefresh, setMobxLegendRefresh, setClusterMaxZoom} = props;
     const {visLayers} = geomap
+    const styles = useStyles2(getStyles);
 
     const [panelVisible, setPanelVisible] = useState(false);
     const elementRef = useRef(null);
@@ -42,29 +43,20 @@ const LayerSwitcher = (props) => {
     return (
         <div
             ref={elementRef}
-            className={`${layerSwitcherRoot} ${hiddenClassName} ${panelVisible ? 'shown' : ''} ${className}`}
+            className={`${styles.root} ${hiddenClassName} ${panelVisible ? 'shown' : ''} ${className}`}
         >
-                <div style={{width: '38px', height: '38px'}} >
+                <div className={styles.toggleWrapper} >
                 <button
                     title={panelVisible ? 'collapse' : label}
                     onClick={togglePanel}
-                    style={{
-                        backgroundColor: theme.colors.background.primary,
-                        color: theme.colors.getContrastText(theme.colors.background.primary)
-                    }}
                 >
-                    {panelVisible && '»'}
-                    </button>
+                    <span className={`layer-switcher-toggle-icon ${panelVisible ? 'open' : 'closed'}`}>››</span>
+                </button>
             </div>
             {panelVisible && (
                 <div
                     ref={panelRef}
                     className="panel"
-                    style={{
-                        background: theme.colors.background.primary,
-                        color: theme.colors.getContrastText(theme.colors.background.primary),
-                        border: `4px solid ${theme.colors.background.secondary}`
-                    }}
                 ></div>
             )}
         </div>

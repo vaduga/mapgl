@@ -1,18 +1,14 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import {isVisible, useRootStore} from '../utils';
 import {css} from "@emotion/css";
 import {
     useStyles2,
     InlineFieldRow,
-    InlineField, Select, Tooltip, Switch
+    InlineField
 } from "@grafana/ui";
 import {GrafanaTheme2} from "@grafana/data";
 
 import ReactSelectSearch from "./Selects/ReactSelectSearch";
-import Checkbox from "./Checkboxes/Checkbox";
-import {Graph} from 'mapLib'
-import {colTypes} from "mapLib/utils";
 
 const Menu = ({ eventBus, options, data, panel}) => {
     const s = useStyles2(getStyles);
@@ -50,7 +46,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      z-index: 2;
+      z-index: ${theme.zIndex.dropdown};
       top: ${theme.spacing(1)};
       left: ${theme.spacing(1)};
       width: auto;

@@ -50,7 +50,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
                 "color": "dark-green",
@@ -89,7 +89,7 @@
                   "steps": [
                     {
                       "color": "green",
-                      "value": 0
+                      "value": null
                     },
                     {
                       "color": "red",
@@ -474,7 +474,7 @@
               },
               "groups": [
                 {
-                  "collapse": true,
+                  "collapse": false,
                   "color": "#E02F44",
                   "groupIdx": 2,
                   "iconName": "networking/bridge",
@@ -492,7 +492,7 @@
                   ]
                 },
                 {
-                  "collapse": true,
+                  "collapse": false,
                   "color": "#9acd32",
                   "groupIdx": 3,
                   "iconName": "networking/atm-switch",
@@ -510,7 +510,7 @@
                   ]
                 },
                 {
-                  "collapse": true,
+                  "collapse": false,
                   "color": "#8AB8FF",
                   "groupIdx": 4,
                   "iconName": "networking/cloud",
@@ -601,7 +601,7 @@
           "zoom": 16
         }
       },
-      "pluginVersion": "2.0.0",
+      "pluginVersion": "2.0.2",
       "targets": [
         {
           "datasource": {
@@ -670,7 +670,7 @@
   ],
   "preload": false,
   "refresh": "",
-  "schemaVersion": 42,
+  "schemaVersion": 40,
   "tags": [],
   "templating": {
     "list": [
@@ -717,5 +717,6 @@
   "timezone": "",
   "title": "Geo",
   "uid": "bc41f708-0b15-456b-ba0e-d2e16bbaef33",
-  "version": 1
+  "version": 2,
+  "weekStart": ""
 }

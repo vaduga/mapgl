@@ -1,5 +1,5 @@
 import {FullscreenWidget, CompassWidget} from '@deck.gl/widgets';
-import {deckWidgetSkin} from "./deckWidgetSkin";
+import {getDeckWidgetSkin} from "./deckWidgetSkin";
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {flushSync} from 'react-dom';
 import {css} from '@emotion/css';
@@ -39,7 +39,8 @@ import {PositionTracker} from "./Geocoder/PositionTracker";
 import {
     DARK_AUTO_HIGHLIGHT,
     LIGHT_AUTO_HIGHLIGHT,
-    ALERTING_STATES, emptyBiCol, ALERTING_NUMS, ANNOTS_LABEL
+    ALERTING_STATES, emptyBiCol, ALERTING_NUMS, ANNOTS_LABEL,
+    ComFeature
 } from "mapLib/utils";
 import {throttleTime} from "rxjs";
 import {StateTime} from "./Geocoder/StateTime";
@@ -49,7 +50,7 @@ import {MyCenterPlot} from "../deckLayers/Centerplot/centerPlot";
 import {BinaryFeatureCollection, BinaryPointFeature} from "@loaders.gl/schema";
 
 import {ThresholdEdgeChangeEvent} from "../utils/bus.events";
-import {ComFeature} from "mapLib/utils";
+import {useFullscreenPortalBridge} from "./hooks/useFullscreenPortalBridge";
 
 
 const Mapgl = ({panel, annots, initMapRef, fieldConfig, source, options, data, replaceVariables, eventBus}) => {
@@ -82,7 +83,8 @@ const Mapgl = ({panel, annots, initMapRef, fieldConfig, source, options, data, r
     const mapLibreRef: any = useRef(null);
 
     const deckRef = useRef(null);
-    const containerRef = useRef(null);
+    const containerRef = useRef<HTMLDivElement | null>(null);
+    const { fullscreenContainer } = useFullscreenPortalBridge(containerRef);
 
     const geocoderRef = useRef(null)
     const [visRefresh, setVisRefresh] = useState(Math.random()+1)
@@ -324,9 +326,7 @@ const Mapgl = ({panel, annots, initMapRef, fieldConfig, source, options, data, r
         let counter = 0
         const commentFeatures: ComFeature[] = []
         Object.entries(initComments)?.forEach(([edgeId, orderMap]) => {
-            // @ts-ignore
             orderMap?.forEach(comment => {
-                // @ts-ignore
                 const {edge, text, iconColor, style, root, layerName, coords, index} = comment
                 if (edge && text && iconColor && coords) {
                     commentFeatures.push({
@@ -528,7 +528,7 @@ const Mapgl = ({panel, annots, initMapRef, fieldConfig, source, options, data, r
 
 const widgets: any =  [
     new FullscreenWidget({
-        id: 'myfull', container: containerRef.current ?? undefined, placement: 'top-right',
+        id: 'myfull', container: fullscreenContainer, placement: 'top-right',
         className: s.fullscreen
     })]
 if (!isLogic) {
@@ -542,11 +542,6 @@ if (!isLogic) {
                 widgets={widgets}
                 views={views}
                 ref={deckRef}
-                style={{
-                    pointerEvents: 'all',
-                    inset: '0px',
-                    //zIndex: '1'
-                }}
                 layers={layers}
                 viewState={viewState}
                 onViewStateChange={viewStateChanger}
@@ -569,7 +564,7 @@ if (!isLogic) {
                     mapStyle={source}
                     attributionControl={false}>
                     <AttributionControl
-                        style={{zIndex: '2', position: 'absolute', top: 5, right: theme2.spacing(1.5)}}/>
+                        style={{zIndex: theme2.zIndex.dropdown, position: 'absolute', top: 5, right: theme2.spacing(1.5)}}/>
                 </MapLibre>}
 
             </DeckGL>
@@ -620,21 +615,21 @@ const getStyles = (theme: GrafanaTheme2) => ({
         padding: 10px;
     `,
     fullscreen: css`
-    z-index: 2;
+    z-index: ${theme.zIndex.dropdown};
     position: absolute;
     top: ${theme.spacing(5)};
     right: 0;   
-    ${deckWidgetSkin}
+    ${getDeckWidgetSkin(theme)}
   `,
     compass: css`
-        z-index: 2;
+        z-index: ${theme.zIndex.dropdown};
         position: absolute;
         top: ${theme.spacing(10)};
         right: 0;        
-        ${deckWidgetSkin}
+        ${getDeckWidgetSkin(theme)}
     `,
     layerSwitcher: css`
-        z-index: 200;
+        z-index: ${theme.zIndex.dropdown};
         position: absolute;
         top: ${theme.spacing(7)};
         left: 0;
@@ -643,7 +638,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
         pointer-events: all;
     `,
     edgeLegend: css`
-        z-index: 2;
+        z-index: ${theme.zIndex.dropdown};
         position: absolute;
         bottom: ${theme.spacing(3)};
         //left: ${theme.spacing(10)};
@@ -653,7 +648,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
         background: ${theme.isDark ? theme.colors.background.secondary : '#EAEAEA'};
     `,
     nodesLegend: css`
-        z-index: 2;
+        z-index: ${theme.zIndex.dropdown};
         position: absolute;
         bottom: 0; // ${theme.spacing(3)};
         //left: ${theme.spacing(10)};
@@ -664,10 +659,9 @@ const getStyles = (theme: GrafanaTheme2) => ({
     `,
     timeNcoords: css`
         position: absolute;
-        z-index: 3;
+        z-index: ${theme.zIndex.dropdown};
         font-size: small;
         bottom: 5px;
         right: 1%;
     `
 })
-

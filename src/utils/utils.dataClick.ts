@@ -60,7 +60,7 @@ export const expandTooltip = (info: any, panel:any, eventBus: any, map: any, dat
         if (locName) {
             const nodeMap = subGraph?.nodeCollection?.getNodeMap
             const node = eNode ?? nodeMap?.get(locName) ?? subGraph
-            const feature = subGraph?.data?.feature ?? node?.data.feature
+            const feature = subGraph?.data?.feature ?? node?.data?.feature
             const geom = feature?.geometry
             const OSM = map?.getZoom && map?.getZoom()
             if (geom)

@@ -71,7 +71,7 @@ export const PositionTracker = ({ isLogic }: { isLogic: boolean }) => {
 const getStyles = (theme: GrafanaTheme2) => ({
     posTracker: css`
         margin-right: ${theme.spacing(1)};
-        z-index: 1;
+        z-index: ${theme.zIndex.dropdown};
         font-size: x-small;
     `,
 });

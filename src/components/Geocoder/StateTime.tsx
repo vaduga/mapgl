@@ -18,7 +18,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
     stateTime: css`
         margin-bottom: 0px;
         margin-right: ${theme.spacing(1)};
-        z-index: 1;               
+        z-index: ${theme.zIndex.dropdown};
       font-size: x-small;
       //bottom: 5px;
       //right: 1%;

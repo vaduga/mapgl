@@ -3,12 +3,12 @@ import {css} from '@emotion/css';
 import {Field, FieldType, GrafanaTheme2, StandardEditorProps} from '@grafana/data';
 import {Button, ColorPicker, Tooltip, useStyles2} from '@grafana/ui';
 
-import {ArcOption, NodeGraphOptions} from './types';
 import React from 'react';
 import {FieldNamePicker} from '../grafana_core/components/MatchersUI/FieldNamePicker';
+import {ArcOption} from "../style/types";
 
 type Settings = { filter: (field: Field) => boolean };
-type ArcOptionsEditorProps = StandardEditorProps<ArcOption[], Settings, NodeGraphOptions, undefined>;
+type ArcOptionsEditorProps = StandardEditorProps<ArcOption[], Settings, undefined>;
 
 export const ArcOptionsEditor = ({ value, onChange, context }: ArcOptionsEditorProps) => {
   const styles = useStyles2(getStyles);

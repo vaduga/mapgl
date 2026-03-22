@@ -212,7 +212,7 @@ if (!x && !y && !coordinate) return
         const getStyles = (theme: GrafanaTheme2) => ({
               viz: css`
                   isolation: isolate;
-                  z-index: 1000 !important;
+                  z-index: ${theme.zIndex.tooltip} !important;
               borderRadius: "10px";
                   ul {
                       list-style-type: none }
