@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 
 import { StandardEditorProps, DataFrame, GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
-import { t } from '@grafana/i18n';
 import { Alert, Icon, Select, useStyles2 } from '@grafana/ui';
+import { t } from '../../utils/i18n';
 
 import {ExtendFrameGeometrySource, ExtendFrameGeometrySourceMode} from "../../extension";
 import {FrameGeometryField, getGeometryField, getLocationMatchers} from "../../utils";

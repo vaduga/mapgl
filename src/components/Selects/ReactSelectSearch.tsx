@@ -1,14 +1,15 @@
 import React, {FC} from 'react';
 import { observer } from 'mobx-react-lite';
 import {selectGotoHandler, useRootStore} from '../../utils';
-import {DataFrame, EventBus, GrafanaTheme2} from "@grafana/data";
+import {DataFrame, EventBus, GrafanaTheme2, SelectableValue} from "@grafana/data";
 import {css} from "@emotion/css";
-import {Combobox, ComboboxOption, useStyles2} from "@grafana/ui";
+import {useStyles2} from "@grafana/ui";
 import {Graph, Edge} from 'mapLib'
 import {colTypes} from 'mapLib/utils'
+import { ComboboxCompat } from '../Compat/ComboboxCompat';
 
 export type handlerProps = { pId: number, value: string, graphId: string, eventBus?: EventBus, edge?: Edge, coord?: any, select: boolean, fly: boolean, zoomIn?: boolean, lineId?: number | null }
-type SearchOption = ComboboxOption<string> & { graphId: string; nodeId: string };
+type SearchOption = SelectableValue<string> & { graphId: string; nodeId: string };
 type MapRefProps = {
   wait?: number;
     selectHandler?: (a: Partial<handlerProps>) => Promise<void> | undefined; // custom handler, for drawer
@@ -82,7 +83,7 @@ const ReactSelectSearch: FC<MapRefProps> = ({ data, options, subGraph, selectHan
 
     return (
         <div className={s.select}>
-      <Combobox
+      <ComboboxCompat
       key={optionsKey}
       options={filteredOptions}
       value={selectedOption}

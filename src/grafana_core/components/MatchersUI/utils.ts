@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
 
-import { DataFrame, Field, getFieldDisplayName, FieldNamePickerBaseNameMode, FieldType } from '@grafana/data';
-import { t } from '@grafana/i18n';
+import { DataFrame, Field, getFieldDisplayName, FieldType, SelectableValue } from '@grafana/data';
+import { t } from '../../../utils/i18n';
 
 type MatcherScope = ('series' | 'nested' | 'annotation' | 'exemplar');
+type FieldNameMode = string | undefined;
 
-import {ComboboxOption, getFieldTypeIcon} from "@grafana/ui";
+import {getFieldTypeIcon} from "@grafana/ui";
 
 /**
  * @internal
@@ -22,6 +23,14 @@ export interface FrameFieldsDisplayNames {
 
     // if set, the scope to use for the field.
     scopes: Map<string, MatcherScope>;
+}
+
+function isOnlyBaseNames(mode?: FieldNameMode) {
+    return mode === 'OnlyBaseNames' || mode === 'onlyBaseNames' || mode === 'only';
+}
+
+function isExcludeBaseNames(mode?: FieldNameMode) {
+    return mode === 'ExcludeBaseNames' || mode === 'excludeBaseNames' || mode === 'exclude';
 }
 
 /**
@@ -129,7 +138,7 @@ interface UseMatcherSelectOptionsProps {
     /**
      * An additional first option to add to the beginning of the list. This is useful for an "All" option, for example.
      */
-    firstItem?: ComboboxOption;
+    firstItem?: SelectableValue;
     /**
      * if set, filter the options by field type.
      */
@@ -137,7 +146,7 @@ interface UseMatcherSelectOptionsProps {
     /**
      * this controls whether and how entries are added to the combobox fo the base field name of a field with a display name.
      */
-    baseNameMode?: FieldNamePickerBaseNameMode;
+    baseNameMode?: FieldNameMode;
     /**
      * if set, filter the options by matcher scope.
      */
@@ -154,7 +163,7 @@ export function useMatcherSelectOptions(
     displayNames: FrameFieldsDisplayNames,
     currentName?: string,
     { firstItem, fieldType, baseNameMode, scope }: UseMatcherSelectOptionsProps = {}
-): ComboboxOption[] {
+): SelectableValue[] {
     return useMemo(() => {
         let found = false;
 
@@ -164,7 +173,7 @@ export function useMatcherSelectOptions(
         const getGroup = (name: string) =>
             shouldShowScopes ? getGroupLabelForScope(displayNames.scopes.get(name)) : undefined;
         const optionFactory =
-            (getLabel: (name: string) => string, getExtraOptions?: (name: string) => Partial<ComboboxOption> | undefined) =>
+            (getLabel: (name: string) => string, getExtraOptions?: (name: string) => Partial<SelectableValue> | undefined) =>
                 (name: string) => ({
                     value: name,
                     label: getLabel(name),
@@ -187,19 +196,19 @@ export function useMatcherSelectOptions(
             t('grafana-ui.matchers.labels.base-field-name', '{{name}} (base field name)', { name })
         );
 
-        let options: ComboboxOption[] = [];
+        let options: SelectableValue[] = [];
         if (firstItem) {
             options.push(firstItem);
         }
 
         // the list order and contents of the list depends on the baseNameMode
-        const sets: Array<{ set: Set<string>; builder: (name: string) => ComboboxOption }> = [];
-        if (baseNameMode === FieldNamePickerBaseNameMode.OnlyBaseNames) {
+        const sets: Array<{ set: Set<string>; builder: (name: string) => SelectableValue }> = [];
+        if (isOnlyBaseNames(baseNameMode)) {
             sets.push({ set: displayNames.raw, builder: baseFieldNameBuilder });
         } else {
             sets.push({ set: displayNames.display, builder: displayNameBuilder });
         }
-        if (baseNameMode !== FieldNamePickerBaseNameMode.ExcludeBaseNames) {
+        if (!isExcludeBaseNames(baseNameMode)) {
             sets.push({ set: displayNames.raw, builder: baseFieldNameBuilder });
         }
 

@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
 import { FrameMatcherID, MatcherConfig, StandardEditorProps } from '@grafana/data';
-import { t } from '@grafana/i18n';
+import { t } from '../utils/i18n';
 ;
 import React from "react";
 import {

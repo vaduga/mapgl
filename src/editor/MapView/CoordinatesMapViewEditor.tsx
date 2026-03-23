@@ -1,6 +1,6 @@
-import { t } from '@grafana/i18n';
 import { InlineFieldRow, InlineField } from '@grafana/ui';
 import React from 'react';
+import { t } from '../../utils/i18n';
 
 import { type MapViewConfig } from '../../types';
 import {NumberInput} from "../../grafana_core/app/core/components/OptionsUI/NumberInput";

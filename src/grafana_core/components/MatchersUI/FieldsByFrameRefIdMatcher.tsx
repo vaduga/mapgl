@@ -8,7 +8,7 @@ import {
   SelectableValue,
   toOption,
 } from '@grafana/data';
-import { t } from '@grafana/i18n';
+import { t } from '../../../utils/i18n';
 
 import { FieldMatcherUIRegistryItem, MatcherUIProps } from './types';
 import {MultiSelect, Select} from "@grafana/ui";

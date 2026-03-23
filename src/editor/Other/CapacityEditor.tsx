@@ -2,7 +2,8 @@ import { css } from '@emotion/css';
 import React, { useCallback, useMemo } from 'react';
 
 import { GrafanaTheme2, SelectableValue, StandardEditorProps } from '@grafana/data';
-import { Combobox, useStyles2 } from '@grafana/ui';
+import { useStyles2 } from '@grafana/ui';
+import { ComboboxCompat } from '../../components/Compat/ComboboxCompat';
 
 import {useFieldDisplayNames, useMatcherSelectOptions} from "../../grafana_core/components/MatchersUI/utils";
 
@@ -59,7 +60,7 @@ export const CapacityDimensionEditor = (props: StandardEditorProps) => {
 
     const selectedOption = isFixed ? fixedValueOption : selectOptions.find((v) => v.value === fieldName);
     return (
-                <Combobox
+                <ComboboxCompat
                     value={selectedOption}
                     options={selectOptions}
                     onChange={onSelectChange}

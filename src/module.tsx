@@ -1,5 +1,5 @@
 import {FieldConfigProperty, PanelPlugin} from '@grafana/data';
-import { initPluginTranslations } from '@grafana/i18n';
+import { initPluginTranslations } from './utils/i18n';
 import { config } from '@grafana/runtime';
 import { commonOptionsBuilder } from '@grafana/ui';
 import React from 'react';

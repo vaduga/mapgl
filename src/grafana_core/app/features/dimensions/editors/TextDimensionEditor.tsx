@@ -6,7 +6,7 @@ import {
     StandardEditorsRegistryItem,
     StringFieldConfigSettings,
 } from '@grafana/data';
-import { t } from '@grafana/i18n';
+import { t } from '../../../../../utils/i18n';
 import { TextDimensionConfig, TextDimensionMode } from '@grafana/schema';
 import { Button, InlineField, InlineFieldRow, RadioButtonGroup } from '@grafana/ui';
 import {StringValueEditor} from "../../../core/components/OptionsUI/string";

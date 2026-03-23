@@ -1,8 +1,8 @@
 import React, { useMemo, useCallback, useId } from 'react';
 import { StandardEditorProps, SelectableValue } from '@grafana/data';
-import { Trans, t } from '@grafana/i18n';
 import { Button, InlineField, InlineFieldRow, Select, Stack } from '@grafana/ui';
 import {NumberInput} from "../../grafana_core/app/core/components/OptionsUI/NumberInput";
+import { Trans, t } from '../../utils/i18n';
 
 import {type Options, type MapViewConfig, GeomapInstanceState} from '../../types';
 import { centerPointRegistry, MapCenterID } from '../../view';
@@ -110,13 +110,13 @@ export const MapViewEditor = ({
                 </InlineField>
             </InlineFieldRow>
 
-            <Stack direction="column">
+            {/*<Stack direction="column">*/}
                 <Button variant="secondary" size="sm" fullWidth onClick={onSetCurrentView}>
           <span>
             <Trans i18nKey="geomap.map-view-editor.use-current-map-settings">Use current map settings</Trans>
           </span>
                 </Button>
-            </Stack>
+            {/*</Stack>*/}
         </>
     );
 };

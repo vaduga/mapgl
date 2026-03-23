@@ -1,16 +1,17 @@
 import { css } from '@emotion/css';
 import { useCallback, useMemo } from 'react';
 
-import { GrafanaTheme2, SelectableValue, StandardEditorProps, FieldNamePickerBaseNameMode } from '@grafana/data';
+import { GrafanaTheme2, SelectableValue, StandardEditorProps } from '@grafana/data';
 import { ColorDimensionConfig } from '@grafana/schema';
-import { Combobox, ColorPicker, useStyles2 } from '@grafana/ui';
+import { ColorPicker, useStyles2 } from '@grafana/ui';
+import { ComboboxCompat } from '../../../../../components/Compat/ComboboxCompat';
 import {useFieldDisplayNames, useMatcherSelectOptions} from "../../../../components/MatchersUI/utils";
 
 import React from "react";
 
 interface ColorDimensionSettings {
     isClearable?: boolean;
-    baseNameMode?: FieldNamePickerBaseNameMode;
+    baseNameMode?: string;
     placeholder?: string;
 }
 
@@ -74,7 +75,7 @@ export const ColorDimensionEditor = (props: StandardEditorProps<ColorDimensionCo
     return (
         <>
             <div className={styles.container}>
-                <Combobox
+                <ComboboxCompat
                     id={id}
                     value={selectedOption}
                     options={selectOptions}

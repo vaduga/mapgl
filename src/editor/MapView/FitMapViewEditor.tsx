@@ -2,9 +2,9 @@ import { useCallback, useMemo } from 'react';
 import React from 'react';
 
 import { SelectableValue, StandardEditorContext } from '@grafana/data';
-import { t } from '@grafana/i18n';
 import { InlineFieldRow, InlineField, RadioButtonGroup, Select } from '@grafana/ui';
 import {NumberInput} from "../../grafana_core/app/core/components/OptionsUI/NumberInput";
+import { t } from '../../utils/i18n';
 
 import { GeomapInstanceState, type Options, type MapViewConfig } from '../../types';
 

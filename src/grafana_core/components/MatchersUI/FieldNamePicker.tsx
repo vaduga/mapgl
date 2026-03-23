@@ -1,11 +1,11 @@
 import { useCallback } from 'react';
 
 import { FieldNamePickerConfigSettings, SelectableValue, StandardEditorProps } from '@grafana/data';
-import { t } from '@grafana/i18n';
+import { t } from '../../../utils/i18n';
 
 import { useFieldDisplayNames, useMatcherSelectOptions, frameHasName } from './utils';
-import {Combobox} from "@grafana/ui";
 import React from "react";
+import { ComboboxCompat } from '../../../components/Compat/ComboboxCompat';
 
 type Props = StandardEditorProps<string, FieldNamePickerConfigSettings>;
 
@@ -28,7 +28,7 @@ export const FieldNamePicker = ({ value, onChange, context, item, id }: Props) =
     );
 
     return (
-        <Combobox
+        <ComboboxCompat
             id={id}
             value={selectedOption}
             options={selectOptions}

@@ -2,10 +2,11 @@ import { css } from '@emotion/css';
 import React, { useCallback, useId, useMemo } from 'react';
 
 import { GrafanaTheme2, SelectableValue, StandardEditorProps } from '@grafana/data';
-import { t } from '@grafana/i18n';
 import { ScaleDimensionConfig } from '@grafana/schema';
-import { Combobox, InlineField, InlineFieldRow, useStyles2 } from '@grafana/ui';
+import { InlineField, InlineFieldRow, useStyles2 } from '@grafana/ui';
+import { ComboboxCompat } from '../../../../../components/Compat/ComboboxCompat';
 import {useFieldDisplayNames, useMatcherSelectOptions} from "../../../../components/MatchersUI/utils";
+import { t } from '../../../../../utils/i18n';
 
 //import { NumberInput } from 'app/core/components/OptionsUI/NumberInput';
 
@@ -109,7 +110,7 @@ export const ScaleDimensionEditor = (props: StandardEditorProps<ScaleDimensionCo
     return (
         <>
             <div>
-                <Combobox
+                <ComboboxCompat
                     id={id}
                     value={selectedOption}
                     options={selectOptions}

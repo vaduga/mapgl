@@ -14,10 +14,10 @@ import {
 } from '@grafana/data';
 import {SortOrder, TooltipDisplayMode} from '@grafana/schema';
 import {TextLink, useStyles2} from '@grafana/ui';
+import {Trans} from "../../utils/i18n";
 
 import {renderValue} from "../../grafana_core/app/features/geo/utils/uiUtils";
 import {sortAnnotations} from "mapLib/utils";
-import {Trans} from "@grafana/i18n";
 import {getDataLinks} from "../../grafana_core/app/plugins/panel/status-history/utils";
 
 export interface Props {
