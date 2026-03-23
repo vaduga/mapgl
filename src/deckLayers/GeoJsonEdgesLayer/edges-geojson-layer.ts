@@ -27,7 +27,6 @@ export const EdgesGeojsonLayer = (props) => {
   const selectedFeatureIndexes = getSelectedIdxs?.get(colTypes.Edges)?.[srcGraphId] ?? []
 
   const categories= getVisLayers.getCategories()
-  console.log('categories', categories)
   const categorySize = 1
 
   const units = options.common?.isMeters ? "meters" : "pixels"

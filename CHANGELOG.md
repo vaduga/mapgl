@@ -1,9 +1,10 @@
 # Changelog Mapgl
 
-## 2.0.2
-- fixes the broken icon folder selection in **Grafana 12.4.0.** 
-- rm deprecated 'config.panels' usage
-- more robust svg load for arrows under stricter Grafana environments (**v11.2.0**)
+## 2.1.0
+- align styles with Grafana theme tokens. Theme support for widget buttons.
+- hot patch for upstream FolderPickerTab **Grafana 12.4.0.** (No menu portal) 
+- robust svg loading for edge arrows under stricter Grafana environments (**v11.2.0**)
+- update field pickers and matchers from Grafana core 
 
  
 ## 2.0.1
