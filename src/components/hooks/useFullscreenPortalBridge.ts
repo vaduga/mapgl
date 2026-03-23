@@ -53,11 +53,13 @@ export const useFullscreenPortalBridge = (
       return;
     }
 
+    const doc = fullscreenContainer.ownerDocument;
+
     const syncFullscreenPortals = () => {
       const isMapFullscreen =
-        document.fullscreenElement === fullscreenContainer || fullscreenContainer.classList.contains('deck-pseudo-fullscreen');
-      const globalPortal = document.getElementById(GRAFANA_PORTAL_CONTAINER_ID);
-      const floatingBoundary = document.getElementById(FLOATING_BOUNDARY_ELEMENT_ID);
+        doc.fullscreenElement === fullscreenContainer || fullscreenContainer.classList.contains('deck-pseudo-fullscreen');
+      const globalPortal = doc.getElementById(GRAFANA_PORTAL_CONTAINER_ID);
+      const floatingBoundary = doc.getElementById(FLOATING_BOUNDARY_ELEMENT_ID);
 
       if (isMapFullscreen) {
         if (globalPortal) {
@@ -79,13 +81,15 @@ export const useFullscreenPortalBridge = (
     observer.observe(fullscreenContainer, { attributeFilter: ['class'], attributes: true });
 
     syncFullscreenPortals();
-    document.addEventListener('fullscreenchange', syncFullscreenPortals);
+    // Fullscreen API changes are emitted at the document level.
+    const abortController = new AbortController();
+    doc.addEventListener('fullscreenchange', syncFullscreenPortals, { signal: abortController.signal });
 
     return () => {
       observer.disconnect();
-      document.removeEventListener('fullscreenchange', syncFullscreenPortals);
-      restoreNode(document.getElementById(GRAFANA_PORTAL_CONTAINER_ID), portalRestoreRef);
-      restoreNode(document.getElementById(FLOATING_BOUNDARY_ELEMENT_ID), boundaryRestoreRef);
+      abortController.abort();
+      restoreNode(doc.getElementById(GRAFANA_PORTAL_CONTAINER_ID), portalRestoreRef);
+      restoreNode(doc.getElementById(FLOATING_BOUNDARY_ELEMENT_ID), boundaryRestoreRef);
     };
   }, [fullscreenContainer]);
 
