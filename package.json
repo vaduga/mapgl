@@ -107,7 +107,8 @@
   },
   "overrides": {
     "@stylistic/eslint-plugin-ts": "^3.1.0",
-    "fast-xml-parser": "^5.3.4"
+    "fast-xml-parser": "5.4.2",
+    "flatted": "3.4.2"
   },
   "packageManager": "npm@11.12.0"
 }

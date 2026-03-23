@@ -2,7 +2,6 @@ import { css } from '@emotion/css';
 import { css as cssCore } from '@emotion/react';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import '@rc-component/slider/assets/index.css';
 
 export {getStyles as getSliderStyles}
 const getStyles = (theme: GrafanaTheme2, isHorizontal: boolean, hasMarks = false) => {
@@ -25,16 +24,61 @@ const getStyles = (theme: GrafanaTheme2, isHorizontal: boolean, hasMarks = false
         // eslint-disable-next-line @emotion/syntax-preference
         slider: css`
       .rc-slider {
+        position: relative;
+        width: 100%;
+        height: 14px;
+        padding: 5px 0;
+        border-radius: 6px;
+        touch-action: none;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
         display: flex;
         flex-grow: 1;
-        margin-left: 7px; // half the size of the handle to align handle to the left on 0 value
+        /* Half the handle width keeps 0 aligned with the rail start. */
+        margin-left: 7px;
+      }
+      .rc-slider * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+      }
+      .rc-slider-rail {
+        position: absolute;
+        width: 100%;
+        height: 4px;
+        border-radius: 6px;
+        background-color: ${railColor};
+        cursor: pointer;
+      }
+      .rc-slider-track,
+      .rc-slider-tracks {
+        position: absolute;
+        height: 4px;
+        border-radius: 6px;
+        background-color: ${trackColor};
+      }
+      .rc-slider-track-draggable {
+        z-index: 1;
+        box-sizing: content-box;
+        background-clip: content-box;
+        border-top: 5px solid rgba(0, 0, 0, 0);
+        border-bottom: 5px solid rgba(0, 0, 0, 0);
+        transform: translateY(-5px);
       }
       .rc-slider-mark {
         top: ${theme.spacing(1.75)};
+        position: absolute;
+        left: 0;
+        width: 100%;
+        font-size: 12px;
       }
       .rc-slider-mark-text {
+        position: absolute;
+        display: inline-block;
         color: ${theme.colors.text.disabled};
         font-size: ${theme.typography.bodySmall.fontSize};
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
       }
       .rc-slider-mark-text-active {
         color: ${theme.colors.text.primary};
@@ -45,6 +89,14 @@ const getStyles = (theme: GrafanaTheme2, isHorizontal: boolean, hasMarks = false
         box-shadow: ${theme.shadows.z1};
         cursor: pointer;
         opacity: 1;
+        position: absolute;
+        z-index: 1;
+        width: 14px;
+        height: 14px;
+        margin-top: -5px;
+        border-radius: 50%;
+        user-select: none;
+        touch-action: pan-x;
       }
 
       .rc-slider-handle:hover,
@@ -64,13 +116,76 @@ const getStyles = (theme: GrafanaTheme2, isHorizontal: boolean, hasMarks = false
         background-color: ${theme.colors.text.primary};
         border-color: ${theme.colors.text.primary};
       }
-
-      .rc-slider-track {
-        background-color: ${trackColor};
-      }
-      .rc-slider-rail {
-        background-color: ${railColor};
+      .rc-slider-dot {
+        position: absolute;
+        bottom: -2px;
+        width: 8px;
+        height: 8px;
+        vertical-align: middle;
+        border: 2px solid;
+        border-radius: 50%;
         cursor: pointer;
+      }
+      .rc-slider-step {
+        position: absolute;
+        width: 100%;
+        height: 4px;
+        background: transparent;
+      }
+      .rc-slider-disabled {
+        background-color: ${theme.colors.background.secondary};
+      }
+      .rc-slider-disabled .rc-slider-track {
+        background-color: ${theme.colors.border.weak};
+      }
+      .rc-slider-disabled .rc-slider-handle,
+      .rc-slider-disabled .rc-slider-dot {
+        background-color: ${theme.colors.background.primary};
+        border-color: ${theme.colors.border.weak};
+        box-shadow: none;
+        cursor: not-allowed;
+      }
+      .rc-slider-disabled .rc-slider-mark-text,
+      .rc-slider-disabled .rc-slider-dot {
+        cursor: not-allowed !important;
+      }
+      .rc-slider-vertical {
+        width: 14px;
+        height: 100%;
+        padding: 0 5px;
+      }
+      .rc-slider-vertical .rc-slider-rail {
+        width: 4px;
+        height: 100%;
+      }
+      .rc-slider-vertical .rc-slider-track {
+        bottom: 0;
+        left: 5px;
+        width: 4px;
+      }
+      .rc-slider-vertical .rc-slider-track-draggable {
+        border-top: 0;
+        border-right: 5px solid rgba(0, 0, 0, 0);
+        border-bottom: 0;
+        border-left: 5px solid rgba(0, 0, 0, 0);
+        transform: translateX(-5px);
+      }
+      .rc-slider-vertical .rc-slider-handle {
+        margin-top: 0;
+        margin-left: -5px;
+        touch-action: pan-y;
+      }
+      .rc-slider-vertical .rc-slider-mark {
+        top: 0;
+        left: 18px;
+        height: 100%;
+      }
+      .rc-slider-vertical .rc-slider-step {
+        width: 4px;
+        height: 100%;
+      }
+      .rc-slider-vertical .rc-slider-dot {
+        margin-left: -2px;
       }
     `,
         /** Global component from @emotion/core doesn't accept computed classname string returned from css from emotion.
