@@ -2,7 +2,7 @@
 
 ## 2.1.0
 - align styles with Grafana theme tokens. Theme support for widget buttons.
-- hot patch for upstream FolderPickerTab **Grafana 12.4.0.** (No menu portal) 
+- hot patch for upstream FolderPickerTab **Grafana 12.4.0.** (No portal popups [#119187](https://github.com/grafana/grafana/issues/119187)) 
 - robust svg loading for edge arrows under stricter Grafana environments (**v11.2.0**)
 - update field pickers and matchers from Grafana core 
 
