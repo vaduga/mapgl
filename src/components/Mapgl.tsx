@@ -542,8 +542,9 @@ if (!isLogic) {
                 views={views}
                 ref={deckRef}
                 layers={layers}
-                viewState={viewState}
-                onViewStateChange={viewStateChanger}
+                initialViewState={isLogic ? undefined : viewState}
+                viewState={isLogic ? viewState : undefined}
+                onViewStateChange={isLogic ? viewStateChanger : undefined}
                 controller={
                     {
                         dragMode: 'pan',
