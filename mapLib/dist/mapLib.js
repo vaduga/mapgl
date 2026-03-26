@@ -148,11 +148,9 @@ var e = (e, t) => () => (t || e((t = { exports: {} }).exports, t), t.exports), t
 		let r = this.getAttr(e);
 		r && (r[t] = n);
 	}
-}, s;
-(function(e) {
-	e[e.None = 0] = "None", e[e.FromAncestor = 1] = "FromAncestor", e[e.ToAncestor = 2] = "ToAncestor";
-})(s ||= {});
-var c = class extends o {
+}, s = /* @__PURE__ */ function(e) {
+	return e[e.None = 0] = "None", e[e.FromAncestor = 1] = "FromAncestor", e[e.ToAncestor = 2] = "ToAncestor", e;
+}({}), c = class extends o {
 	_id;
 	get id() {
 		return this._id;
@@ -2821,7 +2819,7 @@ var Ji = class {
 }, Xi = class {};
 Xi.GeomObjectIndex = 0, Xi.DrawingObjectIndex = 1, Xi.AlgorithmDataIndex = 2, Xi.ViewerIndex = 3;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/layout/core/geomObject.js
+//#region node_modules/@msagl/core/dist/layout/core/geomObject.js
 var T = class e extends Yi {
 	constructor(e) {
 		super(e, Xi.GeomObjectIndex);
@@ -2851,11 +2849,11 @@ var T = class e extends Yi {
 };
 Zi.eps = 1e-8;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/math/geometry/geomConstants.js
+//#region node_modules/@msagl/core/dist/math/geometry/geomConstants.js
 var E = class {};
 E.distanceEpsilonPrecision = 6, E.mult = 10 ** 6, E.defaultLeafBoxesOffset = .5, E.lineSegmentThreshold = .05, E.intersectionEpsilon = 1e-4, E.distanceEpsilon = 10 ** -E.distanceEpsilonPrecision, E.squareOfDistanceEpsilon = 10 ** (-E.distanceEpsilonPrecision * 2), E.tolerance = 1e-8;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/utils/compare.js
+//#region node_modules/@msagl/core/dist/utils/compare.js
 function Qi(e, t) {
 	return (e ? 1 : 0) - (t ? 1 : 0);
 }
@@ -2878,7 +2876,7 @@ function ta(e, t) {
 	return n <= -E.distanceEpsilon ? -1 : n >= E.distanceEpsilon ? 1 : 0;
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/math/geometry/point.js
+//#region node_modules/@msagl/core/dist/math/geometry/point.js
 var k;
 (function(e) {
 	e[e.Clockwise = 0] = "Clockwise", e[e.Counterclockwise = 1] = "Counterclockwise", e[e.Collinear = 2] = "Collinear";
@@ -3223,7 +3221,7 @@ function* ia(e) {
 	yield e.corner, yield e.aPlusCorner, yield e.otherCorner, yield e.bPlusCorner;
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/math/geometry/lineSegment.js
+//#region node_modules/@msagl/core/dist/math/geometry/lineSegment.js
 var N = class e {
 	static fromJSON(t) {
 		return e.mkPP(j.fromJSON(t.start), j.fromJSON(t.end));
@@ -3364,7 +3362,7 @@ function oa(e, t, n, r) {
 	return !!(i != a && o != s || i == k.Collinear && aa(n, e, t) || a == k.Collinear && aa(r, e, t) || o == k.Collinear && aa(e, n, r) || s == k.Collinear && aa(t, n, r));
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/math/geometry/parallelogramNode.js
+//#region node_modules/@msagl/core/dist/math/geometry/parallelogramNode.js
 function sa(e, t, n, r, i) {
 	return {
 		parallelogram: n,
@@ -3885,7 +3883,7 @@ var ca = class e {
 	}
 };
 //#endregion
-//#region ../node_modules/@msagl/core/dist/math/geometry/curve.js
+//#region node_modules/@msagl/core/dist/math/geometry/curve.js
 function pa(e) {
 	return e.seg.value(e.par);
 }
@@ -5432,18 +5430,18 @@ var I = class e {
 };
 Sa.octagonPad = 1 / 4;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/math/geometry/icurve.js
+//#region node_modules/@msagl/core/dist/math/geometry/icurve.js
 function Ca(e) {
 	return e.parEnd - e.parStart;
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/math/geometry/direction.js
+//#region node_modules/@msagl/core/dist/math/geometry/direction.js
 var z;
 (function(e) {
 	e[e.None = 0] = "None", e[e.North = 1] = "North", e[e.East = 2] = "East", e[e.South = 4] = "South", e[e.West = 8] = "West";
 })(z ||= {});
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/rectilinear/PointComparer.js
+//#region node_modules/@msagl/core/dist/routing/rectilinear/PointComparer.js
 var B = class e {
 	static get DifferenceEpsilon() {
 		return e.differenceEpsilon;
@@ -5488,7 +5486,7 @@ var B = class e {
 };
 B.differenceEpsilon = E.distanceEpsilon / 2;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/math/geometry/compassVector.js
+//#region node_modules/@msagl/core/dist/math/geometry/compassVector.js
 var V = class e {
 	constructor(e) {
 		this.Dir = e;
@@ -5727,7 +5725,7 @@ function Ea(e) {
 	return j.lineLineIntersection(e.b[0], e.b[1], e.b[2], e.b[3]);
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/math/geometry/RTree/hitTestBehavior.js
+//#region node_modules/@msagl/core/dist/math/geometry/RTree/hitTestBehavior.js
 var H = (/* @__PURE__ */ e(((e) => {
 	Object.defineProperty(e, "__esModule", { value: !0 });
 	var n = t();
@@ -5753,7 +5751,7 @@ var H = (/* @__PURE__ */ e(((e) => {
 	e[e.Continue = 0] = "Continue", e[e.Stop = 1] = "Stop";
 })(U ||= {});
 //#endregion
-//#region ../node_modules/@msagl/core/dist/math/geometry/RTree/rectangleNode.js
+//#region node_modules/@msagl/core/dist/math/geometry/RTree/rectangleNode.js
 function Da(e, t, n, r, i, a) {
 	for (let o = 0; o < e.length; o++) {
 		if (o === t || o === n) continue;
@@ -5969,7 +5967,7 @@ var Pa = class {
 	}
 };
 //#endregion
-//#region ../node_modules/@msagl/core/dist/utils/setOperations.js
+//#region node_modules/@msagl/core/dist/utils/setOperations.js
 function Ia(e, t) {
 	let n = /* @__PURE__ */ new Set();
 	for (let r of e) t.has(r) || n.add(r);
@@ -6036,7 +6034,7 @@ function Xa(e, t, n) {
 	Ya(e, new Fa(t[0], t[1]), n);
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/utils/assert.js
+//#region node_modules/@msagl/core/dist/utils/assert.js
 var K = class {
 	static assert(e, t = null) {
 		if (!e) throw t == null ? Error("condition does not hold") : (console.log(t), Error(t));
@@ -6397,7 +6395,7 @@ function io(e, t) {
 	return t.has(e.source) && t.has(e.target);
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/layout/core/geomNode.js
+//#region node_modules/@msagl/core/dist/layout/core/geomNode.js
 var ao = class e extends T {
 	clone() {
 		let t = new e(null);
@@ -6483,7 +6481,7 @@ var ao = class e extends T {
 };
 ao.minHeight = 2, ao.minWidth = 3;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/utils/algorithm.js
+//#region node_modules/@msagl/core/dist/utils/algorithm.js
 var q = class {
 	ProgressStep() {}
 	constructor(e) {
@@ -6492,7 +6490,7 @@ var q = class {
 }, oo = class {};
 oo.GoldenRatio = (1 + Math.sqrt(5)) / 2, oo.GoldenRatioRemainder = 2 - oo.GoldenRatio;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/math/geometry/rectanglePacking/OptimalPacking.js
+//#region node_modules/@msagl/core/dist/math/geometry/rectanglePacking/OptimalPacking.js
 var so = class e extends q {
 	constructor(e, t) {
 		super(null), this.desiredAspectRatio = 1.2, this.bestPacking = null, this.cachedCosts = /* @__PURE__ */ new Map(), this.rectangles = e, this.desiredAspectRatio = t;
@@ -6531,7 +6529,7 @@ var so = class e extends q {
 };
 so.MaxSteps = 1e3;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/math/geometry/rectanglePacking/Packing.js
+//#region node_modules/@msagl/core/dist/math/geometry/rectanglePacking/Packing.js
 var co = class extends q {
 	get PackedWidth() {
 		return this.packedWidth;
@@ -6590,7 +6588,7 @@ var co = class extends q {
 	}
 };
 //#endregion
-//#region ../node_modules/@msagl/core/dist/math/geometry/RTree/rTree.js
+//#region node_modules/@msagl/core/dist/math/geometry/RTree/rTree.js
 function fo(e) {
 	return new yo(W(e.map(([e, t]) => Ma(t, e))));
 }
@@ -6718,7 +6716,7 @@ var yo = class {
 	}
 };
 //#endregion
-//#region ../node_modules/@msagl/core/dist/layout/core/geomGraph.js
+//#region node_modules/@msagl/core/dist/layout/core/geomGraph.js
 function xo(e, t) {
 	let n = t.map((e) => [e, e.boundingBox]), r = new uo(n.map((e) => e[1]), 1.5);
 	r.run();
@@ -6962,7 +6960,7 @@ function Co(e, t) {
 	}
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/utils/IntPair.js
+//#region node_modules/@msagl/core/dist/utils/IntPair.js
 var J = class {
 	constructor(e, t) {
 		this.x = e, this.y = t;
@@ -7196,7 +7194,7 @@ var J = class {
 	e[e.Red = 0] = "Red", e[e.Black = 1] = "Black";
 })(Y ||= {});
 //#endregion
-//#region ../node_modules/@msagl/core/dist/math/RBTree/rbTree.js
+//#region node_modules/@msagl/core/dist/math/RBTree/rbTree.js
 var jo = class {
 	[Symbol.iterator]() {
 		return this.allNodes();
@@ -7675,7 +7673,7 @@ var jo = class {
 };
 Bo.u = new j(545.833, 840.458), Bo.v = new j(606.1667261889578, 786.2917261889578), Bo.DefaultWeight = 1;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/visibility/TollFreeVisibilityEdge.js
+//#region node_modules/@msagl/core/dist/routing/visibility/TollFreeVisibilityEdge.js
 var Vo = class e extends Bo {
 	static constructorVV(t, n) {
 		return new e(t, n, 0);
@@ -7737,7 +7735,7 @@ function Uo(e, t) {
 	return e.toString() + "," + t.toString();
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/visibility/VisibilityVertex.js
+//#region node_modules/@msagl/core/dist/routing/visibility/VisibilityVertex.js
 var Wo = class e {
 	get InEdges() {
 		return this._inEdges;
@@ -8634,7 +8632,7 @@ var Wo = class e {
 };
 ds.DefaultCapacityOverflowCoefficientMultiplier = 1e3, ds.DefaultPathLengthImportance = 500, ds.DefaultInkImportance = .01, ds.DefaultEdgeSeparation = .5;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/RelativeShape.js
+//#region node_modules/@msagl/core/dist/routing/RelativeShape.js
 var fs = class extends Eo {
 	get BoundaryCurve() {
 		return this.node.boundaryCurve;
@@ -8701,7 +8699,7 @@ function* hs(e) {
 	for (let t of e.graph.shallowNodes) yield T.getGeom(t);
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/math/geometry/convexHull.js
+//#region node_modules/@msagl/core/dist/math/geometry/convexHull.js
 var gs = class e {
 	constructor(e) {
 		this.stamp = 0, this.SetPivotAndAllocateHullPointsArray(e);
@@ -8801,7 +8799,7 @@ function _s(e) {
 	};
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/math/geometry/RTree/rectangleNodeUtils.js
+//#region node_modules/@msagl/core/dist/math/geometry/RTree/rectangleNodeUtils.js
 function vs(e, t, n) {
 	e.irect.intersects_rect(t.irect) && (e.Left == null ? t.Left == null ? n(e.UserData, t.UserData) : (vs(e, t.Left, n), vs(e, t.Right, n)) : t.Left == null ? (vs(e.Left, t, n), vs(e.Right, t, n)) : (vs(e.Left, t.Left, n), vs(e.Left, t.Right, n), vs(e.Right, t.Left, n), vs(e.Right, t.Right, n)));
 }
@@ -8826,7 +8824,7 @@ function Ss(e, t) {
 	e.Left != null && (ys(e.Left, e.Left, t), ys(e.Left, e.Right, t), ys(e.Right, e.Right, t));
 }
 //#endregion
-//#region ../node_modules/reliable-random/dist/index.esm.js
+//#region node_modules/reliable-random/dist/index.esm.js
 var Cs = BigInt("6364136223846793005"), ws = (BigInt(1) << BigInt(32)) - BigInt(1), Ts = (BigInt(1) << BigInt(64)) - BigInt(1), Es = class {
 	constructor(e, t) {
 		this._state = BigInt(0), this._inc = (BigInt(t) << BigInt(1) | BigInt(1)) & Ts, this._random_b(), this._state = this._state + BigInt(e) & Ts, this._random_b();
@@ -8866,7 +8864,7 @@ function As() {
 	return Ds ??= new Es(0, 0), Ds.random();
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/math/graphAlgorithms/ConnectedComponentCalculator.js
+//#region node_modules/@msagl/core/dist/math/graphAlgorithms/ConnectedComponentCalculator.js
 function* js(e) {
 	let t = Array(e.nodeCount).fill(!1), r = new n.Queue();
 	for (let n = 0; n < e.nodeCount; n++) if (!t[n]) {
@@ -8887,7 +8885,7 @@ function Ns(e, t, n) {
 	n[e] === !1 && (t.enqueue(e), n[e] = !0);
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/structs/basicGraphOnEdges.js
+//#region node_modules/@msagl/core/dist/structs/basicGraphOnEdges.js
 function Ps(e) {
 	let t = new Ls();
 	return t.SetEdges(e, Ls.vertexCount(e)), t;
@@ -9506,7 +9504,7 @@ function Ws(e) {
 	return t.closed = e.closed, t;
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/TightLooseCouple.js
+//#region node_modules/@msagl/core/dist/routing/TightLooseCouple.js
 var Gs = class e {
 	get TightPolyline() {
 		return this.tightPoly;
@@ -9732,7 +9730,7 @@ var Gs = class e {
 	e[e.Regular = 0] = "Regular", e[e.Tangent = 1] = "Tangent";
 })(Zs ||= {});
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/visibility/Diagonal.js
+//#region node_modules/@msagl/core/dist/routing/visibility/Diagonal.js
 var Qs = class {
 	toString() {
 		return zo.String.format("{0},{1}", this.Start, this.End);
@@ -9928,7 +9926,7 @@ function rc(e, t) {
 	return e.FindVertex(t.point);
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/visibility/ActiveEdgeComparerWithRay.js
+//#region node_modules/@msagl/core/dist/routing/visibility/ActiveEdgeComparerWithRay.js
 var ic = class e {
 	get Pivot() {
 		return this.pivot;
@@ -10669,7 +10667,7 @@ var ic = class e {
 };
 cc.defaultArrowheadLength = 5;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/utils/pointPairMap.js
+//#region node_modules/@msagl/core/dist/utils/pointPairMap.js
 var lc = class {
 	constructor() {
 		this.m = /* @__PURE__ */ new Map();
@@ -10719,7 +10717,7 @@ function pc(e) {
 	return e.x.toString() + "," + e.y.toString();
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/ShapeCreator.js
+//#region node_modules/@msagl/core/dist/routing/ShapeCreator.js
 var mc = class e {
 	static GetShapes(e, t = Array.from(e.shallowEdges)) {
 		let n = /* @__PURE__ */ new Map();
@@ -10766,7 +10764,7 @@ function hc(e, t) {
 	} else t.set(n, mc.CreateShapeWithCenterPort(n));
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/layout/layered/CycleRemoval.js
+//#region node_modules/@msagl/core/dist/layout/layered/CycleRemoval.js
 var gc;
 (function(e) {
 	e[e.NotVisited = 0] = "NotVisited", e[e.InStack = 1] = "InStack", e[e.Visited = 2] = "Visited";
@@ -11196,7 +11194,7 @@ var _c = class {
 	e[e.ProjectOnly = 0] = "ProjectOnly", e[e.QpscWithScaling = 1] = "QpscWithScaling", e[e.QpscWithoutScaling = 2] = "QpscWithoutScaling";
 })(Mc ||= {});
 //#endregion
-//#region ../node_modules/@msagl/core/dist/math/projectionSolver/Variable.js
+//#region node_modules/@msagl/core/dist/math/projectionSolver/Variable.js
 var Nc = class {
 	constructor(e, t) {
 		this.Neighbor = e, this.Weight = t;
@@ -11269,7 +11267,7 @@ var Nc = class {
 };
 Fc.MaxConstraints = 20;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/math/projectionSolver/Solver.js
+//#region node_modules/@msagl/core/dist/math/projectionSolver/Solver.js
 var Ic = class {
 	constructor(e, t) {
 		this.NumberOfLeftConstraints = 0, this.Constraints = e, this.NumberOfLeftConstraints = t;
@@ -11610,7 +11608,7 @@ var Ic = class {
 };
 Rc.FixedVarWeight = 1e9;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/math/projectionSolver/UniformSolverVar.js
+//#region node_modules/@msagl/core/dist/math/projectionSolver/UniformSolverVar.js
 var zc = class {
 	constructor() {
 		this.lowBound = -Infinity, this.upperBound = Infinity;
@@ -11725,7 +11723,7 @@ var zc = class {
 };
 Z.colors = /* @__PURE__ */ "DeepSkyBlue.IndianRed.Orange.Gold.DarkRed.Plum.Red.Violet.Indigo.Yellow.OrangeRed.Tomato.Purple.SaddleBrown.Green.Navy.Aqua.Pink.Bisque.Black.BlanchedAlmond.Blue.BlueViolet.Brown.Lime.BurlyWood.Chocolate.Coral.CornflowerBlue.Cornsilk.Crimson.Cyan.CadetBlue.Chartreuse.DarkBlue.DarkCyan.DarkGoldenrod.DarkGray.DarkGreen.DarkKhaki.DarkMagenta.DarkOliveGreen.DarkOrange.DarkOrchid.DarkSalmon.DarkSeaGreen.DarkSlateBlue.DarkSlateGray.DarkTurquoise.DarkViolet.DeepPink.DimGray.DodgerBlue.Firebrick.FloralWhite.ForestGreen.Fuchsia.CodeAnalysis.Gainsboro.GhostWhite.Goldenrod.Gray.GreenYellow.Honeydew.HotPink.Ivory.Lavender.LavenderBlush.LawnGreen.LemonChiffon.LightBlue.LightCoral.LightCyan.LightGoldenrodYellow.LightGray.LightGreen.LightPink.LightSalmon.LightSeaGreen.LightSkyBlue.LightSlateGray.LightSteelBlue.LightYellow.LimeGreen.Linen.Magenta.Maroon.MediumAquamarine.MediumBlue.MediumOrchid.MediumPurple.MediumSeaGreen.MediumSlateBlue.MediumSpringGreen.MediumTurquoise.MediumVioletRed.MidnightBlue.MintCream.MistyRose.Moccasin.NavajoWhite.OldLace.Olive.OliveDrab.Orchid.PaleGoldenrod.PaleGreen.PaleTurquoise.PaleVioletRed.PapayaWhip.PeachPuff.Peru.PowderBlue.RosyBrown.RoyalBlue.Salmon.SandyBrown.SeaGreen.CodeAnalysis.SeaShell.Sienna.Silver.SkyBlue.SlateBlue.SlateGray.Snow.SpringGreen.SteelBlue.Tan.Teal.Thistle.Transparent.Turquoise.Aquamarine.Azure.Beige.Wheat.White.WhiteSmoke.YellowGreen.Khaki.AntiqueWhite".split(".");
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/rectilinear/nudging/AxisEdge.js
+//#region node_modules/@msagl/core/dist/routing/rectilinear/nudging/AxisEdge.js
 var Vc = class extends Bo {
 	constructor(e, t) {
 		super(e, t), this.RightNeighbors = /* @__PURE__ */ new Set(), this.setOfLongestSegs = /* @__PURE__ */ new Set(), this.RightBound = Infinity, this.LeftBound = -Infinity, this.Direction = V.DirectionFromPointToPoint(e.point, t.point);
@@ -11914,7 +11912,7 @@ var Vc = class extends Bo {
 };
 Wc.NotOrdered = Number.MAX_VALUE;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/rectilinear/nudging/AxisEdgeHighPointEvent.js
+//#region node_modules/@msagl/core/dist/routing/rectilinear/nudging/AxisEdgeHighPointEvent.js
 var Gc = class extends No {
 	constructor(e, t) {
 		super(), this.site = t, this.AxisEdge = e;
@@ -12082,7 +12080,7 @@ var Gc = class extends No {
 };
 Jc.AreaComparisonEpsilon = E.intersectionEpsilon;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/rectilinear/nudging/LongestNudgedSegment.js
+//#region node_modules/@msagl/core/dist/routing/rectilinear/nudging/LongestNudgedSegment.js
 var Yc = class extends $o {
 	constructor(e) {
 		super(), this.CompassDirection = z.None, this.edges = [], this._isFixed = !1, this.Id = -1, this.IdealPosition = 0, this.Id = e;
@@ -12459,7 +12457,7 @@ function nl(e, t, n) {
 	for (; n-- > 0;) t[r++] = e[r++];
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/rectilinear/nudging/Nudger.js
+//#region node_modules/@msagl/core/dist/routing/rectilinear/nudging/Nudger.js
 var rl = class e {
 	get HasGroups() {
 		return this.HierarchyOfGroups != null && this.HierarchyOfGroups.Count > 0;
@@ -12759,7 +12757,7 @@ function il(e, t) {
 	return n;
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/rectilinear/PointAndCrossings.js
+//#region node_modules/@msagl/core/dist/routing/rectilinear/PointAndCrossings.js
 var al = class {
 	constructor(e, t) {
 		this.Crossings = [], this.Location = e, this.Crossings = t;
@@ -12988,7 +12986,7 @@ var al = class {
 };
 sl.HorizontalInstance = new sl(z.East), sl.VerticalInstance = new sl(z.North);
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/rectilinear/ScanSegment.js
+//#region node_modules/@msagl/core/dist/routing/rectilinear/ScanSegment.js
 var $ = class e extends $o {
 	static mk(t, n) {
 		return new e(t, n, e.NormalWeight, null);
@@ -13143,7 +13141,7 @@ var $ = class e extends $o {
 };
 $.NormalWeight = Bo.DefaultWeight, $.ReflectionWeight = 5, $.OverlappedWeight = 500;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/rectilinear/VertexEntry.js
+//#region node_modules/@msagl/core/dist/routing/rectilinear/VertexEntry.js
 var cl = class {
 	constructor(e, t, n, r, i) {
 		this.IsClosed = !1, this.Vertex = e, this.Direction = t == null ? z.None : V.DirectionFromPointToPoint(t.Vertex.point, e.point), this.ResetEntry(t, n, r, i);
@@ -13378,7 +13376,7 @@ ul.DefaultBendPenaltyAsAPercentageOfDistance = 4, ul.AddOneTurn = [
 	15
 ];
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/rectilinear/MsmtRectilinearPath.js
+//#region node_modules/@msagl/core/dist/routing/rectilinear/MsmtRectilinearPath.js
 var dl = class e {
 	constructor(e) {
 		this.bendPenaltyAsAPercentageOfDistance = ul.DefaultBendPenaltyAsAPercentageOfDistance, this.currentPassTargetEntries = [
@@ -13479,7 +13477,7 @@ function* pl(e) {
 	else for (let t of e) yield t;
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/rectilinear/BasicObstacleSide.js
+//#region node_modules/@msagl/core/dist/routing/rectilinear/BasicObstacleSide.js
 var ml = class extends es {
 	get Obstacle() {
 		return this.obstacle;
@@ -13598,7 +13596,7 @@ var ml = class extends es {
 };
 _l.FirstSentinelOrdinal = 1, _l.FirstNonSentinelOrdinal = 10;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/rectilinear/ObstaclePortEntrance.js
+//#region node_modules/@msagl/core/dist/routing/rectilinear/ObstaclePortEntrance.js
 var vl = class {
 	get Obstacle() {
 		return this.ObstaclePort.Obstacle;
@@ -13765,7 +13763,7 @@ var vl = class {
 };
 xl.BoundaryWidth = E.distanceEpsilon;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/rectilinear/AxisCoordinateEvent.js
+//#region node_modules/@msagl/core/dist/routing/rectilinear/AxisCoordinateEvent.js
 var Sl = class extends No {
 	constructor(e) {
 		super(), this.site = e;
@@ -14792,7 +14790,7 @@ var Sl = class extends No {
 };
 Wl.SentinelOffset = 1;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/rectilinear/SparseVisibiltyGraphGenerator.js
+//#region node_modules/@msagl/core/dist/routing/rectilinear/SparseVisibiltyGraphGenerator.js
 var Gl = class e extends Wl {
 	constructor() {
 		super(!1), this.horizontalVertexPoints = new G(), this.verticalVertexPoints = new G(), this.boundingBoxSteinerPoints = new G(), this.xCoordAccumulator = /* @__PURE__ */ new Set(), this.yCoordAccumulator = /* @__PURE__ */ new Set(), this.horizontalCoordMap = /* @__PURE__ */ new Map(), this.verticalCoordMap = /* @__PURE__ */ new Map();
@@ -15761,7 +15759,7 @@ var Gl = class e extends Wl {
 };
 Jl.DefaultPadding = 1, Jl.DefaultCornerFitRadius = 3;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/layout/layered/layerEdge.js
+//#region node_modules/@msagl/core/dist/layout/layered/layerEdge.js
 var Yl = class {
 	constructor(e, t, n, r = 1) {
 		this.Source = e, this.Target = t, this.CrossingWeight = n, this.Weight = r;
@@ -16002,7 +16000,7 @@ var Yl = class {
 	}
 };
 //#endregion
-//#region ../node_modules/@msagl/core/dist/layout/layered/HorizontalConstraintsForSugiyama.js
+//#region node_modules/@msagl/core/dist/layout/layered/HorizontalConstraintsForSugiyama.js
 function $l(e, t) {
 	return [e, t];
 }
@@ -16052,13 +16050,13 @@ var eu = class {
 	e[e.TB = 0] = "TB", e[e.LR = 1] = "LR", e[e.BT = 2] = "BT", e[e.RL = 3] = "RL", e[e.None = 4] = "None";
 })(tu ||= {});
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/EdgeRoutingMode.js
+//#region node_modules/@msagl/core/dist/routing/EdgeRoutingMode.js
 var nu;
 (function(e) {
 	e[e.Spline = 0] = "Spline", e[e.SplineBundling = 1] = "SplineBundling", e[e.StraightLine = 2] = "StraightLine", e[e.SugiyamaSplines = 3] = "SugiyamaSplines", e[e.Rectilinear = 4] = "Rectilinear", e[e.RectilinearToCenter = 5] = "RectilinearToCenter", e[e.None = 6] = "None";
 })(nu ||= {});
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/EdgeRoutingSettings.js
+//#region node_modules/@msagl/core/dist/routing/EdgeRoutingSettings.js
 var ru = class e {
 	toJSON() {
 		let e = {};
@@ -17069,7 +17067,7 @@ function Cu(e, t) {
 	return n.Sites.setItem(i + 1, o), n.Edges.setItem(i, c), n.Edges.setItem(i + 1, l), r.Sites.setItem(a + 1, e), r.Edges.setItem(a, s), r.Edges.setItem(a + 1, l), c.lowerSite === o ? c.CcwTriangle = n : c.CwTriangle = n, s.lowerSite === e ? s.CcwTriangle = r : s.CwTriangle = r, l.upperSite === e ? (l.CcwTriangle = r, l.CwTriangle = n) : (l.CcwTriangle = n, l.CwTriangle = r), yu(t.upperSite.Edges, t), l;
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/ConstrainedDelaunayTriangulation/Cdt.js
+//#region node_modules/@msagl/core/dist/routing/ConstrainedDelaunayTriangulation/Cdt.js
 var wu = class e extends q {
 	constructor(e, t, n) {
 		super(null), this.isolatedSites = [], this.obstacles = [], this.PointsToSites = new Ho(), this.simplifyObstacles = !0, this.rectangleNodeOnTriangles = null, this.isolatedSites = e, this.obstacles = t, this.isolatedSegments = n;
@@ -17170,7 +17168,7 @@ function Eu(e) {
 	return t.run(), t;
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/math/geometry/Interval.js
+//#region node_modules/@msagl/core/dist/math/geometry/Interval.js
 var Du = class e {
 	constructor(e, t) {
 		this.start = e, this.end = t;
@@ -17542,7 +17540,7 @@ function Fu(e, t, n) {
 	}
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/layout/mds/mDSGraphLayout.js
+//#region node_modules/@msagl/core/dist/layout/mds/mDSGraphLayout.js
 var Iu = class e extends q {
 	constructor(e, t, n, r) {
 		super(n), this.settings = e, this.graph = t, this.length = r;
@@ -17712,7 +17710,7 @@ var Iu = class e extends q {
 	}
 };
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/StraightLineEdges.js
+//#region node_modules/@msagl/core/dist/routing/StraightLineEdges.js
 function zu(e, t, n) {
 	if (t) for (let e of t) {
 		if (n && n.canceled) return;
@@ -18064,7 +18062,7 @@ var Ku = class {
 };
 Yu.MinGranularity = 5, Yu.MaxGranularity = 50, Yu.LowerEdgeBound = 500, Yu.UpperEdgeBound = 3e3;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/structs/algorithmData.js
+//#region node_modules/@msagl/core/dist/structs/algorithmData.js
 var Xu = class extends Yi {
 	clone() {
 		throw Error("Method not implemented.");
@@ -18080,7 +18078,7 @@ var Xu = class extends Yi {
 	}
 };
 //#endregion
-//#region ../node_modules/@msagl/core/dist/layout/incremental/fiNode.js
+//#region node_modules/@msagl/core/dist/layout/incremental/fiNode.js
 function Zu(e) {
 	let t = Xu.getAlgData(e.node);
 	return t == null ? null : t.data;
@@ -18184,7 +18182,7 @@ var Qu = class {
 };
 ed.count = 0;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/layout/incremental/multipole/minimumEnclosingDisc.js
+//#region node_modules/@msagl/core/dist/layout/incremental/multipole/minimumEnclosingDisc.js
 function td(e) {
 	let t = e.slice();
 	return nd(t), rd(t, e.length, [], 0);
@@ -18350,7 +18348,7 @@ function hd(e, t) {
 	return new ld(r / n, i / n);
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/layout/incremental/multipole/kdTree.js
+//#region node_modules/@msagl/core/dist/layout/incremental/multipole/kdTree.js
 var gd;
 (function(e) {
 	e[e.Horizontal = 0] = "Horizontal", e[e.Vertical = 1] = "Vertical";
@@ -18643,7 +18641,7 @@ function wd(e) {
 	return !1;
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/layout/incremental/iPsepColaSettings.js
+//#region node_modules/@msagl/core/dist/layout/incremental/iPsepColaSettings.js
 var Td = class e {
 	get edgeRoutingSettings() {
 		return this.commonSettings.edgeRoutingSettings;
@@ -18946,7 +18944,7 @@ var Td = class e {
 	}
 };
 //#endregion
-//#region ../node_modules/@msagl/core/dist/layout/driver.js
+//#region node_modules/@msagl/core/dist/layout/driver.js
 function kd(e) {
 	e.layoutSettings ||= jd(e);
 }
@@ -19087,7 +19085,7 @@ function Hd(e) {
 	}
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/PreGraph.js
+//#region node_modules/@msagl/core/dist/routing/PreGraph.js
 var Ud = class e {
 	static constructorStatic(t, n) {
 		let r = new e();
@@ -19106,7 +19104,7 @@ var Ud = class e {
 	e[e.Success = 0] = "Success", e[e.Overlaps = 1] = "Overlaps", e[e.EdgeSeparationIsTooLarge = 2] = "EdgeSeparationIsTooLarge";
 })(Wd ||= {});
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/spline/bundling/CdtThreader.js
+//#region node_modules/@msagl/core/dist/routing/spline/bundling/CdtThreader.js
 var Gd = class {
 	get CurrentPiercedEdge() {
 		return this.currentPiercedEdge;
@@ -19685,7 +19683,7 @@ function rf(e, t) {
 	return ta(e, t) >= 0;
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/spline/bundling/CostCalculator.js
+//#region node_modules/@msagl/core/dist/routing/spline/bundling/CostCalculator.js
 var af = class e {
 	constructor(e, t) {
 		this.metroGraphData = e, this.bundlingSettings = t;
@@ -19770,7 +19768,7 @@ var af = class e {
 };
 af.Inf = 1e9;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/spline/bundling/FlipSwitcher.js
+//#region node_modules/@msagl/core/dist/routing/spline/bundling/FlipSwitcher.js
 var of = class {
 	get Polylines() {
 		return Array.from(this.polylineToEdgeGeom.keys());
@@ -19940,7 +19938,7 @@ function cf(e, t, n) {
 	r && (r.delete(n), r.size === 0 && e.deleteP(t));
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/spline/bundling/PathFixer.js
+//#region node_modules/@msagl/core/dist/routing/spline/bundling/PathFixer.js
 var lf = class e {
 	constructor(e, t) {
 		this.foundCrossings = new G(), this.crossingsThatShouldBecomeHubs = new G(), this.metroGraphData = e, this.polylineAcceptsPoint = t;
@@ -20237,7 +20235,7 @@ var lf = class e {
 };
 df.FeasibleWidthEpsilon = .1;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/spline/bundling/OrientedHubSegment.js
+//#region node_modules/@msagl/core/dist/routing/spline/bundling/OrientedHubSegment.js
 var ff = class {
 	get Segment() {
 		return this.segment;
@@ -20459,7 +20457,7 @@ function mf(e, t) {
 	} : null;
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/spline/bundling/PointPairOrder.js
+//#region node_modules/@msagl/core/dist/routing/spline/bundling/PointPairOrder.js
 var hf = class {
 	constructor() {
 		this.Metrolines = [];
@@ -20743,7 +20741,7 @@ var hf = class {
 };
 _f.SqueezeBound = .2;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/spline/bundling/SimulatedAnnealing.js
+//#region node_modules/@msagl/core/dist/routing/spline/bundling/SimulatedAnnealing.js
 var vf = class e {
 	static FixRouting(e, t) {
 		return this.FixRoutingMBP(e, t, null);
@@ -20890,7 +20888,7 @@ function yf() {
 	return new j(1 + 2 * As(), 1 + 2 * As());
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/spline/bundling/StationPositionsAdjuster.js
+//#region node_modules/@msagl/core/dist/routing/spline/bundling/StationPositionsAdjuster.js
 var bf = class e {
 	constructor(e, t) {
 		this.metroGraphData = e, this.bundlingSettings = t;
@@ -21306,7 +21304,7 @@ var bf = class e {
 };
 Sf.SuperLoosePaddingCoefficient = 1.1;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/spline/bundling/SdBoneEdge.js
+//#region node_modules/@msagl/core/dist/routing/spline/bundling/SdBoneEdge.js
 var Cf = class {
 	constructor(e, t, n) {
 		this.numberOfPassedPaths = 0, this.VisibilityEdge = e, this.Source = t, this.Target = n;
@@ -21836,7 +21834,7 @@ function Of(e) {
 	return e.Sites.item0.Owner == null || e.Sites.item1.Owner == null || e.Sites.item2.Owner == null ? !0 : e.Sites.item0.Owner == e.Sites.item1.Owner && e.Sites.item0.Owner == e.Sites.item2.Owner;
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/routing/splineRouter.js
+//#region node_modules/@msagl/core/dist/routing/splineRouter.js
 var kf = class e extends q {
 	get ContinueOnOverlaps() {
 		return this.continueOnOverlaps;
@@ -22341,7 +22339,7 @@ function Af(e, t, n) {
 	new kf(e, t, r.Padding, r.PolylinePadding, r.coneAngle, r.bundlingSettings, n).run();
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/layout/core/tileMap.js
+//#region node_modules/@msagl/core/dist/layout/core/tileMap.js
 var jf = class {
 	getTileData(e, t, n) {
 		let r = this.levels[n];
@@ -22753,12 +22751,12 @@ var jf = class {
 	}
 };
 //#endregion
-//#region ../node_modules/@msagl/core/dist/utils/copy.js
+//#region node_modules/@msagl/core/dist/utils/copy.js
 function Pf(e, t) {
 	for (let n = 0; n < e.length; n++) t[n] = e[n];
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/layout/layered/LayerArrays.js
+//#region node_modules/@msagl/core/dist/layout/layered/LayerArrays.js
 var Ff = class e {
 	constructor(e) {
 		this.initialize(e);
@@ -23240,7 +23238,7 @@ var Ff = class e {
 	}
 };
 //#endregion
-//#region ../node_modules/@msagl/core/dist/layout/layered/ordering/ordering.js
+//#region node_modules/@msagl/core/dist/layout/layered/ordering/ordering.js
 function Uf() {
 	return Os(2) === 0;
 }
@@ -23705,7 +23703,7 @@ function $f(e, t) {
 	return n === -1 || r === -1 || n >= r;
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/layout/layered/layering/networkEdge.js
+//#region node_modules/@msagl/core/dist/layout/layered/layering/networkEdge.js
 var ep = class e {
 	constructor(t) {
 		this.inTree = !1, this.cut = e.infinity, this.iedge = t;
@@ -23728,7 +23726,7 @@ var ep = class e {
 };
 ep.infinity = 2 ** 53 - 1;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/layout/layered/layering/NetworkSimplex.js
+//#region node_modules/@msagl/core/dist/layout/layered/layering/NetworkSimplex.js
 function tp(e) {
 	let t = [];
 	for (let n of e.edges) t.push(new ep(n));
@@ -24494,7 +24492,7 @@ var np = class {
 };
 op.infinity = 1e7;
 //#endregion
-//#region ../node_modules/@msagl/core/dist/layout/layered/xLayoutGraph.js
+//#region node_modules/@msagl/core/dist/layout/layered/xLayoutGraph.js
 var sp = class extends Ls {
 	constructor(e, t, n, r, i) {
 		super(), this.weightMultiplierOfOriginalOriginal = 1, this.weightMultOfOneVirtual = 3, this.weightMultiplierOfTwoVirtual = 8, this.SetEdges(r, i), this.virtualVerticesStart = e.nodeCount, this.virtualVerticesEnd = t.NodeCount - 1, this.layeredGraph = t, this.layerArrays = n;
@@ -24514,7 +24512,7 @@ var sp = class extends Ls {
 	e[e.Top = 0] = "Top", e[e.Internal = 1] = "Internal", e[e.Bottom = 2] = "Bottom";
 })(cp ||= {});
 //#endregion
-//#region ../node_modules/@msagl/core/dist/layout/layered/HierarchyCalculator.js
+//#region node_modules/@msagl/core/dist/layout/layered/HierarchyCalculator.js
 var lp = class e {
 	static Calculate(t, n = 0) {
 		return new e(t, n).Calculate();
@@ -25092,7 +25090,7 @@ function mp(e) {
 	return e.node.selfEdges.size > 0;
 }
 //#endregion
-//#region ../node_modules/@msagl/core/dist/layout/layered/layeredLayout.js
+//#region node_modules/@msagl/core/dist/layout/layered/layeredLayout.js
 var hp = class extends q {
 	get extremeAspectRatio() {
 		let e = this.originalGraph.boundingBox, t = e.width / e.height;
@@ -25590,7 +25588,7 @@ function zp(e, t) {
 	if (e.smoothedPolyline != null) for (let n = e.smoothedPolyline.headSite; n != null; n = n.next) n.point = t.multiplyPoint(n.point);
 }
 //#endregion
-//#region ../node_modules/@turf/helpers/dist/esm/index.js
+//#region node_modules/@turf/helpers/dist/esm/index.js
 var Bp = 6371008.8, Vp = {
 	centimeters: Bp * 100,
 	centimetres: Bp * 100,
@@ -25642,7 +25640,7 @@ function Jp(e) {
 	return !isNaN(e) && e !== null && !Array.isArray(e);
 }
 //#endregion
-//#region ../node_modules/@turf/invariant/dist/esm/index.js
+//#region node_modules/@turf/invariant/dist/esm/index.js
 function Yp(e) {
 	if (!e) throw Error("coord is required");
 	if (!Array.isArray(e)) {
@@ -25653,7 +25651,7 @@ function Yp(e) {
 	throw Error("coord must be GeoJSON Point or an Array of numbers");
 }
 //#endregion
-//#region ../node_modules/@turf/bearing/dist/esm/index.js
+//#region node_modules/@turf/bearing/dist/esm/index.js
 function Xp(e, t, n = {}) {
 	if (n.final === !0) return Zp(e, t);
 	let r = Yp(e), i = Yp(t), a = qp(r[0]), o = qp(i[0]), s = qp(r[1]), c = qp(i[1]), l = Math.sin(o - a) * Math.cos(c), u = Math.cos(s) * Math.sin(c) - Math.sin(s) * Math.cos(c) * Math.cos(o - a);
@@ -25664,7 +25662,7 @@ function Zp(e, t) {
 	return n = (n + 180) % 360, n;
 }
 //#endregion
-//#region ../node_modules/@turf/destination/dist/esm/index.js
+//#region node_modules/@turf/destination/dist/esm/index.js
 function Qp(e, t, n, r = {}) {
 	let i = Yp(e), a = qp(i[0]), o = qp(i[1]), s = qp(n), c = Gp(t, r.units), l = Math.asin(Math.sin(o) * Math.cos(c) + Math.cos(o) * Math.sin(c) * Math.cos(s)), u = Kp(a + Math.atan2(Math.sin(s) * Math.sin(c) * Math.cos(o), Math.cos(c) - Math.sin(o) * Math.sin(l))), d = Kp(l);
 	return i[2] === void 0 ? Up([u, d], r.properties) : Up([
@@ -25674,14 +25672,14 @@ function Qp(e, t, n, r = {}) {
 	], r.properties);
 }
 //#endregion
-//#region ../node_modules/@turf/distance/dist/esm/index.js
+//#region node_modules/@turf/distance/dist/esm/index.js
 function $p(e, t, n = {}) {
 	var r = Yp(e), i = Yp(t), a = qp(i[1] - r[1]), o = qp(i[0] - r[0]), s = qp(r[1]), c = qp(i[1]), l = Math.sin(a / 2) ** 2 + Math.sin(o / 2) ** 2 * Math.cos(s) * Math.cos(c);
 	return Wp(2 * Math.atan2(Math.sqrt(l), Math.sqrt(1 - l)), n.units);
 }
 var em = $p;
 //#endregion
-//#region ../node_modules/@turf/midpoint/dist/esm/index.js
+//#region node_modules/@turf/midpoint/dist/esm/index.js
 function tm(e, t) {
 	let n = $p(e, t), r = Xp(e, t);
 	return Qp(e, n / 2, r);
@@ -26006,13 +26004,9 @@ var bm = "#4ec2fc", xm = 1.5, Sm = "default", Cm = "#0a55a1", wm = "#000000", Tm
 	latitude: 0,
 	zoom: 1,
 	yZoom: 2
-}, Sh;
-(function(e) {
-	e.GeoJson = "geojson", e.Polygons = "polygons", e.Path = "path", e.Markers = "markers", e.Nodes = "nodes", e.Edges = "edges", e.Hyperedges = "routed", e.Clusters = "clusters", e.SVG = "icon", e.Circle = "circle", e.Label = "label", e.Comments = "comments", e.Hull = "convex-hull", e.Text = "text", e.Bboxes = "bboxes";
-})(Sh ||= {});
-//#endregion
-//#region src/structs/graph.ts
-var Ch = class e extends l {
+}, Sh = /* @__PURE__ */ function(e) {
+	return e.GeoJson = "geojson", e.Polygons = "polygons", e.Path = "path", e.Markers = "markers", e.Nodes = "nodes", e.Edges = "edges", e.Hyperedges = "routed", e.Clusters = "clusters", e.SVG = "icon", e.Circle = "circle", e.Label = "label", e.Comments = "comments", e.Hull = "convex-hull", e.Text = "text", e.Bboxes = "bboxes", e;
+}({}), Ch = class e extends l {
 	root;
 	isLogic = !1;
 	comments = {};
