@@ -1,4 +1,4 @@
-import {css} from '@emotion/css';
+import { css } from '@emotion/css';
 import React from 'react';
 
 import {
@@ -12,20 +12,20 @@ import {
   GrafanaTheme2,
   LinkModel,
 } from '@grafana/data';
-import {SortOrder, TooltipDisplayMode} from '@grafana/schema';
-import {TextLink, useStyles2} from '@grafana/ui';
-import {Trans} from "../../utils/i18n";
+import { SortOrder, TooltipDisplayMode } from '@grafana/schema';
+import { TextLink, useStyles2 } from '@grafana/ui';
+import { Trans } from '../../utils/i18n';
 
-import {renderValue} from "../../grafana_core/app/features/geo/utils/uiUtils";
-import {sortAnnotations} from "mapLib/utils";
-import {getDataLinks} from "../../grafana_core/app/plugins/panel/status-history/utils";
+import { renderValue } from '../../grafana_core/app/features/geo/utils/uiUtils';
+import { sortAnnotations } from 'mapLib/utils';
+import { getDataLinks } from '../../grafana_core/app/plugins/panel/status-history/utils';
 
 export interface Props {
   data?: DataFrame; // source data
   displayProps: string[];
   baseProps: string[];
   extraFields: Field[];
-  all_annots: [],
+  all_annots: [];
   time: number;
   rowIndex?: number | null; // the hover row
   columnIndex?: number | null; // the hover column
@@ -52,7 +52,7 @@ export function getDisplayValuesAndLinks(
   rowIndex: number,
   columnIndex?: number | null,
   sortOrder?: SortOrder,
-  mode?: TooltipDisplayMode | null,
+  mode?: TooltipDisplayMode | null
 ) {
   const fields = data.fields.concat(extraFields);
   const hoveredField = columnIndex != null ? fields[columnIndex] : null;
@@ -77,81 +77,79 @@ export function getDisplayValuesAndLinks(
   const links: Array<LinkModel<Field>> = [];
   const linkLookup = new Set<string>();
 
-
-  let annotations: Field = {name: 'all_annots', values: [], type: FieldType.string, config: {} }
+  let annotations: Field = { name: 'all_annots', values: [], type: FieldType.string, config: {} };
   if (all_annots) {
-    const sortedAnnots: any = all_annots.length > 1 ? sortAnnotations(all_annots) : all_annots
+    const sortedAnnots: any = all_annots.length > 1 ? sortAnnotations(all_annots) : all_annots;
     if (sortedAnnots?.length) {
-      sortedAnnots?.forEach(annot => {
-        if (!annot) {return}
-        const {data, alertName, instance, newState, timeEnd} = annot
+      sortedAnnots?.forEach((annot) => {
+        if (!annot) {
+          return;
+        }
+        const { data, alertName, instance, newState, timeEnd } = annot;
         //const {grafana_folder, ...extractedFields} = labels
 
-
-        let timeF
+        let timeF;
         if (timeEnd) {
-          timeF = dateTime(timeEnd).format('MM-DD HH:mm:ss')
+          timeF = dateTime(timeEnd).format('MM-DD HH:mm:ss');
         }
 
-
-        const printObj = (obj) => Object.entries(obj)
+        const printObj = (obj) =>
+          Object.entries(obj)
             .map(([key, value]) => `${key}=${value}`)
             .join(' ');
 
-        const formattedAnnot = `alertname: ${alertName}, newState: ${newState}, timeEnd: ${timeF}, instance: ${instance}, ${JSON.stringify(data.values)}` //timeEnd
+        const formattedAnnot = `alertname: ${alertName}, newState: ${newState}, timeEnd: ${timeF}, instance: ${instance}, ${JSON.stringify(
+          data.values
+        )}`; //timeEnd
 
-        annotations.values.push(formattedAnnot)
-      })
-
-
+        annotations.values.push(formattedAnnot);
+      });
     }
-    orderedVisibleFields.push(annotations)
-
+    orderedVisibleFields.push(annotations);
   }
 
   for (const field of orderedVisibleFields) {
     //if (mode === TooltipDisplayMode.Single && field !== hoveredField) {
-      //continue;
+    //continue;
     //}
 
-    const isGeoJsonField = field.config.description === 'GeoJson'
-    const value = field.values[ baseProps.includes(field.name) || isGeoJsonField ? 0 : rowIndex];
+    const isGeoJsonField = field.config.description === 'GeoJson';
+    const value = field.values[baseProps.includes(field.name) || isGeoJsonField ? 0 : rowIndex];
 
     const fieldDisplay = field.display ? field.display(value) : { text: `${value}`, numeric: +value };
 
-
     getDataLinks(field, rowIndex).forEach((link) => {
       const key = `${link.title}/${link.href}`;
-      if (!linkLookup.has(key) && mode === TooltipDisplayMode.Single && field === hoveredField) { /// me ->> && mode === TooltipDisplayMode.Single && field === hoveredField
+      if (!linkLookup.has(key) && mode === TooltipDisplayMode.Single && field === hoveredField) {
+        /// me ->> && mode === TooltipDisplayMode.Single && field === hoveredField
         links.push(link);
         linkLookup.add(key);
       }
     });
 
-
-    const allButAnnots = displayProps.includes(field.name) && field.name !== 'all_annots'
-    if (displayProps.length === 4 || allButAnnots) {  //// 4 - is hardcoded included field names,
-    displayValues.push({
-      name: getFieldDisplayName(field, data),
-      value,
-      valueString: formattedValueToString(fieldDisplay),
-      highlight: field === hoveredField,
-    });
+    const allButAnnots = displayProps.includes(field.name) && field.name !== 'all_annots';
+    if (displayProps.length === 4 || allButAnnots) {
+      //// 4 - is hardcoded included field names,
+      displayValues.push({
+        name: getFieldDisplayName(field, data),
+        value,
+        valueString: formattedValueToString(fieldDisplay),
+        highlight: field === hoveredField,
+      });
     }
 
     if (field.name === 'all_annots') {
       field.values.forEach((annot, i) => {
-        const value = annot
+        const value = annot;
         const fieldDisplay = field.display ? field.display(value) : { text: `${value}`, numeric: +value };
         displayValues.push({
-          name: `annot ${i> 0 ? i+1 : ''}`,
+          name: `annot ${i > 0 ? i + 1 : ''}`,
           value,
           valueString: formattedValueToString(fieldDisplay),
           highlight: field === hoveredField,
         });
-      })
+      });
     }
-
   }
 
   if (sortOrder && sortOrder !== SortOrder.None) {
@@ -161,14 +159,38 @@ export function getDisplayValuesAndLinks(
   return { displayValues, links };
 }
 
-export const DataHoverView = ({ data, rowIndex, displayProps, baseProps, extraFields, all_annots, time, columnIndex, sortOrder, mode, header, padding = 0 }: Props) => {
+export const DataHoverView = ({
+  data,
+  rowIndex,
+  displayProps,
+  baseProps,
+  extraFields,
+  all_annots,
+  time,
+  columnIndex,
+  sortOrder,
+  mode,
+  header,
+  padding = 0,
+}: Props) => {
   const styles = useStyles2(getStyles, padding);
 
   if (!data || rowIndex == null) {
     return null;
   }
 
-  const dispValuesAndLinks = getDisplayValuesAndLinks(data, displayProps, baseProps, extraFields, all_annots, time, rowIndex, columnIndex, sortOrder, mode);
+  const dispValuesAndLinks = getDisplayValuesAndLinks(
+    data,
+    displayProps,
+    baseProps,
+    extraFields,
+    all_annots,
+    time,
+    rowIndex,
+    columnIndex,
+    sortOrder,
+    mode
+  );
 
   if (dispValuesAndLinks == null) {
     return null;
@@ -177,35 +199,35 @@ export const DataHoverView = ({ data, rowIndex, displayProps, baseProps, extraFi
   const { displayValues, links } = dispValuesAndLinks;
 
   return (
-      <div className={styles.wrapper}>
-        {header && (
-            <div className={styles.header}>
-              <span className={styles.title}>{header}</span>
-            </div>
-        )}
-        <table className={styles.infoWrap}>
-          <tbody>
+    <div className={styles.wrapper}>
+      {header && (
+        <div className={styles.header}>
+          <span className={styles.title}>{header}</span>
+        </div>
+      )}
+      <table className={styles.infoWrap}>
+        <tbody>
           {displayValues.map((displayValue, i) => (
-              <tr key={`${i}/${rowIndex}`}>
-                <th>{displayValue.name}</th>
-                <td>{renderValue(displayValue.valueString)}</td>
-              </tr>
+            <tr key={`${i}/${rowIndex}`}>
+              <th>{displayValue.name}</th>
+              <td>{renderValue(displayValue.valueString)}</td>
+            </tr>
           ))}
           {links.map((link, i) => (
-              <tr key={i}>
-                <th>
-                  <Trans i18nKey="visualization.data-hover-view.link">Link</Trans>
-                </th>
-                <td colSpan={2}>
-                  <TextLink href={link.href} external={link.target === '_blank'} weight={'medium'} inline={false}>
-                    {link.title}
-                  </TextLink>
-                </td>
-              </tr>
+            <tr key={i}>
+              <th>
+                <Trans i18nKey="visualization.data-hover-view.link">Link</Trans>
+              </th>
+              <td colSpan={2}>
+                <TextLink href={link.href} external={link.target === '_blank'} weight={'medium'} inline={false}>
+                  {link.title}
+                </TextLink>
+              </td>
+            </tr>
           ))}
-          </tbody>
-        </table>
-      </div>
+        </tbody>
+      </table>
+    </div>
   );
 };
 

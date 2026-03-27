@@ -7,8 +7,8 @@ import { selectors } from '@grafana/e2e-selectors';
 import { Alert, Icon, Select, useStyles2 } from '@grafana/ui';
 import { t } from '../../utils/i18n';
 
-import {ExtendFrameGeometrySource, ExtendFrameGeometrySourceMode} from "../../extension";
-import {FrameGeometryField, getGeometryField, getLocationMatchers} from "../../utils";
+import { ExtendFrameGeometrySource, ExtendFrameGeometrySourceMode } from '../../extension';
+import { FrameGeometryField, getGeometryField, getLocationMatchers } from '../../utils';
 
 interface ModeEditorSettings {
   data?: DataFrame[];
@@ -18,12 +18,12 @@ interface ModeEditorSettings {
 const helpUrl = 'https://grafana.com/docs/grafana/latest/panels-visualizations/visualizations/geomap/#location';
 
 export const LocationModeEditor = ({
-                                     value,
-                                     onChange,
-                                     context,
-                                     item,
-                                     id,
-                                   }: StandardEditorProps<string, ModeEditorSettings, unknown, unknown>) => {
+  value,
+  onChange,
+  context,
+  item,
+  id,
+}: StandardEditorProps<string, ModeEditorSettings, unknown, unknown>) => {
   const [info, setInfo] = useState<FrameGeometryField>();
 
   const MODE_OPTIONS = [
@@ -32,8 +32,8 @@ export const LocationModeEditor = ({
       label: t('geo.location-more-editor.mode-options.label-auto', 'Auto'),
       ariaLabel: selectors.components.Transforms.SpatialOperations.location.autoOption,
       description: t(
-          'geo.location-more-editor.mode-options.description-auto',
-          'Automatically identify location data based on default field names'
+        'geo.location-more-editor.mode-options.description-auto',
+        'Automatically identify location data based on default field names'
       ),
     },
     {
@@ -41,8 +41,8 @@ export const LocationModeEditor = ({
       label: t('geo.location-more-editor.mode-options.label-coords', 'Coords'),
       ariaLabel: selectors.components.Transforms.SpatialOperations.location.coords.option,
       description: t(
-          'geo.location-more-editor.mode-options.description-coords',
-          'Specify longitude and latitude fields'
+        'geo.location-more-editor.mode-options.description-coords',
+        'Specify longitude and latitude fields'
       ),
     },
     {
@@ -103,17 +103,17 @@ export const LocationModeEditor = ({
   };
 
   return (
-      <>
-        <Select
-            inputId={id}
-            options={MODE_OPTIONS}
-            value={value}
-            onChange={(v) => {
-              onChange(v.value);
-            }}
-        />
-        {dataValidation()}
-      </>
+    <>
+      <Select
+        inputId={id}
+        options={MODE_OPTIONS}
+        value={value}
+        onChange={(v) => {
+          onChange(v.value);
+        }}
+      />
+      {dataValidation()}
+    </>
   );
 };
 

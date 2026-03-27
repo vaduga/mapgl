@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) vis.gl contributors
 
-import {LayerData} from '@deck.gl/core';
-import {calculatePickingColors} from './geojson-binary';
-import type {ExtendedBinaryFeatureCollection} from './geojson-binary';
-import {ScatterplotLayerProps} from "deck.gl";
+import { LayerData } from '@deck.gl/core';
+import { calculatePickingColors } from './geojson-binary';
+import type { ExtendedBinaryFeatureCollection } from './geojson-binary';
+import { ScatterplotLayerProps } from 'deck.gl';
 
 export type SubLayersProps = {
   points: Partial<ScatterplotLayerProps>;
@@ -26,7 +26,7 @@ export function createLayerPropsFromBinary(
   // It is the default output from the `MVTLoader` and can also be obtained
   // from GeoJSON by using the `geojsonToBinary` utility function.
   const layerProps = createEmptyLayerProps();
-  const {points} = geojsonBinary;
+  const { points } = geojsonBinary;
 
   const customPickingColors = calculatePickingColors(geojsonBinary, encodePickingColor);
 
@@ -37,16 +37,13 @@ export function createLayerPropsFromBinary(
       getPosition: points.positions,
       instancePickingColors: {
         size: 4,
-        value: customPickingColors.points!
-      }
+        value: customPickingColors.points!,
+      },
     },
     properties: points.properties,
     numericProps: points.numericProps,
-    featureIds: points.featureIds
+    featureIds: points.featureIds,
   } as LayerData<any>;
 
   return layerProps;
 }
-
-
-

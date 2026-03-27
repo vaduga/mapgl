@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) vis.gl contributors
 
-import {CompositeLayer, Layer} from '@deck.gl/core';
-import {IconLayer, ScatterplotLayer, TextLayer} from "@deck.gl/layers";
+import { CompositeLayer, Layer } from '@deck.gl/core';
+import { IconLayer, ScatterplotLayer, TextLayer } from '@deck.gl/layers';
 
 export const POINT_LAYER = {
   circle: {
@@ -25,8 +25,8 @@ export const POINT_LAYER = {
       getFillColor: 'getFillColor',
       getLineColor: 'getLineColor',
       getLineWidth: 'getLineWidth',
-      getPointRadius: 'getRadius'
-    }
+      getPointRadius: 'getRadius',
+    },
   },
   icon: {
     type: IconLayer,
@@ -42,8 +42,8 @@ export const POINT_LAYER = {
       getIconAngle: 'getAngle',
       getIconColor: 'getColor',
       getIconPixelOffset: 'getPixelOffset',
-      getIconSize: 'getSize'
-    }
+      getIconSize: 'getSize',
+    },
   },
   text: {
     type: TextLayer,
@@ -75,14 +75,14 @@ export const POINT_LAYER = {
       getTextAlignmentBaseline: 'getAlignmentBaseline',
       getTextBackgroundColor: 'getBackgroundColor',
       getTextBorderColor: 'getBorderColor',
-      getTextBorderWidth: 'getBorderWidth'
-    }
-  }
+      getTextBorderWidth: 'getBorderWidth',
+    },
+  },
 };
 
 export function getDefaultProps({
   type,
-  props
+  props,
 }: {
   type: typeof Layer;
   props: Record<string, string>;
@@ -94,16 +94,13 @@ export function getDefaultProps({
   return result;
 }
 
-export function forwardProps(
-  layer: CompositeLayer,
-  mapping: Record<string, string>
-): Record<string, any> {
-  const {transitions, updateTriggers} = layer.props;
+export function forwardProps(layer: CompositeLayer, mapping: Record<string, string>): Record<string, any> {
+  const { transitions, updateTriggers } = layer.props;
   const result: Record<string, any> = {
     updateTriggers: {},
     transitions: transitions && {
-      getPosition: transitions.geometry
-    }
+      getPosition: transitions.geometry,
+    },
   };
 
   for (const sourceKey in mapping) {

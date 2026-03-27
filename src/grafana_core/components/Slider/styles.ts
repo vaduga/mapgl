@@ -3,26 +3,26 @@ import { css as cssCore } from '@emotion/react';
 
 import { GrafanaTheme2 } from '@grafana/data';
 
-export {getStyles as getSliderStyles}
+export { getStyles as getSliderStyles };
 const getStyles = (theme: GrafanaTheme2, isHorizontal: boolean, hasMarks = false) => {
-    const { spacing } = theme;
-    const railColor = theme.colors.border.strong;
-    const trackColor = theme.colors.primary.main;
-    const handleColor = theme.colors.primary.main;
-    const blueOpacity = theme.colors.primary.transparent;
-    const hoverStyle = `box-shadow: 0px 0px 0px 6px ${blueOpacity}`;
+  const { spacing } = theme;
+  const railColor = theme.colors.border.strong;
+  const trackColor = theme.colors.primary.main;
+  const handleColor = theme.colors.primary.main;
+  const blueOpacity = theme.colors.primary.transparent;
+  const hoverStyle = `box-shadow: 0px 0px 0px 6px ${blueOpacity}`;
 
-    return {
-        container: css({
-            width: '100%',
-            margin: isHorizontal ? 'inherit' : spacing(1, 3, 1, 1),
-            paddingBottom: isHorizontal && hasMarks ? theme.spacing(1) : 'inherit',
-            height: isHorizontal ? 'auto' : '100%',
-        }),
-        // can't write this as an object since it needs to overwrite rc-slider styles
-        // object syntax doesn't support kebab case keys
-        // eslint-disable-next-line @emotion/syntax-preference
-        slider: css`
+  return {
+    container: css({
+      width: '100%',
+      margin: isHorizontal ? 'inherit' : spacing(1, 3, 1, 1),
+      paddingBottom: isHorizontal && hasMarks ? theme.spacing(1) : 'inherit',
+      height: isHorizontal ? 'auto' : '100%',
+    }),
+    // can't write this as an object since it needs to overwrite rc-slider styles
+    // object syntax doesn't support kebab case keys
+    // eslint-disable-next-line @emotion/syntax-preference
+    slider: css`
       .rc-slider {
         position: relative;
         width: 100%;
@@ -188,10 +188,10 @@ const getStyles = (theme: GrafanaTheme2, isHorizontal: boolean, hasMarks = false
         margin-left: -2px;
       }
     `,
-        /** Global component from @emotion/core doesn't accept computed classname string returned from css from emotion.
-         * It accepts object containing the computed name and flattened styles returned from css from @emotion/core
-         * */
-        tooltip: cssCore`
+    /** Global component from @emotion/core doesn't accept computed classname string returned from css from emotion.
+     * It accepts object containing the computed name and flattened styles returned from css from @emotion/core
+     * */
+    tooltip: cssCore`
       body {
         .rc-slider-tooltip {
           cursor: grab;
@@ -215,30 +215,30 @@ const getStyles = (theme: GrafanaTheme2, isHorizontal: boolean, hasMarks = false
         }
       }
     `,
-        sliderInput: css({
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            width: '100%',
-        }),
-        sliderInputVertical: css({
-            flexDirection: 'column',
-            height: '100%',
+    sliderInput: css({
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+      width: '100%',
+    }),
+    sliderInputVertical: css({
+      flexDirection: 'column',
+      height: '100%',
 
-            '.rc-slider': {
-                margin: 0,
-                order: 2,
-            },
-        }),
-        sliderInputField: css({
-            marginLeft: theme.spacing(3),
-            input: {
-                textAlign: 'center',
-            },
-        }),
-        sliderInputFieldVertical: css({
-            margin: `0 0 ${theme.spacing(3)} 0`,
-            order: 1,
-        }),
-    };
+      '.rc-slider': {
+        margin: 0,
+        order: 2,
+      },
+    }),
+    sliderInputField: css({
+      marginLeft: theme.spacing(3),
+      input: {
+        textAlign: 'center',
+      },
+    }),
+    sliderInputFieldVertical: css({
+      margin: `0 0 ${theme.spacing(3)} 0`,
+      order: 1,
+    }),
+  };
 };

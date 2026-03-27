@@ -17,7 +17,7 @@ export const centerPointRegistry = new Registry<MapCenterItems>(() => [
     id: MapCenterID.Fit,
     name: 'Fit to data',
     zoom: 15, // max zoom
-    yZoom: 15+1
+    yZoom: 15 + 1,
   },
   {
     id: MapCenterID.Zero,

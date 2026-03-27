@@ -3,9 +3,8 @@ import React from 'react';
 import { FALLBACK_COLOR, GrafanaTheme2 } from '@grafana/data';
 import { LineStyle } from '@grafana/schema';
 
-
 import { ColorIndicator, DEFAULT_COLOR_INDICATOR } from './types';
-import {SeriesIcon, useStyles2} from "@grafana/ui";
+import { SeriesIcon, useStyles2 } from '@grafana/ui';
 import { getColorIndicatorClass } from './utils';
 
 export enum ColorIndicatorPosition {

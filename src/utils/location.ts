@@ -5,29 +5,29 @@ import {
   DataFrame,
   Field,
   getFieldDisplayName,
-  FieldType, FieldConfig
+  FieldType,
+  FieldConfig,
 } from '@grafana/data';
 import { getGazetteer, Gazetteer } from '../grafana_core/app/features/geo/gazetteer/gazetteer';
 import { decodeGeohash } from './geohash';
-import {ExtendFrameGeometrySource, ExtendFrameGeometrySourceMode} from '../extension';
-import {Geometry, Point} from "geojson";
-import {findField} from "../grafana_core/app/features/dimensions";
-import {Graph, Node, FeatSource} from 'mapLib'
-import {NS_SEPARATOR} from 'mapLib/utils'
-import {GeomapPanel} from "../GeomapPanel";
+import { ExtendFrameGeometrySource, ExtendFrameGeometrySourceMode } from '../extension';
+import { Geometry, Point } from 'geojson';
+import { findField } from '../grafana_core/app/features/dimensions';
+import { Graph, Node, FeatSource } from 'mapLib';
+import { NS_SEPARATOR } from 'mapLib/utils';
+import { GeomapPanel } from '../GeomapPanel';
 
 export type NamespaceRange = [
-    graphId: string,
-    separator: typeof NS_SEPARATOR,
-    range: number[] // [start,end]
+  graphId: string,
+  separator: typeof NS_SEPARATOR,
+  range: number[] // [start,end]
 ];
 
 export interface ExtendedField<T> extends Omit<Field<T>, 'values'> {
   values: T[] | Float64Array;
-  nodes?: Node[]
-  ranges?: NamespaceRange[]
+  nodes?: Node[];
+  ranges?: NamespaceRange[];
 }
-
 
 export interface FrameGeometryField {
   field?: ExtendedField<Geometry | Float64Array>;
@@ -143,7 +143,6 @@ export function getLocationFields(frame: DataFrame, location: LocationFieldMatch
 
   // Find the best option
   if (fields.mode === ExtendFrameGeometrySourceMode.Auto) {
-
     fields.geojson = location.geojson(frame);
     if (fields.geojson) {
       fields.mode = ExtendFrameGeometrySourceMode.Geojson;
@@ -192,17 +191,23 @@ export function getLocationFields(frame: DataFrame, location: LocationFieldMatch
   return fields;
 }
 
-
-export function getGeometryField(frame: DataFrame, location: LocationFieldMatchers, locField?: string, panel?: GeomapPanel, root?: FeatSource, graph?: Graph): FrameGeometryField {
+export function getGeometryField(
+  frame: DataFrame,
+  location: LocationFieldMatchers,
+  locField?: string,
+  panel?: GeomapPanel,
+  root?: FeatSource,
+  graph?: Graph
+): FrameGeometryField {
   const fields = getLocationFields(frame, location);
   fields.locName = locField ? findField(frame, locField) : undefined;
 
-  const isLogic = panel?.isLogic
+  const isLogic = panel?.isLogic;
   if (isLogic) {
-    const rndValues = frame.fields?.[0].values
-    const frameLen= frame.length ?? rndValues.length  // rndField for len
+    const rndValues = frame.fields?.[0].values;
+    const frameLen = frame.length ?? rndValues.length; // rndField for len
     //@ts-ignore
-    fields.geojson = {values: rndValues}
+    fields.geojson = { values: rndValues };
 
     return {
       // @ts-ignore
@@ -225,12 +230,12 @@ export function getGeometryField(frame: DataFrame, location: LocationFieldMatche
     case ExtendFrameGeometrySourceMode.Geojson:
       if (fields.geojson) {
         return {
-          field: pointFieldFromGeoJSON(fields.geojson, fields, panel, root, graph)
-        }
-      }
-        return {
-          warning: 'Unable to find location fields',
+          field: pointFieldFromGeoJSON(fields.geojson, fields, panel, root, graph),
         };
+      }
+      return {
+        warning: 'Unable to find location fields',
+      };
 
     case ExtendFrameGeometrySourceMode.Coords:
       if (fields.latitude && fields.longitude) {
@@ -278,33 +283,56 @@ export function getGeometryField(frame: DataFrame, location: LocationFieldMatche
   return { warning: 'unable to find geometry' };
 }
 
-function pointFieldFromGeoJSON(geojson: Field<string>, fields?: LocationFields, panel?: GeomapPanel, root?: FeatSource, graph?: Graph, isLogic = false): ExtendedField<Geometry | Float64Array> {
-  const len = geojson?.values?.length ?? 0
+function pointFieldFromGeoJSON(
+  geojson: Field<string>,
+  fields?: LocationFields,
+  panel?: GeomapPanel,
+  root?: FeatSource,
+  graph?: Graph,
+  isLogic = false
+): ExtendedField<Geometry | Float64Array> {
+  const len = geojson?.values?.length ?? 0;
   const buffer = graph ? new Float64Array(len * 2) : new Array<Geometry>(len);
   const nodes = new Array<Node>();
-  const vCount = panel?.graph.shallowNodeCount ?? 0
-  const startIdx = vCount ? (vCount) : 0
+  const vCount = panel?.graph.shallowNodeCount ?? 0;
+  const startIdx = vCount ? vCount : 0;
   const state = { graph: undefined, index: 0, startIdx };
-  const ranges = []
+  const ranges = [];
 
   for (let i = 0; i < len; i++) {
-    if (!geojson?.values[i] && !isLogic) {continue}
-      const feature = !isLogic && JSON.parse(geojson.values[i] as string)
-      if (!feature && !isLogic) {
-        //console.log('no feature', geojson.values[i])
-        continue
-      }
+    if (!geojson?.values[i] && !isLogic) {
+      continue;
+    }
+    const feature = !isLogic && JSON.parse(geojson.values[i] as string);
+    if (!feature && !isLogic) {
+      //console.log('no feature', geojson.values[i])
+      continue;
+    }
 
-      if (graph) {
-        createNode(fields, nodes, ranges, i, len, root, panel, graph, buffer, vCount, state, feature?.coordinates, isLogic)
-        continue
-      }
-        buffer[state.index++] = {type: feature.type, coordinates: feature.coordinates}
+    if (graph) {
+      createNode(
+        fields,
+        nodes,
+        ranges,
+        i,
+        len,
+        root,
+        panel,
+        graph,
+        buffer,
+        vCount,
+        state,
+        feature?.coordinates,
+        isLogic
+      );
+      continue;
+    }
+    buffer[state.index++] = { type: feature.type, coordinates: feature.coordinates };
   }
 
-  const values = graph ?
-      new Float64Array((buffer as Float64Array).slice(0, state.index))
-      : (buffer as Geometry[]).slice(0, state.index)
+  const values = graph
+    ? new Float64Array((buffer as Float64Array).slice(0, state.index))
+    : (buffer as Geometry[]).slice(0, state.index);
 
   return {
     name: 'Point',
@@ -316,14 +344,21 @@ function pointFieldFromGeoJSON(geojson: Field<string>, fields?: LocationFields, 
   };
 }
 
-function pointFieldFromLonLat(lon: Field<number>, lat: Field<number>, fields?: LocationFields, panel?: GeomapPanel, root?: FeatSource, graph?: Graph): ExtendedField<Geometry | Float64Array> {
-  const len = lon.values.length
+function pointFieldFromLonLat(
+  lon: Field<number>,
+  lat: Field<number>,
+  fields?: LocationFields,
+  panel?: GeomapPanel,
+  root?: FeatSource,
+  graph?: Graph
+): ExtendedField<Geometry | Float64Array> {
+  const len = lon.values.length;
   const buffer = graph ? new Float64Array(len * 2) : new Array<Geometry>(len);
   const nodes = new Array<Node>(len);
-  const vCount = panel?.graph.shallowNodeCount ?? 0
-  const startIdx = vCount ? (vCount) : 0
+  const vCount = panel?.graph.shallowNodeCount ?? 0;
+  const startIdx = vCount ? vCount : 0;
   const state = { graph: undefined, index: 0, startIdx };
-  const ranges = []
+  const ranges = [];
 
   for (let i = 0; i < len; i++) {
     const longitude = lon.values[i];
@@ -332,16 +367,16 @@ function pointFieldFromLonLat(lon: Field<number>, lat: Field<number>, fields?: L
     if (longitude === null || latitude === null) {
       continue;
     }
-    const feature: Point = {type: 'Point', coordinates: [longitude, latitude]}
+    const feature: Point = { type: 'Point', coordinates: [longitude, latitude] };
     if (graph) {
-      createNode(fields, nodes,ranges, i, len, root, panel, graph, buffer, vCount, state, feature?.coordinates)
-      continue
+      createNode(fields, nodes, ranges, i, len, root, panel, graph, buffer, vCount, state, feature?.coordinates);
+      continue;
     }
-    buffer[state.index++] = feature
+    buffer[state.index++] = feature;
   }
-  const values = graph ?
-      new Float64Array((buffer as Float64Array).slice(0, state.index))
-      : (buffer as Geometry[]).slice(0, state.index)
+  const values = graph
+    ? new Float64Array((buffer as Float64Array).slice(0, state.index))
+    : (buffer as Geometry[]).slice(0, state.index);
 
   return {
     name: 'Point',
@@ -353,30 +388,38 @@ function pointFieldFromLonLat(lon: Field<number>, lat: Field<number>, fields?: L
   };
 }
 
-function pointFieldFromGeohash(geohash: Field<string>, fields?: LocationFields, panel?: GeomapPanel, root?: FeatSource, graph?: Graph): ExtendedField<Geometry | Float64Array>{
-  const len = geohash.values.length
+function pointFieldFromGeohash(
+  geohash: Field<string>,
+  fields?: LocationFields,
+  panel?: GeomapPanel,
+  root?: FeatSource,
+  graph?: Graph
+): ExtendedField<Geometry | Float64Array> {
+  const len = geohash.values.length;
   const buffer = graph ? new Float64Array(len * 2) : new Array<Geometry>(len);
   const nodes = new Array<Node>(len);
-  const vCount = panel?.graph.shallowNodeCount ?? 0
-  const startIdx = vCount ? (vCount) : 0
+  const vCount = panel?.graph.shallowNodeCount ?? 0;
+  const startIdx = vCount ? vCount : 0;
   const state = { graph: undefined, index: 0, startIdx };
-  const ranges = []
+  const ranges = [];
   for (let i = 0; i < len; i++) {
-    const v = geohash.values[i]
+    const v = geohash.values[i];
     if (v) {
       const coordinates = decodeGeohash(v);
-      if (!coordinates) {continue}
-      const feature: Point = {type: 'Point', coordinates}
-      if (graph) {
-        createNode(fields, nodes,ranges, i, len, root, panel, graph, buffer, vCount, state, feature?.coordinates)
-        continue
+      if (!coordinates) {
+        continue;
       }
-      buffer[state.index++] = feature
+      const feature: Point = { type: 'Point', coordinates };
+      if (graph) {
+        createNode(fields, nodes, ranges, i, len, root, panel, graph, buffer, vCount, state, feature?.coordinates);
+        continue;
+      }
+      buffer[state.index++] = feature;
     }
   }
-  const values = graph ?
-      new Float64Array((buffer as Float64Array).slice(0, state.index))
-      : (buffer as Geometry[]).slice(0, state.index)
+  const values = graph
+    ? new Float64Array((buffer as Float64Array).slice(0, state.index))
+    : (buffer as Geometry[]).slice(0, state.index);
 
   return {
     name: geohash.name ?? 'Point',
@@ -386,32 +429,40 @@ function pointFieldFromGeohash(geohash: Field<string>, fields?: LocationFields, 
     ranges,
     config: hiddenTooltipField,
   };
-
 }
 
-function getGeoFieldFromGazetteer(gaz: Gazetteer, field: Field<string>, fields?: LocationFields, panel?: GeomapPanel, root?: FeatSource, graph?: Graph): ExtendedField<Geometry | Float64Array> {
-  const len = field.values.length
+function getGeoFieldFromGazetteer(
+  gaz: Gazetteer,
+  field: Field<string>,
+  fields?: LocationFields,
+  panel?: GeomapPanel,
+  root?: FeatSource,
+  graph?: Graph
+): ExtendedField<Geometry | Float64Array> {
+  const len = field.values.length;
   const buffer = graph ? new Float64Array(len * 2) : new Array<Geometry>(len);
   const nodes = new Array<Node>(len);
-  const vCount = panel?.graph.shallowNodeCount ?? 0
-  const startIdx = vCount ? (vCount) : 0
+  const vCount = panel?.graph.shallowNodeCount ?? 0;
+  const startIdx = vCount ? vCount : 0;
   const state = { graph: undefined, index: 0, startIdx };
-  const ranges = []
+  const ranges = [];
   for (let i = 0; i < len; i++) {
-    const info = gaz.find(field.values[i]) //?.geometry();
+    const info = gaz.find(field.values[i]); //?.geometry();
 
-    if (!info?.coords) {continue} // info?.geometry ?
-    const feature: Point = {type: 'Point', coordinates: info.coords}
+    if (!info?.coords) {
+      continue;
+    } // info?.geometry ?
+    const feature: Point = { type: 'Point', coordinates: info.coords };
     if (graph) {
-      createNode(fields, nodes,ranges, i, len, root, panel, graph, buffer, vCount, state, feature?.coordinates)
-      continue
+      createNode(fields, nodes, ranges, i, len, root, panel, graph, buffer, vCount, state, feature?.coordinates);
+      continue;
     }
-    buffer[state.index++] = feature
+    buffer[state.index++] = feature;
   }
 
-  const values = graph ?
-      new Float64Array((buffer as Float64Array).slice(0, state.index))
-      : (buffer as Geometry[]).slice(0, state.index)
+  const values = graph
+    ? new Float64Array((buffer as Float64Array).slice(0, state.index))
+    : (buffer as Geometry[]).slice(0, state.index);
 
   return {
     name: 'Geometry',
@@ -431,26 +482,26 @@ const hiddenTooltipField: FieldConfig = Object.freeze({
 
 function createNode(fields, nodes, ranges, i, len, root, panel, graph, coords, vCount, state, coordinates, isLogic?) {
   const { locName } = fields || {};
-  if (!locName) return;
+  if (!locName) {return;}
 
   const id = locName.values[i];
 
   if (!state.graph) {
     state.graph = graph;
-    state.startIdx = (state.index / 2) + vCount;
+    state.startIdx = state.index / 2 + vCount;
   }
 
   const isLastItem = i === len - 1;
   function addNodeAndCoords() {
-    if (!id) return;
+    if (!id) {return;}
     let node = state.graph.findNode(id);
     if (!node) {
       node = new Node(id);
-      const wasmId = (state.index / 2) + vCount;
+      const wasmId = state.index / 2 + vCount;
       coords[state.index++] = isLogic ? 7 : coordinates[0];
       coords[state.index++] = isLogic ? 7 : coordinates[1];
       const idx = state.graph.shallowNodeCount;
-      const data = { wasmId, root, idx};
+      const data = { wasmId, root, idx };
       node.setData(data);
       state.graph.addNode(node);
     }
@@ -458,9 +509,9 @@ function createNode(fields, nodes, ranges, i, len, root, panel, graph, coords, v
   }
 
   function closeRange() {
-    const endExclusive = (state.index / 2) + vCount;
+    const endExclusive = state.index / 2 + vCount;
     if (endExclusive > state.startIdx) {
-      ranges.push([state.graph.id, NS_SEPARATOR, [state.startIdx, endExclusive]])
+      ranges.push([state.graph.id, NS_SEPARATOR, [state.startIdx, endExclusive]]);
       state.graph.positionRanges.push([state.startIdx, endExclusive]);
     }
   }

@@ -2,26 +2,25 @@ import { getFrameMatchers, PanelData, textUtil } from '@grafana/data';
 import { config } from '@grafana/runtime';
 
 import { GeomapPanel } from '../GeomapPanel';
-import {MARKERS_LAYER_ID, MarkersConfig} from '../layers/data/markersLayer';
-import {geomapLayerRegistry, ORTHO_BASEMAP_CONFIG} from '../layers/registry';
+import { MARKERS_LAYER_ID, MarkersConfig } from '../layers/data/markersLayer';
+import { geomapLayerRegistry, ORTHO_BASEMAP_CONFIG } from '../layers/registry';
 import { MapLayerState } from '../types';
 
-import {ExtendMapLayerHandler, ExtendMapLayerOptions} from "../extension";
-import {getNextLayerName} from "./geomap_utils";
+import { ExtendMapLayerHandler, ExtendMapLayerOptions } from '../extension';
+import { getNextLayerName } from './geomap_utils';
 import { FeatSource } from 'mapLib';
 
 export const applyLayerFilter = (
   handler: ExtendMapLayerHandler<unknown>,
   options: ExtendMapLayerOptions<unknown>,
   panelDataProps: PanelData,
-  collectNsNodes: boolean,
+  collectNsNodes: boolean
 ): void => {
-  const customQuery = panelDataProps.request?.targets[0]
-  const isSnapshot =   customQuery?.queryType === "snapshot" || customQuery?.refId // snapshot or dashboard DS
+  const customQuery = panelDataProps.request?.targets[0];
+  const isSnapshot = customQuery?.queryType === 'snapshot' || customQuery?.refId; // snapshot or dashboard DS
 
-  const f = (collectNsNodes && (options.query || isSnapshot)) ? handler.geom : handler.update
+  const f = collectNsNodes && (options.query || isSnapshot) ? handler.geom : handler.update;
   if (f) {
-
     let panelData = panelDataProps;
     if (options.query) {
       const matcherFunc = getFrameMatchers(options.query);
@@ -35,8 +34,11 @@ export const applyLayerFilter = (
 };
 
 // panel: GeomapPanel
-export async function updateLayer(panel: GeomapPanel, uid: string, newOptions: ExtendMapLayerOptions): Promise<boolean> {
-
+export async function updateLayer(
+  panel: GeomapPanel,
+  uid: string,
+  newOptions: ExtendMapLayerOptions
+): Promise<boolean> {
   if (!panel.map) {
     return false;
   }
@@ -47,7 +49,6 @@ export async function updateLayer(panel: GeomapPanel, uid: string, newOptions: E
   }
 
   let layerIndex = -1;
-
 
   // Special handling for rename
   if (newOptions.name !== uid) {
@@ -80,24 +81,21 @@ export async function updateLayer(panel: GeomapPanel, uid: string, newOptions: E
 
   // Just collapse group rule section
   if (current.options.type === MARKERS_LAYER_ID) {
-    const oldGroups = (current.options as ExtendMapLayerOptions<MarkersConfig>)?.config?.groups ?? []
-    const newGroups = newOptions.config?.groups ?? []
-    const isAddGroup = newGroups.length > oldGroups.length
-    const equalLength = (newGroups.length && oldGroups.length) && newGroups.length === oldGroups.length
-    const isCollapse = !!equalLength && oldGroups?.some((g,i)=> g.collapse !== newGroups[i]?.collapse)
+    const oldGroups = (current.options as ExtendMapLayerOptions<MarkersConfig>)?.config?.groups ?? [];
+    const newGroups = newOptions.config?.groups ?? [];
+    const isAddGroup = newGroups.length > oldGroups.length;
+    const equalLength = newGroups.length && oldGroups.length && newGroups.length === oldGroups.length;
+    const isCollapse = !!equalLength && oldGroups?.some((g, i) => g.collapse !== newGroups[i]?.collapse);
     if (isAddGroup || isCollapse) {
-     //console.log('newgroup, collapse', isAddGroup, isCollapse)
-
-    // @TODO cut processing on collapse rules
+      //console.log('newgroup, collapse', isAddGroup, isCollapse)
+      // @TODO cut processing on collapse rules
+    }
   }
-
-}
 
   try {
     const info = await initLayer(panel, newOptions, current.isBasemap);
     layers[layerIndex]?.handler.dispose?.();
     layers[layerIndex] = info;
-
   } catch (err) {
     console.warn('ERROR', err); // eslint-disable-line no-console
     return false;
@@ -105,7 +103,7 @@ export async function updateLayer(panel: GeomapPanel, uid: string, newOptions: E
 
   panel.layers = layers;
   panel.doOptionsUpdate(layerIndex);
-  panel.useMockData = panel.isLogic && panel.layers.every(l=> !l.options.locField)
+  panel.useMockData = panel.isLogic && panel.layers.every((l) => !l.options.locField);
   return true;
 }
 
@@ -163,10 +161,9 @@ export async function initLayer(
 
   panel.byName.set(UID, state);
 
-
-    if (state.layer instanceof FeatSource) {
-      state.layer.__state = state;
-    }
+  if (state.layer instanceof FeatSource) {
+    state.layer.__state = state;
+  }
 
   return state;
 }

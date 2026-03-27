@@ -3,7 +3,7 @@ import React from 'react';
 
 import { SelectableValue, StandardEditorContext } from '@grafana/data';
 import { InlineFieldRow, InlineField, RadioButtonGroup, Select } from '@grafana/ui';
-import {NumberInput} from "../../grafana_core/app/core/components/OptionsUI/NumberInput";
+import { NumberInput } from '../../grafana_core/app/core/components/OptionsUI/NumberInput';
 import { t } from '../../utils/i18n';
 
 import { GeomapInstanceState, type Options, type MapViewConfig } from '../../types';
@@ -55,15 +55,15 @@ export const FitMapViewEditor = ({ labelWidth, value, onChange, context }: Props
   );
 
   const allLayersEditorFragment = (
-      <InlineFieldRow>
-        <InlineField
-            label={t('geomap.fit-map-view-editor.all-layers-editor-fragment.label-layer', 'Layer')}
-            labelWidth={labelWidth}
-            grow={true}
-        >
-          <Select options={layers} onChange={onSelectLayer} placeholder={layers[0]?.label} value={value.layer} />
-        </InlineField>
-      </InlineFieldRow>
+    <InlineFieldRow>
+      <InlineField
+        label={t('geomap.fit-map-view-editor.all-layers-editor-fragment.label-layer', 'Layer')}
+        labelWidth={labelWidth}
+        grow={true}
+      >
+        <Select options={layers} onChange={onSelectLayer} placeholder={layers[0]?.label} value={value.layer} />
+      </InlineField>
+    </InlineFieldRow>
   );
 
   const onChangePadding = (padding: number | undefined) => {
@@ -71,26 +71,26 @@ export const FitMapViewEditor = ({ labelWidth, value, onChange, context }: Props
   };
 
   const lastOnlyEditorFragment = (
-      <InlineFieldRow>
-        <InlineField
-            label={t('geomap.fit-map-view-editor.last-only-editor-fragment.label-padding', 'Padding')}
-            labelWidth={labelWidth}
-            grow={true}
-            tooltip={t(
-                'geomap.fit-map-view-editor.last-only-editor-fragment.tooltip-padding-relative-percent-beyond-extent',
-                'Sets padding in relative percent beyond data extent'
-            )}
-        >
-          <NumberInput value={value?.padding ?? 5} min={0} step={1} onChange={onChangePadding} />
-        </InlineField>
-      </InlineFieldRow>
+    <InlineFieldRow>
+      <InlineField
+        label={t('geomap.fit-map-view-editor.last-only-editor-fragment.label-padding', 'Padding')}
+        labelWidth={labelWidth}
+        grow={true}
+        tooltip={t(
+          'geomap.fit-map-view-editor.last-only-editor-fragment.tooltip-padding-relative-percent-beyond-extent',
+          'Sets padding in relative percent beyond data extent'
+        )}
+      >
+        <NumberInput value={value?.padding ?? 5} min={0} step={1} onChange={onChangePadding} />
+      </InlineField>
+    </InlineFieldRow>
   );
 
   const currentDataScope = value.allLayers
     ? DataScopeValues.all
     : !value.allLayers && value.lastOnly
-      ? DataScopeValues.last
-      : DataScopeValues.layer;
+    ? DataScopeValues.last
+    : DataScopeValues.layer;
 
   const onDataScopeChange = (dataScope: DataScopeValues) => {
     if (dataScope !== DataScopeValues.all && !value.layer) {
@@ -110,18 +110,18 @@ export const FitMapViewEditor = ({ labelWidth, value, onChange, context }: Props
   };
 
   return (
-      <>
-        <InlineFieldRow>
-          <InlineField label={t('geomap.fit-map-view-editor.label-data', 'Data')} labelWidth={labelWidth} grow={true}>
-            <RadioButtonGroup
-                value={currentDataScope}
-                options={DataScopeOptions}
-                onChange={onDataScopeChange}
-            ></RadioButtonGroup>
-          </InlineField>
-        </InlineFieldRow>
-        {!value?.allLayers && allLayersEditorFragment}
-        {!value?.lastOnly && lastOnlyEditorFragment}
-      </>
+    <>
+      <InlineFieldRow>
+        <InlineField label={t('geomap.fit-map-view-editor.label-data', 'Data')} labelWidth={labelWidth} grow={true}>
+          <RadioButtonGroup
+            value={currentDataScope}
+            options={DataScopeOptions}
+            onChange={onDataScopeChange}
+          ></RadioButtonGroup>
+        </InlineField>
+      </InlineFieldRow>
+      {!value?.allLayers && allLayersEditorFragment}
+      {!value?.lastOnly && lastOnlyEditorFragment}
+    </>
   );
 };

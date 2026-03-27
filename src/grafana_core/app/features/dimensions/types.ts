@@ -2,89 +2,89 @@ import { Field, FieldType } from '@grafana/data';
 import { TextDimensionConfig, TextDimensionMode } from '@grafana/schema';
 
 export interface DimensionSupplier<T = any> {
-    /**
-     * This means an explicit value was not configured
-     */
-    isAssumed?: boolean;
+  /**
+   * This means an explicit value was not configured
+   */
+  isAssumed?: boolean;
 
-    /**
-     * The field used for
-     */
-    field?: Field;
+  /**
+   * The field used for
+   */
+  field?: Field;
 
-    /**
-     * Explicit value -- if == null, then need a value for each index
-     */
-    fixed?: T;
+  /**
+   * Explicit value -- if == null, then need a value for each index
+   */
+  fixed?: T;
 
-    /**
-     * A single value -- typically last
-     */
-    value: () => T;
+  /**
+   * A single value -- typically last
+   */
+  value: () => T;
 
-    /**
-     * Supplier for the dimension value
-     */
-    get: (index: number) => T;
+  /**
+   * Supplier for the dimension value
+   */
+  get: (index: number) => T;
 }
 
 /** Places that use the value */
 export interface ScaleDimensionOptions {
-    min: number;
-    max: number;
-    step?: number;
-    hideRange?: boolean; // false
-    filteredFieldType?: FieldType;
+  min: number;
+  max: number;
+  step?: number;
+  hideRange?: boolean; // false
+  filteredFieldType?: FieldType;
 }
 
 export interface ScalarDimensionOptions {
-    min: number;
-    max: number;
+  min: number;
+  max: number;
 }
 
 export interface TextDimensionOptions {
-    // anything?
+  // anything?
 }
 
 export const defaultTextConfig: TextDimensionConfig = Object.freeze({
-    fixed: '',
-    mode: TextDimensionMode.Field,
-    field: '',
+  fixed: '',
+  mode: TextDimensionMode.Field,
+  field: '',
 });
 
 /** Places that use the value */
 export interface ResourceDimensionOptions {
-    resourceType: MediaType;
-    folderName?: ResourceFolderName;
-    placeholderText?: string;
-    placeholderValue?: string;
-    // If you want your icon to be driven by value of a field
-    showSourceRadio?: boolean;
-    maxFiles?: number;
+  resourceType: MediaType;
+  folderName?: ResourceFolderName;
+  placeholderText?: string;
+  placeholderValue?: string;
+  // If you want your icon to be driven by value of a field
+  showSourceRadio?: boolean;
+  maxFiles?: number;
 }
 
 export enum ResourceFolderName {
-    Cisco = 'img/icons/cisco',
-    Networking = 'img/icons/networking',
-    Databases = 'img/icons/databases',
-    Custom = 'public/img/icons/mapgl',
-    BG = 'public/img/bg'
+  Cisco = 'img/icons/cisco',
+  Networking = 'img/icons/networking',
+  Databases = 'img/icons/databases',
+  Custom = 'public/img/icons/mapgl',
+  BG = 'public/img/bg',
 }
 
 export enum MediaType {
-    Icon = 'icon',
-    Image = 'image',
+  Icon = 'icon',
+  Image = 'image',
 }
 
 export enum PickerTabType {
-    Folder = 'folder',
-    URL = 'url',
-    Upload = 'upload',
+  Folder = 'folder',
+  URL = 'url',
+  Upload = 'upload',
 }
 
 export enum ResourcePickerSize {
-    SMALL = 'small',
-    NORMAL = 'normal',
+  SMALL = 'small',
+  NORMAL = 'normal',
 }
 
 export interface DirectionDimensionOptions {}

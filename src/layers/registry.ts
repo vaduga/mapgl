@@ -1,17 +1,12 @@
-import {
-  Registry,
-  GrafanaTheme2,
-  PluginState,
-  SelectableValue,
-} from '@grafana/data';
-import {config, hasAlphaPanels} from '../config';
+import { Registry, GrafanaTheme2, PluginState, SelectableValue } from '@grafana/data';
+import { config, hasAlphaPanels } from '../config';
 import { basemapLayers } from './basemaps';
-import {orthoLayer} from './basemaps/blank';
+import { orthoLayer } from './basemaps/blank';
 
 import { dataLayers } from './data';
 import { ExtendMapLayerRegistryItem, ExtendMapLayerOptions } from '../extension';
-import {GeomapPanel} from "../GeomapPanel";
-import {carto} from "./basemaps/carto";
+import { GeomapPanel } from '../GeomapPanel';
+import { carto } from './basemaps/carto';
 
 export const ORTHO_BASEMAP_CONFIG: ExtendMapLayerOptions = {
   type: 'blank',
@@ -35,7 +30,7 @@ export const defaultBaseLayer: ExtendMapLayerRegistryItem = {
   create: (panel: GeomapPanel, options: ExtendMapLayerOptions, theme: GrafanaTheme2) => {
     const serverLayerType = config?.geomapDefaultBaseLayerConfig?.type;
     if (serverLayerType) {
-      const layer = geomapLayerRegistry.getIfExists(serverLayerType) ;
+      const layer = geomapLayerRegistry.getIfExists(serverLayerType);
 
       if (!layer) {
         throw new Error('Invalid basemap configuraiton on server');

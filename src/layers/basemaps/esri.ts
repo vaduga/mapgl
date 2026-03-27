@@ -1,8 +1,8 @@
 import { GrafanaTheme2, RegistryItem, Registry } from '@grafana/data';
 import { xyzTiles, defaultXYZConfig, XYZConfig } from './generic';
-import {ExtendMapLayerHandler, ExtendMapLayerOptions, ExtendMapLayerRegistryItem} from '../../extension';
-import {GeomapPanel} from "../../GeomapPanel";
-import {libreSource} from "mapLib/utils";
+import { ExtendMapLayerHandler, ExtendMapLayerOptions, ExtendMapLayerRegistryItem } from '../../extension';
+import { GeomapPanel } from '../../GeomapPanel';
+import { libreSource } from 'mapLib/utils';
 
 interface PublicServiceItem extends RegistryItem {
   slug: string;
@@ -61,50 +61,51 @@ export const esriXYZTiles: ExtendMapLayerRegistryItem<ESRIXYZConfig> = {
   isBaseMap: true,
 
   create: (panel: GeomapPanel, options: ExtendMapLayerOptions<ESRIXYZConfig>, theme: GrafanaTheme2) => ({
-      init: (): libreSource => {
-        const cfg = { ...options.config };
-        const svc = publicServiceRegistry.getIfExists(cfg.server ?? DEFAULT_SERVICE)!;
-        if (svc.id !== CUSTOM_SERVICE) {
-          const base = 'https://services.arcgisonline.com/ArcGIS/rest/services/';
-          cfg.url = `${base}${svc.slug}/MapServer/tile/{z}/{y}/{x}`;
-          cfg.attribution = `Tiles © <a href="${base}${svc.slug}/MapServer">ArcGIS</a>`;
-        }
-        const opts = { ...options, config: cfg as XYZConfig };
-        return (xyzTiles.create && xyzTiles.create(panel, opts, theme) as ExtendMapLayerHandler<any>).init() as libreSource ;
-      },
-      registerOptionsUI: (builder) => {
-        builder
-            .addSelect({
-              path: 'config.server',
-              name: 'Server instance',
-              settings: {
-                options: publicServiceRegistry.selectOptions().options,
-              },
-            })
-            .addTextInput({
-              path: 'config.url',
-              name: 'URL template',
-              description: 'Must include {x}, {y} or {-y}, and {z} placeholders',
-              settings: {
-                placeholder: defaultXYZConfig.url,
-              },
-              showIf: (cfg) => cfg.config?.server === CUSTOM_SERVICE,
-            })
-            .addTextInput({
-              path: 'config.attribution',
-              name: 'Attribution',
-              settings: {
-                placeholder: defaultXYZConfig.attribution,
-              },
-              showIf: (cfg) => cfg.config?.server === CUSTOM_SERVICE,
-            });
-      },
+    init: (): libreSource => {
+      const cfg = { ...options.config };
+      const svc = publicServiceRegistry.getIfExists(cfg.server ?? DEFAULT_SERVICE)!;
+      if (svc.id !== CUSTOM_SERVICE) {
+        const base = 'https://services.arcgisonline.com/ArcGIS/rest/services/';
+        cfg.url = `${base}${svc.slug}/MapServer/tile/{z}/{y}/{x}`;
+        cfg.attribution = `Tiles © <a href="${base}${svc.slug}/MapServer">ArcGIS</a>`;
+      }
+      const opts = { ...options, config: cfg as XYZConfig };
+      return (
+        xyzTiles.create && (xyzTiles.create(panel, opts, theme) as ExtendMapLayerHandler<any>)
+      ).init() as libreSource;
+    },
+    registerOptionsUI: (builder) => {
+      builder
+        .addSelect({
+          path: 'config.server',
+          name: 'Server instance',
+          settings: {
+            options: publicServiceRegistry.selectOptions().options,
+          },
+        })
+        .addTextInput({
+          path: 'config.url',
+          name: 'URL template',
+          description: 'Must include {x}, {y} or {-y}, and {z} placeholders',
+          settings: {
+            placeholder: defaultXYZConfig.url,
+          },
+          showIf: (cfg) => cfg.config?.server === CUSTOM_SERVICE,
+        })
+        .addTextInput({
+          path: 'config.attribution',
+          name: 'Attribution',
+          settings: {
+            placeholder: defaultXYZConfig.attribution,
+          },
+          showIf: (cfg) => cfg.config?.server === CUSTOM_SERVICE,
+        });
+    },
 
-  defaultOptions: {
-    server: DEFAULT_SERVICE,
-  }})
+    defaultOptions: {
+      server: DEFAULT_SERVICE,
+    },
+  }),
+};
 
-}
-
-
-export const esriLayers = [esriXYZTiles]
+export const esriLayers = [esriXYZTiles];

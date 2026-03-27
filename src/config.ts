@@ -1,16 +1,14 @@
 //@ts-nocheck
 
 import { config as c, GrafanaBootConfig as gb } from '@grafana/runtime';
-import {PluginState} from '@grafana/data';
+import { PluginState } from '@grafana/data';
 
-interface config extends c {
-
-}
+interface config extends c {}
 
 //my augments
 //
 class GrafanaBootConfig extends gb {
-  geomapDefaultBaseLayerConfig: ExtendMapLayerOptions
+  geomapDefaultBaseLayerConfig: ExtendMapLayerOptions;
 }
 const config: GrafanaBootConfig = c;
 //
@@ -28,9 +26,6 @@ export const getConfig = () => {
 };
 
 // The `enable_alpha` flag is no exposed directly, this is equivolant
-export const hasAlphaPanels = true
+export const hasAlphaPanels = true;
 
-import {ExtendMapLayerOptions} from "./extension";
-
-
-
+import { ExtendMapLayerOptions } from './extension';

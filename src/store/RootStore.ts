@@ -1,11 +1,11 @@
 import PointStore from './PointStore';
 import ViewStore from './ViewStore';
-import {Graph} from 'mapLib';
-import {MapLayerState} from "../types";
-import {EventBus, FieldConfig, PanelData} from "@grafana/data";
-import {Deck} from "@deck.gl/core";
-import {GeomapPanel} from "../GeomapPanel";
-import type {VisLayers} from "./visLayers";
+import { Graph } from 'mapLib';
+import { MapLayerState } from '../types';
+import { EventBus, FieldConfig, PanelData } from '@grafana/data';
+import { Deck } from '@deck.gl/core';
+import { GeomapPanel } from '../GeomapPanel';
+import type { VisLayers } from './visLayers';
 
 class RootStore {
   panel: GeomapPanel;
@@ -28,7 +28,7 @@ class RootStore {
   theme2: any;
 
   constructor(props) {
-    const {pId, auth, layers, subs, graph, map, svgIcons, visLayers, theme2} = props.panel
+    const { pId, auth, layers, subs, graph, map, svgIcons, visLayers, theme2 } = props.panel;
     this.panel = props.panel;
     this.pId = pId;
     this.auth = auth;
@@ -36,22 +36,21 @@ class RootStore {
     this.subs = subs;
     this.eventBus = props.eventBus;
     this.fieldConfig = props.fieldConfig;
-    this.replaceVariables = props.replaceVariables
-    this.data = props.data
-    this.options = props.options
+    this.replaceVariables = props.replaceVariables;
+    this.data = props.data;
+    this.options = props.options;
     this.graph = graph;
-    this.map = map
+    this.map = map;
     this.svgIcons = svgIcons;
     this.visLayers = visLayers;
-    this.theme2 = theme2
+    this.theme2 = theme2;
 
     this.viewStore = new ViewStore(this, props.viewState);
     this.pointStore = new PointStore(this);
-    this.graph.setRoot(this)
+    this.graph.setRoot(this);
     for (const g of this.graph.graphs()) {
-      g.setRoot(this)
+      g.setRoot(this);
     }
-
   }
 }
 

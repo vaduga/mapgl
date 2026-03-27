@@ -1,4 +1,3 @@
-
 import { DataFrame, Field, FieldType, KeyValue, toDataFrame } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
 
@@ -22,7 +21,8 @@ export interface Gazetteer {
 }
 
 // Without knowing the datatype pick a good lookup function
-export function loadGazetteer(path: string, data: any): any {  //:Gazetteer
+export function loadGazetteer(path: string, data: any): any {
+  //:Gazetteer
   // try loading geojson
   let frame: DataFrame | undefined = undefined;
 

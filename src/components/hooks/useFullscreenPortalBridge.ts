@@ -8,11 +8,7 @@ type RestorableNode = {
   originalParent: HTMLElement | null;
 };
 
-const moveNode = (
-  node: HTMLElement,
-  target: HTMLElement,
-  restoreRef: { current: RestorableNode | null }
-) => {
+const moveNode = (node: HTMLElement, target: HTMLElement, restoreRef: { current: RestorableNode | null }) => {
   if (node.parentElement === target) {
     return;
   }
@@ -35,9 +31,7 @@ const restoreNode = (node: HTMLElement | null, restoreRef: { current: Restorable
   restoreRef.current.originalParent.insertBefore(node, restoreRef.current.nextSibling);
 };
 
-export const useFullscreenPortalBridge = (
-  fullscreenRef: RefObject<HTMLDivElement | null>
-) => {
+export const useFullscreenPortalBridge = (fullscreenRef: RefObject<HTMLDivElement | null>) => {
   const [fullscreenContainer, setFullscreenContainer] = useState<HTMLElement | undefined>(undefined);
   const portalRestoreRef = useRef<RestorableNode | null>(null);
   const boundaryRestoreRef = useRef<RestorableNode | null>(null);
@@ -57,7 +51,8 @@ export const useFullscreenPortalBridge = (
 
     const syncFullscreenPortals = () => {
       const isMapFullscreen =
-        doc.fullscreenElement === fullscreenContainer || fullscreenContainer.classList.contains('deck-pseudo-fullscreen');
+        doc.fullscreenElement === fullscreenContainer ||
+        fullscreenContainer.classList.contains('deck-pseudo-fullscreen');
       const globalPortal = doc.getElementById(GRAFANA_PORTAL_CONTAINER_ID);
       const floatingBoundary = doc.getElementById(FLOATING_BOUNDARY_ELEMENT_ID);
 

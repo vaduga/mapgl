@@ -6,8 +6,8 @@ import { geomapLayerRegistry } from '../layers/registry';
 import { defaultStyleConfig } from '../style/types';
 import { GeomapLayerActions, MapLayerState } from '../types';
 
-import {initLayer} from './layers';
-import {getNextLayerName} from "./geomap_utils";
+import { initLayer } from './layers';
+import { getNextLayerName } from './geomap_utils';
 
 export const getActions = (panel: GeomapPanel) => {
   const actions: GeomapLayerActions = {
@@ -66,7 +66,6 @@ export const getActions = (panel: GeomapPanel) => {
       result.splice(endIndex, 0, removed);
       panel.layers = result;
       panel.doOptionsUpdate(endIndex);
-
     },
   };
 

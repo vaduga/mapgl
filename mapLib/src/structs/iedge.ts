@@ -1,4 +1,4 @@
 export interface IEdge {
-  source: number
-  target: number
+  source: number;
+  target: number;
 }

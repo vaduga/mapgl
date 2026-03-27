@@ -2,12 +2,18 @@ import {
   GrafanaTheme2,
   RegistryItemWithOptions,
   FrameGeometrySourceMode,
-  PanelOptionsEditorBuilder, PanelData, MapLayerOptions, EventBus, StandardEditorContext, PanelProps, Field
+  PanelOptionsEditorBuilder,
+  PanelData,
+  MapLayerOptions,
+  EventBus,
+  StandardEditorContext,
+  PanelProps,
+  Field,
 } from '@grafana/data';
-import {libreSource} from "mapLib/utils";
-import {ReactNode} from "react";
-import {GeomapPanel} from "./GeomapPanel";
-import {FeatSource} from "mapLib";
+import { libreSource } from 'mapLib/utils';
+import { ReactNode } from 'react';
+import { GeomapPanel } from './GeomapPanel';
+import { FeatSource } from 'mapLib';
 
 export interface MatcherConfig<TOptions = any> {
   id: string;
@@ -37,13 +43,13 @@ export interface ExtendFrameGeometrySource {
 // eslint-disable-next-line
 export const ExtendFrameGeometrySourceMode = {
   ...GeojsonFrameGeometrySourceMode,
-  ...FrameGeometrySourceMode
+  ...FrameGeometrySourceMode,
 };
 // eslint-disable-next-line
 export type ExtendFrameGeometrySourceMode = FrameGeometrySourceMode | GeojsonFrameGeometrySourceMode;
 export interface ExtendMapLayerHandler<TConfig = any> {
   init: () => FeatSource | libreSource | string;
-  geom?: (panelData: PanelData) => void;  // for Graph layers only
+  geom?: (panelData: PanelData) => void; // for Graph layers only
   /**
    * The update function should only be implemented if the layer type makes use of query data
    */
@@ -55,7 +61,10 @@ export interface ExtendMapLayerHandler<TConfig = any> {
   /**
    * Show custom elements in the panel edit UI
    */
-  registerOptionsUI?: (builder: PanelOptionsEditorBuilder<ExtendMapLayerOptions<TConfig>>, context: StandardEditorContext<any>) => void;
+  registerOptionsUI?: (
+    builder: PanelOptionsEditorBuilder<ExtendMapLayerOptions<TConfig>>,
+    context: StandardEditorContext<any>
+  ) => void;
 }
 
 export interface ExtendMapLayerOptions<TConfig = any> {
@@ -72,7 +81,7 @@ export interface ExtendMapLayerOptions<TConfig = any> {
   edgeIdField?: string;
   isWrapEdges?: 0 | 1 | 2 | 3;
   config?: TConfig;
-  query?: MatcherConfig //filterData
+  query?: MatcherConfig; //filterData
   location?: ExtendFrameGeometrySource;
   opacity?: number;
   displayProperties?: string[];
@@ -95,10 +104,17 @@ export interface ExtendMapLayerRegistryItem<TConfig = ExtendMapLayerOptions> ext
    */
   hideOpacity?: boolean;
 
-  create: (panel: GeomapPanel, options: ExtendMapLayerOptions<TConfig>, theme: GrafanaTheme2, idx?: number) =>
-      Promise<ExtendMapLayerHandler> | ExtendMapLayerHandler   // datalayer or basemap layer
+  create: (
+    panel: GeomapPanel,
+    options: ExtendMapLayerOptions<TConfig>,
+    theme: GrafanaTheme2,
+    idx?: number
+  ) => Promise<ExtendMapLayerHandler> | ExtendMapLayerHandler; // datalayer or basemap layer
   /**
    * Show custom elements in the panel edit UI
    */
-  registerOptionsUI?: (builder: PanelOptionsEditorBuilder<ExtendMapLayerOptions<TConfig>>, options?: ExtendMapLayerOptions<TConfig>) => void;
+  registerOptionsUI?: (
+    builder: PanelOptionsEditorBuilder<ExtendMapLayerOptions<TConfig>>,
+    options?: ExtendMapLayerOptions<TConfig>
+  ) => void;
 }

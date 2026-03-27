@@ -6,7 +6,3 @@ export * from './utils.plugin';
 export * from './utils.provider';
 export * from './location';
 export * from './geomap_utils';
-
-
-
-

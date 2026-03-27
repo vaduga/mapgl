@@ -240,5 +240,3 @@ vec4 color = mix(instanceSourceColors, instanceTargetColors, adjustedRatio);
   DECKGL_FILTER_COLOR(vColor, geometry);
 }
 `;
-
-

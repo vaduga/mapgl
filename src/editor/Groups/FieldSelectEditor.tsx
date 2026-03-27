@@ -1,16 +1,15 @@
-import React from "react";
-import { StandardEditorProps, FieldType } from "@grafana/data";
-import { ComboboxCompat } from "../../components/Compat/ComboboxCompat";
+import React from 'react';
+import { StandardEditorProps, FieldType } from '@grafana/data';
+import { ComboboxCompat } from '../../components/Compat/ComboboxCompat';
 
 interface Settings {
-    filterByType: FieldType[];
-    multi: boolean;
+  filterByType: FieldType[];
+  multi: boolean;
 }
 
-interface Props
-    extends StandardEditorProps<string | string[] | null, Settings> {
-    options: any,
-    allowCustomValue: boolean
+interface Props extends StandardEditorProps<string | string[] | null, Settings> {
+  options: any;
+  allowCustomValue: boolean;
 }
 
 /**
@@ -22,25 +21,18 @@ interface Props
  *
  * https://github.com/grafana/grafana/pull/24829
  */
-export const FieldSelectEditor: React.FC<Props> = ({
-                                                       value,
-                                                       onChange,
-                                                       options,
-                                                       allowCustomValue
-                                                   }) => {
-    const selectedOption = options.find((option: { value: string }) => option.value === value);
+export const FieldSelectEditor: React.FC<Props> = ({ value, onChange, options, allowCustomValue }) => {
+  const selectedOption = options.find((option: { value: string }) => option.value === value);
 
-    return (
-        <ComboboxCompat
-            width={20}
-            createCustomValue={allowCustomValue}
-            value={selectedOption ?? (value as string | null)}
-            onChange={(e) => {
-                onChange(e?.value);
-            }}
-            options={options}
-        />
-    );
-
-
+  return (
+    <ComboboxCompat
+      width={20}
+      createCustomValue={allowCustomValue}
+      value={selectedOption ?? (value as string | null)}
+      onChange={(e) => {
+        onChange(e?.value);
+      }}
+      options={options}
+    />
+  );
 };

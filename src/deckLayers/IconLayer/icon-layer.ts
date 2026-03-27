@@ -1,23 +1,16 @@
-import {isVisible, toRGB4Array} from '../../utils';
+import { isVisible, toRGB4Array } from '../../utils';
 import { IconLayer } from '@deck.gl/layers';
 import { colTypes } from 'mapLib/utils';
-import {svgToDataURL} from "../OrthoLayer/donutChart";
-import {DataFilterExtension} from "@deck.gl/extensions";
+import { svgToDataURL } from '../OrthoLayer/donutChart';
+import { DataFilterExtension } from '@deck.gl/extensions';
 
 const MyIconLayer = (props) => {
-  const {
-    data,
-    getSelectedFeIndexes,
-    onHover,
-    highlightColor,
-    panel,
-    getVisLayers,
-  } = props;
+  const { data, getSelectedFeIndexes, onHover, highlightColor, panel, getVisLayers } = props;
 
-  const visible = isVisible(getVisLayers, {index: null, name: colTypes.Comments, group: colTypes.Comments})
-  const categories = getVisLayers.getCategories()
+  const visible = isVisible(getVisLayers, { index: null, name: colTypes.Comments, group: colTypes.Comments });
+  const categories = getVisLayers.getCategories();
 
-const svgico = svgToDataURL(`
+  const svgico = svgToDataURL(`
 <svg fill="#000000" height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
 \t viewBox="0 0 512.051 512.051" xml:space="preserve">
 <g>
@@ -41,7 +34,7 @@ const svgico = svgToDataURL(`
 \t</g>
 </g>
 </svg>
-`)
+`);
   return new IconLayer({
     visible,
     highlightColor,
@@ -51,29 +44,28 @@ const svgico = svgToDataURL(`
       url: svgico,
       width: 128,
       height: 128,
-      mask: true
+      mask: true,
     }),
     data,
     selectedFeatureIndexes: getSelectedFeIndexes?.get(colTypes.Comments) ?? [],
     getPosition: (d: any) => d.geometry.coordinates,
     getColor: (d: any) => {
-      const {iconColor} = d.properties
-      return toRGB4Array(iconColor)
-        },
+      const { iconColor } = d.properties;
+      return toRGB4Array(iconColor);
+    },
     getSize: (d) => 5,
     sizeUnits: 'meters',
     sizeScale: 0.4,
     sizeMinPixels: 5,
     sizeMaxPixels: 45,
-    getFilterCategory: d => {
-      const {style, layerName} = d?.properties
-      return layerName
+    getFilterCategory: (d) => {
+      const { style, layerName } = d?.properties;
+      return layerName;
     },
     filterCategories: categories,
-    extensions: [new DataFilterExtension({categorySize: 1})],
+    extensions: [new DataFilterExtension({ categorySize: 1 })],
 
-
-// Interactive props
+    // Interactive props
     pickable: true,
     autoHighlight: true,
   });

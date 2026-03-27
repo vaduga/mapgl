@@ -126,8 +126,8 @@ export const getContentItems = (
     const numeric = !Number.isNaN(display.numeric)
       ? display.numeric
       : sortOrder === SortOrder.Descending
-        ? Number.MIN_SAFE_INTEGER
-        : Number.MAX_SAFE_INTEGER;
+      ? Number.MIN_SAFE_INTEGER
+      : Number.MAX_SAFE_INTEGER;
 
     const colorMode = getFieldColorModeForField(field);
 

@@ -1,28 +1,28 @@
-import {ArcLayer} from "@deck.gl/layers";
-import GradientArcLayer from "./gradient-arc-layer";
-import {arcUniforms} from "./arc-layer-uniforms";
+import { ArcLayer } from '@deck.gl/layers';
+import GradientArcLayer from './gradient-arc-layer';
+import { arcUniforms } from './arc-layer-uniforms';
 
 const defaultProps = {
-    ...ArcLayer.defaultProps,
-    coef: { type: "number", value: 1.0, min: 0.0, max: 1.0 },
-    getSourceArrow: {type: 'accessor', value: 0},
-    getTargetArrow: {type: 'accessor', value: 0},
+  ...ArcLayer.defaultProps,
+  coef: { type: 'number', value: 1.0, min: 0.0, max: 1.0 },
+  getSourceArrow: { type: 'accessor', value: 0 },
+  getTargetArrow: { type: 'accessor', value: 0 },
 };
 
 export default class AnimatedBlobsLayer extends GradientArcLayer {
-    static componentName = 'light-blobs'
+  static componentName = 'light-blobs';
 
-    getShaders() {
-        const shaders = super.getShaders();
-        shaders.inject ={
-            "vs:#decl": `
+  getShaders() {
+    const shaders = super.getShaders();
+    shaders.inject = {
+      'vs:#decl': `
 
     in float arrowDir;
     in float arrow2Dir;
     out float vArrowDir;
     out float vArrow2Dir;
     `,
-            "vs:#main-end": `
+      'vs:#main-end': `
      float adjustedCoef = arc.coef;
     // if (vArrowDir == -1.0) {
     //     adjustedCoef = 1.0 - arc.coef;  // Reverse the direction of the animation
@@ -35,13 +35,13 @@ export default class AnimatedBlobsLayer extends GradientArcLayer {
     vArrowDir = arrowDir;
     vArrow2Dir = arrow2Dir;
     `,
-                "fs:#decl": `
+      'fs:#decl': `
 
      in float vArrowDir;
      in float vArrow2Dir;
     `,
 
-                "fs:DECKGL_FILTER_COLOR": `
+      'fs:DECKGL_FILTER_COLOR': `
     // Check if both directions are zero, skip processing entirely if true
     if (vArrowDir == 0.0 && vArrow2Dir == 0.0) {
         discard;
@@ -105,61 +105,57 @@ export default class AnimatedBlobsLayer extends GradientArcLayer {
         discard;
     }
 `,
-        }
-        return {...shaders, modules: [...(shaders.modules.filter(m=>m.name !== 'arc')), arcUniforms]};
-    }
-    initializeState() {
+    };
+    return { ...shaders, modules: [...shaders.modules.filter((m) => m.name !== 'arc'), arcUniforms] };
+  }
+  initializeState() {
+    super.initializeState();
 
-        super.initializeState();
+    this.getAttributeManager()?.addInstanced({
+      arrowDir: {
+        size: 1,
+        accessor: 'getSourceArrow',
+        defaultValue: 0,
+      },
+      arrow2Dir: {
+        size: 1,
+        accessor: 'getTargetArrow',
+        defaultValue: 0,
+      },
+    });
+  }
 
-        this.getAttributeManager()?.addInstanced({
-            arrowDir: {
-                size: 1,
-                accessor: 'getSourceArrow',
-                defaultValue: 0
-            },
-            arrow2Dir: {
-                size: 1,
-                accessor: 'getTargetArrow',
-                defaultValue: 0
-            },
-        });
-    }
+  defaultProps = defaultProps;
 
-    defaultProps = defaultProps;
+  draw({ uniforms }) {
+    // Get the current timestamp in seconds
+    const timestamp = performance.now() / 1000; // Time in seconds
+    const stepSize = 0.005; // Smaller step size (e.g., increase by 0.02 each interval)
+    const cycleDuration = 2; // Speed up the full cycle to 2.5 seconds
 
-    draw({uniforms}) {
-        // Get the current timestamp in seconds
-        const timestamp = (performance.now() / 1000);  // Time in seconds
-        const stepSize = 0.005;  // Smaller step size (e.g., increase by 0.02 each interval)
-        const cycleDuration = 2;  // Speed up the full cycle to 2.5 seconds
+    const bcoef = (timestamp % cycleDuration) / cycleDuration;
+    const coef = Math.floor(bcoef / stepSize) * stepSize;
 
-        const bcoef = (timestamp % cycleDuration) / cycleDuration;
-        const coef = Math.floor(bcoef / stepSize) * stepSize;
+    // const bcoef2 = ((timestamp + cycleDuration / 2) % cycleDuration) / cycleDuration;  // Start at the midpoint of the arc
+    // const coef2 = Math.floor(bcoef2 / stepSize) * stepSize;  // Step through 0.5, 0.505, 0.51, etc.
 
-        // const bcoef2 = ((timestamp + cycleDuration / 2) % cycleDuration) / cycleDuration;  // Start at the midpoint of the arc
-        // const coef2 = Math.floor(bcoef2 / stepSize) * stepSize;  // Step through 0.5, 0.505, 0.51, etc.
+    // this.state.model?.setUniforms({
+    // @t s-ignore
+    //tailLength: this.props.tailLength,
+    // @t s-ignore
+    //animationSpeed: this.props.animationSpeed,
+    //timestamp: (performance.now() / 1000) % 86400
+    // });
+    //super.draw(opts);
 
+    this.state.model?.shaderInputs.setProps({
+      arc: { coef }, // Map `coef` to the uniform block
+    });
 
-        // this.state.model?.setUniforms({
-             // @t s-ignore
-             //tailLength: this.props.tailLength,
-             // @t s-ignore
-             //animationSpeed: this.props.animationSpeed,
-             //timestamp: (performance.now() / 1000) % 86400
-         // });
-        //super.draw(opts);
+    super.draw({ uniforms });
 
-        this.state.model?.shaderInputs.setProps({
-            arc: {coef}, // Map `coef` to the uniform block
-        });
-
-        super.draw({uniforms})
-
-        // By default, the needsRedraw flag is cleared at each render. We want the layer to continue
-        // refreshing.
-        this.setNeedsRedraw();
-    }
+    // By default, the needsRedraw flag is cleared at each render. We want the layer to continue
+    // refreshing.
+    this.setNeedsRedraw();
+  }
 }
-
-

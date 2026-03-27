@@ -1,4 +1,4 @@
-import {svgToDataURL} from '../OrthoLayer/donutChart';
+import { svgToDataURL } from '../OrthoLayer/donutChart';
 
 type IconMapping = {
   [key: string]: {
@@ -39,7 +39,7 @@ const svgAtlas = `<?xml version="1.0" encoding="utf-8"?>
 <g> <rect x="56" y="8" fill="none" width="8" height="8"/> <circle cx="59" cy="12" r="3"/>
 </g>
 </svg>
-`
+`;
 
 export const iconAtlas = svgToDataURL(svgAtlas);
 
@@ -71,8 +71,8 @@ function scale(mapping: IconMapping, s: number): IconMapping {
     m.y *= s;
     m.width *= s;
     m.height *= s;
-    if (m.anchorX) m.anchorX *= s;
-    if (m.anchorY) m.anchorY *= s;
+    if (m.anchorX) {m.anchorX *= s;}
+    if (m.anchorY) {m.anchorY *= s;}
   }
   return mapping;
 }
@@ -229,5 +229,5 @@ export const iconMapping = scale(
       anchorX: 0,
     },
   },
-  imageScale,
+  imageScale
 );

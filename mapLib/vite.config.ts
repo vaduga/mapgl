@@ -1,12 +1,11 @@
 // vite.config.ts
-import { defineConfig } from "vite";
+import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
-import { resolve } from 'path';
+import path, { resolve } from 'path';
 import fs from 'fs';
 
-import typescript from "@rollup/plugin-typescript";
-import path from "path";
-import { typescriptPaths } from "rollup-plugin-typescript-paths";
+import typescript from '@rollup/plugin-typescript';
+import { typescriptPaths } from 'rollup-plugin-typescript-paths';
 
 export default defineConfig({
   /// for dynamic import in GeomapPanel.ts
@@ -17,8 +16,8 @@ export default defineConfig({
   resolve: {
     alias: [
       {
-        find: "~",
-        replacement: path.resolve(__dirname, "./src"),
+        find: '~',
+        replacement: path.resolve(__dirname, './src'),
       },
     ],
   },
@@ -30,14 +29,13 @@ export default defineConfig({
     minify: true,
     reportCompressedSize: true,
     lib: {
-      entry: path.resolve(__dirname, "src/main.ts"),
-      name: "mapLib",
-      fileName: "mapLib",
-      formats: ["es"],
+      entry: path.resolve(__dirname, 'src/main.ts'),
+      name: 'mapLib',
+      fileName: 'mapLib',
+      formats: ['es'],
     },
     target: 'esnext',
     rollupOptions: {
-
       output: {
         assetFileNames: '[name][extname]',
       },
@@ -51,7 +49,7 @@ export default defineConfig({
         typescript({
           sourceMap: true,
           declaration: true,
-          outDir: "dist",
+          outDir: 'dist',
         }) as Plugin,
         dts({
           insertTypesEntry: true,
@@ -68,7 +66,7 @@ export default defineConfig({
             fs.copyFileSync(srcPkg, destPkg);
 
             //console.log('Created subpackage: mapLib/utils');
-          }
+          },
         },
       ],
     },

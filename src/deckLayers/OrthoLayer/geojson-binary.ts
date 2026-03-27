@@ -6,13 +6,13 @@
 // the geojson-binary format defined at loaders.gl:
 // https://github.com/visgl/loaders.gl/blob/master/modules/gis/docs/api-reference/geojson-to-binary.md
 
-import {BinaryAttribute} from '@deck.gl/core';
+import { BinaryAttribute } from '@deck.gl/core';
 import {
   BinaryFeatureCollection,
   BinaryLineFeature,
   BinaryPointFeature,
   BinaryPolygonFeature,
-  Feature
+  Feature,
 } from '@loaders.gl/schema';
 
 export type BinaryFeatureTypes = BinaryPointFeature | BinaryLineFeature | BinaryPolygonFeature;
@@ -28,10 +28,7 @@ type FeaureOnlyProperties = Pick<Feature, 'properties'>;
 /**
  * Return the feature for an accesor
  */
-export function binaryToFeatureForAccesor(
-  data: BinaryFeatureTypes,
-  index: number
-): FeaureOnlyProperties | null {
+export function binaryToFeatureForAccesor(data: BinaryFeatureTypes, index: number): FeaureOnlyProperties | null {
   if (!data) {
     return null;
   }
@@ -52,7 +49,7 @@ function getPropertiesForIndex(
   numericPropsIndex: number
 ): FeaureOnlyProperties {
   const feature = {
-    properties: {...data.properties[propertiesIndex]}
+    properties: { ...data.properties[propertiesIndex] },
   };
 
   for (const prop in data.numericProps) {
@@ -73,8 +70,6 @@ export function calculatePickingColors(
     // polygons: null
   };
   for (const key in pickingColors) {
-
-
     const featureIds = geojsonBinary[key].globalFeatureIds.value;
     const pickingColorArray = new Uint8ClampedArray(featureIds.length * 4);
     pickingColors[key] = pickingColorArray;

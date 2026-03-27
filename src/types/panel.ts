@@ -1,16 +1,14 @@
-import {FeatSource, Graph} from "mapLib";
+import { FeatSource, Graph } from 'mapLib';
 
-export const PLUGIN_ID = 'vaduga-mapgl-panel'
+export const PLUGIN_ID = 'vaduga-mapgl-panel';
 
+type Units = [];
 
-type Units = []
-
-import {LayerElement} from "../grafana_core/app/core/components/Layers/types";
+import { LayerElement } from '../grafana_core/app/core/components/Layers/types';
 
 export interface ControlsOptions extends ControlsOptionsBase {
   scaleUnits?: Units;
 }
-
 
 export interface GeomapLayerActions {
   selectLayer: (uid: string) => void;
@@ -19,7 +17,6 @@ export interface GeomapLayerActions {
   reorder: (src: number, dst: number) => void;
   canRename: (v: string) => boolean;
 }
-
 
 export interface GeomapInstanceState {
   map?: Deck;
@@ -34,7 +31,6 @@ export interface GeomapInstanceState {
 // Runtime model
 //-------------------
 
-
 export interface MapLayerState<TConfig = unknown> extends LayerElement {
   options: ExtendMapLayerOptions<TConfig>;
   handler: ExtendMapLayerHandler;
@@ -43,11 +39,10 @@ export interface MapLayerState<TConfig = unknown> extends LayerElement {
   isBasemap?: boolean;
 }
 
-import {ExtendMapLayerHandler, ExtendMapLayerOptions} from "../extension";
+import { ExtendMapLayerHandler, ExtendMapLayerOptions } from '../extension';
 
-
-import {libreSource} from 'mapLib/utils'
-import {Deck} from "@deck.gl/core";
+import { libreSource } from 'mapLib/utils';
+import { Deck } from '@deck.gl/core';
 
 export interface Options {
   isEditable: any;
@@ -61,19 +56,18 @@ export interface Options {
   common: {
     nsPrefix: string;
     jitterPoints: boolean;
-    locLabelName: string,
-    isShowLegend: boolean
-    isShowEdgeLegend: boolean,
-    isShowSwitcher: boolean,
+    locLabelName: string;
+    isShowLegend: boolean;
+    isShowEdgeLegend: boolean;
+    isShowSwitcher: boolean;
     isAppAuth: boolean;
   };
   dataLayers: ExtendMapLayerOptions[];
 }
 
-
 export const defaultOptions: Partial<Options> = {
   //layers: [],
-  dataLayers: []
+  dataLayers: [],
 };
 
 export interface MapViewConfig {
@@ -139,5 +133,3 @@ export enum MapCenterID {
   Fit = 'fit',
   Zero = 'zero',
 }
-
-

@@ -1,18 +1,15 @@
-import {DataFrame, GrafanaTheme2, SelectableValue} from '@grafana/data';
+import { DataFrame, GrafanaTheme2, SelectableValue } from '@grafana/data';
 
 //import { defaultStyleConfig, StyleConfig, StyleConfigState, StyleDimensions } from '../style/types';
 
-import {getColorDimension, getScalarDimension, getScaledDimension, getTextDimension} from "../../dimensions";
-import {getDataSourceSrv} from "@grafana/runtime";
-import {defaultStyleConfig, StyleConfig, StyleConfigState, StyleDimensions} from "../../../../../style/types";
-
-
+import { getColorDimension, getScalarDimension, getScaledDimension, getTextDimension } from '../../dimensions';
+import { getDataSourceSrv } from '@grafana/runtime';
+import { defaultStyleConfig, StyleConfig, StyleConfigState, StyleDimensions } from '../../../../../style/types';
 
 /** Get the GrafanaDatasource instance */
 export async function getGrafanaDatasource() {
   return (await getDataSourceSrv().get('-- Grafana --')) as any;
 }
-
 
 let publicGeoJSONFiles: Array<SelectableValue<string>> | undefined = undefined;
 
@@ -43,8 +40,6 @@ async function initGeojsonFiles() {
     });
   }
 }
-
-
 
 export const isUrl = (url: string) => {
   try {

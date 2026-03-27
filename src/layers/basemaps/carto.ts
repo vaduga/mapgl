@@ -1,7 +1,7 @@
-import {EventBus, GrafanaTheme2, MapLayerOptions} from '@grafana/data';
+import { EventBus, GrafanaTheme2, MapLayerOptions } from '@grafana/data';
 import { ExtendMapLayerOptions, ExtendMapLayerRegistryItem } from '../../extension';
-import {GeomapPanel} from "../../GeomapPanel";
-import {libreSource} from "mapLib/utils";
+import { GeomapPanel } from '../../GeomapPanel';
+import { libreSource } from 'mapLib/utils';
 
 // https://carto.com/help/building-maps/basemap-list/
 
@@ -45,56 +45,49 @@ export const carto: ExtendMapLayerRegistryItem<CartoConfig> = {
         style += '_nolabels';
       }
       const scale = window.devicePixelRatio > 1 ? '@2x' : '';
-      return (
-      {
+      return {
         version: 8,
-            sources: {
-        carto: {
-          type: 'raster',
-              tiles: [`https://basemaps.cartocdn.com/${style}/{z}/{x}/{y}${scale}.png`],
-              tileSize: 256,
-              attribution: '© CARTO'
-        }
-      },
+        sources: {
+          carto: {
+            type: 'raster',
+            tiles: [`https://basemaps.cartocdn.com/${style}/{z}/{x}/{y}${scale}.png`],
+            tileSize: 256,
+            attribution: '© CARTO',
+          },
+        },
         layers: [
           {
             id: 'carto',
             type: 'raster',
             source: 'carto',
             minzoom: 0,
-            maxzoom: 21
-          }
-        ]
-      }
-
-
-
-      );
+            maxzoom: 21,
+          },
+        ],
+      };
     },
     registerOptionsUI: (builder) => {
       builder
-          .addRadio({
-            path: 'config.theme',
-            name: 'Theme',
-            settings: {
-              options: [
-                { value: LayerTheme.Auto, label: 'Auto', description: 'Match grafana theme' },
-                { value: LayerTheme.Light, label: 'Light' },
-                { value: LayerTheme.Dark, label: 'Dark' },
-              ],
-            },
-            defaultValue: defaultCartoConfig.theme!,
-          })
-          .addBooleanSwitch({
-            path: 'config.showLabels',
-            name: 'Show labels',
-            description: '',
-            defaultValue: defaultCartoConfig.showLabels,
-          });
-    }
-  })
-
-
+        .addRadio({
+          path: 'config.theme',
+          name: 'Theme',
+          settings: {
+            options: [
+              { value: LayerTheme.Auto, label: 'Auto', description: 'Match grafana theme' },
+              { value: LayerTheme.Light, label: 'Light' },
+              { value: LayerTheme.Dark, label: 'Dark' },
+            ],
+          },
+          defaultValue: defaultCartoConfig.theme!,
+        })
+        .addBooleanSwitch({
+          path: 'config.showLabels',
+          name: 'Show labels',
+          description: '',
+          defaultValue: defaultCartoConfig.showLabels,
+        });
+    },
+  }),
 };
 
 export const cartoLayers = [carto];

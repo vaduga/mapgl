@@ -12,5 +12,5 @@ export const basemapLayers = [
   ...cartoLayers,
   ...esriLayers, // keep formatting
   ...genericLayers,
-  ...jsonLayers
+  ...jsonLayers,
 ];

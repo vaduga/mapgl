@@ -75,7 +75,6 @@ export async function getStyleConfigState(cfg?: StyleConfig): Promise<StyleConfi
     state.base.useGroups = cfg.useGroups;
   }
 
-
   // Clear the fields if possible
   if (!Object.keys(fields).length) {
     state.fields = undefined;

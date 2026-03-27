@@ -2,7 +2,7 @@ services:
   grafana:
     container_name: 'mapgl'
     platform: 'linux/amd64'
-    image: "mapgl-grafana:latest"
+    image: 'mapgl-grafana:latest'
     build:
       context: ./.config
       args:
@@ -35,10 +35,3 @@ services:
       #- GF_DEFAULT_APP_MODE="development"
       - HTTP_USER="{{ grafana_user }}"
       - HTTP_PASS="{{ grafana_passwd }}"
-
-
-
-
-
-
-

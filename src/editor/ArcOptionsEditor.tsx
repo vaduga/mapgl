@@ -1,11 +1,11 @@
-import {css} from '@emotion/css';
+import { css } from '@emotion/css';
 
-import {Field, FieldType, GrafanaTheme2, StandardEditorProps} from '@grafana/data';
-import {Button, ColorPicker, Tooltip, useStyles2, useTheme2} from '@grafana/ui';
+import { Field, FieldType, GrafanaTheme2, StandardEditorProps } from '@grafana/data';
+import { Button, ColorPicker, Tooltip, useStyles2, useTheme2 } from '@grafana/ui';
 
 import React from 'react';
-import {FieldNamePicker} from '../grafana_core/components/MatchersUI/FieldNamePicker';
-import {ArcOption} from "../style/types";
+import { FieldNamePicker } from '../grafana_core/components/MatchersUI/FieldNamePicker';
+import { ArcOption } from '../style/types';
 
 type Settings = { filter: (field: Field) => boolean };
 type ArcOptionsEditorProps = StandardEditorProps<ArcOption[], Settings, undefined>;
@@ -27,7 +27,7 @@ export const ArcOptionsEditor = ({ value, onChange, context }: ArcOptionsEditorP
 
   const updateField = <K extends keyof ArcOption>(idx: number, field: K, newValue: ArcOption[K]) => {
     let arcs = value?.slice() ?? [];
-    arcs[idx] = {...arcs[idx], [field] : newValue}
+    arcs[idx] = { ...arcs[idx], [field]: newValue };
     onChange(arcs);
   };
 
@@ -50,18 +50,26 @@ export const ArcOptionsEditor = ({ value, onChange, context }: ArcOptionsEditorP
                 name: `arc-field-${i}`,
               }}
             />
-            {!arc.field &&
+            {!arc.field && (
               <Tooltip content={'fixed color'}>
                 <div>
                   <ColorPicker
-                      color={arc.fixed || theme.colors.text.secondary}
-                      onChange={(val) => {
-                        updateField(i, 'fixed', val);
-                      }}
+                    color={arc.fixed || theme.colors.text.secondary}
+                    onChange={(val) => {
+                      updateField(i, 'fixed', val);
+                    }}
                   />
                 </div>
-              </Tooltip>}
-            <Button aria-label="" size="sm" icon="minus" variant="secondary" onClick={() => removeArc(i)} title="Remove arc" />
+              </Tooltip>
+            )}
+            <Button
+              aria-label=""
+              size="sm"
+              icon="minus"
+              variant="secondary"
+              onClick={() => removeArc(i)}
+              title="Remove arc"
+            />
           </div>
         );
       })}

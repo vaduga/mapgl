@@ -5,7 +5,7 @@ import { StandardEditorProps, SelectableValue, GrafanaTheme2 } from '@grafana/da
 import { Alert, Select, useStyles2 } from '@grafana/ui';
 
 import { COUNTRIES_GAZETTEER_PATH, Gazetteer, getGazetteer } from '../gazetteer/gazetteer';
-import React from "react";
+import React from 'react';
 
 const defaultPaths: Array<SelectableValue<string>> = [
   {

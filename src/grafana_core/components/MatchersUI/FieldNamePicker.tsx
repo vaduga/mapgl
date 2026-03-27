@@ -4,41 +4,41 @@ import { FieldNamePickerConfigSettings, SelectableValue, StandardEditorProps } f
 import { t } from '../../../utils/i18n';
 
 import { useFieldDisplayNames, useMatcherSelectOptions, frameHasName } from './utils';
-import React from "react";
+import React from 'react';
 import { ComboboxCompat } from '../../../components/Compat/ComboboxCompat';
 
 type Props = StandardEditorProps<string, FieldNamePickerConfigSettings>;
 
 // Pick a field name out of the fields
 export const FieldNamePicker = ({ value, onChange, context, item, id }: Props) => {
-    const settings: FieldNamePickerConfigSettings = item.settings ?? {};
-    const names = useFieldDisplayNames(context.data, settings?.filter);
-    const selectOptions = useMatcherSelectOptions(names, value, { baseNameMode: settings.baseNameMode });
+  const settings: FieldNamePickerConfigSettings = item.settings ?? {};
+  const names = useFieldDisplayNames(context.data, settings?.filter);
+  const selectOptions = useMatcherSelectOptions(names, value, { baseNameMode: settings.baseNameMode });
 
-    const selectedOption = selectOptions.find((v) => v.value === value);
+  const selectedOption = selectOptions.find((v) => v.value === value);
 
-    const onChangeOption = useCallback(
-        (opt: SelectableValue<string> | null) => {
-            if (opt != null && !frameHasName(opt.value, names)) {
-                return;
-            }
-            onChange(opt?.value);
-        },
-        [names, onChange]
-    );
+  const onChangeOption = useCallback(
+    (opt: SelectableValue<string> | null) => {
+      if (opt != null && !frameHasName(opt.value, names)) {
+        return;
+      }
+      onChange(opt?.value);
+    },
+    [names, onChange]
+  );
 
-    return (
-        <ComboboxCompat
-            id={id}
-            value={selectedOption}
-            options={selectOptions}
-            onChange={onChangeOption}
-            placeholder={
-                settings.placeholderText ?? t('grafana-ui.matchers-ui.field-name-picker.placeholder', 'Select field')
-            }
-            // noOptionsMessage={settings.noFieldsMessage}
-            width={settings.width}
-            isClearable={settings.isClearable}
-        />
-    );
+  return (
+    <ComboboxCompat
+      id={id}
+      value={selectedOption}
+      options={selectOptions}
+      onChange={onChangeOption}
+      placeholder={
+        settings.placeholderText ?? t('grafana-ui.matchers-ui.field-name-picker.placeholder', 'Select field')
+      }
+      // noOptionsMessage={settings.noFieldsMessage}
+      width={settings.width}
+      isClearable={settings.isClearable}
+    />
+  );
 };

@@ -3,164 +3,163 @@ import React, { useRef } from 'react';
 import { GrafanaTheme2 } from '@grafana/data';
 //import { t, Trans } from '@grafana/i18n';
 import {
-    Button,
-    InlineField,
-    InlineFieldRow,
-    Input,
-    LinkButton,
-    Popover,
-    PopoverController,
-    useStyles2,
-    useTheme2,
+  Button,
+  InlineField,
+  InlineFieldRow,
+  Input,
+  LinkButton,
+  Popover,
+  PopoverController,
+  useStyles2,
+  useTheme2,
 } from '@grafana/ui';
 
 import { getPublicOrAbsoluteUrl } from '../resource';
 import { MediaType, ResourceFolderName, ResourcePickerSize } from '../types';
-import {closePopover} from "../../../../ui/src/utils/closePopover";
-import {SanitizedSVG} from "../../../../components/SVG/SanitizedSVG";
-import {ResourcePickerPopover} from "./ResourcePickerPopover";
-
+import { closePopover } from '../../../../ui/src/utils/closePopover';
+import { SanitizedSVG } from '../../../../components/SVG/SanitizedSVG';
+import { ResourcePickerPopover } from './ResourcePickerPopover';
 
 interface Props {
-    onChange: (value?: string) => void;
-    mediaType: MediaType;
-    folderName: ResourceFolderName;
-    size: ResourcePickerSize;
-    onClear?: (event: React.MouseEvent) => void;
-    value?: string; //img/icons/unicons/0-plus.svg
-    src?: string;
-    name?: string;
-    placeholder?: string;
-    color?: string;
-    maxFiles?: number;
+  onChange: (value?: string) => void;
+  mediaType: MediaType;
+  folderName: ResourceFolderName;
+  size: ResourcePickerSize;
+  onClear?: (event: React.MouseEvent) => void;
+  value?: string; //img/icons/unicons/0-plus.svg
+  src?: string;
+  name?: string;
+  placeholder?: string;
+  color?: string;
+  maxFiles?: number;
 }
 
 export const ResourcePicker = (props: Props) => {
-    const { value, src, name, placeholder, onChange, onClear, mediaType, folderName, size, color, maxFiles } = props;
+  const { value, src, name, placeholder, onChange, onClear, mediaType, folderName, size, color, maxFiles } = props;
 
-    const styles = useStyles2(getStyles);
-    const theme = useTheme2();
+  const styles = useStyles2(getStyles);
+  const theme = useTheme2();
 
-    const pickerTriggerRef = useRef<HTMLDivElement>(null);
-    const hidePopperRef = useRef<(() => void) | null>(null);
-    const popoverElement = (
-        <ResourcePickerPopover
-            onChange={onChange}
-            value={value}
-            mediaType={mediaType}
-            folderName={folderName}
-            maxFiles={maxFiles}
-            hidePopper={() => hidePopperRef.current?.()}
-        />
-    );
+  const pickerTriggerRef = useRef<HTMLDivElement>(null);
+  const hidePopperRef = useRef<(() => void) | null>(null);
+  const popoverElement = (
+    <ResourcePickerPopover
+      onChange={onChange}
+      value={value}
+      mediaType={mediaType}
+      folderName={folderName}
+      maxFiles={maxFiles}
+      hidePopper={() => hidePopperRef.current?.()}
+    />
+  );
 
-    let sanitizedSrc = src;
-    if (!sanitizedSrc && value) {
-        sanitizedSrc = getPublicOrAbsoluteUrl(value);
+  let sanitizedSrc = src;
+  if (!sanitizedSrc && value) {
+    sanitizedSrc = getPublicOrAbsoluteUrl(value);
+  }
+
+  const colorStyle = color && {
+    fill: theme.visualization.getColorByName(color),
+  };
+
+  const renderSmallResourcePicker = () => {
+    if (value && sanitizedSrc) {
+      return <SanitizedSVG src={sanitizedSrc} className={styles.icon} style={{ ...colorStyle }} />;
+    } else {
+      return (
+        <LinkButton variant="primary" fill="text" size="sm">
+          Set icon
+          {/*<Trans i18nKey="dimensions.resource-picker.render-small-resource-picker.set-icon">Set icon</Trans>*/}
+        </LinkButton>
+      );
     }
+  };
 
-    const colorStyle = color && {
-        fill: theme.visualization.getColorByName(color),
-    };
+  const renderNormalResourcePicker = () => (
+    <InlineFieldRow>
+      <InlineField label={null} grow>
+        <Input
+          value={getDisplayName(src, name)}
+          placeholder={placeholder}
+          readOnly={true}
+          prefix={sanitizedSrc && <SanitizedSVG src={sanitizedSrc} className={styles.icon} style={{ ...colorStyle }} />}
+          suffix={
+            <Button
+              aria-label={'ff'}
+              // aria-label={t('dimensions.resource-picker.aria-label-clear-value', 'Clear value')}
+              icon="times"
+              variant="secondary"
+              fill="text"
+              size="sm"
+              onClick={onClear}
+            />
+          }
+        />
+      </InlineField>
+    </InlineFieldRow>
+  );
 
-    const renderSmallResourcePicker = () => {
-        if (value && sanitizedSrc) {
-            return <SanitizedSVG src={sanitizedSrc} className={styles.icon} style={{ ...colorStyle }} />;
-        } else {
-            return (
-                <LinkButton variant="primary" fill="text" size="sm">
-                    Set icon
-                    {/*<Trans i18nKey="dimensions.resource-picker.render-small-resource-picker.set-icon">Set icon</Trans>*/}
-                </LinkButton>
-            );
-        }
-    };
+  return (
+    <PopoverController content={popoverElement}>
+      {(showPopper, hidePopper, popperProps) => {
+        hidePopperRef.current = hidePopper;
+        return (
+          <>
+            {pickerTriggerRef.current && (
+              <Popover
+                {...popperProps}
+                referenceElement={pickerTriggerRef.current}
+                onMouseEnter={showPopper}
+                onKeyDown={(event) => {
+                  closePopover(event, hidePopper);
+                }}
+              />
+            )}
 
-    const renderNormalResourcePicker = () => (
-        <InlineFieldRow>
-            <InlineField label={null} grow>
-                <Input
-                    value={getDisplayName(src, name)}
-                    placeholder={placeholder}
-                    readOnly={true}
-                    prefix={sanitizedSrc && <SanitizedSVG src={sanitizedSrc} className={styles.icon} style={{ ...colorStyle }} />}
-                    suffix={
-                        <Button
-                            aria-label={"ff"}
-                            // aria-label={t('dimensions.resource-picker.aria-label-clear-value', 'Clear value')}
-                            icon="times"
-                            variant="secondary"
-                            fill="text"
-                            size="sm"
-                            onClick={onClear}
-                        />
-                    }
-                />
-            </InlineField>
-        </InlineFieldRow>
-    );
-
-    return (
-        <PopoverController content={popoverElement}>
-            {(showPopper, hidePopper, popperProps) => {
-                hidePopperRef.current = hidePopper;
-                return (
-                    <>
-                        {pickerTriggerRef.current && (
-                            <Popover
-                                {...popperProps}
-                                referenceElement={pickerTriggerRef.current}
-                                onMouseEnter={showPopper}
-                                onKeyDown={(event) => {
-                                    closePopover(event, hidePopper);
-                                }}
-                            />
-                        )}
-
-                        <div
-                            ref={pickerTriggerRef}
-                            className={styles.pointer}
-                            onClick={showPopper}
-                            onKeyDown={(e: React.KeyboardEvent) => {
-                                if (e.key === 'Enter') {
-                                    showPopper();
-                                }
-                            }}
-                            role="button"
-                            tabIndex={0}
-                        >
-                            {size === ResourcePickerSize.SMALL && renderSmallResourcePicker()}
-                            {size === ResourcePickerSize.NORMAL && renderNormalResourcePicker()}
-                        </div>
-                    </>
-                );
-            }}
-        </PopoverController>
-    );
+            <div
+              ref={pickerTriggerRef}
+              className={styles.pointer}
+              onClick={showPopper}
+              onKeyDown={(e: React.KeyboardEvent) => {
+                if (e.key === 'Enter') {
+                  showPopper();
+                }
+              }}
+              role="button"
+              tabIndex={0}
+            >
+              {size === ResourcePickerSize.SMALL && renderSmallResourcePicker()}
+              {size === ResourcePickerSize.NORMAL && renderNormalResourcePicker()}
+            </div>
+          </>
+        );
+      }}
+    </PopoverController>
+  );
 };
 
 // strip the SVG off icons in the icons folder
 function getDisplayName(src?: string, name?: string): string | undefined {
-    if (src?.startsWith('public/build/img/icons')) {
-        const idx = name?.lastIndexOf('.svg') ?? 0;
-        if (idx > 0) {
-            return name!.substring(0, idx);
-        }
+  if (src?.startsWith('public/build/img/icons')) {
+    const idx = name?.lastIndexOf('.svg') ?? 0;
+    if (idx > 0) {
+      return name!.substring(0, idx);
     }
-    return name;
+  }
+  return name;
 }
 
 const getStyles = (theme: GrafanaTheme2) => ({
-    pointer: css({
-        cursor: 'pointer',
-        'input[readonly]': {
-            cursor: 'pointer',
-        },
-    }),
-    icon: css({
-        verticalAlign: 'middle',
-        display: 'inline-block',
-        fill: 'currentColor',
-        width: '25px',
-    }),
+  pointer: css({
+    cursor: 'pointer',
+    'input[readonly]': {
+      cursor: 'pointer',
+    },
+  }),
+  icon: css({
+    verticalAlign: 'middle',
+    display: 'inline-block',
+    fill: 'currentColor',
+    width: '25px',
+  }),
 });
