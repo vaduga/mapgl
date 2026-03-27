@@ -48,8 +48,6 @@ export const MapViewEditor = ({
         });
       }
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, onChange, context.instanceState]);
 
   const onSelectView = useCallback(

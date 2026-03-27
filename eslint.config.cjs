@@ -17,6 +17,8 @@ module.exports = [
     files: ['src/**/*.{ts,tsx,js,jsx}'],
     rules: {
       'react/prop-types': 'off',
+      'react-hooks/exhaustive-deps': 'off',
+      'react-hooks/set-state-in-effect': 'off'
     },
   },
   {

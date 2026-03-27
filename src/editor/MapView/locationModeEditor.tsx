@@ -1,6 +1,5 @@
-import React from 'react';
 import { css } from '@emotion/css';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { StandardEditorProps, DataFrame, GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
@@ -73,7 +72,6 @@ export const LocationModeEditor = ({
         }
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.settings]);
 
   const styles = useStyles2(getStyles);

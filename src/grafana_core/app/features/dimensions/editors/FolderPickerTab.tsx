@@ -112,7 +112,6 @@ export const FolderPickerTab = (props: Props) => {
   useEffect(() => {
     const initialPath = value?.length ? value : folderName;
     setCurrentFolder(getFolderIfExists(folders, initialPath));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [folders]);
 
   useEffect(() => {

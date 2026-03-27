@@ -127,7 +127,6 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
       });
     }
     loadAnnots();
-// eslint-disable-next-line react-hooks/exhaustive-deps
   }, [time, annots]);
 
   useEffect(() => {
@@ -148,7 +147,6 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     );
 
     setEdgeLegend(edgeThres);
-// eslint-disable-next-line react-hooks/exhaustive-deps
   }, [panel.layers]);
 
   useEffect(() => {
@@ -184,19 +182,16 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
       sub0.unsubscribe();
       sub1.unsubscribe();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventBus]);
 
   const onMapLoad = useCallback(() => {
     initMapRef(deckRef);
-// eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (isLogic && !source) {
       initMapRef(deckRef);
     }
-// eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLogic]);
 
   const dataClickProps = {
@@ -261,7 +256,6 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
       setSelCoord({ type: 'Point', coordinates: [longitude, latitude] });
       setIsShowCenter(getViewState);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getViewState]);
 
   /// init render
@@ -464,7 +458,6 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
       return;
     }
     getLayers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [graph.getVersion, getTooltipObject, time, getViewState, visRefresh]);
 
   const memoLayerSwitcher = useMemo(() => {
@@ -473,12 +466,10 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
         {...{ theme: theme2, label: 'layers', className: '', panel, setVisRefresh, setMobxLegendRefresh }}
       />
     );
-    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visLayers]);
 
   const memoMenu = useMemo(() => {
     return <Menu eventBus={eventBus} {...{ options, time, timeZone, data, panel }} />;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [options, panel.layers, graph.getVersion, data]);
 
   const memoPositionTracker = useMemo(() => {
