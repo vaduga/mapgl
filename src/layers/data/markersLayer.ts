@@ -1,4 +1,4 @@
-import { PanelData, DataFrameView, GrafanaTheme2, Field, PanelProps, FieldType, DataFrame } from '@grafana/data';
+import { PanelData, GrafanaTheme2, Field, PanelProps, FieldType, DataFrame } from '@grafana/data';
 
 import {
   FrameGeometryField,
@@ -20,12 +20,11 @@ import { Options } from '../../types';
 import { GeomapPanel } from '../../GeomapPanel';
 import { getQueryFields } from '../../editor/getQueryFields';
 import { GroupsEditor } from '../../editor/Groups/GroupsEditor';
-import { Rule } from '../../editor/Groups/rule-types';
+import {OverField, Rule} from '../../editor/Groups/rule-types';
 import { CapacityDimensionEditor } from '../../editor/Other/CapacityEditor';
 import { ArcOptionsEditor } from '../../editor/ArcOptionsEditor';
 import { CurveFactory, Graph, FeatSource, AttributeRegistry, GeomNode, Point as MSPoint } from 'mapLib';
-import { FIXED_COLOR_LABEL, pushPath, PushPathProps, colTypes, BiColProps } from 'mapLib/utils';
-import { MOC_LOC_FIELD } from 'mapLib/utils';
+import { MOC_LOC_FIELD, FIXED_COLOR_LABEL, pushPath, PushPathProps, colTypes, BiColProps } from 'mapLib/utils';
 
 export interface MarkersConfig {
   graph?: Graph;
@@ -176,7 +175,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
           panel.positions.set(values as Float64Array, startIdx * 2);
 
           const lastIdx = values.length / 2;
-          if (lastIdx != undefined) {
+          if (lastIdx !== undefined) {
             featSource.setPositionRanges([[startIdx, lastIdx + 1]]);
           }
           break;
@@ -229,17 +228,49 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
             featSource.setThresholds(colorThresholds);
           }
 
-          const dataFrame = new DataFrameView(frame); //.toArray()
+          const fieldValues = new Map(frame.fields.map((f) => [f.name, f.values]));
+          const mock = panel.useMockData ? indexFields(frame) : undefined;
+          const getValue = (fieldName: string | undefined, rowIndex: number) => {
+            if (!fieldName) {
+              return undefined;
+            }
+
+            if (panel.useMockData) {
+              return mock?.[fieldName]?.[rowIndex];
+            }
+
+            return fieldValues.get(fieldName)?.[rowIndex];
+          };
+
+          const ruleFieldNames = Array.from(
+            new Set(panel.groups.flatMap((group) => (group.overrides as OverField[])?.map((override) => override.name) ?? []))
+          );
+          const makeRulePoint = (rowIndex: number, thrColor?: string) => {
+            const point: Record<string, any> = {};
+
+            for (const fieldName of ruleFieldNames) {
+              point[fieldName] = getValue(fieldName, rowIndex);
+            }
+
+            if (locField) {
+              point[locField] = getValue(locField, rowIndex);
+            }
+
+            if (thrColor !== undefined) {
+              point.thrColor = thrColor;
+            }
+
+            return point;
+          };
           const points: BiColProps[] = [];
           let counter = 0;
 
           field.nodes?.forEach((node, i) => {
-            const point = dataFrame.get(i);
-
-            const locName = panel.useMockData ? indexFields(frame).source[i] : locField && point[locField];
+            const locName = panel.useMockData ? mock?.source?.[i] : getValue(locField, i);
             if (!locName) {
               return;
             }
+            const point = makeRulePoint(i);
 
             const stValues = {
               ...style.base,
@@ -276,7 +307,8 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
             let group;
             const hexColor = dims?.color?.get(i) ?? (fixed && theme.visualization.getColorByName(fixed));
             if (hexColor) {
-              point.thrColor = isFixed ? FIXED_COLOR_LABEL : hexColor; // for group rules
+              const thrColor = isFixed ? FIXED_COLOR_LABEL : hexColor;
+              point.thrColor = thrColor;
 
               const rgba = toRGB4Array(hexColor);
               stValues.color = rgba;
@@ -297,13 +329,13 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                   color: hexColor,
                   isEph: true,
                   groupIdx,
-                  overrides: [
-                    {
-                      name: 'thrColor',
-                      type: FieldType.enum,
-                      value: [point.thrColor],
-                    },
-                  ],
+                      overrides: [
+                        {
+                          name: 'thrColor',
+                          type: FieldType.enum,
+                          value: [thrColor],
+                        },
+                      ],
                 };
 
                 featSource.addGroup(newGroup);
@@ -425,7 +457,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
 
               panel.features.push(dataRecord);
               const gb = new GeomNode(node);
-              if (stValues.size != undefined) {
+              if (stValues.size !== undefined) {
                 gb.boundaryCurve = CurveFactory.mkCircle(stValues.size / 2, new MSPoint(0, 0));
               }
               const wasmId = node.data.wasmId as number;
@@ -446,7 +478,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
             const processParPath = (parPath) => {
               if (!parPath || parPath.length < 2) {return;}
 
-              const edgeIdValue = panel.useMockData ? indexFields(frame).edgeId[i] : edgeIdField && point[edgeIdField];
+              const edgeIdValue = panel.useMockData ? mock?.edgeId?.[i] : getValue(edgeIdField, i);
               const edgeId = edgeIdValue?.length ? edgeIdValue : undefined;
 
               const commentsData = graph.comments;
@@ -466,7 +498,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               pushPath(props);
             };
 
-            const parent = panel.useMockData ? indexFields(frame).target[i] : parField && point[parField];
+            const parent = panel.useMockData ? mock?.target?.[i] : getValue(parField, i);
             const route = parseRoute(parent);
 
             if (route) {
