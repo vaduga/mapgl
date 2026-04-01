@@ -6,14 +6,16 @@ import { Node } from './node';
 import { NodeCollection } from './nodeCollection';
 import { action, autorun, computed, makeObservable, observable, toJS } from 'mobx';
 import { CommentsData, CoordRef, DeckLine, BiColProps } from '../utils/interfaces';
-import { CoordsConvert, getArrowAngles } from '../utils';
-import { paraboloid, getMidpoint, segregatePath } from '../utils/utils.graph';
+import { MultiLineString, Position } from 'geojson';
+import { CoordsConvert, NS_SEPARATOR } from '../utils';
+import { paraboloid, getMidpoint, segregatePath, getArrowAngles } from '../utils/utils.graph';
 
 import { Units } from '@turf/helpers';
 import distance from '@turf/distance';
-import { GeomEdge } from '@msagl/core';
+import { GeomEdge, GeomGraph, Point } from '@msagl/core';
+import { distance2D } from '~/utils/utils.turf';
 
-type EdgeTuple = [number[], number]; ///widxs, lidx
+type EdgeTuple = [Array<number | undefined>, number]; ///widxs, lidx, wrap, ametric, b,c
 /** This class keeps the connection between the nodes and the edges of the graph. The nodes of a Graph can also be Graphs.  */
 export class Graph extends Node {
   root?: any;
@@ -510,119 +512,134 @@ export class Graph extends Node {
   }
 
   get getEdgesGeometry() {
+    const clusters = Array.from(this.root.graph.subgraphsBreadthFirst()) as Graph[];
+    const graphs: Graph[] = clusters.concat([this.root.graph as Graph]);
+    const visibleNamespaces = this.root.visLayers.getCategories();
+
     const arcsFeatures: Record<string, any[]> = {};
     const features: Record<string, DeckLine[]> = {};
 
     const panel = this.root.panel;
     const positions = panel.positions;
 
-    this.wasm2Edges.forEach((edges, i) => {
+    this.wasm2Edges.forEach((edges, heIdx) => {
       if (!edges.length) {
         return;
       }
 
       const edge = edges[0];
-      const { source, data: edgeData } = edge;
+      const { source, data } = edge;
+      const { target } = edges[edges.length - 1];
       const srcGraph = source.parent as Graph;
-
-      const findNode = this.findNode;
-
-      /// skip autolayout dummy edges
-      if (!edgeData) {
-        return;
-      }
+      const tarGraph = target.parent as Graph;
+      const findNodeA = srcGraph.findNode;
+      const findNodeB = tarGraph.findNode;
+      const edgeData = edge.data;
 
       const dataRecord = edgeData?.dataRecord as BiColProps;
       if (!dataRecord) {
+        //console.log('!!edgeData.dataRecord', edges[0]);
       }
 
-      const edge_id = edgeData?.edge_id;
+      let srcFeatureProps: Partial<BiColProps> = {
+        arcStyle: { arcConfig: { height: undefined } },
+      };
+      let sourcePosition;
+      let targetPosition;
 
-      const { parPath } = edgeData || {};
+      /// Edges
 
-      const locName = parPath[0];
-      let subPath = parPath;
+      edges.forEach((edge, fragIdx) => {
+        const edge_id = edgeData?.edge_id;
 
-      const wasmIds = this.wasm_edge_vertice_ids[i][0];
-      let pathsCoords = CoordsConvert(subPath, wasmIds, positions, true);
+        const { parPath } = edgeData || {};
 
-      const [segrPath, segrCoords] = parPath.length ? segregatePath(subPath, pathsCoords, findNode) : [];
+        const locName = parPath[0];
 
-      let coordinates = segrCoords;
-
-      /// fallback if no nodes found in parPath
-      if (!segrPath.length) {
-        if (Array.isArray(parPath)) {
-          segrPath.push([
-            {
-              item: locName,
-              gIdx: 0,
-            },
-            { item: parPath.at(-1), gIdx: 1 },
-          ]);
+        let centerA, centerB;
+        if (this.isLogic && !visibleNamespaces.includes(srcGraph.id)) {
+          centerA = true;
         }
-      }
+        if (this.isLogic && !visibleNamespaces.includes(tarGraph.id)) {
+          centerB = true;
+        }
+        let subPath = parPath;
 
-      const geomEdge: GeomEdge = GeomEdge.getGeom(edge);
+        const wasmIds = this.wasm_edge_vertice_ids[heIdx][0];
+        let pathsCoords = CoordsConvert(subPath, wasmIds, positions, true);
 
-      if (geomEdge?.source) {
-        if (geomEdge?.curve?.start) {
-          /// Remove node coordinates. Leave node boundary ports only.
-          coordinates.forEach((c: string | any[], i: any) => {
-            if (c.length > 3) {
-              coordinates[i] = c.slice(1, -1);
+        if (centerA || centerB) {
+          subPath = [subPath[0], subPath.at(-1) as CoordRef];
+          pathsCoords = [pathsCoords[0], pathsCoords.at(-1) as CoordRef];
+        }
+        const [segrPath, segrCoords] = subPath.length
+          ? segregatePath(subPath, pathsCoords, findNodeA, findNodeB)
+          : [[], []];
+
+        let coordinates = segrCoords[fragIdx];
+        if (!coordinates?.length) {
+          return;
+        }
+
+        const geomEdge: GeomEdge = GeomEdge.getGeom(edge);
+
+        if (geomEdge?.source) {
+          if (geomEdge?.curve?.start) {
+            /// Leave node boundary ports only.
+            if (coordinates.length > 3) {
+              coordinates = coordinates.slice(1, -1);
             }
-          });
-        } else {
-          console.warn('Invalid controlPoints or polyPoints', locName, edge.id);
-          coordinates = [coordinates];
+          } else {
+            console.warn('Invalid controlPoints or polyPoints', locName, edge.id);
+          }
         }
-      }
 
-      if (!coordinates.length) {
+        const propsOverride = dataRecord; /// as from frame initially (including duplicate records)
+        const arrowAngles = getArrowAngles(coordinates, !this.isLogic, fragIdx, edges.length);
+
+        const newFeature: DeckLine = {
+          //id: counter,
+          heIdx,
+          fragIdx,
+          edgeId: edge.id,
+          type: 'Feature',
+          geometry: {
+            type: 'LineString',
+            coordinates,
+          },
+          rowIndex: dataRecord?.rowIndex, // can't pick original index without explicitely stating it
+          properties: {
+            ...(propsOverride ?? {}),
+            locName,
+            segrPath,
+            ...(arrowAngles ? { arrowAngles } : {}),
+          },
+        };
+
+        if (fragIdx === 0) {
+          srcFeatureProps = newFeature.properties;
+          sourcePosition = coordinates[0];
+        }
+        if (fragIdx === edges.length - 1) {
+          targetPosition = coordinates.at(-1);
+        }
+
+        if (!features[srcGraph.id]) {
+          features[srcGraph.id] = [];
+        }
+        features[srcGraph.id].push(newFeature);
+        edge.setLineId(features[srcGraph.id].length - 1);
+      });
+
+      /// Arcs
+
+      if (!sourcePosition || !targetPosition) {
         return;
       }
 
-      const propsOverride = dataRecord; /// as from frame initially (including duplicate records)
-      const arrowAngles = getArrowAngles(coordinates, !this.isLogic);
-      const newFeature: DeckLine = {
-        //id: counter,
-        edgeId: edge.id,
-        type: 'Feature',
-        geometry: {
-          type: 'MultiLineString',
-          coordinates,
-        },
-        rowIndex: dataRecord?.rowIndex, // can't pick original index without explicitely stating it
-        properties: {
-          ...(propsOverride ?? {}),
-          locName,
-          segrPath,
-          ...(arrowAngles ? { arrowAngles } : {}),
-        },
-      };
-
-      const srcFeatureProps = newFeature.properties;
-      const sourcePosition = coordinates[0][0];
-      const targetPosition = coordinates.at(-1).at(-1);
-
-      if (!features[srcGraph.id]) {
-        features[srcGraph.id] = [];
-      }
-      features[srcGraph.id].push(newFeature);
-      edge.setLineId(features[srcGraph.id].length - 1);
-
-      /// Arcs
       const { arcStyle } = srcFeatureProps;
-      const heightCoef = arcStyle?.arcConfig.height;
+      const heightCoef = arcStyle?.arcConfig?.height;
       const options = { units: 'meters' as Units }; // or 'miles', 'degrees', 'radians'
-
-      function distance2D(a: number[], b: number[]) {
-        const dx = b[0] - a[0];
-        const dy = b[1] - a[1];
-        return Math.sqrt(dx * dx + dy * dy);
-      }
-
       const d = this.isLogic
         ? distance2D(sourcePosition, targetPosition)
         : distance(sourcePosition, targetPosition, options);
@@ -637,10 +654,12 @@ export class Graph extends Node {
         properties: srcFeatureProps,
         edgeId: edge.id,
       };
+
       if (!arcsFeatures[srcGraph.id]) {
         arcsFeatures[srcGraph.id] = [];
       }
       arcsFeatures[srcGraph.id].push(arcData);
+      edge.setArcId(arcsFeatures[srcGraph.id].length - 1);
     });
 
     return [features, arcsFeatures];

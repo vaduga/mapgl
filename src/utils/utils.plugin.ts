@@ -395,7 +395,7 @@ function initBinaryProps(panel) {
 }
 
 function cutBinaryProps(panel) {
-  const end = panel.graph.shallowNodeCount ?? 0;
+  const end = panel.vCount;
   ///panel.positions = panel.positions.slice(0, end * 2)
   panel.colors = panel.colors.slice(0, end * 4);
   panel.muted = panel.colors.slice(0, end * 4);

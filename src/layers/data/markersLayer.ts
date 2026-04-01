@@ -1,6 +1,7 @@
 import { PanelData, GrafanaTheme2, Field, PanelProps, FieldType, DataFrame } from '@grafana/data';
 
 import {
+  findSubgraphById,
   FrameGeometryField,
   getGeometryField,
   getLocationMatchers,
@@ -24,7 +25,8 @@ import {OverField, Rule} from '../../editor/Groups/rule-types';
 import { CapacityDimensionEditor } from '../../editor/Other/CapacityEditor';
 import { ArcOptionsEditor } from '../../editor/ArcOptionsEditor';
 import { CurveFactory, Graph, FeatSource, AttributeRegistry, GeomNode, Point as MSPoint } from 'mapLib';
-import { MOC_LOC_FIELD, FIXED_COLOR_LABEL, pushPath, PushPathProps, colTypes, BiColProps } from 'mapLib/utils';
+import { CMN_NAMESPACE, MOC_LOC_FIELD, FIXED_COLOR_LABEL, pushPath, PushPathProps, colTypes, BiColProps } from 'mapLib/utils';
+import { findField } from '../../grafana_core/app/features/dimensions';
 
 export interface MarkersConfig {
   graph?: Graph;
@@ -42,9 +44,14 @@ export interface MarkersConfig {
   groups?: Rule[];
   showStat2?: boolean;
   isWrapEdges?: 0 | 1 | 2 | 3;
+  vertexA_NS?: string;
+  vertexB_NS?: string;
 }
 
-const fixForNodes = { ...defaultStyleConfig, size: { ...defaultStyleConfig.size, fixed: 25 } };
+const fixForNodes = {
+  ...defaultStyleConfig,
+  size: { ...defaultStyleConfig.size, fixed: 25 },
+};
 
 const defaultOptions: MarkersConfig = {
   style: { ...fixForNodes, useGroups: true },
@@ -127,7 +134,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
     const style = await getStyleConfigState(config.style);
     const edgeStyle = await getStyleConfigState(config.edgeStyle);
 
-    const { showStat2 } = config;
+    const { showStat2, vertexA_NS, vertexB_NS } = config;
 
     const arcConfig = config.arcConfig;
     let arcStyle: any = {
@@ -156,9 +163,9 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
         }
         featSource.useMockData = panel.useMockData;
 
-        const startIdx = graph.shallowNodeCount;
+        const startIdx = panel.vCount;
         for (const frame of data.series) {
-          info = getGeometryField(frame, matchers, locField, panel, featSource, graph);
+          info = getGeometryField(frame, matchers, locField, vertexA_NS, vertexB_NS, panel, featSource, graph);
           if (info.warning) {
             //console.log(info.warning);
             continue;
@@ -177,6 +184,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
           const lastIdx = values.length / 2;
           if (lastIdx !== undefined) {
             featSource.setPositionRanges([[startIdx, lastIdx + 1]]);
+            panel.vCount = panel.vCount + lastIdx;
           }
           break;
         }
@@ -201,12 +209,24 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
             if (showStat2) {
               arcStyle.sideA.dims = getStyleDimension(
                 frame,
-                { ...arcStyle.sideA, config: { ...arcStyle.sideA.config, capacity: arcConfig.capacity } },
+                {
+                  ...arcStyle.sideA,
+                  config: {
+                    ...arcStyle.sideA.config,
+                    capacity: arcConfig.capacity,
+                  },
+                },
                 theme
               );
               arcStyle.sideB.dims = getStyleDimension(
                 frame,
-                { ...arcStyle.sideB, config: { ...arcStyle.sideB.config, capacity: arcConfig.capacity } },
+                {
+                  ...arcStyle.sideB,
+                  config: {
+                    ...arcStyle.sideB.config,
+                    capacity: arcConfig.capacity,
+                  },
+                },
                 theme
               );
             } else {
@@ -286,8 +306,16 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
             } as any;
             const arcStValues = {
               arcConfig,
-              sideA: { ...arcStyle.sideA.base, color: toRGB4Array(arcStyle.sideA.base.color), thr: {} },
-              sideB: { ...arcStyle.sideB.base, color: toRGB4Array(arcStyle.sideB.base.color), thr: {} },
+              sideA: {
+                ...arcStyle.sideA.base,
+                color: toRGB4Array(arcStyle.sideA.base.color),
+                thr: {},
+              },
+              sideB: {
+                ...arcStyle.sideB.base,
+                color: toRGB4Array(arcStyle.sideB.base.color),
+                thr: {},
+              },
             };
             const dims = style.dims;
             const edgeDims = edgeStyle.dims;
@@ -307,7 +335,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
             let group;
             const hexColor = dims?.color?.get(i) ?? (fixed && theme.visualization.getColorByName(fixed));
             if (hexColor) {
-              const thrColor = isFixed ? FIXED_COLOR_LABEL : hexColor;
+              const thrColor = isFixed ? FIXED_COLOR_LABEL : hexColor; // for group rules
               point.thrColor = thrColor;
 
               const rgba = toRGB4Array(hexColor);
@@ -434,6 +462,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               }
             });
 
+            const graphA = node.parent as Graph;
             const { wasmId } = node.data;
             const dataRecord: BiColProps = {
               id: wasmId, // doesn't matter, not used elsewhere
@@ -442,7 +471,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               ...(layerIdx !== undefined && { layerIdx }),
               frameRefId,
               rowIndex: i,
-              root: graph,
+              root: graphA,
               featSource,
               locName,
               style: stValues,
@@ -476,17 +505,24 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
             }
 
             const processParPath = (parPath) => {
-              if (!parPath || parPath.length < 2) {return;}
+              if (!parPath || parPath.length < 2) {
+                return;
+              }
 
               const edgeIdValue = panel.useMockData ? mock?.edgeId?.[i] : getValue(edgeIdField, i);
               const edgeId = edgeIdValue?.length ? edgeIdValue : undefined;
 
-              const commentsData = graph.comments;
+              const commentsData = graphA.comments;
+
+              const vB_NS = vertexB_NS ? findField(frame, vertexB_NS) : undefined;
+
+              const subGraphBName = vB_NS?.values[i] ?? CMN_NAMESPACE;
+              const graphB = findSubgraphById(graph, subGraphBName) ?? graph;
 
               const props: PushPathProps = {
                 panel,
-                graphA: graph,
-                graphB: graph,
+                graphA,
+                graphB,
                 edgeId,
                 ...(edgeIdValue?.length ? { rxEdgeId: edgeIdValue } : {}),
                 dataRecord,
@@ -553,6 +589,30 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               noFieldsMessage: 'No string fields found',
             },
             showIf: (opts) => !!opts.parField,
+          })
+          .addFieldNamePicker({
+            path: 'config.vertexA_NS',
+            name: 'Vertex A namespace',
+            description: 'optional. Use "." to separate layers',
+            settings: {
+              filter: (f: Field) => {
+                return f.type === FieldType.string;
+              },
+              noFieldsMessage: 'No string fields found',
+            },
+            showIf: (opts) => panel.isLogic && !!opts.locField,
+          })
+          .addFieldNamePicker({
+            path: 'config.vertexB_NS',
+            name: 'Vertex B namespace',
+            description: 'optional',
+            settings: {
+              filter: (f: Field) => {
+                return f.type === FieldType.string;
+              },
+              noFieldsMessage: 'No string fields found',
+            },
+            showIf: (opts) => panel.isLogic && !!opts.parField,
           })
           .addMultiSelect({
             path: 'searchProperties',
@@ -741,7 +801,7 @@ function getParPath(target, id, idx, locName) {
     if (typeof target === 'string') {
       return [locName, target];
     }
-    // console.log('Wrong format: '+toJS(target))
+    //console.log('Wrong format: ' + toJS(target));
     return [];
   }
 

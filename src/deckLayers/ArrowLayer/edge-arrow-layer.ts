@@ -4,6 +4,7 @@ import { Geometry, Position } from 'geojson';
 import { getIconAtlasImage, iconMapping } from './arrow-atlas';
 import { toRGB4Array } from '../../utils';
 import { colTypes, DeckLine, PointFeatureProperties, RGBAColor, ALERTING_STATES } from 'mapLib/utils';
+import type { Edge } from 'mapLib';
 
 type ArrowFeature = DeckLine<Geometry, PointFeatureProperties>;
 type ArrowPlacement = 'start' | 'end';
@@ -16,10 +17,14 @@ type ArrowItem = {
 
 function getLastPoints(d: ArrowFeature): { base: [number, number]; tip: [number, number] } | null {
   const coords = d?.geometry?.coordinates;
-  if (!coords || !coords.length) {return null;}
+  if (!coords || !coords.length) {
+    return null;
+  }
 
-  const lastLine = coords[coords.length - 1];
-  if (!lastLine || lastLine.length < 2) {return null;}
+  const lastLine = coords; //[coords.length - 1];
+  if (!lastLine || lastLine.length < 2) {
+    return null;
+  }
 
   const tip = lastLine[lastLine.length - 1] as [number, number];
   const base = lastLine[lastLine.length - 2] as [number, number];
@@ -28,10 +33,14 @@ function getLastPoints(d: ArrowFeature): { base: [number, number]; tip: [number,
 
 function getFirstPoints(d: ArrowFeature): { base: [number, number]; tip: [number, number] } | null {
   const coords = d?.geometry?.coordinates;
-  if (!coords || !coords.length) {return null;}
+  if (!coords || !coords.length) {
+    return null;
+  }
 
-  const firstLine = coords[0];
-  if (!firstLine || firstLine.length < 2) {return null;}
+  const firstLine = coords
+  if (!firstLine || firstLine.length < 2) {
+    return null;
+  }
 
   // Reverse direction so the arrow points toward the start
   const tip = firstLine[0] as [number, number];
@@ -43,14 +52,20 @@ type Vec2 = [number, number];
 
 function wrapDeltaLonDeg(dLon: number): number {
   // normalize to [-180, 180]
-  if (dLon > 180) {return dLon - 360;}
-  if (dLon < -180) {return dLon + 360;}
+  if (dLon > 180) {
+    return dLon - 360;
+  }
+  if (dLon < -180) {
+    return dLon + 360;
+  }
   return dLon;
 }
 
 function getArrowAngle(d: ArrowFeature, placement: ArrowPlacement, isGeo: boolean): number {
   const pts = placement === 'start' ? getFirstPoints(d) : getLastPoints(d);
-  if (!pts) {return 0;}
+  if (!pts) {
+    return 0;
+  }
 
   const [bx, by] = pts.base as Vec2;
   const [tx, ty] = pts.tip as Vec2;
@@ -90,8 +105,8 @@ function getArrowColor(d: ArrowFeature, getGroupsLegend?: any): RGBAColor {
     const aColor = annotState?.startsWith('Normal')
       ? ALERTING_STATES.Normal
       : annotState === 'Alerting'
-      ? ALERTING_STATES.Alerting
-      : ALERTING_STATES.Pending;
+        ? ALERTING_STATES.Alerting
+        : ALERTING_STATES.Pending;
     return toRGB4Array(aColor, 1);
   }
 
@@ -101,26 +116,52 @@ function getArrowColor(d: ArrowFeature, getGroupsLegend?: any): RGBAColor {
   return muted;
 }
 
-function expandArrowItems(data: ArrowFeature[] = []): ArrowItem[] {
+function expandArrowItems(data: ArrowFeature[] = [], getWasmId2Edges: Edge[][]): ArrowItem[] {
   const items: ArrowItem[] = [];
 
   data.forEach((feature, lineIndex) => {
     const arrow = feature?.properties?.edgeStyle?.arrow;
     const angles = feature?.properties?.arrowAngles;
+    const edgeId = feature?.edgeId;
+    const heIdx = feature?.heIdx;
 
-    if (arrow === 1) {
+    const hyperEdge = getWasmId2Edges[heIdx];
+    const firstEdgeId = hyperEdge?.[0]?.id;
+    const lastEdgeId = hyperEdge?.at(-1)?.id;
+
+    if (arrow === 1 && lastEdgeId === edgeId) {
       items.push({ feature, placement: 'end', lineIndex, angle: angles?.end });
       return;
     }
 
-    if (arrow === -1) {
-      items.push({ feature, placement: 'start', lineIndex, angle: angles?.start });
+    if (arrow === -1 && firstEdgeId === edgeId) {
+      items.push({
+        feature,
+        placement: 'start',
+        lineIndex,
+        angle: angles?.start,
+      });
       return;
     }
 
     if (arrow === 2) {
-      items.push({ feature, placement: 'start', lineIndex, angle: angles?.start });
-      items.push({ feature, placement: 'end', lineIndex, angle: angles?.end });
+      if (firstEdgeId === edgeId) {
+        items.push({
+          feature,
+          placement: 'start',
+          lineIndex,
+          angle: angles?.start,
+        });
+      }
+      if (lastEdgeId === edgeId) {
+        items.push({
+          feature,
+          placement: 'end',
+          lineIndex,
+          angle: angles?.end,
+        });
+      }
+
       return;
     }
   });
@@ -135,19 +176,21 @@ export const EdgeArrowLayer = (props) => {
     linesCollection,
     options,
     visible,
-    isLogic,
+    panel,
     getVisLayers,
     getGroupsLegend,
+    getWasmId2Edges,
     time,
   } = props;
 
   const selectedFeatureIndexes = getSelectedIdxs?.get(colTypes.Edges)?.[srcGraphId] ?? [];
 
+  const isLogic = panel.isLogic;
   const categories = getVisLayers.getCategories();
   const categorySize = 1;
 
-  const baseData = Array.isArray(linesCollection) ? linesCollection : linesCollection?.features ?? [];
-  const arrowData = expandArrowItems(baseData);
+  const baseData = Array.isArray(linesCollection) ? linesCollection : (linesCollection?.features ?? []);
+  const arrowData = expandArrowItems(baseData, getWasmId2Edges);
   const units = options.common?.isMeters ? 'meters' : 'pixels';
 
   return new IconLayer({

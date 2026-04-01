@@ -5,7 +5,7 @@ import { GrafanaTheme2, PanelData, PanelProps } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { PanelContext, PanelContextProvider, PanelContextRoot } from '@grafana/ui';
 import { Options, MapLayerState, MapViewConfig } from './types';
-import { defViewState, ViewState } from 'mapLib/utils';
+import { runLayout, ViewState, defViewState } from 'mapLib/utils';
 import { notifyPanelEditor } from './utils/geomap_utils';
 import { getActions } from './utils/actions';
 import Mapgl from './components/Mapgl';
@@ -15,7 +15,6 @@ import { ORTHO_BASEMAP_CONFIG } from './layers/registry';
 import { defaultMarkersConfig } from './layers/data/markersLayer';
 import { Map as MaplibreMap } from '@vis.gl/react-maplibre';
 import { Graph, GeomGraph, BiColProps } from 'mapLib';
-import { runLayout } from 'mapLib/utils';
 
 import { initViewExtent } from './utils/utils.map';
 import { Deck } from '@deck.gl/core';
@@ -43,6 +42,7 @@ export class GeomapPanel extends Component<Props, State> {
 
   pId: number | undefined;
   graph: Graph;
+  vCount = 0;
   visLayers: VisLayers | undefined;
   map?: Deck | undefined;
   layers: MapLayerState[] = [];
@@ -125,6 +125,7 @@ export class GeomapPanel extends Component<Props, State> {
     //console.log('willUnmount')
     this.graph?.disposeAutorun();
     this.graph.reset();
+    this.vCount = 0
     for (const g of this.graph.graphs()) {
       this.graph?.disposeAutorun();
       g.reset();
@@ -225,6 +226,7 @@ export class GeomapPanel extends Component<Props, State> {
       }
 
       this.graph.reset();
+      this.vCount = 0
       initBinaryProps(this);
 
       const d = { ...this.props.data };
@@ -263,6 +265,7 @@ export class GeomapPanel extends Component<Props, State> {
       g.resetNodes();
     }
     this.graph.reset();
+    this.vCount = 0
     initBinaryProps(this);
 
     try {

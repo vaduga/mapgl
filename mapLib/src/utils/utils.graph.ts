@@ -2,6 +2,7 @@ import { BiColProps, Comment, CommentsData, CoordRef } from './interfaces';
 import { Graph } from '../structs/graph';
 import { Node } from '../structs/node';
 import { Edge } from '../structs/edge';
+import { AttributeRegistry } from '../structs/attributeRegistry';
 import {
   GeomGraph,
   LayerDirectionEnum,
@@ -17,9 +18,10 @@ import { EdgeRoutingMode } from '@msagl/core/src/routing/EdgeRoutingMode';
 import { Position } from 'geojson';
 
 import midpoint from '@turf/midpoint';
+import { NS_SEPARATOR } from '../utils/defaults';
 
 type Vec2 = [number, number];
-type ArrowAngles = { start: number; end: number };
+type ArrowAngles = { start: number | undefined; end: number | undefined };
 
 function wrapDeltaLonDeg(dLon: number): number {
   if (dLon > 180) {return dLon - 360;}
@@ -27,19 +29,19 @@ function wrapDeltaLonDeg(dLon: number): number {
   return dLon;
 }
 
-function getFirstPoints(coords: number[][][]): { base: number[]; tip: number[] } | null {
-  if (!coords?.length) {return null;}
-  const firstLine = coords[0];
-  if (!firstLine || firstLine.length < 2) {return null;}
+function getFirstPoints(coords: number[][]): { base: number[]; tip: number[] } | null {
+  if (!coords?.length) return null;
+  const firstLine = coords;
+  if (!firstLine || firstLine.length < 2) return null;
   const tip = firstLine[0];
   const base = firstLine[1];
   return { base, tip };
 }
 
-function getLastPoints(coords: number[][][]): { base: number[]; tip: number[] } | null {
-  if (!coords?.length) {return null;}
-  const lastLine = coords[coords.length - 1];
-  if (!lastLine || lastLine.length < 2) {return null;}
+function getLastPoints(coords: number[][]): { base: number[]; tip: number[] } | null {
+  if (!coords?.length) return null;
+  const lastLine = coords;
+  if (!lastLine || lastLine.length < 2) return null;
   const tip = lastLine[lastLine.length - 1];
   const base = lastLine[lastLine.length - 2];
   return { base, tip };
@@ -62,13 +64,16 @@ function getArrowAngleFromPoints(base: number[], tip: number[], isGeo: boolean):
   return (Math.atan2(dy, dx) * 180) / Math.PI;
 }
 
-function getArrowAngles(coords: number[][][], isGeo: boolean): ArrowAngles | null {
+function getArrowAngles(coords: number[][], isGeo: boolean, fragIdx: number, len: number): ArrowAngles | undefined {
+  if (fragIdx !== 0 || fragIdx !== len - 1) {
+    return undefined;
+  }
   const startPoints = getFirstPoints(coords);
   const endPoints = getLastPoints(coords);
-  if (!startPoints || !endPoints) {return null;}
+  if (!startPoints || !endPoints) return undefined;
   return {
-    start: getArrowAngleFromPoints(startPoints.base, startPoints.tip, isGeo),
-    end: getArrowAngleFromPoints(endPoints.base, endPoints.tip, isGeo),
+    start: fragIdx === 0 ? getArrowAngleFromPoints(startPoints.base, startPoints.tip, isGeo) : undefined,
+    end: fragIdx === len - 1 ? getArrowAngleFromPoints(endPoints.base, endPoints.tip, isGeo) : undefined,
   };
 }
 
@@ -105,10 +110,20 @@ interface PushPathProps {
 }
 
 function pushPath(props: PushPathProps) {
-  let { graphA, graphB, panel, parPath, layerIdx, edgeId: assignedEdgeId, dataRecord, commentsData, theme } = props;
+  let {
+    graphA,
+    graphB,
+    panel,
+    parPath,
+    layerIdx,
+    edgeId: assignedEdgeId,
+    dataRecord,
+    commentsData,
+    theme } = props;
   const { isLogic, graph } = panel;
 
-  const { setEdge: setEdgeA, findNode: findNode } = graphA;
+  const { setEdge: setEdgeA, findNode: findNodeA } = graphA;
+  const { setEdge: setEdgeB, findNode: findNodeB } = graphB;
   const findEdgeA = graphA.nodeCollection.findEdge;
 
   const sourceId = parPath[0];
@@ -119,8 +134,8 @@ function pushPath(props: PushPathProps) {
     return;
   }
 
-  let sourceNode = findNode(sourceId);
-  let targetNode = findNode(targetId);
+  let sourceNode = findNodeA(sourceId);
+  let targetNode = findNodeB(targetId);
   if (!targetNode || !sourceNode) {
     //console.warn(`no ${!targetNode ? 'target '+targetId : 'source '+sourceId} node in ${parPath}. isEdit: ${isEdit}`)
     return;
@@ -132,7 +147,7 @@ function pushPath(props: PushPathProps) {
   parPath.forEach((coordRef: CoordRef, i: number) => {
     const is_node = typeof coordRef === 'string';
     if (is_node) {
-      const node = findNode(coordRef);
+      const node = i === parPath.length - 1 ? findNodeB(coordRef) : findNodeA(coordRef);
       if (node) {
         const wasmId = node.data.wasmId;
         wasmVerticeIds.push(wasmId);
@@ -146,6 +161,7 @@ function pushPath(props: PushPathProps) {
       parPathSan.push(coordRef);
     }
   });
+
   if (!wasmVerticeIds.length) {
     return;
   }
@@ -154,8 +170,8 @@ function pushPath(props: PushPathProps) {
   let edge = findEdgeA(edgeId);
   let edge_id;
   if (!edge) {
-    const newVerticeIds = wasmVerticeIds;
-    graph.getEdgeVerticeIds.push([newVerticeIds, layerIdx]);
+    const newVerticeIds = wasmVerticeIds //createEdge(wasmVerticeIds, layerIdx);
+    graph.getEdgeVerticeIds.push([Array.from(newVerticeIds), layerIdx]);
 
     edge_id = graph.getEdgeVerticeIds.length - 1;
 
@@ -168,14 +184,17 @@ function pushPath(props: PushPathProps) {
 
     const multiEdges: Edge[] = [];
 
-    if (isLogic && nodes.length > 2) {
-      const [segrPath, segrCoords] = parPath.length ? segregatePath(parPathSan, panel.positions, findNode) : [];
-      segrPath.forEach((frag: any, i: number) => {
+    if (nodes.length > 2) {
+      const [segrPath, segrCoords] = parPath.length
+        ? segregatePath(parPathSan, panel.positions, findNodeA, findNodeB)
+        : [];
+      segrPath?.forEach((frag: any, i: number) => {
         const idx = i ? '--' + i : '';
         const extraId = edgeId + idx;
         const start = frag[0].item.id;
         const end = frag.at(-1).item.id;
         const dummy = setEdgeA(extraId, start, end as string);
+
         if (dummy) {
           dummy.setData(data);
           multiEdges.push(dummy);
@@ -197,6 +216,17 @@ function pushPath(props: PushPathProps) {
       multiEdges.push(edge);
     }
     graph.getWasmId2Edges[edge_id] = multiEdges;
+  } else if (edge) {
+    edge_id = edge.data.edge_id;
+    if (edge_id !== undefined) {
+      //console.log('edge_id', edge_id, edge.data.edgeId)
+      edge.setAttrProp(AttributeRegistry.EdgeDataIndex, 'parPath', parPathSan);
+      const prevVerticeIds = graph.getEdgeVerticeIds[edge_id][0];
+      const newVerticeIds = wasmVerticeIds; //updateEdgeVertices(edge_id, wasmVerticeIds, prevVerticeIds);
+      graph.getEdgeVerticeIds[edge_id][0] = Array.from(newVerticeIds);
+    } else {
+      //console.log('edge wasmid undefined', edge);
+    }
   }
 
   ///////// comments
@@ -228,11 +258,13 @@ function pushPath(props: PushPathProps) {
   });
 }
 
-function segregatePath(path: any[], pathCoords: Position[], findNode: any): any[] {
+function segregatePath(path: any[], pathCoords: Position[], findNodeA: any, findNodeB: any): any[] {
   if (path.length === 0) {
     return [[]];
   }
-  const pathConverted = path.map((p, i) => (typeof p === 'string' ? findNode(p) : p)).filter((el) => el);
+  const pathConverted = path
+    .map((p, i) => (typeof p === 'string' ? (i !== path.length - 1 ? findNodeA(p) : findNodeB(p)) : p))
+    .filter((el) => el);
 
   const subarrays: any[] = [];
   const coordsSubarrays: any[] = [];
@@ -282,7 +314,11 @@ function getStringIndices(parPath: ParPathEl[]) {
   return parPath.map((el, i) => (isString(el) ? i : -1)).filter((i) => i !== -1);
 }
 
-function replaceSegmentsWithPolylines(parPath: ParPathEl[], oldWasmIds: number[], polylines: Position[][]) {
+function replaceSegmentsWithPolylines(
+  parPath: ParPathEl[],
+  oldWasmIds: Array<number | undefined>,
+  polylines: Position[][]
+) {
   const stringIdx = getStringIndices(parPath);
 
   if (stringIdx.length < 2) {
@@ -294,7 +330,7 @@ function replaceSegmentsWithPolylines(parPath: ParPathEl[], oldWasmIds: number[]
   }
 
   const newParPath: ParPathEl[] = [];
-  const newWasmIds: number[] = [];
+  const newWasmIds: Array<number | undefined> = [];
 
   let polylineCursor = 0;
 
@@ -347,6 +383,13 @@ function runLayout(panel: any) {
   //console.log('Clusters,', Array.from(rootGraph.Clusters), Array.from(graph.getClusteredConnectedComponents()))
 
   layoutGeomGraph(rootGraph);
+
+  // rootGraph.pumpTheBoxToTheGraphWithMargins()
+  //
+  // for (const subgraph of graph.subgraphsBreadthFirst()) {
+  //     const geom = GeomGraph.getGeom(subgraph)
+  //     geom?.pumpTheBoxToTheGraphWithMargins()
+  // }
 
   //@ts-ignore
   const { getEdgeVerticeIds, wasm2Edges } = graph as Graph;
@@ -420,4 +463,11 @@ function getMidpoint(sourcePosition: Position, targetPosition: Position, isLogic
 
 export type { PushPathProps };
 
-export { pushPath, getArrowAngles, sortAnnotations, paraboloid, segregatePath, runLayout, getMidpoint };
+export {
+  pushPath,
+  getArrowAngles,
+  sortAnnotations,
+  paraboloid,
+  segregatePath,
+  runLayout,
+  getMidpoint };

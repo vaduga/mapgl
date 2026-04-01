@@ -25,6 +25,7 @@ import {
   emptyBiCol,
   ALERTING_NUMS,
   ANNOTS_LABEL,
+  NS_SEPARATOR,
   ComFeature,
   colTypes, ViewState, sortAnnotations, CommentsData
 } from 'mapLib/utils';
@@ -62,6 +63,8 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
   const { getViewState, getTime, getGroupsLegend } = viewStore;
   const { isLogic, visLayers, graph } = panel;
+  const clusters = Array.from(graph.subgraphsBreadthFirst()) as Graph[];
+  const graphs: Graph[] = [graph as Graph].concat(clusters);
 
   // isHyper is the only 'layer' that is active even in indeterminate state
   const [isHyper = false] = visLayers.getVisState(null, colTypes.Hyperedges, colTypes.Hyperedges) ?? [];
@@ -102,28 +105,30 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
         }
       });
 
-      newAnnots.forEach(({ alertName, instance, data, newState, timeEnd }) => {
-        const nodeMap = graph.nodeCollection.getNodeMap;
-        const feature = nodeMap?.get(instance)?.data.feature;
-        if (!feature) {
-          return;
-        }
-        const newAnnot = { alertName, newState, instance, timeEnd, data };
-        const all_annots = feature.all_annots;
-        if ((all_annots?.length && all_annots?.length === annots.length) || !all_annots) {
-          feature.all_annots = [newAnnot];
-        } else if (all_annots) {
-          feature.all_annots = [...all_annots, newAnnot];
-        }
-        feature.all_annots = sortAnnotations(feature.all_annots);
-        const annotState = feature.all_annots?.[0]?.newState;
-        const stateKey = Object.keys(ALERTING_STATES).find((st) => annotState?.startsWith(st));
+      graphs.forEach((s: any) => {
+        newAnnots.forEach(({ alertName, instance, data, newState, timeEnd }) => {
+          const nodeMap = s.nodeCollection.getNodeMap;
+          const feature = nodeMap?.get(instance)?.data.feature;
+          if (!feature) {
+            return;
+          }
+          const newAnnot = { alertName, newState, instance, timeEnd, data };
+          const all_annots = feature.all_annots;
+          if ((all_annots?.length && all_annots?.length === annots.length) || !all_annots) {
+            feature.all_annots = [newAnnot];
+          } else if (all_annots) {
+            feature.all_annots = [...all_annots, newAnnot];
+          }
+          feature.all_annots = sortAnnotations(feature.all_annots);
+          const annotState = feature.all_annots?.[0]?.newState;
+          const stateKey = Object.keys(ALERTING_STATES).find((st) => annotState?.startsWith(st));
 
-        if (stateKey) {
-          const [, , stateRGBArray] = ALERTING_NUMS[stateKey];
-          const id = feature.id;
-          panel.annots.set(stateRGBArray, id * 4);
-        }
+          if (stateKey) {
+            const [, , stateRGBArray] = ALERTING_NUMS[stateKey];
+            const id = feature.id;
+            panel.annots.set(stateRGBArray, id * 4);
+          }
+        });
       });
     }
     loadAnnots();
@@ -266,7 +271,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
     const secDataLayers = panel.layers
       .slice(1)
-      .filter((el) => el.layer.colType !== colTypes.Markers && el.layer.features?.length);
+      .filter(el => el.layer.colType !== colTypes.Markers && el.layer.features?.length);
     let poly = 0,
       path = 0,
       geojson = 0;
@@ -277,7 +282,15 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
         const pickable = !!isShowTooltip;
         switch (l.options.type) {
           case colTypes.Polygons:
-            secLayers.push(MyPolygonsLayer({ ...layerProps, pickable, name, index: poly, data: features }));
+            secLayers.push(
+              MyPolygonsLayer({
+                ...layerProps,
+                pickable,
+                name,
+                index: poly,
+                data: features,
+              })
+            );
             poly++;
             break;
           case colTypes.Path:
@@ -316,10 +329,13 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
     let initComments: CommentsData = {};
     let initLineFeatures: any = isHyper ? graph.getEdgesGeometry[0] : graph.getEdgesGeometry[1];
+
     if (!isLogic) {
-      const getComments = graph.getComments;
-      if (Object.keys(getComments).length) {
-        initComments = { ...initComments, ...getComments };
+      for (const subGraph of graphs) {
+        const getComments = subGraph.getComments;
+        if (Object.keys(getComments).length) {
+          initComments = { ...initComments, ...getComments };
+        }
       }
     }
 
@@ -357,10 +373,18 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
     /// Graphs nodes
 
-    //@ts-ignore
-    const biCols: BinaryFeatureCollection[] = [graph]
-      .map((g) => {
-        const { colors, muted, annots, groupIndices } = panel;
+    const { groupIndices, annots } = panel;
+    const visNamespaces = visLayers.getCategories()
+    // @ts-ignore
+    const biCols: BinaryFeatureCollection & Array<{ layerName: string }> = graphs
+      .filter((g) => visNamespaces.includes(g.id))
+      .sort((a, b) => {
+        const lenA = a.id.split(NS_SEPARATOR).length;
+        const lenB = b.id.split(NS_SEPARATOR).length;
+        return lenA - lenB;
+      })
+      .map((g, i) => {
+        const { colors, muted, annots } = panel;
 
         const { positionRanges } = g;
         const { features } = panel;
@@ -369,6 +393,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
           return null;
         }
 
+        // Concatenate all the sliced chunks into one new Float64Array
         const totalCount = positionRanges.reduce((sum, [start, endExclusive]) => sum + (endExclusive - start), 0);
 
         const cutPositions = new Float64Array(totalCount * 2);
@@ -402,7 +427,6 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
           graph: g,
           groupIndices,
           annots,
-          shape: 'binary-feature-collection',
           points: {
             type: 'Point',
             positions: { value: cutPositions, size: 2 },
@@ -429,8 +453,8 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
         commentFeatures,
       });
 
-      const [icons, arcsBase, lines, comments, edgeLabels] = res;
-      const icoLinesOrdered = [...arcsBase, ...lines, ...icons];
+      const [bboxes, icons, arcsBase, lines, comments, edgeLabels] = res;
+      const icoLinesOrdered = [...bboxes, ...arcsBase, ...lines, ...icons];
 
       newLayers = newLayers.concat(icoLinesOrdered);
 

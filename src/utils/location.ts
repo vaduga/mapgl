@@ -13,14 +13,14 @@ import { decodeGeohash } from './geohash';
 import { ExtendFrameGeometrySource, ExtendFrameGeometrySourceMode } from '../extension';
 import { Geometry, Point } from 'geojson';
 import { findField } from '../grafana_core/app/features/dimensions';
-import { Graph, Node, FeatSource } from 'mapLib';
-import { NS_SEPARATOR } from 'mapLib/utils';
+import { GeomGraph, Graph, Node, FeatSource } from 'mapLib';
+import { CMN_NAMESPACE, NS_SEPARATOR } from 'mapLib/utils';
 import { GeomapPanel } from '../GeomapPanel';
 
 export type NamespaceRange = [
   graphId: string,
   separator: typeof NS_SEPARATOR,
-  range: number[] // [start,end]
+  range: number[], // [start,end]
 ];
 
 export interface ExtendedField<T> extends Omit<Field<T>, 'values'> {
@@ -110,7 +110,12 @@ export async function getLocationMatchers(src?: ExtendFrameGeometrySource): Prom
         info.latitude = getFieldFinder(getFieldMatcher({ id: FieldMatcherID.byName, options: src.latitude }));
       }
       if (src?.longitude) {
-        info.longitude = getFieldFinder(getFieldMatcher({ id: FieldMatcherID.byName, options: src.longitude }));
+        info.longitude = getFieldFinder(
+          getFieldMatcher({
+            id: FieldMatcherID.byName,
+            options: src.longitude,
+          })
+        );
       }
       break;
     case ExtendFrameGeometrySourceMode.Geojson:
@@ -134,6 +139,8 @@ export interface LocationFields {
   lookup?: Field;
   geo?: Field<Geometry | undefined>;
   locName?: Field | undefined;
+  vertexA_NS?: Field | undefined;
+  vertexB_NS?: Field | undefined;
 }
 
 export function getLocationFields(frame: DataFrame, location: LocationFieldMatchers): LocationFields {
@@ -195,12 +202,16 @@ export function getGeometryField(
   frame: DataFrame,
   location: LocationFieldMatchers,
   locField?: string,
+  vertexA_NS?: string,
+  vertexB_NS?: string,
   panel?: GeomapPanel,
   root?: FeatSource,
   graph?: Graph
 ): FrameGeometryField {
   const fields = getLocationFields(frame, location);
   fields.locName = locField ? findField(frame, locField) : undefined;
+  fields.vertexA_NS = vertexA_NS ? findField(frame, vertexA_NS) : undefined;
+  fields.vertexB_NS = vertexB_NS ? findField(frame, vertexB_NS) : undefined;
 
   const isLogic = panel?.isLogic;
   if (isLogic) {
@@ -294,8 +305,7 @@ function pointFieldFromGeoJSON(
   const len = geojson?.values?.length ?? 0;
   const buffer = graph ? new Float64Array(len * 2) : new Array<Geometry>(len);
   const nodes = new Array<Node>();
-  const vCount = panel?.graph.shallowNodeCount ?? 0;
-  const startIdx = vCount ? vCount : 0;
+  const startIdx = panel?.vCount;
   const state = { graph: undefined, index: 0, startIdx };
   const ranges = [];
 
@@ -305,7 +315,7 @@ function pointFieldFromGeoJSON(
     }
     const feature = !isLogic && JSON.parse(geojson.values[i] as string);
     if (!feature && !isLogic) {
-      //console.log('no feature', geojson.values[i])
+      //console.log('no feature', geojson.values[i]);
       continue;
     }
 
@@ -320,14 +330,16 @@ function pointFieldFromGeoJSON(
         panel,
         graph,
         buffer,
-        vCount,
         state,
         feature?.coordinates,
         isLogic
       );
       continue;
     }
-    buffer[state.index++] = { type: feature.type, coordinates: feature.coordinates };
+    buffer[state.index++] = {
+      type: feature.type,
+      coordinates: feature.coordinates,
+    };
   }
 
   const values = graph
@@ -355,8 +367,7 @@ function pointFieldFromLonLat(
   const len = lon.values.length;
   const buffer = graph ? new Float64Array(len * 2) : new Array<Geometry>(len);
   const nodes = new Array<Node>(len);
-  const vCount = panel?.graph.shallowNodeCount ?? 0;
-  const startIdx = vCount ? vCount : 0;
+  const startIdx = panel?.vCount ?? 0 ;
   const state = { graph: undefined, index: 0, startIdx };
   const ranges = [];
 
@@ -367,9 +378,12 @@ function pointFieldFromLonLat(
     if (longitude === null || latitude === null) {
       continue;
     }
-    const feature: Point = { type: 'Point', coordinates: [longitude, latitude] };
+    const feature: Point = {
+      type: 'Point',
+      coordinates: [longitude, latitude],
+    };
     if (graph) {
-      createNode(fields, nodes, ranges, i, len, root, panel, graph, buffer, vCount, state, feature?.coordinates);
+      createNode(fields, nodes, ranges, i, len, root, panel, graph, buffer, state, feature?.coordinates);
       continue;
     }
     buffer[state.index++] = feature;
@@ -398,8 +412,7 @@ function pointFieldFromGeohash(
   const len = geohash.values.length;
   const buffer = graph ? new Float64Array(len * 2) : new Array<Geometry>(len);
   const nodes = new Array<Node>(len);
-  const vCount = panel?.graph.shallowNodeCount ?? 0;
-  const startIdx = vCount ? vCount : 0;
+  const startIdx = panel?.vCount ?? 0 ;
   const state = { graph: undefined, index: 0, startIdx };
   const ranges = [];
   for (let i = 0; i < len; i++) {
@@ -411,7 +424,7 @@ function pointFieldFromGeohash(
       }
       const feature: Point = { type: 'Point', coordinates };
       if (graph) {
-        createNode(fields, nodes, ranges, i, len, root, panel, graph, buffer, vCount, state, feature?.coordinates);
+        createNode(fields, nodes, ranges, i, len, root, panel, graph, buffer, state, feature?.coordinates);
         continue;
       }
       buffer[state.index++] = feature;
@@ -442,8 +455,7 @@ function getGeoFieldFromGazetteer(
   const len = field.values.length;
   const buffer = graph ? new Float64Array(len * 2) : new Array<Geometry>(len);
   const nodes = new Array<Node>(len);
-  const vCount = panel?.graph.shallowNodeCount ?? 0;
-  const startIdx = vCount ? vCount : 0;
+  const startIdx = panel?.vCount ?? 0;
   const state = { graph: undefined, index: 0, startIdx };
   const ranges = [];
   for (let i = 0; i < len; i++) {
@@ -454,7 +466,7 @@ function getGeoFieldFromGazetteer(
     } // info?.geometry ?
     const feature: Point = { type: 'Point', coordinates: info.coords };
     if (graph) {
-      createNode(fields, nodes, ranges, i, len, root, panel, graph, buffer, vCount, state, feature?.coordinates);
+      createNode(fields, nodes, ranges, i, len, root, panel, graph, buffer, state, feature?.coordinates);
       continue;
     }
     buffer[state.index++] = feature;
@@ -480,20 +492,30 @@ const hiddenTooltipField: FieldConfig = Object.freeze({
   },
 });
 
-function createNode(fields, nodes, ranges, i, len, root, panel, graph, coords, vCount, state, coordinates, isLogic?) {
-  const { locName } = fields || {};
-  if (!locName) {return;}
+function createNode(fields, nodes, ranges, i, len, root, panel, graph, coords, state, coordinates, isLogic?) {
+  const { locName, vertexA_NS } = fields || {};
+  if (!locName) {
+    return;
+  }
 
   const id = locName.values[i];
 
+  const namespace = isLogic && vertexA_NS?.values[i] ? vertexA_NS.values[i] : CMN_NAMESPACE;
+  const srcGraph = ensureNestedSubgraph(graph, namespace);
+
+  const vCount = panel.vCount;
   if (!state.graph) {
-    state.graph = graph;
+    state.graph = srcGraph;
     state.startIdx = state.index / 2 + vCount;
   }
 
+  const isGraphSwitch = state.graph.id !== srcGraph.id;
   const isLastItem = i === len - 1;
+
   function addNodeAndCoords() {
-    if (!id) {return;}
+    if (!id) {
+      return;
+    }
     let node = state.graph.findNode(id);
     if (!node) {
       node = new Node(id);
@@ -516,9 +538,59 @@ function createNode(fields, nodes, ranges, i, len, root, panel, graph, coords, v
     }
   }
 
+  if (isGraphSwitch) {
+    // Close old graph range BEFORE switching graphs and adding last node coords
+    closeRange();
+
+    // Switch graph and start new range
+    state.graph = srcGraph;
+    state.startIdx = state.index / 2 + vCount;
+  }
+
+  // Add current node coords (for last item or graph switch last node)
   addNodeAndCoords();
 
+  // If last item, close current graph range after adding coords
   if (isLastItem) {
     closeRange();
   }
+}
+
+function ensureNestedSubgraph(root: Graph, namespacePath: string): Graph {
+  let currentGraph = root;
+
+  if (!namespacePath) {
+    return currentGraph;
+  }
+
+  const parts = namespacePath.split('.');
+  let pathSegments: string[] = [];
+
+  if (parts[0] !== CMN_NAMESPACE) {
+    for (const part of parts) {
+      pathSegments.push(part);
+      const fullId = pathSegments.join(NS_SEPARATOR);
+
+      let childGraph = Array.from(root.subgraphsBreadthFirst()).find((el: Graph) => el.id === fullId);
+
+      if (fullId) {
+        if (!childGraph) {
+          childGraph = createAndAddSubgraph(currentGraph, fullId);
+        }
+        currentGraph = childGraph;
+      }
+    }
+  }
+
+  return currentGraph;
+}
+
+function createAndAddSubgraph(parent: Graph, id: string): Graph {
+  const subgraph = new Graph(id);
+  //console.log('add gr', id);
+
+  //@ts-ignore
+  GeomGraph.getGeom(parent).addNode(new GeomGraph(subgraph));
+
+  return subgraph;
 }

@@ -21,7 +21,6 @@ export type EdgeData = {
   parPath: CoordRef[];
   dataRecord: BiColProps;
   rxEdgeId?: string;
-  isEph?: boolean;
   rPath?: CoordRef[];
   rWasmNodeIds?: number[];
 };
@@ -34,9 +33,13 @@ export class Edge extends Entity {
   }
 
   private _lineId: number | undefined;
+  private _arcId: number | undefined;
 
   public get lineId(): number | undefined {
     return this._lineId;
+  }
+  public get arcId(): number | undefined {
+    return this._arcId;
   }
 
   label: Label | undefined;
@@ -57,6 +60,9 @@ export class Edge extends Entity {
 
   setLineId(lineId: number) {
     this._lineId = lineId;
+  }
+  setArcId(arcId: number) {
+    this._arcId = arcId;
   }
 
   get data() {

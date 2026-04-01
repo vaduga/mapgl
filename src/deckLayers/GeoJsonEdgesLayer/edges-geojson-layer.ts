@@ -22,10 +22,11 @@ export const EdgesGeojsonLayer = (props) => {
     panel,
   } = props;
 
+  const isLogic = panel.isLogic;
   const selectedFeatureIndexes = getSelectedIdxs?.get(colTypes.Edges)?.[srcGraphId] ?? [];
 
-  const categories = getVisLayers.getCategories();
-  const categorySize = 1;
+  const categories = [getVisLayers.getCategories(), getVisLayers.getCategories()];
+  const categorySize = isLogic ? 2 : 1;
 
   const units = options.common?.isMeters ? 'meters' : 'pixels';
   return new GeoJsonLayer({
@@ -41,7 +42,7 @@ export const EdgesGeojsonLayer = (props) => {
     },
     getFilterCategory: (d) => {
       const { style, layerName, root } = d.properties || {};
-      return layerName;
+      return isLogic ? [layerName, root.id]: layerName;
     },
     filterCategories: categories,
     extensions: [new DataFilterExtension({ categorySize })],
@@ -49,7 +50,6 @@ export const EdgesGeojsonLayer = (props) => {
       const { edgeStyle } = d.properties;
       return selectedFeatureIndexes.includes(k.index) ? edgeStyle.size * 2 : edgeStyle.size;
     },
-
     //@ts-ignore
     getLineColor: (d: DeckLine<Geometry, PointFeatureProperties>): RGBAColor => {
       const { edgeStyle, all_annots } = d.properties;

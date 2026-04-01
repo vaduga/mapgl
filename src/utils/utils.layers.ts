@@ -5,13 +5,16 @@ import { MyIconLayer } from '../deckLayers/IconLayer/icon-layer';
 import { MyArcLayer } from '../deckLayers/ArcLayer/arc-layer';
 import { GeoJsonLayer, PathLayer, TextLayer } from '@deck.gl/layers';
 import OrthoLayer from '../deckLayers/OrthoLayer/ortho-layer';
-import { NS_SEPARATOR, DeckLine } from 'mapLib/utils';
+import { DeckLine, colTypes,
+  NS_SEPARATOR,
+  NS_PADDING,
+  BBOX_OUTLINE_WIDTH,
+  BBOX_OUTLINE_COLOR } from 'mapLib/utils';
 import { Rule } from 'editor/Groups/rule-types';
 import { NodesGeojsonLayer } from '../deckLayers/GeoJsonNodesLayer/nodes-geojson-layer';
 import { EdgesGeojsonLayer } from '../deckLayers/GeoJsonEdgesLayer/edges-geojson-layer';
 import { EdgeArrowLayer } from '../deckLayers/ArrowLayer/edge-arrow-layer';
 import { GeomapPanel } from '../GeomapPanel';
-import { colTypes } from 'mapLib/utils';
 import { VisLayers } from '../store/visLayers';
 
 async function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps }) {
@@ -19,88 +22,230 @@ async function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerPr
   const lines: any[] = [];
   const arcsBase: any[] = [];
   const edgeLabels: any[] = [];
-  const { theme, baseLayer, options, getVisLayers, isHyper, panel, isLogic } = layerProps;
+  const {theme, baseLayer, options, getVisLayers, isHyper, panel, isLogic} = layerProps;
 
   const icons: Array<GeoJsonLayer | OrthoLayer> = [];
 
+  const bboxes: Array<PathLayer | TextLayer | GeoJsonLayer> = [];
   const nodeLayer = NodesGeojsonLayer;
   const lineLayer = EdgesGeojsonLayer;
-  const showGraph = isVisible(getVisLayers, { index: null, name: 'graph', group: 'graph' });
 
   for (const col of biCols ?? []) {
+    const visible = isVisible(getVisLayers, {index: null, name: col.graph.id, group: 'graph'});
+    console.log('visible', visible, col.graph.id)
     icons.push(
-      isLogic
-        ? new OrthoLayer({
-            ...layerProps,
-            biCol: col,
-            visible: showGraph,
-          })
-        : nodeLayer({
-            ...layerProps,
-            biCol: col,
-            visible: showGraph,
-          })
+        isLogic
+            ? new OrthoLayer({
+              ...layerProps,
+              biCol: col,
+              visible,
+              graph: panel.graph,
+            })
+            : nodeLayer({
+              ...layerProps,
+              biCol: col,
+              visible,
+            })
     );
   }
 
-  /// Edges render
+  const graphLayers = getGraphLayers(panel);
+  const {visLayers, groupIndices, annots, graph} = panel;
+  const clusters = Array.from(graph.subgraphsBreadthFirst()) as Graph[];
+  const graphs: Graph[] = clusters.concat([graph as Graph]);
+  const visNamespaces = visLayers.getVisibleNamespaces();
 
-  const visible = showGraph && isVisible(getVisLayers, { index: null, name: colTypes.Edges, group: colTypes.Edges });
+    /// Bboxes polygons
+    if (isLogic) {
 
-  if (lineFeatures && Object.keys(lineFeatures).length) {
-    for (const [srcGraphId, features] of Object.entries(lineFeatures)) {
-      if (!(features as DeckLine[])?.length) {continue;}
+      let bboxFeatCollection: {
+        type: 'FeatureCollection';
+        features: any[];
+      } = {
+        type: 'FeatureCollection',
+        features: [],
+      };
 
-      if (!isHyper) {
+      const allSubSpaces = Array.from(clusters).map((el) => el.id);
+      const features: any[] = [];
+      const bboxCols: any = {}; //new Set()
+      for (const c of clusters) {
+        const allNameSpaces = Array.from(graphs).map((el) => el.id);
+        const gId = c.id
+        if (gId && !bboxCols[gId]) {
+          const bbox = [100,100,100,100] //panel.hyperGraph.getBbox(gId, visNamespaces, NS_SEPARATOR, NS_PADDING);
+
+          const graph = Array.from(clusters).find((el) => el.id === gId);
+          if (bbox) {
+            bboxCols[gId] = {graph, bbox};
+          }
+        }
+      }
+
+      Object.values(bboxCols).forEach((col: any, i) => {
+        let minX, minY, maxX, maxY;
+        ({minX, minY, maxX, maxY} = col.bbox);
+
+        const fillColors = [
+          [237, 239, 240, 50],
+          [91, 217, 196, 50],
+          [230, 204, 219, 50],
+        ];
+        const polygonCoords: any = [
+          [minX, minY],
+          [maxX, minY],
+          [maxX, maxY],
+          [minX, maxY],
+          [minX, minY],
+        ];
+
+        const polyFeature = {
+          type: 'Polygon',
+          properties: {
+            id: col.graph.id,
+            locName: col.graph.id,
+            root: col.graph,
+          },
+          geometry: {
+            type: 'Polygon',
+            coordinates: [polygonCoords],
+            center: [minX + (maxX - minX) / 2, minY + (maxY - minY) / 2],
+          },
+        };
+
+        const data = {
+          idx: features.length,
+          feature: polyFeature,
+          coordinates: [minX + (maxX - minX) / 2, minY + (maxY - minY) / 2],
+          rxPtId: col.graph.data?.rxPtId,
+        };
+        col.graph.setData(data);
+
+        features.push(polyFeature);
+      });
+
+      bboxFeatCollection.features = features;
+
+
+      if (bboxFeatCollection.features.length) {
         const props = {
+          id: 'bbox-polygons',
           ...layerProps,
-          srcGraphId,
-          lineFeatures: features,
-          visible,
+          rects: bboxFeatCollection,
+          biCols,
+          getLineColor: toRGB4Array(BBOX_OUTLINE_COLOR),
+          getLineWidth: BBOX_OUTLINE_WIDTH,
+          lineWidthUnits: 'pixels', // or 'meters'
+          lineWidthScale: 1,
+          filled: true,
+          stroked: true,
         };
+        const polygonsLayer = new GeoJsonLayer({
+          ...props,
+          data: bboxFeatCollection,
+          filled: false,
+        });
+        bboxes.push(polygonsLayer);
 
-        lines.push(MyArcLayer(props));
-        arcsBase.push(MyArcLayer({ ...props, isBase: true }));
+        let bboxIdx = 0;
+        bboxFeatCollection.features.forEach((feature) => {
+          const id = feature.properties.id;
+          const geom = feature.geometry.coordinates[0];
 
-        edgeLabels.push(
-          LineTextLayer({
-            getVisLayers,
-            id: srcGraphId,
-            data: features,
-            visible,
-            type: 'arcLabels',
-            options,
-            baseLayer,
-            theme,
-          })
-        );
-      } else {
-        const linesCollection = {
-          type: 'FeatureCollection' as const,
-          features: (features as DeckLine[]).filter(Boolean),
-        };
+          const [[minX, minY], [maxX], [, maxY]] = geom;
 
-        const props = {
-          ...layerProps,
-          srcGraphId,
-          linesCollection,
-          visible,
-        };
+          const center_y = Math.max(maxY, minY);
+          const center_x = (minX + maxX) / 2;
 
-        lines.push(lineLayer(props));
-        lines.push(EdgeArrowLayer(props));
+          const data = [
+            {
+              text: id,
+              coordinates: [center_x, center_y],
+            },
+          ];
+          bboxes.push(
+              LineTextLayer({
+                id: 'bbox-' + id,
+                data,
+                theme,
+                visible: true,
+                baseLayer: layerProps.baseLayer,
+                options,
+                getVisLayers: visLayers,
+                type: 'bbox',
+              })
+          );
+          bboxIdx++;
+        });
       }
     }
-  }
 
-  if (commentFeatures?.length && isHyper) {
-    comments = MyIconLayer({
-      ...layerProps,
-      data: commentFeatures,
+    /// Edges render
+
+    const visible = isVisible(getVisLayers, {
+      index: null,
+      name: colTypes.Edges,
+      group: colTypes.Edges,
     });
-  }
 
-  return [icons, arcsBase, lines, comments, edgeLabels];
+    if (lineFeatures && Object.keys(lineFeatures).length) {
+      for (const [srcGraphId, features] of Object.entries(lineFeatures)) {
+        if (!(features as DeckLine[])?.length) {
+          continue;
+        }
+
+        if (!isHyper) {
+          const props = {
+            ...layerProps,
+            srcGraphId,
+            lineFeatures: features,
+            visible,
+          };
+
+          lines.push(MyArcLayer(props));
+          arcsBase.push(MyArcLayer({...props, isBase: true}));
+
+          edgeLabels.push(
+              LineTextLayer({
+                getVisLayers,
+                id: srcGraphId,
+                data: features,
+                visible,
+                type: 'arcLabels',
+                options,
+                baseLayer,
+                theme,
+              })
+          );
+        } else {
+          const linesCollection = {
+            type: 'FeatureCollection' as const,
+            features: (features as DeckLine[]).filter(Boolean),
+          };
+
+          const props = {
+            ...layerProps,
+            srcGraphId,
+            linesCollection,
+            getWasmId2Edges: graph.getWasmId2Edges,
+            visible,
+          };
+
+          lines.push(lineLayer(props));
+          lines.push(EdgeArrowLayer(props));
+        }
+      }
+    }
+
+    if (commentFeatures?.length && isHyper) {
+      comments = MyIconLayer({
+        ...layerProps,
+        data: commentFeatures,
+      });
+    }
+
+    return [bboxes, icons, arcsBase, lines, comments, edgeLabels];
+
 }
 
 async function initGroups(groups: Rule[], layers, svgIcons, theme, loadController: AbortController, reload = false) {
@@ -122,6 +267,19 @@ function isVisible(getVisLayers, args: { index: number | null; name: string | nu
   const [visible, indeterminate] = getVisLayers.getVisState(index, name, group) ?? [true, false];
 
   return visible && !indeterminate;
+}
+
+function findSubgraphById(graph: Graph, id: string): Graph | undefined {
+  if (graph.id === id) {
+    return graph;
+  }
+  for (const sub of graph.graphs()) {
+    const found = findSubgraphById(sub, id);
+    if (found) {
+      return found;
+    }
+  }
+  return undefined;
 }
 
 function genVisLayers(panel: GeomapPanel, props) {
@@ -161,11 +319,35 @@ function genVisLayers(panel: GeomapPanel, props) {
 }
 
 function createDerivedLayers(visLayers: VisLayers, graph: Graph, isLogic, replaceVariables, useMockData = false) {
-  const hasComments = graph && !isLogic && graph.getComments.length;
+  const graphs: Graph[] = [graph as Graph].concat(Array.from((graph as Graph).subgraphsBreadthFirst()));
+  const hasComments = graph ? !isLogic && graphs.some((g) => Object.keys(g.getComments).length) : false;
 
-  visLayers.addLayer('graph', 'graph', 'graph', false, true, false, null, false);
+  // Map from graph ID to visLayers index
+  const idToLayerIdx = new Map<string, number>();
+  const graphIdx = visLayers.addLayer('graph', 'graph', 'graph', false, true, false, null, false);
 
-  const hyperVar = useMockData ? '1' : replaceVariables(`$routed`);
+  for (const g of graphs) {
+    const id = g.id;
+    const segments = id.split(NS_SEPARATOR);
+    const label = segments[segments.length - 1]; // Use last segment as label
+    const parentId = segments.length > 1 ? segments.slice(0, -1).join(NS_SEPARATOR) : 'graph';
+    const parentIdx = parentId !== 'graph' ? idToLayerIdx.get(parentId) : graphIdx;
+
+    const layerIdx = visLayers.addLayer(
+      label,
+      id,
+      parentId, //'graph',
+      false,
+      true,
+      false,
+      parentIdx ?? null,
+      false
+    );
+
+    idToLayerIdx.set(id, layerIdx);
+  }
+
+  const hyperVar = useMockData ? '1' : replaceVariables(`$routed`); //(`$hyperedges`)
   const parsed = parseInt(hyperVar, 10);
   const isHyper = !isNaN(parsed) && parsed > 0;
 
@@ -188,4 +370,4 @@ function createDerivedLayers(visLayers: VisLayers, graph: Graph, isLogic, replac
   );
 }
 
-export { genPrimaryLayers, initGroups, isVisible, genVisLayers, createDerivedLayers };
+export { genPrimaryLayers, initGroups, isVisible, genVisLayers, createDerivedLayers, findSubgraphById };

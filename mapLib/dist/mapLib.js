@@ -158,8 +158,12 @@ var c = class extends o {
 		return this._id;
 	}
 	_lineId;
+	_arcId;
 	get lineId() {
 		return this._lineId;
+	}
+	get arcId() {
+		return this._arcId;
 	}
 	label;
 	source;
@@ -169,6 +173,9 @@ var c = class extends o {
 	}
 	setLineId(e) {
 		this._lineId = e;
+	}
+	setArcId(e) {
+		this._arcId = e;
 	}
 	get data() {
 		return this.getAttr(i.EdgeDataIndex);
@@ -189,7 +196,7 @@ var c = class extends o {
 		return this.source.parent !== this.target.parent;
 	}
 	EdgeToAncestor() {
-		return this.source instanceof Ch && this.target.isDescendantOf(this.source) ? s.FromAncestor : this.target instanceof Ch && this.source.isDescendantOf(this.target) ? s.ToAncestor : s.None;
+		return this.source instanceof wh && this.target.isDescendantOf(this.source) ? s.FromAncestor : this.target instanceof wh && this.source.isDescendantOf(this.target) ? s.ToAncestor : s.None;
 	}
 }, l = class extends o {
 	removeOutEdge(e) {
@@ -322,22 +329,22 @@ function re() {
 	te || d("`Proxy` objects are not available in the current environment. Please configure MobX to enable a fallback implementation.`");
 }
 function ie(e) {
-	C.verifyProxies && d("MobX is currently configured to be able to run in ES5 mode, but in ES5 MobX won't be able to " + e);
+	T.verifyProxies && d("MobX is currently configured to be able to run in ES5 mode, but in ES5 MobX won't be able to " + e);
 }
-function ae() {
-	return ++C.mobxGuid;
+function y() {
+	return ++T.mobxGuid;
 }
-function oe(e) {
+function b(e) {
 	var t = !1;
 	return function() {
 		if (!t) return t = !0, e.apply(this, arguments);
 	};
 }
-var se = function() {};
-function y(e) {
+var ae = function() {};
+function x(e) {
 	return typeof e == "function";
 }
-function ce(e) {
+function oe(e) {
 	switch (typeof e) {
 		case "string":
 		case "symbol":
@@ -345,21 +352,21 @@ function ce(e) {
 	}
 	return !1;
 }
-function le(e) {
+function se(e) {
 	return typeof e == "object" && !!e;
 }
-function ue(e) {
-	if (!le(e)) return !1;
+function ce(e) {
+	if (!se(e)) return !1;
 	var t = Object.getPrototypeOf(e);
 	if (t == null) return !0;
 	var n = Object.hasOwnProperty.call(t, "constructor") && t.constructor;
 	return typeof n == "function" && n.toString() === ne;
 }
-function de(e) {
+function le(e) {
 	var t = e?.constructor;
 	return t ? t.name === "GeneratorFunction" || t.displayName === "GeneratorFunction" : !1;
 }
-function fe(e, t, n) {
+function ue(e, t, n) {
 	g(e, t, {
 		enumerable: !1,
 		writable: !0,
@@ -367,7 +374,7 @@ function fe(e, t, n) {
 		value: n
 	});
 }
-function pe(e, t, n) {
+function de(e, t, n) {
 	g(e, t, {
 		enumerable: !1,
 		writable: !1,
@@ -375,72 +382,72 @@ function pe(e, t, n) {
 		value: n
 	});
 }
-function me(e, t) {
+function fe(e, t) {
 	var n = "isMobX" + e;
 	return t.prototype[n] = !0, function(e) {
-		return le(e) && e[n] === !0;
+		return se(e) && e[n] === !0;
 	};
 }
-function he(e) {
+function pe(e) {
 	return e != null && Object.prototype.toString.call(e) === "[object Map]";
 }
-function ge(e) {
+function me(e) {
 	return Object.getPrototypeOf(Object.getPrototypeOf(Object.getPrototypeOf(e))) === null;
 }
-function _e(e) {
+function he(e) {
 	return e != null && Object.prototype.toString.call(e) === "[object Set]";
 }
-var ve = Object.getOwnPropertySymbols !== void 0;
-function ye(e) {
+var ge = Object.getOwnPropertySymbols !== void 0;
+function _e(e) {
 	var t = Object.keys(e);
-	if (!ve) return t;
+	if (!ge) return t;
 	var n = Object.getOwnPropertySymbols(e);
 	return n.length ? [].concat(t, n.filter(function(t) {
 		return _.propertyIsEnumerable.call(e, t);
 	})) : t;
 }
-var be = typeof Reflect < "u" && Reflect.ownKeys ? Reflect.ownKeys : ve ? function(e) {
+var ve = typeof Reflect < "u" && Reflect.ownKeys ? Reflect.ownKeys : ge ? function(e) {
 	return Object.getOwnPropertyNames(e).concat(Object.getOwnPropertySymbols(e));
 } : Object.getOwnPropertyNames;
-function xe(e) {
+function ye(e) {
 	return typeof e == "string" ? e : typeof e == "symbol" ? e.toString() : new String(e).toString();
 }
-function Se(e) {
+function be(e) {
 	return e === null ? null : typeof e == "object" ? "" + e : e;
 }
-function Ce(e, t) {
+function xe(e, t) {
 	return _.hasOwnProperty.call(e, t);
 }
-var we = Object.getOwnPropertyDescriptors || function(e) {
+var Se = Object.getOwnPropertyDescriptors || function(e) {
 	var t = {};
-	return be(e).forEach(function(n) {
+	return ve(e).forEach(function(n) {
 		t[n] = h(e, n);
 	}), t;
 };
-function Te(e, t) {
+function Ce(e, t) {
 	return !!(e & t);
 }
-function Ee(e, t, n) {
+function we(e, t, n) {
 	return n ? e |= t : e &= ~t, e;
 }
-function De(e, t) {
+function Te(e, t) {
 	(t == null || t > e.length) && (t = e.length);
 	for (var n = 0, r = Array(t); n < t; n++) r[n] = e[n];
 	return r;
 }
-function Oe(e, t) {
+function Ee(e, t) {
 	for (var n = 0; n < t.length; n++) {
 		var r = t[n];
-		r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, Fe(r.key), r);
+		r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, Ne(r.key), r);
 	}
 }
-function ke(e, t, n) {
-	return t && Oe(e.prototype, t), n && Oe(e, n), Object.defineProperty(e, "prototype", { writable: !1 }), e;
+function De(e, t, n) {
+	return t && Ee(e.prototype, t), n && Ee(e, n), Object.defineProperty(e, "prototype", { writable: !1 }), e;
 }
-function Ae(e, t) {
+function Oe(e, t) {
 	var n = typeof Symbol < "u" && e[Symbol.iterator] || e["@@iterator"];
 	if (n) return (n = n.call(e)).next.bind(n);
-	if (Array.isArray(e) || (n = Ie(e)) || t && e && typeof e.length == "number") {
+	if (Array.isArray(e) || (n = Pe(e)) || t && e && typeof e.length == "number") {
 		n && (e = n);
 		var r = 0;
 		return function() {
@@ -452,24 +459,24 @@ function Ae(e, t) {
 	}
 	throw TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
 }
-function je() {
-	return je = Object.assign ? Object.assign.bind() : function(e) {
+function ke() {
+	return ke = Object.assign ? Object.assign.bind() : function(e) {
 		for (var t = 1; t < arguments.length; t++) {
 			var n = arguments[t];
 			for (var r in n) ({}).hasOwnProperty.call(n, r) && (e[r] = n[r]);
 		}
 		return e;
-	}, je.apply(null, arguments);
+	}, ke.apply(null, arguments);
+}
+function Ae(e, t) {
+	e.prototype = Object.create(t.prototype), e.prototype.constructor = e, je(e, t);
+}
+function je(e, t) {
+	return je = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function(e, t) {
+		return e.__proto__ = t, e;
+	}, je(e, t);
 }
 function Me(e, t) {
-	e.prototype = Object.create(t.prototype), e.prototype.constructor = e, Ne(e, t);
-}
-function Ne(e, t) {
-	return Ne = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function(e, t) {
-		return e.__proto__ = t, e;
-	}, Ne(e, t);
-}
-function Pe(e, t) {
 	if (typeof e != "object" || !e) return e;
 	var n = e[Symbol.toPrimitive];
 	if (n !== void 0) {
@@ -479,46 +486,46 @@ function Pe(e, t) {
 	}
 	return (t === "string" ? String : Number)(e);
 }
-function Fe(e) {
-	var t = Pe(e, "string");
+function Ne(e) {
+	var t = Me(e, "string");
 	return typeof t == "symbol" ? t : t + "";
 }
-function Ie(e, t) {
+function Pe(e, t) {
 	if (e) {
-		if (typeof e == "string") return De(e, t);
+		if (typeof e == "string") return Te(e, t);
 		var n = {}.toString.call(e).slice(8, -1);
-		return n === "Object" && e.constructor && (n = e.constructor.name), n === "Map" || n === "Set" ? Array.from(e) : n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n) ? De(e, t) : void 0;
+		return n === "Object" && e.constructor && (n = e.constructor.name), n === "Map" || n === "Set" ? Array.from(e) : n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n) ? Te(e, t) : void 0;
 	}
 }
-var Le = /* @__PURE__ */ Symbol("mobx-stored-annotations");
-function Re(e) {
+var Fe = /* @__PURE__ */ Symbol("mobx-stored-annotations");
+function Ie(e) {
 	function t(t, n) {
-		if (He(n)) return e.decorate_20223_(t, n);
-		ze(t, n, e);
+		if (Be(n)) return e.decorate_20223_(t, n);
+		Le(t, n, e);
 	}
 	return Object.assign(t, e);
 }
-function ze(e, t, n) {
-	Ce(e, Le) || fe(e, Le, je({}, e[Le])), rt(n) && !Ce(e[Le], t) && d("'" + (e.constructor.name + ".prototype." + t.toString()) + "' is decorated with 'override', but no such decorated member was found on prototype."), Be(e, n, t), rt(n) || (e[Le][t] = n);
+function Le(e, t, n) {
+	xe(e, Fe) || ue(e, Fe, ke({}, e[Fe])), tt(n) && !xe(e[Fe], t) && d("'" + (e.constructor.name + ".prototype." + t.toString()) + "' is decorated with 'override', but no such decorated member was found on prototype."), Re(e, n, t), tt(n) || (e[Fe][t] = n);
 }
-function Be(e, t, n) {
-	if (!rt(t) && Ce(e[Le], n)) {
-		var r = e.constructor.name + ".prototype." + n.toString(), i = e[Le][n].annotationType_, a = t.annotationType_;
+function Re(e, t, n) {
+	if (!tt(t) && xe(e[Fe], n)) {
+		var r = e.constructor.name + ".prototype." + n.toString(), i = e[Fe][n].annotationType_, a = t.annotationType_;
 		d("Cannot apply '@" + a + "' to '" + r + "':" + ("\nThe field is already decorated with '@" + i + "'.") + "\nRe-decorating fields is not allowed.\nUse '@override' decorator for methods overridden by subclass.");
 	}
 }
-function Ve(e) {
-	return Ce(e, Le) || fe(e, Le, je({}, e[Le])), e[Le];
+function ze(e) {
+	return xe(e, Fe) || ue(e, Fe, ke({}, e[Fe])), e[Fe];
 }
-function He(e) {
+function Be(e) {
 	return typeof e == "object" && typeof e.kind == "string";
 }
-function Ue(e, t) {
+function Ve(e, t) {
 	t.includes(e.kind) || d("The decorator applied to '" + String(e.name) + "' cannot be used on a " + e.kind + " element");
 }
-var b = /* @__PURE__ */ Symbol("mobx administration"), We = /* @__PURE__ */ function() {
+var S = /* @__PURE__ */ Symbol("mobx administration"), He = /* @__PURE__ */ function() {
 	function e(e) {
-		e === void 0 && (e = "Atom@" + ae()), this.name_ = void 0, this.flags_ = 0, this.observers_ = /* @__PURE__ */ new Set(), this.lastAccessedBy_ = 0, this.lowestObserverState_ = S.NOT_TRACKING_, this.onBOL = void 0, this.onBUOL = void 0, this.name_ = e;
+		e === void 0 && (e = "Atom@" + y()), this.name_ = void 0, this.flags_ = 0, this.observers_ = /* @__PURE__ */ new Set(), this.lastAccessedBy_ = 0, this.lowestObserverState_ = w.NOT_TRACKING_, this.onBOL = void 0, this.onBUOL = void 0, this.name_ = e;
 	}
 	var t = e.prototype;
 	return t.onBO = function() {
@@ -530,280 +537,280 @@ var b = /* @__PURE__ */ Symbol("mobx administration"), We = /* @__PURE__ */ func
 			return e();
 		});
 	}, t.reportObserved = function() {
-		return Ln(this);
+		return Fn(this);
 	}, t.reportChanged = function() {
-		Fn(), Rn(this), In();
+		Nn(), In(this), Pn();
 	}, t.toString = function() {
 		return this.name_;
-	}, ke(e, [
+	}, De(e, [
 		{
 			key: "isBeingObserved",
 			get: function() {
-				return Te(this.flags_, e.isBeingObservedMask_);
+				return Ce(this.flags_, e.isBeingObservedMask_);
 			},
 			set: function(t) {
-				this.flags_ = Ee(this.flags_, e.isBeingObservedMask_, t);
+				this.flags_ = we(this.flags_, e.isBeingObservedMask_, t);
 			}
 		},
 		{
 			key: "isPendingUnobservation",
 			get: function() {
-				return Te(this.flags_, e.isPendingUnobservationMask_);
+				return Ce(this.flags_, e.isPendingUnobservationMask_);
 			},
 			set: function(t) {
-				this.flags_ = Ee(this.flags_, e.isPendingUnobservationMask_, t);
+				this.flags_ = we(this.flags_, e.isPendingUnobservationMask_, t);
 			}
 		},
 		{
 			key: "diffValue",
 			get: function() {
-				return Te(this.flags_, e.diffValueMask_) ? 1 : 0;
+				return Ce(this.flags_, e.diffValueMask_) ? 1 : 0;
 			},
 			set: function(t) {
-				this.flags_ = Ee(this.flags_, e.diffValueMask_, t === 1);
+				this.flags_ = we(this.flags_, e.diffValueMask_, t === 1);
 			}
 		}
 	]);
 }();
-We.isBeingObservedMask_ = 1, We.isPendingUnobservationMask_ = 2, We.diffValueMask_ = 4;
-var Ge = /* @__PURE__ */ me("Atom", We);
-function Ke(e, t, n) {
-	t === void 0 && (t = se), n === void 0 && (n = se);
-	var r = new We(e);
-	return t !== se && yr(r, t), n !== se && br(r, n), r;
+He.isBeingObservedMask_ = 1, He.isPendingUnobservationMask_ = 2, He.diffValueMask_ = 4;
+var Ue = /* @__PURE__ */ fe("Atom", He);
+function We(e, t, n) {
+	t === void 0 && (t = ae), n === void 0 && (n = ae);
+	var r = new He(e);
+	return t !== ae && _r(r, t), n !== ae && vr(r, n), r;
 }
-function qe(e, t) {
+function Ge(e, t) {
 	return e === t;
 }
+function Ke(e, t) {
+	return zi(e, t);
+}
+function qe(e, t) {
+	return zi(e, t, 1);
+}
 function Je(e, t) {
-	return Vi(e, t);
-}
-function Ye(e, t) {
-	return Vi(e, t, 1);
-}
-function Xe(e, t) {
 	return Object.is ? Object.is(e, t) : e === t ? e !== 0 || 1 / e == 1 / t : e !== e && t !== t;
 }
-var Ze = {
-	identity: qe,
-	structural: Je,
-	default: Xe,
-	shallow: Ye
+var Ye = {
+	identity: Ge,
+	structural: Ke,
+	default: Je,
+	shallow: qe
 };
-function Qe(e, t, n) {
-	return Pr(e) ? e : Array.isArray(e) ? x.array(e, { name: n }) : ue(e) ? x.object(e, void 0, { name: n }) : he(e) ? x.map(e, { name: n }) : _e(e) ? x.set(e, { name: n }) : typeof e == "function" && !pr(e) && !Mr(e) ? de(e) ? Ar(e) : fr(n, e) : e;
+function Xe(e, t, n) {
+	return Mr(e) ? e : Array.isArray(e) ? C.array(e, { name: n }) : ce(e) ? C.object(e, void 0, { name: n }) : pe(e) ? C.map(e, { name: n }) : he(e) ? C.set(e, { name: n }) : typeof e == "function" && !dr(e) && !Ar(e) ? le(e) ? Or(e) : ur(n, e) : e;
 }
-function $e(e, t, n) {
-	if (e == null || Ci(e) || ai(e) || ui(e) || hi(e)) return e;
-	if (Array.isArray(e)) return x.array(e, {
+function Ze(e, t, n) {
+	if (e == null || xi(e) || ri(e) || ci(e) || pi(e)) return e;
+	if (Array.isArray(e)) return C.array(e, {
 		name: n,
 		deep: !1
 	});
-	if (ue(e)) return x.object(e, void 0, {
+	if (ce(e)) return C.object(e, void 0, {
 		name: n,
 		deep: !1
 	});
-	if (he(e)) return x.map(e, {
+	if (pe(e)) return C.map(e, {
 		name: n,
 		deep: !1
 	});
-	if (_e(e)) return x.set(e, {
+	if (he(e)) return C.set(e, {
 		name: n,
 		deep: !1
 	});
 	d("The shallow modifier / decorator can only used in combination with arrays, objects, maps and sets");
 }
-function et(e) {
+function Qe(e) {
 	return e;
 }
-function tt(e, t) {
-	return Pr(e) && d("observable.struct should not be used with observable values"), Vi(e, t) ? t : e;
+function $e(e, t) {
+	return Mr(e) && d("observable.struct should not be used with observable values"), zi(e, t) ? t : e;
 }
-var nt = "override";
-function rt(e) {
-	return e.annotationType_ === nt;
+var et = "override";
+function tt(e) {
+	return e.annotationType_ === et;
 }
-function it(e, t) {
+function nt(e, t) {
 	return {
 		annotationType_: e,
 		options_: t,
-		make_: at,
-		extend_: ot,
-		decorate_20223_: st
+		make_: rt,
+		extend_: it,
+		decorate_20223_: at
 	};
 }
-function at(e, t, n, r) {
+function rt(e, t, n, r) {
 	var i;
-	return (i = this.options_) != null && i.bound ? this.extend_(e, t, n, !1) === null ? 0 : 1 : r === e.target_ ? this.extend_(e, t, n, !1) === null ? 0 : 2 : pr(n.value) ? 1 : (g(r, t, lt(e, this, t, n, !1)), 2);
+	return (i = this.options_) != null && i.bound ? this.extend_(e, t, n, !1) === null ? 0 : 1 : r === e.target_ ? this.extend_(e, t, n, !1) === null ? 0 : 2 : dr(n.value) ? 1 : (g(r, t, st(e, this, t, n, !1)), 2);
 }
-function ot(e, t, n, r) {
-	var i = lt(e, this, t, n);
+function it(e, t, n, r) {
+	var i = st(e, this, t, n);
 	return e.defineProperty_(t, i, r);
 }
-function st(e, t) {
-	Ue(t, ["method", "field"]);
+function at(e, t) {
+	Ve(t, ["method", "field"]);
 	var n = t.kind, r = t.name, i = t.addInitializer, a = this, o = function(e) {
-		return nn(a.options_?.name ?? r.toString(), e, a.options_?.autoAction ?? !1);
+		return en(a.options_?.name ?? r.toString(), e, a.options_?.autoAction ?? !1);
 	};
 	if (n == "field") return function(e) {
 		var t, n = e;
-		return pr(n) || (n = o(n)), (t = a.options_) != null && t.bound && (n = n.bind(this), n.isMobxAction = !0), n;
+		return dr(n) || (n = o(n)), (t = a.options_) != null && t.bound && (n = n.bind(this), n.isMobxAction = !0), n;
 	};
 	if (n == "method") {
 		var s;
-		return pr(e) || (e = o(e)), (s = this.options_) != null && s.bound && i(function() {
+		return dr(e) || (e = o(e)), (s = this.options_) != null && s.bound && i(function() {
 			var e = this, t = e[r].bind(e);
 			t.isMobxAction = !0, e[r] = t;
 		}), e;
 	}
 	d("Cannot apply '" + a.annotationType_ + "' to '" + String(r) + "' (kind: " + n + "):" + ("\n'" + a.annotationType_ + "' can only be used on properties with a function value."));
 }
-function ct(e, t, n, r) {
+function ot(e, t, n, r) {
 	var i = t.annotationType_, a = r.value;
-	y(a) || d("Cannot apply '" + i + "' to '" + e.name_ + "." + n.toString() + "':" + ("\n'" + i + "' can only be used on properties with a function value."));
+	x(a) || d("Cannot apply '" + i + "' to '" + e.name_ + "." + n.toString() + "':" + ("\n'" + i + "' can only be used on properties with a function value."));
 }
-function lt(e, t, n, r, i) {
+function st(e, t, n, r, i) {
 	var a, o;
-	i === void 0 && (i = C.safeDescriptors), ct(e, t, n, r);
+	i === void 0 && (i = T.safeDescriptors), ot(e, t, n, r);
 	var s = r.value;
 	return (a = t.options_) != null && a.bound && (s = s.bind(e.proxy_ ?? e.target_)), {
-		value: nn(t.options_?.name ?? n.toString(), s, t.options_?.autoAction ?? !1, (o = t.options_) != null && o.bound ? e.proxy_ ?? e.target_ : void 0),
+		value: en(t.options_?.name ?? n.toString(), s, t.options_?.autoAction ?? !1, (o = t.options_) != null && o.bound ? e.proxy_ ?? e.target_ : void 0),
 		configurable: i ? e.isPlainObject_ : !0,
 		enumerable: !1,
 		writable: !i
 	};
 }
-function ut(e, t) {
+function ct(e, t) {
 	return {
 		annotationType_: e,
 		options_: t,
-		make_: dt,
-		extend_: ft,
-		decorate_20223_: pt
+		make_: lt,
+		extend_: ut,
+		decorate_20223_: dt
 	};
 }
-function dt(e, t, n, r) {
+function lt(e, t, n, r) {
 	var i;
-	return r === e.target_ ? this.extend_(e, t, n, !1) === null ? 0 : 2 : (i = this.options_) != null && i.bound && (!Ce(e.target_, t) || !Mr(e.target_[t])) && this.extend_(e, t, n, !1) === null ? 0 : Mr(n.value) ? 1 : (g(r, t, ht(e, this, t, n, !1, !1)), 2);
+	return r === e.target_ ? this.extend_(e, t, n, !1) === null ? 0 : 2 : (i = this.options_) != null && i.bound && (!xe(e.target_, t) || !Ar(e.target_[t])) && this.extend_(e, t, n, !1) === null ? 0 : Ar(n.value) ? 1 : (g(r, t, pt(e, this, t, n, !1, !1)), 2);
 }
-function ft(e, t, n, r) {
-	var i = ht(e, this, t, n, this.options_?.bound);
+function ut(e, t, n, r) {
+	var i = pt(e, this, t, n, this.options_?.bound);
 	return e.defineProperty_(t, i, r);
 }
-function pt(e, t) {
+function dt(e, t) {
 	var n;
-	Ue(t, ["method"]);
+	Ve(t, ["method"]);
 	var r = t.name, i = t.addInitializer;
-	return Mr(e) || (e = Ar(e)), (n = this.options_) != null && n.bound && i(function() {
+	return Ar(e) || (e = Or(e)), (n = this.options_) != null && n.bound && i(function() {
 		var e = this, t = e[r].bind(e);
 		t.isMobXFlow = !0, e[r] = t;
 	}), e;
 }
-function mt(e, t, n, r) {
+function ft(e, t, n, r) {
 	var i = t.annotationType_, a = r.value;
-	y(a) || d("Cannot apply '" + i + "' to '" + e.name_ + "." + n.toString() + "':" + ("\n'" + i + "' can only be used on properties with a generator function value."));
+	x(a) || d("Cannot apply '" + i + "' to '" + e.name_ + "." + n.toString() + "':" + ("\n'" + i + "' can only be used on properties with a generator function value."));
 }
-function ht(e, t, n, r, i, a) {
-	a === void 0 && (a = C.safeDescriptors), mt(e, t, n, r);
+function pt(e, t, n, r, i, a) {
+	a === void 0 && (a = T.safeDescriptors), ft(e, t, n, r);
 	var o = r.value;
-	return Mr(o) || (o = Ar(o)), i && (o = o.bind(e.proxy_ ?? e.target_), o.isMobXFlow = !0), {
+	return Ar(o) || (o = Or(o)), i && (o = o.bind(e.proxy_ ?? e.target_), o.isMobXFlow = !0), {
 		value: o,
 		configurable: a ? e.isPlainObject_ : !0,
 		enumerable: !1,
 		writable: !a
 	};
 }
-function gt(e, t) {
+function mt(e, t) {
 	return {
 		annotationType_: e,
 		options_: t,
-		make_: _t,
-		extend_: vt,
-		decorate_20223_: yt
+		make_: ht,
+		extend_: gt,
+		decorate_20223_: _t
 	};
 }
-function _t(e, t, n) {
+function ht(e, t, n) {
 	return this.extend_(e, t, n, !1) === null ? 0 : 1;
 }
-function vt(e, t, n, r) {
-	return bt(e, this, t, n), e.defineComputedProperty_(t, je({}, this.options_, {
+function gt(e, t, n, r) {
+	return vt(e, this, t, n), e.defineComputedProperty_(t, ke({}, this.options_, {
 		get: n.get,
 		set: n.set
 	}), r);
 }
-function yt(e, t) {
-	Ue(t, ["getter"]);
+function _t(e, t) {
+	Ve(t, ["getter"]);
 	var n = this, r = t.name, i = t.addInitializer;
 	return i(function() {
-		var t = bi(this)[b], i = je({}, n.options_, {
+		var t = vi(this)[S], i = ke({}, n.options_, {
 			get: e,
 			context: this
 		});
-		i.name ||= t.name_ + "." + r.toString(), t.values_.set(r, new dn(i));
+		i.name ||= t.name_ + "." + r.toString(), t.values_.set(r, new ln(i));
 	}), function() {
-		return this[b].getObservablePropValue_(r);
+		return this[S].getObservablePropValue_(r);
 	};
 }
-function bt(e, t, n, r) {
+function vt(e, t, n, r) {
 	var i = t.annotationType_;
 	r.get || d("Cannot apply '" + i + "' to '" + e.name_ + "." + n.toString() + "':" + ("\n'" + i + "' can only be used on getter(+setter) properties."));
 }
-function xt(e, t) {
+function yt(e, t) {
 	return {
 		annotationType_: e,
 		options_: t,
-		make_: St,
-		extend_: Ct,
-		decorate_20223_: wt
+		make_: bt,
+		extend_: xt,
+		decorate_20223_: St
 	};
 }
-function St(e, t, n) {
+function bt(e, t, n) {
 	return this.extend_(e, t, n, !1) === null ? 0 : 1;
 }
-function Ct(e, t, n, r) {
-	return Tt(e, this, t, n), e.defineObservableProperty_(t, n.value, this.options_?.enhancer ?? Qe, r);
+function xt(e, t, n, r) {
+	return Ct(e, this, t, n), e.defineObservableProperty_(t, n.value, this.options_?.enhancer ?? Xe, r);
 }
-function wt(e, t) {
+function St(e, t) {
 	if (t.kind === "field") throw d("Please use `@observable accessor " + String(t.name) + "` instead of `@observable " + String(t.name) + "`");
-	Ue(t, ["accessor"]);
+	Ve(t, ["accessor"]);
 	var n = this, r = t.kind, i = t.name, a = /* @__PURE__ */ new WeakSet();
 	function o(e, t) {
-		var r = bi(e)[b], o = new un(t, n.options_?.enhancer ?? Qe, r.name_ + "." + i.toString(), !1);
+		var r = vi(e)[S], o = new cn(t, n.options_?.enhancer ?? Xe, r.name_ + "." + i.toString(), !1);
 		r.values_.set(i, o), a.add(e);
 	}
 	if (r == "accessor") return {
 		get: function() {
-			return a.has(this) || o(this, e.get.call(this)), this[b].getObservablePropValue_(i);
+			return a.has(this) || o(this, e.get.call(this)), this[S].getObservablePropValue_(i);
 		},
 		set: function(e) {
-			return a.has(this) || o(this, e), this[b].setObservablePropValue_(i, e);
+			return a.has(this) || o(this, e), this[S].setObservablePropValue_(i, e);
 		},
 		init: function(e) {
 			return a.has(this) || o(this, e), e;
 		}
 	};
 }
-function Tt(e, t, n, r) {
+function Ct(e, t, n, r) {
 	var i = t.annotationType_;
 	"value" in r || d("Cannot apply '" + i + "' to '" + e.name_ + "." + n.toString() + "':" + ("\n'" + i + "' cannot be used on getter/setter properties"));
 }
-var Et = "true", Dt = /* @__PURE__ */ Ot();
-function Ot(e) {
+var wt = "true", Tt = /* @__PURE__ */ Et();
+function Et(e) {
 	return {
-		annotationType_: Et,
+		annotationType_: wt,
 		options_: e,
-		make_: kt,
-		extend_: At,
-		decorate_20223_: jt
+		make_: Dt,
+		extend_: Ot,
+		decorate_20223_: kt
 	};
 }
-function kt(e, t, n, r) {
+function Dt(e, t, n, r) {
 	var i;
-	if (n.get) return Zt.make_(e, t, n, r);
+	if (n.get) return Yt.make_(e, t, n, r);
 	if (n.set) {
-		var a = pr(n.set) ? n.set : nn(t.toString(), n.set);
+		var a = dr(n.set) ? n.set : en(t.toString(), n.set);
 		return r === e.target_ ? e.defineProperty_(t, {
-			configurable: C.safeDescriptors ? e.isPlainObject_ : !0,
+			configurable: T.safeDescriptors ? e.isPlainObject_ : !0,
 			set: a
 		}) === null ? 0 : 2 : (g(r, t, {
 			configurable: !0,
@@ -812,191 +819,191 @@ function kt(e, t, n, r) {
 	}
 	if (r !== e.target_ && typeof n.value == "function") {
 		var o;
-		if (de(n.value)) {
+		if (le(n.value)) {
 			var s;
-			return ((s = this.options_) != null && s.autoBind ? Ar.bound : Ar).make_(e, t, n, r);
+			return ((s = this.options_) != null && s.autoBind ? Or.bound : Or).make_(e, t, n, r);
 		}
-		return ((o = this.options_) != null && o.autoBind ? fr.bound : fr).make_(e, t, n, r);
+		return ((o = this.options_) != null && o.autoBind ? ur.bound : ur).make_(e, t, n, r);
 	}
-	var c = this.options_?.deep === !1 ? x.ref : x;
+	var c = this.options_?.deep === !1 ? C.ref : C;
 	return typeof n.value == "function" && (i = this.options_) != null && i.autoBind && (n.value = n.value.bind(e.proxy_ ?? e.target_)), c.make_(e, t, n, r);
 }
-function At(e, t, n, r) {
+function Ot(e, t, n, r) {
 	var i;
-	return n.get ? Zt.extend_(e, t, n, r) : n.set ? e.defineProperty_(t, {
-		configurable: C.safeDescriptors ? e.isPlainObject_ : !0,
-		set: nn(t.toString(), n.set)
-	}, r) : (typeof n.value == "function" && (i = this.options_) != null && i.autoBind && (n.value = n.value.bind(e.proxy_ ?? e.target_)), (this.options_?.deep === !1 ? x.ref : x).extend_(e, t, n, r));
+	return n.get ? Yt.extend_(e, t, n, r) : n.set ? e.defineProperty_(t, {
+		configurable: T.safeDescriptors ? e.isPlainObject_ : !0,
+		set: en(t.toString(), n.set)
+	}, r) : (typeof n.value == "function" && (i = this.options_) != null && i.autoBind && (n.value = n.value.bind(e.proxy_ ?? e.target_)), (this.options_?.deep === !1 ? C.ref : C).extend_(e, t, n, r));
 }
-function jt(e, t) {
+function kt(e, t) {
 	d("'" + this.annotationType_ + "' cannot be used as a decorator");
 }
-var Mt = "observable", Nt = "observable.ref", Pt = "observable.shallow", Ft = "observable.struct", It = {
+var At = "observable", jt = "observable.ref", Mt = "observable.shallow", Nt = "observable.struct", Pt = {
 	deep: !0,
 	name: void 0,
 	defaultDecorator: void 0,
 	proxy: !0
 };
-Object.freeze(It);
-function Lt(e) {
-	return e || It;
+Object.freeze(Pt);
+function Ft(e) {
+	return e || Pt;
 }
-var Rt = /* @__PURE__ */ xt(Mt), zt = /* @__PURE__ */ xt(Nt, { enhancer: et }), Bt = /* @__PURE__ */ xt(Pt, { enhancer: $e }), Vt = /* @__PURE__ */ xt(Ft, { enhancer: tt }), Ht = /* @__PURE__ */ Re(Rt);
+var It = /* @__PURE__ */ yt(At), Lt = /* @__PURE__ */ yt(jt, { enhancer: Qe }), Rt = /* @__PURE__ */ yt(Mt, { enhancer: Ze }), zt = /* @__PURE__ */ yt(Nt, { enhancer: $e }), Bt = /* @__PURE__ */ Ie(It);
+function Vt(e) {
+	return e.deep === !0 ? Xe : e.deep === !1 ? Qe : Ut(e.defaultDecorator);
+}
+function Ht(e) {
+	return e ? e.defaultDecorator ?? Et(e) : void 0;
+}
 function Ut(e) {
-	return e.deep === !0 ? Qe : e.deep === !1 ? et : Gt(e.defaultDecorator);
+	return e ? e.options_?.enhancer ?? Xe : Xe;
 }
-function Wt(e) {
-	return e ? e.defaultDecorator ?? Ot(e) : void 0;
-}
-function Gt(e) {
-	return e ? e.options_?.enhancer ?? Qe : Qe;
-}
-function Kt(e, t, n) {
-	if (He(t)) return Rt.decorate_20223_(e, t);
-	if (ce(t)) {
-		ze(e, t, Rt);
+function Wt(e, t, n) {
+	if (Be(t)) return It.decorate_20223_(e, t);
+	if (oe(t)) {
+		Le(e, t, It);
 		return;
 	}
-	return Pr(e) ? e : ue(e) ? x.object(e, t, n) : Array.isArray(e) ? x.array(e, t) : he(e) ? x.map(e, t) : _e(e) ? x.set(e, t) : typeof e == "object" && e ? e : x.box(e, t);
+	return Mr(e) ? e : ce(e) ? C.object(e, t, n) : Array.isArray(e) ? C.array(e, t) : pe(e) ? C.map(e, t) : he(e) ? C.set(e, t) : typeof e == "object" && e ? e : C.box(e, t);
 }
-m(Kt, Ht);
-var x = /* @__PURE__ */ m(Kt, {
+m(Wt, Bt);
+var C = /* @__PURE__ */ m(Wt, {
 	box: function(e, t) {
-		var n = Lt(t);
-		return new un(e, Ut(n), n.name, !0, n.equals);
+		var n = Ft(t);
+		return new cn(e, Vt(n), n.name, !0, n.equals);
 	},
 	array: function(e, t) {
-		var n = Lt(t);
-		return (C.useProxies === !1 || n.proxy === !1 ? Fi : $r)(e, Ut(n), n.name);
+		var n = Ft(t);
+		return (T.useProxies === !1 || n.proxy === !1 ? Ni : Zr)(e, Vt(n), n.name);
 	},
 	map: function(e, t) {
-		var n = Lt(t);
-		return new li(e, Ut(n), n.name);
+		var n = Ft(t);
+		return new si(e, Vt(n), n.name);
 	},
 	set: function(e, t) {
-		var n = Lt(t);
-		return new mi(e, Ut(n), n.name);
+		var n = Ft(t);
+		return new fi(e, Vt(n), n.name);
 	},
 	object: function(e, t, n) {
-		return zi(function() {
-			return Sr(C.useProxies === !1 || n?.proxy === !1 ? bi({}, n) : Br({}, n), e, t);
+		return Li(function() {
+			return br(T.useProxies === !1 || n?.proxy === !1 ? vi({}, n) : Rr({}, n), e, t);
 		});
 	},
-	ref: /* @__PURE__ */ Re(zt),
-	shallow: /* @__PURE__ */ Re(Bt),
-	deep: Ht,
-	struct: /* @__PURE__ */ Re(Vt)
-}), qt = "computed", Jt = "computed.struct", Yt = /* @__PURE__ */ gt(qt), Xt = /* @__PURE__ */ gt(Jt, { equals: Ze.structural }), Zt = function(e, t) {
-	if (He(t)) return Yt.decorate_20223_(e, t);
-	if (ce(t)) return ze(e, t, Yt);
-	if (ue(e)) return Re(gt(qt, e));
-	y(e) || d("First argument to `computed` should be an expression."), y(t) && d("A setter as second argument is no longer supported, use `{ set: fn }` option instead");
-	var n = ue(t) ? t : {};
-	return n.get = e, n.name ||= e.name || "", new dn(n);
+	ref: /* @__PURE__ */ Ie(Lt),
+	shallow: /* @__PURE__ */ Ie(Rt),
+	deep: Bt,
+	struct: /* @__PURE__ */ Ie(zt)
+}), Gt = "computed", Kt = "computed.struct", qt = /* @__PURE__ */ mt(Gt), Jt = /* @__PURE__ */ mt(Kt, { equals: Ye.structural }), Yt = function(e, t) {
+	if (Be(t)) return qt.decorate_20223_(e, t);
+	if (oe(t)) return Le(e, t, qt);
+	if (ce(e)) return Ie(mt(Gt, e));
+	x(e) || d("First argument to `computed` should be an expression."), x(t) && d("A setter as second argument is no longer supported, use `{ set: fn }` option instead");
+	var n = ce(t) ? t : {};
+	return n.get = e, n.name ||= e.name || "", new ln(n);
 };
-Object.assign(Zt, Yt), Zt.struct = /* @__PURE__ */ Re(Xt);
-var Qt = 0, $t = 1, en = (/* @__PURE__ */ h(function() {}, "name"))?.configurable ?? !1, tn = {
+Object.assign(Yt, qt), Yt.struct = /* @__PURE__ */ Ie(Jt);
+var Xt = 0, Zt = 1, Qt = (/* @__PURE__ */ h(function() {}, "name"))?.configurable ?? !1, $t = {
 	value: "action",
 	configurable: !0,
 	writable: !1,
 	enumerable: !1
 };
-function nn(e, t, n, r) {
-	n === void 0 && (n = !1), y(t) || d("`action` can only be invoked on functions"), (typeof e != "string" || !e) && d("actions should have valid names, got: '" + e + "'");
+function en(e, t, n, r) {
+	n === void 0 && (n = !1), x(t) || d("`action` can only be invoked on functions"), (typeof e != "string" || !e) && d("actions should have valid names, got: '" + e + "'");
 	function i() {
-		return rn(e, n, t, r || this, arguments);
+		return tn(e, n, t, r || this, arguments);
 	}
 	return i.isMobxAction = !0, i.toString = function() {
 		return t.toString();
-	}, en && (tn.value = e, g(i, "name", tn)), i;
+	}, Qt && ($t.value = e, g(i, "name", $t)), i;
 }
-function rn(e, t, n, r, i) {
-	var a = an(e, t, r, i);
+function tn(e, t, n, r, i) {
+	var a = nn(e, t, r, i);
 	try {
 		return n.apply(r, i);
 	} catch (e) {
 		throw a.error_ = e, e;
 	} finally {
-		on(a);
+		rn(a);
 	}
 }
-function an(e, t, n, r) {
-	var i = Yn() && !!e, a = 0;
-	i && (a = Date.now(), Zn({
-		type: tr,
+function nn(e, t, n, r) {
+	var i = qn() && !!e, a = 0;
+	i && (a = Date.now(), Yn({
+		type: $n,
 		name: e,
 		object: n,
 		arguments: r ? Array.from(r) : v
 	}));
-	var o = C.trackingDerivation, s = !t || !o;
-	Fn();
-	var c = C.allowStateChanges;
-	s && (wn(), c = sn(!0));
-	var l = En(!0), u = {
+	var o = T.trackingDerivation, s = !t || !o;
+	Nn();
+	var c = T.allowStateChanges;
+	s && (Sn(), c = an(!0));
+	var l = wn(!0), u = {
 		runAsAction_: s,
 		prevDerivation_: o,
 		prevAllowStateChanges_: c,
 		prevAllowStateReads_: l,
 		notifySpy_: i,
 		startTime_: a,
-		actionId_: $t++,
-		parentActionId_: Qt
+		actionId_: Zt++,
+		parentActionId_: Xt
 	};
-	return Qt = u.actionId_, u;
+	return Xt = u.actionId_, u;
+}
+function rn(e) {
+	Xt !== e.actionId_ && d(30), Xt = e.parentActionId_, e.error_ !== void 0 && (T.suppressReactionErrors = !0), on(e.prevAllowStateChanges_), Tn(e.prevAllowStateReads_), Pn(), e.runAsAction_ && Cn(e.prevDerivation_), e.notifySpy_ && Zn({ time: Date.now() - e.startTime_ }), T.suppressReactionErrors = !1;
+}
+function an(e) {
+	var t = T.allowStateChanges;
+	return T.allowStateChanges = e, t;
 }
 function on(e) {
-	Qt !== e.actionId_ && d(30), Qt = e.parentActionId_, e.error_ !== void 0 && (C.suppressReactionErrors = !0), cn(e.prevAllowStateChanges_), Dn(e.prevAllowStateReads_), In(), e.runAsAction_ && Tn(e.prevDerivation_), e.notifySpy_ && $n({ time: Date.now() - e.startTime_ }), C.suppressReactionErrors = !1;
+	T.allowStateChanges = e;
 }
-function sn(e) {
-	var t = C.allowStateChanges;
-	return C.allowStateChanges = e, t;
-}
-function cn(e) {
-	C.allowStateChanges = e;
-}
-var ln = "create", un = /* @__PURE__ */ function(e) {
+var sn = "create", cn = /* @__PURE__ */ function(e) {
 	function t(t, n, r, i, a) {
 		var o;
-		return r === void 0 && (r = "ObservableValue@" + ae()), i === void 0 && (i = !0), a === void 0 && (a = Ze.default), o = e.call(this, r) || this, o.enhancer = void 0, o.name_ = void 0, o.equals = void 0, o.hasUnreportedChange_ = !1, o.interceptors_ = void 0, o.changeListeners_ = void 0, o.value_ = void 0, o.dehancer = void 0, o.enhancer = n, o.name_ = r, o.equals = a, o.value_ = n(t, void 0, r), i && Yn() && Xn({
-			type: ln,
+		return r === void 0 && (r = "ObservableValue@" + y()), i === void 0 && (i = !0), a === void 0 && (a = Ye.default), o = e.call(this, r) || this, o.enhancer = void 0, o.name_ = void 0, o.equals = void 0, o.hasUnreportedChange_ = !1, o.interceptors_ = void 0, o.changeListeners_ = void 0, o.value_ = void 0, o.dehancer = void 0, o.enhancer = n, o.name_ = r, o.equals = a, o.value_ = n(t, void 0, r), i && qn() && Jn({
+			type: sn,
 			object: o,
 			observableKind: "value",
 			debugObjectName: o.name_,
 			newValue: "" + o.value_?.toString()
 		}), o;
 	}
-	Me(t, e);
+	Ae(t, e);
 	var n = t.prototype;
 	return n.dehanceValue = function(e) {
 		return this.dehancer === void 0 ? e : this.dehancer(e);
 	}, n.set = function(e) {
 		var t = this.value_;
-		if (e = this.prepareNewValue_(e), e !== C.UNCHANGED) {
-			var n = Yn();
-			n && Zn({
-				type: Yr,
+		if (e = this.prepareNewValue_(e), e !== T.UNCHANGED) {
+			var n = qn();
+			n && Yn({
+				type: qr,
 				object: this,
 				observableKind: "value",
 				debugObjectName: this.name_,
 				newValue: e,
 				oldValue: t
-			}), this.setNewValue_(e), n && $n();
+			}), this.setNewValue_(e), n && Zn();
 		}
 	}, n.prepareNewValue_ = function(e) {
-		if (_n(this), Vr(this)) {
-			var t = Ur(this, {
+		if (hn(this), zr(this)) {
+			var t = Vr(this, {
 				object: this,
-				type: Yr,
+				type: qr,
 				newValue: e
 			});
-			if (!t) return C.UNCHANGED;
+			if (!t) return T.UNCHANGED;
 			e = t.newValue;
 		}
-		return e = this.enhancer(e, this.value_, this.name_), this.equals(this.value_, e) ? C.UNCHANGED : e;
+		return e = this.enhancer(e, this.value_, this.name_), this.equals(this.value_, e) ? T.UNCHANGED : e;
 	}, n.setNewValue_ = function(e) {
 		var t = this.value_;
-		this.value_ = e, this.reportChanged(), Wr(this) && Kr(this, {
-			type: Yr,
+		this.value_ = e, this.reportChanged(), Hr(this) && Wr(this, {
+			type: qr,
 			object: this,
 			newValue: e,
 			oldValue: t
@@ -1004,16 +1011,16 @@ var ln = "create", un = /* @__PURE__ */ function(e) {
 	}, n.get = function() {
 		return this.reportObserved(), this.dehanceValue(this.value_);
 	}, n.intercept_ = function(e) {
-		return Hr(this, e);
+		return Br(this, e);
 	}, n.observe_ = function(e, t) {
 		return t && e({
 			observableKind: "value",
 			debugObjectName: this.name_,
 			object: this,
-			type: Yr,
+			type: qr,
 			newValue: this.value_,
 			oldValue: void 0
-		}), Gr(this, e);
+		}), Ur(this, e);
 	}, n.raw = function() {
 		return this.value_;
 	}, n.toJSON = function() {
@@ -1021,17 +1028,17 @@ var ln = "create", un = /* @__PURE__ */ function(e) {
 	}, n.toString = function() {
 		return this.name_ + "[" + this.value_ + "]";
 	}, n.valueOf = function() {
-		return Se(this.get());
+		return be(this.get());
 	}, n[Symbol.toPrimitive] = function() {
 		return this.valueOf();
 	}, t;
-}(We), dn = /* @__PURE__ */ function() {
+}(He), ln = /* @__PURE__ */ function() {
 	function e(e) {
-		this.dependenciesState_ = S.NOT_TRACKING_, this.observing_ = [], this.newObserving_ = null, this.observers_ = /* @__PURE__ */ new Set(), this.runId_ = 0, this.lastAccessedBy_ = 0, this.lowestObserverState_ = S.UP_TO_DATE_, this.unboundDepsCount_ = 0, this.value_ = new mn(null), this.name_ = void 0, this.triggeredBy_ = void 0, this.flags_ = 0, this.derivation = void 0, this.setter_ = void 0, this.isTracing_ = pn.NONE, this.scope_ = void 0, this.equals_ = void 0, this.requiresReaction_ = void 0, this.keepAlive_ = void 0, this.onBOL = void 0, this.onBUOL = void 0, e.get || d(31), this.derivation = e.get, this.name_ = e.name || "ComputedValue@" + ae(), e.set && (this.setter_ = nn(this.name_ + "-setter", e.set)), this.equals_ = e.equals || (e.compareStructural || e.struct ? Ze.structural : Ze.default), this.scope_ = e.context, this.requiresReaction_ = e.requiresReaction, this.keepAlive_ = !!e.keepAlive;
+		this.dependenciesState_ = w.NOT_TRACKING_, this.observing_ = [], this.newObserving_ = null, this.observers_ = /* @__PURE__ */ new Set(), this.runId_ = 0, this.lastAccessedBy_ = 0, this.lowestObserverState_ = w.UP_TO_DATE_, this.unboundDepsCount_ = 0, this.value_ = new fn(null), this.name_ = void 0, this.triggeredBy_ = void 0, this.flags_ = 0, this.derivation = void 0, this.setter_ = void 0, this.isTracing_ = dn.NONE, this.scope_ = void 0, this.equals_ = void 0, this.requiresReaction_ = void 0, this.keepAlive_ = void 0, this.onBOL = void 0, this.onBUOL = void 0, e.get || d(31), this.derivation = e.get, this.name_ = e.name || "ComputedValue@" + y(), e.set && (this.setter_ = en(this.name_ + "-setter", e.set)), this.equals_ = e.equals || (e.compareStructural || e.struct ? Ye.structural : Ye.default), this.scope_ = e.context, this.requiresReaction_ = e.requiresReaction, this.keepAlive_ = !!e.keepAlive;
 	}
 	var t = e.prototype;
 	return t.onBecomeStale_ = function() {
-		Bn(this);
+		Rn(this);
 	}, t.onBO = function() {
 		this.onBOL && this.onBOL.forEach(function(e) {
 			return e();
@@ -1041,13 +1048,13 @@ var ln = "create", un = /* @__PURE__ */ function(e) {
 			return e();
 		});
 	}, t.get = function() {
-		if (this.isComputing && d(32, this.name_, this.derivation), C.inBatch === 0 && this.observers_.size === 0 && !this.keepAlive_) gn(this) && (this.warnAboutUntrackedRead_(), Fn(), this.value_ = this.computeValue_(!1), In());
-		else if (Ln(this), gn(this)) {
-			var e = C.trackingContext;
-			this.keepAlive_ && !e && (C.trackingContext = this), this.trackAndCompute() && zn(this), C.trackingContext = e;
+		if (this.isComputing && d(32, this.name_, this.derivation), T.inBatch === 0 && this.observers_.size === 0 && !this.keepAlive_) mn(this) && (this.warnAboutUntrackedRead_(), Nn(), this.value_ = this.computeValue_(!1), Pn());
+		else if (Fn(this), mn(this)) {
+			var e = T.trackingContext;
+			this.keepAlive_ && !e && (T.trackingContext = this), this.trackAndCompute() && Ln(this), T.trackingContext = e;
 		}
 		var t = this.value_;
-		if (hn(t)) throw t.cause;
+		if (pn(t)) throw t.cause;
 		return t;
 	}, t.set = function(e) {
 		if (this.setter_) {
@@ -1059,8 +1066,8 @@ var ln = "create", un = /* @__PURE__ */ function(e) {
 			}
 		} else d(34, this.name_);
 	}, t.trackAndCompute = function() {
-		var e = this.value_, t = this.dependenciesState_ === S.NOT_TRACKING_, n = this.computeValue_(!0), r = t || hn(e) || hn(n) || !this.equals_(e, n);
-		return r && (this.value_ = n, Yn() && Xn({
+		var e = this.value_, t = this.dependenciesState_ === w.NOT_TRACKING_, n = this.computeValue_(!0), r = t || pn(e) || pn(n) || !this.equals_(e, n);
+		return r && (this.value_ = n, qn() && Jn({
 			observableKind: "computed",
 			debugObjectName: this.name_,
 			object: this.scope_,
@@ -1070,281 +1077,281 @@ var ln = "create", un = /* @__PURE__ */ function(e) {
 		})), r;
 	}, t.computeValue_ = function(e) {
 		this.isComputing = !0;
-		var t = sn(!1), n;
-		if (e) n = yn(this, this.derivation, this.scope_);
-		else if (C.disableErrorBoundaries === !0) n = this.derivation.call(this.scope_);
+		var t = an(!1), n;
+		if (e) n = _n(this, this.derivation, this.scope_);
+		else if (T.disableErrorBoundaries === !0) n = this.derivation.call(this.scope_);
 		else try {
 			n = this.derivation.call(this.scope_);
 		} catch (e) {
-			n = new mn(e);
+			n = new fn(e);
 		}
-		return cn(t), this.isComputing = !1, n;
+		return on(t), this.isComputing = !1, n;
 	}, t.suspend_ = function() {
-		this.keepAlive_ || (Sn(this), this.value_ = void 0, this.isTracing_ !== pn.NONE && console.log("[mobx.trace] Computed value '" + this.name_ + "' was suspended and it will recompute on the next access."));
+		this.keepAlive_ || (bn(this), this.value_ = void 0, this.isTracing_ !== dn.NONE && console.log("[mobx.trace] Computed value '" + this.name_ + "' was suspended and it will recompute on the next access."));
 	}, t.observe_ = function(e, t) {
 		var n = this, r = !0, i = void 0;
-		return mr(function() {
+		return fr(function() {
 			var a = n.get();
 			if (!r || t) {
-				var o = wn();
+				var o = Sn();
 				e({
 					observableKind: "computed",
 					debugObjectName: n.name_,
-					type: Yr,
+					type: qr,
 					object: n,
 					newValue: a,
 					oldValue: i
-				}), Tn(o);
+				}), Cn(o);
 			}
 			r = !1, i = a;
 		});
 	}, t.warnAboutUntrackedRead_ = function() {
-		this.isTracing_ !== pn.NONE && console.log("[mobx.trace] Computed value '" + this.name_ + "' is being read outside a reactive context. Doing a full recompute."), (typeof this.requiresReaction_ == "boolean" ? this.requiresReaction_ : C.computedRequiresReaction) && console.warn("[mobx] Computed value '" + this.name_ + "' is being read outside a reactive context. Doing a full recompute.");
+		this.isTracing_ !== dn.NONE && console.log("[mobx.trace] Computed value '" + this.name_ + "' is being read outside a reactive context. Doing a full recompute."), (typeof this.requiresReaction_ == "boolean" ? this.requiresReaction_ : T.computedRequiresReaction) && console.warn("[mobx] Computed value '" + this.name_ + "' is being read outside a reactive context. Doing a full recompute.");
 	}, t.toString = function() {
 		return this.name_ + "[" + this.derivation.toString() + "]";
 	}, t.valueOf = function() {
-		return Se(this.get());
+		return be(this.get());
 	}, t[Symbol.toPrimitive] = function() {
 		return this.valueOf();
-	}, ke(e, [
+	}, De(e, [
 		{
 			key: "isComputing",
 			get: function() {
-				return Te(this.flags_, e.isComputingMask_);
+				return Ce(this.flags_, e.isComputingMask_);
 			},
 			set: function(t) {
-				this.flags_ = Ee(this.flags_, e.isComputingMask_, t);
+				this.flags_ = we(this.flags_, e.isComputingMask_, t);
 			}
 		},
 		{
 			key: "isRunningSetter",
 			get: function() {
-				return Te(this.flags_, e.isRunningSetterMask_);
+				return Ce(this.flags_, e.isRunningSetterMask_);
 			},
 			set: function(t) {
-				this.flags_ = Ee(this.flags_, e.isRunningSetterMask_, t);
+				this.flags_ = we(this.flags_, e.isRunningSetterMask_, t);
 			}
 		},
 		{
 			key: "isBeingObserved",
 			get: function() {
-				return Te(this.flags_, e.isBeingObservedMask_);
+				return Ce(this.flags_, e.isBeingObservedMask_);
 			},
 			set: function(t) {
-				this.flags_ = Ee(this.flags_, e.isBeingObservedMask_, t);
+				this.flags_ = we(this.flags_, e.isBeingObservedMask_, t);
 			}
 		},
 		{
 			key: "isPendingUnobservation",
 			get: function() {
-				return Te(this.flags_, e.isPendingUnobservationMask_);
+				return Ce(this.flags_, e.isPendingUnobservationMask_);
 			},
 			set: function(t) {
-				this.flags_ = Ee(this.flags_, e.isPendingUnobservationMask_, t);
+				this.flags_ = we(this.flags_, e.isPendingUnobservationMask_, t);
 			}
 		},
 		{
 			key: "diffValue",
 			get: function() {
-				return Te(this.flags_, e.diffValueMask_) ? 1 : 0;
+				return Ce(this.flags_, e.diffValueMask_) ? 1 : 0;
 			},
 			set: function(t) {
-				this.flags_ = Ee(this.flags_, e.diffValueMask_, t === 1);
+				this.flags_ = we(this.flags_, e.diffValueMask_, t === 1);
 			}
 		}
 	]);
 }();
-dn.isComputingMask_ = 1, dn.isRunningSetterMask_ = 2, dn.isBeingObservedMask_ = 4, dn.isPendingUnobservationMask_ = 8, dn.diffValueMask_ = 16;
-var fn = /* @__PURE__ */ me("ComputedValue", dn), S;
+ln.isComputingMask_ = 1, ln.isRunningSetterMask_ = 2, ln.isBeingObservedMask_ = 4, ln.isPendingUnobservationMask_ = 8, ln.diffValueMask_ = 16;
+var un = /* @__PURE__ */ fe("ComputedValue", ln), w;
 (function(e) {
 	e[e.NOT_TRACKING_ = -1] = "NOT_TRACKING_", e[e.UP_TO_DATE_ = 0] = "UP_TO_DATE_", e[e.POSSIBLY_STALE_ = 1] = "POSSIBLY_STALE_", e[e.STALE_ = 2] = "STALE_";
-})(S ||= {});
-var pn;
+})(w ||= {});
+var dn;
 (function(e) {
 	e[e.NONE = 0] = "NONE", e[e.LOG = 1] = "LOG", e[e.BREAK = 2] = "BREAK";
-})(pn ||= {});
-var mn = function(e) {
+})(dn ||= {});
+var fn = function(e) {
 	this.cause = void 0, this.cause = e;
 };
-function hn(e) {
-	return e instanceof mn;
+function pn(e) {
+	return e instanceof fn;
 }
-function gn(e) {
+function mn(e) {
 	switch (e.dependenciesState_) {
-		case S.UP_TO_DATE_: return !1;
-		case S.NOT_TRACKING_:
-		case S.STALE_: return !0;
-		case S.POSSIBLY_STALE_:
-			for (var t = En(!0), n = wn(), r = e.observing_, i = r.length, a = 0; a < i; a++) {
+		case w.UP_TO_DATE_: return !1;
+		case w.NOT_TRACKING_:
+		case w.STALE_: return !0;
+		case w.POSSIBLY_STALE_:
+			for (var t = wn(!0), n = Sn(), r = e.observing_, i = r.length, a = 0; a < i; a++) {
 				var o = r[a];
-				if (fn(o)) {
-					if (C.disableErrorBoundaries) o.get();
+				if (un(o)) {
+					if (T.disableErrorBoundaries) o.get();
 					else try {
 						o.get();
 					} catch {
-						return Tn(n), Dn(t), !0;
+						return Cn(n), Tn(t), !0;
 					}
-					if (e.dependenciesState_ === S.STALE_) return Tn(n), Dn(t), !0;
+					if (e.dependenciesState_ === w.STALE_) return Cn(n), Tn(t), !0;
 				}
 			}
-			return On(e), Tn(n), Dn(t), !1;
+			return En(e), Cn(n), Tn(t), !1;
 	}
 }
-function _n(e) {
+function hn(e) {
 	var t = e.observers_.size > 0;
-	!C.allowStateChanges && (t || C.enforceActions === "always") && console.warn("[MobX] " + (C.enforceActions ? "Since strict-mode is enabled, changing (observed) observable values without using an action is not allowed. Tried to modify: " : "Side effects like changing state are not allowed at this point. Are you trying to modify state from, for example, a computed value or the render function of a React component? You can wrap side effects in 'runInAction' (or decorate functions with 'action') if needed. Tried to modify: ") + e.name_);
+	!T.allowStateChanges && (t || T.enforceActions === "always") && console.warn("[MobX] " + (T.enforceActions ? "Since strict-mode is enabled, changing (observed) observable values without using an action is not allowed. Tried to modify: " : "Side effects like changing state are not allowed at this point. Are you trying to modify state from, for example, a computed value or the render function of a React component? You can wrap side effects in 'runInAction' (or decorate functions with 'action') if needed. Tried to modify: ") + e.name_);
 }
-function vn(e) {
-	!C.allowStateReads && C.observableRequiresReaction && console.warn("[mobx] Observable '" + e.name_ + "' being read outside a reactive context.");
+function gn(e) {
+	!T.allowStateReads && T.observableRequiresReaction && console.warn("[mobx] Observable '" + e.name_ + "' being read outside a reactive context.");
 }
-function yn(e, t, n) {
-	var r = En(!0);
-	On(e), e.newObserving_ = Array(e.runId_ === 0 ? 100 : e.observing_.length), e.unboundDepsCount_ = 0, e.runId_ = ++C.runId;
-	var i = C.trackingDerivation;
-	C.trackingDerivation = e, C.inBatch++;
+function _n(e, t, n) {
+	var r = wn(!0);
+	En(e), e.newObserving_ = Array(e.runId_ === 0 ? 100 : e.observing_.length), e.unboundDepsCount_ = 0, e.runId_ = ++T.runId;
+	var i = T.trackingDerivation;
+	T.trackingDerivation = e, T.inBatch++;
 	var a;
-	if (C.disableErrorBoundaries === !0) a = t.call(n);
+	if (T.disableErrorBoundaries === !0) a = t.call(n);
 	else try {
 		a = t.call(n);
 	} catch (e) {
-		a = new mn(e);
+		a = new fn(e);
 	}
-	return C.inBatch--, C.trackingDerivation = i, xn(e), bn(e), Dn(r), a;
+	return T.inBatch--, T.trackingDerivation = i, yn(e), vn(e), Tn(r), a;
 }
-function bn(e) {
-	e.observing_.length === 0 && (typeof e.requiresObservable_ == "boolean" ? e.requiresObservable_ : C.reactionRequiresObservable) && console.warn("[mobx] Derivation '" + e.name_ + "' is created/updated without reading any observable value.");
+function vn(e) {
+	e.observing_.length === 0 && (typeof e.requiresObservable_ == "boolean" ? e.requiresObservable_ : T.reactionRequiresObservable) && console.warn("[mobx] Derivation '" + e.name_ + "' is created/updated without reading any observable value.");
 }
-function xn(e) {
-	for (var t = e.observing_, n = e.observing_ = e.newObserving_, r = S.UP_TO_DATE_, i = 0, a = e.unboundDepsCount_, o = 0; o < a; o++) {
+function yn(e) {
+	for (var t = e.observing_, n = e.observing_ = e.newObserving_, r = w.UP_TO_DATE_, i = 0, a = e.unboundDepsCount_, o = 0; o < a; o++) {
 		var s = n[o];
 		s.diffValue === 0 && (s.diffValue = 1, i !== o && (n[i] = s), i++), s.dependenciesState_ > r && (r = s.dependenciesState_);
 	}
 	for (n.length = i, e.newObserving_ = null, a = t.length; a--;) {
 		var c = t[a];
-		c.diffValue === 0 && Nn(c, e), c.diffValue = 0;
+		c.diffValue === 0 && jn(c, e), c.diffValue = 0;
 	}
 	for (; i--;) {
 		var l = n[i];
-		l.diffValue === 1 && (l.diffValue = 0, Mn(l, e));
+		l.diffValue === 1 && (l.diffValue = 0, An(l, e));
 	}
-	r !== S.UP_TO_DATE_ && (e.dependenciesState_ = r, e.onBecomeStale_());
+	r !== w.UP_TO_DATE_ && (e.dependenciesState_ = r, e.onBecomeStale_());
 }
-function Sn(e) {
+function bn(e) {
 	var t = e.observing_;
 	e.observing_ = [];
-	for (var n = t.length; n--;) Nn(t[n], e);
-	e.dependenciesState_ = S.NOT_TRACKING_;
+	for (var n = t.length; n--;) jn(t[n], e);
+	e.dependenciesState_ = w.NOT_TRACKING_;
 }
-function Cn(e) {
-	var t = wn();
+function xn(e) {
+	var t = Sn();
 	try {
 		return e();
 	} finally {
-		Tn(t);
+		Cn(t);
 	}
 }
-function wn() {
-	var e = C.trackingDerivation;
-	return C.trackingDerivation = null, e;
+function Sn() {
+	var e = T.trackingDerivation;
+	return T.trackingDerivation = null, e;
+}
+function Cn(e) {
+	T.trackingDerivation = e;
+}
+function wn(e) {
+	var t = T.allowStateReads;
+	return T.allowStateReads = e, t;
 }
 function Tn(e) {
-	C.trackingDerivation = e;
+	T.allowStateReads = e;
 }
 function En(e) {
-	var t = C.allowStateReads;
-	return C.allowStateReads = e, t;
-}
-function Dn(e) {
-	C.allowStateReads = e;
-}
-function On(e) {
-	if (e.dependenciesState_ !== S.UP_TO_DATE_) {
-		e.dependenciesState_ = S.UP_TO_DATE_;
-		for (var t = e.observing_, n = t.length; n--;) t[n].lowestObserverState_ = S.UP_TO_DATE_;
+	if (e.dependenciesState_ !== w.UP_TO_DATE_) {
+		e.dependenciesState_ = w.UP_TO_DATE_;
+		for (var t = e.observing_, n = t.length; n--;) t[n].lowestObserverState_ = w.UP_TO_DATE_;
 	}
 }
-var kn = function() {
+var Dn = function() {
 	this.version = 6, this.UNCHANGED = {}, this.trackingDerivation = null, this.trackingContext = null, this.runId = 0, this.mobxGuid = 0, this.inBatch = 0, this.pendingUnobservations = [], this.pendingReactions = [], this.isRunningReactions = !1, this.allowStateChanges = !1, this.allowStateReads = !0, this.enforceActions = !0, this.spyListeners = [], this.globalReactionErrorHandlers = [], this.computedRequiresReaction = !1, this.reactionRequiresObservable = !1, this.observableRequiresReaction = !1, this.disableErrorBoundaries = !1, this.suppressReactionErrors = !1, this.useProxies = !0, this.verifyProxies = !1, this.safeDescriptors = !0;
-}, An = !0, jn = !1, C = /* @__PURE__ */ function() {
+}, On = !0, kn = !1, T = /* @__PURE__ */ function() {
 	var e = /* @__PURE__ */ p();
-	return e.__mobxInstanceCount > 0 && !e.__mobxGlobals && (An = !1), e.__mobxGlobals && e.__mobxGlobals.version !== new kn().version && (An = !1), An ? e.__mobxGlobals ? (e.__mobxInstanceCount += 1, e.__mobxGlobals.UNCHANGED || (e.__mobxGlobals.UNCHANGED = {}), e.__mobxGlobals) : (e.__mobxInstanceCount = 1, e.__mobxGlobals = /* @__PURE__ */ new kn()) : (setTimeout(function() {
-		jn || d(35);
-	}, 1), new kn());
+	return e.__mobxInstanceCount > 0 && !e.__mobxGlobals && (On = !1), e.__mobxGlobals && e.__mobxGlobals.version !== new Dn().version && (On = !1), On ? e.__mobxGlobals ? (e.__mobxInstanceCount += 1, e.__mobxGlobals.UNCHANGED || (e.__mobxGlobals.UNCHANGED = {}), e.__mobxGlobals) : (e.__mobxInstanceCount = 1, e.__mobxGlobals = /* @__PURE__ */ new Dn()) : (setTimeout(function() {
+		kn || d(35);
+	}, 1), new Dn());
 }();
-function Mn(e, t) {
+function An(e, t) {
 	e.observers_.add(t), e.lowestObserverState_ > t.dependenciesState_ && (e.lowestObserverState_ = t.dependenciesState_);
 }
-function Nn(e, t) {
-	e.observers_.delete(t), e.observers_.size === 0 && Pn(e);
+function jn(e, t) {
+	e.observers_.delete(t), e.observers_.size === 0 && Mn(e);
 }
-function Pn(e) {
-	e.isPendingUnobservation === !1 && (e.isPendingUnobservation = !0, C.pendingUnobservations.push(e));
+function Mn(e) {
+	e.isPendingUnobservation === !1 && (e.isPendingUnobservation = !0, T.pendingUnobservations.push(e));
 }
-function Fn() {
-	C.inBatch++;
+function Nn() {
+	T.inBatch++;
 }
-function In() {
-	if (--C.inBatch === 0) {
-		Kn();
-		for (var e = C.pendingUnobservations, t = 0; t < e.length; t++) {
+function Pn() {
+	if (--T.inBatch === 0) {
+		Wn();
+		for (var e = T.pendingUnobservations, t = 0; t < e.length; t++) {
 			var n = e[t];
-			n.isPendingUnobservation = !1, n.observers_.size === 0 && (n.isBeingObserved && (n.isBeingObserved = !1, n.onBUO()), n instanceof dn && n.suspend_());
+			n.isPendingUnobservation = !1, n.observers_.size === 0 && (n.isBeingObserved && (n.isBeingObserved = !1, n.onBUO()), n instanceof ln && n.suspend_());
 		}
-		C.pendingUnobservations = [];
+		T.pendingUnobservations = [];
 	}
+}
+function Fn(e) {
+	gn(e);
+	var t = T.trackingDerivation;
+	return t === null ? (e.observers_.size === 0 && T.inBatch > 0 && Mn(e), !1) : (t.runId_ !== e.lastAccessedBy_ && (e.lastAccessedBy_ = t.runId_, t.newObserving_[t.unboundDepsCount_++] = e, !e.isBeingObserved && T.trackingContext && (e.isBeingObserved = !0, e.onBO())), e.isBeingObserved);
+}
+function In(e) {
+	e.lowestObserverState_ !== w.STALE_ && (e.lowestObserverState_ = w.STALE_, e.observers_.forEach(function(t) {
+		t.dependenciesState_ === w.UP_TO_DATE_ && (t.isTracing_ !== dn.NONE && zn(t, e), t.onBecomeStale_()), t.dependenciesState_ = w.STALE_;
+	}));
 }
 function Ln(e) {
-	vn(e);
-	var t = C.trackingDerivation;
-	return t === null ? (e.observers_.size === 0 && C.inBatch > 0 && Pn(e), !1) : (t.runId_ !== e.lastAccessedBy_ && (e.lastAccessedBy_ = t.runId_, t.newObserving_[t.unboundDepsCount_++] = e, !e.isBeingObserved && C.trackingContext && (e.isBeingObserved = !0, e.onBO())), e.isBeingObserved);
+	e.lowestObserverState_ !== w.STALE_ && (e.lowestObserverState_ = w.STALE_, e.observers_.forEach(function(t) {
+		t.dependenciesState_ === w.POSSIBLY_STALE_ ? (t.dependenciesState_ = w.STALE_, t.isTracing_ !== dn.NONE && zn(t, e)) : t.dependenciesState_ === w.UP_TO_DATE_ && (e.lowestObserverState_ = w.UP_TO_DATE_);
+	}));
 }
 function Rn(e) {
-	e.lowestObserverState_ !== S.STALE_ && (e.lowestObserverState_ = S.STALE_, e.observers_.forEach(function(t) {
-		t.dependenciesState_ === S.UP_TO_DATE_ && (t.isTracing_ !== pn.NONE && Vn(t, e), t.onBecomeStale_()), t.dependenciesState_ = S.STALE_;
+	e.lowestObserverState_ === w.UP_TO_DATE_ && (e.lowestObserverState_ = w.POSSIBLY_STALE_, e.observers_.forEach(function(e) {
+		e.dependenciesState_ === w.UP_TO_DATE_ && (e.dependenciesState_ = w.POSSIBLY_STALE_, e.onBecomeStale_());
 	}));
 }
-function zn(e) {
-	e.lowestObserverState_ !== S.STALE_ && (e.lowestObserverState_ = S.STALE_, e.observers_.forEach(function(t) {
-		t.dependenciesState_ === S.POSSIBLY_STALE_ ? (t.dependenciesState_ = S.STALE_, t.isTracing_ !== pn.NONE && Vn(t, e)) : t.dependenciesState_ === S.UP_TO_DATE_ && (e.lowestObserverState_ = S.UP_TO_DATE_);
-	}));
-}
-function Bn(e) {
-	e.lowestObserverState_ === S.UP_TO_DATE_ && (e.lowestObserverState_ = S.POSSIBLY_STALE_, e.observers_.forEach(function(e) {
-		e.dependenciesState_ === S.UP_TO_DATE_ && (e.dependenciesState_ = S.POSSIBLY_STALE_, e.onBecomeStale_());
-	}));
-}
-function Vn(e, t) {
-	if (console.log("[mobx.trace] '" + e.name_ + "' is invalidated due to a change in: '" + t.name_ + "'"), e.isTracing_ === pn.BREAK) {
+function zn(e, t) {
+	if (console.log("[mobx.trace] '" + e.name_ + "' is invalidated due to a change in: '" + t.name_ + "'"), e.isTracing_ === dn.BREAK) {
 		var n = [];
-		Hn(Cr(e), n, 1), Function("debugger;\n/*\nTracing '" + e.name_ + "'\n\nYou are entering this break point because derivation '" + e.name_ + "' is being traced and '" + t.name_ + "' is now forcing it to update.\nJust follow the stacktrace you should now see in the devtools to see precisely what piece of your code is causing this update\nThe stackframe you are looking for is at least ~6-8 stack-frames up.\n\n" + (e instanceof dn ? e.derivation.toString().replace(/[*]\//g, "/") : "") + "\n\nThe dependencies for this derivation are:\n\n" + n.join("\n") + "\n*/\n    ")();
+		Bn(xr(e), n, 1), Function("debugger;\n/*\nTracing '" + e.name_ + "'\n\nYou are entering this break point because derivation '" + e.name_ + "' is being traced and '" + t.name_ + "' is now forcing it to update.\nJust follow the stacktrace you should now see in the devtools to see precisely what piece of your code is causing this update\nThe stackframe you are looking for is at least ~6-8 stack-frames up.\n\n" + (e instanceof ln ? e.derivation.toString().replace(/[*]\//g, "/") : "") + "\n\nThe dependencies for this derivation are:\n\n" + n.join("\n") + "\n*/\n    ")();
 	}
 }
-function Hn(e, t, n) {
+function Bn(e, t, n) {
 	if (t.length >= 1e3) {
 		t.push("(and many more)");
 		return;
 	}
 	t.push("" + "	".repeat(n - 1) + e.name), e.dependencies && e.dependencies.forEach(function(e) {
-		return Hn(e, t, n + 1);
+		return Bn(e, t, n + 1);
 	});
 }
-var Un = /* @__PURE__ */ function() {
+var Vn = /* @__PURE__ */ function() {
 	function e(e, t, n, r) {
-		e === void 0 && (e = "Reaction@" + ae()), this.name_ = void 0, this.onInvalidate_ = void 0, this.errorHandler_ = void 0, this.requiresObservable_ = void 0, this.observing_ = [], this.newObserving_ = [], this.dependenciesState_ = S.NOT_TRACKING_, this.runId_ = 0, this.unboundDepsCount_ = 0, this.flags_ = 0, this.isTracing_ = pn.NONE, this.name_ = e, this.onInvalidate_ = t, this.errorHandler_ = n, this.requiresObservable_ = r;
+		e === void 0 && (e = "Reaction@" + y()), this.name_ = void 0, this.onInvalidate_ = void 0, this.errorHandler_ = void 0, this.requiresObservable_ = void 0, this.observing_ = [], this.newObserving_ = [], this.dependenciesState_ = w.NOT_TRACKING_, this.runId_ = 0, this.unboundDepsCount_ = 0, this.flags_ = 0, this.isTracing_ = dn.NONE, this.name_ = e, this.onInvalidate_ = t, this.errorHandler_ = n, this.requiresObservable_ = r;
 	}
 	var t = e.prototype;
 	return t.onBecomeStale_ = function() {
 		this.schedule_();
 	}, t.schedule_ = function() {
-		this.isScheduled || (this.isScheduled = !0, C.pendingReactions.push(this), Kn());
+		this.isScheduled || (this.isScheduled = !0, T.pendingReactions.push(this), Wn());
 	}, t.runReaction_ = function() {
 		if (!this.isDisposed) {
-			Fn(), this.isScheduled = !1;
-			var e = C.trackingContext;
-			if (C.trackingContext = this, gn(this)) {
+			Nn(), this.isScheduled = !1;
+			var e = T.trackingContext;
+			if (T.trackingContext = this, mn(this)) {
 				this.isTrackPending = !0;
 				try {
-					this.onInvalidate_(), this.isTrackPending && Yn() && Xn({
+					this.onInvalidate_(), this.isTrackPending && qn() && Jn({
 						name: this.name_,
 						type: "scheduled-reaction"
 					});
@@ -1352,20 +1359,20 @@ var Un = /* @__PURE__ */ function() {
 					this.reportExceptionInDerivation_(e);
 				}
 			}
-			C.trackingContext = e, In();
+			T.trackingContext = e, Pn();
 		}
 	}, t.track = function(e) {
 		if (!this.isDisposed) {
-			Fn();
-			var t = Yn(), n;
-			t && (n = Date.now(), Zn({
+			Nn();
+			var t = qn(), n;
+			t && (n = Date.now(), Yn({
 				name: this.name_,
 				type: "reaction"
 			})), this.isRunning = !0;
-			var r = C.trackingContext;
-			C.trackingContext = this;
-			var i = yn(this, e, void 0);
-			C.trackingContext = r, this.isRunning = !1, this.isTrackPending = !1, this.isDisposed && Sn(this), hn(i) && this.reportExceptionInDerivation_(i.cause), t && $n({ time: Date.now() - n }), In();
+			var r = T.trackingContext;
+			T.trackingContext = this;
+			var i = _n(this, e, void 0);
+			T.trackingContext = r, this.isRunning = !1, this.isTrackPending = !1, this.isDisposed && bn(this), pn(i) && this.reportExceptionInDerivation_(i.cause), t && Zn({ time: Date.now() - n }), Pn();
 		}
 	}, t.reportExceptionInDerivation_ = function(e) {
 		var t = this;
@@ -1373,151 +1380,151 @@ var Un = /* @__PURE__ */ function() {
 			this.errorHandler_(e, this);
 			return;
 		}
-		if (C.disableErrorBoundaries) throw e;
+		if (T.disableErrorBoundaries) throw e;
 		var n = "[mobx] Encountered an uncaught exception that was thrown by a reaction or observer component, in: '" + this + "'";
-		C.suppressReactionErrors ? console.warn("[mobx] (error in reaction '" + this.name_ + "' suppressed, fix error of causing action below)") : console.error(n, e), Yn() && Xn({
+		T.suppressReactionErrors ? console.warn("[mobx] (error in reaction '" + this.name_ + "' suppressed, fix error of causing action below)") : console.error(n, e), qn() && Jn({
 			type: "error",
 			name: this.name_,
 			message: n,
 			error: "" + e
-		}), C.globalReactionErrorHandlers.forEach(function(n) {
+		}), T.globalReactionErrorHandlers.forEach(function(n) {
 			return n(e, t);
 		});
 	}, t.dispose = function() {
-		this.isDisposed || (this.isDisposed = !0, this.isRunning || (Fn(), Sn(this), In()));
+		this.isDisposed || (this.isDisposed = !0, this.isRunning || (Nn(), bn(this), Pn()));
 	}, t.getDisposer_ = function(e) {
 		var t = this, n = function n() {
 			t.dispose(), e == null || e.removeEventListener == null || e.removeEventListener("abort", n);
 		};
-		return e == null || e.addEventListener == null || e.addEventListener("abort", n), n[b] = this, "dispose" in Symbol && typeof Symbol.dispose == "symbol" && (n[Symbol.dispose] = n), n;
+		return e == null || e.addEventListener == null || e.addEventListener("abort", n), n[S] = this, "dispose" in Symbol && typeof Symbol.dispose == "symbol" && (n[Symbol.dispose] = n), n;
 	}, t.toString = function() {
 		return "Reaction[" + this.name_ + "]";
 	}, t.trace = function(e) {
-		e === void 0 && (e = !1), Fr(this, e);
-	}, ke(e, [
+		e === void 0 && (e = !1), Nr(this, e);
+	}, De(e, [
 		{
 			key: "isDisposed",
 			get: function() {
-				return Te(this.flags_, e.isDisposedMask_);
+				return Ce(this.flags_, e.isDisposedMask_);
 			},
 			set: function(t) {
-				this.flags_ = Ee(this.flags_, e.isDisposedMask_, t);
+				this.flags_ = we(this.flags_, e.isDisposedMask_, t);
 			}
 		},
 		{
 			key: "isScheduled",
 			get: function() {
-				return Te(this.flags_, e.isScheduledMask_);
+				return Ce(this.flags_, e.isScheduledMask_);
 			},
 			set: function(t) {
-				this.flags_ = Ee(this.flags_, e.isScheduledMask_, t);
+				this.flags_ = we(this.flags_, e.isScheduledMask_, t);
 			}
 		},
 		{
 			key: "isTrackPending",
 			get: function() {
-				return Te(this.flags_, e.isTrackPendingMask_);
+				return Ce(this.flags_, e.isTrackPendingMask_);
 			},
 			set: function(t) {
-				this.flags_ = Ee(this.flags_, e.isTrackPendingMask_, t);
+				this.flags_ = we(this.flags_, e.isTrackPendingMask_, t);
 			}
 		},
 		{
 			key: "isRunning",
 			get: function() {
-				return Te(this.flags_, e.isRunningMask_);
+				return Ce(this.flags_, e.isRunningMask_);
 			},
 			set: function(t) {
-				this.flags_ = Ee(this.flags_, e.isRunningMask_, t);
+				this.flags_ = we(this.flags_, e.isRunningMask_, t);
 			}
 		},
 		{
 			key: "diffValue",
 			get: function() {
-				return Te(this.flags_, e.diffValueMask_) ? 1 : 0;
+				return Ce(this.flags_, e.diffValueMask_) ? 1 : 0;
 			},
 			set: function(t) {
-				this.flags_ = Ee(this.flags_, e.diffValueMask_, t === 1);
+				this.flags_ = we(this.flags_, e.diffValueMask_, t === 1);
 			}
 		}
 	]);
 }();
-Un.isDisposedMask_ = 1, Un.isScheduledMask_ = 2, Un.isTrackPendingMask_ = 4, Un.isRunningMask_ = 8, Un.diffValueMask_ = 16;
-var Wn = 100, Gn = function(e) {
+Vn.isDisposedMask_ = 1, Vn.isScheduledMask_ = 2, Vn.isTrackPendingMask_ = 4, Vn.isRunningMask_ = 8, Vn.diffValueMask_ = 16;
+var Hn = 100, Un = function(e) {
 	return e();
 };
-function Kn() {
-	C.inBatch > 0 || C.isRunningReactions || Gn(qn);
+function Wn() {
+	T.inBatch > 0 || T.isRunningReactions || Un(Gn);
 }
-function qn() {
-	C.isRunningReactions = !0;
-	for (var e = C.pendingReactions, t = 0; e.length > 0;) {
-		++t === Wn && (console.error("Reaction doesn't converge to a stable state after " + Wn + " iterations." + (" Probably there is a cycle in the reactive function: " + e[0])), e.splice(0));
+function Gn() {
+	T.isRunningReactions = !0;
+	for (var e = T.pendingReactions, t = 0; e.length > 0;) {
+		++t === Hn && (console.error("Reaction doesn't converge to a stable state after " + Hn + " iterations." + (" Probably there is a cycle in the reactive function: " + e[0])), e.splice(0));
 		for (var n = e.splice(0), r = 0, i = n.length; r < i; r++) n[r].runReaction_();
 	}
-	C.isRunningReactions = !1;
+	T.isRunningReactions = !1;
 }
-var Jn = /* @__PURE__ */ me("Reaction", Un);
-function Yn() {
-	return !!C.spyListeners.length;
+var Kn = /* @__PURE__ */ fe("Reaction", Vn);
+function qn() {
+	return !!T.spyListeners.length;
 }
-function Xn(e) {
-	if (C.spyListeners.length) for (var t = C.spyListeners, n = 0, r = t.length; n < r; n++) t[n](e);
+function Jn(e) {
+	if (T.spyListeners.length) for (var t = T.spyListeners, n = 0, r = t.length; n < r; n++) t[n](e);
 }
-function Zn(e) {
-	Xn(je({}, e, { spyReportStart: !0 }));
+function Yn(e) {
+	Jn(ke({}, e, { spyReportStart: !0 }));
 }
-var Qn = {
+var Xn = {
 	type: "report-end",
 	spyReportEnd: !0
 };
-function $n(e) {
-	Xn(e ? je({}, e, {
+function Zn(e) {
+	Jn(e ? ke({}, e, {
 		type: "report-end",
 		spyReportEnd: !0
-	}) : Qn);
+	}) : Xn);
 }
-function er(e) {
-	return C.spyListeners.push(e), oe(function() {
-		C.spyListeners = C.spyListeners.filter(function(t) {
+function Qn(e) {
+	return T.spyListeners.push(e), b(function() {
+		T.spyListeners = T.spyListeners.filter(function(t) {
 			return t !== e;
 		});
 	});
 }
-var tr = "action", nr = "action.bound", rr = "autoAction", ir = "autoAction.bound", ar = "<unnamed action>", or = /* @__PURE__ */ it(tr), sr = /* @__PURE__ */ it(nr, { bound: !0 }), cr = /* @__PURE__ */ it(rr, { autoAction: !0 }), lr = /* @__PURE__ */ it(ir, {
+var $n = "action", er = "action.bound", tr = "autoAction", nr = "autoAction.bound", rr = "<unnamed action>", ir = /* @__PURE__ */ nt($n), ar = /* @__PURE__ */ nt(er, { bound: !0 }), or = /* @__PURE__ */ nt(tr, { autoAction: !0 }), sr = /* @__PURE__ */ nt(nr, {
 	autoAction: !0,
 	bound: !0
 });
-function ur(e) {
+function cr(e) {
 	return function(t, n) {
-		if (y(t)) return nn(t.name || ar, t, e);
-		if (y(n)) return nn(t, n, e);
-		if (He(n)) return (e ? cr : or).decorate_20223_(t, n);
-		if (ce(n)) return ze(t, n, e ? cr : or);
-		if (ce(t)) return Re(it(e ? rr : tr, {
+		if (x(t)) return en(t.name || rr, t, e);
+		if (x(n)) return en(t, n, e);
+		if (Be(n)) return (e ? or : ir).decorate_20223_(t, n);
+		if (oe(n)) return Le(t, n, e ? or : ir);
+		if (oe(t)) return Ie(nt(e ? tr : $n, {
 			name: t,
 			autoAction: e
 		}));
 		d("Invalid arguments for `action`");
 	};
 }
-var dr = /* @__PURE__ */ ur(!1);
-Object.assign(dr, or);
-var fr = /* @__PURE__ */ ur(!0);
-Object.assign(fr, cr), dr.bound = /* @__PURE__ */ Re(sr), fr.bound = /* @__PURE__ */ Re(lr);
-function pr(e) {
-	return y(e) && e.isMobxAction === !0;
+var lr = /* @__PURE__ */ cr(!1);
+Object.assign(lr, ir);
+var ur = /* @__PURE__ */ cr(!0);
+Object.assign(ur, or), lr.bound = /* @__PURE__ */ Ie(ar), ur.bound = /* @__PURE__ */ Ie(sr);
+function dr(e) {
+	return x(e) && e.isMobxAction === !0;
 }
-function mr(e, t) {
+function fr(e, t) {
 	var n;
-	t === void 0 && (t = ee), y(e) || d("Autorun expects a function as first argument"), pr(e) && d("Autorun does not accept actions since actions are untrackable");
-	var r = t?.name ?? (e.name || "Autorun@" + ae()), i = !t.scheduler && !t.delay, a;
-	if (i) a = new Un(r, function() {
+	t === void 0 && (t = ee), x(e) || d("Autorun expects a function as first argument"), dr(e) && d("Autorun does not accept actions since actions are untrackable");
+	var r = t?.name ?? (e.name || "Autorun@" + y()), i = !t.scheduler && !t.delay, a;
+	if (i) a = new Vn(r, function() {
 		this.track(c);
 	}, t.onError, t.requiresObservable);
 	else {
-		var o = gr(t), s = !1;
-		a = new Un(r, function() {
+		var o = mr(t), s = !1;
+		a = new Vn(r, function() {
 			s || (s = !0, o(function() {
 				s = !1, a.isDisposed || a.track(c);
 			}));
@@ -1528,66 +1535,66 @@ function mr(e, t) {
 	}
 	return (n = t) != null && (n = n.signal) != null && n.aborted || a.schedule_(), a.getDisposer_(t?.signal);
 }
-var hr = function(e) {
+var pr = function(e) {
 	return e();
 };
-function gr(e) {
+function mr(e) {
 	return e.scheduler ? e.scheduler : e.delay ? function(t) {
 		return setTimeout(t, e.delay);
-	} : hr;
+	} : pr;
 }
-var _r = "onBO", vr = "onBUO";
-function yr(e, t, n) {
-	return xr(_r, e, t, n);
+var hr = "onBO", gr = "onBUO";
+function _r(e, t, n) {
+	return yr(hr, e, t, n);
 }
-function br(e, t, n) {
-	return xr(vr, e, t, n);
+function vr(e, t, n) {
+	return yr(gr, e, t, n);
 }
-function xr(e, t, n, r) {
-	var i = typeof r == "function" ? Ii(t, n) : Ii(t), a = y(r) ? r : n, o = e + "L";
+function yr(e, t, n, r) {
+	var i = typeof r == "function" ? Pi(t, n) : Pi(t), a = x(r) ? r : n, o = e + "L";
 	return i[o] ? i[o].add(a) : i[o] = new Set([a]), function() {
 		var e = i[o];
 		e && (e.delete(a), e.size === 0 && delete i[o]);
 	};
 }
-function Sr(e, t, n, r) {
-	arguments.length > 4 && d("'extendObservable' expected 2-4 arguments"), typeof e != "object" && d("'extendObservable' expects an object as first argument"), ui(e) && d("'extendObservable' should not be used on maps, use map.merge instead"), ue(t) || d("'extendObservable' only accepts plain objects as second argument"), (Pr(t) || Pr(n)) && d("Extending an object with another observable (object) is not supported");
-	var i = we(t);
-	return zi(function() {
-		var t = bi(e, r)[b];
-		be(i).forEach(function(e) {
+function br(e, t, n, r) {
+	arguments.length > 4 && d("'extendObservable' expected 2-4 arguments"), typeof e != "object" && d("'extendObservable' expects an object as first argument"), ci(e) && d("'extendObservable' should not be used on maps, use map.merge instead"), ce(t) || d("'extendObservable' only accepts plain objects as second argument"), (Mr(t) || Mr(n)) && d("Extending an object with another observable (object) is not supported");
+	var i = Se(t);
+	return Li(function() {
+		var t = vi(e, r)[S];
+		ve(i).forEach(function(e) {
 			t.extend_(e, i[e], n && e in n ? n[e] : !0);
 		});
 	}), e;
 }
-function Cr(e, t) {
-	return wr(Ii(e, t));
+function xr(e, t) {
+	return Sr(Pi(e, t));
 }
-function wr(e) {
+function Sr(e) {
 	var t = { name: e.name_ };
-	return e.observing_ && e.observing_.length > 0 && (t.dependencies = Tr(e.observing_).map(wr)), t;
+	return e.observing_ && e.observing_.length > 0 && (t.dependencies = Cr(e.observing_).map(Sr)), t;
 }
-function Tr(e) {
+function Cr(e) {
 	return Array.from(new Set(e));
 }
-var Er = 0;
-function Dr() {
+var wr = 0;
+function Tr() {
 	this.message = "FLOW_CANCELLED";
 }
-Dr.prototype = /* @__PURE__ */ Object.create(Error.prototype);
-var Or = /* @__PURE__ */ ut("flow"), kr = /* @__PURE__ */ ut("flow.bound", { bound: !0 }), Ar = /* @__PURE__ */ Object.assign(function(e, t) {
-	if (He(t)) return Or.decorate_20223_(e, t);
-	if (ce(t)) return ze(e, t, Or);
+Tr.prototype = /* @__PURE__ */ Object.create(Error.prototype);
+var Er = /* @__PURE__ */ ct("flow"), Dr = /* @__PURE__ */ ct("flow.bound", { bound: !0 }), Or = /* @__PURE__ */ Object.assign(function(e, t) {
+	if (Be(t)) return Er.decorate_20223_(e, t);
+	if (oe(t)) return Le(e, t, Er);
 	arguments.length !== 1 && d("Flow expects single argument with generator function");
 	var n = e, r = n.name || "<unnamed flow>", i = function() {
-		var e = this, t = arguments, i = ++Er, a = dr(r + " - runid: " + i + " - init", n).apply(e, t), o, s = void 0, c = new Promise(function(e, t) {
+		var e = this, t = arguments, i = ++wr, a = lr(r + " - runid: " + i + " - init", n).apply(e, t), o, s = void 0, c = new Promise(function(e, t) {
 			var n = 0;
 			o = t;
 			function c(e) {
 				s = void 0;
 				var o;
 				try {
-					o = dr(r + " - runid: " + i + " - yield " + n++, a.next).call(a, e);
+					o = lr(r + " - runid: " + i + " - yield " + n++, a.next).call(a, e);
 				} catch (e) {
 					return t(e);
 				}
@@ -1597,14 +1604,14 @@ var Or = /* @__PURE__ */ ut("flow"), kr = /* @__PURE__ */ ut("flow.bound", { bou
 				s = void 0;
 				var o;
 				try {
-					o = dr(r + " - runid: " + i + " - yield " + n++, a.throw).call(a, e);
+					o = lr(r + " - runid: " + i + " - yield " + n++, a.throw).call(a, e);
 				} catch (e) {
 					return t(e);
 				}
 				u(o);
 			}
 			function u(n) {
-				if (y(n?.then)) {
+				if (x(n?.then)) {
 					n.then(u, t);
 					return;
 				}
@@ -1612,143 +1619,143 @@ var Or = /* @__PURE__ */ ut("flow"), kr = /* @__PURE__ */ ut("flow.bound", { bou
 			}
 			c(void 0);
 		});
-		return c.cancel = dr(r + " - runid: " + i + " - cancel", function() {
+		return c.cancel = lr(r + " - runid: " + i + " - cancel", function() {
 			try {
-				s && jr(s);
+				s && kr(s);
 				var e = a.return(void 0), t = Promise.resolve(e.value);
-				t.then(se, se), jr(t), o(new Dr());
+				t.then(ae, ae), kr(t), o(new Tr());
 			} catch (e) {
 				o(e);
 			}
 		}), c;
 	};
 	return i.isMobXFlow = !0, i;
-}, Or);
-Ar.bound = /* @__PURE__ */ Re(kr);
-function jr(e) {
-	y(e.cancel) && e.cancel();
+}, Er);
+Or.bound = /* @__PURE__ */ Ie(Dr);
+function kr(e) {
+	x(e.cancel) && e.cancel();
 }
-function Mr(e) {
+function Ar(e) {
 	return e?.isMobXFlow === !0;
 }
-function Nr(e, t) {
-	return e ? t === void 0 ? Ci(e) || !!e[b] || Ge(e) || Jn(e) || fn(e) : ui(e) || ai(e) ? d("isObservable(object, propertyName) is not supported for arrays and maps. Use map.has or array.length instead.") : Ci(e) ? e[b].values_.has(t) : !1 : !1;
+function jr(e, t) {
+	return e ? t === void 0 ? xi(e) || !!e[S] || Ue(e) || Kn(e) || un(e) : ci(e) || ri(e) ? d("isObservable(object, propertyName) is not supported for arrays and maps. Use map.has or array.length instead.") : xi(e) ? e[S].values_.has(t) : !1 : !1;
 }
-function Pr(e) {
-	return arguments.length !== 1 && d("isObservable expects only 1 argument. Use isObservableProp to inspect the observability of a property"), Nr(e);
+function Mr(e) {
+	return arguments.length !== 1 && d("isObservable expects only 1 argument. Use isObservableProp to inspect the observability of a property"), jr(e);
 }
-function Fr() {
+function Nr() {
 	var e = !1, t = [...arguments];
 	typeof t[t.length - 1] == "boolean" && (e = t.pop());
-	var n = Ir(t);
+	var n = Pr(t);
 	if (!n) return d("'trace(break?)' can only be used inside a tracked computed value or a Reaction. Consider passing in the computed value or reaction explicitly");
-	n.isTracing_ === pn.NONE && console.log("[mobx.trace] '" + n.name_ + "' tracing enabled"), n.isTracing_ = e ? pn.BREAK : pn.LOG;
+	n.isTracing_ === dn.NONE && console.log("[mobx.trace] '" + n.name_ + "' tracing enabled"), n.isTracing_ = e ? dn.BREAK : dn.LOG;
 }
-function Ir(e) {
+function Pr(e) {
 	switch (e.length) {
-		case 0: return C.trackingDerivation;
-		case 1: return Ii(e[0]);
-		case 2: return Ii(e[0], e[1]);
+		case 0: return T.trackingDerivation;
+		case 1: return Pi(e[0]);
+		case 2: return Pi(e[0], e[1]);
 	}
 }
-function Lr(e, t) {
-	t === void 0 && (t = void 0), Fn();
+function Fr(e, t) {
+	t === void 0 && (t = void 0), Nn();
 	try {
 		return e.apply(t);
 	} finally {
-		In();
+		Pn();
 	}
 }
-function Rr(e) {
-	return e[b];
+function Ir(e) {
+	return e[S];
 }
-var zr = {
+var Lr = {
 	has: function(e, t) {
-		return C.trackingDerivation && ie("detect new properties using the 'in' operator. Use 'has' from 'mobx' instead."), Rr(e).has_(t);
+		return T.trackingDerivation && ie("detect new properties using the 'in' operator. Use 'has' from 'mobx' instead."), Ir(e).has_(t);
 	},
 	get: function(e, t) {
-		return Rr(e).get_(t);
+		return Ir(e).get_(t);
 	},
 	set: function(e, t, n) {
-		return ce(t) ? (Rr(e).values_.has(t) || ie("add a new observable property through direct assignment. Use 'set' from 'mobx' instead."), Rr(e).set_(t, n, !0) ?? !0) : !1;
+		return oe(t) ? (Ir(e).values_.has(t) || ie("add a new observable property through direct assignment. Use 'set' from 'mobx' instead."), Ir(e).set_(t, n, !0) ?? !0) : !1;
 	},
 	deleteProperty: function(e, t) {
-		return ie("delete properties from an observable object. Use 'remove' from 'mobx' instead."), ce(t) ? Rr(e).delete_(t, !0) ?? !0 : !1;
+		return ie("delete properties from an observable object. Use 'remove' from 'mobx' instead."), oe(t) ? Ir(e).delete_(t, !0) ?? !0 : !1;
 	},
 	defineProperty: function(e, t, n) {
-		return ie("define property on an observable object. Use 'defineProperty' from 'mobx' instead."), Rr(e).defineProperty_(t, n) ?? !0;
+		return ie("define property on an observable object. Use 'defineProperty' from 'mobx' instead."), Ir(e).defineProperty_(t, n) ?? !0;
 	},
 	ownKeys: function(e) {
-		return C.trackingDerivation && ie("iterate keys to detect added / removed properties. Use 'keys' from 'mobx' instead."), Rr(e).ownKeys_();
+		return T.trackingDerivation && ie("iterate keys to detect added / removed properties. Use 'keys' from 'mobx' instead."), Ir(e).ownKeys_();
 	},
 	preventExtensions: function(e) {
 		d(13);
 	}
 };
-function Br(e, t) {
+function Rr(e, t) {
 	var n;
-	return re(), e = bi(e, t), (n = e[b]).proxy_ ?? (n.proxy_ = new Proxy(e, zr));
+	return re(), e = vi(e, t), (n = e[S]).proxy_ ?? (n.proxy_ = new Proxy(e, Lr));
 }
-function Vr(e) {
+function zr(e) {
 	return e.interceptors_ !== void 0 && e.interceptors_.length > 0;
 }
-function Hr(e, t) {
+function Br(e, t) {
 	var n = e.interceptors_ ||= [];
-	return n.push(t), oe(function() {
+	return n.push(t), b(function() {
 		var e = n.indexOf(t);
 		e !== -1 && n.splice(e, 1);
 	});
 }
-function Ur(e, t) {
-	var n = wn();
+function Vr(e, t) {
+	var n = Sn();
 	try {
 		for (var r = [].concat(e.interceptors_ || []), i = 0, a = r.length; i < a && (t = r[i](t), t && !t.type && d(14), t); i++);
 		return t;
 	} finally {
-		Tn(n);
+		Cn(n);
 	}
 }
-function Wr(e) {
+function Hr(e) {
 	return e.changeListeners_ !== void 0 && e.changeListeners_.length > 0;
 }
-function Gr(e, t) {
+function Ur(e, t) {
 	var n = e.changeListeners_ ||= [];
-	return n.push(t), oe(function() {
+	return n.push(t), b(function() {
 		var e = n.indexOf(t);
 		e !== -1 && n.splice(e, 1);
 	});
 }
-function Kr(e, t) {
-	var n = wn(), r = e.changeListeners_;
+function Wr(e, t) {
+	var n = Sn(), r = e.changeListeners_;
 	if (r) {
 		r = r.slice();
 		for (var i = 0, a = r.length; i < a; i++) r[i](t);
-		Tn(n);
+		Cn(n);
 	}
 }
-function qr(e, t, n) {
-	return zi(function() {
-		var r = bi(e, n)[b];
-		t && e[Le] && d("makeObservable second arg must be nullish when using decorators. Mixing @decorator syntax with annotations is not supported."), t ??= Ve(e), be(t).forEach(function(e) {
+function Gr(e, t, n) {
+	return Li(function() {
+		var r = vi(e, n)[S];
+		t && e[Fe] && d("makeObservable second arg must be nullish when using decorators. Mixing @decorator syntax with annotations is not supported."), t ??= ze(e), ve(t).forEach(function(e) {
 			return r.make_(e, t[e]);
 		});
 	}), e;
 }
-var Jr = "splice", Yr = "update", Xr = 1e4, Zr = {
+var Kr = "splice", qr = "update", Jr = 1e4, Yr = {
 	get: function(e, t) {
-		var n = e[b];
-		return t === b ? n : t === "length" ? n.getArrayLength_() : typeof t == "string" && !isNaN(t) ? n.get_(parseInt(t)) : Ce(ei, t) ? ei[t] : e[t];
+		var n = e[S];
+		return t === S ? n : t === "length" ? n.getArrayLength_() : typeof t == "string" && !isNaN(t) ? n.get_(parseInt(t)) : xe(Qr, t) ? Qr[t] : e[t];
 	},
 	set: function(e, t, n) {
-		var r = e[b];
+		var r = e[S];
 		return t === "length" && r.setArrayLength_(n), typeof t == "symbol" || isNaN(t) ? e[t] = n : r.set_(parseInt(t), n), !0;
 	},
 	preventExtensions: function() {
 		d(15);
 	}
-}, Qr = /* @__PURE__ */ function() {
+}, Xr = /* @__PURE__ */ function() {
 	function e(e, t, n, r) {
-		e === void 0 && (e = "ObservableArray@" + ae()), this.owned_ = void 0, this.legacyMode_ = void 0, this.atom_ = void 0, this.values_ = [], this.interceptors_ = void 0, this.changeListeners_ = void 0, this.enhancer_ = void 0, this.dehancer = void 0, this.proxy_ = void 0, this.lastKnownLength_ = 0, this.owned_ = n, this.legacyMode_ = r, this.atom_ = new We(e), this.enhancer_ = function(n, r) {
+		e === void 0 && (e = "ObservableArray@" + y()), this.owned_ = void 0, this.legacyMode_ = void 0, this.atom_ = void 0, this.values_ = [], this.interceptors_ = void 0, this.changeListeners_ = void 0, this.enhancer_ = void 0, this.dehancer = void 0, this.proxy_ = void 0, this.lastKnownLength_ = 0, this.owned_ = n, this.legacyMode_ = r, this.atom_ = new He(e), this.enhancer_ = function(n, r) {
 			return t(n, r, e + "[..]");
 		};
 	}
@@ -1758,7 +1765,7 @@ var Jr = "splice", Yr = "update", Xr = 1e4, Zr = {
 	}, t.dehanceValues_ = function(e) {
 		return this.dehancer !== void 0 && e.length > 0 ? e.map(this.dehancer) : e;
 	}, t.intercept_ = function(e) {
-		return Hr(this, e);
+		return Br(this, e);
 	}, t.observe_ = function(e, t) {
 		return t === void 0 && (t = !1), t && e({
 			observableKind: "array",
@@ -1770,7 +1777,7 @@ var Jr = "splice", Yr = "update", Xr = 1e4, Zr = {
 			addedCount: this.values_.length,
 			removed: [],
 			removedCount: 0
-		}), Gr(this, e);
+		}), Ur(this, e);
 	}, t.getArrayLength_ = function() {
 		return this.atom_.reportObserved(), this.values_.length;
 	}, t.setArrayLength_ = function(e) {
@@ -1781,15 +1788,15 @@ var Jr = "splice", Yr = "update", Xr = 1e4, Zr = {
 			this.spliceWithArray_(t, 0, n);
 		} else this.spliceWithArray_(e, t - e);
 	}, t.updateArrayLength_ = function(e, t) {
-		e !== this.lastKnownLength_ && d(16), this.lastKnownLength_ += t, this.legacyMode_ && t > 0 && Pi(e + t + 1);
+		e !== this.lastKnownLength_ && d(16), this.lastKnownLength_ += t, this.legacyMode_ && t > 0 && Mi(e + t + 1);
 	}, t.spliceWithArray_ = function(e, t, n) {
 		var r = this;
-		_n(this.atom_);
+		hn(this.atom_);
 		var i = this.values_.length;
-		if (e === void 0 ? e = 0 : e > i ? e = i : e < 0 && (e = Math.max(0, i + e)), t = arguments.length === 1 ? i - e : t == null ? 0 : Math.max(0, Math.min(t, i - e)), n === void 0 && (n = v), Vr(this)) {
-			var a = Ur(this, {
+		if (e === void 0 ? e = 0 : e > i ? e = i : e < 0 && (e = Math.max(0, i + e)), t = arguments.length === 1 ? i - e : t == null ? 0 : Math.max(0, Math.min(t, i - e)), n === void 0 && (n = v), zr(this)) {
+			var a = Vr(this, {
 				object: this.proxy_,
-				type: Jr,
+				type: Kr,
 				index: e,
 				removedCount: t,
 				added: n
@@ -1806,7 +1813,7 @@ var Jr = "splice", Yr = "update", Xr = 1e4, Zr = {
 		var s = this.spliceItemsIntoValues_(e, t, n);
 		return (t !== 0 || n.length !== 0) && this.notifyArraySplice_(e, n, s), this.dehanceValues_(s);
 	}, t.spliceItemsIntoValues_ = function(e, t, n) {
-		if (n.length < Xr) {
+		if (n.length < Jr) {
 			var r;
 			return (r = this.values_).splice.apply(r, [e, t].concat(n));
 		} else {
@@ -1817,29 +1824,29 @@ var Jr = "splice", Yr = "update", Xr = 1e4, Zr = {
 			return i;
 		}
 	}, t.notifyArrayChildUpdate_ = function(e, t, n) {
-		var r = !this.owned_ && Yn(), i = Wr(this), a = i || r ? {
+		var r = !this.owned_ && qn(), i = Hr(this), a = i || r ? {
 			observableKind: "array",
 			object: this.proxy_,
-			type: Yr,
+			type: qr,
 			debugObjectName: this.atom_.name_,
 			index: e,
 			newValue: t,
 			oldValue: n
 		} : null;
-		r && Zn(a), this.atom_.reportChanged(), i && Kr(this, a), r && $n();
+		r && Yn(a), this.atom_.reportChanged(), i && Wr(this, a), r && Zn();
 	}, t.notifyArraySplice_ = function(e, t, n) {
-		var r = !this.owned_ && Yn(), i = Wr(this), a = i || r ? {
+		var r = !this.owned_ && qn(), i = Hr(this), a = i || r ? {
 			observableKind: "array",
 			object: this.proxy_,
 			debugObjectName: this.atom_.name_,
-			type: Jr,
+			type: Kr,
 			index: e,
 			removed: n,
 			added: t,
 			removedCount: n.length,
 			addedCount: t.length
 		} : null;
-		r && Zn(a), this.atom_.reportChanged(), i && Kr(this, a), r && $n();
+		r && Yn(a), this.atom_.reportChanged(), i && Wr(this, a), r && Zn();
 	}, t.get_ = function(e) {
 		if (this.legacyMode_ && e >= this.values_.length) {
 			console.warn("[mobx.array] Attempt to read an array index (" + e + ") that is out of bounds (" + this.values_.length + "). Please check length first. Out of bound indices will not be tracked by MobX");
@@ -1849,11 +1856,11 @@ var Jr = "splice", Yr = "update", Xr = 1e4, Zr = {
 	}, t.set_ = function(e, t) {
 		var n = this.values_;
 		if (this.legacyMode_ && e > n.length && d(17, e, n.length), e < n.length) {
-			_n(this.atom_);
+			hn(this.atom_);
 			var r = n[e];
-			if (Vr(this)) {
-				var i = Ur(this, {
-					type: Yr,
+			if (zr(this)) {
+				var i = Vr(this, {
+					type: qr,
 					object: this.proxy_,
 					index: e,
 					newValue: t
@@ -1868,27 +1875,27 @@ var Jr = "splice", Yr = "update", Xr = 1e4, Zr = {
 		}
 	}, e;
 }();
-function $r(e, t, n, r) {
-	return n === void 0 && (n = "ObservableArray@" + ae()), r === void 0 && (r = !1), re(), zi(function() {
-		var i = new Qr(n, t, r, !1);
-		pe(i.values_, b, i);
-		var a = new Proxy(i.values_, Zr);
+function Zr(e, t, n, r) {
+	return n === void 0 && (n = "ObservableArray@" + y()), r === void 0 && (r = !1), re(), Li(function() {
+		var i = new Xr(n, t, r, !1);
+		de(i.values_, S, i);
+		var a = new Proxy(i.values_, Yr);
 		return i.proxy_ = a, e && e.length && i.spliceWithArray_(0, 0, e), a;
 	});
 }
-var ei = {
+var Qr = {
 	clear: function() {
 		return this.splice(0);
 	},
 	replace: function(e) {
-		var t = this[b];
+		var t = this[S];
 		return t.spliceWithArray_(0, t.values_.length, e);
 	},
 	toJSON: function() {
 		return this.slice();
 	},
 	splice: function(e, t) {
-		var n = [...arguments].slice(2), r = this[b];
+		var n = [...arguments].slice(2), r = this[S];
 		switch (arguments.length) {
 			case 0: return [];
 			case 1: return r.spliceWithArray_(e);
@@ -1897,58 +1904,58 @@ var ei = {
 		return r.spliceWithArray_(e, t, n);
 	},
 	spliceWithArray: function(e, t, n) {
-		return this[b].spliceWithArray_(e, t, n);
+		return this[S].spliceWithArray_(e, t, n);
 	},
 	push: function() {
-		var e = this[b], t = [...arguments];
+		var e = this[S], t = [...arguments];
 		return e.spliceWithArray_(e.values_.length, 0, t), e.values_.length;
 	},
 	pop: function() {
-		return this.splice(Math.max(this[b].values_.length - 1, 0), 1)[0];
+		return this.splice(Math.max(this[S].values_.length - 1, 0), 1)[0];
 	},
 	shift: function() {
 		return this.splice(0, 1)[0];
 	},
 	unshift: function() {
-		var e = this[b], t = [...arguments];
+		var e = this[S], t = [...arguments];
 		return e.spliceWithArray_(0, 0, t), e.values_.length;
 	},
 	reverse: function() {
-		return C.trackingDerivation && d(37, "reverse"), this.replace(this.slice().reverse()), this;
+		return T.trackingDerivation && d(37, "reverse"), this.replace(this.slice().reverse()), this;
 	},
 	sort: function() {
-		C.trackingDerivation && d(37, "sort");
+		T.trackingDerivation && d(37, "sort");
 		var e = this.slice();
 		return e.sort.apply(e, arguments), this.replace(e), this;
 	},
 	remove: function(e) {
-		var t = this[b], n = t.dehanceValues_(t.values_).indexOf(e);
+		var t = this[S], n = t.dehanceValues_(t.values_).indexOf(e);
 		return n > -1 ? (this.splice(n, 1), !0) : !1;
 	}
 };
-w("at", ti), w("concat", ti), w("flat", ti), w("includes", ti), w("indexOf", ti), w("join", ti), w("lastIndexOf", ti), w("slice", ti), w("toString", ti), w("toLocaleString", ti), w("toSorted", ti), w("toSpliced", ti), w("with", ti), w("every", ni), w("filter", ni), w("find", ni), w("findIndex", ni), w("findLast", ni), w("findLastIndex", ni), w("flatMap", ni), w("forEach", ni), w("map", ni), w("some", ni), w("toReversed", ni), w("reduce", ri), w("reduceRight", ri);
-function w(e, t) {
-	typeof Array.prototype[e] == "function" && (ei[e] = t(e));
+E("at", $r), E("concat", $r), E("flat", $r), E("includes", $r), E("indexOf", $r), E("join", $r), E("lastIndexOf", $r), E("slice", $r), E("toString", $r), E("toLocaleString", $r), E("toSorted", $r), E("toSpliced", $r), E("with", $r), E("every", ei), E("filter", ei), E("find", ei), E("findIndex", ei), E("findLast", ei), E("findLastIndex", ei), E("flatMap", ei), E("forEach", ei), E("map", ei), E("some", ei), E("toReversed", ei), E("reduce", ti), E("reduceRight", ti);
+function E(e, t) {
+	typeof Array.prototype[e] == "function" && (Qr[e] = t(e));
 }
-function ti(e) {
+function $r(e) {
 	return function() {
-		var t = this[b];
+		var t = this[S];
 		t.atom_.reportObserved();
 		var n = t.dehanceValues_(t.values_);
 		return n[e].apply(n, arguments);
 	};
 }
-function ni(e) {
+function ei(e) {
 	return function(t, n) {
-		var r = this, i = this[b];
+		var r = this, i = this[S];
 		return i.atom_.reportObserved(), i.dehanceValues_(i.values_)[e](function(e, i) {
 			return t.call(n, e, i, r);
 		});
 	};
 }
-function ri(e) {
+function ti(e) {
 	return function() {
-		var t = this, n = this[b];
+		var t = this, n = this[S];
 		n.atom_.reportObserved();
 		var r = n.dehanceValues_(n.values_), i = arguments[0];
 		return arguments[0] = function(e, n, r) {
@@ -1956,15 +1963,15 @@ function ri(e) {
 		}, r[e].apply(r, arguments);
 	};
 }
-var ii = /* @__PURE__ */ me("ObservableArrayAdministration", Qr);
-function ai(e) {
-	return le(e) && ii(e[b]);
+var ni = /* @__PURE__ */ fe("ObservableArrayAdministration", Xr);
+function ri(e) {
+	return se(e) && ni(e[S]);
 }
-var oi = {}, si = "add", ci = "delete", li = /* @__PURE__ */ function() {
+var ii = {}, ai = "add", oi = "delete", si = /* @__PURE__ */ function() {
 	function e(e, t, n) {
 		var r = this;
-		t === void 0 && (t = Qe), n === void 0 && (n = "ObservableMap@" + ae()), this.enhancer_ = void 0, this.name_ = void 0, this[b] = oi, this.data_ = void 0, this.hasMap_ = void 0, this.keysAtom_ = void 0, this.interceptors_ = void 0, this.changeListeners_ = void 0, this.dehancer = void 0, this.enhancer_ = t, this.name_ = n, y(Map) || d(18), zi(function() {
-			r.keysAtom_ = Ke(r.name_ + ".keys()"), r.data_ = /* @__PURE__ */ new Map(), r.hasMap_ = /* @__PURE__ */ new Map(), e && r.merge(e);
+		t === void 0 && (t = Xe), n === void 0 && (n = "ObservableMap@" + y()), this.enhancer_ = void 0, this.name_ = void 0, this[S] = ii, this.data_ = void 0, this.hasMap_ = void 0, this.keysAtom_ = void 0, this.interceptors_ = void 0, this.changeListeners_ = void 0, this.dehancer = void 0, this.enhancer_ = t, this.name_ = n, x(Map) || d(18), Li(function() {
+			r.keysAtom_ = We(r.name_ + ".keys()"), r.data_ = /* @__PURE__ */ new Map(), r.hasMap_ = /* @__PURE__ */ new Map(), e && r.merge(e);
 		});
 	}
 	var t = e.prototype;
@@ -1972,20 +1979,20 @@ var oi = {}, si = "add", ci = "delete", li = /* @__PURE__ */ function() {
 		return this.data_.has(e);
 	}, t.has = function(e) {
 		var t = this;
-		if (!C.trackingDerivation) return this.has_(e);
+		if (!T.trackingDerivation) return this.has_(e);
 		var n = this.hasMap_.get(e);
 		if (!n) {
-			var r = n = new un(this.has_(e), et, this.name_ + "." + xe(e) + "?", !1);
-			this.hasMap_.set(e, r), br(r, function() {
+			var r = n = new cn(this.has_(e), Qe, this.name_ + "." + ye(e) + "?", !1);
+			this.hasMap_.set(e, r), vr(r, function() {
 				return t.hasMap_.delete(e);
 			});
 		}
 		return n.get();
 	}, t.set = function(e, t) {
 		var n = this.has_(e);
-		if (Vr(this)) {
-			var r = Ur(this, {
-				type: n ? Yr : si,
+		if (zr(this)) {
+			var r = Vr(this, {
+				type: n ? qr : ai,
 				object: this,
 				newValue: t,
 				name: e
@@ -1996,55 +2003,55 @@ var oi = {}, si = "add", ci = "delete", li = /* @__PURE__ */ function() {
 		return n ? this.updateValue_(e, t) : this.addValue_(e, t), this;
 	}, t.delete = function(e) {
 		var t = this;
-		if (_n(this.keysAtom_), Vr(this) && !Ur(this, {
-			type: ci,
+		if (hn(this.keysAtom_), zr(this) && !Vr(this, {
+			type: oi,
 			object: this,
 			name: e
 		})) return !1;
 		if (this.has_(e)) {
-			var n = Yn(), r = Wr(this), i = r || n ? {
+			var n = qn(), r = Hr(this), i = r || n ? {
 				observableKind: "map",
 				debugObjectName: this.name_,
-				type: ci,
+				type: oi,
 				object: this,
 				oldValue: this.data_.get(e).value_,
 				name: e
 			} : null;
-			return n && Zn(i), Lr(function() {
+			return n && Yn(i), Fr(function() {
 				var n;
 				t.keysAtom_.reportChanged(), (n = t.hasMap_.get(e)) == null || n.setNewValue_(!1), t.data_.get(e).setNewValue_(void 0), t.data_.delete(e);
-			}), r && Kr(this, i), n && $n(), !0;
+			}), r && Wr(this, i), n && Zn(), !0;
 		}
 		return !1;
 	}, t.updateValue_ = function(e, t) {
 		var n = this.data_.get(e);
-		if (t = n.prepareNewValue_(t), t !== C.UNCHANGED) {
-			var r = Yn(), i = Wr(this), a = i || r ? {
+		if (t = n.prepareNewValue_(t), t !== T.UNCHANGED) {
+			var r = qn(), i = Hr(this), a = i || r ? {
 				observableKind: "map",
 				debugObjectName: this.name_,
-				type: Yr,
+				type: qr,
 				object: this,
 				oldValue: n.value_,
 				name: e,
 				newValue: t
 			} : null;
-			r && Zn(a), n.setNewValue_(t), i && Kr(this, a), r && $n();
+			r && Yn(a), n.setNewValue_(t), i && Wr(this, a), r && Zn();
 		}
 	}, t.addValue_ = function(e, t) {
 		var n = this;
-		_n(this.keysAtom_), Lr(function() {
-			var r, i = new un(t, n.enhancer_, n.name_ + "." + xe(e), !1);
+		hn(this.keysAtom_), Fr(function() {
+			var r, i = new cn(t, n.enhancer_, n.name_ + "." + ye(e), !1);
 			n.data_.set(e, i), t = i.value_, (r = n.hasMap_.get(e)) == null || r.setNewValue_(!0), n.keysAtom_.reportChanged();
 		});
-		var r = Yn(), i = Wr(this), a = i || r ? {
+		var r = qn(), i = Hr(this), a = i || r ? {
 			observableKind: "map",
 			debugObjectName: this.name_,
-			type: si,
+			type: ai,
 			object: this,
 			name: e,
 			newValue: t
 		} : null;
-		r && Zn(a), i && Kr(this, a), r && $n();
+		r && Yn(a), i && Wr(this, a), r && Zn();
 	}, t.get = function(e) {
 		return this.has(e) ? this.dehanceValue_(this.data_.get(e).get()) : this.dehanceValue_(void 0);
 	}, t.dehanceValue_ = function(e) {
@@ -2053,7 +2060,7 @@ var oi = {}, si = "add", ci = "delete", li = /* @__PURE__ */ function() {
 		return this.keysAtom_.reportObserved(), this.data_.keys();
 	}, t.values = function() {
 		var e = this, t = this.keys();
-		return di({ next: function() {
+		return li({ next: function() {
 			var n = t.next(), r = n.done, i = n.value;
 			return {
 				done: r,
@@ -2062,7 +2069,7 @@ var oi = {}, si = "add", ci = "delete", li = /* @__PURE__ */ function() {
 		} });
 	}, t.entries = function() {
 		var e = this, t = this.keys();
-		return di({ next: function() {
+		return li({ next: function() {
 			var n = t.next(), r = n.done, i = n.value;
 			return {
 				done: r,
@@ -2072,27 +2079,27 @@ var oi = {}, si = "add", ci = "delete", li = /* @__PURE__ */ function() {
 	}, t[Symbol.iterator] = function() {
 		return this.entries();
 	}, t.forEach = function(e, t) {
-		for (var n = Ae(this), r; !(r = n()).done;) {
+		for (var n = Oe(this), r; !(r = n()).done;) {
 			var i = r.value, a = i[0], o = i[1];
 			e.call(t, o, a, this);
 		}
 	}, t.merge = function(e) {
 		var t = this;
-		return ui(e) && (e = new Map(e)), Lr(function() {
-			ue(e) ? ye(e).forEach(function(n) {
+		return ci(e) && (e = new Map(e)), Fr(function() {
+			ce(e) ? _e(e).forEach(function(n) {
 				return t.set(n, e[n]);
 			}) : Array.isArray(e) ? e.forEach(function(e) {
 				var n = e[0], r = e[1];
 				return t.set(n, r);
-			}) : he(e) ? (ge(e) || d(19, e), e.forEach(function(e, n) {
+			}) : pe(e) ? (me(e) || d(19, e), e.forEach(function(e, n) {
 				return t.set(n, e);
 			})) : e != null && d(20, e);
 		}), this;
 	}, t.clear = function() {
 		var e = this;
-		Lr(function() {
-			Cn(function() {
-				for (var t = Ae(e.keys()), n; !(n = t()).done;) {
+		Fr(function() {
+			xn(function() {
+				for (var t = Oe(e.keys()), n; !(n = t()).done;) {
 					var r = n.value;
 					e.delete(r);
 				}
@@ -2100,8 +2107,8 @@ var oi = {}, si = "add", ci = "delete", li = /* @__PURE__ */ function() {
 		});
 	}, t.replace = function(e) {
 		var t = this;
-		return Lr(function() {
-			for (var n = fi(e), r = /* @__PURE__ */ new Map(), i = !1, a = Ae(t.data_.keys()), o; !(o = a()).done;) {
+		return Fr(function() {
+			for (var n = ui(e), r = /* @__PURE__ */ new Map(), i = !1, a = Oe(t.data_.keys()), o; !(o = a()).done;) {
 				var s = o.value;
 				if (!n.has(s)) if (t.delete(s)) i = !0;
 				else {
@@ -2109,7 +2116,7 @@ var oi = {}, si = "add", ci = "delete", li = /* @__PURE__ */ function() {
 					r.set(s, c);
 				}
 			}
-			for (var l = Ae(n.entries()), u; !(u = l()).done;) {
+			for (var l = Oe(n.entries()), u; !(u = l()).done;) {
 				var d = u.value, f = d[0], p = d[1], m = t.data_.has(f);
 				if (t.set(f, p), t.data_.has(f)) {
 					var h = t.data_.get(f);
@@ -2131,10 +2138,10 @@ var oi = {}, si = "add", ci = "delete", li = /* @__PURE__ */ function() {
 	}, t.toJSON = function() {
 		return Array.from(this);
 	}, t.observe_ = function(e, t) {
-		return t === !0 && d("`observe` doesn't support fireImmediately=true in combination with maps."), Gr(this, e);
+		return t === !0 && d("`observe` doesn't support fireImmediately=true in combination with maps."), Ur(this, e);
 	}, t.intercept_ = function(e) {
-		return Hr(this, e);
-	}, ke(e, [{
+		return Br(this, e);
+	}, De(e, [{
 		key: "size",
 		get: function() {
 			return this.keysAtom_.reportObserved(), this.data_.size;
@@ -2145,26 +2152,26 @@ var oi = {}, si = "add", ci = "delete", li = /* @__PURE__ */ function() {
 			return "Map";
 		}
 	}]);
-}(), ui = /* @__PURE__ */ me("ObservableMap", li);
-function di(e) {
-	return e[Symbol.toStringTag] = "MapIterator", Gi(e);
+}(), ci = /* @__PURE__ */ fe("ObservableMap", si);
+function li(e) {
+	return e[Symbol.toStringTag] = "MapIterator", Ui(e);
 }
-function fi(e) {
-	if (he(e) || ui(e)) return e;
+function ui(e) {
+	if (pe(e) || ci(e)) return e;
 	if (Array.isArray(e)) return new Map(e);
-	if (ue(e)) {
+	if (ce(e)) {
 		var t = /* @__PURE__ */ new Map();
 		for (var n in e) t.set(n, e[n]);
 		return t;
 	} else return d(21, e);
 }
-var pi = {}, mi = /* @__PURE__ */ function() {
+var di = {}, fi = /* @__PURE__ */ function() {
 	function e(e, t, n) {
 		var r = this;
-		t === void 0 && (t = Qe), n === void 0 && (n = "ObservableSet@" + ae()), this.name_ = void 0, this[b] = pi, this.data_ = /* @__PURE__ */ new Set(), this.atom_ = void 0, this.changeListeners_ = void 0, this.interceptors_ = void 0, this.dehancer = void 0, this.enhancer_ = void 0, this.name_ = n, y(Set) || d(22), this.enhancer_ = function(e, r) {
+		t === void 0 && (t = Xe), n === void 0 && (n = "ObservableSet@" + y()), this.name_ = void 0, this[S] = di, this.data_ = /* @__PURE__ */ new Set(), this.atom_ = void 0, this.changeListeners_ = void 0, this.interceptors_ = void 0, this.dehancer = void 0, this.enhancer_ = void 0, this.name_ = n, x(Set) || d(22), this.enhancer_ = function(e, r) {
 			return t(e, r, n);
-		}, zi(function() {
-			r.atom_ = Ke(r.name_), e && r.replace(e);
+		}, Li(function() {
+			r.atom_ = We(r.name_), e && r.replace(e);
 		});
 	}
 	var t = e.prototype;
@@ -2172,24 +2179,24 @@ var pi = {}, mi = /* @__PURE__ */ function() {
 		return this.dehancer === void 0 ? e : this.dehancer(e);
 	}, t.clear = function() {
 		var e = this;
-		Lr(function() {
-			Cn(function() {
-				for (var t = Ae(e.data_.values()), n; !(n = t()).done;) {
+		Fr(function() {
+			xn(function() {
+				for (var t = Oe(e.data_.values()), n; !(n = t()).done;) {
 					var r = n.value;
 					e.delete(r);
 				}
 			});
 		});
 	}, t.forEach = function(e, t) {
-		for (var n = Ae(this), r; !(r = n()).done;) {
+		for (var n = Oe(this), r; !(r = n()).done;) {
 			var i = r.value;
 			e.call(t, i, i, this);
 		}
 	}, t.add = function(e) {
 		var t = this;
-		if (_n(this.atom_), Vr(this)) {
-			var n = Ur(this, {
-				type: si,
+		if (hn(this.atom_), zr(this)) {
+			var n = Vr(this, {
+				type: ai,
 				object: this,
 				newValue: e
 			});
@@ -2197,44 +2204,44 @@ var pi = {}, mi = /* @__PURE__ */ function() {
 			e = n.newValue;
 		}
 		if (!this.has(e)) {
-			Lr(function() {
+			Fr(function() {
 				t.data_.add(t.enhancer_(e, void 0)), t.atom_.reportChanged();
 			});
-			var r = Yn(), i = Wr(this), a = i || r ? {
+			var r = qn(), i = Hr(this), a = i || r ? {
 				observableKind: "set",
 				debugObjectName: this.name_,
-				type: si,
+				type: ai,
 				object: this,
 				newValue: e
 			} : null;
-			r && Zn(a), i && Kr(this, a), r && $n();
+			r && Yn(a), i && Wr(this, a), r && Zn();
 		}
 		return this;
 	}, t.delete = function(e) {
 		var t = this;
-		if (Vr(this) && !Ur(this, {
-			type: ci,
+		if (zr(this) && !Vr(this, {
+			type: oi,
 			object: this,
 			oldValue: e
 		})) return !1;
 		if (this.has(e)) {
-			var n = Yn(), r = Wr(this), i = r || n ? {
+			var n = qn(), r = Hr(this), i = r || n ? {
 				observableKind: "set",
 				debugObjectName: this.name_,
-				type: ci,
+				type: oi,
 				object: this,
 				oldValue: e
 			} : null;
-			return n && Zn(i), Lr(function() {
+			return n && Yn(i), Fr(function() {
 				t.atom_.reportChanged(), t.data_.delete(e);
-			}), r && Kr(this, i), n && $n(), !0;
+			}), r && Wr(this, i), n && Zn(), !0;
 		}
 		return !1;
 	}, t.has = function(e) {
 		return this.atom_.reportObserved(), this.data_.has(this.dehanceValue_(e));
 	}, t.entries = function() {
 		var e = this.values();
-		return gi({ next: function() {
+		return mi({ next: function() {
 			var t = e.next(), n = t.value, r = t.done;
 			return r ? {
 				value: void 0,
@@ -2249,7 +2256,7 @@ var pi = {}, mi = /* @__PURE__ */ function() {
 	}, t.values = function() {
 		this.atom_.reportObserved();
 		var e = this, t = this.data_.values();
-		return gi({ next: function() {
+		return mi({ next: function() {
 			var n = t.next(), r = n.value, i = n.done;
 			return i ? {
 				value: void 0,
@@ -2260,37 +2267,37 @@ var pi = {}, mi = /* @__PURE__ */ function() {
 			};
 		} });
 	}, t.intersection = function(e) {
-		return _e(e) && !hi(e) ? e.intersection(this) : new Set(this).intersection(e);
+		return he(e) && !pi(e) ? e.intersection(this) : new Set(this).intersection(e);
 	}, t.union = function(e) {
-		return _e(e) && !hi(e) ? e.union(this) : new Set(this).union(e);
+		return he(e) && !pi(e) ? e.union(this) : new Set(this).union(e);
 	}, t.difference = function(e) {
 		return new Set(this).difference(e);
 	}, t.symmetricDifference = function(e) {
-		return _e(e) && !hi(e) ? e.symmetricDifference(this) : new Set(this).symmetricDifference(e);
+		return he(e) && !pi(e) ? e.symmetricDifference(this) : new Set(this).symmetricDifference(e);
 	}, t.isSubsetOf = function(e) {
 		return new Set(this).isSubsetOf(e);
 	}, t.isSupersetOf = function(e) {
 		return new Set(this).isSupersetOf(e);
 	}, t.isDisjointFrom = function(e) {
-		return _e(e) && !hi(e) ? e.isDisjointFrom(this) : new Set(this).isDisjointFrom(e);
+		return he(e) && !pi(e) ? e.isDisjointFrom(this) : new Set(this).isDisjointFrom(e);
 	}, t.replace = function(e) {
 		var t = this;
-		return hi(e) && (e = new Set(e)), Lr(function() {
-			Array.isArray(e) || _e(e) ? (t.clear(), e.forEach(function(e) {
+		return pi(e) && (e = new Set(e)), Fr(function() {
+			Array.isArray(e) || he(e) ? (t.clear(), e.forEach(function(e) {
 				return t.add(e);
 			})) : e != null && d("Cannot initialize set from " + e);
 		}), this;
 	}, t.observe_ = function(e, t) {
-		return t === !0 && d("`observe` doesn't support fireImmediately=true in combination with sets."), Gr(this, e);
+		return t === !0 && d("`observe` doesn't support fireImmediately=true in combination with sets."), Ur(this, e);
 	}, t.intercept_ = function(e) {
-		return Hr(this, e);
+		return Br(this, e);
 	}, t.toJSON = function() {
 		return Array.from(this);
 	}, t.toString = function() {
 		return "[object ObservableSet]";
 	}, t[Symbol.iterator] = function() {
 		return this.values();
-	}, ke(e, [{
+	}, De(e, [{
 		key: "size",
 		get: function() {
 			return this.atom_.reportObserved(), this.data_.size;
@@ -2301,23 +2308,23 @@ var pi = {}, mi = /* @__PURE__ */ function() {
 			return "Set";
 		}
 	}]);
-}(), hi = /* @__PURE__ */ me("ObservableSet", mi);
-function gi(e) {
-	return e[Symbol.toStringTag] = "SetIterator", Gi(e);
+}(), pi = /* @__PURE__ */ fe("ObservableSet", fi);
+function mi(e) {
+	return e[Symbol.toStringTag] = "SetIterator", Ui(e);
 }
-var _i = /* @__PURE__ */ Object.create(null), vi = "remove", yi = /* @__PURE__ */ function() {
+var hi = /* @__PURE__ */ Object.create(null), gi = "remove", _i = /* @__PURE__ */ function() {
 	function e(e, t, n, r) {
-		t === void 0 && (t = /* @__PURE__ */ new Map()), r === void 0 && (r = Dt), this.target_ = void 0, this.values_ = void 0, this.name_ = void 0, this.defaultAnnotation_ = void 0, this.keysAtom_ = void 0, this.changeListeners_ = void 0, this.interceptors_ = void 0, this.proxy_ = void 0, this.isPlainObject_ = void 0, this.appliedAnnotations_ = void 0, this.pendingKeys_ = void 0, this.target_ = e, this.values_ = t, this.name_ = n, this.defaultAnnotation_ = r, this.keysAtom_ = new We(this.name_ + ".keys"), this.isPlainObject_ = ue(this.target_), qi(this.defaultAnnotation_) || d("defaultAnnotation must be valid annotation"), this.appliedAnnotations_ = {};
+		t === void 0 && (t = /* @__PURE__ */ new Map()), r === void 0 && (r = Tt), this.target_ = void 0, this.values_ = void 0, this.name_ = void 0, this.defaultAnnotation_ = void 0, this.keysAtom_ = void 0, this.changeListeners_ = void 0, this.interceptors_ = void 0, this.proxy_ = void 0, this.isPlainObject_ = void 0, this.appliedAnnotations_ = void 0, this.pendingKeys_ = void 0, this.target_ = e, this.values_ = t, this.name_ = n, this.defaultAnnotation_ = r, this.keysAtom_ = new He(this.name_ + ".keys"), this.isPlainObject_ = ce(this.target_), Gi(this.defaultAnnotation_) || d("defaultAnnotation must be valid annotation"), this.appliedAnnotations_ = {};
 	}
 	var t = e.prototype;
 	return t.getObservablePropValue_ = function(e) {
 		return this.values_.get(e).get();
 	}, t.setObservablePropValue_ = function(e, t) {
 		var n = this.values_.get(e);
-		if (n instanceof dn) return n.set(t), !0;
-		if (Vr(this)) {
-			var r = Ur(this, {
-				type: Yr,
+		if (n instanceof ln) return n.set(t), !0;
+		if (zr(this)) {
+			var r = Vr(this, {
+				type: qr,
 				object: this.proxy_ || this.target_,
 				name: e,
 				newValue: t
@@ -2325,9 +2332,9 @@ var _i = /* @__PURE__ */ Object.create(null), vi = "remove", yi = /* @__PURE__ *
 			if (!r) return null;
 			t = r.newValue;
 		}
-		if (t = n.prepareNewValue_(t), t !== C.UNCHANGED) {
-			var i = Wr(this), a = Yn(), o = i || a ? {
-				type: Yr,
+		if (t = n.prepareNewValue_(t), t !== T.UNCHANGED) {
+			var i = Hr(this), a = qn(), o = i || a ? {
+				type: qr,
 				observableKind: "object",
 				debugObjectName: this.name_,
 				object: this.proxy_ || this.target_,
@@ -2335,28 +2342,28 @@ var _i = /* @__PURE__ */ Object.create(null), vi = "remove", yi = /* @__PURE__ *
 				name: e,
 				newValue: t
 			} : null;
-			a && Zn(o), n.setNewValue_(t), i && Kr(this, o), a && $n();
+			a && Yn(o), n.setNewValue_(t), i && Wr(this, o), a && Zn();
 		}
 		return !0;
 	}, t.get_ = function(e) {
-		return C.trackingDerivation && !Ce(this.target_, e) && this.has_(e), this.target_[e];
+		return T.trackingDerivation && !xe(this.target_, e) && this.has_(e), this.target_[e];
 	}, t.set_ = function(e, t, n) {
-		return n === void 0 && (n = !1), Ce(this.target_, e) ? this.values_.has(e) ? this.setObservablePropValue_(e, t) : n ? Reflect.set(this.target_, e, t) : (this.target_[e] = t, !0) : this.extend_(e, {
+		return n === void 0 && (n = !1), xe(this.target_, e) ? this.values_.has(e) ? this.setObservablePropValue_(e, t) : n ? Reflect.set(this.target_, e, t) : (this.target_[e] = t, !0) : this.extend_(e, {
 			value: t,
 			enumerable: !0,
 			writable: !0,
 			configurable: !0
 		}, this.defaultAnnotation_, n);
 	}, t.has_ = function(e) {
-		if (!C.trackingDerivation) return e in this.target_;
+		if (!T.trackingDerivation) return e in this.target_;
 		this.pendingKeys_ ||= /* @__PURE__ */ new Map();
 		var t = this.pendingKeys_.get(e);
-		return t || (t = new un(e in this.target_, et, this.name_ + "." + xe(e) + "?", !1), this.pendingKeys_.set(e, t)), t.get();
+		return t || (t = new cn(e in this.target_, Qe, this.name_ + "." + ye(e) + "?", !1), this.pendingKeys_.set(e, t)), t.get();
 	}, t.make_ = function(e, t) {
 		if (t === !0 && (t = this.defaultAnnotation_), t !== !1) {
-			if (Ti(this, t, e), !(e in this.target_)) {
+			if (Ci(this, t, e), !(e in this.target_)) {
 				var n;
-				if ((n = this.target_[Le]) != null && n[e]) return;
+				if ((n = this.target_[Fe]) != null && n[e]) return;
 				d(1, t.annotationType_, this.name_ + "." + e.toString());
 			}
 			for (var r = this.target_; r && r !== _;) {
@@ -2368,56 +2375,56 @@ var _i = /* @__PURE__ */ Object.create(null), vi = "remove", yi = /* @__PURE__ *
 				}
 				r = Object.getPrototypeOf(r);
 			}
-			wi(this, t, e);
+			Si(this, t, e);
 		}
 	}, t.extend_ = function(e, t, n, r) {
 		if (r === void 0 && (r = !1), n === !0 && (n = this.defaultAnnotation_), n === !1) return this.defineProperty_(e, t, r);
-		Ti(this, n, e);
+		Ci(this, n, e);
 		var i = n.extend_(this, e, t, r);
-		return i && wi(this, n, e), i;
+		return i && Si(this, n, e), i;
 	}, t.defineProperty_ = function(e, t, n) {
-		n === void 0 && (n = !1), _n(this.keysAtom_);
+		n === void 0 && (n = !1), hn(this.keysAtom_);
 		try {
-			Fn();
+			Nn();
 			var r = this.delete_(e);
 			if (!r) return r;
-			if (Vr(this)) {
-				var i = Ur(this, {
+			if (zr(this)) {
+				var i = Vr(this, {
 					object: this.proxy_ || this.target_,
 					name: e,
-					type: si,
+					type: ai,
 					newValue: t.value
 				});
 				if (!i) return null;
 				var a = i.newValue;
-				t.value !== a && (t = je({}, t, { value: a }));
+				t.value !== a && (t = ke({}, t, { value: a }));
 			}
 			if (n) {
 				if (!Reflect.defineProperty(this.target_, e, t)) return !1;
 			} else g(this.target_, e, t);
 			this.notifyPropertyAddition_(e, t.value);
 		} finally {
-			In();
+			Pn();
 		}
 		return !0;
 	}, t.defineObservableProperty_ = function(e, t, n, r) {
-		r === void 0 && (r = !1), _n(this.keysAtom_);
+		r === void 0 && (r = !1), hn(this.keysAtom_);
 		try {
-			Fn();
+			Nn();
 			var i = this.delete_(e);
 			if (!i) return i;
-			if (Vr(this)) {
-				var a = Ur(this, {
+			if (zr(this)) {
+				var a = Vr(this, {
 					object: this.proxy_ || this.target_,
 					name: e,
-					type: si,
+					type: ai,
 					newValue: t
 				});
 				if (!a) return null;
 				t = a.newValue;
 			}
-			var o = Si(e), s = {
-				configurable: C.safeDescriptors ? this.isPlainObject_ : !0,
+			var o = bi(e), s = {
+				configurable: T.safeDescriptors ? this.isPlainObject_ : !0,
 				enumerable: !0,
 				get: o.get,
 				set: o.set
@@ -2425,27 +2432,27 @@ var _i = /* @__PURE__ */ Object.create(null), vi = "remove", yi = /* @__PURE__ *
 			if (r) {
 				if (!Reflect.defineProperty(this.target_, e, s)) return !1;
 			} else g(this.target_, e, s);
-			var c = new un(t, n, this.name_ + "." + e.toString(), !1);
+			var c = new cn(t, n, this.name_ + "." + e.toString(), !1);
 			this.values_.set(e, c), this.notifyPropertyAddition_(e, c.value_);
 		} finally {
-			In();
+			Pn();
 		}
 		return !0;
 	}, t.defineComputedProperty_ = function(e, t, n) {
-		n === void 0 && (n = !1), _n(this.keysAtom_);
+		n === void 0 && (n = !1), hn(this.keysAtom_);
 		try {
-			Fn();
+			Nn();
 			var r = this.delete_(e);
 			if (!r) return r;
-			if (Vr(this) && !Ur(this, {
+			if (zr(this) && !Vr(this, {
 				object: this.proxy_ || this.target_,
 				name: e,
-				type: si,
+				type: ai,
 				newValue: void 0
 			})) return null;
 			t.name ||= this.name_ + "." + e.toString(), t.context = this.proxy_ || this.target_;
-			var i = Si(e), a = {
-				configurable: C.safeDescriptors ? this.isPlainObject_ : !0,
+			var i = bi(e), a = {
+				configurable: T.safeDescriptors ? this.isPlainObject_ : !0,
 				enumerable: !1,
 				get: i.get,
 				set: i.set
@@ -2453,123 +2460,123 @@ var _i = /* @__PURE__ */ Object.create(null), vi = "remove", yi = /* @__PURE__ *
 			if (n) {
 				if (!Reflect.defineProperty(this.target_, e, a)) return !1;
 			} else g(this.target_, e, a);
-			this.values_.set(e, new dn(t)), this.notifyPropertyAddition_(e, void 0);
+			this.values_.set(e, new ln(t)), this.notifyPropertyAddition_(e, void 0);
 		} finally {
-			In();
+			Pn();
 		}
 		return !0;
 	}, t.delete_ = function(e, t) {
-		if (t === void 0 && (t = !1), _n(this.keysAtom_), !Ce(this.target_, e)) return !0;
-		if (Vr(this) && !Ur(this, {
+		if (t === void 0 && (t = !1), hn(this.keysAtom_), !xe(this.target_, e)) return !0;
+		if (zr(this) && !Vr(this, {
 			object: this.proxy_ || this.target_,
 			name: e,
-			type: vi
+			type: gi
 		})) return null;
 		try {
 			var n;
-			Fn();
-			var r = Wr(this), i = Yn(), a = this.values_.get(e), o = void 0;
+			Nn();
+			var r = Hr(this), i = qn(), a = this.values_.get(e), o = void 0;
 			if (!a && (r || i) && (o = h(this.target_, e)?.value), t) {
 				if (!Reflect.deleteProperty(this.target_, e)) return !1;
 			} else delete this.target_[e];
-			if (delete this.appliedAnnotations_[e], a && (this.values_.delete(e), a instanceof un && (o = a.value_), Rn(a)), this.keysAtom_.reportChanged(), (n = this.pendingKeys_) == null || (n = n.get(e)) == null || n.set(e in this.target_), r || i) {
+			if (delete this.appliedAnnotations_[e], a && (this.values_.delete(e), a instanceof cn && (o = a.value_), In(a)), this.keysAtom_.reportChanged(), (n = this.pendingKeys_) == null || (n = n.get(e)) == null || n.set(e in this.target_), r || i) {
 				var s = {
-					type: vi,
+					type: gi,
 					observableKind: "object",
 					object: this.proxy_ || this.target_,
 					debugObjectName: this.name_,
 					oldValue: o,
 					name: e
 				};
-				i && Zn(s), r && Kr(this, s), i && $n();
+				i && Yn(s), r && Wr(this, s), i && Zn();
 			}
 		} finally {
-			In();
+			Pn();
 		}
 		return !0;
 	}, t.observe_ = function(e, t) {
-		return t === !0 && d("`observe` doesn't support the fire immediately property for observable objects."), Gr(this, e);
+		return t === !0 && d("`observe` doesn't support the fire immediately property for observable objects."), Ur(this, e);
 	}, t.intercept_ = function(e) {
-		return Hr(this, e);
+		return Br(this, e);
 	}, t.notifyPropertyAddition_ = function(e, t) {
-		var n, r = Wr(this), i = Yn();
+		var n, r = Hr(this), i = qn();
 		if (r || i) {
 			var a = r || i ? {
-				type: si,
+				type: ai,
 				observableKind: "object",
 				debugObjectName: this.name_,
 				object: this.proxy_ || this.target_,
 				name: e,
 				newValue: t
 			} : null;
-			i && Zn(a), r && Kr(this, a), i && $n();
+			i && Yn(a), r && Wr(this, a), i && Zn();
 		}
 		(n = this.pendingKeys_) == null || (n = n.get(e)) == null || n.set(!0), this.keysAtom_.reportChanged();
 	}, t.ownKeys_ = function() {
-		return this.keysAtom_.reportObserved(), be(this.target_);
+		return this.keysAtom_.reportObserved(), ve(this.target_);
 	}, t.keys_ = function() {
 		return this.keysAtom_.reportObserved(), Object.keys(this.target_);
 	}, e;
 }();
-function bi(e, t) {
-	if (t && Ci(e) && d("Options can't be provided for already observable objects."), Ce(e, b)) return Li(e) instanceof yi || d("Cannot convert '" + Ri(e) + "' into observable object:\nThe target is already observable of different type.\nExtending builtins is not supported."), e;
+function vi(e, t) {
+	if (t && xi(e) && d("Options can't be provided for already observable objects."), xe(e, S)) return Fi(e) instanceof _i || d("Cannot convert '" + Ii(e) + "' into observable object:\nThe target is already observable of different type.\nExtending builtins is not supported."), e;
 	Object.isExtensible(e) || d("Cannot make the designated object observable; it is not extensible");
-	var n = t?.name ?? (ue(e) ? "ObservableObject" : e.constructor.name) + "@" + ae();
-	return fe(e, b, new yi(e, /* @__PURE__ */ new Map(), String(n), Wt(t))), e;
+	var n = t?.name ?? (ce(e) ? "ObservableObject" : e.constructor.name) + "@" + y();
+	return ue(e, S, new _i(e, /* @__PURE__ */ new Map(), String(n), Ht(t))), e;
 }
-var xi = /* @__PURE__ */ me("ObservableObjectAdministration", yi);
-function Si(e) {
-	return _i[e] || (_i[e] = {
+var yi = /* @__PURE__ */ fe("ObservableObjectAdministration", _i);
+function bi(e) {
+	return hi[e] || (hi[e] = {
 		get: function() {
-			return this[b].getObservablePropValue_(e);
+			return this[S].getObservablePropValue_(e);
 		},
 		set: function(t) {
-			return this[b].setObservablePropValue_(e, t);
+			return this[S].setObservablePropValue_(e, t);
 		}
 	});
 }
-function Ci(e) {
-	return le(e) ? xi(e[b]) : !1;
+function xi(e) {
+	return se(e) ? yi(e[S]) : !1;
 }
-function wi(e, t, n) {
+function Si(e, t, n) {
 	var r;
-	e.appliedAnnotations_[n] = t, (r = e.target_[Le]) == null || delete r[n];
+	e.appliedAnnotations_[n] = t, (r = e.target_[Fe]) == null || delete r[n];
 }
-function Ti(e, t, n) {
-	if (qi(t) || d("Cannot annotate '" + e.name_ + "." + n.toString() + "': Invalid annotation."), !rt(t) && Ce(e.appliedAnnotations_, n)) {
+function Ci(e, t, n) {
+	if (Gi(t) || d("Cannot annotate '" + e.name_ + "." + n.toString() + "': Invalid annotation."), !tt(t) && xe(e.appliedAnnotations_, n)) {
 		var r = e.name_ + "." + n.toString(), i = e.appliedAnnotations_[n].annotationType_, a = t.annotationType_;
 		d("Cannot apply '" + a + "' to '" + r + "':" + ("\nThe field is already annotated with '" + i + "'.") + "\nRe-annotating fields is not allowed.\nUse 'override' annotation for methods overridden by subclass.");
 	}
 }
-var Ei = /* @__PURE__ */ Mi(0), Di = /* @__PURE__ */ function() {
+var wi = /* @__PURE__ */ Ai(0), Ti = /* @__PURE__ */ function() {
 	var e = !1, t = {};
 	return Object.defineProperty(t, "0", { set: function() {
 		e = !0;
 	} }), Object.create(t)[0] = 1, e === !1;
-}(), Oi = 0, ki = function() {};
-function Ai(e, t) {
+}(), Ei = 0, Di = function() {};
+function Oi(e, t) {
 	Object.setPrototypeOf ? Object.setPrototypeOf(e.prototype, t) : e.prototype.__proto__ === void 0 ? e.prototype = t : e.prototype.__proto__ = t;
 }
-Ai(ki, Array.prototype);
-var ji = /* @__PURE__ */ function(e) {
+Oi(Di, Array.prototype);
+var ki = /* @__PURE__ */ function(e) {
 	function t(t, n, r, i) {
 		var a;
-		return r === void 0 && (r = "ObservableArray@" + ae()), i === void 0 && (i = !1), a = e.call(this) || this, zi(function() {
-			var e = new Qr(r, n, i, !0);
-			e.proxy_ = a, pe(a, b, e), t && t.length && a.spliceWithArray(0, 0, t), Di && Object.defineProperty(a, "0", Ei);
+		return r === void 0 && (r = "ObservableArray@" + y()), i === void 0 && (i = !1), a = e.call(this) || this, Li(function() {
+			var e = new Xr(r, n, i, !0);
+			e.proxy_ = a, de(a, S, e), t && t.length && a.spliceWithArray(0, 0, t), Ti && Object.defineProperty(a, "0", wi);
 		}), a;
 	}
-	Me(t, e);
+	Ae(t, e);
 	var n = t.prototype;
 	return n.concat = function() {
-		this[b].atom_.reportObserved();
+		this[S].atom_.reportObserved();
 		var e = [...arguments];
 		return Array.prototype.concat.apply(this.slice(), e.map(function(e) {
-			return ai(e) ? e.slice() : e;
+			return ri(e) ? e.slice() : e;
 		}));
 	}, n[Symbol.iterator] = function() {
 		var e = this, t = 0;
-		return Gi({ next: function() {
+		return Ui({ next: function() {
 			return t < e.length ? {
 				value: e[t++],
 				done: !1
@@ -2578,13 +2585,13 @@ var ji = /* @__PURE__ */ function(e) {
 				value: void 0
 			};
 		} });
-	}, ke(t, [{
+	}, De(t, [{
 		key: "length",
 		get: function() {
-			return this[b].getArrayLength_();
+			return this[S].getArrayLength_();
 		},
 		set: function(e) {
-			this[b].setArrayLength_(e);
+			this[S].setArrayLength_(e);
 		}
 	}, {
 		key: Symbol.toStringTag,
@@ -2592,88 +2599,88 @@ var ji = /* @__PURE__ */ function(e) {
 			return "Array";
 		}
 	}]);
-}(ki);
-Object.entries(ei).forEach(function(e) {
+}(Di);
+Object.entries(Qr).forEach(function(e) {
 	var t = e[0], n = e[1];
-	t !== "concat" && fe(ji.prototype, t, n);
+	t !== "concat" && ue(ki.prototype, t, n);
 });
-function Mi(e) {
+function Ai(e) {
 	return {
 		enumerable: !1,
 		configurable: !0,
 		get: function() {
-			return this[b].get_(e);
+			return this[S].get_(e);
 		},
 		set: function(t) {
-			this[b].set_(e, t);
+			this[S].set_(e, t);
 		}
 	};
 }
-function Ni(e) {
-	g(ji.prototype, "" + e, Mi(e));
+function ji(e) {
+	g(ki.prototype, "" + e, Ai(e));
 }
-function Pi(e) {
-	if (e > Oi) {
-		for (var t = Oi; t < e + 100; t++) Ni(t);
-		Oi = e;
+function Mi(e) {
+	if (e > Ei) {
+		for (var t = Ei; t < e + 100; t++) ji(t);
+		Ei = e;
 	}
 }
-Pi(1e3);
-function Fi(e, t, n) {
-	return new ji(e, t, n);
+Mi(1e3);
+function Ni(e, t, n) {
+	return new ki(e, t, n);
 }
-function Ii(e, t) {
+function Pi(e, t) {
 	if (typeof e == "object" && e) {
-		if (ai(e)) return t !== void 0 && d(23), e[b].atom_;
-		if (hi(e)) return e.atom_;
-		if (ui(e)) {
+		if (ri(e)) return t !== void 0 && d(23), e[S].atom_;
+		if (pi(e)) return e.atom_;
+		if (ci(e)) {
 			if (t === void 0) return e.keysAtom_;
 			var n = e.data_.get(t) || e.hasMap_.get(t);
-			return n || d(25, t, Ri(e)), n;
+			return n || d(25, t, Ii(e)), n;
 		}
-		if (Ci(e)) {
+		if (xi(e)) {
 			if (!t) return d(26);
-			var r = e[b].values_.get(t);
-			return r || d(27, t, Ri(e)), r;
+			var r = e[S].values_.get(t);
+			return r || d(27, t, Ii(e)), r;
 		}
-		if (Ge(e) || fn(e) || Jn(e)) return e;
-	} else if (y(e) && Jn(e[b])) return e[b];
+		if (Ue(e) || un(e) || Kn(e)) return e;
+	} else if (x(e) && Kn(e[S])) return e[S];
 	d(28);
 }
-function Li(e, t) {
-	if (e || d(29), t !== void 0) return Li(Ii(e, t));
-	if (Ge(e) || fn(e) || Jn(e) || ui(e) || hi(e)) return e;
-	if (e[b]) return e[b];
+function Fi(e, t) {
+	if (e || d(29), t !== void 0) return Fi(Pi(e, t));
+	if (Ue(e) || un(e) || Kn(e) || ci(e) || pi(e)) return e;
+	if (e[S]) return e[S];
 	d(24, e);
 }
-function Ri(e, t) {
+function Ii(e, t) {
 	var n;
-	if (t !== void 0) n = Ii(e, t);
-	else if (pr(e)) return e.name;
-	else n = Ci(e) || ui(e) || hi(e) ? Li(e) : Ii(e);
+	if (t !== void 0) n = Pi(e, t);
+	else if (dr(e)) return e.name;
+	else n = xi(e) || ci(e) || pi(e) ? Fi(e) : Pi(e);
 	return n.name_;
 }
-function zi(e) {
-	var t = wn(), n = sn(!0);
-	Fn();
+function Li(e) {
+	var t = Sn(), n = an(!0);
+	Nn();
 	try {
 		return e();
 	} finally {
-		In(), cn(n), Tn(t);
+		Pn(), on(n), Cn(t);
 	}
 }
-var Bi = _.toString;
-function Vi(e, t, n) {
-	return n === void 0 && (n = -1), Hi(e, t, n);
+var Ri = _.toString;
+function zi(e, t, n) {
+	return n === void 0 && (n = -1), Bi(e, t, n);
 }
-function Hi(e, t, n, r, i) {
+function Bi(e, t, n, r, i) {
 	if (e === t) return e !== 0 || 1 / e == 1 / t;
 	if (e == null || t == null) return !1;
 	if (e !== e) return t !== t;
 	var a = typeof e;
 	if (a !== "function" && a !== "object" && typeof t != "object") return !1;
-	var o = Bi.call(e);
-	if (o !== Bi.call(t)) return !1;
+	var o = Ri.call(e);
+	if (o !== Ri.call(t)) return !1;
 	switch (o) {
 		case "[object RegExp]":
 		case "[object String]": return "" + e == "" + t;
@@ -2686,41 +2693,41 @@ function Hi(e, t, n, r, i) {
 			n >= 0 && n++;
 			break;
 	}
-	e = Ui(e), t = Ui(t);
+	e = Vi(e), t = Vi(t);
 	var s = o === "[object Array]";
 	if (!s) {
 		if (typeof e != "object" || typeof t != "object") return !1;
 		var c = e.constructor, l = t.constructor;
-		if (c !== l && !(y(c) && c instanceof c && y(l) && l instanceof l) && "constructor" in e && "constructor" in t) return !1;
+		if (c !== l && !(x(c) && c instanceof c && x(l) && l instanceof l) && "constructor" in e && "constructor" in t) return !1;
 	}
 	if (n === 0) return !1;
 	n < 0 && (n = -1), r ||= [], i ||= [];
 	for (var u = r.length; u--;) if (r[u] === e) return i[u] === t;
 	if (r.push(e), i.push(t), s) {
 		if (u = e.length, u !== t.length) return !1;
-		for (; u--;) if (!Hi(e[u], t[u], n - 1, r, i)) return !1;
+		for (; u--;) if (!Bi(e[u], t[u], n - 1, r, i)) return !1;
 	} else {
 		var d = Object.keys(e), f = d.length;
 		if (Object.keys(t).length !== f) return !1;
 		for (var p = 0; p < f; p++) {
 			var m = d[p];
-			if (!(Ce(t, m) && Hi(e[m], t[m], n - 1, r, i))) return !1;
+			if (!(xe(t, m) && Bi(e[m], t[m], n - 1, r, i))) return !1;
 		}
 	}
 	return r.pop(), i.pop(), !0;
 }
+function Vi(e) {
+	return ri(e) ? e.slice() : pe(e) || ci(e) || he(e) || pi(e) ? Array.from(e.entries()) : e;
+}
+var Hi = p().Iterator?.prototype || {};
 function Ui(e) {
-	return ai(e) ? e.slice() : he(e) || ui(e) || _e(e) || hi(e) ? Array.from(e.entries()) : e;
+	return e[Symbol.iterator] = Wi, Object.assign(Object.create(Hi), e);
 }
-var Wi = p().Iterator?.prototype || {};
-function Gi(e) {
-	return e[Symbol.iterator] = Ki, Object.assign(Object.create(Wi), e);
-}
-function Ki() {
+function Wi() {
 	return this;
 }
-function qi(e) {
-	return e instanceof Object && typeof e.annotationType_ == "string" && y(e.make_) && y(e.extend_);
+function Gi(e) {
+	return e instanceof Object && typeof e.annotationType_ == "string" && x(e.make_) && x(e.extend_);
 }
 [
 	"Symbol",
@@ -2729,13 +2736,13 @@ function qi(e) {
 ].forEach(function(e) {
 	p()[e] === void 0 && d("MobX requires global '" + e + "' to be available or polyfilled");
 }), typeof __MOBX_DEVTOOLS_GLOBAL_HOOK__ == "object" && __MOBX_DEVTOOLS_GLOBAL_HOOK__.injectMobx({
-	spy: er,
-	extras: { getDebugName: Ri },
-	$mobx: b
+	spy: Qn,
+	extras: { getDebugName: Ii },
+	$mobx: S
 });
 //#endregion
 //#region src/structs/nodeCollection.ts
-var Ji = class {
+var Ki = class {
 	remove(e) {
 		this.nodeMap.delete(e.id);
 	}
@@ -2754,15 +2761,15 @@ var Ji = class {
 		for (let e of this.nodeMap.values()) yield e;
 	}
 	*graphs_() {
-		for (let e of this.nodes_()) e instanceof Ch && (yield e);
+		for (let e of this.nodes_()) e instanceof wh && (yield e);
 	}
 	constructor() {
-		qr(this, {
-			nodeMap: x,
-			_edgeMap: x,
-			getNodeMap: Zt,
-			getEdgesMap: Zt,
-			remove: dr
+		Gr(this, {
+			nodeMap: C,
+			_edgeMap: C,
+			getNodeMap: Yt,
+			getEdgesMap: Yt,
+			remove: lr
 		}, { autoBind: !0 }), this.findEdge = this.findEdge.bind(this);
 	}
 	findShallow(e) {
@@ -2811,36 +2818,36 @@ var Ji = class {
 		for (let e of this.nodeMap.values()) if (!this.nodeIsConsistent(e)) return !1;
 		return !0;
 	}
-}, Yi = class {
+}, qi = class {
 	bind(e) {
 		this.entity && this.entity.setAttr(e, this);
 	}
 	constructor(e, t) {
 		this.entity = e, this.bind(t);
 	}
-}, Xi = class {};
-Xi.GeomObjectIndex = 0, Xi.DrawingObjectIndex = 1, Xi.AlgorithmDataIndex = 2, Xi.ViewerIndex = 3;
+}, Ji = class {};
+Ji.GeomObjectIndex = 0, Ji.DrawingObjectIndex = 1, Ji.AlgorithmDataIndex = 2, Ji.ViewerIndex = 3;
 //#endregion
 //#region ../node_modules/@msagl/core/dist/layout/core/geomObject.js
-var T = class e extends Yi {
+var D = class e extends qi {
 	constructor(e) {
-		super(e, Xi.GeomObjectIndex);
+		super(e, Ji.GeomObjectIndex);
 	}
 	static getGeom(e) {
-		return e == null ? null : e.getAttr(Xi.GeomObjectIndex);
+		return e == null ? null : e.getAttr(Ji.GeomObjectIndex);
 	}
 	get parent() {
 		let t = this.entity.parent;
 		return t ? e.getGeom(t) : null;
 	}
 	rebind(e) {
-		this.entity = e, this.bind(Xi.GeomObjectIndex);
+		this.entity = e, this.bind(Ji.GeomObjectIndex);
 	}
 	*getAncestors() {
 		let e = this.parent;
 		for (; e != null;) yield e, e = e.parent;
 	}
-}, Zi = class e {
+}, Yi = class e {
 	static solve(t, n, r, i, a, o) {
 		let s = t * a - i * n;
 		if (!(Math.abs(s) < e.eps)) return {
@@ -2849,49 +2856,49 @@ var T = class e extends Yi {
 		};
 	}
 };
-Zi.eps = 1e-8;
+Yi.eps = 1e-8;
 //#endregion
 //#region ../node_modules/@msagl/core/dist/math/geometry/geomConstants.js
-var E = class {};
-E.distanceEpsilonPrecision = 6, E.mult = 10 ** 6, E.defaultLeafBoxesOffset = .5, E.lineSegmentThreshold = .05, E.intersectionEpsilon = 1e-4, E.distanceEpsilon = 10 ** -E.distanceEpsilonPrecision, E.squareOfDistanceEpsilon = 10 ** (-E.distanceEpsilonPrecision * 2), E.tolerance = 1e-8;
+var O = class {};
+O.distanceEpsilonPrecision = 6, O.mult = 10 ** 6, O.defaultLeafBoxesOffset = .5, O.lineSegmentThreshold = .05, O.intersectionEpsilon = 1e-4, O.distanceEpsilon = 10 ** -O.distanceEpsilonPrecision, O.squareOfDistanceEpsilon = 10 ** (-O.distanceEpsilonPrecision * 2), O.tolerance = 1e-8;
 //#endregion
 //#region ../node_modules/@msagl/core/dist/utils/compare.js
-function Qi(e, t) {
+function Xi(e, t) {
 	return (e ? 1 : 0) - (t ? 1 : 0);
 }
-function D(e, t) {
+function k(e, t) {
 	let n = e - t;
 	return n < 0 ? -1 : n === 0 ? 0 : 1;
 }
+function Zi(e, t) {
+	return k(e.y, t.y) || k(e.x, t.x);
+}
+function A(e, t) {
+	let n = e - t;
+	return -O.distanceEpsilon <= n && n <= O.distanceEpsilon;
+}
+function Qi(e, t) {
+	return $i(e, t) > 0;
+}
 function $i(e, t) {
-	return D(e.y, t.y) || D(e.x, t.x);
-}
-function O(e, t) {
 	let n = e - t;
-	return -E.distanceEpsilon <= n && n <= E.distanceEpsilon;
-}
-function ea(e, t) {
-	return ta(e, t) > 0;
-}
-function ta(e, t) {
-	let n = e - t;
-	return n <= -E.distanceEpsilon ? -1 : n >= E.distanceEpsilon ? 1 : 0;
+	return n <= -O.distanceEpsilon ? -1 : n >= O.distanceEpsilon ? 1 : 0;
 }
 //#endregion
 //#region ../node_modules/@msagl/core/dist/math/geometry/point.js
-var k;
+var j;
 (function(e) {
 	e[e.Clockwise = 0] = "Clockwise", e[e.Counterclockwise = 1] = "Counterclockwise", e[e.Collinear = 2] = "Collinear";
-})(k ||= {});
-function A(e, t) {
+})(j ||= {});
+function M(e, t) {
 	return e.sub(t).length;
 }
-var j = class e {
+var N = class e {
 	static RoundPoint(t) {
 		return new e(e.RoundDouble(t.x), e.RoundDouble(t.y));
 	}
 	static RoundDouble(e) {
-		return Math.round(e * E.mult) / E.mult;
+		return Math.round(e * O.mult) / O.mult;
 	}
 	toJSON() {
 		return {
@@ -2904,20 +2911,20 @@ var j = class e {
 	}
 	static ProjectionToLine(e, t, n) {
 		let r = t.sub(e), i = r.length;
-		if (i < E.distanceEpsilon) return e;
+		if (i < O.distanceEpsilon) return e;
 		r = r.div(i);
 		let a = n.sub(e).dot(r);
 		return e.add(r.mul(a));
 	}
 	static RayIntersectsRayInteriors(t, n, r, i) {
 		let a = e.lineLineIntersection(t, t.add(n), r, r.add(i));
-		if (a && a.sub(t).dot(n.div(n.l1)) > E.distanceEpsilon && a.sub(r).dot(i.div(i.l1)) > E.distanceEpsilon) return a;
+		if (a && a.sub(t).dot(n.div(n.l1)) > O.distanceEpsilon && a.sub(r).dot(i.div(i.l1)) > O.distanceEpsilon) return a;
 	}
 	static IntervalIntersectsRay(t, n, r, i) {
 		let a = e.lineLineIntersection(t, n, r, r.add(i));
 		if (!a) return;
 		let o = t.sub(a), s = a.sub(n);
-		if (!(o.dot(s) <= 0) && !(a.sub(r).dot(i) < 0) && o.dot(o) > E.squareOfDistanceEpsilon && s.dot(s) >= E.squareOfDistanceEpsilon) return a;
+		if (!(o.dot(s) <= 0) && !(a.sub(r).dot(i) < 0) && o.dot(o) > O.squareOfDistanceEpsilon && s.dot(s) >= O.squareOfDistanceEpsilon) return a;
 	}
 	static PointToTheLeftOfLineOrOnLine(t, n, r) {
 		return e.signedDoubledTriangleArea(t, n, r) >= 0;
@@ -2935,7 +2942,7 @@ var j = class e {
 		return e.signedDoubledTriangleArea(n, r, t) < 0;
 	}
 	static closeIntersections(t, n) {
-		return e.close(t, n, E.intersectionEpsilon);
+		return e.close(t, n, O.intersectionEpsilon);
 	}
 	get l1() {
 		return Math.abs(this.x_) + Math.abs(this.y_);
@@ -2950,8 +2957,8 @@ var j = class e {
 		return this.y_;
 	}
 	compareTo(e) {
-		let t = D(this.x, e.x);
-		return t === 0 ? D(this.y, e.y) : t;
+		let t = k(this.x, e.x);
+		return t === 0 ? k(this.y, e.y) : t;
 	}
 	toString() {
 		return "(" + this.x + "," + this.y + ")";
@@ -2963,7 +2970,7 @@ var j = class e {
 		let r = t.sub(e);
 		return r.dot(r) <= n;
 	}
-	static closeDistEps(e, t, n = E.distanceEpsilon) {
+	static closeDistEps(e, t, n = O.distanceEpsilon) {
 		return e.sub(t).length <= n;
 	}
 	normalize() {
@@ -3004,11 +3011,11 @@ var j = class e {
 		return new e(-this.x, -this.y);
 	}
 	static lineLineIntersection(e, t, n, r) {
-		let i = t.sub(e), a = n.sub(r), o = n.sub(e), s = Zi.solve(i.x, a.x, o.x, i.y, a.y, o.y);
+		let i = t.sub(e), a = n.sub(r), o = n.sub(e), s = Yi.solve(i.x, a.x, o.x, i.y, a.y, o.y);
 		if (s !== void 0) return e.add(i.mul(s.x));
 	}
 	static segSegIntersection(e, t, n, r) {
-		let i = t.sub(e), a = n.sub(r), o = n.sub(e), s = E.tolerance, c = Zi.solve(i.x, a.x, o.x, i.y, a.y, o.y);
+		let i = t.sub(e), a = n.sub(r), o = n.sub(e), s = O.tolerance, c = Yi.solve(i.x, a.x, o.x, i.y, a.y, o.y);
 		if (c !== void 0 && c.x > -s && c.x < 1 + s && c.y > -s && c.y < 1 + s) return e.add(i.mul(c.x));
 	}
 	static parallelWithinEpsilon(e, t, n) {
@@ -3048,25 +3055,25 @@ var j = class e {
 	}
 	static angle(e, t) {
 		let n = e.x, r = e.y, i = t.x, a = t.y, o = n * a - r * i, s = n * i + r * a;
-		if (Math.abs(s) < E.tolerance) return Math.abs(o) < E.tolerance ? 0 : o < -E.tolerance ? 3 * Math.PI / 2 : Math.PI / 2;
-		if (Math.abs(o) < E.tolerance) return s < -E.tolerance ? Math.PI : 0;
+		if (Math.abs(s) < O.tolerance) return Math.abs(o) < O.tolerance ? 0 : o < -O.tolerance ? 3 * Math.PI / 2 : Math.PI / 2;
+		if (Math.abs(o) < O.tolerance) return s < -O.tolerance ? Math.PI : 0;
 		let c = Math.atan2(o, s);
-		return o >= -E.tolerance ? c : Math.PI * 2 + c;
+		return o >= -O.tolerance ? c : Math.PI * 2 + c;
 	}
 	static signedDoubledTriangleArea(e, t, n) {
 		return (t.x - e.x) * (n.y - e.y) - (n.x - e.x) * (t.y - e.y);
 	}
 	static getTriangleOrientation(t, n, r) {
 		let i = e.signedDoubledTriangleArea(t, n, r);
-		return i > E.distanceEpsilon ? k.Counterclockwise : i < -E.distanceEpsilon ? k.Clockwise : k.Collinear;
+		return i > O.distanceEpsilon ? j.Counterclockwise : i < -O.distanceEpsilon ? j.Clockwise : j.Collinear;
 	}
 	static getTriangleOrientationWithIntersectionEpsilon(t, n, r) {
 		let i = e.signedDoubledTriangleArea(t, n, r);
-		return i > E.intersectionEpsilon ? k.Counterclockwise : i < -E.intersectionEpsilon ? k.Clockwise : k.Collinear;
+		return i > O.intersectionEpsilon ? j.Counterclockwise : i < -O.intersectionEpsilon ? j.Clockwise : j.Collinear;
 	}
 	static ClosestPointAtLineSegment(e, t, n) {
 		let r = n.sub(t), i = e.sub(t), a = r.dot(i), o = r.dot(r);
-		return a <= 0 + E.tolerance ? t : o <= a + E.tolerance ? n : t.add(r.mul(a / o));
+		return a <= 0 + O.tolerance ? t : o <= a + O.tolerance ? n : t.add(r.mul(a / o));
 	}
 	static pointToTheLeftOfLineOrOnLine(t, n, r) {
 		return e.signedDoubledTriangleArea(t, n, r) >= 0;
@@ -3086,11 +3093,11 @@ var j = class e {
 	}
 	static distToLineSegment(e, t, n) {
 		let r = n.sub(t), i = e.sub(t), a, o;
-		if ((a = r.dot(i)) <= E.tolerance) return {
+		if ((a = r.dot(i)) <= O.tolerance) return {
 			par: 0,
 			dist: i.length
 		};
-		if ((o = r.dot(r)) <= a + E.tolerance) return {
+		if ((o = r.dot(r)) <= a + O.tolerance) return {
 			par: 1,
 			dist: e.sub(n).length
 		};
@@ -3100,7 +3107,7 @@ var j = class e {
 			dist: t.add(r.mul(s)).length
 		};
 	}
-}, na = class e {
+}, ea = class e {
 	constructor() {
 		this._next = null, this.prev = null;
 	}
@@ -3138,13 +3145,13 @@ var j = class e {
 		let n = new e();
 		return n.point = t, n;
 	}
-}, ra;
+}, ta;
 (function(e) {
 	e[e.Corner = 0] = "Corner", e[e.VertexA = 1] = "VertexA", e[e.otherCorner = 2] = "otherCorner", e[e.VertexB = 3] = "VertexB";
-})(ra ||= {});
-var M = class e {
+})(ta ||= {});
+var na = class e {
 	contains(e) {
-		let t = e.sub(this.corner), n = E.distanceEpsilon, r = t.dot(this.bRot);
+		let t = e.sub(this.corner), n = O.distanceEpsilon, r = t.dot(this.bRot);
 		if (r > this.abRot + n || r < -n) return !1;
 		let i = t.dot(this.aRot);
 		return i <= this.baRot + n && i >= -n;
@@ -3154,10 +3161,10 @@ var M = class e {
 	}
 	vertex(e) {
 		switch (e) {
-			case ra.Corner: return this.corner;
-			case ra.VertexA: return this.aPlusCorner;
-			case ra.otherCorner: return this.otherCorner;
-			case ra.VertexB: return this.bPlusCorner;
+			case ta.Corner: return this.corner;
+			case ta.VertexA: return this.aPlusCorner;
+			case ta.otherCorner: return this.otherCorner;
+			case ta.VertexB: return this.bPlusCorner;
 			default: return;
 		}
 	}
@@ -3168,13 +3175,13 @@ var M = class e {
 			miny: i.y,
 			maxy: i.y
 		};
-		return e.pumpMinMax(a, t.aPlusCorner), e.pumpMinMax(a, t.otherCorner), e.pumpMinMax(a, t.bPlusCorner), e.pumpMinMax(a, n.corner), e.pumpMinMax(a, n.aPlusCorner), e.pumpMinMax(a, n.otherCorner), e.pumpMinMax(a, n.bPlusCorner), r.corner = new j(a.minx, a.miny), r.a = new j(0, a.maxy - a.miny), r.b = new j(a.maxx - a.minx, 0), r.aPlusCorner = r.a.add(r.corner), r.otherCorner = r.b.add(r.aPlusCorner), r.bPlusCorner = r.b.add(r.corner), r.aRot = new j(-r.a.y, r.a.x), r.aRot.length > .5 && (r.aRot = r.aRot.normalize()), r.bRot = new j(-r.b.y, r.b.x), r.bRot.length > .5 && (r.bRot = r.bRot.normalize()), r.abRot = r.a.dot(r.bRot), r.baRot = r.b.dot(r.aRot), r.abRot < 0 && (r.abRot = -r.abRot, r.bRot = r.bRot.neg()), r.baRot < 0 && (r.baRot = -r.baRot, r.aRot = r.aRot.neg()), r.isSeg = r.a.sub(r.b).length < E.distanceEpsilon, r;
+		return e.pumpMinMax(a, t.aPlusCorner), e.pumpMinMax(a, t.otherCorner), e.pumpMinMax(a, t.bPlusCorner), e.pumpMinMax(a, n.corner), e.pumpMinMax(a, n.aPlusCorner), e.pumpMinMax(a, n.otherCorner), e.pumpMinMax(a, n.bPlusCorner), r.corner = new N(a.minx, a.miny), r.a = new N(0, a.maxy - a.miny), r.b = new N(a.maxx - a.minx, 0), r.aPlusCorner = r.a.add(r.corner), r.otherCorner = r.b.add(r.aPlusCorner), r.bPlusCorner = r.b.add(r.corner), r.aRot = new N(-r.a.y, r.a.x), r.aRot.length > .5 && (r.aRot = r.aRot.normalize()), r.bRot = new N(-r.b.y, r.b.x), r.bRot.length > .5 && (r.bRot = r.bRot.normalize()), r.abRot = r.a.dot(r.bRot), r.baRot = r.b.dot(r.aRot), r.abRot < 0 && (r.abRot = -r.abRot, r.bRot = r.bRot.neg()), r.baRot < 0 && (r.baRot = -r.baRot, r.aRot = r.aRot.neg()), r.isSeg = r.a.sub(r.b).length < O.distanceEpsilon, r;
 	}
 	static pumpMinMax(e, t) {
 		t.x < e.minx ? e.minx = t.x : t.x > e.maxx && (e.maxx = t.x), t.y < e.miny ? e.miny = t.y : t.y > e.maxy && (e.maxy = t.y);
 	}
 	static intersect(t, n) {
-		return e.separByA(t, n) || e.separByA(n, t) || e.separByB(t, n) || e.separByB(n, t) ? !1 : !(t.isSeg && n.isSeg) || !j.parallelWithinEpsilon(t.otherCorner.sub(t.corner), n.otherCorner.sub(n.corner), 1e-5) ? !0 : e.ParallelSegsIntersect(n, t);
+		return e.separByA(t, n) || e.separByA(n, t) || e.separByB(t, n) || e.separByB(n, t) ? !1 : !(t.isSeg && n.isSeg) || !N.parallelWithinEpsilon(t.otherCorner.sub(t.corner), n.otherCorner.sub(n.corner), 1e-5) ? !0 : e.ParallelSegsIntersect(n, t);
 	}
 	static ParallelSegsIntersect(e, t) {
 		let n = e.corner, r = e.otherCorner, i = t.corner, a = t.otherCorner, o = r.sub(n), s = o.dot(o), c = i.sub(n).dot(o), l = a.sub(n).dot(o);
@@ -3182,13 +3189,13 @@ var M = class e {
 			let e = c;
 			c = l, l = e;
 		}
-		return !(l < 0 - E.distanceEpsilon || c > s + E.distanceEpsilon);
+		return !(l < 0 - O.distanceEpsilon || c > s + O.distanceEpsilon);
 	}
 	static separByB(e, t) {
-		let n = E.distanceEpsilon, r = t.vertex(0).sub(e.corner).dot(e.bRot), i = [
-			ra.VertexA,
-			ra.otherCorner,
-			ra.VertexB
+		let n = O.distanceEpsilon, r = t.vertex(0).sub(e.corner).dot(e.bRot), i = [
+			ta.VertexA,
+			ta.otherCorner,
+			ta.VertexB
 		];
 		if (r > e.abRot + n) {
 			for (let r of i) if (t.vertex(r).sub(e.corner).dot(e.bRot) <= e.abRot + n) return !1;
@@ -3200,33 +3207,33 @@ var M = class e {
 		return !1;
 	}
 	static separByA(e, t) {
-		let n = E.distanceEpsilon, r = t.corner.sub(e.corner), i = j.dot(r, e.aRot);
-		return i > e.baRot + n ? (r = t.aPlusCorner.sub(e.corner), !(j.dot(r, e.aRot) <= e.baRot + n || (r = t.bPlusCorner.sub(e.corner), j.dot(r, e.aRot) <= e.baRot + n) || (r = t.otherCorner.sub(e.corner), j.dot(r, e.aRot) <= e.baRot + n))) : i < -n ? (r = t.aPlusCorner.sub(e.corner), !(j.dot(r, e.aRot) >= -n || (r = t.bPlusCorner.sub(e.corner), j.dot(r, e.aRot) >= -n) || (r = t.otherCorner.sub(e.corner), j.dot(r, e.aRot) >= -n))) : !1;
+		let n = O.distanceEpsilon, r = t.corner.sub(e.corner), i = N.dot(r, e.aRot);
+		return i > e.baRot + n ? (r = t.aPlusCorner.sub(e.corner), !(N.dot(r, e.aRot) <= e.baRot + n || (r = t.bPlusCorner.sub(e.corner), N.dot(r, e.aRot) <= e.baRot + n) || (r = t.otherCorner.sub(e.corner), N.dot(r, e.aRot) <= e.baRot + n))) : i < -n ? (r = t.aPlusCorner.sub(e.corner), !(N.dot(r, e.aRot) >= -n || (r = t.bPlusCorner.sub(e.corner), N.dot(r, e.aRot) >= -n) || (r = t.otherCorner.sub(e.corner), N.dot(r, e.aRot) >= -n))) : !1;
 	}
 	static parallelogramByCornerSideSide(t, n, r) {
 		let i = new e();
-		return i.corner = t, i.a = n, i.b = r, i.aRot = new j(-n.y, n.x), i.aRot.length > .5 && (i.aRot = i.aRot.normalize()), i.bRot = new j(-r.y, r.x), i.bRot.length > .5 && (i.bRot = i.bRot.normalize()), i.abRot = i.bRot.dot(n), i.baRot = r.dot(i.aRot), i.abRot < 0 && (i.abRot = -i.abRot, i.bRot = i.bRot.neg()), i.baRot < 0 && (i.baRot = -i.baRot, i.aRot = i.aRot.neg()), i.isSeg = n.sub(r).length < E.distanceEpsilon, i.aPlusCorner = n.add(t), i.otherCorner = r.add(i.aPlusCorner), i.bPlusCorner = r.add(t), i;
+		return i.corner = t, i.a = n, i.b = r, i.aRot = new N(-n.y, n.x), i.aRot.length > .5 && (i.aRot = i.aRot.normalize()), i.bRot = new N(-r.y, r.x), i.bRot.length > .5 && (i.bRot = i.bRot.normalize()), i.abRot = i.bRot.dot(n), i.baRot = r.dot(i.aRot), i.abRot < 0 && (i.abRot = -i.abRot, i.bRot = i.bRot.neg()), i.baRot < 0 && (i.baRot = -i.baRot, i.aRot = i.aRot.neg()), i.isSeg = n.sub(r).length < O.distanceEpsilon, i.aPlusCorner = n.add(t), i.otherCorner = r.add(i.aPlusCorner), i.bPlusCorner = r.add(t), i;
 	}
 	static getParallelogramOfAGroup(t) {
 		let n = 0, r = 0, i = 0, a = 0, o = !0;
 		for (let e of t) {
-			let t = ia(e);
+			let t = ra(e);
 			for (let e of t) {
 				let t = e.x, s = e.y;
 				o ? (o = !1, n = r = t, i = a = s) : (t < n ? n = t : t > r && (r = t), s < i ? i = s : s > a && (a = s));
 			}
 		}
-		return e.parallelogramByCornerSideSide(new j(n, i), new j(0, a - i), new j(r - n, 0));
+		return e.parallelogramByCornerSideSide(new N(n, i), new N(0, a - i), new N(r - n, 0));
 	}
 };
-function* ia(e) {
+function* ra(e) {
 	yield e.corner, yield e.aPlusCorner, yield e.otherCorner, yield e.bPlusCorner;
 }
 //#endregion
 //#region ../node_modules/@msagl/core/dist/math/geometry/lineSegment.js
-var N = class e {
+var P = class e {
 	static fromJSON(t) {
-		return e.mkPP(j.fromJSON(t.start), j.fromJSON(t.end));
+		return e.mkPP(N.fromJSON(t.start), N.fromJSON(t.end));
 	}
 	toJSON() {
 		return {
@@ -3238,12 +3245,12 @@ var N = class e {
 		return null;
 	}
 	constructor(e, t, n, r) {
-		this.parStart = 0, this.parEnd = 1, this.start = new j(e, t), this.end = new j(n, r);
+		this.parStart = 0, this.parEnd = 1, this.start = new N(e, t), this.end = new N(n, r);
 	}
 	trim(t, n) {
 		if (t = Math.max(this.parStart, t), n = Math.min(this.parEnd, n), t > n) throw "wrong params in trimming";
 		let r = this.value(t), i = this.value(n);
-		return j.close(r, i, E.distanceEpsilon) ? null : e.mkPP(r, i);
+		return N.close(r, i, O.distanceEpsilon) ? null : e.mkPP(r, i);
 	}
 	value(e) {
 		return this.start.add(this.end.sub(this.start).mul(e));
@@ -3254,7 +3261,7 @@ var N = class e {
 	pNodeOverICurve() {
 		let e = this.end.sub(this.start).mul(.5);
 		return {
-			parallelogram: M.parallelogramByCornerSideSide(this.start, e, e),
+			parallelogram: na.parallelogramByCornerSideSide(this.start, e, e),
 			seg: this,
 			leafBoxesOffset: 0,
 			node: {
@@ -3266,7 +3273,7 @@ var N = class e {
 	}
 	normal() {
 		let e = this.start.sub(this.end);
-		return e = e.div(e.length), new j(-e.y, e.x);
+		return e = e.div(e.length), new N(-e.y, e.x);
 	}
 	static mkPP(t, n) {
 		return new e(t.x, t.y, n.x, n.y);
@@ -3278,10 +3285,10 @@ var N = class e {
 		return this.end.sub(this.start);
 	}
 	secondDerivative(e) {
-		return new j(0, 0);
+		return new N(0, 0);
 	}
 	thirdDerivative(e) {
-		return new j(0, 0);
+		return new N(0, 0);
 	}
 	reverse() {
 		return e.mkPP(this.end, this.start);
@@ -3294,7 +3301,7 @@ var N = class e {
 	}
 	getParameterAtLength(e) {
 		let t = this.end.sub(this.start).length;
-		if (t < E.tolerance) return 0;
+		if (t < O.tolerance) return 0;
 		let n = e / t;
 		return n > 1 ? 1 : n < 0 ? 0 : n;
 	}
@@ -3312,16 +3319,16 @@ var N = class e {
 		return this.start.sub(this.end).length;
 	}
 	get boundingBox() {
-		return R.mkPP(this.start, this.end);
+		return z.mkPP(this.start, this.end);
 	}
 	clone() {
 		return e.mkPP(this.start.clone(), this.end.clone());
 	}
 	static closestParameterOnLineSegment(e, t, n) {
 		let r = n.sub(t), i = e.sub(t), a = r.dot(i);
-		if (a <= 0 + E.tolerance) return 0;
+		if (a <= 0 + O.tolerance) return 0;
 		let o = r.dot(r);
-		return o <= a + E.tolerance ? 1 : a / o;
+		return o <= a + O.tolerance ? 1 : a / o;
 	}
 	closestParameter(t) {
 		return e.closestParameterOnLineSegment(t, this.start, this.end);
@@ -3333,8 +3340,8 @@ var N = class e {
 		return this.derivative(e);
 	}
 	static IntersectPPPP(e, t, n, r) {
-		let i = j.lineLineIntersection(e, t, n, r);
-		if (i != null && aa(i, e, t) && aa(i, n, r)) return i;
+		let i = N.lineLineIntersection(e, t, n, r);
+		if (i != null && ia(i, e, t) && ia(i, n, r)) return i;
 	}
 	curvature(e) {
 		return 0;
@@ -3346,9 +3353,9 @@ var N = class e {
 		return 0;
 	}
 	static minDistBetweenLineSegments(e, t, n, r) {
-		let i = t.sub(e), a = r.sub(n), o = e.sub(n), s = j.crossProduct(i, a), c = i.dot(i), l = i.dot(a), u = a.dot(a), d = i.dot(o), f = a.dot(o), p, m, h = Math.abs(s), g = h, _ = h;
-		h < E.tolerance ? (p = 0, g = 1, m = f, _ = u) : (p = j.crossProduct(a, o), m = j.crossProduct(i, o), s < 0 && (p = -p, m = -m), p < 0 ? (p = 0, m = f, _ = u) : p > g && (p = g = 1, m = f + l, _ = u)), m < 0 ? (m = 0, -d < 0 ? p = 0 : -d > c ? p = g : (p = -d, g = c)) : m > _ && (m = _ = 1, -d + l < 0 ? p = 0 : -d + l > c ? p = g : (p = -d + l, g = c));
-		let v = Math.abs(p) < E.tolerance ? 0 : p / g, ee = Math.abs(m) < E.tolerance ? 0 : m / _;
+		let i = t.sub(e), a = r.sub(n), o = e.sub(n), s = N.crossProduct(i, a), c = i.dot(i), l = i.dot(a), u = a.dot(a), d = i.dot(o), f = a.dot(o), p, m, h = Math.abs(s), g = h, _ = h;
+		h < O.tolerance ? (p = 0, g = 1, m = f, _ = u) : (p = N.crossProduct(a, o), m = N.crossProduct(i, o), s < 0 && (p = -p, m = -m), p < 0 ? (p = 0, m = f, _ = u) : p > g && (p = g = 1, m = f + l, _ = u)), m < 0 ? (m = 0, -d < 0 ? p = 0 : -d > c ? p = g : (p = -d, g = c)) : m > _ && (m = _ = 1, -d + l < 0 ? p = 0 : -d + l > c ? p = g : (p = -d + l, g = c));
+		let v = Math.abs(p) < O.tolerance ? 0 : p / g, ee = Math.abs(m) < O.tolerance ? 0 : m / _;
 		return {
 			parab: v,
 			parcd: ee,
@@ -3356,16 +3363,16 @@ var N = class e {
 		};
 	}
 };
-function aa(e, t, n) {
-	return e.x >= Math.min(t.x, n.x) - E.distanceEpsilon && e.y >= Math.min(t.y, n.y) - E.distanceEpsilon && e.x <= Math.max(t.x, n.x) + E.distanceEpsilon && e.y <= Math.max(t.y, n.y) + E.distanceEpsilon;
+function ia(e, t, n) {
+	return e.x >= Math.min(t.x, n.x) - O.distanceEpsilon && e.y >= Math.min(t.y, n.y) - O.distanceEpsilon && e.x <= Math.max(t.x, n.x) + O.distanceEpsilon && e.y <= Math.max(t.y, n.y) + O.distanceEpsilon;
 }
-function oa(e, t, n, r) {
-	let i = j.getTriangleOrientation(e, t, n), a = j.getTriangleOrientation(e, t, r), o = j.getTriangleOrientation(n, r, e), s = j.getTriangleOrientation(n, r, t);
-	return !!(i != a && o != s || i == k.Collinear && aa(n, e, t) || a == k.Collinear && aa(r, e, t) || o == k.Collinear && aa(e, n, r) || s == k.Collinear && aa(t, n, r));
+function aa(e, t, n, r) {
+	let i = N.getTriangleOrientation(e, t, n), a = N.getTriangleOrientation(e, t, r), o = N.getTriangleOrientation(n, r, e), s = N.getTriangleOrientation(n, r, t);
+	return !!(i != a && o != s || i == j.Collinear && ia(n, e, t) || a == j.Collinear && ia(r, e, t) || o == j.Collinear && ia(e, n, r) || s == j.Collinear && ia(t, n, r));
 }
 //#endregion
 //#region ../node_modules/@msagl/core/dist/math/geometry/parallelogramNode.js
-function sa(e, t, n, r, i) {
+function oa(e, t, n, r, i) {
 	return {
 		parallelogram: n,
 		seg: r,
@@ -3377,31 +3384,31 @@ function sa(e, t, n, r, i) {
 		}
 	};
 }
-var ca = class e {
+var sa = class e {
 	static distToSegm(e, t, n) {
 		let r = n.sub(t);
-		if (r.length < E.intersectionEpsilon) return e.sub(t.add(n).div(2)).length;
-		let i = new j(-r.y, r.x);
+		if (r.length < O.intersectionEpsilon) return e.sub(t.add(n).div(2)).length;
+		let i = new N(-r.y, r.x);
 		return i = i.mul(1 / i.length), Math.abs(e.sub(t).dot(i));
 	}
 	static createParallelogramOnSubSeg(e, t, n) {
-		let r = n.derivative(e), i = n.derivative(t), a = new j(-i.y, i.x), o = n.value(e), s = n.value(t), c = s.sub(o).dot(a), l = r.dot(a), u = Math.abs(c) < E.distanceEpsilon;
-		if (!u && Math.abs(l) < E.distanceEpsilon) return;
+		let r = n.derivative(e), i = n.derivative(t), a = new N(-i.y, i.x), o = n.value(e), s = n.value(t), c = s.sub(o).dot(a), l = r.dot(a), u = Math.abs(c) < O.distanceEpsilon;
+		if (!u && Math.abs(l) < O.distanceEpsilon) return;
 		let d = u ? 0 : c / l;
-		return r = r.mul(d), M.parallelogramByCornerSideSide(o, r, s.sub(o).sub(r));
+		return r = r.mul(d), na.parallelogramByCornerSideSide(o, r, s.sub(o).sub(r));
 	}
 	static createParallelogramNodeForCurveSeg(t, n, r, i) {
-		if (t === r.parStart && n === r.parEnd && j.close(r.start, r.end, E.distanceEpsilon)) return e.createNodeWithSegmentSplit(t, n, r, i);
+		if (t === r.parStart && n === r.parEnd && N.close(r.start, r.end, O.distanceEpsilon)) return e.createNodeWithSegmentSplit(t, n, r, i);
 		let a = r.value(t), o = r.value(n), s = o.sub(a), c = r.value((t + n) / 2);
-		if (e.distToSegm(c, a, o) <= E.intersectionEpsilon && s.dot(s) < E.lineSegmentThreshold * E.lineSegmentThreshold && n - t < E.lineSegmentThreshold) {
-			let e = N.mkPP(a, o), i = e.pNodeOverICurve();
+		if (e.distToSegm(c, a, o) <= O.intersectionEpsilon && s.dot(s) < O.lineSegmentThreshold * O.lineSegmentThreshold && n - t < O.lineSegmentThreshold) {
+			let e = P.mkPP(a, o), i = e.pNodeOverICurve();
 			i.seg = r;
 			let s = i.node;
 			return s.low = t, s.high = n, s.chord = e, i;
 		}
 		if (e.WithinEpsilon(r, t, n, i)) {
 			let a = e.createParallelogramOnSubSeg(t, n, r);
-			if (a !== void 0) return sa(t, n, a, r, i);
+			if (a !== void 0) return oa(t, n, a, r, i);
 		}
 		return e.createNodeWithSegmentSplit(t, n, r, i);
 	}
@@ -3410,7 +3417,7 @@ var ca = class e {
 		return e.distToSegm(t.value(n + a), o, s) > i ? !1 : e.distToSegm(t.value(n + a * 2), o, s) <= i;
 	}
 	static createParallelogramNodeForCurveSegDefaultOffset(t) {
-		return e.createParallelogramNodeForCurveSeg(t.parStart, t.parEnd, t, E.defaultLeafBoxesOffset);
+		return e.createParallelogramNodeForCurveSeg(t.parStart, t.parEnd, t, O.defaultLeafBoxesOffset);
 	}
 	static createNodeWithSegmentSplit(t, n, r, i) {
 		let a = {
@@ -3419,28 +3426,28 @@ var ca = class e {
 			leafBoxesOffset: 1,
 			node: { children: [] }
 		}, o = a.node;
-		return o.children.push(e.createParallelogramNodeForCurveSeg(t, .5 * (t + n), r, i)), o.children.push(e.createParallelogramNodeForCurveSeg(.5 * (t + n), n, r, i)), a.parallelogram = M.parallelogramOfTwo(o.children[0].parallelogram, o.children[1].parallelogram), a;
+		return o.children.push(e.createParallelogramNodeForCurveSeg(t, .5 * (t + n), r, i)), o.children.push(e.createParallelogramNodeForCurveSeg(.5 * (t + n), n, r, i)), a.parallelogram = na.parallelogramOfTwo(o.children[0].parallelogram, o.children[1].parallelogram), a;
 	}
-}, la = class {
+}, ca = class {
 	constructor(e, t, n, r, i) {
 		this.par0 = e, this.par1 = t, this.x = n, this.seg0 = r, this.seg1 = i;
 	}
-}, ua = class {
+}, la = class {
 	static closestPoint(e, t, n, r, i) {
 		let a = n, o = 0, s = 0, c, l = !1;
 		do {
 			let n = e.value(a), l = e.derivative(a), u = e.secondDerivative(a), d = l.dot(l) + n.sub(t).dot(u);
-			if (Math.abs(d) < E.tolerance) return a;
-			c = n.sub(t).dot(l.div(d)), a -= c, a > i + E.tolerance ? (a = i, s++) : a < r - E.tolerance && (a = r, s++), o++;
-		} while (Math.abs(c) > E.tolerance && !(l = o >= 5 || s >= 5));
-		return l && e.value(n).sub(t).length < E.distanceEpsilon && (a = n), a;
+			if (Math.abs(d) < O.tolerance) return a;
+			c = n.sub(t).dot(l.div(d)), a -= c, a > i + O.tolerance ? (a = i, s++) : a < r - O.tolerance && (a = r, s++), o++;
+		} while (Math.abs(c) > O.tolerance && !(l = o >= 5 || s >= 5));
+		return l && e.value(n).sub(t).length < O.distanceEpsilon && (a = n), a;
 	}
-}, P = class e {
+}, F = class e {
 	isFullEllipse() {
 		return this.parEnd === Math.PI * 2 && this.parStart === 0;
 	}
 	static fromJSON(t) {
-		return new e(t.parStart, t.parEnd, j.fromJSON(t.axis0), j.fromJSON(t.axis1), j.fromJSON(t.center));
+		return new e(t.parStart, t.parEnd, N.fromJSON(t.axis0), N.fromJSON(t.axis1), N.fromJSON(t.center));
 	}
 	toJSON() {
 		return {
@@ -3452,7 +3459,7 @@ var ca = class e {
 		};
 	}
 	offsetCurve(t, n) {
-		let r = n.sub(this.center), i = j.angle(this.aAxis, r);
+		let r = n.sub(this.center), i = N.angle(this.aAxis, r);
 		if (this.aAxis.mul(Math.cos(i)).add(this.bAxis.mul(Math.sin(i))).length < r.length) {
 			let n = this.aAxis.length, r = this.bAxis.length;
 			return e.mkEllipsePPP(this.aAxis.normalize().mul(n + t), this.bAxis.normalize().mul(r + t), this.center);
@@ -3487,36 +3494,36 @@ var ca = class e {
 		return this.box;
 	}
 	value(e) {
-		return this.center.add(j.mkPoint(Math.cos(e), this.aAxis, Math.sin(e), this.bAxis));
+		return this.center.add(N.mkPoint(Math.cos(e), this.aAxis, Math.sin(e), this.bAxis));
 	}
 	derivative(e) {
-		return j.mkPoint(-Math.sin(e), this.aAxis, Math.cos(e), this.bAxis);
+		return N.mkPoint(-Math.sin(e), this.aAxis, Math.cos(e), this.bAxis);
 	}
 	secondDerivative(e) {
-		return j.mkPoint(-Math.cos(e), this.aAxis, -Math.sin(e), this.bAxis);
+		return N.mkPoint(-Math.cos(e), this.aAxis, -Math.sin(e), this.bAxis);
 	}
 	thirdDerivative(e) {
-		return j.mkPoint(Math.sin(e), this.aAxis, -Math.cos(e), this.bAxis);
+		return N.mkPoint(Math.sin(e), this.aAxis, -Math.cos(e), this.bAxis);
 	}
 	pNodeOverICurve() {
-		return this.pNode == null ? this.pNode = ca.createParallelogramNodeForCurveSegDefaultOffset(this) : this.pNode;
+		return this.pNode == null ? this.pNode = sa.createParallelogramNodeForCurveSegDefaultOffset(this) : this.pNode;
 	}
 	setBoundingBox() {
-		if (O(this.parStart, 0) && O(this.parEnd, Math.PI * 2)) this.box = this.fullBox();
+		if (A(this.parStart, 0) && A(this.parEnd, Math.PI * 2)) this.box = this.fullBox();
 		else {
-			this.box = R.mkPP(this.start, this.end);
+			this.box = z.mkPP(this.start, this.end);
 			let e;
 			for (let t = Math.ceil(this.parStart / (Math.PI / 2)); (e = t * Math.PI / 2) < this.parEnd; t++) e > this.parStart && this.box.add(this.value(e));
 		}
 	}
 	static mkEllipse(t, n, r, i, a, o) {
-		return new e(t, n, r, i, new j(a, o));
+		return new e(t, n, r, i, new N(a, o));
 	}
 	static mkFullEllipsePPP(t, n, r) {
 		return new e(0, Math.PI * 2, t, n, r);
 	}
 	static mkFullEllipseNNP(t, n, r) {
-		return new e(0, Math.PI * 2, new j(t, 0), new j(0, n), r);
+		return new e(0, Math.PI * 2, new N(t, 0), new N(0, n), r);
 	}
 	static mkCircle(t, n) {
 		return e.mkFullEllipseNNP(t, t, n);
@@ -3529,7 +3536,7 @@ var ca = class e {
 	}
 	getParameterAtLength(e) {
 		let t = .001, n = this.parStart, r = this.parEnd, i = e + t, a = e - t;
-		for (; r - n > E.distanceEpsilon;) {
+		for (; r - n > O.distanceEpsilon;) {
 			let e = .5 * (r + n), t = this.lengthPartial(this.parStart, e);
 			if (t > i) r = e;
 			else if (t < a) n = e;
@@ -3551,11 +3558,11 @@ var ca = class e {
 			c < a && (a = c, i = o);
 		}
 		i === 0 && n === Math.PI * 2 && (t = -Math.PI);
-		let o = ua.closestPoint(this, e, i, t, n);
+		let o = la.closestPoint(this, e, i, t, n);
 		return o < 0 && (o += 2 * Math.PI), o;
 	}
 	lengthPartial(e, t) {
-		return I.lengthWithInterpolationAndThreshold(this.trim(e, t), E.lineSegmentThreshold / 100);
+		return L.lengthWithInterpolationAndThreshold(this.trim(e, t), O.lineSegmentThreshold / 100);
 	}
 	get length() {
 		return (this.aAxis.length + this.bAxis.length) * Math.abs(this.parEnd - this.parStart) / 2;
@@ -3571,7 +3578,7 @@ var ca = class e {
 		}
 		let a = !1;
 		r === 0 && this.parEnd === Math.PI * 2 && (a = !0, t = this.parStart, this.parStart = -Math.PI);
-		let o = ua.closestPoint(this, e, r, this.parStart, this.parEnd);
+		let o = la.closestPoint(this, e, r, this.parStart, this.parEnd);
 		return o < 0 && (o += 2 * Math.PI), a && (this.parStart = t), o;
 	}
 	leftDerivative(e) {
@@ -3590,16 +3597,16 @@ var ca = class e {
 		throw "NotImplementedException()";
 	}
 	orientedCounterclockwise() {
-		return j.crossProduct(this.aAxis, this.bAxis) > 0;
+		return N.crossProduct(this.aAxis, this.bAxis) > 0;
 	}
 	fullBox() {
 		let e = this.aAxis.add(this.bAxis);
-		return R.mkPP(this.center.add(e), this.center.sub(e));
+		return z.mkPP(this.center.add(e), this.center.sub(e));
 	}
 	isArc() {
-		return Math.abs(this.aAxis.dot(this.bAxis)) < E.tolerance && Math.abs(this.aAxis.length - this.bAxis.length) < E.tolerance && j.closeDistEps(this.aAxis.rotate90Ccw(), this.bAxis);
+		return Math.abs(this.aAxis.dot(this.bAxis)) < O.tolerance && Math.abs(this.aAxis.length - this.bAxis.length) < O.tolerance && N.closeDistEps(this.aAxis.rotate90Ccw(), this.bAxis);
 	}
-}, da = class {
+}, ua = class {
 	initValues() {
 		this.a = this.curveA.value(this.si), this.b = this.curveB.value(this.ti), this.a_b = this.a.sub(this.b), this.ad = this.curveA.derivative(this.si), this.add = this.curveA.secondDerivative(this.si), this.bd = this.curveB.derivative(this.ti), this.bdd = this.curveB.secondDerivative(this.ti);
 	}
@@ -3626,11 +3633,11 @@ var ca = class e {
 	}
 	solve() {
 		let e = 0, t = 0, n = !1;
-		if (this.initValues(), this.curveA instanceof N && this.curveB instanceof N) {
+		if (this.initValues(), this.curveA instanceof P && this.curveB instanceof P) {
 			let e = this.curveB.derivative(0);
 			e = e.div(e.length);
 			let t = this.curveA.normal(), n = Math.abs(t.dot(e));
-			if (Math.abs(n) < E.distanceEpsilon || this.delta(this.Fss(), this.Fst(), this.Fst(), this.Ftt()) < E.tolerance) {
+			if (Math.abs(n) < O.distanceEpsilon || this.delta(this.Fss(), this.Fst(), this.Fst(), this.Ftt()) < O.tolerance) {
 				this.success = !0, this.parallelLineSegLineSegMinDist();
 				return;
 			}
@@ -3638,7 +3645,7 @@ var ca = class e {
 		let r;
 		do {
 			let i = this.delta(this.Fss(), this.Fst(), this.Fst(), this.Ftt());
-			if (Math.abs(i) < E.tolerance) {
+			if (Math.abs(i) < O.tolerance) {
 				this.success = !1, n = !0;
 				break;
 			}
@@ -3647,11 +3654,11 @@ var ca = class e {
 				t: this.delta(this.Fss(), -this.Fs(), this.Fst(), -this.Ft()) / i
 			};
 			let a = this.si + r.s, o = this.ti + r.t, s;
-			a > this.aMax + E.distanceEpsilon || a < this.aMin - E.distanceEpsilon || o > this.bMax + E.distanceEpsilon || o < this.bMin - E.distanceEpsilon ? (e++, this.chopDsDt(r), this.si += r.s, this.ti += r.t, s = !0) : (s = !1, this.si = a, this.ti = o, this.si > this.aMax ? this.si = this.aMax : this.si < this.aMin && (this.si = this.aMin), this.ti > this.bMax ? this.ti = this.bMax : this.ti < this.bMin && (this.ti = this.bMin)), this.initValues(), t++, n = e >= 10 || t >= 100 || r.s === 0 && r.t === 0 && s;
-		} while ((Math.abs(r.s) >= E.tolerance || Math.abs(r.t) >= E.tolerance) && !n);
+			a > this.aMax + O.distanceEpsilon || a < this.aMin - O.distanceEpsilon || o > this.bMax + O.distanceEpsilon || o < this.bMin - O.distanceEpsilon ? (e++, this.chopDsDt(r), this.si += r.s, this.ti += r.t, s = !0) : (s = !1, this.si = a, this.ti = o, this.si > this.aMax ? this.si = this.aMax : this.si < this.aMin && (this.si = this.aMin), this.ti > this.bMax ? this.ti = this.bMax : this.ti < this.bMin && (this.ti = this.bMin)), this.initValues(), t++, n = e >= 10 || t >= 100 || r.s === 0 && r.t === 0 && s;
+		} while ((Math.abs(r.s) >= O.tolerance || Math.abs(r.t) >= O.tolerance) && !n);
 		if (n) {
 			let e = this.curveA.value(this.aGuess).sub(this.curveB.value(this.bGuess));
-			if (e.dot(e) < E.distanceEpsilon * E.distanceEpsilon) {
+			if (e.dot(e) < O.distanceEpsilon * O.distanceEpsilon) {
 				this.aSolution = this.aGuess, this.bSolution = this.bGuess, this.aPoint = this.curveA.value(this.aGuess), this.bPoint = this.curveB.value(this.bGuess), this.success = !0;
 				return;
 			}
@@ -3670,7 +3677,7 @@ var ca = class e {
 	}
 	parallelLineSegLineSegMinDist() {
 		let e = this.curveA, t = this.curveB, n = e.start, r = e.end, i = t.start, a = t.end, o = r.sub(n), s = o.length, c = 0, l, u, d;
-		if (s > E.distanceEpsilon) {
+		if (s > O.distanceEpsilon) {
 			o = o.div(s), l = o.dot(r.sub(n)), u = o.dot(i.sub(n)), d = o.dot(a.sub(n));
 			let e = !1;
 			if (u > d) {
@@ -3686,16 +3693,16 @@ var ca = class e {
 			}
 		} else {
 			let e = a.sub(i), t = e.length;
-			t > E.distanceEpsilon ? (e = e.div(t), c = 0, l = e.dot(a.sub(i)), u = e.dot(n.sub(i)), u < c ? (this.bSolution = 0, this.aSolution = 1) : u > l ? (this.bSolution = 1, this.aSolution = 0) : (this.bSolution = Math.min(l, u) / (l - c), this.aSolution = 0)) : (this.aSolution = 0, this.bSolution = 0);
+			t > O.distanceEpsilon ? (e = e.div(t), c = 0, l = e.dot(a.sub(i)), u = e.dot(n.sub(i)), u < c ? (this.bSolution = 0, this.aSolution = 1) : u > l ? (this.bSolution = 1, this.aSolution = 0) : (this.bSolution = Math.min(l, u) / (l - c), this.aSolution = 0)) : (this.aSolution = 0, this.bSolution = 0);
 		}
 		this.aPoint = this.curveA.value(this.aSolution), this.bPoint = this.curveB.value(this.bSolution);
 	}
-}, fa = class e {
+}, da = class e {
 	toJSON() {
 		return { b: this.b.map((e) => e.toJSON()) };
 	}
 	static fromJSON(t) {
-		return e.mkBezier(t.b.map(j.fromJSON));
+		return e.mkBezier(t.b.map(N.fromJSON));
 	}
 	leftDerivative(e) {
 		return this.derivative(e);
@@ -3707,7 +3714,7 @@ var ca = class e {
 		return this.b[e];
 	}
 	pNodeOverICurve() {
-		return this.pBoxNode == null ? this.pBoxNode = ca.createParallelogramNodeForCurveSegDefaultOffset(this) : this.pBoxNode;
+		return this.pBoxNode == null ? this.pBoxNode = sa.createParallelogramNodeForCurveSegDefaultOffset(this) : this.pBoxNode;
 	}
 	value(e) {
 		let t = e * e, n = t * e;
@@ -3718,7 +3725,7 @@ var ca = class e {
 	}
 	trim(t, n) {
 		if (t = e.adjustParamTo01(t), n = e.adjustParamTo01(n), t > n) return this.trim(n, t);
-		if (t > 1 - E.tolerance) return new e(this.b[3], this.b[3], this.b[3], this.b[3]);
+		if (t > 1 - O.tolerance) return new e(this.b[3], this.b[3], this.b[3], this.b[3]);
 		let r = [
 			,
 			,
@@ -3731,15 +3738,15 @@ var ca = class e {
 	}
 	casteljau(e, t, n) {
 		let r = 1 - e;
-		for (let n = 0; n < 3; n++) t[n] = j.mkPoint(r, this.b[n], e, this.b[n + 1]);
-		for (let i = 0; i < 2; i++) n[i] = j.mkPoint(r, t[i], e, t[i + 1]);
-		return j.mkPoint(r, n[0], e, n[1]);
+		for (let n = 0; n < 3; n++) t[n] = N.mkPoint(r, this.b[n], e, this.b[n + 1]);
+		for (let i = 0; i < 2; i++) n[i] = N.mkPoint(r, t[i], e, t[i + 1]);
+		return N.mkPoint(r, n[0], e, n[1]);
 	}
 	derivative(e) {
 		return this.l.mul(3 * e * e).add(this.e.mul(2 * e)).add(this.c);
 	}
 	secondDerivative(e) {
-		return j.mkPoint(6 * e, this.l, 2, this.e);
+		return N.mkPoint(6 * e, this.l, 2, this.e);
 	}
 	thirdDerivative(e) {
 		return this.l.mul(6);
@@ -3762,7 +3769,7 @@ var ca = class e {
 		return new e(this.b[3], this.b[2], this.b[1], this.b[0]);
 	}
 	translate(e) {
-		this.b[0] = this.b[0].add(e), this.b[1] = this.b[1].add(e), this.b[2] = this.b[2].add(e), this.b[3] = this.b[3].add(e), this.c = this.b[1].sub(this.b[0]).mul(3), this.e = this.b[2].sub(this.b[1]).mul(3).sub(this.c), this.l = this.b[3].sub(this.b[0]).sub(this.c).sub(this.e), this.bbox &&= R.translate(this.bbox, e), this.pBoxNode = null;
+		this.b[0] = this.b[0].add(e), this.b[1] = this.b[1].add(e), this.b[2] = this.b[2].add(e), this.b[3] = this.b[3].add(e), this.c = this.b[1].sub(this.b[0]).mul(3), this.e = this.b[2].sub(this.b[1]).mul(3).sub(this.c), this.l = this.b[3].sub(this.b[0]).sub(this.c).sub(this.e), this.bbox &&= z.translate(this.bbox, e), this.pBoxNode = null;
 	}
 	scaleFromOrigin(t, n) {
 		return new e(this.b[0].scale(t, n), this.b[1].scale(t, n), this.b[2].scale(t, n), this.b[3].scale(t, n));
@@ -3778,14 +3785,14 @@ var ca = class e {
 	}
 	static lengthOnControlPolygon(t, n, r, i) {
 		let a = i.sub(t).length, o = n.sub(t).length + r.sub(n).length + i.sub(r).length;
-		if (o - a > E.lineSegmentThreshold) {
-			let a = j.middle(t, n), o = j.middle(n, r), s = j.middle(r, i), c = j.middle(a, o), l = j.middle(s, o), u = j.middle(c, l);
+		if (o - a > O.lineSegmentThreshold) {
+			let a = N.middle(t, n), o = N.middle(n, r), s = N.middle(r, i), c = N.middle(a, o), l = N.middle(s, o), u = N.middle(c, l);
 			return e.lengthOnControlPolygon(t, a, c, u) + e.lengthOnControlPolygon(u, l, s, i);
 		}
 		return (o + a) / 2;
 	}
 	get boundingBox() {
-		return this.bbox ? this.bbox : this.bbox = R.mkOnPoints(this.b);
+		return this.bbox ? this.bbox : this.bbox = z.mkOnPoints(this.b);
 	}
 	transform(t) {
 		return new e(t.multiplyPoint(this.b[0]), t.multiplyPoint(this.b[1]), t.multiplyPoint(this.b[2]), t.multiplyPoint(this.b[3]));
@@ -3796,7 +3803,7 @@ var ca = class e {
 			let o = e.sub(this.value(n * r + t)), s = o.dot(o);
 			s < a && (a = s, i = n * r + t);
 		}
-		return ua.closestPoint(this, e, i, t, n);
+		return la.closestPoint(this, e, i, t, n);
 	}
 	clone() {
 		return new e(this.b[0], this.b[1], this.b[2], this.b[3]);
@@ -3849,7 +3856,7 @@ var ca = class e {
 			let a = e.sub(this.value(i * t)), o = a.dot(a);
 			o < r && (r = o, n = i * t);
 		}
-		return ua.closestPoint(this, e, n, 0, 1);
+		return la.closestPoint(this, e, n, 0, 1);
 	}
 	curvatureSecondDerivative(e) {
 		let t = this.G(e);
@@ -3871,7 +3878,7 @@ var ca = class e {
 	}
 	getParameterAtLength(e) {
 		let t = 0, n = 1;
-		for (; n - t > E.tolerance;) {
+		for (; n - t > O.tolerance;) {
 			let r = (n + t) / 2, i = this.evaluateError(e, r);
 			if (i > 0) n = r;
 			else if (i < 0) t = r;
@@ -3880,62 +3887,62 @@ var ca = class e {
 		return (t + n) / 2;
 	}
 	evaluateError(t, n) {
-		let r = 1 - n, i = j.mkPoint(r, this.b[0], n, this.b[1]), a = j.mkPoint(r, this.b[1], n, this.b[2]), o = j.mkPoint(r, this.b[2], n, this.b[3]), s = j.mkPoint(r, i, n, a), c = j.mkPoint(r, a, n, o), l = j.mkPoint(r, s, n, c), u = e.lengthOnControlPolygon(this.b[0], i, s, l);
-		return u > t + E.distanceEpsilon ? 1 : u < t - E.distanceEpsilon ? -1 : 0;
+		let r = 1 - n, i = N.mkPoint(r, this.b[0], n, this.b[1]), a = N.mkPoint(r, this.b[1], n, this.b[2]), o = N.mkPoint(r, this.b[2], n, this.b[3]), s = N.mkPoint(r, i, n, a), c = N.mkPoint(r, a, n, o), l = N.mkPoint(r, s, n, c), u = e.lengthOnControlPolygon(this.b[0], i, s, l);
+		return u > t + O.distanceEpsilon ? 1 : u < t - O.distanceEpsilon ? -1 : 0;
 	}
 };
 //#endregion
 //#region ../node_modules/@msagl/core/dist/math/geometry/curve.js
-function pa(e) {
+function fa(e) {
 	return e.seg.value(e.par);
 }
-function ma(e) {
+function pa(e) {
 	return e.seg.derivative(e.par);
 }
-function ha(e) {
+function ma(e) {
 	return e.seg.secondDerivative(e.par);
 }
-function ga(e) {
+function ha(e) {
 	return e.seg.thirdDerivative(e.par);
 }
-var F;
+var I;
 (function(e) {
 	e[e.Outside = 0] = "Outside", e[e.Boundary = 1] = "Boundary", e[e.Inside = 2] = "Inside";
-})(F ||= {});
-function _a(e) {
-	if (e instanceof P) return {
+})(I ||= {});
+function ga(e) {
+	if (e instanceof F) return {
 		tag: "ellipse",
 		segData: e.toJSON()
 	};
-	if (e instanceof N) return {
+	if (e instanceof P) return {
 		tag: "lineSegment",
 		segData: e.toJSON()
 	};
-	if (e instanceof fa) return {
+	if (e instanceof da) return {
 		tag: "bezier",
 		segData: e.toJSON()
 	};
 	throw Error("not implemented");
 }
-var I = class e {
+var L = class e {
 	static fromJSON(t) {
 		let n = new e();
 		for (let e of t.segs) switch (e.tag) {
 			case "bezier":
-				n.addSegment(fa.fromJSON(e.segData));
+				n.addSegment(da.fromJSON(e.segData));
 				break;
 			case "ellipse":
-				n.addSegment(P.fromJSON(e.segData));
+				n.addSegment(F.fromJSON(e.segData));
 				break;
 			case "lineSegment":
-				n.addSegment(N.fromJSON(e.segData));
+				n.addSegment(P.fromJSON(e.segData));
 				break;
 			default: throw Error("not implemented");
 		}
 		return n;
 	}
 	toJSON() {
-		return { segs: this.segs.map((e) => _a(e)) };
+		return { segs: this.segs.map((e) => ga(e)) };
 	}
 	static CurvesIntersect(t, n) {
 		return t === n || e.intersectionOne(t, n, !1) != null;
@@ -4003,7 +4010,7 @@ var I = class e {
 	}
 	translate(e) {
 		for (let t of this.segs) t.translate(e);
-		this.boundingBox_ &&= R.translate(this.boundingBox_, e), this.pBNode = null;
+		this.boundingBox_ &&= z.translate(this.boundingBox_, e), this.pBNode = null;
 	}
 	adjustStartEndEndParametersToDomain(e) {
 		if (e.start > e.end) {
@@ -4035,9 +4042,9 @@ var I = class e {
 			e.push(r.parallelogram), t.push(r);
 		}
 		return this.pBNode = {
-			parallelogram: M.getParallelogramOfAGroup(e),
+			parallelogram: na.getParallelogramOfAGroup(e),
 			seg: this,
-			leafBoxesOffset: E.defaultLeafBoxesOffset,
+			leafBoxesOffset: O.defaultLeafBoxesOffset,
 			node: { children: t }
 		}, this.pBNode;
 	}
@@ -4046,7 +4053,7 @@ var I = class e {
 		return r && i != null && (i = e.liftIntersectionToCurves(t, n, i)), i;
 	}
 	static getAllIntersections(t, n, r) {
-		return t instanceof N ? e.getAllIntersectionsOfLineAndICurve(t, n, r) : e.getAllIntersectionsInternal(t, n, r);
+		return t instanceof P ? e.getAllIntersectionsOfLineAndICurve(t, n, r) : e.getAllIntersectionsInternal(t, n, r);
 	}
 	static getAllIntersectionsInternal(t, n, r) {
 		let i = [];
@@ -4054,11 +4061,11 @@ var I = class e {
 		return i;
 	}
 	static getAllIntersectionsOfLineAndICurve(t, n, r) {
-		return n instanceof L ? e.getAllIntersectionsOfLineAndPolyline(t, n) : n instanceof e ? e.getAllIntersectionsOfLineAndCurve(t, n, r) : n instanceof P && n.isArc() ? e.getAllIntersectionsOfLineAndArc(t, n) : e.getAllIntersectionsInternal(t, n, r);
+		return n instanceof R ? e.getAllIntersectionsOfLineAndPolyline(t, n) : n instanceof e ? e.getAllIntersectionsOfLineAndCurve(t, n, r) : n instanceof F && n.isArc() ? e.getAllIntersectionsOfLineAndArc(t, n) : e.getAllIntersectionsInternal(t, n, r);
 	}
 	static getAllIntersectionsOfLineAndCurve(t, n, r) {
 		let i = [], a = t.pNodeOverICurve(), o = n.pNodeOverICurve();
-		if (M.intersect(a.parallelogram, o.parallelogram) === !1) return i;
+		if (na.intersect(a.parallelogram, o.parallelogram) === !1) return i;
 		let s = 0;
 		for (let a of n.segs) {
 			let o = e.getAllIntersections(t, a, !1);
@@ -4071,10 +4078,10 @@ var I = class e {
 		return i;
 	}
 	static closeIntersections(e, t) {
-		return j.close(e.x, t.x, E.intersectionEpsilon);
+		return N.close(e.x, t.x, O.intersectionEpsilon);
 	}
 	static closeIntersectionPoints(e, t) {
-		return j.close(e, t, E.intersectionEpsilon);
+		return N.close(e, t, O.intersectionEpsilon);
 	}
 	static alreadyInside(t, n) {
 		for (let r = 0; r < t.length; r++) {
@@ -4085,17 +4092,17 @@ var I = class e {
 	}
 	static getAllIntersectionsOfLineAndArc(t, n) {
 		let r = t.end.sub(t.start), i = [], a = r.length;
-		if (a < E.distanceEpsilon) {
+		if (a < O.distanceEpsilon) {
 			let e = t.start.sub(n.center);
-			if (O(e.length, n.aAxis.length)) {
-				let r = j.angle(n.aAxis, e);
-				n.parStart - E.tolerance <= r && (r = Math.max(r, n.parStart), r <= n.parEnd + E.tolerance && (r = Math.min(n.parEnd, r), i.push(new la(0, r, t.start, t, n))));
+			if (A(e.length, n.aAxis.length)) {
+				let r = N.angle(n.aAxis, e);
+				n.parStart - O.tolerance <= r && (r = Math.max(r, n.parStart), r <= n.parEnd + O.tolerance && (r = Math.min(n.parEnd, r), i.push(new ca(0, r, t.start, t, n))));
 			}
 			return i;
 		}
 		let o = r.rotate90Ccw().div(a), s = t.start.sub(n.center).dot(o), c = n.center.add(o.mul(s)), l = n.aAxis.length, u = Math.abs(s);
-		if (l < u - E.distanceEpsilon) return i;
-		if (r = o.rotate90Cw(), O(l, u)) e.tryToAddPointToLineCircleCrossing(t, n, i, c, a, r);
+		if (l < u - O.distanceEpsilon) return i;
+		if (r = o.rotate90Cw(), A(l, u)) e.tryToAddPointToLineCircleCrossing(t, n, i, c, a, r);
 		else {
 			let o = Math.sqrt(l * l - s * s), u = r.mul(o);
 			e.tryToAddPointToLineCircleCrossing(t, n, i, c.add(u), a, r), e.tryToAddPointToLineCircleCrossing(t, n, i, c.sub(u), a, r);
@@ -4104,20 +4111,20 @@ var I = class e {
 	}
 	static tryToAddPointToLineCircleCrossing(e, t, n, r, i, a) {
 		let o = r.sub(e.start).dot(a);
-		if (o < -E.distanceEpsilon || (o = Math.max(o, 0), o > i + E.distanceEpsilon)) return;
+		if (o < -O.distanceEpsilon || (o = Math.max(o, 0), o > i + O.distanceEpsilon)) return;
 		o = Math.min(o, i), o /= i;
-		let s = j.angle(t.aAxis, r.sub(t.center));
-		t.parStart - E.tolerance <= s && (s = Math.max(s, t.parStart), s <= t.parEnd + E.tolerance && (s = Math.min(t.parEnd, s), n.push(new la(o, s, r, e, t))));
+		let s = N.angle(t.aAxis, r.sub(t.center));
+		t.parStart - O.tolerance <= s && (s = Math.max(s, t.parStart), s <= t.parEnd + O.tolerance && (s = Math.min(t.parEnd, s), n.push(new ca(o, s, r, e, t))));
 	}
 	static getAllIntersectionsOfLineAndPolyline(t, n) {
 		let r = [], i = 0, a = n.startPoint;
 		for (; a != null && a.getNext() != null; a = a.getNext()) {
 			let o = e.crossTwoLineSegs(t.start, t.end, a.point, a.getNext().point, 0, 1, 0, 1);
-			o && (e.adjustSolution(t.start, t.end, a.point, a.getNext().point, o), e.oldIntersection(r, o.x) || r.push(new la(o.aSol, i + o.bSol, o.x, t, n))), i++;
+			o && (e.adjustSolution(t.start, t.end, a.point, a.getNext().point, o), e.oldIntersection(r, o.x) || r.push(new ca(o.aSol, i + o.bSol, o.x, t, n))), i++;
 		}
 		if (n.closed) {
 			let o = e.crossTwoLineSegs(t.start, t.end, a.point, n.start, 0, 1, 0, 1);
-			o && (e.adjustSolution(t.start, t.end, a.point, n.start, o), e.oldIntersection(r, o.x) || r.push(new la(o.aSol, i + o.bSol, o.x, t, n)));
+			o && (e.adjustSolution(t.start, t.end, a.point, n.start, o), e.oldIntersection(r, o.x) || r.push(new ca(o.aSol, i + o.bSol, o.x, t, n)));
 		}
 		return r;
 	}
@@ -4125,7 +4132,7 @@ var I = class e {
 		e.closeIntersectionPoints(a.x, t) ? (a.x = t, a.aSol = 0) : e.closeIntersectionPoints(a.x, n) && (a.x = n, a.aSol = 1), e.closeIntersectionPoints(a.x, r) ? (a.x = r, a.bSol = Math.floor(a.bSol)) : e.closeIntersectionPoints(a.x, i) && (a.x = i, a.bSol = Math.ceil(a.bSol));
 	}
 	static curveCurveXWithParallelogramNodesOne(t, n) {
-		if (!M.intersect(t.parallelogram, n.parallelogram)) return null;
+		if (!na.intersect(t.parallelogram, n.parallelogram)) return null;
 		let r = t.node, i = n.node, a = r.hasOwnProperty("children"), o = i.hasOwnProperty("children");
 		if (a && o) for (let t of r.children) for (let n of i.children) {
 			let r = e.curveCurveXWithParallelogramNodesOne(t, n);
@@ -4143,7 +4150,7 @@ var I = class e {
 		return null;
 	}
 	static curveCurveXWithParallelogramNodes(t, n, r) {
-		if (!M.intersect(t.parallelogram, n.parallelogram)) return;
+		if (!na.intersect(t.parallelogram, n.parallelogram)) return;
 		let i = t.node.hasOwnProperty("children"), a = n.node.hasOwnProperty("children");
 		if (i && a) for (let i of t.node.children) for (let t of n.node.children) e.curveCurveXWithParallelogramNodes(i, t, r);
 		else if (a) for (let i of n.node.children) e.curveCurveXWithParallelogramNodes(t, i, r);
@@ -4170,20 +4177,20 @@ var I = class e {
 		e.closeIntersectionPoints(i.x, t.seg.value(a.low)) ? (i.x = t.seg.value(a.low), i.aSol = a.low) : e.closeIntersectionPoints(i.x, t.seg.value(a.high)) && (i.x = t.seg.value(a.high), i.aSol = a.high);
 		let o = n.node;
 		if (e.closeIntersectionPoints(i.x, n.seg.value(o.low)) ? (i.x = n.seg.value(o.low), i.bSol = o.low) : e.closeIntersectionPoints(i.x, n.seg.value(o.high)) && (i.x = n.seg.value(o.high), i.bSol = o.high), !e.oldIntersection(r, i.x)) {
-			let e = new la(i.aSol, i.bSol, i.x, t.seg, n.seg);
+			let e = new ca(i.aSol, i.bSol, i.x, t.seg, n.seg);
 			r.push(e);
 		}
 	}
 	static oldIntersection(e, t) {
-		for (let n of e) if (t.sub(n.x).length < E.distanceEpsilon * 100) return !0;
+		for (let n of e) if (t.sub(n.x).length < O.distanceEpsilon * 100) return !0;
 		return !1;
 	}
 	static createIntersectionOne(t, n, r, i, a) {
 		let o = t.node, s = n.node;
-		return e.closeIntersectionPoints(a, t.seg.value(o.low)) ? (a = t.seg.value(o.low), r = o.low) : e.closeIntersectionPoints(a, t.seg.value(o.high)) && (a = t.seg.value(o.high), r = o.high), e.closeIntersectionPoints(a, n.seg.value(s.low)) ? (a = n.seg.value(s.low), i = s.low) : e.closeIntersectionPoints(a, n.seg.value(s.high)) && (a = n.seg.value(s.high), i = s.high), new la(r, i, a, t.seg, n.seg);
+		return e.closeIntersectionPoints(a, t.seg.value(o.low)) ? (a = t.seg.value(o.low), r = o.low) : e.closeIntersectionPoints(a, t.seg.value(o.high)) && (a = t.seg.value(o.high), r = o.high), e.closeIntersectionPoints(a, n.seg.value(s.low)) ? (a = n.seg.value(s.low), i = s.low) : e.closeIntersectionPoints(a, n.seg.value(s.high)) && (a = n.seg.value(s.high), i = s.high), new ca(r, i, a, t.seg, n.seg);
 	}
 	static liftIntersectionToCurves_(t, n, r, i, a, o, s) {
-		return new la(t instanceof e ? e.liftParameterToCurve(t, r - o.parStart, o) : r, n instanceof e ? e.liftParameterToCurve(n, i - s.parStart, s) : i, a, t, n);
+		return new ca(t instanceof e ? e.liftParameterToCurve(t, r - o.parStart, o) : r, n instanceof e ? e.liftParameterToCurve(n, i - s.parStart, s) : i, a, t, n);
 	}
 	static DropIntersectionToSegs(t) {
 		let n, r;
@@ -4196,7 +4203,7 @@ var I = class e {
 			let e = t.seg1.getSegParam(t.par1);
 			a = e.par, i = e.seg;
 		} else a = t.par1, i = t.seg1;
-		return new la(r, a, t.x, n, i);
+		return new ca(r, a, t.x, n, i);
 	}
 	static liftIntersectionToCurves(t, n, r) {
 		return e.liftIntersectionToCurves_(t, n, r.par0, r.par1, r.x, r.seg0, r.seg1);
@@ -4216,57 +4223,57 @@ var I = class e {
 	}
 	static goDeeperOne(t, n) {
 		let r = t.node, i = n.node;
-		if (t.leafBoxesOffset > E.distanceEpsilon && n.leafBoxesOffset > E.distanceEpsilon) {
-			let a = ca.createParallelogramNodeForCurveSeg(r.low, r.high, t.seg, t.leafBoxesOffset / 2), o = ca.createParallelogramNodeForCurveSeg(i.low, i.high, n.seg, n.leafBoxesOffset / 2);
+		if (t.leafBoxesOffset > O.distanceEpsilon && n.leafBoxesOffset > O.distanceEpsilon) {
+			let a = sa.createParallelogramNodeForCurveSeg(r.low, r.high, t.seg, t.leafBoxesOffset / 2), o = sa.createParallelogramNodeForCurveSeg(i.low, i.high, n.seg, n.leafBoxesOffset / 2);
 			return e.curveCurveXWithParallelogramNodesOne(a, o);
 		}
-		if (t.leafBoxesOffset > E.distanceEpsilon) {
-			let i = ca.createParallelogramNodeForCurveSeg(r.low, r.high, t.seg, t.leafBoxesOffset / 2);
+		if (t.leafBoxesOffset > O.distanceEpsilon) {
+			let i = sa.createParallelogramNodeForCurveSeg(r.low, r.high, t.seg, t.leafBoxesOffset / 2);
 			return e.curveCurveXWithParallelogramNodesOne(i, n);
 		}
-		if (n.leafBoxesOffset > E.distanceEpsilon) {
-			let r = ca.createParallelogramNodeForCurveSeg(i.low, i.high, n.seg, n.leafBoxesOffset / 2);
+		if (n.leafBoxesOffset > O.distanceEpsilon) {
+			let r = sa.createParallelogramNodeForCurveSeg(i.low, i.high, n.seg, n.leafBoxesOffset / 2);
 			return e.curveCurveXWithParallelogramNodesOne(t, r);
 		}
 		let a = t.seg.value(r.low), o = t.seg.value(r.high);
-		if (!j.closeDistEps(a, o)) {
+		if (!N.closeDistEps(a, o)) {
 			let r = n.seg.value(i.low), s = n.seg.value(i.high);
-			if (!j.closeDistEps(r, s)) {
-				let i = t.seg instanceof N ? t.seg : N.mkPP(a, o), c = n.seg instanceof N ? n.seg : N.mkPP(r, s), l = e.crossWithinIntervalsWithGuess(i, c, 0, 1, 0, 1, .5, .5);
+			if (!N.closeDistEps(r, s)) {
+				let i = t.seg instanceof P ? t.seg : P.mkPP(a, o), c = n.seg instanceof P ? n.seg : P.mkPP(r, s), l = e.crossWithinIntervalsWithGuess(i, c, 0, 1, 0, 1, .5, .5);
 				if (l) return e.adjustParameters(t, i, n, c, l), e.createIntersectionOne(t, n, l.aSol, l.bSol, l.x);
 			}
 		}
 		return null;
 	}
 	static goDeeper(t, n, r) {
-		let i = n.node, a = r.node, o = n.leafBoxesOffset > E.distanceEpsilon, s = r.leafBoxesOffset > E.distanceEpsilon;
+		let i = n.node, a = r.node, o = n.leafBoxesOffset > O.distanceEpsilon, s = r.leafBoxesOffset > O.distanceEpsilon;
 		if (o && s) {
-			let o = ca.createParallelogramNodeForCurveSeg(i.low, i.high, n.seg, n.leafBoxesOffset / 2), s = ca.createParallelogramNodeForCurveSeg(a.low, a.high, r.seg, r.leafBoxesOffset / 2);
+			let o = sa.createParallelogramNodeForCurveSeg(i.low, i.high, n.seg, n.leafBoxesOffset / 2), s = sa.createParallelogramNodeForCurveSeg(a.low, a.high, r.seg, r.leafBoxesOffset / 2);
 			e.curveCurveXWithParallelogramNodes(o, s, t);
 		} else if (o) {
-			let a = ca.createParallelogramNodeForCurveSeg(i.low, i.high, n.seg, n.leafBoxesOffset / 2);
+			let a = sa.createParallelogramNodeForCurveSeg(i.low, i.high, n.seg, n.leafBoxesOffset / 2);
 			e.curveCurveXWithParallelogramNodes(a, r, t);
 		} else if (s) {
-			let i = ca.createParallelogramNodeForCurveSeg(a.low, a.high, r.seg, r.leafBoxesOffset / 2);
+			let i = sa.createParallelogramNodeForCurveSeg(a.low, a.high, r.seg, r.leafBoxesOffset / 2);
 			e.curveCurveXWithParallelogramNodes(n, i, t);
 		} else {
 			let o = n.seg.value(i.low), s = n.seg.value(i.high);
-			if (!j.closeDistEps(o, s)) {
+			if (!N.closeDistEps(o, s)) {
 				let i = r.seg.value(a.low), c = r.seg.value(a.high);
-				if (!j.closeDistEps(i, c)) {
-					let a = n.seg instanceof N ? n.seg : N.mkPP(o, s), l = r.seg instanceof N ? r.seg : N.mkPP(i, c), u = e.crossWithinIntervalsWithGuess(a, l, 0, 1, 0, 1, .5, .5);
+				if (!N.closeDistEps(i, c)) {
+					let a = n.seg instanceof P ? n.seg : P.mkPP(o, s), l = r.seg instanceof P ? r.seg : P.mkPP(i, c), u = e.crossWithinIntervalsWithGuess(a, l, 0, 1, 0, 1, .5, .5);
 					u && (e.adjustParameters(n, a, r, l, u), e.addIntersection(n, r, t, u));
 				}
 			}
 		}
 	}
 	static adjustParameters(e, t, n, r, i) {
-		if (t !== e.seg && !(e.seg instanceof L)) i.aSol = e.seg.closestParameter(i.x);
+		if (t !== e.seg && !(e.seg instanceof R)) i.aSol = e.seg.closestParameter(i.x);
 		else {
 			let t = e.node;
 			i.aSol = t.low + i.aSol * (t.high - t.low);
 		}
-		if (r !== n.seg && !(n.seg instanceof L)) i.bSol = n.seg.closestParameter(i.x);
+		if (r !== n.seg && !(n.seg instanceof R)) i.bSol = n.seg.closestParameter(i.x);
 		else {
 			let e = n.node;
 			i.bSol = e.low + i.bSol * (e.high - e.low);
@@ -4305,64 +4312,64 @@ var I = class e {
 		};
 	}
 	value(e) {
-		return pa(this.getSegParam(e));
+		return fa(this.getSegParam(e));
 	}
 	derivative(e) {
-		return ma(this.getSegParam(e));
+		return pa(this.getSegParam(e));
 	}
 	secondDerivative(e) {
-		return ha(this.getSegParam(e));
+		return ma(this.getSegParam(e));
 	}
 	thirdDerivative(e) {
-		return ga(this.getSegParam(e));
+		return ha(this.getSegParam(e));
 	}
 	static crossWithinIntervalsWithGuess(t, n, r, i, a, o, s, c) {
-		if (t instanceof N && n instanceof N) {
+		if (t instanceof P && n instanceof P) {
 			let s = e.crossTwoLineSegs(t.start, t.end, n.start, n.end, r, i, a, o);
 			if (s !== void 0) return s;
 		}
 		let l = e.minDistWithinIntervals(t, n, r, i, a, o, s, c);
 		if (l == null) return;
 		let u = l.aX.sub(l.bX);
-		return u.dot(u) >= E.distanceEpsilon ? void 0 : {
+		return u.dot(u) >= O.distanceEpsilon ? void 0 : {
 			aSol: l.aSol,
 			bSol: l.bSol,
-			x: j.middle(l.aX, l.bX)
+			x: N.middle(l.aX, l.bX)
 		};
 	}
 	static crossTwoLineSegs(e, t, n, r, i, a, o, s) {
-		let c = t.sub(e), l = n.sub(r), u = n.sub(e), d = Zi.solve(c.x, l.x, u.x, c.y, l.y, u.y);
+		let c = t.sub(e), l = n.sub(r), u = n.sub(e), d = Yi.solve(c.x, l.x, u.x, c.y, l.y, u.y);
 		if (d == null) return;
 		let f = d.x, p = d.y, m = e.add(c.mul(f));
-		if (!(f < i - E.tolerance) && (f = Math.max(f, i), !(f > a + E.tolerance) && (f = Math.min(f, a), !(p < o - E.tolerance) && (p = Math.max(p, o), !(p > s + E.tolerance))))) return p = Math.min(p, s), {
+		if (!(f < i - O.tolerance) && (f = Math.max(f, i), !(f > a + O.tolerance) && (f = Math.min(f, a), !(p < o - O.tolerance) && (p = Math.max(p, o), !(p > s + O.tolerance))))) return p = Math.min(p, s), {
 			aSol: f,
 			bSol: p,
 			x: m
 		};
 	}
 	static PointRelativeToCurveLocation(t, n) {
-		if (!n.boundingBox.contains(t)) return F.Outside;
+		if (!n.boundingBox.contains(t)) return I.Outside;
 		let r = 2 * n.boundingBox.diagonal, i = Math.PI / 180, a = 0;
 		for (let o = 13; o < 360; o += 13) {
-			let s = new j(Math.cos(o * i), Math.sin(o * i)), c = N.mkPP(t, t.add(s.mul(r))), l = this.getAllIntersectionsOfLineAndICurve(c, n, !0);
+			let s = new N(Math.cos(o * i), Math.sin(o * i)), c = P.mkPP(t, t.add(s.mul(r))), l = this.getAllIntersectionsOfLineAndICurve(c, n, !0);
 			if (e.AllIntersectionsAreGood(l, n)) {
-				for (let e of l) if (j.closeDistEps(e.x, t)) return F.Boundary;
-				if (l.length % 2 == 1 ? a++ : a--, a >= 2) return F.Inside;
-				if (a <= -2) return F.Outside;
+				for (let e of l) if (N.closeDistEps(e.x, t)) return I.Boundary;
+				if (l.length % 2 == 1 ? a++ : a--, a >= 2) return I.Inside;
+				if (a <= -2) return I.Outside;
 			}
 		}
-		return F.Boundary;
+		return I.Boundary;
 	}
 	static AllIntersectionsAreGood(t, n) {
 		let r = n.hasOwnProperty("segs"), i = null;
-		if (r || n instanceof L && (i = n.toCurve()), i) {
+		if (r || n instanceof R && (i = n.toCurve()), i) {
 			for (let n of t) if (!e.RealCut(e.DropIntersectionToSegs(n), i, !1)) return !1;
 		}
 		return !0;
 	}
 	static RealCut(e, t, n) {
 		let r = e.seg0, i = e.seg1, a = e.par0, o = e.par1, s = e.x, c = r.derivative(a).normalize(), l = i.derivative(o).normalize().rotate(Math.PI / 2);
-		if (j.closeDistEps(s, i.end)) {
+		if (N.closeDistEps(s, i.end)) {
 			let e = null;
 			for (let n = 0; n < t.segs.length - 1; n++) if (t.segs[n] === i) {
 				e = t.segs[n + 1];
@@ -4370,9 +4377,9 @@ var I = class e {
 			}
 			if (e == null) return !1;
 			let n = c.rotate(Math.PI / 2);
-			return !(n.dot(i.derivative(i.parEnd)) * n.dot(e.derivative(e.parStart)) < E.tolerance);
+			return !(n.dot(i.derivative(i.parEnd)) * n.dot(e.derivative(e.parStart)) < O.tolerance);
 		}
-		if (j.closeDistEps(s, i.start)) {
+		if (N.closeDistEps(s, i.start)) {
 			let e = null;
 			for (let n = t.segs.length - 1; n > 0; n--) if (t.segs[n] === i) {
 				e = t.segs[n - 1];
@@ -4380,14 +4387,14 @@ var I = class e {
 			}
 			if (e == null) return !1;
 			let n = c.rotate(Math.PI / 2);
-			return !(n.dot(i.derivative(i.parStart)) * n.dot(e.derivative(e.parEnd)) < E.tolerance);
+			return !(n.dot(i.derivative(i.parStart)) * n.dot(e.derivative(e.parEnd)) < O.tolerance);
 		}
 		let u = c.dot(l);
-		return n ? u > E.distanceEpsilon : Math.abs(u) > E.distanceEpsilon;
+		return n ? u > O.distanceEpsilon : Math.abs(u) > O.distanceEpsilon;
 	}
 	static realCutWithClosedCurve(e, t, n) {
 		let r = e.seg0, i = e.seg1, a = e.par0, o = e.par1, s = e.x, c = r.derivative(a).normalize(), l = i.derivative(o).normalize().rotate(Math.PI / 2);
-		if (j.closeDistEps(s, i.end)) {
+		if (N.closeDistEps(s, i.end)) {
 			let e = null;
 			for (let n = 0; n < t.segs.length; n++) if (t.segs[n] === i) {
 				e = t.segs[(n + 1) % t.segs.length];
@@ -4395,22 +4402,22 @@ var I = class e {
 			}
 			if (e == null) throw Error();
 			let n = c.rotate(Math.PI / 2);
-			return !(n.dot(i.derivative(i.parEnd)) * n.dot(e.derivative(e.parStart)) < E.tolerance);
+			return !(n.dot(i.derivative(i.parEnd)) * n.dot(e.derivative(e.parStart)) < O.tolerance);
 		}
-		if (j.closeDistEps(s, i.start)) {
+		if (N.closeDistEps(s, i.start)) {
 			let e = null;
 			for (let n = 0; n < t.segs.length; n++) if (t.segs[n] === i) {
 				e = t.segs[n > 0 ? n - 1 : t.segs.length - 1];
 				break;
 			}
 			let n = c.rotate(Math.PI / 2);
-			return !(n.dot(i.derivative(i.parStart)) * n.dot(e.derivative(e.parEnd)) < E.tolerance);
+			return !(n.dot(i.derivative(i.parStart)) * n.dot(e.derivative(e.parEnd)) < O.tolerance);
 		}
 		let u = c.dot(l);
-		return n ? u > E.distanceEpsilon : Math.abs(u) > E.distanceEpsilon;
+		return n ? u > O.distanceEpsilon : Math.abs(u) > O.distanceEpsilon;
 	}
 	static minDistWithinIntervals(e, t, n, r, i, a, o, s) {
-		let c = new da(e, t, n, r, i, a, o, s);
+		let c = new ua(e, t, n, r, i, a, o, s);
 		return c.solve(), c.success ? {
 			aSol: c.aSolution,
 			bSol: c.bSolution,
@@ -4423,7 +4430,7 @@ var I = class e {
 	}
 	get boundingBox() {
 		if (this.boundingBox_) return this.boundingBox_;
-		if (this.segs.length === 0) this.boundingBox_ = R.mkEmpty();
+		if (this.segs.length === 0) this.boundingBox_ = z.mkEmpty();
 		else {
 			let e = this.segs[0].boundingBox.clone();
 			for (let t = 1; t < this.segs.length; t++) e.addRecSelf(this.segs[t].boundingBox);
@@ -4480,16 +4487,16 @@ var I = class e {
 		return n;
 	}
 	static addLineSegment(e, t, n) {
-		return e.addSegment(N.mkPP(t, n));
+		return e.addSegment(P.mkPP(t, n));
 	}
 	static addLineSegmentCNNP(t, n, r, i) {
-		return e.addLineSegment(t, new j(n, r), i);
+		return e.addLineSegment(t, new N(n, r), i);
 	}
 	static addLineSegmentCNNNN(t, n, r, i, a) {
-		e.addLineSegment(t, new j(n, r), new j(i, a));
+		e.addLineSegment(t, new N(n, r), new N(i, a));
 	}
 	static continueWithLineSegmentNN(t, n, r) {
-		e.addLineSegment(t, t.end, new j(n, r));
+		e.addLineSegment(t, t.end, new N(n, r));
 	}
 	static continueWithLineSegmentP(t, n) {
 		e.addLineSegment(t, t.end, n);
@@ -4506,14 +4513,14 @@ var I = class e {
 		return t == null ? this.derivative(e) : t.derivative(t.parStart);
 	}
 	tryToGetLeftSegment(t) {
-		if (Math.abs(t - this.parStart) < E.tolerance) return this.start.equal(this.end) ? this.segs[this.segs.length - 1] : null;
-		for (let n of this.segs) if (t -= e.paramSpan(n), Math.abs(t) < E.tolerance) return n;
+		if (Math.abs(t - this.parStart) < O.tolerance) return this.start.equal(this.end) ? this.segs[this.segs.length - 1] : null;
+		for (let n of this.segs) if (t -= e.paramSpan(n), Math.abs(t) < O.tolerance) return n;
 		return null;
 	}
 	tryToGetRightSegment(t) {
-		if (Math.abs(t - this.parEnd) < E.tolerance) return this.start === this.end ? this.segs[0] : null;
+		if (Math.abs(t - this.parEnd) < O.tolerance) return this.start === this.end ? this.segs[0] : null;
 		for (let n of this.segs) {
-			if (Math.abs(t) < E.tolerance) return n;
+			if (Math.abs(t) < O.tolerance) return n;
 			t -= e.paramSpan(n);
 		}
 		return null;
@@ -4525,8 +4532,8 @@ var I = class e {
 		if (!n.boundingBox.containsRect(t.boundingBox)) return !1;
 		let r = e.getAllIntersections(t, n, !0);
 		if (r.length === 0) return e.NonIntersectingCurveIsInsideOther(t, n);
-		if (r.length === 1) return t.start.equal(r[0].x) ? e.PointRelativeToCurveLocation(t.value((t.parStart + t.parEnd) / 2), n) == F.Inside : e.PointRelativeToCurveLocation(t.start, n) === F.Inside;
-		for (let i of e.PointsBetweenIntersections(t, r)) if (e.PointRelativeToCurveLocation(i, n) === F.Outside) return !1;
+		if (r.length === 1) return t.start.equal(r[0].x) ? e.PointRelativeToCurveLocation(t.value((t.parStart + t.parEnd) / 2), n) == I.Inside : e.PointRelativeToCurveLocation(t.start, n) === I.Inside;
+		for (let i of e.PointsBetweenIntersections(t, r)) if (e.PointRelativeToCurveLocation(i, n) === I.Outside) return !1;
 		return !0;
 	}
 	static *PointsBetweenIntersections(e, t) {
@@ -4538,16 +4545,16 @@ var I = class e {
 	static NonIntersectingCurveIsInsideOther(t, n) {
 		for (let r = t.parStart; r < t.parEnd; r += .5) {
 			let i = e.PointRelativeToCurveLocation(t.value(r), n);
-			if (F.Boundary !== i) return F.Inside === i;
+			if (I.Boundary !== i) return I.Inside === i;
 		}
-		return F.Outside !== e.PointRelativeToCurveLocation(t.end, n);
+		return I.Outside !== e.PointRelativeToCurveLocation(t.end, n);
 	}
 	static ClosedCurveInteriorsIntersect(t, n) {
 		if (!n.boundingBox.intersects(t.boundingBox)) return !1;
 		let r = e.getAllIntersections(t, n, !0);
 		if (r.length === 0) return e.NonIntersectingCurveIsInsideOther(t, n) || e.NonIntersectingCurveIsInsideOther(n, t);
-		if (r.length === 1) return t.start.equal(r[0].x) ? e.PointRelativeToCurveLocation(t.value((t.parStart + t.parEnd) / 2), n) === F.Inside || !n.start.equal(r[0].x) ? e.PointRelativeToCurveLocation(n.start, t) === F.Inside : e.PointRelativeToCurveLocation(n.value((n.parStart + n.parEnd) / 2), t) === F.Inside : e.PointRelativeToCurveLocation(t.start, n) === F.Inside;
-		for (let i of e.PointsBetweenIntersections(t, r)) if (e.PointRelativeToCurveLocation(i, n) === F.Inside) return !0;
+		if (r.length === 1) return t.start.equal(r[0].x) ? e.PointRelativeToCurveLocation(t.value((t.parStart + t.parEnd) / 2), n) === I.Inside || !n.start.equal(r[0].x) ? e.PointRelativeToCurveLocation(n.start, t) === I.Inside : e.PointRelativeToCurveLocation(n.value((n.parStart + n.parEnd) / 2), t) === I.Inside : e.PointRelativeToCurveLocation(t.start, n) === I.Inside;
+		for (let i of e.PointsBetweenIntersections(t, r)) if (e.PointRelativeToCurveLocation(i, n) === I.Inside) return !0;
 		return !0;
 	}
 	curvature(e) {
@@ -4561,12 +4568,12 @@ var I = class e {
 		throw Error("Not implemented");
 	}
 	static createBezierSeg(e, t, n, r, i) {
-		let a = j.mkPoint(e, n.point, 1 - e, r.point), o = j.mkPoint(t, i.point, 1 - t, r.point), s = r.point.mul(2 / 3);
-		return new fa(a, a.div(3).add(s), s.add(o.div(3)), o);
+		let a = N.mkPoint(e, n.point, 1 - e, r.point), o = N.mkPoint(t, i.point, 1 - t, r.point), s = r.point.mul(2 / 3);
+		return new da(a, a.div(3).add(s), s.add(o.div(3)), o);
 	}
 	static createBezierSegN(e, t, n, r) {
 		let i = n.mul(r);
-		return new fa(e, e.add(i), t.add(i), t);
+		return new da(e, e.add(i), t.add(i), t);
 	}
 	static findCorner(e) {
 		let t = e.next;
@@ -4611,34 +4618,34 @@ var I = class e {
 		return n;
 	}
 	static polylineAroundClosedCurve(t) {
-		if (t instanceof P) return e.refineEllipse(t);
-		if (t instanceof L) return t;
+		if (t instanceof F) return e.refineEllipse(t);
+		if (t instanceof R) return t;
 		if (t instanceof e && e.allSegsAreLines(t)) {
-			let e = new L();
+			let e = new R();
 			for (let n of t.segs) e.addPoint(n.start);
 			if (e.closed = !0, !e.isClockwise()) return e.reverse();
 		}
 		return t.boundingBox.perimeter();
 	}
 	static allSegsAreLines(e) {
-		for (let t of e.segs) if (!(t instanceof N)) return !1;
+		for (let t of e.segs) if (!(t instanceof P)) return !1;
 		return !0;
 	}
 	static refineEllipse(t) {
 		let n = t.boundingBox.perimeter(), r = Math.PI / 4, i = t.boundingBox.width, a = t.boundingBox.height, o = Math.sqrt(i * i + a * a), s = [];
 		for (let i = 0; i < 4; i++) {
-			let a = r + i * Math.PI / 2, c = t.value(a), l = t.derivative(a).normalize().mul(o), u = N.mkPP(c.sub(l), c.add(l));
+			let a = r + i * Math.PI / 2, c = t.value(a), l = t.derivative(a).normalize().mul(o), u = P.mkPP(c.sub(l), c.add(l));
 			for (let t of e.getAllIntersections(n, u, !0)) s.push(t);
 		}
 		s.sort((e, t) => e.par0 < t.par0 ? -1 : e.par0 > t.par0 ? 1 : 0);
-		let c = new L();
+		let c = new R();
 		return s.forEach((e) => c.addPoint(e.x)), c.closed = !0, c;
 	}
 	static polyFromBox(e) {
-		let t = new L();
+		let t = new R();
 		return t.addPoint(e.leftTop), t.addPoint(e.rightTop), t.addPoint(e.rightBottom), t.addPoint(e.leftBottom), t.closed = !0, t;
 	}
-}, L = class e {
+}, R = class e {
 	constructor() {
 		this.initIsRequired = !0, this.isClosed_ = !1;
 	}
@@ -4646,7 +4653,7 @@ var I = class e {
 		return { points: Array.from(this).map((e) => e.toJSON()) };
 	}
 	static fromJSON(t) {
-		return e.mkFromPoints(t.points.map((e) => j.fromJSON(e)));
+		return e.mkFromPoints(t.points.map((e) => N.fromJSON(e)));
 	}
 	RemoveStartPoint() {
 		let e = this.startPoint.next;
@@ -4660,18 +4667,18 @@ var I = class e {
 		this.initIsRequired = !0;
 	}
 	addPointXY(e, t) {
-		this.addPoint(new j(e, t));
+		this.addPoint(new N(e, t));
 	}
 	isClockwise() {
-		return j.getTriangleOrientation(this.startPoint.point, this.startPoint.next.point, this.startPoint.next.next.point) == k.Clockwise;
+		return N.getTriangleOrientation(this.startPoint.point, this.startPoint.next.point, this.startPoint.next.next.point) == j.Clockwise;
 	}
 	addPoint(e) {
-		let t = new na();
+		let t = new ea();
 		t.polyline = this, t.point = e.clone(), this.endPoint == null ? this.startPoint = this.endPoint = t : (this.endPoint.next = t, t.prev = this.endPoint, this.endPoint = t), this.setInitIsRequired();
 	}
 	PrependPoint(e) {
-		let t = na.mkFromPoint(e);
-		t.polyline = this, this.startPoint == null ? (this.endPoint = t, this.startPoint = t) : j.closeDistEps(e, this.startPoint.point) || (this.startPoint.prev = t, t.next = this.startPoint, this.startPoint = t), this.setInitIsRequired();
+		let t = ea.mkFromPoint(e);
+		t.polyline = this, this.startPoint == null ? (this.endPoint = t, this.startPoint = t) : N.closeDistEps(e, this.startPoint.point) || (this.startPoint.prev = t, t.next = this.startPoint, this.startPoint = t), this.setInitIsRequired();
 	}
 	*[Symbol.iterator]() {
 		for (let e = this.startPoint; e != null; e = e.next) yield e.point;
@@ -4684,7 +4691,7 @@ var I = class e {
 	}
 	static parallelogramOfLineSeg(e, t) {
 		let n = t.sub(e).div(2);
-		return M.parallelogramByCornerSideSide(e, n, n);
+		return na.parallelogramByCornerSideSide(e, n, n);
 	}
 	static mkFromPoints(t) {
 		let n = new e();
@@ -4706,7 +4713,7 @@ var I = class e {
 				node: {
 					low: i,
 					high: i + 1,
-					chord: N.mkPP(r.point, r.next.point)
+					chord: P.mkPP(r.point, r.next.point)
 				}
 			}), r = r.next, i++;
 		}
@@ -4719,19 +4726,19 @@ var I = class e {
 				node: {
 					low: i,
 					high: i + 1,
-					chord: N.mkPP(this.endPoint.point, this.startPoint.point)
+					chord: P.mkPP(this.endPoint.point, this.startPoint.point)
 				}
 			});
 		}
 		this.pBNode = {
-			parallelogram: M.getParallelogramOfAGroup(t),
+			parallelogram: na.getParallelogramOfAGroup(t),
 			seg: this,
 			leafBoxesOffset: 0,
 			node: { children: n }
 		};
 	}
 	init() {
-		this.bBox = R.rectangleOnPoint(this.startPoint.point);
+		this.bBox = z.rectangleOnPoint(this.startPoint.point);
 		for (let e of this.skip(1)) this.bBox.add(e.point);
 		this.updateCount(), this.calculatePbNode(), this.initIsRequired = !1;
 	}
@@ -4751,7 +4758,7 @@ var I = class e {
 	value(e) {
 		this.initIsRequired && this.init();
 		let t = this.getAdjustedParamAndStartEndPoints(e);
-		return j.convSum(t.t, t.a, t.b);
+		return N.convSum(t.t, t.a, t.b);
 	}
 	getAdjustedParamAndStartEndPoints(e) {
 		let t = this.startPoint;
@@ -4775,10 +4782,10 @@ var I = class e {
 		return t.b.sub(t.a);
 	}
 	secondDerivative(e) {
-		return new j(0, 0);
+		return new N(0, 0);
 	}
 	thirdDerivative(e) {
-		return new j(0, 0);
+		return new N(0, 0);
 	}
 	pNodeOverICurve() {
 		return this.initIsRequired && this.init(), this.pBNode;
@@ -4800,7 +4807,7 @@ var I = class e {
 	}
 	trim(t, n) {
 		let r = this.toCurve();
-		return r = r.trim(t, n), r instanceof I ? e.polylineFromCurve(r) : e.mkFromPoints([r.start, r.end]);
+		return r = r.trim(t, n), r instanceof L ? e.polylineFromCurve(r) : e.mkFromPoints([r.start, r.end]);
 	}
 	trimWithWrap(e, t) {
 		throw Error("Method not implemented.");
@@ -4855,11 +4862,11 @@ var I = class e {
 	closestParameter(e) {
 		let t = 0, n = Number.MAX_VALUE, r = 0, i = this.startPoint;
 		for (; i.next != null;) {
-			let a = N.mkPP(i.point, i.next.point), o = a.closestParameter(e), s = a.value(o).sub(e), c = s.dot(s);
+			let a = P.mkPP(i.point, i.next.point), o = a.closestParameter(e), s = a.value(o).sub(e), c = s.dot(s);
 			c < n && (n = c, t = o + r), i = i.next, r++;
 		}
 		if (this.closed) {
-			let i = N.mkPP(this.endPoint.point, this.startPoint.point), a = i.closestParameter(e), o = i.value(a).sub(e);
+			let i = P.mkPP(this.endPoint.point, this.startPoint.point), a = i.closestParameter(e), o = i.value(a).sub(e);
 			o.dot(o) < n && (t = a + r);
 		}
 		return t;
@@ -4896,24 +4903,24 @@ var I = class e {
 		return e.prev ?? (this.closed ? this.endPoint : null);
 	}
 	toCurve() {
-		let e = new I();
-		I.addLineSegment(e, this.startPoint.point, this.startPoint.next.point);
+		let e = new L();
+		L.addLineSegment(e, this.startPoint.point, this.startPoint.next.point);
 		let t = this.startPoint.next;
-		for (; (t = t.next) != null;) I.continueWithLineSegmentP(e, t.point);
-		return this.closed && I.continueWithLineSegmentP(e, this.startPoint.point), e;
+		for (; (t = t.next) != null;) L.continueWithLineSegmentP(e, t.point);
+		return this.closed && L.continueWithLineSegmentP(e, this.startPoint.point), e;
 	}
 	RemoveCollinearVertices() {
-		for (let e = this.startPoint.next; e.next != null; e = e.next) j.getTriangleOrientation(e.prev.point, e.point, e.next.point) === k.Collinear && (e.prev.next = e.next, e.next.prev = e.prev);
+		for (let e = this.startPoint.next; e.next != null; e = e.next) N.getTriangleOrientation(e.prev.point, e.point, e.next.point) === j.Collinear && (e.prev.next = e.next, e.next.prev = e.prev);
 		return this.setInitIsRequired(), this;
 	}
-}, va = class {
+}, _a = class {
 	pad(e) {
 		this.width += e * 2;
 	}
 	constructor(e, t = e) {
 		this.width = e, this.height = t;
 	}
-}, R = class e {
+}, z = class e {
 	transform(t) {
 		return e.mkPP(t.multiplyPoint(this.leftTop), t.multiplyPoint(this.rightBottom));
 	}
@@ -4924,7 +4931,7 @@ var I = class e {
 		return this.left_ === e.left && this.right_ === e.right && this.top_ === e.top && this.bottom_ === e.bottom;
 	}
 	equalEps(e) {
-		return O(this.left_, e.left) && O(this.right_, e.right) && O(this.top_, e.top) && O(this.bottom_, e.bottom);
+		return A(this.left_, e.left) && A(this.right_, e.right) && A(this.top_, e.top) && A(this.bottom_, e.bottom);
 	}
 	static mkSizeCenter(t, n) {
 		let r = t.width / 2, i = t.height / 2;
@@ -4983,10 +4990,10 @@ var I = class e {
 		this.leftTop = this.leftTop.add(n), this.rightBottom = this.rightBottom.add(n);
 	}
 	intersectsOnY(e) {
-		return !(e.bottom_ > this.top_ + E.distanceEpsilon || e.top_ < this.bottom_ - E.distanceEpsilon);
+		return !(e.bottom_ > this.top_ + O.distanceEpsilon || e.top_ < this.bottom_ - O.distanceEpsilon);
 	}
 	intersectsOnX(e) {
-		return !(e.left > this.right_ + E.distanceEpsilon || e.right < this.left_ - E.distanceEpsilon);
+		return !(e.left > this.right_ + O.distanceEpsilon || e.right < this.left_ - O.distanceEpsilon);
 	}
 	static mkEmpty() {
 		return new e({
@@ -5021,25 +5028,25 @@ var I = class e {
 		this.bottom_ = e, this.onUpdated();
 	}
 	get leftBottom() {
-		return new j(this.left_, this.bottom_);
+		return new N(this.left_, this.bottom_);
 	}
 	set leftBottom(e) {
 		this.left_ = e.x, this.bottom = e.y;
 	}
 	get rightTop() {
-		return new j(this.right_, this.top_);
+		return new N(this.right_, this.top_);
 	}
 	set rightTop(e) {
 		this.right_ = e.x, this.top_ = e.y;
 	}
 	get leftTop() {
-		return new j(this.left_, this.top_);
+		return new N(this.left_, this.top_);
 	}
 	set leftTop(e) {
 		this.left_ = e.x, this.top_ = e.y;
 	}
 	get rightBottom() {
-		return new j(this.right_, this.bottom_);
+		return new N(this.right_, this.bottom_);
 	}
 	set rightBottom(e) {
 		this.right_ = e.x, this.bottom = e.y;
@@ -5077,7 +5084,7 @@ var I = class e {
 			right: t,
 			top: n
 		});
-		return a.add(new j(r, i)), a;
+		return a.add(new N(r, i)), a;
 	}
 	static mkOnPoints(t) {
 		let n = e.mkEmpty();
@@ -5119,7 +5126,7 @@ var I = class e {
 		return r.addRecSelf(n), r;
 	}
 	containsWithPadding(e, t) {
-		return this.left_ - t - E.distanceEpsilon <= e.x && e.x <= this.right_ + t + E.distanceEpsilon && this.bottom_ - t - E.distanceEpsilon <= e.y && e.y <= this.top_ + t + E.distanceEpsilon;
+		return this.left_ - t - O.distanceEpsilon <= e.x && e.x <= this.right_ + t + O.distanceEpsilon && this.bottom_ - t - O.distanceEpsilon <= e.y && e.y <= this.top_ + t + O.distanceEpsilon;
 	}
 	get area() {
 		return (this.right_ - this.left_) * (this.top_ - this.bottom_);
@@ -5166,10 +5173,10 @@ var I = class e {
 		this.left -= e.left, this.right += e.right, this.bottom -= e.bottom, this.top += e.top;
 	}
 	static intersect(t, n) {
-		return t.intersects(n) ? e.mkPP(new j(Math.max(t.left, n.left), Math.max(t.bottom, n.bottom)), new j(Math.min(t.right, n.right), Math.min(t.top, n.top))) : e.mkEmpty();
+		return t.intersects(n) ? e.mkPP(new N(Math.max(t.left, n.left), Math.max(t.bottom, n.bottom)), new N(Math.min(t.right, n.right), Math.min(t.top, n.top))) : e.mkEmpty();
 	}
 	perimeter() {
-		let e = new L();
+		let e = new R();
 		return e.addPoint(this.leftTop), e.addPoint(this.rightTop), e.addPoint(this.rightBottom), e.addPoint(this.leftBottom), e.closed = !0, e;
 	}
 	scaleAroundCenter(e) {
@@ -5184,7 +5191,7 @@ var I = class e {
 		});
 	}
 	get size() {
-		return new va(this.width, this.height);
+		return new _a(this.width, this.height);
 	}
 	set size(e) {
 		this.width = e.width, this.height = e.height;
@@ -5200,9 +5207,9 @@ var I = class e {
 	}
 	addPointWithSize(e, t) {
 		let n = e.width / 2, r = e.height / 2;
-		this.add(new j(t.x - n, t.y - r)), this.add(new j(t.x + n, t.y - r)), this.add(new j(t.x - n, t.y + r)), this.add(new j(t.x + n, t.y + r));
+		this.add(new N(t.x - n, t.y - r)), this.add(new N(t.x + n, t.y - r)), this.add(new N(t.x - n, t.y + r)), this.add(new N(t.x + n, t.y + r));
 	}
-}, ya = class e {
+}, va = class e {
 	constructor() {
 		this.previouisBezierCoefficient = .5, this.nextBezierCoefficient = .5, this.previousTangentCoefficient = 1 / 3, this.nextTangentCoefficient = 1 / 3;
 	}
@@ -5219,18 +5226,18 @@ var I = class e {
 		return i.prev = t, i.point = n, i.next = r, t.next = i, r.prev = i, i;
 	}
 	get turn() {
-		return this.next == null || this.prev == null ? 0 : j.getTriangleOrientation(this.prev.point, this.point, this.next.point);
+		return this.next == null || this.prev == null ? 0 : N.getTriangleOrientation(this.prev.point, this.point, this.next.point);
 	}
 	clone() {
 		let t = new e();
 		return t.previouisBezierCoefficient = this.previouisBezierCoefficient, t.point = this.point, t;
 	}
-}, ba = class e {
+}, ya = class e {
 	static mkFromPoints(t) {
 		let n = null, r = null;
-		for (let i of t) if (r == null) r = ya.mkSiteP(i), n = new e(r);
+		for (let i of t) if (r == null) r = va.mkSiteP(i), n = new e(r);
 		else {
-			let e = ya.mkSiteP(i);
+			let e = va.mkSiteP(i);
 			e.prev = r, r.next = e, r = e;
 		}
 		return n;
@@ -5253,25 +5260,25 @@ var I = class e {
 		for (; e != null;) yield e.point, e = e.next;
 	}
 	createCurve() {
-		let t = new I(), n = this.headSite;
+		let t = new L(), n = this.headSite;
 		do {
-			let r = I.findCorner(n);
+			let r = L.findCorner(n);
 			if (r == null) break;
 			let i = e.createBezierSegOnSite(r.b);
-			t.segs.length === 0 ? j.closeDistEps(n.point, i.start) || I.addLineSegment(t, n.point, i.start) : j.closeDistEps(t.end, i.start) || I.continueWithLineSegmentP(t, i.start), t.addSegment(i), n = r.b;
+			t.segs.length === 0 ? N.closeDistEps(n.point, i.start) || L.addLineSegment(t, n.point, i.start) : N.closeDistEps(t.end, i.start) || L.continueWithLineSegmentP(t, i.start), t.addSegment(i), n = r.b;
 		} while (!0);
-		return t.segs.length === 0 ? j.closeDistEps(n.point, n.next.point) ? t.segs.push(new fa(n.point, n.point.add(new j(5, 5)), n.point.add(new j(-5, 5)), (void 0).point)) : I.addLineSegment(t, n.point, n.next.point) : j.closeDistEps(t.end, n.next.point) || I.continueWithLineSegmentP(t, n.next.point), t;
+		return t.segs.length === 0 ? N.closeDistEps(n.point, n.next.point) ? t.segs.push(new da(n.point, n.point.add(new N(5, 5)), n.point.add(new N(-5, 5)), (void 0).point)) : L.addLineSegment(t, n.point, n.next.point) : N.closeDistEps(t.end, n.next.point) || L.continueWithLineSegmentP(t, n.next.point), t;
 	}
 	static createBezierSegOnSite(e) {
 		let t = e.previouisBezierCoefficient, n = e.nextBezierCoefficient, r = e.prev, i = e.next, a = r.point.mul(t).add(e.point.mul(1 - t)), o = i.point.mul(n).add(e.point.mul(1 - n)), s = a.mul(e.previousTangentCoefficient).add(e.point.mul(1 - e.previousTangentCoefficient)), c = o.mul(e.nextTangentCoefficient).add(e.point.mul(1 - e.nextTangentCoefficient));
-		return fa.mkBezier([
+		return da.mkBezier([
 			a,
 			s,
 			c,
 			o
 		]);
 	}
-}, xa = class e {
+}, ba = class e {
 	get Elements() {
 		return this.elements;
 	}
@@ -5285,10 +5292,10 @@ var I = class e {
 		return e.multiply(t.inverse());
 	}
 	isIdentity() {
-		return O(this.elements[0][0], 1) && O(this.elements[0][1], 0) && O(this.elements[0][2], 0) && O(this.elements[1][0], 0) && O(this.elements[1][1], 1) && O(this.elements[1][2], 0);
+		return A(this.elements[0][0], 1) && A(this.elements[0][1], 0) && A(this.elements[0][2], 0) && A(this.elements[1][0], 0) && A(this.elements[1][1], 1) && A(this.elements[1][2], 0);
 	}
 	offset() {
-		return new j(this.getElem(0, 2), this.getElem(1, 2));
+		return new N(this.getElem(0, 2), this.getElem(1, 2));
 	}
 	static getIdentity() {
 		return new e(1, 0, 0, 0, 1, 0);
@@ -5313,7 +5320,7 @@ var I = class e {
 		return new e(t, 0, i * r.x, 0, n, a * r.y);
 	}
 	multiplyPoint(e) {
-		return new j(this.getElem(0, 0) * e.x + this.getElem(0, 1) * e.y + this.getElem(0, 2), this.getElem(1, 0) * e.x + this.getElem(1, 1) * e.y + this.getElem(1, 2));
+		return new N(this.getElem(0, 0) * e.x + this.getElem(0, 1) * e.y + this.getElem(0, 2), this.getElem(1, 0) * e.x + this.getElem(1, 1) * e.y + this.getElem(1, 2));
 	}
 	multiply(t) {
 		return t == null ? null : new e(this.getElem(0, 0) * t.getElem(0, 0) + this.getElem(0, 1) * t.getElem(1, 0), this.getElem(0, 0) * t.getElem(0, 1) + this.getElem(0, 1) * t.getElem(1, 1), this.getElem(0, 0) * t.getElem(0, 2) + this.getElem(0, 1) * t.getElem(1, 2) + this.getElem(0, 2), this.getElem(1, 0) * t.getElem(0, 0) + this.getElem(1, 1) * t.getElem(1, 0), this.getElem(1, 0) * t.getElem(0, 1) + this.getElem(1, 1) * t.getElem(1, 1), this.getElem(1, 0) * t.getElem(0, 2) + this.getElem(1, 1) * t.getElem(1, 2) + this.getElem(1, 2));
@@ -5322,95 +5329,95 @@ var I = class e {
 		let t = this.getElem(0, 0) * this.getElem(1, 1) - this.getElem(1, 0) * this.getElem(0, 1), n = this.getElem(1, 1) / t, r = -this.getElem(0, 1) / t, i = -this.getElem(1, 0) / t, a = this.getElem(0, 0) / t;
 		return new e(n, r, -n * this.getElem(0, 2) - r * this.getElem(1, 2), i, a, -i * this.getElem(0, 2) - a * this.getElem(1, 2));
 	}
-}, Sa = class e {
+}, xa = class e {
 	static mkEllipse(e, t, n) {
-		return P.mkFullEllipseNNP(e, t, n);
+		return F.mkFullEllipseNNP(e, t, n);
 	}
 	static createParallelogram(e, t, n) {
 		let r = t / 2, i = e / 2, a = n.x, o = n.y, s = 80 * Math.PI / 180, c = r / Math.tan(s);
-		return L.mkClosedFromPoints([
-			new j(-i - c + a, -r + o),
-			new j(i + a, -r + o),
-			new j(i + a + c, r + o),
-			new j(-i + a, r + o)
+		return R.mkClosedFromPoints([
+			new N(-i - c + a, -r + o),
+			new N(i + a, -r + o),
+			new N(i + a + c, r + o),
+			new N(-i + a, r + o)
 		]);
 	}
 	static createHexagon(e, t, n) {
 		let r = t / 2, i = e / 2, a = n.x, o = n.y;
-		return L.mkClosedFromPoints([
-			new j(-i + a, -r + o),
-			new j(i + a, -r + o),
-			new j(i + (r + a), 0 + o),
-			new j(i + a, r + o),
-			new j(-i + a, r + o),
-			new j(-(i - r) + a, 0 + o)
+		return R.mkClosedFromPoints([
+			new N(-i + a, -r + o),
+			new N(i + a, -r + o),
+			new N(i + (r + a), 0 + o),
+			new N(i + a, r + o),
+			new N(-i + a, r + o),
+			new N(-(i - r) + a, 0 + o)
 		]);
 	}
 	static createOctagon(t, n, r) {
 		let i = t / 2, a = n / 2, o = Array(8);
-		o[0] = new j(i + e.octagonPad * i, a - a * e.octagonPad), o[3] = new j(o[0].x * -1, o[0].y), o[4] = new j(o[3].x, o[3].y * -1), o[7] = new j(o[0].x, o[0].y * -1), o[1] = new j(i - i * e.octagonPad, a + a * e.octagonPad), o[2] = new j(o[1].x * -1, o[1].y), o[6] = new j(o[1].x, o[1].y * -1), o[5] = new j(o[2].x, o[2].y * -1);
+		o[0] = new N(i + e.octagonPad * i, a - a * e.octagonPad), o[3] = new N(o[0].x * -1, o[0].y), o[4] = new N(o[3].x, o[3].y * -1), o[7] = new N(o[0].x, o[0].y * -1), o[1] = new N(i - i * e.octagonPad, a + a * e.octagonPad), o[2] = new N(o[1].x * -1, o[1].y), o[6] = new N(o[1].x, o[1].y * -1), o[5] = new N(o[2].x, o[2].y * -1);
 		for (let e = 0; e < 8; e++) o[e] = o[e].add(r);
-		return L.mkClosedFromPoints(o);
+		return R.mkClosedFromPoints(o);
 	}
 	static createInvertedHouse(t, n, r) {
 		let i = e.createHouse(t, n, r);
 		return e.rotateCurveAroundCenterByDegree(i, r, 180);
 	}
 	static createHouse(e, t, n) {
-		let r = e / 2, i = t / 2, a = n.x, o = n.y, s = new I();
-		return I.addLineSegmentCNNNN(s, a - r, o - i, a + r, o - i), I.continueWithLineSegmentNN(s, a + r, o + i), I.continueWithLineSegmentNN(s, a, o + 2 * i), I.continueWithLineSegmentNN(s, a - r, o + i), I.closeCurve(s);
+		let r = e / 2, i = t / 2, a = n.x, o = n.y, s = new L();
+		return L.addLineSegmentCNNNN(s, a - r, o - i, a + r, o - i), L.continueWithLineSegmentNN(s, a + r, o + i), L.continueWithLineSegmentNN(s, a, o + 2 * i), L.continueWithLineSegmentNN(s, a - r, o + i), L.closeCurve(s);
 	}
 	static mkDiamond(e, t, n) {
-		let r = e, i = t, a = n.x, o = n.y, s = new I(), c = [
-			new j(a, o - i),
-			new j(a + r, o),
-			new j(a, o + i),
-			new j(a - r, o)
+		let r = e, i = t, a = n.x, o = n.y, s = new L(), c = [
+			new N(a, o - i),
+			new N(a + r, o),
+			new N(a, o + i),
+			new N(a - r, o)
 		];
 		return s.addSegs([
-			N.mkPP(c[0], c[1]),
-			N.mkPP(c[1], c[2]),
-			N.mkPP(c[2], c[3]),
-			N.mkPP(c[3], c[0])
+			P.mkPP(c[0], c[1]),
+			P.mkPP(c[1], c[2]),
+			P.mkPP(c[2], c[3]),
+			P.mkPP(c[3], c[0])
 		]), s;
 	}
 	static rotateCurveAroundCenterByDegree(t, n, r) {
 		return e.rotateCurveAroundCenterByRadian(t, n, r * Math.PI / 180);
 	}
 	static rotateCurveAroundCenterByRadian(e, t, n) {
-		let r = Math.cos(n), i = Math.sin(n), a = new xa(1, 0, t.x, 0, 1, t.y).multiply(new xa(r, -i, 0, i, r, 0)).multiply(new xa(1, 0, -t.x, 0, 1, -t.y));
+		let r = Math.cos(n), i = Math.sin(n), a = new ba(1, 0, t.x, 0, 1, t.y).multiply(new ba(r, -i, 0, i, r, 0)).multiply(new ba(1, 0, -t.x, 0, 1, -t.y));
 		return e.transform(a);
 	}
 	static mkCircle(e, t) {
-		return P.mkCircle(e, t);
+		return F.mkCircle(e, t);
 	}
 	static createRectangle(e, t, n) {
-		let r = e / 2, i = t / 2, a = n.x, o = n.y, s = new I(), c = [
-			new j(a - r, o - i),
-			new j(a + r, o - i),
-			new j(a + r, o + i),
-			new j(a - r, o + i)
+		let r = e / 2, i = t / 2, a = n.x, o = n.y, s = new L(), c = [
+			new N(a - r, o - i),
+			new N(a + r, o - i),
+			new N(a + r, o + i),
+			new N(a - r, o + i)
 		];
 		return s.addSegs([
-			N.mkPP(c[0], c[1]),
-			N.mkPP(c[1], c[2]),
-			N.mkPP(c[2], c[3]),
-			N.mkPP(c[3], c[0])
+			P.mkPP(c[0], c[1]),
+			P.mkPP(c[1], c[2]),
+			P.mkPP(c[2], c[3]),
+			P.mkPP(c[3], c[0])
 		]), s;
 	}
 	static isRoundedRect(e) {
-		if (!(e instanceof I)) return;
+		if (!(e instanceof L)) return;
 		let t = e.segs;
 		if (t.length !== 8 && t.length !== 4) return;
 		let n = t.length === 8, r, i;
 		for (let e = 0; e < 4; e++) {
 			let a = n ? 2 * e + 1 : e;
 			if (e === 0) {
-				if (!(t[a] instanceof P)) return;
+				if (!(t[a] instanceof F)) return;
 				let e = t[a];
 				r = e.aAxis.length, i = e.bAxis.length;
 			} else {
-				if (!(t[a] instanceof P)) return;
+				if (!(t[a] instanceof F)) return;
 				let e = t[a];
 				if (r !== e.aAxis.length || i !== e.bAxis.length) return;
 			}
@@ -5420,31 +5427,31 @@ var I = class e {
 			radY: i
 		};
 	}
-	static mkRectangleWithRoundedCorners(t, n, r, i, a = new j(0, 0)) {
+	static mkRectangleWithRoundedCorners(t, n, r, i, a = new N(0, 0)) {
 		if (r === 0 || i === 0) return e.createRectangle(t, n, a);
-		let o = new I(), s = t / 2;
+		let o = new L(), s = t / 2;
 		r > s / 2 && (r = s / 2);
 		let c = n / 2;
 		i > c / 2 && (i = c / 2);
-		let l = a.x, u = a.y, d = s - r, f = c - i, p = u + c, m = u - c, h = l - s, g = l + s, _ = new j(r, 0), v = new j(0, i);
-		return d > 0 && o.addSegment(N.mkPP(new j(l - d, m), new j(l + d, m))), o.addSegment(P.mkEllipse(1.5 * Math.PI, 2 * Math.PI, _, v, l + d, u - f)), f > 0 && o.addSegment(N.mkPP(new j(g, u - f), new j(g, u + f))), o.addSegment(P.mkEllipse(0, .5 * Math.PI, _, v, l + d, u + f)), d > 0 && o.addSegment(N.mkPP(new j(l + d, p), new j(l - d, p))), o.addSegment(P.mkEllipse(.5 * Math.PI, Math.PI, _, v, l - d, u + f)), f > 0 && o.addSegment(N.mkPP(new j(h, u + f), new j(h, u - f))), o.addSegment(P.mkEllipse(Math.PI, 1.5 * Math.PI, _, v, l - d, u - f)), o;
+		let l = a.x, u = a.y, d = s - r, f = c - i, p = u + c, m = u - c, h = l - s, g = l + s, _ = new N(r, 0), v = new N(0, i);
+		return d > 0 && o.addSegment(P.mkPP(new N(l - d, m), new N(l + d, m))), o.addSegment(F.mkEllipse(1.5 * Math.PI, 2 * Math.PI, _, v, l + d, u - f)), f > 0 && o.addSegment(P.mkPP(new N(g, u - f), new N(g, u + f))), o.addSegment(F.mkEllipse(0, .5 * Math.PI, _, v, l + d, u + f)), d > 0 && o.addSegment(P.mkPP(new N(l + d, p), new N(l - d, p))), o.addSegment(F.mkEllipse(.5 * Math.PI, Math.PI, _, v, l - d, u + f)), f > 0 && o.addSegment(P.mkPP(new N(h, u + f), new N(h, u - f))), o.addSegment(F.mkEllipse(Math.PI, 1.5 * Math.PI, _, v, l - d, u - f)), o;
 	}
 };
-Sa.octagonPad = 1 / 4;
+xa.octagonPad = 1 / 4;
 //#endregion
 //#region ../node_modules/@msagl/core/dist/math/geometry/icurve.js
-function Ca(e) {
+function Sa(e) {
 	return e.parEnd - e.parStart;
 }
 //#endregion
 //#region ../node_modules/@msagl/core/dist/math/geometry/direction.js
-var z;
+var B;
 (function(e) {
 	e[e.None = 0] = "None", e[e.North = 1] = "North", e[e.East = 2] = "East", e[e.South = 4] = "South", e[e.West = 8] = "West";
-})(z ||= {});
+})(B ||= {});
 //#endregion
 //#region ../node_modules/@msagl/core/dist/routing/rectilinear/PointComparer.js
-var B = class e {
+var V = class e {
 	static get DifferenceEpsilon() {
 		return e.differenceEpsilon;
 	}
@@ -5470,26 +5477,26 @@ var B = class e {
 		return e.Compare(t, n) < 0;
 	}
 	static GetDirections(e, t) {
-		return V.DirectionFromPointToPoint(e, t);
+		return H.DirectionFromPointToPoint(e, t);
 	}
 	static IsPureDirection(t, n) {
-		return V.IsPureDirection(e.GetDirections(t, n));
+		return H.IsPureDirection(e.GetDirections(t, n));
 	}
 	static IsPureDirectionD(e) {
-		return V.IsPureDirection(e);
+		return H.IsPureDirection(e);
 	}
 	static IsPureLower(t, n) {
 		let r = e.GetDirections(t, n);
-		return z.East === r || z.North === r;
+		return B.East === r || B.North === r;
 	}
 	static GetPureDirectionVV(t, n) {
 		return e.GetDirections(t.point, n.point);
 	}
 };
-B.differenceEpsilon = E.distanceEpsilon / 2;
+V.differenceEpsilon = O.distanceEpsilon / 2;
 //#endregion
 //#region ../node_modules/@msagl/core/dist/math/geometry/compassVector.js
-var V = class e {
+var H = class e {
 	constructor(e) {
 		this.Dir = e;
 	}
@@ -5498,57 +5505,57 @@ var V = class e {
 	}
 	static RotateRight(e) {
 		switch (e) {
-			case z.North: return z.East;
-			case z.East: return z.South;
-			case z.South: return z.West;
-			case z.West: return z.North;
+			case B.North: return B.East;
+			case B.East: return B.South;
+			case B.South: return B.West;
+			case B.West: return B.North;
 			default: throw Error();
 		}
 	}
 	static RotateLeft(e) {
 		switch (e) {
-			case z.North: return z.West;
-			case z.West: return z.South;
-			case z.South: return z.East;
-			case z.East: return z.North;
+			case B.North: return B.West;
+			case B.West: return B.South;
+			case B.South: return B.East;
+			case B.East: return B.North;
 			default: throw Error();
 		}
 	}
 	static ToIndex(e) {
 		switch (e) {
-			case z.North: return 0;
-			case z.East: return 1;
-			case z.South: return 2;
-			case z.West: return 3;
+			case B.North: return 0;
+			case B.East: return 1;
+			case B.South: return 2;
+			case B.West: return 3;
 			default: throw Error();
 		}
 	}
 	static VectorDirection(e) {
-		let t = z.None;
-		return e.x > B.DifferenceEpsilon ? t = z.East : e.x < -B.DifferenceEpsilon && (t = z.West), e.y > B.DifferenceEpsilon ? t |= z.North : e.y < -B.DifferenceEpsilon && (t |= z.South), t;
+		let t = B.None;
+		return e.x > V.DifferenceEpsilon ? t = B.East : e.x < -V.DifferenceEpsilon && (t = B.West), e.y > V.DifferenceEpsilon ? t |= B.North : e.y < -V.DifferenceEpsilon && (t |= B.South), t;
 	}
 	static VectorDirectionPP(e, t) {
-		let n = z.None, r = t.x - e.x, i = t.y - e.y;
-		return r > B.DifferenceEpsilon ? n = z.East : -r > B.DifferenceEpsilon && (n = z.West), i > B.DifferenceEpsilon ? n |= z.North : -i > B.DifferenceEpsilon && (n |= z.South), n;
+		let n = B.None, r = t.x - e.x, i = t.y - e.y;
+		return r > V.DifferenceEpsilon ? n = B.East : -r > V.DifferenceEpsilon && (n = B.West), i > V.DifferenceEpsilon ? n |= B.North : -i > V.DifferenceEpsilon && (n |= B.South), n;
 	}
 	static DirectionFromPointToPoint(t, n) {
 		return e.VectorDirectionPP(t, n);
 	}
 	static OppositeDir(e) {
 		switch (e) {
-			case z.North: return z.South;
-			case z.West: return z.East;
-			case z.South: return z.North;
-			case z.East: return z.West;
-			default: return z.None;
+			case B.North: return B.South;
+			case B.West: return B.East;
+			case B.South: return B.North;
+			case B.East: return B.West;
+			default: return B.None;
 		}
 	}
 	static IsPureDirection(e) {
 		switch (e) {
-			case z.North: return !0;
-			case z.East: return !0;
-			case z.South: return !0;
-			case z.West: return !0;
+			case B.North: return !0;
+			case B.East: return !0;
+			case B.South: return !0;
+			case B.West: return !0;
 			default: return !1;
 		}
 	}
@@ -5560,7 +5567,7 @@ var V = class e {
 	}
 	ToPoint() {
 		let e = 0, t = 0;
-		return (this.Dir & z.East) === z.East && e++, (this.Dir & z.North) === z.North && t++, (this.Dir & z.West) === z.West && e--, (this.Dir & z.South) === z.South && t--, new j(e, t);
+		return (this.Dir & B.East) === B.East && e++, (this.Dir & B.North) === B.North && t++, (this.Dir & B.West) === B.West && e--, (this.Dir & B.South) === B.South && t--, new N(e, t);
 	}
 	static toPoint(t) {
 		return new e(t).ToPoint();
@@ -5568,7 +5575,7 @@ var V = class e {
 	static negate(t) {
 		return new e(e.OppositeDir(t.Dir));
 	}
-}, wa = class e extends T {
+}, Ca = class e extends D {
 	clone() {
 		let t = new e(null, null);
 		return t.isPositioned = this.isPositioned, t._boundingBox = this._boundingBox.clone(), t.attachmentSegmentEnd = this.attachmentSegmentEnd, t.attachmentSegmentStart = this.attachmentSegmentStart, t;
@@ -5580,7 +5587,7 @@ var V = class e {
 		this._isPositioned = e;
 	}
 	constructor(e, t) {
-		super(e), this._isPositioned = !1, t && (this.boundingBox = R.mkPP(new j(0, 0), new j(t.width, t.height)));
+		super(e), this._isPositioned = !1, t && (this.boundingBox = z.mkPP(new N(0, 0), new N(t.width, t.height)));
 	}
 	get boundingBox() {
 		return this._boundingBox;
@@ -5618,29 +5625,29 @@ var V = class e {
 	positionCenter(e) {
 		this.boundingBox.center = e, this.isPositioned = !0;
 	}
-}, Ta = class e extends T {
+}, wa = class e extends D {
 	*getSmoothPolyPoints() {
-		yield this.source.center, this.curve instanceof I ? yield* this.getCurvePoints(this.curve) : this.curve instanceof N ? (yield this.curve.start, yield this.curve.end) : this.curve instanceof P ? (yield this.curve.start, yield this.curve.value((this.curve.parStart + this.curve.parEnd) / .5), yield this.curve.end) : this.curve instanceof fa && (yield this.curve.start, yield this.curve.value(.25), yield this.curve.value(.75), yield this.curve.end), yield this.target.center;
+		yield this.source.center, this.curve instanceof L ? yield* this.getCurvePoints(this.curve) : this.curve instanceof P ? (yield this.curve.start, yield this.curve.end) : this.curve instanceof F ? (yield this.curve.start, yield this.curve.value((this.curve.parStart + this.curve.parEnd) / .5), yield this.curve.end) : this.curve instanceof da && (yield this.curve.start, yield this.curve.value(.25), yield this.curve.value(.75), yield this.curve.end), yield this.target.center;
 	}
 	*getCurvePoints(e) {
-		for (let t of e.segs) if (yield t.start, t instanceof fa) {
-			let e = Ea(t);
+		for (let t of e.segs) if (yield t.start, t instanceof da) {
+			let e = Ta(t);
 			e && (yield e);
 		}
 		yield e.end;
 	}
 	static getGeom(e) {
-		return T.getGeom(e);
+		return D.getGeom(e);
 	}
 	clone() {
 		let t = new e(null);
 		return this.smoothedPolyline && (t.smoothedPolyline = this.smoothedPolyline.clone()), t.curve = this.curve.clone(), this.sourceArrowhead != null && (t.sourceArrowhead = this.sourceArrowhead.clone()), this.targetArrowhead != null && (t.targetArrowhead = this.targetArrowhead.clone()), t;
 	}
 	get label() {
-		return this.edge != null && this.edge.label != null ? T.getGeom(this.edge.label) : null;
+		return this.edge != null && this.edge.label != null ? D.getGeom(this.edge.label) : null;
 	}
 	set label(e) {
-		this.edge.label.setAttr(Xi.GeomObjectIndex, e);
+		this.edge.label.setAttr(Ji.GeomObjectIndex, e);
 	}
 	RaiseLayoutChangeEvent(e) {
 		this.edge.raiseEvents(e);
@@ -5652,7 +5659,7 @@ var V = class e {
 		if (!(e.x === 0 && e.y === 0)) {
 			if (this.curve != null && this.curve.translate(e), this.smoothedPolyline != null) for (let t = this.smoothedPolyline.headSite, n = this.smoothedPolyline.headSite; t != null; t = t.next, n = n.next) t.point = n.point.add(e);
 			if (this.sourceArrowhead != null && this.sourceArrowhead.tipPosition && (this.sourceArrowhead.tipPosition = this.sourceArrowhead.tipPosition.add(e)), this.targetArrowhead != null && this.targetArrowhead.tipPosition && (this.targetArrowhead.tipPosition = this.targetArrowhead.tipPosition.add(e)), this.edge.label) {
-				let t = wa.getGeom(this.edge.label);
+				let t = Ca.getGeom(this.edge.label);
 				t && t.translate(e);
 			}
 		}
@@ -5671,7 +5678,7 @@ var V = class e {
 		return this.entity;
 	}
 	get source() {
-		return T.getGeom(this.edge.source);
+		return D.getGeom(this.edge.source);
 	}
 	*sourceArrowheadPoints(e) {
 		if (this.sourceArrowhead == null) return;
@@ -5686,7 +5693,7 @@ var V = class e {
 		t = t.rotate90Cw().mul(Math.tan(e * .5 * (Math.PI / 180))), yield t.add(this.curve.end), yield this.curve.end.sub(t);
 	}
 	get boundingBox() {
-		let e = R.mkEmpty();
+		let e = z.mkEmpty();
 		if (this.smoothedPolyline != null) for (let t of this.smoothedPolyline) e.add(t);
 		this.curve != null && e.addRecSelf(this.curve.boundingBox);
 		for (let t of this.sourceArrowheadPoints(25)) e.add(t);
@@ -5699,7 +5706,7 @@ var V = class e {
 		return this.edge.isInterGraphEdge();
 	}
 	get target() {
-		return T.getGeom(this.edge.target);
+		return D.getGeom(this.edge.target);
 	}
 	constructor(e) {
 		super(e), this.lineWidth = 1;
@@ -5708,8 +5715,8 @@ var V = class e {
 		return this.source.toString() + "->" + this.target;
 	}
 	static RouteSelfEdge(e, t, n) {
-		let r = e.boundingBox.width, i = e.boundingBox.height, a = e.boundingBox.center, o = new j(a.x - r / 4, a.y), s = new j(a.x - r / 4, a.y - i / 2 - t), c = new j(a.x + r / 4, a.y - i / 2 - t), l = new j(a.x + r / 4, a.y);
-		return n.smoothedPolyline = ba.mkFromPoints([
+		let r = e.boundingBox.width, i = e.boundingBox.height, a = e.boundingBox.center, o = new N(a.x - r / 4, a.y), s = new N(a.x - r / 4, a.y - i / 2 - t), c = new N(a.x + r / 4, a.y - i / 2 - t), l = new N(a.x + r / 4, a.y);
+		return n.smoothedPolyline = ya.mkFromPoints([
 			o,
 			s,
 			c,
@@ -5723,12 +5730,12 @@ var V = class e {
 		return this.edge.EdgeToAncestor();
 	}
 };
-function Ea(e) {
-	return j.lineLineIntersection(e.b[0], e.b[1], e.b[2], e.b[3]);
+function Ta(e) {
+	return N.lineLineIntersection(e.b[0], e.b[1], e.b[2], e.b[3]);
 }
 //#endregion
 //#region ../node_modules/@msagl/core/dist/math/geometry/RTree/hitTestBehavior.js
-var H = (/* @__PURE__ */ e(((e) => {
+var U = (/* @__PURE__ */ e(((e) => {
 	Object.defineProperty(e, "__esModule", { value: !0 });
 	var n = t();
 	e.Stack = class extends n.LinkedList {
@@ -5748,42 +5755,42 @@ var H = (/* @__PURE__ */ e(((e) => {
 			return this.removeHead();
 		}
 	};
-})))(), U;
+})))(), W;
 (function(e) {
 	e[e.Continue = 0] = "Continue", e[e.Stop = 1] = "Stop";
-})(U ||= {});
+})(W ||= {});
 //#endregion
 //#region ../node_modules/@msagl/core/dist/math/geometry/RTree/rectangleNode.js
-function Da(e, t, n, r, i, a) {
+function Ea(e, t, n, r, i, a) {
 	for (let o = 0; o < e.length; o++) {
 		if (o === t || o === n) continue;
 		let s = a.box0.add_rect(e[o].irect), c = s.area - a.box0.area, l = a.box1.add_rect(e[o].irect), u = l.area - a.box1.area;
 		r.length * 2 < i.length ? (r.push(e[o]), a.box0 = s) : i.length * 2 < r.length ? (i.push(e[o]), a.box1 = l) : c < u ? (r.push(e[o]), a.box0 = s) : u < c ? (i.push(e[o]), a.box1 = l) : a.box0.area < a.box1.area ? (r.push(e[o]), a.box0 = s) : (i.push(e[o]), a.box1 = l);
 	}
 }
-function W(e) {
+function G(e) {
 	if (e.length === 0) return null;
 	if (e.length === 1) return e[0];
 	let t = {
 		b0: e[0].irect,
 		seed0: 1
-	}, n = ka(e, t), r = [], i = [];
+	}, n = Oa(e, t), r = [], i = [];
 	r.push(e[t.seed0]), i.push(e[n]);
 	let a = {
 		box0: e[t.seed0].irect,
 		box1: e[n].irect
 	};
-	Da(e, t.seed0, n, r, i, a);
-	let o = ja(e.length);
-	return o.irect = a.box0.add_rect(a.box1), o.Left = W(r), o.Right = W(i), o;
+	Ea(e, t.seed0, n, r, i, a);
+	let o = Aa(e.length);
+	return o.irect = a.box0.add_rect(a.box1), o.Left = G(r), o.Right = G(i), o;
 }
-function Oa(e, t) {
+function Da(e, t) {
 	return e.add_rect(t).area;
 }
-function ka(e, t) {
-	let n = Oa(t.b0, e[t.seed0].irect);
+function Oa(e, t) {
+	let n = Da(t.b0, e[t.seed0].irect);
 	for (let r = 2; r < e.length; r++) {
-		let i = Oa(t.b0, e[r].irect);
+		let i = Da(t.b0, e[r].irect);
 		i > n && (t.seed0 = r, n = i);
 	}
 	let r;
@@ -5799,21 +5806,21 @@ function ka(e, t) {
 	}
 	return r;
 }
-function Aa(e, t) {
-	return e == null || t == null ? null : W(Array.from(e).map((e) => Ma(e, t(e))));
+function ka(e, t) {
+	return e == null || t == null ? null : G(Array.from(e).map((e) => ja(e, t(e))));
 }
-function ja(e) {
-	let t = new Pa();
+function Aa(e) {
+	let t = new Na();
 	return t.Count = e, t;
 }
-function Ma(e, t) {
-	let n = new Pa();
+function ja(e, t) {
+	let n = new Na();
 	return n.UserData = e, n.irect = t, n.Count = 1, n;
 }
-function Na(e, t, n) {
-	return e.irect.intersects_rect(n) ? t(e.UserData) === U.Continue && (e.Left == null || Na(e.Left, t, n) === U.Continue && Na(e.Right, t, n) === U.Continue) ? U.Continue : U.Stop : U.Continue;
+function Ma(e, t, n) {
+	return e.irect.intersects_rect(n) ? t(e.UserData) === W.Continue && (e.Left == null || Ma(e.Left, t, n) === W.Continue && Ma(e.Right, t, n) === W.Continue) ? W.Continue : W.Stop : W.Continue;
 }
-var Pa = class {
+var Na = class {
 	toString() {
 		return this.IsLeaf ? this.Count.toString() + " " + this.UserData : this.Count.toString();
 	}
@@ -5839,40 +5846,40 @@ var Pa = class {
 		return e.intersects_rect(this.irect) ? this.IsLeaf ? this : this.Left.FirstIntersectedNode(e) ?? this.Right.FirstIntersectedNode(e) : null;
 	}
 	FirstHitNodeWithPredicate(e, t) {
-		return this.irect.contains_point(e) ? this.IsLeaf ? t(e, this.UserData) === U.Stop ? this : null : this.Left.FirstHitNodeWithPredicate(e, t) ?? this.Right.FirstHitNodeWithPredicate(e, t) : null;
+		return this.irect.contains_point(e) ? this.IsLeaf ? t(e, this.UserData) === W.Stop ? this : null : this.Left.FirstHitNodeWithPredicate(e, t) ?? this.Right.FirstHitNodeWithPredicate(e, t) : null;
 	}
 	FirstHitByRectWithPredicate(e, t) {
-		return this.irect.intersects_rect(e) ? this.IsLeaf ? t(this.UserData) === U.Stop ? this : null : this.Left.FirstHitByRectWithPredicate(e, t) ?? this.Right.FirstHitByRectWithPredicate(e, t) : null;
+		return this.irect.intersects_rect(e) ? this.IsLeaf ? t(this.UserData) === W.Stop ? this : null : this.Left.FirstHitByRectWithPredicate(e, t) ?? this.Right.FirstHitByRectWithPredicate(e, t) : null;
 	}
 	FirstHitNode(e) {
 		return this.irect.contains_point(e) ? this.IsLeaf ? this : this.Left.FirstHitNode(e) ?? this.Right.FirstHitNode(e) : null;
 	}
 	*AllHitItems(e, t = null) {
-		let n = new H.Stack();
+		let n = new U.Stack();
 		for (n.push(this); n.size > 0;) {
 			let r = n.pop();
 			r.irect.intersects_rect(e) && (r.IsLeaf ? (t == null || t(r.UserData)) && (yield r.UserData) : (n.push(r.left), n.push(r.right)));
 		}
 	}
 	*AllHitItems_(e) {
-		let t = new H.Stack();
+		let t = new U.Stack();
 		for (t.push(this); t.size > 0;) {
 			let n = t.pop();
 			n.irect.contains_point(e) && (n.IsLeaf ? yield n.UserData : (t.push(n.left), t.push(n.right)));
 		}
 	}
 	VisitTree(e, t) {
-		Na(this, e, t);
+		Ma(this, e, t);
 	}
 	Clone() {
-		let e = ja(this.Count);
+		let e = Aa(this.Count);
 		return e.UserData = this.UserData, e.irect = this.irect, this.Left != null && (e.Left = this.Left.Clone()), this.Right != null && (e.Right = this.Right.Clone()), e;
 	}
 	*GetNodeItemsIntersectingRectangle(e) {
 		for (let t of this.GetLeafRectangleNodesIntersectingRectangle(e)) yield t.UserData;
 	}
 	*GetLeafRectangleNodesIntersectingRectangle(e) {
-		let t = new H.Stack();
+		let t = new U.Stack();
 		for (t.push(this); t.size > 0;) {
 			let n = t.pop();
 			n.irect.intersects_rect(e) && (n.IsLeaf ? yield n : (t.push(n.left), t.push(n.right)));
@@ -5885,7 +5892,7 @@ var Pa = class {
 		for (let e of this.EnumRectangleNodes(!0)) yield e;
 	}
 	*EnumRectangleNodes(e) {
-		let t = new H.Stack();
+		let t = new U.Stack();
 		for (t.push(this); t.size > 0;) {
 			let n = t.pop();
 			(n.IsLeaf || !e) && (yield n), n.IsLeaf || (t.push(n.left), t.push(n.right));
@@ -5894,9 +5901,9 @@ var Pa = class {
 	TraverseHierarchy(e, t) {
 		t(e), e.Left != null && this.TraverseHierarchy(e.Left, t), e.Right != null && this.TraverseHierarchy(e.Right, t);
 	}
-}, Fa = class {
+}, Pa = class {
 	constructor(e, t) {
-		$i(e, t) < 0 ? (this._first = e, this._second = t) : (this._first = t, this._second = e);
+		Zi(e, t) < 0 ? (this._first = e, this._second = t) : (this._first = t, this._second = e);
 	}
 	get first() {
 		return this._first;
@@ -5905,11 +5912,11 @@ var Pa = class {
 		return this._second;
 	}
 	get Length() {
-		return A(this._first, this._second);
+		return M(this._first, this._second);
 	}
 	CompareTo(e) {
-		let t = $i(this._first, e._first);
-		return t === 0 ? $i(this._second, e._second) : t;
+		let t = Zi(this._first, e._first);
+		return t === 0 ? Zi(this._second, e._second) : t;
 	}
 	static equal(e, t) {
 		return e._first.equal(t._first) && e._second.equal(t._second);
@@ -5917,7 +5924,7 @@ var Pa = class {
 	toString() {
 		return this._first + (" " + this._second);
 	}
-}, G = class e {
+}, Fa = class e {
 	delete(e) {
 		return this.deletexy(e.x, e.y);
 	}
@@ -5962,7 +5969,7 @@ var Pa = class {
 		return this.values();
 	}
 	*values() {
-		for (let e of this.mapOfSets) for (let t of e[1]) yield new j(e[0], t);
+		for (let e of this.mapOfSets) for (let t of e[1]) yield new N(e[0], t);
 	}
 	[Symbol.iterator]() {
 		return this.values();
@@ -5976,7 +5983,7 @@ function Ia(e, t) {
 	return n;
 }
 function La(e, t) {
-	let n = new G();
+	let n = new Fa();
 	for (let r of e) t.has(r) || n.add(r);
 	return n;
 }
@@ -6026,14 +6033,14 @@ function qa(e, t, n) {
 	r || (r = /* @__PURE__ */ new Set(), e.set(t, r)), r.add(n);
 }
 function Ja(e, t, n) {
-	qa(e, new Fa(t[0], t[1]), n);
+	qa(e, new Pa(t[0], t[1]), n);
 }
 function Ya(e, t, n) {
 	let r = e.get(t);
 	r && r.delete(n);
 }
 function Xa(e, t, n) {
-	Ya(e, new Fa(t[0], t[1]), n);
+	Ya(e, new Pa(t[0], t[1]), n);
 }
 //#endregion
 //#region ../node_modules/@msagl/core/dist/utils/assert.js
@@ -6398,7 +6405,7 @@ function io(e, t) {
 }
 //#endregion
 //#region ../node_modules/@msagl/core/dist/layout/core/geomNode.js
-var ao = class e extends T {
+var ao = class e extends D {
 	clone() {
 		let t = new e(null);
 		return this.boundaryCurve && (t.boundaryCurve = this.boundaryCurve.clone()), t;
@@ -6416,7 +6423,7 @@ var ao = class e extends T {
 		return this._boundaryCurve;
 	}
 	set boundaryCurve(t) {
-		t != null && t.boundingBox && (t.boundingBox.height < e.minHeight || t.boundingBox.width < e.minWidth) && (t = Sa.mkCircle(e.minWidth, t.boundingBox.center)), this._boundaryCurve = t;
+		t != null && t.boundingBox && (t.boundingBox.height < e.minHeight || t.boundingBox.width < e.minWidth) && (t = xa.mkCircle(e.minWidth, t.boundingBox.center)), this._boundaryCurve = t;
 	}
 	get id() {
 		return this.node.id;
@@ -6437,24 +6444,24 @@ var ao = class e extends T {
 	}
 	fitBoundaryCurveToTarget(e) {
 		if (this.boundaryCurve != null) {
-			let t = Sa.isRoundedRect(this.boundaryCurve);
+			let t = xa.isRoundedRect(this.boundaryCurve);
 			if (t == null) {
 				let t = e.width / this.boundaryCurve.boundingBox.width, n = e.height / this.boundaryCurve.boundingBox.height;
 				this.boundaryCurve = this.boundaryCurve.scaleFromOrigin(t, n), this.boundaryCurve.translate(e.center.sub(this.boundaryCurve.boundingBox.center));
-			} else this.boundaryCurve = Sa.mkRectangleWithRoundedCorners(e.width, e.height, t.radX, t.radY, e.center);
+			} else this.boundaryCurve = xa.mkRectangleWithRoundedCorners(e.width, e.height, t.radX, t.radY, e.center);
 		}
 	}
 	static getGeom(e) {
-		return e.getAttr(Xi.GeomObjectIndex);
+		return e.getAttr(Ji.GeomObjectIndex);
 	}
 	*inEdges() {
-		for (let e of this.node.inEdges) yield T.getGeom(e);
+		for (let e of this.node.inEdges) yield D.getGeom(e);
 	}
 	*outEdges() {
-		for (let e of this.node.outEdges) yield T.getGeom(e);
+		for (let e of this.node.outEdges) yield D.getGeom(e);
 	}
 	*selfEdges() {
-		for (let e of this.node.selfEdges) yield T.getGeom(e);
+		for (let e of this.node.selfEdges) yield D.getGeom(e);
 	}
 	get boundingBox() {
 		return this.boundaryCurve ? this.boundaryCurve.boundingBox : null;
@@ -6474,11 +6481,11 @@ var ao = class e extends T {
 	underCollapsedGraph() {
 		let e = this.node.parent;
 		if (e == null) return !1;
-		let t = T.getGeom(e);
+		let t = D.getGeom(e);
 		return t == null ? !1 : t.isCollapsed ? !0 : t.underCollapsedGraph();
 	}
 	*getAncestors() {
-		for (let e of this.node.getAncestors()) yield T.getGeom(e);
+		for (let e of this.node.getAncestors()) yield D.getGeom(e);
 	}
 };
 ao.minHeight = 2, ao.minWidth = 3;
@@ -6565,11 +6572,11 @@ var co = class extends q {
 	}
 	Pack() {
 		this.PackedWidth = 0, this.PackedHeight = 0;
-		let e = new H.Stack(), t = !1, n = 0, r = 0, i = 0, a = this.rectanglesByDescendingHeight;
+		let e = new U.Stack(), t = !1, n = 0, r = 0, i = 0, a = this.rectanglesByDescendingHeight;
 		for (let o = 0; t || o < a.length;) {
 			let s = a[o], c = e.length > 0 ? e.top : null;
 			if (c == null || c.right + s.width <= this.wrapWidth && n + s.height <= c.top) {
-				let a = new j(c ? c.right : 0, n).add(new j(s.width / 2, s.height / 2));
+				let a = new N(c ? c.right : 0, n).add(new N(s.width / 2, s.height / 2));
 				s.center = a, this.rectsToCenters.set(s, a), r = Math.max(r, s.right), i = Math.max(i, s.top), e.push(s), t = !1;
 			} else n = c.top, e.pop(), t = !0;
 			t || o++;
@@ -6592,7 +6599,7 @@ var co = class extends q {
 //#endregion
 //#region ../node_modules/@msagl/core/dist/math/geometry/RTree/rTree.js
 function fo(e) {
-	return new yo(W(e.map(([e, t]) => Ma(t, e))));
+	return new yo(G(e.map(([e, t]) => ja(t, e))));
 }
 function po(e, t) {
 	e.UserData = t.UserData, e.Left = t.Left, e.Right = t.Right, e.Count--, e.irect = t.irect;
@@ -6603,7 +6610,7 @@ function mo(e) {
 function ho(e, t) {
 	let n = [];
 	for (let r of e.GetAllLeafNodes()) r !== t && n.push(r);
-	let r = W(n);
+	let r = G(n);
 	e.Count = r.Count, e.Left = r.Left, e.Right = r.Right, e.irect = r.Left.irect.add_rect(r.Right.irect);
 }
 function go(e) {
@@ -6639,16 +6646,16 @@ var yo = class {
 		return this._rootNode == null ? 0 : this._rootNode.Count;
 	}
 	Add(e, t) {
-		this.AddNode(Ma(t, e));
+		this.AddNode(ja(t, e));
 	}
 	AddNode(e) {
-		this._rootNode == null ? this._rootNode = e : this.Count <= 2 ? this._rootNode = W(Array.from(this._rootNode.GetAllLeafNodes()).concat([e])) : this.AddNodeToTreeRecursive(e, this._rootNode);
+		this._rootNode == null ? this._rootNode = e : this.Count <= 2 ? this._rootNode = G(Array.from(this._rootNode.GetAllLeafNodes()).concat([e])) : this.AddNodeToTreeRecursive(e, this._rootNode);
 	}
 	Rebuild() {
-		this._rootNode = W(Array.from(this._rootNode.GetAllLeafNodes()));
+		this._rootNode = G(Array.from(this._rootNode.GetAllLeafNodes()));
 	}
 	AddNodeToTreeRecursive(e, t) {
-		if (t.IsLeaf) t.Left = Ma(t.UserData, t.irect), t.Right = e, t.Count = 2;
+		if (t.IsLeaf) t.Left = ja(t.UserData, t.irect), t.Right = e, t.Count = 2;
 		else {
 			t.Count++;
 			let n, r;
@@ -6696,25 +6703,25 @@ var yo = class {
 		if (t != null) ho(t, e), mo(t);
 		else {
 			let t = e.Parent;
-			t == null ? this._rootNode = new Pa() : (po(t, e.IsLeftChild ? t.Right : t.Left), mo(t));
+			t == null ? this._rootNode = new Na() : (po(t, e.IsLeftChild ? t.Right : t.Left), mo(t));
 		}
 	}
 	UnbalancedNode(e) {
 		for (let t = e.Parent; t != null; t = t.Parent) if (!_o(t)) return t;
 		return null;
 	}
-}, bo = class extends R {
+}, bo = class extends z {
 	constructor(e) {
-		super(e), this.radX = e.radX, this.radY = e.radY, this.roundedRect_ = Sa.mkRectangleWithRoundedCorners(this.width, this.height, e.radX, e.radY, this.center);
+		super(e), this.radX = e.radX, this.radY = e.radY, this.roundedRect_ = xa.mkRectangleWithRoundedCorners(this.width, this.height, e.radX, e.radY, this.center);
 	}
 	onUpdated() {
-		this.isEmpty || (this.roundedRect_ = Sa.mkRectangleWithRoundedCorners(this.width, this.height, this.radX, this.radY, this.center));
+		this.isEmpty || (this.roundedRect_ = xa.mkRectangleWithRoundedCorners(this.width, this.height, this.radX, this.radY, this.center));
 	}
 	isOk() {
 		return this.isEmpty() ? !0 : this.roundedRect_.boundingBox.equalEps(this);
 	}
 	setRect(e) {
-		this.left = e.left, this.right = e.right, this.top = e.top, this.bottom = e.bottom, this.isEmpty() || (this.roundedRect_ = Sa.mkRectangleWithRoundedCorners(e.width, e.height, this.radX, this.radY, this.center));
+		this.left = e.left, this.right = e.right, this.top = e.top, this.bottom = e.bottom, this.isEmpty() || (this.roundedRect_ = xa.mkRectangleWithRoundedCorners(e.width, e.height, this.radX, this.radY, this.center));
 	}
 };
 //#endregion
@@ -6726,7 +6733,7 @@ function xo(e, t) {
 		let n = t.leftBottom.sub(e.boundingBox.leftBottom);
 		e.translate(n);
 	}
-	e.boundingBox = new R({
+	e.boundingBox = new z({
 		left: 0,
 		bottom: 0,
 		right: r.PackedWidth,
@@ -6750,7 +6757,7 @@ var So = class e extends ao {
 		return t.boundingBox = this.boundingBox.clone(), t.layoutSettings = this.layoutSettings, t.margins = this.margins, t.radX = this.radX, t.radY = this.radY, t;
 	}
 	calculateBoundsFromChildren() {
-		let e = R.mkEmpty();
+		let e = z.mkEmpty();
 		for (let t of this.shallowNodes) e.addRecSelf(t.boundingBox);
 		return e.padEverywhere(this.margins), e;
 	}
@@ -6758,13 +6765,13 @@ var So = class e extends ao {
 		for (let e of this.graph.allSuccessorsWidthFirst()) yield ao.getGeom(e);
 	}
 	static getGeom(e) {
-		return T.getGeom(e);
+		return D.getGeom(e);
 	}
 	edgeCurveOrArrowheadsIntersectRect(e, t) {
 		for (let n of e.sourceArrowheadPoints(25)) if (t.contains(n)) return !0;
 		for (let n of e.targetArrowheadPoints(25)) if (t.contains(n)) return !0;
 		let n = e.curve, r = t.perimeter();
-		return I.intersectionOne(n, r, !1) != null || I.PointRelativeToCurveLocation(n.start, r) === F.Inside;
+		return L.intersectionOne(n, r, !1) != null || L.PointRelativeToCurveLocation(n.start, r) === I.Inside;
 	}
 	isEmpty() {
 		return this.graph.isEmpty();
@@ -6808,23 +6815,23 @@ var So = class e extends ao {
 		return this.nodesBreadthFirstIter();
 	}
 	*nodesBreadthFirstIter() {
-		for (let e of this.graph.nodesBreadthFirst) yield T.getGeom(e);
+		for (let e of this.graph.nodesBreadthFirst) yield D.getGeom(e);
 	}
 	setEdge(e, t) {
-		return new Ta(this.graph.setEdge(e, t));
+		return new wa(this.graph.setEdge(e, t));
 	}
 	getPumpedGraphWithMarginsBox() {
-		let e = { b: R.mkEmpty() };
+		let e = { b: z.mkEmpty() };
 		return Co(this, e), e.b.padEverywhere(this.margins), e.b;
 	}
 	pumpTheBoxToTheGraphWithMargins() {
 		return this.boundingBox = this.getPumpedGraphWithMarginsBox();
 	}
 	get center() {
-		return this.boundingBox || this.boundingBox.isEmpty ? this.boundingBox.center : new j(0, 0);
+		return this.boundingBox || this.boundingBox.isEmpty ? this.boundingBox.center : new N(0, 0);
 	}
 	set center(e) {
-		let t = e.sub(this.center), n = new xa(1, 0, t.x, 0, 1, t.y);
+		let t = e.sub(this.center), n = new ba(1, 0, t.x, 0, 1, t.y);
 		this.transform(n);
 	}
 	get left() {
@@ -6855,21 +6862,21 @@ var So = class e extends ao {
 		return this.shallowNodes_();
 	}
 	*shallowNodes_() {
-		for (let e of this.graph.shallowNodes) yield T.getGeom(e);
+		for (let e of this.graph.shallowNodes) yield D.getGeom(e);
 	}
 	get deepEdges() {
 		return this.deepEdgesIt();
 	}
 	*deepEdgesIt() {
-		for (let e of this.graph.deepEdges) yield T.getGeom(e);
+		for (let e of this.graph.deepEdges) yield D.getGeom(e);
 	}
 	get shallowEdges() {
 		return this.shallowEdgesIt();
 	}
 	*shallowEdgesIt() {
-		for (let e of this.graph.shallowEdges) yield T.getGeom(e);
+		for (let e of this.graph.shallowEdges) yield D.getGeom(e);
 	}
-	static mk(t, n = new va(0, 0)) {
+	static mk(t, n = new _a(0, 0)) {
 		let r = new e(new to(t));
 		return r.labelSize = n, r;
 	}
@@ -6877,7 +6884,7 @@ var So = class e extends ao {
 		return this.subgraphs();
 	}
 	*subgraphs() {
-		for (let e of this.graph.subgraphsBreadthFirst()) yield T.getGeom(e);
+		for (let e of this.graph.subgraphsBreadthFirst()) yield D.getGeom(e);
 	}
 	static mkWithGraphAndLabel(t, n) {
 		let r = new e(t);
@@ -6929,11 +6936,11 @@ var So = class e extends ao {
 	}
 	liftNode(e) {
 		let t = this.graph.liftNode(e.node);
-		return t ? T.getGeom(t) : null;
+		return t ? D.getGeom(t) : null;
 	}
 	findNode(e) {
 		let t = this.graph.findNode(e);
-		return t ? T.getGeom(t) : null;
+		return t ? D.getGeom(t) : null;
 	}
 	addNode(e) {
 		return this.graph.addNode(e.node), e;
@@ -6947,7 +6954,7 @@ function Co(e, t) {
 		if (!n(r)) continue;
 		let e = r.curve.boundingBox;
 		if (t.b.addRecSelf(e), r.edge.label != null) {
-			let e = T.getGeom(r.edge.label);
+			let e = D.getGeom(r.edge.label);
 			e && t.b.addRecSelf(e.boundingBox);
 		}
 	}
@@ -7047,7 +7054,7 @@ var J = class {
 		this._curveClips = [], this.arrowheads = [], this.nodes = [], this.labels = [], this.rect = e, this._curveClips = [];
 	}
 	addCurveClip(e) {
-		K.assert(!(e.curve instanceof I), "CurveClip.curve should not be a Curve!"), this._curveClips.push(e);
+		K.assert(!(e.curve instanceof L), "CurveClip.curve should not be a Curve!"), this._curveClips.push(e);
 	}
 	isEmpty() {
 		return this._curveClips.length == 0 && this.arrowheads.length == 0 && this.nodes.length == 0 && this.labels.length == 0;
@@ -7063,8 +7070,8 @@ var J = class {
 	}
 	addElement(e) {
 		if (e instanceof ao) this.nodes.push(e);
-		else if (e instanceof wa) this.labels.push(e);
-		else if ("curve" in e) if (e.curve instanceof I) for (let t of e.curve.segs) this.addCurveClip({
+		else if (e instanceof Ca) this.labels.push(e);
+		else if ("curve" in e) if (e.curve instanceof L) for (let t of e.curve.segs) this.addCurveClip({
 			edge: e.edge,
 			curve: t,
 			startPar: t.parStart,
@@ -7155,7 +7162,7 @@ var J = class {
 	}
 }, ko = class e extends Oo {
 	static mk(t, n) {
-		return new e(t, n, new j(0, 0));
+		return new e(t, n, new N(0, 0));
 	}
 	get CenterDelegate() {
 		return this.centerDelegate;
@@ -7377,9 +7384,9 @@ var jo = class {
 		this.lineSweeper = e;
 	}
 	Compare(e, t) {
-		switch (j.getTriangleOrientation(t.Start, t.End, this.x)) {
-			case k.Collinear: return 0;
-			case k.Clockwise: return 1;
+		switch (N.getTriangleOrientation(t.Start, t.End, this.x)) {
+			case j.Collinear: return 0;
+			case j.Clockwise: return 1;
 			default: return -1;
 		}
 	}
@@ -7417,7 +7424,7 @@ var jo = class {
 		return this.z;
 	}
 	set Z(e) {
-		e > this.z + E.tolerance && (this.PreviousZ = this.z), this.z = e;
+		e > this.z + O.tolerance && (this.PreviousZ = this.z), this.z = e;
 	}
 	GetZS(e) {
 		return this.SweepDirection.dot(e.Site);
@@ -7426,7 +7433,7 @@ var jo = class {
 		return this.SweepDirection.dot(e);
 	}
 	SegmentIsNotHorizontal(e, t) {
-		return Math.abs(e.sub(t).dot(this.SweepDirection)) > E.distanceEpsilon;
+		return Math.abs(e.sub(t).dot(this.SweepDirection)) > O.distanceEpsilon;
 	}
 	RemoveLeftSide(e) {
 		this.ObstacleSideComparer.SetOperand(e), this.LeftObstacleSideTree.remove(e);
@@ -7441,11 +7448,11 @@ var jo = class {
 		this.ObstacleSideComparer.SetOperand(e), this.RightObstacleSideTree.insert(e);
 	}
 	FindFirstObstacleSideToTheLeftOfPoint(e) {
-		let t = this.RightObstacleSideTree.findLast((t) => j.pointToTheRightOfLineOrOnLine(e, t.Start, t.End));
+		let t = this.RightObstacleSideTree.findLast((t) => N.pointToTheRightOfLineOrOnLine(e, t.Start, t.End));
 		return t == null ? null : t.item;
 	}
 	FindFirstObstacleSideToToTheRightOfPoint(e) {
-		let t = this.LeftObstacleSideTree.findFirst((t) => !j.pointToTheRightOfLineOrOnLine(e, t.Start, t.End));
+		let t = this.LeftObstacleSideTree.findFirst((t) => !N.pointToTheRightOfLineOrOnLine(e, t.Start, t.End));
 		return t == null ? null : t.item;
 	}
 	EnqueueEvent(e) {
@@ -7649,7 +7656,7 @@ var jo = class {
 	};
 })))(), Bo = class e {
 	static closeuv(t, n) {
-		return j.closeDistEps(t.point, e.u, .1) && j.closeDistEps(n.point, e.v, .1);
+		return N.closeDistEps(t.point, e.u, .1) && N.closeDistEps(n.point, e.v, .1);
 	}
 	constructor(e, t, n = 1) {
 		this.LengthMultiplier = 1, this.Source = e, this.Target = t, this.Weight = n;
@@ -7673,7 +7680,7 @@ var jo = class {
 		return new e(this.Source, this.Target);
 	}
 };
-Bo.u = new j(545.833, 840.458), Bo.v = new j(606.1667261889578, 786.2917261889578), Bo.DefaultWeight = 1;
+Bo.u = new N(545.833, 840.458), Bo.v = new N(606.1667261889578, 786.2917261889578), Bo.DefaultWeight = 1;
 //#endregion
 //#region ../node_modules/@msagl/core/dist/routing/visibility/TollFreeVisibilityEdge.js
 var Vo = class e extends Bo {
@@ -7720,13 +7727,13 @@ var Vo = class e extends Bo {
 	*keys() {
 		for (let e of this.m.keys()) {
 			let t = e.split(",");
-			yield new j(Number(t[0]), Number(t[1]));
+			yield new N(Number(t[0]), Number(t[1]));
 		}
 	}
 	*[Symbol.iterator]() {
 		for (let [e, t] of this.m) {
 			let n = e.split(",");
-			yield [new j(Number(n[0]), Number(n[1])), t];
+			yield [new N(Number(n[0]), Number(n[1])), t];
 		}
 	}
 	*values() {
@@ -7831,9 +7838,9 @@ var Wo = class e {
 	}
 	static *OrientHolesClockwise(e) {
 		for (let t of e) for (let e = t.startPoint;; e = e.next) {
-			let n = j.getTriangleOrientation(e.point, e.next.point, e.next.next.point);
-			if (n !== k.Collinear) {
-				yield n === k.Clockwise ? t : t.reverse();
+			let n = N.getTriangleOrientation(e.point, e.next.point, e.next.next.point);
+			if (n !== j.Collinear) {
+				yield n === j.Clockwise ? t : t.reverse();
 				break;
 			}
 		}
@@ -8004,26 +8011,26 @@ var Wo = class e {
 		return r ? i ? this.CompareBrokenSides(t, n) : this.CompareObstacleSideAndConeSide(n) : i ? this.CompareConeSideAndObstacleSide(t, n) : e.CompareNotIntersectingSegs(t, n);
 	}
 	static CompareNotIntersectingSegs(e, t) {
-		switch (j.getTriangleOrientation(e.Start, t.Start, t.Start.add(t.Direction))) {
-			case k.Counterclockwise: return -1;
-			case k.Clockwise: return 1;
+		switch (N.getTriangleOrientation(e.Start, t.Start, t.Start.add(t.Direction))) {
+			case j.Counterclockwise: return -1;
+			case j.Clockwise: return 1;
 			default: return 0;
 		}
 	}
 	CompareObstacleSideAndConeSide(e) {
-		let t = j.getTriangleOrientation(this.x, e.Start, e.Start.add(e.Direction));
-		return t === k.Counterclockwise ? -1 : t === k.Clockwise ? 1 : e instanceof Yo ? -1 : 1;
+		let t = N.getTriangleOrientation(this.x, e.Start, e.Start.add(e.Direction));
+		return t === j.Counterclockwise ? -1 : t === j.Clockwise ? 1 : e instanceof Yo ? -1 : 1;
 	}
 	CompareConeSideAndObstacleSide(e, t) {
-		let n = j.getTriangleOrientation(this.x, t.start, t.End);
-		return n === k.Counterclockwise ? -1 : n === k.Clockwise || e instanceof Yo ? 1 : -1;
+		let n = N.getTriangleOrientation(this.x, t.start, t.End);
+		return n === j.Counterclockwise ? -1 : n === j.Clockwise || e instanceof Yo ? 1 : -1;
 	}
 	IntersectionOfSegmentAndSweepLine(e) {
 		let t = e.Direction.dot(this.coneSweeper.SweepDirection), n = (this.coneSweeper.Z - e.Start.dot(this.coneSweeper.SweepDirection)) / t;
 		return e.Start.add(e.Direction.mul(n));
 	}
 	CompareBrokenSides(t, n) {
-		return t.EndVertex === n.EndVertex ? e.CompareNotIntersectingSegs(t.ConeSide, n.ConeSide) : j.getTriangleOrientation(this.x, n.start, n.EndVertex.point) === k.Counterclockwise ? -1 : 1;
+		return t.EndVertex === n.EndVertex ? e.CompareNotIntersectingSegs(t.ConeSide, n.ConeSide) : N.getTriangleOrientation(this.x, n.start, n.EndVertex.point) === j.Counterclockwise ? -1 : 1;
 	}
 }, Qo = class extends No {
 	get EndVertex() {
@@ -8129,20 +8136,20 @@ var Wo = class e {
 	}
 	GetPolylinePointInsideOfConeAndRemoveCones(t, n) {
 		let r = t.nextOnPolyline, i = e.FindInsidePoint(t.point, r.point, n);
-		return j.closeDistEps(i, t.point) ? (this.AddEdgeAndRemoveCone(n, t.point), this.AddEdgesAndRemoveRemainingConesByPoint(t.point)) : j.closeDistEps(i, r.point) ? (this.AddEdgeAndRemoveCone(n, r.point), this.AddEdgesAndRemoveRemainingConesByPoint(r.point), t = r) : (t = e.InsertPointIntoPolylineAfter(this.BorderPolyline, t, i), this.AddEdgeAndRemoveCone(n, t.point), this.AddEdgesAndRemoveRemainingConesByPoint(t.point)), t;
+		return N.closeDistEps(i, t.point) ? (this.AddEdgeAndRemoveCone(n, t.point), this.AddEdgesAndRemoveRemainingConesByPoint(t.point)) : N.closeDistEps(i, r.point) ? (this.AddEdgeAndRemoveCone(n, r.point), this.AddEdgesAndRemoveRemainingConesByPoint(r.point), t = r) : (t = e.InsertPointIntoPolylineAfter(this.BorderPolyline, t, i), this.AddEdgeAndRemoveCone(n, t.point), this.AddEdgesAndRemoveRemainingConesByPoint(t.point)), t;
 	}
 	static FindInsidePoint(t, n, r) {
 		return e.FindInsidePointBool(t, n, r.Apex, r.Apex.add(r.LeftSideDirection), r.Apex.add(r.RightSideDirection));
 	}
 	static FindInsidePointBool(t, n, r, i, a) {
-		if (j.closeDistEps(t, n) || j.PointIsInsideCone(t, r, i, a)) return t;
-		if (j.PointIsInsideCone(n, r, i, a)) return n;
-		let o = j.middle(t, n);
-		return j.pointToTheLeftOfLine(o, r, i) ? e.FindInsidePointBool(o, n, r, i, a) : e.FindInsidePointBool(t, o, r, i, a);
+		if (N.closeDistEps(t, n) || N.PointIsInsideCone(t, r, i, a)) return t;
+		if (N.PointIsInsideCone(n, r, i, a)) return n;
+		let o = N.middle(t, n);
+		return N.pointToTheLeftOfLine(o, r, i) ? e.FindInsidePointBool(o, n, r, i, a) : e.FindInsidePointBool(t, o, r, i, a);
 	}
 	AddEdgesAndRemoveRemainingConesByPoint(e) {
 		let t = [];
-		for (let n of this.leftConeSides) if (j.PointToTheRightOfLineOrOnLine(e, n.Start, n.Start.add(n.Direction))) t.push(n.Cone);
+		for (let n of this.leftConeSides) if (N.PointToTheRightOfLineOrOnLine(e, n.Start, n.Start.add(n.Direction))) t.push(n.Cone);
 		else break;
 		for (let n of t) this.AddEdgeAndRemoveCone(n, e);
 	}
@@ -8155,7 +8162,7 @@ var Wo = class e {
 		}
 	}
 	static GetSign(e, t, n) {
-		let r = j.signedDoubledTriangleArea(t, n, e.point);
+		let r = N.signedDoubledTriangleArea(t, n, e.point);
 		return r < 0 ? 1 : r > 0 ? -1 : 0;
 	}
 	AddEdgeAndRemoveCone(e, t) {
@@ -8172,7 +8179,7 @@ var Wo = class e {
 	}
 	static InsertPointIntoPolylineAfter(e, t, n) {
 		let r;
-		return t.next == null ? (r = na.mkFromPoint(n), r.prev = t, t.next = r, e.endPoint = r) : (r = na.mkFromPoint(n), r.prev = t, r.next = t.next, t.next.prev = r, t.next = r), r.polyline = e, e.setInitIsRequired(), r;
+		return t.next == null ? (r = ea.mkFromPoint(n), r.prev = t, t.next = r, e.endPoint = r) : (r = ea.mkFromPoint(n), r.prev = t, r.next = t.next, t.next.prev = r, t.next = r), r.polyline = e, e.setInitIsRequired(), r;
 	}
 	ProcessEvent(e) {
 		e instanceof Po ? this.ProcessVertexEvent(e) : e instanceof rs ? this.ProcessRightIntersectionEvent(e) : e instanceof Qo ? this.ProcessLeftIntersectionEvent(e) : (e instanceof Jo ? e.ConeToClose.Removed || this.RemoveCone(e.ConeToClose) : this.ProcessPortObstacleEvent(e), this.Z = this.GetZS(e));
@@ -8181,7 +8188,7 @@ var Wo = class e {
 		this.Z = this.GetZS(e), this.GoOverConesSeeingVertexEvent(e), this.CreateConeOnVertex(e);
 	}
 	ProcessLeftIntersectionEvent(e) {
-		if (e.coneLeftSide.Removed === !1) if (Math.abs(e.EndVertex.point.sub(e.Site).dot(this.SweepDirection)) < E.distanceEpsilon) this.RemoveCone(e.coneLeftSide.Cone);
+		if (e.coneLeftSide.Removed === !1) if (Math.abs(e.EndVertex.point.sub(e.Site).dot(this.SweepDirection)) < O.distanceEpsilon) this.RemoveCone(e.coneLeftSide.Cone);
 		else {
 			this.RemoveSegFromLeftTree(e.coneLeftSide), this.Z = this.GetZP(e.Site);
 			let t = new Ko(e.Site, e.EndVertex, e.coneLeftSide);
@@ -8192,11 +8199,11 @@ var Wo = class e {
 	TryCreateConeClosureForLeftSide(e) {
 		if (e.Cone.RightSide instanceof Xo) {
 			let t = e.Cone.RightSide;
-			j.getTriangleOrientation(t.Start, t.Start.add(t.Direction), e.EndVertex.point) == k.Clockwise && this.CreateConeClosureEvent(e, t);
+			N.getTriangleOrientation(t.Start, t.Start.add(t.Direction), e.EndVertex.point) == j.Clockwise && this.CreateConeClosureEvent(e, t);
 		}
 	}
 	CreateConeClosureEvent(e, t) {
-		let n = j.RayIntersectsRayInteriors(e.start, e.Direction, t.Start, t.Direction);
+		let n = N.RayIntersectsRayInteriors(e.start, e.Direction, t.Start, t.Direction);
 		if (n) {
 			let t = new Jo(n, e.Cone);
 			this.EnqueueEvent(t);
@@ -8213,26 +8220,26 @@ var Wo = class e {
 	TryCreateConeClosureForRightSide(e) {
 		if (e.Cone.LeftSide instanceof Yo) {
 			let t = e.Cone.LeftSide;
-			j.getTriangleOrientation(t.Start, t.Start.add(t.Direction), e.EndVertex.point) == k.Counterclockwise && this.CreateConeClosureEvent(e, t);
+			N.getTriangleOrientation(t.Start, t.Start.add(t.Direction), e.EndVertex.point) == j.Counterclockwise && this.CreateConeClosureEvent(e, t);
 		}
 	}
 	RemoveConesClosedBySegment(e, t) {
 		this.CloseConesCoveredBySegment(e, t, this.GetZP(e) > this.GetZP(t) ? this.leftConeSides : this.rightConeSides);
 	}
 	CloseConesCoveredBySegment(e, t, n) {
-		let r = n.findFirst((t) => j.getTriangleOrientation(t.Start, t.Start.add(t.Direction), e) === k.Counterclockwise);
-		if (r == null || !j.IntervalIntersectsRay(e, t, r.item.Start, r.item.Direction)) return;
+		let r = n.findFirst((t) => N.getTriangleOrientation(t.Start, t.Start.add(t.Direction), e) === j.Counterclockwise);
+		if (r == null || !N.IntervalIntersectsRay(e, t, r.item.Start, r.item.Direction)) return;
 		let i = [];
 		do
 			i.push(r.item.Cone), r = n.next(r);
-		while (r != null && j.IntervalIntersectsRay(e, t, r.item.Start, r.item.Direction) !== void 0);
+		while (r != null && N.IntervalIntersectsRay(e, t, r.item.Start, r.item.Direction) !== void 0);
 		for (let e of i) this.RemoveCone(e);
 	}
 	ProcessVertexEvent(e) {
 		this.Z = this.GetZS(e), this.GoOverConesSeeingVertexEvent(e), this.AddConeAndEnqueueEvents(e);
 	}
 	static Diamond(e) {
-		return Sa.mkDiamond(2, 2, e);
+		return xa.mkDiamond(2, 2, e);
 	}
 	AddConeAndEnqueueEvents(e) {
 		if (e instanceof ns) {
@@ -8245,9 +8252,9 @@ var Wo = class e {
 	}
 	CloseConesAddConeAtRightVertex(e, t) {
 		let n = e.Vertex.nextOnPolyline.point;
-		this.directionPerp.dot(e.Site.sub(n)) > E.distanceEpsilon && this.RemoveConesClosedBySegment(n, e.Vertex.point), this.directionPerp.dot(t.point.sub(e.Site)) > E.distanceEpsilon && this.RemoveConesClosedBySegment(e.Site, t.point);
+		this.directionPerp.dot(e.Site.sub(n)) > O.distanceEpsilon && this.RemoveConesClosedBySegment(n, e.Vertex.point), this.directionPerp.dot(t.point.sub(e.Site)) > O.distanceEpsilon && this.RemoveConesClosedBySegment(e.Site, t.point);
 		let r = e.Site, i = r.add(this.ConeLeftSideDirection), a = r.add(this.ConeRightSideDirection), o = t.point;
-		this.GetZP(r.sub(n)) > E.distanceEpsilon && this.RemoveRightSide(new is(e.Vertex.nextOnPolyline)), this.GetZP(r.sub(t.point)) > E.distanceEpsilon && this.RemoveLeftSide(new ts(t)), this.GetZP(o) + E.distanceEpsilon < this.GetZS(e) && this.CreateConeOnVertex(e), j.PointToTheRightOfLineOrOnLine(o, r, i) ? j.PointToTheLeftOfLineOrOnLine(o, r, a) ? this.CaseToTheLeftOfLineOrOnLineConeRp(e, t) : (this.GetZP(o.sub(r)) > E.distanceEpsilon && (this.LookForIntersectionOfObstacleSideAndLeftConeSide(e.Site, t), this.InsertRightSide(new is(e.Vertex))), this.EnqueueRightVertexEvent(new as(t))) : (this.CreateConeOnVertex(e), j.PointToTheLeftOfLineOrOnLine(o.add(this.DirectionPerp), o, r) && this.EnqueueRightVertexEvent(new as(t)));
+		this.GetZP(r.sub(n)) > O.distanceEpsilon && this.RemoveRightSide(new is(e.Vertex.nextOnPolyline)), this.GetZP(r.sub(t.point)) > O.distanceEpsilon && this.RemoveLeftSide(new ts(t)), this.GetZP(o) + O.distanceEpsilon < this.GetZS(e) && this.CreateConeOnVertex(e), N.PointToTheRightOfLineOrOnLine(o, r, i) ? N.PointToTheLeftOfLineOrOnLine(o, r, a) ? this.CaseToTheLeftOfLineOrOnLineConeRp(e, t) : (this.GetZP(o.sub(r)) > O.distanceEpsilon && (this.LookForIntersectionOfObstacleSideAndLeftConeSide(e.Site, t), this.InsertRightSide(new is(e.Vertex))), this.EnqueueRightVertexEvent(new as(t))) : (this.CreateConeOnVertex(e), N.PointToTheLeftOfLineOrOnLine(o.add(this.DirectionPerp), o, r) && this.EnqueueRightVertexEvent(new as(t)));
 	}
 	CaseToTheLeftOfLineOrOnLineConeRp(e, t) {
 		this.EnqueueRightVertexEvent(new as(t));
@@ -8256,12 +8263,12 @@ var Wo = class e {
 		let i = this.InsertToTree(this.rightConeSides, n.RightSide);
 		this.LookForIntersectionWithConeRightSide(i);
 		let a = this.InsertToTree(this.leftConeSides, n.LeftSide);
-		this.FixConeLeftSideIntersections(r, a), this.GetZP(t.point.sub(e.Site)) > E.distanceEpsilon && this.InsertRightSide(new is(e.Vertex));
+		this.FixConeLeftSideIntersections(r, a), this.GetZP(t.point.sub(e.Site)) > O.distanceEpsilon && this.InsertRightSide(new is(e.Vertex));
 	}
 	LookForIntersectionOfObstacleSideAndRightConeSide(e, t) {
 		let n = this.GetLastNodeToTheLeftOfPointInRightSegmentTree(e);
 		if (n != null && n.item instanceof Xo) {
-			let r = j.IntervalIntersectsRay(e, t.point, n.item.Start, this.ConeRightSideDirection);
+			let r = N.IntervalIntersectsRay(e, t.point, n.item.Start, this.ConeRightSideDirection);
 			r && this.SegmentIsNotHorizontal(r, t.point) && this.EnqueueEvent(this.CreateRightIntersectionEvent(n.item, r, t));
 		}
 	}
@@ -8274,24 +8281,24 @@ var Wo = class e {
 	LookForIntersectionOfObstacleSideAndLeftConeSide(e, t) {
 		let n = this.GetFirstNodeToTheRightOfPoint(e);
 		if (n == null || !(n.item instanceof Yo)) return;
-		let r = n.item, i = j.IntervalIntersectsRay(e, t.point, r.Start, this.ConeLeftSideDirection);
+		let r = n.item, i = N.IntervalIntersectsRay(e, t.point, r.Start, this.ConeLeftSideDirection);
 		i && this.EnqueueEvent(new Qo(r, i, t));
 	}
 	GetFirstNodeToTheRightOfPoint(t) {
 		return this.leftConeSides.findFirst((n) => e.PointIsToTheLeftOfSegment(t, n));
 	}
 	static PointIsToTheLeftOfSegment(e, t) {
-		return j.getTriangleOrientation(t.Start, t.Start.add(t.Direction), e) === k.Counterclockwise;
+		return N.getTriangleOrientation(t.Start, t.Start.add(t.Direction), e) === j.Counterclockwise;
 	}
 	static PointIsToTheRightOfSegment(e, t) {
-		return j.getTriangleOrientation(t.Start, t.Start.add(t.Direction), e) === k.Clockwise;
+		return N.getTriangleOrientation(t.Start, t.Start.add(t.Direction), e) === j.Clockwise;
 	}
 	FixConeLeftSideIntersections(e, t) {
 		do
 			t = this.leftConeSides.next(t);
-		while (t != null && j.PointToTheRightOfLineOrOnLine(e.Start, t.item.Start, t.item.Start.add(t.item.Direction)));
+		while (t != null && N.PointToTheRightOfLineOrOnLine(e.Start, t.item.Start, t.item.Start.add(t.item.Direction)));
 		if (t != null && t.item instanceof Yo) {
-			let n = t.item, r = j.IntervalIntersectsRay(e.start, e.End, n.Start, n.Direction);
+			let n = t.item, r = N.IntervalIntersectsRay(e.start, e.End, n.Start, n.Direction);
 			r && this.EnqueueEvent(new Qo(n, r, e.EndVertex));
 		}
 	}
@@ -8300,21 +8307,21 @@ var Wo = class e {
 	}
 	CloseConesAddConeAtLeftVertex(e, t) {
 		let n = e.Vertex.prevOnPolyline.point;
-		e.Site.sub(n).dot(this.directionPerp) < -E.distanceEpsilon && this.RemoveConesClosedBySegment(e.Site, n), t.point.sub(e.Site).dot(this.directionPerp) < -E.distanceEpsilon && this.RemoveConesClosedBySegment(t.point, e.Site);
+		e.Site.sub(n).dot(this.directionPerp) < -O.distanceEpsilon && this.RemoveConesClosedBySegment(e.Site, n), t.point.sub(e.Site).dot(this.directionPerp) < -O.distanceEpsilon && this.RemoveConesClosedBySegment(t.point, e.Site);
 		let r = e.Site, i = r.add(this.ConeLeftSideDirection), a = r.add(this.ConeRightSideDirection), o = t.point;
-		this.GetZP(r.sub(n)) > E.distanceEpsilon && this.RemoveLeftSide(new ts(e.Vertex.prevOnPolyline));
+		this.GetZP(r.sub(n)) > O.distanceEpsilon && this.RemoveLeftSide(new ts(e.Vertex.prevOnPolyline));
 		let s = this.GetZP(o) - this.Z;
-		s < -E.distanceEpsilon && this.RemoveRightSide(new is(t));
+		s < -O.distanceEpsilon && this.RemoveRightSide(new is(t));
 		let c = o.sub(e.Site);
-		if (s < -E.distanceEpsilon || O(s, 0) && this.GetZP(c) > 0 && c.dot(this.directionPerp) > -E.distanceEpsilon) this.CreateConeOnVertex(e);
-		else if (!j.PointToTheLeftOfLineOrOnLine(o, r, a)) this.CreateConeOnVertex(e), this.EnqueueEvent(new ns(t));
-		else if (j.PointToTheLeftOfLineOrOnLine(o, r, i)) this.EnqueueEvent(new ns(t)), this.GetZP(c) > E.distanceEpsilon && (this.LookForIntersectionOfObstacleSideAndRightConeSide(e.Site, t), this.InsertLeftSide(new ts(e.Vertex)));
+		if (s < -O.distanceEpsilon || A(s, 0) && this.GetZP(c) > 0 && c.dot(this.directionPerp) > -O.distanceEpsilon) this.CreateConeOnVertex(e);
+		else if (!N.PointToTheLeftOfLineOrOnLine(o, r, a)) this.CreateConeOnVertex(e), this.EnqueueEvent(new ns(t));
+		else if (N.PointToTheLeftOfLineOrOnLine(o, r, i)) this.EnqueueEvent(new ns(t)), this.GetZP(c) > O.distanceEpsilon && (this.LookForIntersectionOfObstacleSideAndRightConeSide(e.Site, t), this.InsertLeftSide(new ts(e.Vertex)));
 		else {
 			this.EnqueueEvent(new ns(t));
 			let n = new qo(e.Vertex.point, this), r = new Ko(e.Vertex.point, t, new Xo(n));
 			n.RightSide = r, n.LeftSide = new Yo(n), this.LookForIntersectionWithConeLeftSide(this.InsertToTree(this.leftConeSides, n.LeftSide));
 			let i = this.InsertToTree(this.rightConeSides, r);
-			this.FixConeRightSideIntersections(r, i), this.GetZP(c) > E.distanceEpsilon && this.InsertLeftSide(new ts(e.Vertex));
+			this.FixConeRightSideIntersections(r, i), this.GetZP(c) > O.distanceEpsilon && this.InsertLeftSide(new ts(e.Vertex));
 		}
 	}
 	RemoveCone(e) {
@@ -8337,12 +8344,12 @@ var Wo = class e {
 	FixConeRightSideIntersections(e, t) {
 		do
 			t = this.rightConeSides.previous(t);
-		while (t != null && j.PointToTheLeftOfLineOrOnLine(e.start, t.item.Start, t.item.Start.add(t.item.Direction)));
+		while (t != null && N.PointToTheLeftOfLineOrOnLine(e.start, t.item.Start, t.item.Start.add(t.item.Direction)));
 		if (t != null) {
 			let n;
 			if (t.item instanceof Xo) {
 				let r = t.item;
-				(n = j.IntervalIntersectsRay(e.start, e.End, r.Start, r.Direction)) && this.EnqueueEvent(this.CreateRightIntersectionEvent(r, n, e.EndVertex));
+				(n = N.IntervalIntersectsRay(e.start, e.End, r.Start, r.Direction)) && this.EnqueueEvent(this.CreateRightIntersectionEvent(r, n, e.EndVertex));
 			}
 		}
 	}
@@ -8371,24 +8378,24 @@ var Wo = class e {
 		}
 	}
 	TryIntersectionOfConeRightSideAndObstacleConeSide(e, t) {
-		let n = j.IntervalIntersectsRay(t.start, t.End, e.Start, e.Direction);
+		let n = N.IntervalIntersectsRay(t.start, t.End, e.Start, e.Direction);
 		n && this.EnqueueEvent(this.CreateRightIntersectionEvent(e, n, t.EndVertex));
 	}
 	TryIntersectionOfConeRightSideAndObstacleSide(e, t) {
-		let n = j.IntervalIntersectsRay(t.Start, t.End, e.Start, e.Direction);
+		let n = N.IntervalIntersectsRay(t.Start, t.End, e.Start, e.Direction);
 		n && this.EnqueueEvent(this.CreateRightIntersectionEvent(e, n, t.EndVertex));
 	}
 	TryIntersectionOfConeLeftSideAndObstacleConeSide(e, t) {
-		let n = j.IntervalIntersectsRay(t.start, t.End, e.Start, e.Direction);
+		let n = N.IntervalIntersectsRay(t.start, t.End, e.Start, e.Direction);
 		n && this.EnqueueEvent(new Qo(e, n, t.EndVertex));
 	}
 	TryIntersectionOfConeLeftSideAndObstacleSide(e, t) {
-		let n = j.IntervalIntersectsRay(t.Start, t.End, e.Start, e.Direction);
+		let n = N.IntervalIntersectsRay(t.Start, t.End, e.Start, e.Direction);
 		n && this.EnqueueEvent(new Qo(e, n, t.EndVertex));
 	}
 	ExtendSegmentToZ(e) {
 		let t = e.Direction.dot(this.SweepDirection), n = (this.Z + 40 - e.Start.dot(this.SweepDirection)) / t;
-		return N.mkPP(e.Start, e.Start.add(e.Direction.mul(n)));
+		return P.mkPP(e.Start, e.Start.add(e.Direction.mul(n)));
 	}
 	GoOverConesSeeingVertexEvent(t) {
 		let n = this.FindFirstSegmentInTheRightTreeNotToTheLeftOfVertex(t);
@@ -8411,16 +8418,16 @@ var Wo = class e {
 		return null;
 	}
 	static VertexIsToTheLeftOfSegment(e, t) {
-		return j.getTriangleOrientation(t.Start, t.Start.add(t.Direction), e.Site) === k.Counterclockwise;
+		return N.getTriangleOrientation(t.Start, t.Start.add(t.Direction), e.Site) === j.Counterclockwise;
 	}
 	static VertexIsToTheRightOfSegment(e, t) {
-		return j.getTriangleOrientation(t.Start, t.Start.add(t.Direction), e.Site) === k.Clockwise;
+		return N.getTriangleOrientation(t.Start, t.Start.add(t.Direction), e.Site) === j.Clockwise;
 	}
 	FindFirstSegmentInTheRightTreeNotToTheLeftOfVertex(t) {
 		return this.rightConeSides.findFirst((n) => !e.VertexIsToTheRightOfSegment(t, n));
 	}
 	EnqueueRightVertexEvent(e) {
-		this.GetZP(e.Site.sub(e.Vertex.prevOnPolyline.point)) > E.tolerance || this.EnqueueEvent(e);
+		this.GetZP(e.Site.sub(e.Vertex.prevOnPolyline.point)) > O.tolerance || this.EnqueueEvent(e);
 	}
 	invariant() {
 		for (let e of this.leftConeSides) if (e.Removed) return !1;
@@ -8429,7 +8436,7 @@ var Wo = class e {
 	}
 }, ss = class e extends q {
 	constructor(e, t) {
-		super(null), this.coneAngle = Math.PI / 6, this.ports = new G(), this._obstacles = Array.from(X.OrientHolesClockwise(e)), this._visibilityGraph = t;
+		super(null), this.coneAngle = Math.PI / 6, this.ports = new Fa(), this._obstacles = Array.from(X.OrientHolesClockwise(e)), this._visibilityGraph = t;
 	}
 	static mk(t, n, r, i, a) {
 		let o = new e(t, n);
@@ -8467,16 +8474,16 @@ var Wo = class e {
 		if (this.Bidirectional) this.HandleBideractionalCase();
 		else {
 			let t;
-			for (let n = 0; (t = this.coneAngle * n) <= e; n++) super.ProgressStep(), this.AddDirection(new j(Math.cos(t), Math.sin(t)), this.BorderPolyline, this._visibilityGraph);
+			for (let n = 0; (t = this.coneAngle * n) <= e; n++) super.ProgressStep(), this.AddDirection(new N(Math.cos(t), Math.sin(t)), this.BorderPolyline, this._visibilityGraph);
 		}
 	}
 	HandleBideractionalCase() {
 		let e = Math.PI / this.coneAngle;
 		for (let t = 0; t < e; t++) {
 			let e = t * this.coneAngle, n = new X();
-			this.AddDirection(new j(Math.cos(e), Math.sin(e)), this.BorderPolyline, n);
+			this.AddDirection(new N(Math.cos(e), Math.sin(e)), this.BorderPolyline, n);
 			let r = new X();
-			this.AddDirection(new j(Math.cos(e) * -1, Math.sin(e) * -1), this.BorderPolyline, r), this.AddIntersectionOfBothDirectionSweepsToTheResult(n, r);
+			this.AddDirection(new N(Math.cos(e) * -1, Math.sin(e) * -1), this.BorderPolyline, r), this.AddIntersectionOfBothDirectionSweepsToTheResult(n, r);
 		}
 	}
 	AddIntersectionOfBothDirectionSweepsToTheResult(e, t) {
@@ -8521,7 +8528,7 @@ var Wo = class e {
 	set LoosePolyline(e) {
 		this.loosePolyline = e;
 	}
-	constructor(e, t, n = new j(0, 0)) {
+	constructor(e, t, n = new N(0, 0)) {
 		super(e, t, n);
 	}
 	static mk(t, n) {
@@ -8695,10 +8702,10 @@ var fs = class extends Eo {
 };
 function ms(e) {
 	let t = e.node.parent;
-	return T.getGeom(t);
+	return D.getGeom(t);
 }
 function* hs(e) {
-	for (let t of e.graph.shallowNodes) yield T.getGeom(t);
+	for (let t of e.graph.shallowNodes) yield D.getGeom(t);
 }
 //#endregion
 //#region ../node_modules/@msagl/core/dist/math/geometry/convexHull.js
@@ -8707,7 +8714,7 @@ var gs = class e {
 		this.stamp = 0, this.SetPivotAndAllocateHullPointsArray(e);
 	}
 	SetPivotAndAllocateHullPointsArray(e) {
-		this.pivot = new j(0, 2 ** 53 - 1);
+		this.pivot = new N(0, 2 ** 53 - 1);
 		let t = -1, n = 0;
 		for (let r of e) (r.y < this.pivot.y || r.y === this.pivot.y && r.x > this.pivot.x) && (this.pivot = r, t = n), n++;
 		if (n >= 1) {
@@ -8753,7 +8760,7 @@ var gs = class e {
 		for (; this.StackHasMoreThanTwoPoints() && !this.LeftTurnToPivot();) this.Pop();
 	}
 	LeftTurnToPivot() {
-		return j.getTriangleOrientation(this.StackSecondPoint, this.StackTopPoint, this.pivot) === k.Counterclockwise;
+		return N.getTriangleOrientation(this.StackSecondPoint, this.StackTopPoint, this.pivot) === j.Counterclockwise;
 	}
 	StackHasMoreThanTwoPoints() {
 		return this.stack.next != null && this.stack.next.next != null;
@@ -8763,11 +8770,11 @@ var gs = class e {
 	}
 	LeftTurn(e) {
 		if (this.stack.next == null) return !0;
-		let t = j.getTriangleOrientationWithIntersectionEpsilon(this.StackSecondPoint, this.StackTopPoint, this.hullPoints[e].point);
-		return t === k.Counterclockwise ? !0 : t === k.Clockwise ? !1 : this.BackSwitchOverPivot(this.hullPoints[e].point);
+		let t = N.getTriangleOrientationWithIntersectionEpsilon(this.StackSecondPoint, this.StackTopPoint, this.hullPoints[e].point);
+		return t === j.Counterclockwise ? !0 : t === j.Clockwise ? !1 : this.BackSwitchOverPivot(this.hullPoints[e].point);
 	}
 	BackSwitchOverPivot(e) {
-		return this.stack.next.next == null ? this.StackTopPoint.x > this.pivot.x + E.distanceEpsilon && e.x < this.pivot.x - E.distanceEpsilon : !1;
+		return this.stack.next.next == null ? this.StackTopPoint.x > this.pivot.x + O.distanceEpsilon && e.x < this.pivot.x - O.distanceEpsilon : !1;
 	}
 	Push(e) {
 		this.stack = {
@@ -8779,7 +8786,7 @@ var gs = class e {
 		this.hullPoints.sort(_s(this.pivot));
 	}
 	static createConvexHullAsClosedPolyline(t) {
-		return L.mkClosedFromPoints(Array.from(e.CalculateConvexHull(t)));
+		return R.mkClosedFromPoints(Array.from(e.CalculateConvexHull(t)));
 	}
 };
 function _s(e) {
@@ -8787,13 +8794,13 @@ function _s(e) {
 		if (t === n) return 0;
 		if (t == null) return -1;
 		if (n == null) return 1;
-		switch (j.getTriangleOrientationWithIntersectionEpsilon(e, t.point, n.point)) {
-			case k.Counterclockwise: return -1;
-			case k.Clockwise: return 1;
-			case k.Collinear:
+		switch (N.getTriangleOrientationWithIntersectionEpsilon(e, t.point, n.point)) {
+			case j.Counterclockwise: return -1;
+			case j.Clockwise: return 1;
+			case j.Collinear:
 				let r = t.point.x - e.x, i = n.point.x - e.x;
-				if (r > E.distanceEpsilon && i < -E.distanceEpsilon) return -1;
-				if (r < -E.distanceEpsilon && i > E.distanceEpsilon) return 1;
+				if (r > O.distanceEpsilon && i < -O.distanceEpsilon) return -1;
+				if (r < -O.distanceEpsilon && i > O.distanceEpsilon) return 1;
 				let a = t.point.sub(e), o = n.point.sub(e), s = a.l1 - o.l1;
 				return s < 0 ? (t.deleted = !0, -1) : s > 0 ? (n.deleted = !0, 1) : (t.stamp > n.stamp ? t.deleted = !0 : n.deleted = !0, 0);
 		}
@@ -9057,11 +9064,11 @@ var zs = class {
 	}
 	LeftFromLineOnP(e, t, n) {
 		let r = this.P.pnt(e);
-		return this.upperBranchOnP ? j.pointToTheLeftOfLineOrOnLine(n, r, t) : j.pointToTheRightOfLineOrOnLine(n, r, t);
+		return this.upperBranchOnP ? N.pointToTheLeftOfLineOrOnLine(n, r, t) : N.pointToTheRightOfLineOrOnLine(n, r, t);
 	}
 	LeftFromLineOnQ(e, t, n) {
 		let r = this.Q.pnt(e);
-		return this.lowerBranchOnQ ? j.pointToTheLeftOfLineOrOnLine(n, r, t) : j.pointToTheRightOfLineOrOnLine(n, r, t);
+		return this.lowerBranchOnQ ? N.pointToTheLeftOfLineOrOnLine(n, r, t) : N.pointToTheRightOfLineOrOnLine(n, r, t);
 	}
 	PrevOnP(e) {
 		return this.upperBranchOnP ? this.P.Prev(e) : this.P.Next(e);
@@ -9105,7 +9112,7 @@ var zs = class {
 			q1: void 0,
 			q2: void 0
 		};
-		this.FindClosestFeatures(t), e.bisectorPivot = j.middle(t.pClosest, t.qClosest), e.bisectorRay = t.pClosest.sub(t.qClosest).rotate(Math.PI / 2), e.p1 = t.p1, e.p2 = t.p2, e.q1 = t.q1, e.q2 = t.q2;
+		this.FindClosestFeatures(t), e.bisectorPivot = N.middle(t.pClosest, t.qClosest), e.bisectorRay = t.pClosest.sub(t.qClosest).rotate(Math.PI / 2), e.p1 = t.p1, e.p2 = t.p2, e.q1 = t.q1, e.q2 = t.q2;
 	}
 	FindClosestPoints() {
 		let e = {
@@ -9130,7 +9137,7 @@ var zs = class {
 	}
 	FindClosestPoints_(e) {
 		for (; this.ChunksAreLong(e.p2, e.p1, e.q2, e.q1);) this.ShrinkChunks(e);
-		e.p1 === e.p2 ? (e.pClosest = this.P.pp(e.p2).point, e.q1 === e.q2 ? e.qClosest = this.Q.pp(e.q1).point : (e.qClosest = j.ClosestPointAtLineSegment(e.pClosest, this.Q.pp(e.q1).point, this.Q.pp(e.q2).point), j.closeDistEps(e.qClosest, this.Q.pnt(e.q1)) ? e.q2 = e.q1 : j.closeDistEps(e.qClosest, this.Q.pnt(e.q2)) && (e.q1 = e.q2))) : (e.qClosest = this.Q.pp(e.q1).point, e.pClosest = j.ClosestPointAtLineSegment(e.qClosest, this.P.pp(e.p1).point, this.P.pp(e.p2).point), j.closeDistEps(e.pClosest, this.P.pnt(e.p1)) ? e.p2 = e.p1 : j.closeDistEps(e.qClosest, this.P.pnt(e.p2)) && (e.p1 = e.p2));
+		e.p1 === e.p2 ? (e.pClosest = this.P.pp(e.p2).point, e.q1 === e.q2 ? e.qClosest = this.Q.pp(e.q1).point : (e.qClosest = N.ClosestPointAtLineSegment(e.pClosest, this.Q.pp(e.q1).point, this.Q.pp(e.q2).point), N.closeDistEps(e.qClosest, this.Q.pnt(e.q1)) ? e.q2 = e.q1 : N.closeDistEps(e.qClosest, this.Q.pnt(e.q2)) && (e.q1 = e.q2))) : (e.qClosest = this.Q.pp(e.q1).point, e.pClosest = N.ClosestPointAtLineSegment(e.qClosest, this.P.pp(e.p1).point, this.P.pp(e.p2).point), N.closeDistEps(e.pClosest, this.P.pnt(e.p1)) ? e.p2 = e.p1 : N.closeDistEps(e.qClosest, this.P.pnt(e.p2)) && (e.p1 = e.p2));
 	}
 	ChunksAreLong(e, t, n, r) {
 		let i = this.P.Module(e - t) + 1;
@@ -9150,7 +9157,7 @@ var zs = class {
 			mq: r
 		}, o)) {
 			if (t.p2 === this.P.Next(t.p1) && t.q1 === this.Q.Next(t.q2)) {
-				let e = N.minDistBetweenLineSegments(this.P.pnt(t.p1), this.P.pnt(t.p2), this.Q.pnt(t.q1), this.Q.pnt(t.q2));
+				let e = P.minDistBetweenLineSegments(this.P.pnt(t.p1), this.P.pnt(t.p2), this.Q.pnt(t.q1), this.Q.pnt(t.q2));
 				e.parab === 0 ? t.p2 = t.p1 : e.parab === 1 ? t.p1 = t.p2 : e.parcd === 0 ? t.q2 = t.q1 : e.parcd === 1 && (t.q1 = t.q2);
 				return;
 			}
@@ -9161,16 +9168,16 @@ var zs = class {
 		let s = !1;
 		if (r >= Math.PI && i >= Math.PI) {
 			let r = this.P.pp(t).point, i = this.Q.pp(n).point, a = this.P.pp(this.P.Next(t)).point;
-			j.getTriangleOrientation(r, i, this.Q.pp(0).point) === j.getTriangleOrientation(r, i, a) ? e.p1 = this.P.Next(t) : e.p2 = this.P.Prev(t), s = !0;
+			N.getTriangleOrientation(r, i, this.Q.pp(0).point) === N.getTriangleOrientation(r, i, a) ? e.p1 = this.P.Next(t) : e.p2 = this.P.Prev(t), s = !0;
 		}
 		if (a >= Math.PI && o >= Math.PI) {
 			let r = this.P.pp(t).point, i = this.Q.pp(n).point, a = this.Q.pp(this.Q.Next(n)).point;
-			j.getTriangleOrientation(r, i, this.P.pp(0).point) === j.getTriangleOrientation(r, i, a) ? e.q2 = this.Q.Next(n) : e.q1 = this.Q.Prev(n), s = !0;
+			N.getTriangleOrientation(r, i, this.P.pp(0).point) === N.getTriangleOrientation(r, i, a) ? e.q2 = this.Q.Next(n) : e.q1 = this.Q.Prev(n), s = !0;
 		}
 		return s;
 	}
 	GetAnglesAtTheMedian(e, t, n, r, i) {
-		i.a1 = j.anglePCP(r, n, this.P.pnt(this.P.Prev(e))), i.a2 = j.anglePCP(this.P.pnt(this.P.Next(e)), n, r), i.b1 = j.anglePCP(this.Q.pnt(this.Q.Next(t)), r, n), i.b2 = j.anglePCP(n, r, this.Q.pnt(this.Q.Prev(t)));
+		i.a1 = N.anglePCP(r, n, this.P.pnt(this.P.Prev(e))), i.a2 = N.anglePCP(this.P.pnt(this.P.Next(e)), n, r), i.b1 = N.anglePCP(this.Q.pnt(this.Q.Next(t)), r, n), i.b2 = N.anglePCP(n, r, this.Q.pnt(this.Q.Prev(t)));
 	}
 	OnlyOneChunkContainsExactlyTwoVertices(e, t, n) {
 		let r = e.p2 === this.P.Next(e.p1), i = e.q1 === this.Q.Next(e.q2);
@@ -9182,7 +9189,7 @@ var zs = class {
 		e.p2 = e.q1, e.q1 = r, r = e.q2, e.q2 = e.p1, e.p1 = r, r = t.mq, t.mq = t.mp, t.mp = r, r = n.a2, n.a2 = n.b1, n.b1 = r, r = n.b2, n.b2 = n.a1, n.a1 = r;
 	}
 	ProcessShortSide(e, t, n, r, i, a, o) {
-		t === e.p2 ? this.ProcessSide(e, n, r, i, o) : a <= Math.PI ? a + o >= Math.PI ? a >= Math.PI / 2 ? e.p2 = e.p1 : e.q2 = n : i >= Math.PI / 2 ? e.q1 = n : a < o && (j.canProject(this.Q.pnt(n), this.P.pp(e.p1).point, this.P.pp(e.p2).point) ? e.q1 = n : e.p1 = e.p2) : r + i <= Math.PI ? e.p1 = e.p2 : e.p2 = e.p1;
+		t === e.p2 ? this.ProcessSide(e, n, r, i, o) : a <= Math.PI ? a + o >= Math.PI ? a >= Math.PI / 2 ? e.p2 = e.p1 : e.q2 = n : i >= Math.PI / 2 ? e.q1 = n : a < o && (N.canProject(this.Q.pnt(n), this.P.pp(e.p1).point, this.P.pp(e.p2).point) ? e.q1 = n : e.p1 = e.p2) : r + i <= Math.PI ? e.p1 = e.p2 : e.p2 = e.p1;
 	}
 	SwapPq() {
 		let e = this.P;
@@ -9190,7 +9197,7 @@ var zs = class {
 	}
 	ProcessSide(e, t, n, r, i) {
 		let a = this.Q.pnt(t);
-		n <= Math.PI ? n + r >= Math.PI ? n >= Math.PI / 2 ? e.p1 = e.p2 : e.q1 = t : i >= Math.PI / 2 ? e.q2 = t : n < i && (j.canProject(a, this.P.pp(e.p1).point, this.P.pp(e.p2).point) ? e.q2 = t : e.p2 = e.p1) : (e.p2 = e.p1, r >= Math.PI ? e.q1 = t : i >= Math.PI && (e.q2 = t));
+		n <= Math.PI ? n + r >= Math.PI ? n >= Math.PI / 2 ? e.p1 = e.p2 : e.q1 = t : i >= Math.PI / 2 ? e.q2 = t : n < i && (N.canProject(a, this.P.pp(e.p1).point, this.P.pp(e.p2).point) ? e.q2 = t : e.p2 = e.p1) : (e.p2 = e.p1, r >= Math.PI ? e.q1 = t : i >= Math.PI && (e.q2 = t));
 	}
 	static OneOfChunksContainsOnlyOneVertex(e, t, n, r, i) {
 		return e.p1 === e.p2 ? (i >= Math.PI / 2 ? e.q1 = n : e.q2 = n, !0) : e.q1 === e.q2 ? (r >= Math.PI / 2 ? e.p1 = t : e.p2 = t, !0) : !1;
@@ -9223,7 +9230,7 @@ var zs = class {
 	}
 }, Hs = class e {
 	static mkFromPoints(t) {
-		return new e(L.mkClosedFromPoints(t));
+		return new e(R.mkClosedFromPoints(t));
 	}
 	get Polyline() {
 		return this.polyline;
@@ -9268,7 +9275,7 @@ var zs = class {
 	static TestPolygonDist(e, t) {
 		let n = 2 ** 53 - 1;
 		for (let r = 0; r < e.count; r++) for (let i = 0; i < t.count; i++) {
-			let a = N.minDistBetweenLineSegments(e.pnt(r), e.pnt(r + 1), t.pnt(i), t.pnt(i + 1));
+			let a = P.minDistBetweenLineSegments(e.pnt(r), e.pnt(r + 1), t.pnt(i), t.pnt(i + 1));
 			n = Math.min(n, a.dist);
 		}
 		return n;
@@ -9286,13 +9293,13 @@ var zs = class {
 	}
 	static PolygonIsLegalDebug(e) {
 		let t = e.Polyline;
-		for (let e = t.startPoint; e.next != null && e.next.next != null; e = e.next) if (j.getTriangleOrientation(e.point, e.next.point, e.next.next.point) === k.Collinear) return !1;
+		for (let e = t.startPoint; e.next != null && e.next.next != null; e = e.next) if (N.getTriangleOrientation(e.point, e.next.point, e.next.next.point) === j.Collinear) return !1;
 		return !0;
 	}
 	static DistancePoint(e, t) {
 		let n = Number.MAX_VALUE;
 		for (let r = 0; r < e.count; r++) {
-			let i = j.distToLineSegment(t, e.points[r].point, e.points[(r + 1) % e.count].point).dist;
+			let i = N.distToLineSegment(t, e.points[r].point, e.points[(r + 1) % e.count].point).dist;
 			n = Math.min(n, i);
 		}
 		return n;
@@ -9304,41 +9311,41 @@ var zs = class {
 	GetSequenceDelegate(e) {
 		let t = this.pnt(0);
 		return (n) => {
-			let r = j.anglePCP(t, e, this.pnt(n));
+			let r = N.anglePCP(t, e, this.pnt(n));
 			return r < Math.PI ? r : r - 2 * Math.PI;
 		};
 	}
 }, Us = class e {
 	ObstaclesIntersectLine(e, t) {
-		return this.ObstaclesIntersectICurve(N.mkPP(e, t));
+		return this.ObstaclesIntersectICurve(P.mkPP(e, t));
 	}
 	static PadCorner(t, n, r, i, a) {
 		let o = e.GetPaddedCorner(n, r, i, a);
 		return o.numberOfPoints === -1 ? !1 : (t.addPoint(o.a), o.numberOfPoints === 2 && t.addPoint(o.b), !0);
 	}
 	static CurveIsClockwise(e, t) {
-		return j.getTriangleOrientation(t, e.start, e.start.add(e.derivative(e.parStart))) == k.Clockwise;
+		return N.getTriangleOrientation(t, e.start, e.start.add(e.derivative(e.parStart))) == j.Clockwise;
 	}
 	static PaddedPolylineBoundaryOfNode(t, n, r = !1) {
-		return e.CreatePaddedPolyline(I.polylineAroundClosedCurve(t), n, r);
+		return e.CreatePaddedPolyline(L.polylineAroundClosedCurve(t), n, r);
 	}
 	static LoosePolylineWithFewCorners(t, n, r) {
-		return n < E.distanceEpsilon ? t : e.CreateLoosePolylineOnBisectors(t, n, r);
+		return n < O.distanceEpsilon ? t : e.CreateLoosePolylineOnBisectors(t, n, r);
 	}
 	static CreateLoosePolylineOnBisectors(t, n, r) {
 		let i = Array.from(e.BisectorPoints(t, n));
 		r && o();
 		let a = gs.CalculateConvexHull(i);
-		return L.mkClosedFromPoints(a);
+		return R.mkClosedFromPoints(a);
 		function o() {
 			for (let e = 0; e < i.length; e++) {
 				let t = i[e];
-				i[e] = new j(t.x + (2 * As() - 1) * r, t.y + (2 * As() - 1) * r);
+				i[e] = new N(t.x + (2 * As() - 1) * r, t.y + (2 * As() - 1) * r);
 			}
 		}
 	}
 	static CreateRectNodeOfPolyline(e) {
-		return Ma(e, e.boundingBox);
+		return ja(e, e.boundingBox);
 	}
 	CreateLooseObstacles() {
 		this.tightPolylinesToLooseDistances = /* @__PURE__ */ new Map(), this.LooseObstacles = [];
@@ -9368,15 +9375,15 @@ var zs = class {
 		if (!r.irect.intersects(n)) return !1;
 		if (r.UserData != null) {
 			let n = r.UserData;
-			return I.intersectionOne(n, t, !1) != null || e.PointIsInside(n.start, t);
+			return L.intersectionOne(n, t, !1) != null || e.PointIsInside(n.start, t);
 		}
 		return e.CurveIntersectsRectangleNode(t, n, r.Left) || e.CurveIntersectsRectangleNode(t, n, r.Right);
 	}
 	static PointIsInside(e, t) {
-		return I.PointRelativeToCurveLocation(e, t) === F.Inside;
+		return L.PointRelativeToCurveLocation(e, t) === I.Inside;
 	}
 	CreateTightObstaclesIgnoringTightPadding() {
-		let t = this.Obstacles.map((e) => I.polylineAroundClosedCurve(e)), n = e.CalculateHierarchy(t), r = e.GetOverlappedPairSet(n);
+		let t = this.Obstacles.map((e) => L.polylineAroundClosedCurve(e)), n = e.CalculateHierarchy(t), r = e.GetOverlappedPairSet(n);
 		if (this.TightObstacles = /* @__PURE__ */ new Set(), r.size === 0) {
 			for (let r of t) {
 				let t = e.FindMaxPaddingForTightPolyline(n, r, this.TightPadding);
@@ -9398,7 +9405,7 @@ var zs = class {
 		t.add(i);
 	}
 	static CalculateHierarchy(t) {
-		return W(t.map((t) => e.CreateRectNodeOfPolyline(t)));
+		return G(t.map((t) => e.CreateRectNodeOfPolyline(t)));
 	}
 	static RemovePossibleOverlapsInTightPolylinesAndCalculateHierarchy(t, n = null) {
 		let r = e.CalculateHierarchy(Array.from(t)), i;
@@ -9422,10 +9429,10 @@ var zs = class {
 		return e.CalculateHierarchy(Array.from(t));
 	}
 	static OneCurveLiesInsideOfOther(e, t) {
-		return I.PointRelativeToCurveLocation(e.start, t) !== F.Outside || I.PointRelativeToCurveLocation(t.start, e) !== F.Outside;
+		return L.PointRelativeToCurveLocation(e.start, t) !== I.Outside || L.PointRelativeToCurveLocation(t.start, e) !== I.Outside;
 	}
 	static PolylinesIntersect(t, n) {
-		return I.CurvesIntersect(t, n) || e.OneCurveLiesInsideOfOther(t, n);
+		return L.CurvesIntersect(t, n) || e.OneCurveLiesInsideOfOther(t, n);
 	}
 	static GetOverlappedPairSet(t) {
 		let n = /* @__PURE__ */ new Set();
@@ -9441,7 +9448,7 @@ var zs = class {
 	}
 	static GetStickingVertexOnBisector(e, t, n) {
 		let r = e.polyline.prev(e).point, i = e.point, a = e.polyline.next(e).point, o = i.sub(r).normalize().add(i.sub(a).normalize()), s = o.length;
-		return s < E.tolerance ? n.skip = !0 : (n.skip = !1, o = o.div(s)), o.mul(t).add(i);
+		return s < O.tolerance ? n.skip = !0 : (n.skip = !1, o = o.div(s)), o.mul(t).add(i);
 	}
 	static FindMaxPaddingForTightPolyline(t, n, r) {
 		let i = r, a = new Hs(n), o = n.boundingBox.clone();
@@ -9454,7 +9461,7 @@ var zs = class {
 	}
 	static GetPaddedCorner(t, n, r, i) {
 		let a = t.point, o = n.point, s = r.point;
-		if (j.getTriangleOrientation(a, o, s) === k.Counterclockwise) return {
+		if (N.getTriangleOrientation(a, o, s) === j.Counterclockwise) return {
 			a: void 0,
 			b: void 0,
 			numberOfPoints: -1
@@ -9462,7 +9469,7 @@ var zs = class {
 		let c = o.sub(a).rotate(Math.PI / 2).normalize();
 		if (e.CornerIsNotTooSharp(a, o, s)) {
 			c = c.mul(i);
-			let e = s.sub(o).normalize().mul(i).rotate(Math.PI / 2), t = j.lineLineIntersection(a.add(c), o.add(c), o.add(e), s.add(e));
+			let e = s.sub(o).normalize().mul(i).rotate(Math.PI / 2), t = N.lineLineIntersection(a.add(c), o.add(c), o.add(e), s.add(e));
 			return {
 				a: t,
 				b: t,
@@ -9470,7 +9477,7 @@ var zs = class {
 			};
 		}
 		let l = o.sub(a).normalize().add(o.sub(s).normalize());
-		if (l.length < E.intersectionEpsilon) {
+		if (l.length < O.intersectionEpsilon) {
 			let e = o.add(c.mul(i));
 			return {
 				a: e,
@@ -9487,18 +9494,18 @@ var zs = class {
 	}
 	static CornerIsNotTooSharp(e, t, n) {
 		let r = e.sub(t).rotate(Math.PI / 4).add(t);
-		return j.getTriangleOrientation(t, r, n) === k.Counterclockwise;
+		return N.getTriangleOrientation(t, r, n) === j.Counterclockwise;
 	}
 	static CreatePaddedPolyline(t, n, r = !1) {
-		let i = new L(), a = r ? Ws(t) : t;
-		if (!e.PadCorner(i, a.endPoint.prev, a.endPoint, a.startPoint, n) || !e.PadCorner(i, a.endPoint, a.startPoint, a.startPoint.next, n)) return e.CreatePaddedPolyline(L.mkClosedFromPoints(Array.from(gs.CalculateConvexHull(a))), n);
-		for (let t = a.startPoint; t.next.next != null; t = t.next) if (!e.PadCorner(i, t, t.next, t.next.next, n)) return e.CreatePaddedPolyline(L.mkClosedFromPoints(Array.from(gs.CalculateConvexHull(a))), n);
+		let i = new R(), a = r ? Ws(t) : t;
+		if (!e.PadCorner(i, a.endPoint.prev, a.endPoint, a.startPoint, n) || !e.PadCorner(i, a.endPoint, a.startPoint, a.startPoint.next, n)) return e.CreatePaddedPolyline(R.mkClosedFromPoints(Array.from(gs.CalculateConvexHull(a))), n);
+		for (let t = a.startPoint; t.next.next != null; t = t.next) if (!e.PadCorner(i, t, t.next, t.next.next, n)) return e.CreatePaddedPolyline(R.mkClosedFromPoints(Array.from(gs.CalculateConvexHull(a))), n);
 		return i.closed = !0, i;
 	}
 };
 Us.LooseDistCoefficient = 2.1;
 function Ws(e) {
-	let t = new L(), n = .01;
+	let t = new R(), n = .01;
 	for (let r = e.startPoint; r; r = r.next) {
 		let e = r.point.x + n * As(), i = r.point.y + n * As();
 		t.addPointXY(e, i);
@@ -9529,13 +9536,13 @@ var Gs = class e {
 		ks(3), this.MainShape.Children.length !== 0 && (this.CreateTightObstacles(), this.CreateTigthLooseCouples(e), this.OverlapsDetected && this.FillTheMapOfShapeToTightLooseCouples());
 	}
 	FillTheMapOfShapeToTightLooseCouples() {
-		vs(W(this.MainShape.Children.map((e) => Ma(e, e.BoundingBox))), this.coupleHierarchy, this.TryMapShapeToTightLooseCouple.bind(this));
+		vs(G(this.MainShape.Children.map((e) => ja(e, e.BoundingBox))), this.coupleHierarchy, this.TryMapShapeToTightLooseCouple.bind(this));
 	}
 	TryMapShapeToTightLooseCouple(t, n) {
 		e.ShapeIsInsideOfPoly(t, n.TightPolyline) && this.ShapesToTightLooseCouples.set(t, n);
 	}
 	static ShapeIsInsideOfPoly(e, t) {
-		return I.PointRelativeToCurveLocation(e.BoundaryCurve.start, t) === F.Inside;
+		return L.PointRelativeToCurveLocation(e.BoundaryCurve.start, t) === I.Inside;
 	}
 	CreateTigthLooseCouples(e) {
 		let t = [];
@@ -9544,7 +9551,7 @@ var Gs = class e {
 			for (let e of o) this.ShapesToTightLooseCouples.set(e, a);
 			t.push(a);
 		}
-		this.coupleHierarchy = W(t.map((e) => Ma(e, e.TightPolyline.boundingBox)));
+		this.coupleHierarchy = G(t.map((e) => ja(e, e.TightPolyline.boundingBox)));
 	}
 	CreateTightObstacles() {
 		this.tightToShapes = /* @__PURE__ */ new Map();
@@ -9552,10 +9559,10 @@ var Gs = class e {
 		this.tightHierarchy = Us.RemovePossibleOverlapsInTightPolylinesAndCalculateHierarchy(e, this.tightToShapes), this.OverlapsDetected = t > e.size;
 	}
 	InitialTightPolyline(e) {
-		let t = Us.PaddedPolylineBoundaryOfNode(e.BoundaryCurve, this.TightPadding), n = Wa(this.LoosePolylinesUnderShape(e), (e) => e).filter((e) => I.PointRelativeToCurveLocation(e, t) === F.Outside);
+		let t = Us.PaddedPolylineBoundaryOfNode(e.BoundaryCurve, this.TightPadding), n = Wa(this.LoosePolylinesUnderShape(e), (e) => e).filter((e) => L.PointRelativeToCurveLocation(e, t) === I.Outside);
 		if (n.length == 0) return this.tightToShapes && this.tightToShapes.set(t, [e]), t;
 		let r = Array.from(t).concat(n);
-		return t = L.mkClosedFromPoints(gs.CalculateConvexHull(r)), this.tightToShapes && this.tightToShapes.set(t, [e]), t;
+		return t = R.mkClosedFromPoints(gs.CalculateConvexHull(r)), this.tightToShapes && this.tightToShapes.set(t, [e]), t;
 	}
 	LoosePolylinesUnderShape(e) {
 		return e.Children.map((e) => this.ShapesToTightLooseCouples.get(e).LooseShape.BoundaryCurve);
@@ -9571,7 +9578,7 @@ var Gs = class e {
 	ContainsElement(e) {
 		return this.cache.has(e);
 	}
-	constructor(e = D) {
+	constructor(e = k) {
 		this.heapSize = 0, this.compare = e, this.cache = /* @__PURE__ */ new Map(), this.A = [];
 	}
 	SwapWithParent(e) {
@@ -9640,7 +9647,7 @@ var Gs = class e {
 		this.source = e, this.targets = new Set(t), this.source.Distance = 0;
 	}
 	GetPath() {
-		let e = new Js(D);
+		let e = new Js(k);
 		for (this.source.Distance = 0, e.Enqueue(this.source, 0); !e.IsEmpty() && (this.current = e.Dequeue(), !this.targets.has(this.current));) {
 			for (let t of this.current.OutEdges) this.PassableOutEdge(t) && this.ProcessNeighbor(e, t, t.Target);
 			for (let t of this.current.InEdges) this.PassableInEdge(t) && this.ProcessNeighbor(e, t, t.Source);
@@ -9685,7 +9692,7 @@ var Gs = class e {
 		this._lengthMultiplier = 1, this._lengthMultiplierForAStar = 1, this._visGraph = e, this._source = t, this._target = n, this._source.Distance = 0;
 	}
 	GetPath(e) {
-		let t = new Js(D);
+		let t = new Js(k);
 		for (this._source.Distance = 0, this._target.Distance = Infinity, t.Enqueue(this._source, this.H(this._source)); !t.IsEmpty();) {
 			let e = { priority: 0 }, n = t.DequeueAndGetPriority(e);
 			if (e.priority >= this._target.Distance) break;
@@ -9819,16 +9826,16 @@ var Qs = class {
 	}
 	Compare(e, t) {
 		if (e.Start.equal(t.Start)) return 0;
-		switch (j.getTriangleOrientation(this.PointOnTangentAndInsertedDiagonal, t.Start, t.End)) {
-			case k.Counterclockwise: return -1;
+		switch (N.getTriangleOrientation(this.PointOnTangentAndInsertedDiagonal, t.Start, t.End)) {
+			case j.Counterclockwise: return -1;
 			default: return 1;
 		}
 	}
 	static BelongsToTheDiagonal(e, t, n) {
-		return j.closeDistEps(e, j.ClosestPointAtLineSegment(e, t, n));
+		return N.closeDistEps(e, N.ClosestPointAtLineSegment(e, t, n));
 	}
 	static IntersectDiagonalWithRay(e, t, n) {
-		let r = t.sub(e), i = n.Start, a = n.End, o = Zi.solve(a.x - i.x, r.x * -1, e.x - i.x, a.y - i.y, r.y * -1, e.y - i.y);
+		let r = t.sub(e), i = n.Start, a = n.End, o = Yi.solve(a.x - i.x, r.x * -1, e.x - i.x, a.y - i.y, r.y * -1, e.y - i.y);
 		return e.add(r.mul(o.y));
 	}
 }, tc = class e {
@@ -9847,8 +9854,8 @@ var Qs = class {
 	}
 	static CompareVectorsPointingToTheSameYHalfPlane(e, t) {
 		let n = e.x * t.y - e.y * t.x;
-		if (n > E.tolerance) return -1;
-		if (n < -E.tolerance) return 1;
+		if (n > O.tolerance) return -1;
+		if (n < -O.tolerance) return 1;
 		if (e.x >= 0) {
 			if (t.x < 0) return -1;
 		} else if (t.x >= 0) return 1;
@@ -9899,7 +9906,7 @@ var Qs = class {
 	}
 	static RayIntersectDiagonal(e, t, n) {
 		let r = n.Start, i = n.End;
-		return j.getTriangleOrientation(e, r, i) === k.Counterclockwise && j.getTriangleOrientation(e, t, r) !== k.Counterclockwise && j.getTriangleOrientation(e, t, i) !== k.Clockwise;
+		return N.getTriangleOrientation(e, r, i) === j.Counterclockwise && N.getTriangleOrientation(e, t, r) !== j.Counterclockwise && N.getTriangleOrientation(e, t, i) !== j.Clockwise;
 	}
 	static TangentComparison(e, t) {
 		return tc.CompareVectorsByAngleToXAxis(e.End.point.sub(e.start.point), t.End.point.sub(t.start.point));
@@ -9943,18 +9950,18 @@ var ic = class e {
 		this.pointOnTheRay = e;
 	}
 	Compare(e, t) {
-		switch (j.getTriangleOrientation(this.IntersectionOfTheRayAndInsertedEdge, t.point, t.nextOnPolyline.point)) {
-			case k.Counterclockwise: return -1;
+		switch (N.getTriangleOrientation(this.IntersectionOfTheRayAndInsertedEdge, t.point, t.nextOnPolyline.point)) {
+			case j.Counterclockwise: return -1;
 			default: return 1;
 		}
 	}
 	IntersectionPointBelongsToTheInsertedEdge(e) {
 		let t = e.point.sub(this.IntersectionOfTheRayAndInsertedEdge), n = e.nextOnPolyline.point.sub(this.IntersectionOfTheRayAndInsertedEdge);
-		return Math.abs(t.x * n.y - n.x * t.y) < E.distanceEpsilon;
+		return Math.abs(t.x * n.y - n.x * t.y) < O.distanceEpsilon;
 	}
 	IntersectEdgeWithRayPPP(e, t, n) {
-		let r = Zi.solve(t.x - e.x, -n.x, this.Pivot.x - e.x, t.y - e.y, -n.y, this.Pivot.y - e.y);
-		if (!(-E.tolerance <= r.x && r.x <= 1 + E.tolerance) || !r) throw Error();
+		let r = Yi.solve(t.x - e.x, -n.x, this.Pivot.x - e.x, t.y - e.y, -n.y, this.Pivot.y - e.y);
+		if (!(-O.tolerance <= r.x && r.x <= 1 + O.tolerance) || !r) throw Error();
 		return this.Pivot.add(n.mul(r.y));
 	}
 	IntersectEdgeWithRay(e, t) {
@@ -10023,8 +10030,8 @@ var ic = class e {
 				let i = r;
 				if (i.point.y < this.q.y) {
 					if (r.nextOnPolyline.point.y >= this.q.y) {
-						let e = j.getTriangleOrientation(this.q, i.point, r.nextOnPolyline.point);
-						if (e === k.Counterclockwise || e === k.Collinear) {
+						let e = N.getTriangleOrientation(this.q, i.point, r.nextOnPolyline.point);
+						if (e === j.Counterclockwise || e === j.Collinear) {
 							n = !0, yield new ac(t.Start, r), yield new ac(r.nextOnPolyline, t.End), this.RegisterActiveSide(r);
 							break;
 						}
@@ -10039,10 +10046,10 @@ var ic = class e {
 		}
 	}
 	RegisterActiveSide(e) {
-		this.activeEdgeComparer.IntersectionOfTheRayAndInsertedEdge = this.activeEdgeComparer.IntersectEdgeWithRay(e, new j(1, 0)), this.sideNodes.set(e, this.activeSidesTree.insert(e));
+		this.activeEdgeComparer.IntersectionOfTheRayAndInsertedEdge = this.activeEdgeComparer.IntersectEdgeWithRay(e, new N(1, 0)), this.sideNodes.set(e, this.activeSidesTree.insert(e));
 	}
 	constructor(e, t, n, r) {
-		this.sideNodes = /* @__PURE__ */ new Map(), this.visibleBoundaries = /* @__PURE__ */ new Map(), this.sortedListOfPolypoints = [], this.holes = Array.from(e), this.visibilityGraph = t, this.q = n, this.qPolylinePoint = na.mkFromPoint(this.q), this.QVertex = this.visibilityGraph.AddVertexP(this.qPolylinePoint.point), this.visibilityKind = r;
+		this.sideNodes = /* @__PURE__ */ new Map(), this.visibleBoundaries = /* @__PURE__ */ new Map(), this.sortedListOfPolypoints = [], this.holes = Array.from(e), this.visibilityGraph = t, this.q = n, this.qPolylinePoint = ea.mkFromPoint(this.q), this.QVertex = this.visibilityGraph.AddVertexP(this.qPolylinePoint.point), this.visibilityKind = r;
 		let i = new tc(this.q);
 		this.heapForSorting = new Mo(i.IComparer.bind(i));
 	}
@@ -10070,7 +10077,7 @@ var ic = class e {
 	}
 	static LineTouchesPolygon(e, t) {
 		let n = t.polyline.prev(t).point, r = t.polyline.next(t).point, i = t.point;
-		return j.signedDoubledTriangleArea(e, i, n) * j.signedDoubledTriangleArea(e, i, r) >= 0;
+		return N.signedDoubledTriangleArea(e, i, n) * N.signedDoubledTriangleArea(e, i, r) >= 0;
 	}
 	GetOutgoingSide(e) {
 		return e === this.visibleBoundaries.get(e.polyline).End ? null : e;
@@ -10094,14 +10101,14 @@ var ic = class e {
 		this.visibleBoundaries.set(e, new ac(t, r));
 	}
 	HoleSideIsVisibleFromQ(e, t) {
-		return j.signedDoubledTriangleArea(this.q, t.point, e.next(t).point) >= -E.squareOfDistanceEpsilon;
+		return N.signedDoubledTriangleArea(this.q, t.point, e.next(t).point) >= -O.squareOfDistanceEpsilon;
 	}
 }, sc = class e extends q {
 	constructor() {
-		super(...arguments), this.IgnoreTightPadding = !0, this.activeRectangle = R.mkEmpty(), this.activePolygons = [], this.alreadyAddedOrExcludedPolylines = /* @__PURE__ */ new Set(), this.UseEdgeLengthMultiplier = !1, this.UseInnerPolylingShortcutting = !0, this.UsePolylineEndShortcutting = !0, this.AllowedShootingStraightLines = !0, this.LookForRoundedVertices = !1;
+		super(...arguments), this.IgnoreTightPadding = !0, this.activeRectangle = z.mkEmpty(), this.activePolygons = [], this.alreadyAddedOrExcludedPolylines = /* @__PURE__ */ new Set(), this.UseEdgeLengthMultiplier = !1, this.UseInnerPolylingShortcutting = !0, this.UsePolylineEndShortcutting = !0, this.AllowedShootingStraightLines = !0, this.LookForRoundedVertices = !1;
 	}
 	rerouteEdge(e) {
-		let t = e.smoothedPolyline ? L.mkFromPoints(e.smoothedPolyline) : L.mkFromPoints(e.getSmoothPolyPoints());
+		let t = e.smoothedPolyline ? R.mkFromPoints(e.smoothedPolyline) : R.mkFromPoints(e.getSmoothPolyPoints());
 		this.pathOptimizer.run(t), e.curve = this.pathOptimizer.poly.toCurve();
 	}
 	static constructorANNN(t, n, r, i) {
@@ -10178,7 +10185,7 @@ var ic = class e {
 		this.VisibilityGraph ??= new X();
 		let t = null;
 		if (!this.activeRectangle.contains(e)) {
-			this.activeRectangle.isEmpty ? this.activeRectangle = R.mkPP(this.SourcePort.Location, e) : this.activeRectangle.add(e), t = this.GetAddedPolygonesAndMaybeExtendActiveRectangle();
+			this.activeRectangle.isEmpty ? this.activeRectangle = z.mkPP(this.SourcePort.Location, e) : this.activeRectangle.add(e), t = this.GetAddedPolygonesAndMaybeExtendActiveRectangle();
 			for (let e of t) this.VisibilityGraph.AddHole(e.Polyline);
 		}
 		t == null || t.length === 0 ? (this.targetVV != null && this.VisibilityGraph.RemoveVertex(this.targetVV), this.CalculateEdgeTargetVisibilityGraph(e)) : (this.RemovePointVisibilityGraphs(), new nc(t, this.activePolygons, this.VisibilityGraph).run(), za(this.activePolygons, t), this.CalculateEdgeTargetVisibilityGraph(e), this.CalculateSourcePortVisibilityGraph());
@@ -10194,10 +10201,10 @@ var ic = class e {
 	}
 	TakeBoundaryPortOutsideOfItsLoosePolyline(t, n, r) {
 		let i = t.value(n), a = t.leftDerivative(n).normalize().add(t.rightDerivative(n).normalize()).normalize();
-		j.getTriangleOrientation(e.PointInsideOfConvexCurve(t), i, i.add(a)) == k.Counterclockwise && (a = a.mul(-1)), a = a.rotate(Math.PI / 2);
-		let o = r.boundingBox.diagonal, s = N.mkPP(i, i.add(a.mul(o))), c = I.intersectionOne(s, r, !1).x, l = a.mul(c.sub(i).length / 2);
+		N.getTriangleOrientation(e.PointInsideOfConvexCurve(t), i, i.add(a)) == j.Counterclockwise && (a = a.mul(-1)), a = a.rotate(Math.PI / 2);
+		let o = r.boundingBox.diagonal, s = P.mkPP(i, i.add(a.mul(o))), c = L.intersectionOne(s, r, !1).x, l = a.mul(c.sub(i).length / 2);
 		for (;;) {
-			s = N.mkPP(i, c.add(l));
+			s = P.mkPP(i, c.add(l));
 			let t = !1;
 			for (let n of e.IntersectionsOfLineAndRectangleNodeOverPolylineLR(s, this.ObstacleCalculator.RootOfLooseHierarchy)) if (n.seg1 !== r) {
 				l = l.div(1.5), t = !0;
@@ -10226,12 +10233,12 @@ var ic = class e {
 		return this.PolylineIntersectsPolyRectangleNodeOfTightHierarchyPPR(e, t, this.ObstacleCalculator.RootOfTightHierarchy);
 	}
 	PolylineIntersectsPolyRectangleNodeOfTightHierarchyPPR(e, t, n) {
-		return this.PolylineIntersectsPolyRectangleNodeOfTightHierarchy(N.mkPP(e, t), n);
+		return this.PolylineIntersectsPolyRectangleNodeOfTightHierarchy(P.mkPP(e, t), n);
 	}
 	PolylineIntersectsPolyRectangleNodeOfTightHierarchy(e, t) {
 		if (!e.boundingBox.intersects(t.irect)) return !1;
 		if (t.UserData != null) {
-			for (let n of I.getAllIntersections(e, t.UserData, !1)) if (n.seg1 !== this.SourceTightPolyline && n.seg1 !== this.TargetTightPolyline || (n.seg1 === this.SourceTightPolyline && this.SourcePort) instanceof us || (n.seg1 === this.TargetTightPolyline && this.TargetPort) instanceof us) return !0;
+			for (let n of L.getAllIntersections(e, t.UserData, !1)) if (n.seg1 !== this.SourceTightPolyline && n.seg1 !== this.TargetTightPolyline || (n.seg1 === this.SourceTightPolyline && this.SourcePort) instanceof us || (n.seg1 === this.TargetTightPolyline && this.TargetPort) instanceof us) return !0;
 			return !1;
 		}
 		return this.PolylineIntersectsPolyRectangleNodeOfTightHierarchy(e, t.Left) || this.PolylineIntersectsPolyRectangleNodeOfTightHierarchy(e, t.Right);
@@ -10243,7 +10250,7 @@ var ic = class e {
 	static IntersectionsOfLineAndRectangleNodeOverPolyline(t, n, r) {
 		if (n != null && t.boundingBox.intersects(n.irect)) {
 			if (n.UserData != null) {
-				za(r, I.getAllIntersections(t, n.UserData, !0));
+				za(r, L.getAllIntersections(t, n.UserData, !0));
 				return;
 			}
 			e.IntersectionsOfLineAndRectangleNodeOverPolyline(t, n.Left, r), e.IntersectionsOfLineAndRectangleNodeOverPolyline(t, n.Right, r);
@@ -10258,7 +10265,7 @@ var ic = class e {
 	}
 	InsideOfTheAllowedConeOfBoundaryPort(t, n) {
 		let r = n.Curve, i = Us.CurveIsClockwise(r, e.PointInsideOfConvexCurve(r)), a = n.Location, o = this.GetPointOnTheRightBoundaryPortConeSide(a, r, i, n.Parameter), s = this.GetPointOnTheLeftBoundaryPortConeSide(a, r, i, n.Parameter);
-		return j.getTriangleOrientation(a, o, t) !== k.Clockwise && j.getTriangleOrientation(a, t, s) !== k.Clockwise;
+		return N.getTriangleOrientation(a, o, t) !== j.Clockwise && N.getTriangleOrientation(a, t, s) !== j.Clockwise;
 	}
 	GetPointOnTheRightBoundaryPortConeSide(e, t, n, r) {
 		let i = n ? t.rightDerivative(r) : t.leftDerivative(r).neg();
@@ -10273,15 +10280,15 @@ var ic = class e {
 			b: null,
 			c: null
 		};
-		for (; n = I.findCorner(t);) t = this.SmoothOneCorner(t, n.c, n.b);
+		for (; n = L.findCorner(t);) t = this.SmoothOneCorner(t, n.c, n.b);
 	}
 	SmoothOneCorner(e, t, n) {
 		let r = 1.5, i = .01, a = .5, o, s, c;
 		e.prev == null ? (c = 2, s = 1) : t.next == null ? (c = 1, s = 2) : c = s = 1;
 		do
-			o = I.createBezierSeg(a * c, a * s, e, n, t), n.previouisBezierCoefficient = a * c, n.nextBezierCoefficient = a * s, a /= r;
+			o = L.createBezierSeg(a * c, a * s, e, n, t), n.previouisBezierCoefficient = a * c, n.nextBezierCoefficient = a * s, a /= r;
 		while (l() > this.loosePadding && a > i);
-		return a *= r, a < .5 && a > i && (a = .5 * (a + a * r), o = I.createBezierSeg(a * c, a * s, e, n, t), l() > this.loosePadding && (n.previouisBezierCoefficient = a * c, n.nextBezierCoefficient = a * s)), n;
+		return a *= r, a < .5 && a > i && (a = .5 * (a + a * r), o = L.createBezierSeg(a * c, a * s, e, n, t), l() > this.loosePadding && (n.previouisBezierCoefficient = a * c, n.nextBezierCoefficient = a * s)), n;
 		function l() {
 			let e = o.closestParameter(n.point);
 			return n.point.sub(o.value(e)).length;
@@ -10310,7 +10317,7 @@ var ic = class e {
 		this.CleanTheGraphForShortestPath();
 		let n = new Xs(this.visibilityGraph, e, t).GetPath(this.UseEdgeLengthMultiplier);
 		if (n == null) return null;
-		let r = L.mkFromPoints(Array.from(n).map((e) => e.point)).RemoveCollinearVertices();
+		let r = R.mkFromPoints(Array.from(n).map((e) => e.point)).RemoveCollinearVertices();
 		return this.pathOptimizer && (this.pathOptimizer.run(r), r = this.pathOptimizer.poly), r;
 	}
 	CleanTheGraphForShortestPath() {
@@ -10340,43 +10347,43 @@ var ic = class e {
 	}
 	RouteEdgeToLocation(t) {
 		this.TargetPort = new Oo(null, t), this.TargetTightPolyline = null, this.TargetLoosePolyline = null;
-		let n = new Ta(null), r = N.mkPP(this.SourcePort.Location, t);
-		return this.LineCanBeAcceptedForRouting(r) ? (this._polyline = new L(), this._polyline.addPoint(r.start), this._polyline.addPoint(r.end), n.curve = ba.mkFromPoints(this._polyline).createCurve(), n) : this.SourcePort instanceof us && (r = N.mkPP(this.StartPointOfEdgeRouting, t), e.IntersectionsOfLineAndRectangleNodeOverPolylineLR(r, this.ObstacleCalculator.RootOfTightHierarchy).length == 0) ? (this._polyline = new L(), this._polyline.addPoint(this.SourcePort.Location), this._polyline.addPoint(r.start), this._polyline.addPoint(r.end), n.curve = ba.mkFromPoints(this._polyline).createCurve(), n) : (this.ExtendVisibilityGraphToLocation(t), this._polyline = this.GetShortestPolyline(this.sourceVV, this.targetVV), this.SourcePort instanceof us && this._polyline.PrependPoint(this.SourcePort.Location), n.curve = ba.mkFromPoints(this._polyline).createCurve(), n);
+		let n = new wa(null), r = P.mkPP(this.SourcePort.Location, t);
+		return this.LineCanBeAcceptedForRouting(r) ? (this._polyline = new R(), this._polyline.addPoint(r.start), this._polyline.addPoint(r.end), n.curve = ya.mkFromPoints(this._polyline).createCurve(), n) : this.SourcePort instanceof us && (r = P.mkPP(this.StartPointOfEdgeRouting, t), e.IntersectionsOfLineAndRectangleNodeOverPolylineLR(r, this.ObstacleCalculator.RootOfTightHierarchy).length == 0) ? (this._polyline = new R(), this._polyline.addPoint(this.SourcePort.Location), this._polyline.addPoint(r.start), this._polyline.addPoint(r.end), n.curve = ya.mkFromPoints(this._polyline).createCurve(), n) : (this.ExtendVisibilityGraphToLocation(t), this._polyline = this.GetShortestPolyline(this.sourceVV, this.targetVV), this.SourcePort instanceof us && this._polyline.PrependPoint(this.SourcePort.Location), n.curve = ya.mkFromPoints(this._polyline).createCurve(), n);
 	}
 	RouteEdgeToPort(t, n, r, i) {
-		return this.ObstacleCalculator.IsEmpty() ? this.sourcePort != null && this.targetPort != null ? (i.smoothedPolyline = this.SmoothedPolylineFromTwoPoints(this.sourcePort.Location, this.targetPort.Location), N.mkPP(this.sourcePort.Location, this.targetPort.Location)) : null : (this.TargetPort = t, this.TargetTightPolyline = e.GetFirstHitPolyline(t.Location, this.ObstacleCalculator.RootOfTightHierarchy), t instanceof us ? this.RouteEdgeToBoundaryPort(n, r, i) : this.RouteEdgeToFloatingPortOfNode(n, r, i));
+		return this.ObstacleCalculator.IsEmpty() ? this.sourcePort != null && this.targetPort != null ? (i.smoothedPolyline = this.SmoothedPolylineFromTwoPoints(this.sourcePort.Location, this.targetPort.Location), P.mkPP(this.sourcePort.Location, this.targetPort.Location)) : null : (this.TargetPort = t, this.TargetTightPolyline = e.GetFirstHitPolyline(t.Location, this.ObstacleCalculator.RootOfTightHierarchy), t instanceof us ? this.RouteEdgeToBoundaryPort(n, r, i) : this.RouteEdgeToFloatingPortOfNode(n, r, i));
 	}
 	SmoothedPolylineFromTwoPoints(e, t) {
-		return this._polyline = new L(), this._polyline.addPoint(e), this._polyline.addPoint(t), ba.mkFromPoints(this._polyline);
+		return this._polyline = new R(), this._polyline.addPoint(e), this._polyline.addPoint(t), ya.mkFromPoints(this._polyline);
 	}
 	RouteEdgeToFloatingPortOfNode(e, t, n) {
 		return this.sourcePort instanceof Oo ? this.RouteFromFloatingPortToFloatingPort(e, t, n) : this.RouteFromBoundaryPortToFloatingPort(e, t, n);
 	}
 	RouteFromBoundaryPortToFloatingPort(e, t, n) {
-		let r = this.SourcePort.Location, i = this.targetPort.Location, a = N.mkPP(r, i);
+		let r = this.SourcePort.Location, i = this.targetPort.Location, a = P.mkPP(r, i);
 		if (this.LineCanBeAcceptedForRouting(a)) return n.smoothedPolyline = this.SmoothedPolylineFromTwoPoints(a.start, a.end), a;
 		if (!this.targetIsInsideOfSourceTightPolyline) {
 			let t = this.TakeBoundaryPortOutsideOfItsLoosePolyline(this.SourcePort.Curve, this.SourcePort.Parameter, this.SourceLoosePolyline);
-			if (a = N.mkPP(t, i), this.LineAvoidsTightHierarchyLP(a, e)) return n.smoothedPolyline = this.SmoothedPolylineFromTwoPoints(a.start, a.end), a;
+			if (a = P.mkPP(t, i), this.LineAvoidsTightHierarchyLP(a, e)) return n.smoothedPolyline = this.SmoothedPolylineFromTwoPoints(a.start, a.end), a;
 		}
 		this.ExtendVisibilityGraphToLocationOfTargetFloatingPort(e), this._polyline = this.GetShortestPolyline(this.sourceVV, this.targetVV);
 		let o = this.SourceTightPolyline;
 		return this.targetIsInsideOfSourceTightPolyline || (this.SourceTightPolyline = null), this.SourceTightPolyline = o, this._polyline.PrependPoint(r), this.SmoothCornersAndReturnCurve(t, n);
 	}
 	SmoothCornersAndReturnCurve(e, t) {
-		return t.smoothedPolyline = ba.mkFromPoints(this._polyline), e && this.SmoothenCorners(t.smoothedPolyline), t.smoothedPolyline.createCurve();
+		return t.smoothedPolyline = ya.mkFromPoints(this._polyline), e && this.SmoothenCorners(t.smoothedPolyline), t.smoothedPolyline.createCurve();
 	}
 	RouteFromFloatingPortToFloatingPort(e, t, n) {
-		return this.ExtendVisibilityGraphToLocationOfTargetFloatingPort(e), this._polyline = this.GetShortestPolyline(this.sourceVV, this.targetVV), this._polyline == null ? null : (n.smoothedPolyline = ba.mkFromPoints(this._polyline), this.SmoothCornersAndReturnCurve(t, n));
+		return this.ExtendVisibilityGraphToLocationOfTargetFloatingPort(e), this._polyline = this.GetShortestPolyline(this.sourceVV, this.targetVV), this._polyline == null ? null : (n.smoothedPolyline = ya.mkFromPoints(this._polyline), this.SmoothCornersAndReturnCurve(t, n));
 	}
 	TryShortcutPolyPoint(e) {
-		return this.LineAvoidsTightHierarchyLPP(N.mkPP(e.point, e.next.next.point), this.SourceTightPolyline, this.targetTightPolyline) ? (e.next = e.next.next, e.next.prev = e, !0) : !1;
+		return this.LineAvoidsTightHierarchyLPP(P.mkPP(e.point, e.next.next.point), this.SourceTightPolyline, this.targetTightPolyline) ? (e.next = e.next.next, e.next.prev = e, !0) : !1;
 	}
 	ExtendVisibilityGraphToLocationOfTargetFloatingPort(e) {
 		this.VisibilityGraph ??= new X();
 		let t = null, n = this.targetPort.Location;
 		if (!this.activeRectangle.contains(n)) {
-			this.activeRectangle.isEmpty ? this.activeRectangle = R.mkPP(this.SourcePort.Location, n) : this.activeRectangle.add(n), t = this.GetAddedPolygonesAndMaybeExtendActiveRectangle();
+			this.activeRectangle.isEmpty ? this.activeRectangle = z.mkPP(this.SourcePort.Location, n) : this.activeRectangle.add(n), t = this.GetAddedPolygonesAndMaybeExtendActiveRectangle();
 			for (let e of t) this.VisibilityGraph.AddHole(e.Polyline);
 		}
 		t == null ? (this.targetVV != null && this.VisibilityGraph.RemoveVertex(this.targetVV), this.CalculateEdgeTargetVisibilityGraphForFloatingPort(n, e), this.sourceVV ?? this.CalculateSourcePortVisibilityGraph()) : (this.RemovePointVisibilityGraphs(), new nc(t, this.activePolygons, this.VisibilityGraph).run(), za(this.activePolygons, t), this.CalculateEdgeTargetVisibilityGraphForFloatingPort(n, e), this.CalculateSourcePortVisibilityGraph());
@@ -10393,7 +10400,7 @@ var ic = class e {
 	}
 	GetVertex(e) {
 		let t = this.visibilityGraph.FindVertex(e);
-		return t == null && this.LookForRoundedVertices && (t = this.visibilityGraph.FindVertex(j.RoundPoint(e))), t;
+		return t == null && this.LookForRoundedVertices && (t = this.visibilityGraph.FindVertex(N.RoundPoint(e))), t;
 	}
 	*GetActivePolylinesWithException(e) {
 		for (let t of this.activePolygons) t.Polyline !== e && (yield t.Polyline);
@@ -10402,17 +10409,17 @@ var ic = class e {
 		return this.TargetLoosePolyline = e, this.sourcePort instanceof Oo ? this.RouteFromFloatingPortToBoundaryPort(t, n) : this.RouteFromBoundaryPortToBoundaryPort(t, n);
 	}
 	RouteFromBoundaryPortToBoundaryPort(e, t) {
-		let n = this.SourcePort.Location, r, i = this.targetPort.Location, a = N.mkPP(n, i);
-		if (this.LineCanBeAcceptedForRouting(a)) this._polyline = new L(), this._polyline.addPoint(a.start), this._polyline.addPoint(a.end), t.smoothedPolyline = this.SmoothedPolylineFromTwoPoints(a.start, a.end), r = ba.mkFromPoints(this._polyline).createCurve();
+		let n = this.SourcePort.Location, r, i = this.targetPort.Location, a = P.mkPP(n, i);
+		if (this.LineCanBeAcceptedForRouting(a)) this._polyline = new R(), this._polyline.addPoint(a.start), this._polyline.addPoint(a.end), t.smoothedPolyline = this.SmoothedPolylineFromTwoPoints(a.start, a.end), r = ya.mkFromPoints(this._polyline).createCurve();
 		else {
 			let o = this.TakeBoundaryPortOutsideOfItsLoosePolyline(this.targetPort.Curve, this.targetPort.Parameter, this.TargetLoosePolyline);
-			if (a = N.mkPP(n, o), this.InsideOfTheAllowedConeOfBoundaryPort(o, this.SourcePort) && this.LineAvoidsTightHierarchyLP(a, this._sourceTightPolyline)) this._polyline = new L(), this._polyline.addPoint(a.start), this._polyline.addPoint(a.end), this._polyline.addPoint(i), r = this.SmoothCornersAndReturnCurve(e, t);
-			else if (a = N.mkPP(this.StartPointOfEdgeRouting, i), this.InsideOfTheAllowedConeOfBoundaryPort(this.StartPointOfEdgeRouting, this.TargetPort) && this.LineAvoidsTightHierarchy(a)) this._polyline = new L(), this._polyline.addPoint(n), this._polyline.addPoint(a.start), this._polyline.addPoint(a.end), r = this.SmoothCornersAndReturnCurve(e, t);
+			if (a = P.mkPP(n, o), this.InsideOfTheAllowedConeOfBoundaryPort(o, this.SourcePort) && this.LineAvoidsTightHierarchyLP(a, this._sourceTightPolyline)) this._polyline = new R(), this._polyline.addPoint(a.start), this._polyline.addPoint(a.end), this._polyline.addPoint(i), r = this.SmoothCornersAndReturnCurve(e, t);
+			else if (a = P.mkPP(this.StartPointOfEdgeRouting, i), this.InsideOfTheAllowedConeOfBoundaryPort(this.StartPointOfEdgeRouting, this.TargetPort) && this.LineAvoidsTightHierarchy(a)) this._polyline = new R(), this._polyline.addPoint(n), this._polyline.addPoint(a.start), this._polyline.addPoint(a.end), r = this.SmoothCornersAndReturnCurve(e, t);
 			else {
 				let a;
-				if (a = N.IntersectPPPP(n, this.StartPointOfEdgeRouting, i, o)) this._polyline = new L(), this._polyline.addPoint(n), this._polyline.addPoint(a), this._polyline.addPoint(i), r = this.SmoothCornersAndReturnCurve(e, t);
-				else if (j.closeDistEps(this.StartPointOfEdgeRouting, o)) this._polyline = new L(), this._polyline.addPoint(n), this._polyline.addPoint(o), this._polyline.addPoint(i), r = this.SmoothCornersAndReturnCurve(e, t);
-				else if (this.LineAvoidsTightHierarchy(N.mkPP(this.StartPointOfEdgeRouting, o))) this._polyline = new L(), this._polyline.addPoint(n), this._polyline.addPoint(this.StartPointOfEdgeRouting), this._polyline.addPoint(o), this._polyline.addPoint(i), r = this.SmoothCornersAndReturnCurve(e, t);
+				if (a = P.IntersectPPPP(n, this.StartPointOfEdgeRouting, i, o)) this._polyline = new R(), this._polyline.addPoint(n), this._polyline.addPoint(a), this._polyline.addPoint(i), r = this.SmoothCornersAndReturnCurve(e, t);
+				else if (N.closeDistEps(this.StartPointOfEdgeRouting, o)) this._polyline = new R(), this._polyline.addPoint(n), this._polyline.addPoint(o), this._polyline.addPoint(i), r = this.SmoothCornersAndReturnCurve(e, t);
+				else if (this.LineAvoidsTightHierarchy(P.mkPP(this.StartPointOfEdgeRouting, o))) this._polyline = new R(), this._polyline.addPoint(n), this._polyline.addPoint(this.StartPointOfEdgeRouting), this._polyline.addPoint(o), this._polyline.addPoint(i), r = this.SmoothCornersAndReturnCurve(e, t);
 				else {
 					this.ExtendVisibilityGraphToTargetBoundaryPort(o), this._polyline = this.GetShortestPolyline(this.sourceVV, this.targetVV);
 					let a = { tmpTargetTight: null }, s = this.HideSourceTargetTightsIfNeeded(a);
@@ -10434,13 +10441,13 @@ var ic = class e {
 	}
 	RouteFromFloatingPortToBoundaryPort(e, t) {
 		let n = this.targetPort.Location, r;
-		if (this.InsideOfTheAllowedConeOfBoundaryPort(this.sourcePort.Location, this.targetPort) && (r = N.mkPP(this.SourcePort.Location, n), this.LineCanBeAcceptedForRouting(r))) return t.smoothedPolyline = this.SmoothedPolylineFromTwoPoints(r.start, r.end), r;
+		if (this.InsideOfTheAllowedConeOfBoundaryPort(this.sourcePort.Location, this.targetPort) && (r = P.mkPP(this.SourcePort.Location, n), this.LineCanBeAcceptedForRouting(r))) return t.smoothedPolyline = this.SmoothedPolylineFromTwoPoints(r.start, r.end), r;
 		let i = this.TakeBoundaryPortOutsideOfItsLoosePolyline(this.TargetPort.Curve, this.TargetPort.Parameter, this.TargetLoosePolyline);
-		return r = N.mkPP(this.SourcePort.Location, i), this.LineAvoidsTightHierarchyLP(r, this._sourceTightPolyline) ? (this._polyline = L.mkFromPoints([
+		return r = P.mkPP(this.SourcePort.Location, i), this.LineAvoidsTightHierarchyLP(r, this._sourceTightPolyline) ? (this._polyline = R.mkFromPoints([
 			r.start,
 			r.end,
 			n
-		]), t.smoothedPolyline = ba.mkFromPoints(this._polyline), t.smoothedPolyline.createCurve()) : (this.ExtendVisibilityGraphToTargetBoundaryPort(i), this._polyline = this.GetShortestPolyline(this.sourceVV, this.targetVV), this._polyline.addPoint(n), this.SmoothCornersAndReturnCurve(e, { smoothedPolyline: null }));
+		]), t.smoothedPolyline = ya.mkFromPoints(this._polyline), t.smoothedPolyline.createCurve()) : (this.ExtendVisibilityGraphToTargetBoundaryPort(i), this._polyline = this.GetShortestPolyline(this.sourceVV, this.targetVV), this._polyline.addPoint(n), this.SmoothCornersAndReturnCurve(e, { smoothedPolyline: null }));
 	}
 	LineAvoidsTightHierarchyLP(t, n) {
 		let r = !0;
@@ -10459,7 +10466,7 @@ var ic = class e {
 		return i;
 	}
 	LineAvoidsTightHierarchyPPPP(e, t, n, r) {
-		return this.LineAvoidsTightHierarchyLPP(N.mkPP(e, t), n, r);
+		return this.LineAvoidsTightHierarchyLPP(P.mkPP(e, t), n, r);
 	}
 	ExtendVisibilityGraphToTargetBoundaryPort(e) {
 		let t = null;
@@ -10477,7 +10484,7 @@ var ic = class e {
 		return r ? r.UserData : null;
 	}
 	static GetFirstHitRectangleNode(e, t) {
-		return t == null ? null : t.FirstHitNodeWithPredicate(e, (e, t) => I.PointRelativeToCurveLocation(e, t) === F.Outside ? U.Continue : U.Stop);
+		return t == null ? null : t.FirstHitNodeWithPredicate(e, (e, t) => L.PointRelativeToCurveLocation(e, t) === I.Outside ? W.Continue : W.Stop);
 	}
 	Clean() {
 		this.TargetPort = null, this.SourcePort = null, this.SourceTightPolyline = null, this.SourceLoosePolyline = null, this.TargetLoosePolyline = null, this.targetTightPolyline = null, this.VisibilityGraph = null, this.targetVV = null, this.sourceVV = null, this.activePolygons = [], this.alreadyAddedOrExcludedPolylines.clear(), this.activeRectangle.setToEmpty();
@@ -10508,7 +10515,7 @@ var ic = class e {
 		return a == null ? null : (this.targetVV = null, this.sourceVV = null, i && (a = a.reverse()), a);
 	}
 	GetEdgeGeomByRouting(e, t) {
-		this.sourceIsInsideOfTargetTightPolyline = this.TargetTightPolyline == null || I.PointRelativeToCurveLocation(this.sourcePort.Location, this.TargetTightPolyline) === F.Inside;
+		this.sourceIsInsideOfTargetTightPolyline = this.TargetTightPolyline == null || L.PointRelativeToCurveLocation(this.sourcePort.Location, this.TargetTightPolyline) === I.Inside;
 		let n;
 		if (this.sourcePort instanceof us) {
 			let t = this.sourcePort;
@@ -10522,8 +10529,8 @@ var ic = class e {
 		return r.Curve.boundingBox.contains(this.sourcePort.Location) ? (this.sourceVV = this.GetVertex(this.sourcePort.Location), this._polyline = this.GetShortestPolylineToMulitpleTargets(this.sourceVV, Array.from(this.Targets(e))), this._polyline == null ? null : (this.FixLastPolylinePointForAnywherePort(r), r.HookSize > 0 && this.BuildHook(r), this.SmoothCornersAndReturnCurve(t, n))) : (n.smoothedPolyline = null, null);
 	}
 	BuildHook(e) {
-		let t = e.Curve, n = P.mkFullEllipseNNP(e.HookSize, e.HookSize, this._polyline.end), r = I.getAllIntersections(t, n, !0);
-		j.getTriangleOrientation(r[0].x, this._polyline.end, this._polyline.endPoint.prev.point) == k.Counterclockwise && r.reverse();
+		let t = e.Curve, n = F.mkFullEllipseNNP(e.HookSize, e.HookSize, this._polyline.end), r = L.getAllIntersections(t, n, !0);
+		N.getTriangleOrientation(r[0].x, this._polyline.end, this._polyline.endPoint.prev.point) == j.Counterclockwise && r.reverse();
 		let i = this._polyline.end.sub(this._polyline.endPoint.prev.point).normalize(), a = t.derivative(r[0].par0).normalize(), o = a.dot(i);
 		if (Math.abs(o) < .2) this.ExtendPolyline(a, r[0], i, e);
 		else {
@@ -10535,7 +10542,7 @@ var ic = class e {
 		let i = e.rotate(Math.PI / 2);
 		i.dot(n) < 0 && (i = i.neg());
 		let a = t.x.add(i.mul(r.HookSize)), o;
-		(o = j.lineLineIntersection(a, a.add(e), this._polyline.end, this._polyline.end.add(n))) && (this._polyline.addPoint(o), this._polyline.addPoint(a), this._polyline.addPoint(t.x));
+		(o = N.lineLineIntersection(a, a.add(e), this._polyline.end, this._polyline.end.add(n))) && (this._polyline.addPoint(o), this._polyline.addPoint(a), this._polyline.addPoint(t.x));
 	}
 	FixLastPolylinePointForAnywherePort(t) {
 		for (;;) {
@@ -10543,11 +10550,11 @@ var ic = class e {
 			n.next.next = null, this._polyline.endPoint = n.next;
 			let r = n.next.point.sub(n.point);
 			r = r.normalize().mul(t.Curve.boundingBox.diagonal);
-			let i = r.rotate(t.AdjustmentAngle * -1), a = r.rotate(t.AdjustmentAngle), o = I.intersectionOne(t.Curve, N.mkPP(n.point, n.point.add(i)), !0), s = I.intersectionOne(t.Curve, N.mkPP(n.point, n.point.add(a)), !0);
+			let i = r.rotate(t.AdjustmentAngle * -1), a = r.rotate(t.AdjustmentAngle), o = L.intersectionOne(t.Curve, P.mkPP(n.point, n.point.add(i)), !0), s = L.intersectionOne(t.Curve, P.mkPP(n.point, n.point.add(a)), !0);
 			if (o == null || s == null) return;
 			let c = e.GetTrimmedCurveForHookingUpAnywhere(t.Curve, n, o, s), l = c.value(c.closestParameter(n.point));
-			if (!this.LineAvoidsTightHierarchyLPP(N.mkPP(n.point, l), this.SourceTightPolyline, null)) {
-				let e = I.intersectionOne(t.Curve, N.mkPP(n.point, n.next.point), !1);
+			if (!this.LineAvoidsTightHierarchyLPP(P.mkPP(n.point, l), this.SourceTightPolyline, null)) {
+				let e = L.intersectionOne(t.Curve, P.mkPP(n.point, n.next.point), !1);
 				if (e == null) return;
 				this._polyline.endPoint.point = e.x;
 				break;
@@ -10556,18 +10563,18 @@ var ic = class e {
 		}
 	}
 	static GetTrimmedCurveForHookingUpAnywhere(e, t, n, r) {
-		let i = j.getTriangleOrientation(r.x, n.x, t.point) === k.Clockwise, a = n.par0, o = r.par0, s, c, l;
-		return i ? a < o ? e.trim(a, o) : (c = e.trim(a, e.parEnd), s = e.trim(e.parStart, o), l = new I(), l.addSegs([c, s])) : o < a ? e.trim(o, a) : (c = e.trim(o, e.parEnd), s = e.trim(e.parStart, a), l = new I(), l.addSegs([c, s]));
+		let i = N.getTriangleOrientation(r.x, n.x, t.point) === j.Clockwise, a = n.par0, o = r.par0, s, c, l;
+		return i ? a < o ? e.trim(a, o) : (c = e.trim(a, e.parEnd), s = e.trim(e.parStart, o), l = new L(), l.addSegs([c, s])) : o < a ? e.trim(o, a) : (c = e.trim(o, e.parEnd), s = e.trim(e.parStart, a), l = new L(), l.addSegs([c, s]));
 	}
 	GetLastPointInsideOfCurveOnPolyline(e) {
-		for (let t = this._polyline.endPoint.prev; t != null; t = t.prev) if (t.prev == null || I.PointRelativeToCurveLocation(t.point, e) === F.Inside) return t;
+		for (let t = this._polyline.endPoint.prev; t != null; t = t.prev) if (t.prev == null || L.PointRelativeToCurveLocation(t.point, e) === I.Inside) return t;
 		throw Error();
 	}
 	GetShortestPolylineToMulitpleTargets(e, t) {
 		this.CleanTheGraphForShortestPath();
 		let n = new Ys(e, t, this.VisibilityGraph).GetPath();
 		if (n == null) return null;
-		let r = new L();
+		let r = new R();
 		for (let e of n) r.addPoint(e.point);
 		return r.RemoveCollinearVertices();
 	}
@@ -10579,7 +10586,7 @@ var ic = class e {
 	}
 	FigureOutSourceTargetPolylinesAndActiveRectangle() {
 		let t = this.sourcePort.Curve.value(this.sourcePort.Curve.parStart);
-		this._sourceTightPolyline = e.GetFirstHitPolyline(t, this.ObstacleCalculator.RootOfTightHierarchy), this.SourceLoosePolyline = e.GetFirstHitPolyline(t, this.ObstacleCalculator.RootOfLooseHierarchy), t = this.targetPort.Curve.value(this.targetPort.Curve.parStart), this.targetTightPolyline = e.GetFirstHitPolyline(t, this.ObstacleCalculator.RootOfTightHierarchy), this.targetLoosePolyline = e.GetFirstHitPolyline(t, this.ObstacleCalculator.RootOfLooseHierarchy), this.activeRectangle = R.mkPP(new j(-Infinity, Infinity), new j(Infinity, -Infinity));
+		this._sourceTightPolyline = e.GetFirstHitPolyline(t, this.ObstacleCalculator.RootOfTightHierarchy), this.SourceLoosePolyline = e.GetFirstHitPolyline(t, this.ObstacleCalculator.RootOfLooseHierarchy), t = this.targetPort.Curve.value(this.targetPort.Curve.parStart), this.targetTightPolyline = e.GetFirstHitPolyline(t, this.ObstacleCalculator.RootOfTightHierarchy), this.targetLoosePolyline = e.GetFirstHitPolyline(t, this.ObstacleCalculator.RootOfLooseHierarchy), this.activeRectangle = z.mkPP(new N(-Infinity, Infinity), new N(Infinity, -Infinity));
 	}
 	*AllPolygons() {
 		for (let e of this.ObstacleCalculator.LooseObstacles) yield new Hs(e);
@@ -10610,17 +10617,17 @@ var ic = class e {
 		let n = e.findTrimStartForArrowheadAtSource(t);
 		if (n == null) return !1;
 		let r = e.findTrimEndForArrowheadAtTarget(t);
-		if (r == null || n > r - E.intersectionEpsilon || I.closeIntersectionPoints(t.curve.value(n), t.curve.value(r))) return !1;
+		if (r == null || n > r - O.intersectionEpsilon || L.closeIntersectionPoints(t.curve.value(n), t.curve.value(r))) return !1;
 		let i = t.curve.trim(n, r);
 		return i == null ? !1 : (t.sourceArrowhead != null && (t.sourceArrowhead.tipPosition = t.curve.start), t.targetArrowhead != null && (t.targetArrowhead.tipPosition = t.curve.end), t.curve = i, !0);
 	}
 	static getIntersectionsWithArrowheadCircle(e, t, n) {
-		let r = P.mkFullEllipseNNP(t, t, n);
-		return I.getAllIntersections(r, e, !0);
+		let r = F.mkFullEllipseNNP(t, t, n);
+		return L.getAllIntersections(r, e, !0);
 	}
 	static findTrimEndForArrowheadAtTarget(t) {
-		let n = E.distanceEpsilon * E.distanceEpsilon, r = t.curve.parEnd;
-		if (t.targetArrowhead == null || t.targetArrowhead.length <= E.distanceEpsilon) return r;
+		let n = O.distanceEpsilon * O.distanceEpsilon, r = t.curve.parEnd;
+		if (t.targetArrowhead == null || t.targetArrowhead.length <= O.distanceEpsilon) return r;
 		let i = t.curve, a = t.targetArrowhead.length, o, s, c = 10;
 		do {
 			if (c--, c === 0) return;
@@ -10629,8 +10636,8 @@ var ic = class e {
 		return r;
 	}
 	static findTrimStartForArrowheadAtSource(t) {
-		if (t.sourceArrowhead == null || t.sourceArrowhead.length <= E.distanceEpsilon) return t.curve.parStart;
-		let n = E.distanceEpsilon * E.distanceEpsilon, r = t.sourceArrowhead.length, i, a = t.curve, o, s = 10, c;
+		if (t.sourceArrowhead == null || t.sourceArrowhead.length <= O.distanceEpsilon) return t.curve.parStart;
+		let n = O.distanceEpsilon * O.distanceEpsilon, r = t.sourceArrowhead.length, i, a = t.curve, o, s = 10, c;
 		for (; --s > 0;) {
 			if (o = e.getIntersectionsWithArrowheadCircle(a, r, a.start), o.length === 0) return a.parStart;
 			if (c = Math.min(...o.map((e) => e.par1)), i = o.filter((e) => e.par1 === c)[0].x, i.sub(a.end).lengthSquared >= n) return c;
@@ -10641,21 +10648,21 @@ var ic = class e {
 		return e.trimSplineAndCalculateArrowheadsII(t, t.source.boundaryCurve, t.target.boundaryCurve, n, r);
 	}
 	static trimSplineAndCalculateArrowheadsII(t, n, r, i, a) {
-		if (t.curve = I.trimEdgeSplineWithNodeBoundaries(n, r, i, a), t.curve == null) return !1;
-		if ((t.sourceArrowhead == null || t.sourceArrowhead.length < E.distanceEpsilon) && (t.targetArrowhead == null || t.targetArrowhead.length < E.distanceEpsilon)) return !0;
+		if (t.curve = L.trimEdgeSplineWithNodeBoundaries(n, r, i, a), t.curve == null) return !1;
+		if ((t.sourceArrowhead == null || t.sourceArrowhead.length < O.distanceEpsilon) && (t.targetArrowhead == null || t.targetArrowhead.length < O.distanceEpsilon)) return !0;
 		let o = !1, s = t.sourceArrowhead == null ? 0 : t.sourceArrowhead.length, c = t.targetArrowhead == null ? 0 : t.targetArrowhead.length, l = t.curve.end.sub(t.curve.start).length;
 		t.sourceArrowhead != null && (t.sourceArrowhead.length = Math.min(l, s)), t.targetArrowhead != null && (t.targetArrowhead.length = Math.min(l, c));
 		let u = 10;
-		for (; (t.sourceArrowhead != null && t.sourceArrowhead.length > E.intersectionEpsilon || t.targetArrowhead != null && t.targetArrowhead.length > E.intersectionEpsilon) && !o && (o = e.calculateArrowheads(t), o || (t.sourceArrowhead != null && (t.sourceArrowhead.length *= .5), t.targetArrowhead != null && (t.targetArrowhead.length *= .5)), u--, u !== 0););
+		for (; (t.sourceArrowhead != null && t.sourceArrowhead.length > O.intersectionEpsilon || t.targetArrowhead != null && t.targetArrowhead.length > O.intersectionEpsilon) && !o && (o = e.calculateArrowheads(t), o || (t.sourceArrowhead != null && (t.sourceArrowhead.length *= .5), t.targetArrowhead != null && (t.targetArrowhead.length *= .5)), u--, u !== 0););
 		return o || (t.sourceArrowhead != null && (t.sourceArrowhead.tipPosition = i.start), t.targetArrowhead != null && (t.targetArrowhead.tipPosition = i.end)), t.sourceArrowhead != null && (t.sourceArrowhead.length = s), t.targetArrowhead != null && (t.targetArrowhead.length = c), o;
 	}
 	static createBigEnoughSpline(t) {
 		let n = t.source.center, r = t.target.center, i = r.sub(n), a = i.length, o;
-		a < .001 ? (o = new j(1, 0), r = n.add(o.rotate(Math.PI / 2))) : o = i.rotate(Math.PI / 2);
+		a < .001 ? (o = new N(1, 0), r = n.add(o.rotate(Math.PI / 2))) : o = i.rotate(Math.PI / 2);
 		let s = 1;
 		t.sourceArrowhead != null && (s += t.sourceArrowhead.length), t.targetArrowhead != null && (s += t.targetArrowhead.length), o = o.normalize().mul(1.5 * s);
 		for (let i = 1; i < 1e4; i *= 2) {
-			let a = I.createBezierSegN(n, r, o, i);
+			let a = L.createBezierSegN(n, r, o, i);
 			if (e.trimSplineAndCalculateArrowheadsII(t, t.source.boundaryCurve, t.target.boundaryCurve, a, !1)) return;
 		}
 		e.createEdgeCurveWithNoTrimming(t, n, r);
@@ -10664,7 +10671,7 @@ var ic = class e {
 		let r = n.sub(t).normalize(), i = t, a = n, o = e.targetArrowhead;
 		o != null && (o.tipPosition = n, a = n.sub(r.mul(o.length)));
 		let s = e.sourceArrowhead;
-		s != null && (s.tipPosition = t, i = t.add(r.mul(s.length))), e.curve = N.mkPP(i, a);
+		s != null && (s.tipPosition = t, i = t.add(r.mul(s.length))), e.curve = P.mkPP(i, a);
 	}
 };
 cc.defaultArrowheadLength = 5;
@@ -10690,7 +10697,7 @@ var lc = class {
 		return this.m.has(fc(e));
 	}
 	getPP(e, t) {
-		return this.get(new Fa(e, t));
+		return this.get(new Pa(e, t));
 	}
 	get(e) {
 		return this.m.get(fc(e));
@@ -10706,8 +10713,8 @@ var lc = class {
 	}
 };
 function uc(e) {
-	let t = e.split(" "), n = t[0], r = t[1], i = n.split(","), a = new j(Number(i[0]), Number(i[1]));
-	return i = r.split(","), new Fa(a, new j(Number(i[0]), Number(i[1])));
+	let t = e.split(" "), n = t[0], r = t[1], i = n.split(","), a = new N(Number(i[0]), Number(i[1]));
+	return i = r.split(","), new Pa(a, new N(Number(i[0]), Number(i[1])));
 }
 function dc(e, t) {
 	return [pc(e), pc(t)].sort().join(" ");
@@ -10788,7 +10795,7 @@ var _c = class {
 		let r = Array(t.nodeCount).fill(gc.NotVisited);
 		for (let i = 0; i < t.nodeCount; i++) {
 			if (r[i] === gc.Visited) continue;
-			let a = new H.Stack(), o = 0;
+			let a = new U.Stack(), o = 0;
 			for (e.push(a, r, i, o); a.size > 0;) {
 				let s = a.pop();
 				i = s.v, r[i] = gc.Visited, o = s.i;
@@ -10814,7 +10821,7 @@ var _c = class {
 		return this.max - this.min;
 	}
 	static sign(e) {
-		return e > E.distanceEpsilon ? 1 : e < -E.distanceEpsilon ? -1 : 0;
+		return e > O.distanceEpsilon ? 1 : e < -O.distanceEpsilon ? -1 : 0;
 	}
 }, bc = class e {
 	SetActiveState(e, t) {
@@ -10847,7 +10854,7 @@ var _c = class {
 	}
 	CompareTo(e) {
 		let t = this.Left.CompareTo(e.Left);
-		return t === 0 && (t = this.Right.CompareTo(e.Right)), t === 0 && (t = D(this.Gap, e.Gap)), t;
+		return t === 0 && (t = this.Right.CompareTo(e.Right)), t === 0 && (t = k(this.Gap, e.Gap)), t;
 	}
 }, xc = class e {
 	static constructorDCVV(t, n, r, i) {
@@ -10878,7 +10885,7 @@ var _c = class {
 		return zo.String.format("[Block: nvars = {0} refpos = {1:F5} scale = {2:F5}]", this.Variables.length, this.ReferencePos, this.Scale);
 	}
 	ComputeDfDv(e) {
-		this.allConstraints.DfDvStack = new H.Stack();
+		this.allConstraints.DfDvStack = new U.Stack();
 		let t = new bc(e);
 		this.dfDvDummyParentNode = new xc(t);
 		let n = this.GetDfDvNode(this.dfDvDummyParentNode, t, e, null);
@@ -10986,7 +10993,7 @@ var _c = class {
 		this.RecurseGetConnectedVariables(e, t, n);
 	}
 	RecurseGetConnectedVariables(e, t, n) {
-		this.allConstraints.DfDvStack = new H.Stack();
+		this.allConstraints.DfDvStack = new U.Stack();
 		let r = new bc(t);
 		for (this.dfDvDummyParentNode = new xc(r), this.allConstraints.DfDvStack.push(this.GetDfDvNode(this.dfDvDummyParentNode, r, t, n)), e.push(t); this.allConstraints.DfDvStack.length > 0;) {
 			let t = this.allConstraints.DfDvStack.top, n = this.allConstraints.DfDvStack.length;
@@ -11034,7 +11041,7 @@ var _c = class {
 	}
 }, Tc = class {
 	constructor() {
-		this.nextConstraintIndex = 0, this.DfDvStack = new H.Stack(), this.DfDvRecycleStack = new H.Stack();
+		this.nextConstraintIndex = 0, this.DfDvStack = new U.Stack(), this.DfDvRecycleStack = new U.Stack();
 	}
 	get IsEmpty() {
 		return this.Vector == null;
@@ -11228,7 +11235,7 @@ var Nc = class {
 		this.LeftConstraints = e, this.RightConstraints = t;
 	}
 	CompareTo(e) {
-		return D(this.Ordinal, e.Ordinal);
+		return k(this.Ordinal, e.Ordinal);
 	}
 }, Fc = class e {
 	get IsFull() {
@@ -11486,10 +11493,10 @@ var Ic = class {
 		let n = this.lastModifiedBlock.Variables.length;
 		for (let r = 0; r < n; r++) {
 			let n = this.lastModifiedBlock.Variables[r];
-			for (let r of n.LeftConstraints) !r.IsActive && !r.IsUnsatisfiable && ea(r.Left.ActualPos * r.Left.Scale + (r.Gap - r.Right.ActualPos * r.Right.Scale), e) && (t != null && e > this.violationCache.LowViolation && this.violationCache.Insert(t, e), e = r.Violation, t = r);
+			for (let r of n.LeftConstraints) !r.IsActive && !r.IsUnsatisfiable && Qi(r.Left.ActualPos * r.Left.Scale + (r.Gap - r.Right.ActualPos * r.Right.Scale), e) && (t != null && e > this.violationCache.LowViolation && this.violationCache.Insert(t, e), e = r.Violation, t = r);
 			for (let r of n.RightConstraints) if (!r.IsActive && !r.IsUnsatisfiable && r.Left.Block !== this.lastModifiedBlock) {
 				let n = r.Left.ActualPos * r.Left.Scale + (r.Gap - r.Right.ActualPos * r.Right.Scale);
-				ea(n, e) && (t != null && e > this.violationCache.LowViolation && this.violationCache.Insert(t, e), e = n, t = r);
+				Qi(n, e) && (t != null && e > this.violationCache.LowViolation && this.violationCache.Insert(t, e), e = n, t = r);
 			}
 		}
 		let r = this.violationCache.FindIfGreater(e);
@@ -11502,7 +11509,7 @@ var Ic = class {
 			if (r.IsActive) break;
 			if (r.IsUnsatisfiable) continue;
 			let i = r.Left.ActualPos * r.Left.Scale + (r.Gap - r.Right.ActualPos * r.Right.Scale), a = null, o = 0;
-			ea(i, e) && (e > this.violationCache.LowViolation && (a = n, o = e), e = i, n = r), t && (a == null && r !== n && (!this.violationCache.IsFull || i > this.violationCache.LowViolation) && (a = r, o = i), a != null && o > this.violationCache.LowViolation && this.violationCache.Insert(a, o));
+			Qi(i, e) && (e > this.violationCache.LowViolation && (a = n, o = e), e = i, n = r), t && (a == null && r !== n && (!this.violationCache.IsFull || i > this.violationCache.LowViolation) && (a = r, o = i), a != null && o > this.violationCache.LowViolation && this.violationCache.Insert(a, o));
 		}
 		return n;
 	}
@@ -11728,7 +11735,7 @@ Z.colors = /* @__PURE__ */ "DeepSkyBlue.IndianRed.Orange.Gold.DarkRed.Plum.Red.V
 //#region ../node_modules/@msagl/core/dist/routing/rectilinear/nudging/AxisEdge.js
 var Vc = class extends Bo {
 	constructor(e, t) {
-		super(e, t), this.RightNeighbors = /* @__PURE__ */ new Set(), this.setOfLongestSegs = /* @__PURE__ */ new Set(), this.RightBound = Infinity, this.LeftBound = -Infinity, this.Direction = V.DirectionFromPointToPoint(e.point, t.point);
+		super(e, t), this.RightNeighbors = /* @__PURE__ */ new Set(), this.setOfLongestSegs = /* @__PURE__ */ new Set(), this.RightBound = Infinity, this.LeftBound = -Infinity, this.Direction = H.DirectionFromPointToPoint(e.point, t.point);
 	}
 	AddRightNeighbor(e) {
 		this.RightNeighbors.add(e);
@@ -11789,13 +11796,13 @@ var Vc = class extends Bo {
 		return this.Reversed ? this.AxisEdge.SourcePoint : this.AxisEdge.TargetPoint;
 	}
 	static VectorsAreParallel(e, t) {
-		return O(e.x * t.y - e.y * t.x, 0);
+		return A(e.x * t.y - e.y * t.x, 0);
 	}
 	static EdgesAreParallel(t, n) {
 		return e.VectorsAreParallel(t.AxisEdge.TargetPoint.sub(t.AxisEdge.SourcePoint), n.AxisEdge.TargetPoint.sub(n.AxisEdge.SourcePoint));
 	}
 	get Direction() {
-		return this.Reversed ? V.OppositeDir(this.AxisEdge.Direction) : this.AxisEdge.Direction;
+		return this.Reversed ? H.OppositeDir(this.AxisEdge.Direction) : this.AxisEdge.Direction;
 	}
 	get Index() {
 		return this.index;
@@ -11829,11 +11836,11 @@ var Vc = class extends Bo {
 		for (; !(n = e.next()).done;) yield this.CreatePathEdge(r, n.value, t), r = n.value;
 	}
 	CreatePathEdge(e, t, n) {
-		switch (V.DirectionFromPointToPoint(e, t)) {
-			case z.East:
-			case z.North: return new Uc(this.GetAxisEdge(e, t), n);
-			case z.South:
-			case z.West: {
+		switch (H.DirectionFromPointToPoint(e, t)) {
+			case B.East:
+			case B.North: return new Uc(this.GetAxisEdge(e, t), n);
+			case B.South:
+			case B.West: {
 				let r = new Uc(this.GetAxisEdge(t, e), n);
 				return r.Reversed = !0, r;
 			}
@@ -11859,7 +11866,7 @@ var Vc = class extends Bo {
 	static CompareTwoPathEdges(t, n) {
 		if (t === n) return 0;
 		let r = e.CompareInDirectionStartingFromAxisEdge(t, n, t.AxisEdge, t.AxisEdge.Direction);
-		return r === 0 ? -e.CompareInDirectionStartingFromAxisEdge(t, n, t.AxisEdge, V.OppositeDir(t.AxisEdge.Direction)) : r;
+		return r === 0 ? -e.CompareInDirectionStartingFromAxisEdge(t, n, t.AxisEdge, H.OppositeDir(t.AxisEdge.Direction)) : r;
 	}
 	static CompareInDirectionStartingFromAxisEdge(t, n, r, i) {
 		for (;;) {
@@ -11871,17 +11878,17 @@ var Vc = class extends Bo {
 				return i === r.Direction ? a : -a;
 			}
 			let a = i === r.Direction ? r.Target : r.Source, o = e.OtherVertex(t.AxisEdge, a), s = e.OtherVertex(n.AxisEdge, a), c = e.ProjectionForCompare(r, i !== r.Direction);
-			return D(c(o.point), c(s.point));
+			return k(c(o.point), c(s.point));
 		}
 	}
 	static FindContinuedDirection(e, t, n) {
-		return e.Direction === t ? n.Source === e.Target ? n.Direction : V.OppositeDir(n.Direction) : n.Source === e.Source ? n.Direction : V.OppositeDir(n.Direction);
+		return e.Direction === t ? n.Source === e.Target ? n.Direction : H.OppositeDir(n.Direction) : n.Source === e.Source ? n.Direction : H.OppositeDir(n.Direction);
 	}
 	static OtherVertex(e, t) {
 		return e.Source === t ? e.Target : e.Source;
 	}
 	static ProjectionForCompare(e, t) {
-		return e.Direction === z.North ? t ? (e) => -e.x : (e) => e.x : t ? (e) => e.y : (e) => -e.y;
+		return e.Direction === B.North ? t ? (e) => -e.x : (e) => e.x : t ? (e) => e.y : (e) => -e.y;
 	}
 	static GetNextPathEdgeInDirection(e, t, n) {
 		return t.Direction === n ? e.Reversed ? e.Prev : e.Next : e.Reversed ? e.Next : e.Prev;
@@ -11890,7 +11897,7 @@ var Vc = class extends Bo {
 		let r = t.Index;
 		if (r === -1) return e.NotOrdered;
 		let i = n.Index;
-		return D(r, i);
+		return k(r, i);
 	}
 	PathOrderOfVisEdge(e) {
 		return this.axisEdgesToPathOrders.get(e);
@@ -11947,7 +11954,7 @@ var Gc = class extends No {
 	}
 }, Jc = class e extends Ro {
 	constructor(e, t, n, r, i) {
-		super(t, new V(e).ToPoint()), this.DirectionPerp = new V(e).Right.ToPoint(), this.PathOrders = r, this.xProjection = e === z.North ? (e) => e.x : (e) => -e.y, this.edgeContainersTree = new jo((e, t) => this.CompareAA(e, t)), this.SweepPole = V.VectorDirection(this.SweepDirection), this.AxisEdges = i, this.AxisEdgesToObstaclesTheyOriginatedFrom = n;
+		super(t, new H(e).ToPoint()), this.DirectionPerp = new H(e).Right.ToPoint(), this.PathOrders = r, this.xProjection = e === B.North ? (e) => e.x : (e) => -e.y, this.edgeContainersTree = new jo((e, t) => this.CompareAA(e, t)), this.SweepPole = H.VectorDirection(this.SweepDirection), this.AxisEdges = i, this.AxisEdgesToObstaclesTheyOriginatedFrom = n;
 	}
 	FindFreeSpace() {
 		this.InitTheQueueOfEvents(), this.ProcessEvents();
@@ -11975,7 +11982,7 @@ var Gc = class extends No {
 		this.ProjectionsOfEdgesOverlap(e, t) && e.AddRightNeighbor(t);
 	}
 	ProjectionsOfEdgesOverlap(e, t) {
-		return this.SweepPole === z.North ? !(e.TargetPoint.y < t.SourcePoint.y - E.distanceEpsilon || t.TargetPoint.y < e.SourcePoint.y - E.distanceEpsilon) : !(e.TargetPoint.x < t.SourcePoint.x - E.distanceEpsilon || t.TargetPoint.x < e.SourcePoint.x - E.distanceEpsilon);
+		return this.SweepPole === B.North ? !(e.TargetPoint.y < t.SourcePoint.y - O.distanceEpsilon || t.TargetPoint.y < e.SourcePoint.y - O.distanceEpsilon) : !(e.TargetPoint.x < t.SourcePoint.x - O.distanceEpsilon || t.TargetPoint.x < e.SourcePoint.x - O.distanceEpsilon);
 	}
 	GetObstacleBoundaries(e) {
 		return this.Obstacles.map((t) => Z.mkDebugCurveWCI(1, e, t));
@@ -11999,24 +12006,24 @@ var Gc = class extends No {
 		e.BoundFromLeft(r.dot(this.DirectionPerp));
 	}
 	static PointToTheLeftOfLineOrOnLineLocal(t, n, r) {
-		return j.signedDoubledTriangleArea(t, n, r) > -e.AreaComparisonEpsilon;
+		return N.signedDoubledTriangleArea(t, n, r) > -e.AreaComparisonEpsilon;
 	}
 	static PointToTheRightOfLineOrOnLineLocal(t, n, r) {
-		return j.signedDoubledTriangleArea(n, r, t) < e.AreaComparisonEpsilon;
+		return N.signedDoubledTriangleArea(n, r, t) < e.AreaComparisonEpsilon;
 	}
 	GetActiveSideFromLeft(t) {
 		return this.RightObstacleSideTree.findLast((n) => e.PointToTheRightOfLineOrOnLineLocal(t, n.Start, n.End));
 	}
 	static EdgeMidPoint(e) {
-		return j.middle(e.SourcePoint, e.TargetPoint);
+		return N.middle(e.SourcePoint, e.TargetPoint);
 	}
 	GetOrCreateAxisEdgesContainer(e) {
 		let t = e.Source.point;
 		return this.GetAxisEdgesContainerNode(t) ?? this.edgeContainersTree.insert(new qc(t));
 	}
 	GetAxisEdgesContainerNode(e) {
-		let t = this.xProjection(e), n = this.edgeContainersTree.findFirst((e) => this.xProjection(e.Source) >= t - E.distanceEpsilon / 2);
-		return n != null && this.xProjection(n.item.Source) <= t + E.distanceEpsilon / 2 ? n : null;
+		let t = this.xProjection(e), n = this.edgeContainersTree.findFirst((e) => this.xProjection(e.Source) >= t - O.distanceEpsilon / 2);
+		return n != null && this.xProjection(n.item.Source) <= t + O.distanceEpsilon / 2 ? n : null;
 	}
 	ProcessVertexEvent(e) {
 		this.Z = this.GetZS(e), e instanceof ns ? this.ProcessLeftVertex(e, e.Vertex.nextOnPolyline) : (e instanceof as || this.ProcessLeftVertex(e, e.Vertex.nextOnPolyline), this.ProcessRightVertex(e, e.Vertex.prevOnPolyline));
@@ -12025,7 +12032,7 @@ var Gc = class extends No {
 		let n = e.Site;
 		this.ProcessPrevSegmentForRightVertex(e, n);
 		let r = t.point.sub(e.Site), i = r.dot(this.DirectionPerp), a = r.dot(this.SweepDirection);
-		a <= E.distanceEpsilon ? i > 0 && a >= 0 ? this.EnqueueEvent(new as(t)) : this.RestrictEdgeContainerToTheRightOfEvent(e.Vertex) : (this.InsertRightSide(new is(e.Vertex)), this.EnqueueEvent(new as(t)), this.RestrictEdgeContainerToTheRightOfEvent(e.Vertex));
+		a <= O.distanceEpsilon ? i > 0 && a >= 0 ? this.EnqueueEvent(new as(t)) : this.RestrictEdgeContainerToTheRightOfEvent(e.Vertex) : (this.InsertRightSide(new is(e.Vertex)), this.EnqueueEvent(new as(t)), this.RestrictEdgeContainerToTheRightOfEvent(e.Vertex));
 	}
 	RestrictEdgeContainerToTheRightOfEvent(e) {
 		let t = e.point, n = this.xProjection(t), r = this.edgeContainersTree.findFirst((e) => n <= this.xProjection(e.Source));
@@ -12036,7 +12043,7 @@ var Gc = class extends No {
 	}
 	ProcessPrevSegmentForRightVertex(e, t) {
 		let n = e.Vertex.nextOnPolyline.point;
-		t.sub(n).dot(this.SweepDirection) > E.distanceEpsilon && this.RemoveRightSide(new is(e.Vertex.nextOnPolyline));
+		t.sub(n).dot(this.SweepDirection) > O.distanceEpsilon && this.RemoveRightSide(new is(e.Vertex.nextOnPolyline));
 	}
 	RemoveEdge(e) {
 		let t = this.GetAxisEdgesContainerNode(e.Source.point);
@@ -12046,7 +12053,7 @@ var Gc = class extends No {
 		let n = e.Site;
 		this.ProcessPrevSegmentForLeftVertex(e, n);
 		let r = t.point.sub(e.Site), i = r.dot(this.DirectionPerp), a = r.dot(this.SweepDirection);
-		a <= E.distanceEpsilon ? i < 0 && a >= 0 && this.EnqueueEvent(new ns(t)) : (this.InsertLeftSide(new ts(e.Vertex)), this.EnqueueEvent(new ns(t))), this.RestrictEdgeFromTheLeftOfEvent(e.Vertex);
+		a <= O.distanceEpsilon ? i < 0 && a >= 0 && this.EnqueueEvent(new ns(t)) : (this.InsertLeftSide(new ts(e.Vertex)), this.EnqueueEvent(new ns(t))), this.RestrictEdgeFromTheLeftOfEvent(e.Vertex);
 	}
 	RestrictEdgeFromTheLeftOfEvent(e) {
 		let t = e.point, n = this.GetContainerNodeToTheLeftOfEvent(t);
@@ -12058,7 +12065,7 @@ var Gc = class extends No {
 	}
 	ProcessPrevSegmentForLeftVertex(e, t) {
 		let n = e.Vertex.prevOnPolyline.point;
-		t.sub(n).dot(this.SweepDirection) > E.distanceEpsilon && this.RemoveLeftSide(new ts(e.Vertex.prevOnPolyline));
+		t.sub(n).dot(this.SweepDirection) > O.distanceEpsilon && this.RemoveLeftSide(new ts(e.Vertex.prevOnPolyline));
 	}
 	InitTheQueueOfEvents() {
 		this.InitQueueOfEvents();
@@ -12068,7 +12075,7 @@ var Gc = class extends No {
 		this.EdgeIsParallelToSweepDir(t) && (this.EnqueueEvent(e.EdgeLowPointEvent(t, t.Source.point)), this.EnqueueEvent(e.EdgeHighPointEvent(t, t.Target.point)));
 	}
 	EdgeIsParallelToSweepDir(e) {
-		return e.Direction === this.SweepPole || e.Direction === V.OppositeDir(this.SweepPole);
+		return e.Direction === this.SweepPole || e.Direction === H.OppositeDir(this.SweepPole);
 	}
 	static EdgeHighPointEvent(e, t) {
 		return new Gc(e, t);
@@ -12077,15 +12084,15 @@ var Gc = class extends No {
 		return new Kc(e, t);
 	}
 	CompareAA(e, t) {
-		return D(e.Source.dot(this.DirectionPerp), t.Source.dot(this.DirectionPerp));
+		return k(e.Source.dot(this.DirectionPerp), t.Source.dot(this.DirectionPerp));
 	}
 };
-Jc.AreaComparisonEpsilon = E.intersectionEpsilon;
+Jc.AreaComparisonEpsilon = O.intersectionEpsilon;
 //#endregion
 //#region ../node_modules/@msagl/core/dist/routing/rectilinear/nudging/LongestNudgedSegment.js
 var Yc = class extends $o {
 	constructor(e) {
-		super(), this.CompassDirection = z.None, this.edges = [], this._isFixed = !1, this.Id = -1, this.IdealPosition = 0, this.Id = e;
+		super(), this.CompassDirection = B.None, this.edges = [], this._isFixed = !1, this.Id = -1, this.IdealPosition = 0, this.Id = e;
 	}
 	get Start() {
 		return this.start;
@@ -12098,22 +12105,22 @@ var Yc = class extends $o {
 	}
 	AddEdge(e) {
 		if (this.Edges.length === 0) {
-			let t = V.VectorDirectionPP(e.Source, e.Target);
+			let t = H.VectorDirectionPP(e.Source, e.Target);
 			switch (t) {
-				case z.South:
-					t = z.North;
+				case B.South:
+					t = B.North;
 					break;
-				case z.West:
-					t = z.East;
+				case B.West:
+					t = B.East;
 					break;
 			}
 			this.CompassDirection = t, this.start = e.Source, this.end = e.Source;
 		}
 		switch (this.CompassDirection) {
-			case z.North:
+			case B.North:
 				this.TryPointForStartAndEndNorth(e.Source), this.TryPointForStartAndEndNorth(e.Target);
 				break;
-			case z.East:
+			case B.East:
 				this.TryPointForStartAndEndEast(e.Source), this.TryPointForStartAndEndEast(e.Target);
 				break;
 		}
@@ -12142,7 +12149,7 @@ var Yc = class extends $o {
 			for (let t of this.edges) e = Math.max(e, t.AxisEdge.LeftBound);
 			return e;
 		}
-		return this.CompassDirection === z.North ? this.Edges[0].Source.x : -this.Edges[0].Source.y;
+		return this.CompassDirection === B.North ? this.Edges[0].Source.x : -this.Edges[0].Source.y;
 	}
 	GetRightBound() {
 		if (!this.IsFixed) {
@@ -12153,11 +12160,11 @@ var Yc = class extends $o {
 		return this.Position();
 	}
 	Position() {
-		return this.CompassDirection === z.North ? this.Edges[0].Source.x : -this.Edges[0].Source.y;
+		return this.CompassDirection === B.North ? this.Edges[0].Source.x : -this.Edges[0].Source.y;
 	}
 }, Xc = class e {
 	constructor(e, t) {
-		this.tree = new jo((e, t) => D(e.Point.x, t.Point.x)), this.VerticalPoints = t, this.HorizontalPoints = e;
+		this.tree = new jo((e, t) => k(e.Point.x, t.Point.x)), this.VerticalPoints = t, this.HorizontalPoints = e;
 	}
 	SplitPoints() {
 		this.VerticalPoints.length === 0 || this.HorizontalPoints.length === 0 || (this.InitEventQueue(), this.ProcessEvents());
@@ -12169,24 +12176,24 @@ var Yc = class extends $o {
 		}
 	}
 	ProcessEvent(t, n) {
-		O(t.Next.Point.x, t.Point.x) ? n === e.Low(t) ? this.ProcessLowLinkedPointEvent(t) : this.ProcessHighLinkedPointEvent(t) : this.IntersectWithTree(t);
+		A(t.Next.Point.x, t.Point.x) ? n === e.Low(t) ? this.ProcessLowLinkedPointEvent(t) : this.ProcessHighLinkedPointEvent(t) : this.IntersectWithTree(t);
 	}
 	IntersectWithTree(t) {
 		let n, r, i, a = t.Y;
 		if (t.Point.x < t.Next.Point.x ? (r = t.Point.x, n = t.Next.Point.x, i = !0) : (n = t.Point.x, r = t.Next.Point.x, i = !1), i) for (let i = this.tree.findFirst((e) => r <= e.Point.x); i != null && i.item.Point.x <= n; i = this.tree.next(i)) {
-			let n = new j(i.item.Point.x, a);
+			let n = new N(i.item.Point.x, a);
 			t = e.TrySplitHorizontalPoint(t, n, !0), e.TrySplitVerticalPoint(i.item, n);
 		}
 		else for (let i = this.tree.findLast((e) => e.Point.x <= n); i != null && i.item.Point.x >= r; i = this.tree.previous(i)) {
-			let n = new j(i.item.Point.x, a);
+			let n = new N(i.item.Point.x, a);
 			t = e.TrySplitHorizontalPoint(t, n, !1), e.TrySplitVerticalPoint(i.item, n);
 		}
 	}
 	static TrySplitVerticalPoint(t, n) {
-		e.Low(t) + E.distanceEpsilon < n.y && n.y + E.distanceEpsilon < e.High(t) && t.SetNewNext(n);
+		e.Low(t) + O.distanceEpsilon < n.y && n.y + O.distanceEpsilon < e.High(t) && t.SetNewNext(n);
 	}
 	static TrySplitHorizontalPoint(e, t, n) {
-		return n && e.X + E.distanceEpsilon < t.x && t.x + E.distanceEpsilon < e.Next.X || !n && e.Next.X + E.distanceEpsilon < t.x && t.x + E.distanceEpsilon < e.X ? (e.SetNewNext(t), e.Next) : e;
+		return n && e.X + O.distanceEpsilon < t.x && t.x + O.distanceEpsilon < e.Next.X || !n && e.Next.X + O.distanceEpsilon < t.x && t.x + O.distanceEpsilon < e.X ? (e.SetNewNext(t), e.Next) : e;
 	}
 	ProcessHighLinkedPointEvent(e) {
 		this.tree.remove(e);
@@ -12195,7 +12202,7 @@ var Yc = class extends $o {
 		this.tree.insert(e);
 	}
 	InitEventQueue() {
-		this.Queue = new Js(D);
+		this.Queue = new Js(k);
 		for (let t of this.VerticalPoints) this.Queue.Enqueue(t, e.Low(t));
 		for (let e of this.HorizontalPoints) this.Queue.Enqueue(e, e.Point.y);
 	}
@@ -12271,24 +12278,24 @@ var Yc = class extends $o {
 	}
 	static AdjustPathPoints(e) {
 		if (!e || e.length === 0) return;
-		let t = [], n = j.RoundPoint(e[0]);
+		let t = [], n = N.RoundPoint(e[0]);
 		t.push(n);
 		for (let r = 1; r < e.length; r++) {
-			let i = j.RoundPoint(e[r]);
+			let i = N.RoundPoint(e[r]);
 			n.equal(i) || (n = i, t.push(n));
 		}
 		return t;
 	}
 	static CrossVerticalAndHorizontalSegs(e) {
 		let t = [], n = [];
-		for (let r of e) for (let e = r; e.Next != null; e = e.Next) O(e.Point.x, e.Next.Point.x) ? n.push(e) : t.push(e);
+		for (let r of e) for (let e = r; e.Next != null; e = e.Next) A(e.Point.x, e.Next.Point.x) ? n.push(e) : t.push(e);
 		new Xc(t, n).SplitPoints();
 	}
 	static ReconstructPathsFromLinkedVertices(e) {
 		for (let [t, n] of e) t.PathPoints = n;
 	}
 	static Refine(t) {
-		e.RefineInDirection(z.North, t), e.RefineInDirection(z.East, t);
+		e.RefineInDirection(B.North, t), e.RefineInDirection(B.East, t);
 	}
 	static *groupByProj(e, t) {
 		let n = /* @__PURE__ */ new Map();
@@ -12308,10 +12315,10 @@ var Yc = class extends $o {
 		for (let t of a) e.RefineCollinearBucket(t, r.projectionToDirection);
 	}
 	static GetProjectionsDelegates(e, t) {
-		e === z.East ? (t.projectionToDirection = (e) => e.x, t.projectionToPerp = (e) => e.y) : (t.projectionToPerp = (e) => e.x, t.projectionToDirection = (e) => e.y);
+		e === B.East ? (t.projectionToDirection = (e) => e.x, t.projectionToPerp = (e) => e.y) : (t.projectionToPerp = (e) => e.x, t.projectionToDirection = (e) => e.y);
 	}
 	static *GetAllLinkedVertsInDirection(e, t) {
-		for (let n of t) for (let t = n; t.Next != null; t = t.Next) O(e(t.Point), e(t.Next.Point)) && (yield t);
+		for (let n of t) for (let t = n; t.Next != null; t = t.Next) A(e(t.Point), e(t.Next.Point)) && (yield t);
 	}
 	static RefineCollinearBucket(t, n) {
 		let r = /* @__PURE__ */ new Set(), i = [];
@@ -12395,27 +12402,27 @@ var Yc = class extends $o {
 		}
 	}
 	static GetFlippedPoint(e, t) {
-		return O(e[t].y, e[t + 1].y) ? new j(e[t + 4].x, e[t].y) : new j(e[t].x, e[t + 4].y);
+		return A(e[t].y, e[t + 1].y) ? new N(e[t + 4].x, e[t].y) : new N(e[t].x, e[t + 4].y);
 	}
 	Crossing(t, n, r) {
-		return e.IsCrossing(N.mkPP(t, n), this.segTree, r);
+		return e.IsCrossing(P.mkPP(t, n), this.segTree, r);
 	}
 	static IsCrossing(e, t, n) {
 		for (let r of t.GetAllIntersecting(e.boundingBox)) if (n.findIndex((e) => e === r) === -1) return !0;
 		return !1;
 	}
 	IntersectObstacleHierarchyPPP(e, t, n) {
-		return this.IntersectObstacleHierarchyL(N.mkPP(e, t)) || this.IntersectObstacleHierarchyL(N.mkPP(t, n));
+		return this.IntersectObstacleHierarchyL(P.mkPP(e, t)) || this.IntersectObstacleHierarchyL(P.mkPP(t, n));
 	}
 	IntersectObstacleHierarchyL(e) {
-		return this.HierarchyOfObstacles.GetAllIntersecting(e.boundingBox).some((t) => I.intersectionOne(e, t, !1) != null);
+		return this.HierarchyOfObstacles.GetAllIntersecting(e.boundingBox).some((t) => L.intersectionOne(e, t, !1) != null);
 	}
 	IsStaircase(t, n, r, i) {
 		let a = t[n], o = t[n + 1], s = t[n + 2], c = t[n + 3], l = t[n + 4];
-		return i.canHaveStaircaseAtI = !1, V.DirectionFromPointToPoint(a, o) !== V.DirectionFromPointToPoint(s, c) || V.DirectionFromPointToPoint(o, s) !== V.DirectionFromPointToPoint(c, l) || (s = e.GetFlippedPoint(t, n), this.IntersectObstacleHierarchyPPP(o, s, c)) ? !1 : (i.canHaveStaircaseAtI = !0, !this.Crossing(o, s, r));
+		return i.canHaveStaircaseAtI = !1, H.DirectionFromPointToPoint(a, o) !== H.DirectionFromPointToPoint(s, c) || H.DirectionFromPointToPoint(o, s) !== H.DirectionFromPointToPoint(c, l) || (s = e.GetFlippedPoint(t, n), this.IntersectObstacleHierarchyPPP(o, s, c)) ? !1 : (i.canHaveStaircaseAtI = !0, !this.Crossing(o, s, r));
 	}
 	RemoveStaircasePN(e, t) {
-		let n = e[t], r = e[t + 1], i = Math.abs(n.y - r.y) < E.distanceEpsilon / 2;
+		let n = e[t], r = e[t + 1], i = Math.abs(n.y - r.y) < O.distanceEpsilon / 2;
 		return this.RemoveStaircasePNB(e, t, i);
 	}
 	RemoveStaircasePNB(e, t, n) {
@@ -12423,7 +12430,7 @@ var Yc = class extends $o {
 		let r = Array(e.length - 2);
 		nl(e, r, t + 1);
 		let i = e[t + 1], a = e[t + 3];
-		return r[t + 1] = n ? new j(a.x, i.y) : new j(i.x, a.y), tl(e, t + 4, r, t + 2, r.length - t - 2), this.InsertNewSegs(r, t), r;
+		return r[t + 1] = n ? new N(a.x, i.y) : new N(i.x, a.y), tl(e, t + 4, r, t + 2, r.length - t - 2), this.InsertNewSegs(r, t), r;
 	}
 	RemoveSegs(e) {
 		for (let t = 0; t < e.length - 1; t++) this.RemoveSeg(new $c(e, t));
@@ -12448,7 +12455,7 @@ var Yc = class extends $o {
 		this.segTree.Add(e.Rect(r), r);
 	}
 	static Rect(e) {
-		return R.mkPP(e.Start, e.End);
+		return z.mkPP(e.Start, e.End);
 	}
 };
 function tl(e, t, n, r, i) {
@@ -12465,7 +12472,7 @@ var rl = class e {
 		return this.HierarchyOfGroups != null && this.HierarchyOfGroups.Count > 0;
 	}
 	constructor(e, t, n, r) {
-		this.AncestorsSets = r, this.HierarchyOfGroups = W(Array.from(r.keys()).filter((e) => e.IsGroup).map((e) => Ma(e, e.BoundingBox))), this.Obstacles = n, this.EdgeSeparation = 2 * t, this.Paths = e, this.HierarchyOfObstacles = W(n.map((e) => Ma(e, e.boundingBox))), this.MapPathsToTheirObstacles();
+		this.AncestorsSets = r, this.HierarchyOfGroups = G(Array.from(r.keys()).filter((e) => e.IsGroup).map((e) => ja(e, e.BoundingBox))), this.Obstacles = n, this.EdgeSeparation = 2 * t, this.Paths = e, this.HierarchyOfObstacles = G(n.map((e) => ja(e, e.boundingBox))), this.MapPathsToTheirObstacles();
 	}
 	MapPathsToTheirObstacles() {
 		this.PathToObstacles = /* @__PURE__ */ new Map();
@@ -12477,7 +12484,7 @@ var rl = class e {
 		r != null && i != null && this.PathToObstacles.set(t, [r.UserData, i.UserData]);
 	}
 	static ObstacleTest(e, t) {
-		return I.PointRelativeToCurveLocation(e, t) === F.Outside ? U.Continue : U.Stop;
+		return L.PointRelativeToCurveLocation(e, t) === I.Outside ? W.Continue : W.Stop;
 	}
 	Calculate(e, t) {
 		this.NudgingDirection = e, Qc.RefinePaths(this.Paths, t), this.GetPathOrdersAndPathGraph(), this.MapAxisEdgesToTheirObstacles(), this.DrawPaths();
@@ -12506,10 +12513,10 @@ var rl = class e {
 		t && (this.ProcessThePathStartToMapAxisEdgesToTheirObstacles(e, t[0]), this.ProcessThePathEndToMapAxisEdgesToTheirObstacles(e, t[1]));
 	}
 	ProcessThePathEndToMapAxisEdgesToTheirObstacles(e, t) {
-		for (let n = e.LastEdge; n != null && V.DirectionsAreParallel(n.Direction, this.NudgingDirection); n = n.Prev) this.axisEdgesToObstaclesTheyOriginatedFrom.set(n.AxisEdge, t);
+		for (let n = e.LastEdge; n != null && H.DirectionsAreParallel(n.Direction, this.NudgingDirection); n = n.Prev) this.axisEdgesToObstaclesTheyOriginatedFrom.set(n.AxisEdge, t);
 	}
 	ProcessThePathStartToMapAxisEdgesToTheirObstacles(e, t) {
-		for (let n = e.FirstEdge; n != null && V.DirectionsAreParallel(n.Direction, this.NudgingDirection); n = n.Next) this.axisEdgesToObstaclesTheyOriginatedFrom.set(n.AxisEdge, t);
+		for (let n = e.FirstEdge; n != null && H.DirectionsAreParallel(n.Direction, this.NudgingDirection); n = n.Next) this.axisEdgesToObstaclesTheyOriginatedFrom.set(n.AxisEdge, t);
 	}
 	GetPathOrdersAndPathGraph() {
 		let e = new Wc(this.Paths);
@@ -12518,7 +12525,7 @@ var rl = class e {
 	static GetCurvesForShow(e, t) {
 		let n = [];
 		for (let t of e) {
-			let e = new L();
+			let e = new R();
 			for (let n of t.PathPoints) e.addPoint(n);
 			n.push(e);
 		}
@@ -12564,7 +12571,7 @@ var rl = class e {
 		return e.RemoveSwitchbacksAndMiddlePoints(this.GetShiftedPointsSimple(t));
 	}
 	static Rectilinearise(e, t) {
-		return e.x === t.x || e.y === t.y ? t : Math.abs(e.x - t.x) < Math.abs(e.y - t.y) ? new j(e.x, t.y) : new j(t.x, e.y);
+		return e.x === t.x || e.y === t.y ? t : Math.abs(e.x - t.x) < Math.abs(e.y - t.y) ? new N(e.x, t.y) : new N(t.x, e.y);
 	}
 	GetShiftedPointsSimple(e) {
 		let t = [], n = e.FirstEdge;
@@ -12578,15 +12585,15 @@ var rl = class e {
 	ShiftedPoint(e, t) {
 		if (t == null) return e;
 		let n = this.Solver.GetVariablePosition(t.Id);
-		return this.NudgingDirection === z.North ? new j(n, e.y) : new j(e.x, -n);
+		return this.NudgingDirection === B.North ? new N(n, e.y) : new N(e.x, -n);
 	}
 	static LineSegOfLongestSeg(t, n) {
-		let r = n === z.East ? (e) => e.x : (e) => e.y, i = {
+		let r = n === B.East ? (e) => e.x : (e) => e.y, i = {
 			min: Infinity,
 			max: -Infinity
 		};
 		for (let n of t.Edges) e.UpdateMinMaxWithPoint(i, r, n.Source), e.UpdateMinMaxWithPoint(i, r, n.Target);
-		return n === z.East ? new N(i.min, -t.IdealPosition, i.max, -t.IdealPosition) : new N(t.IdealPosition, i.min, t.IdealPosition, i.max);
+		return n === B.East ? new P(i.min, -t.IdealPosition, i.max, -t.IdealPosition) : new P(t.IdealPosition, i.min, t.IdealPosition, i.max);
 	}
 	static UpdateMinMaxWithPoint(e, t, n) {
 		let r = t(n);
@@ -12608,9 +12615,9 @@ var rl = class e {
 	}
 	static ParallelToDirection(e, t) {
 		switch (t) {
-			case z.North:
-			case z.South: return O(e.SourcePoint.x, e.TargetPoint.x);
-			default: return O(e.SourcePoint.y, e.TargetPoint.y);
+			case B.North:
+			case B.South: return A(e.SourcePoint.x, e.TargetPoint.x);
+			default: return A(e.SourcePoint.y, e.TargetPoint.y);
 		}
 	}
 	CreateConstraintsOfThePathOrder(e) {
@@ -12628,7 +12635,7 @@ var rl = class e {
 		}
 	}
 	static SegmentPosition(e, t) {
-		return t === z.North ? e.Start.x : -e.Start.y;
+		return t === B.North ? e.Start.x : -e.Start.y;
 	}
 	FindFreeSpaceInDirection(e) {
 		this.BoundAxisEdgesByRectsKnownInAdvance(), new Jc(this.NudgingDirection, this.Obstacles, this.axisEdgesToObstaclesTheyOriginatedFrom, this.PathOrders, e).FindFreeSpace();
@@ -12652,22 +12659,22 @@ var rl = class e {
 	}
 	AncestorsForPort(e) {
 		let t = this.PortToShapes.get(e);
-		return t ? this.AncestorsSets.get(t) : new Set(this.HierarchyOfGroups.AllHitItems(R.mkPP(e.Location, e.Location), null));
+		return t ? this.AncestorsSets.get(t) : new Set(this.HierarchyOfGroups.AllHitItems(z.mkPP(e.Location, e.Location), null));
 	}
 	BoundAxisEdgeAdjacentToObstaclePort(e, t) {
 		e.Curve == null ? this.BoundAxisByPoint(e.Location, t) : e.Curve.boundingBox.contains(e.Location) && this.BoundAxisEdgeByRect(e.Curve.boundingBox, t);
 	}
 	BoundAxisByPoint(e, t) {
-		t != null && t.Direction === this.NudgingDirection && (this.NudgingDirection === z.North ? (t.BoundFromLeft(e.x), t.BoundFromRight(e.x)) : (t.BoundFromLeft(-e.y), t.BoundFromRight(-e.y)));
+		t != null && t.Direction === this.NudgingDirection && (this.NudgingDirection === B.North ? (t.BoundFromLeft(e.x), t.BoundFromRight(e.x)) : (t.BoundFromLeft(-e.y), t.BoundFromRight(-e.y)));
 	}
 	BoundAxisEdgesAdjacentToSourceAndTargetOnEdge(e) {
 		this.BoundAxisEdgeAdjacentToObstaclePort(e.GeomEdge.sourcePort, e.FirstEdge.AxisEdge), this.BoundAxisEdgeAdjacentToObstaclePort(e.GeomEdge.targetPort, e.LastEdge.AxisEdge);
 	}
 	BoundAxisEdgeByRect(e, t) {
-		t != null && t.Direction === this.NudgingDirection && (this.NudgingDirection === z.North ? (t.BoundFromLeft(e.left), t.BoundFromRight(e.right)) : (t.BoundFromLeft(e.top * -1), t.BoundFromRight(e.bottom * -1)));
+		t != null && t.Direction === this.NudgingDirection && (this.NudgingDirection === B.North ? (t.BoundFromLeft(e.left), t.BoundFromRight(e.right)) : (t.BoundFromLeft(e.top * -1), t.BoundFromRight(e.bottom * -1)));
 	}
 	CreateLongestNudgedSegments() {
-		let e = this.NudgingDirection === z.East ? (e) => -e.y : (e) => e.x;
+		let e = this.NudgingDirection === B.East ? (e) => -e.y : (e) => e.x;
 		this.LongestNudgedSegs = [];
 		for (let t = 0; t < this.Paths.length; t++) this.CreateLongestNudgedSegmentsForPath(this.Paths[t], e);
 	}
@@ -12686,10 +12693,10 @@ var rl = class e {
 	}
 	static SetIdealPositionForSeg(e, t, n, r) {
 		let i = Math.max(n, r), a = Math.min(n, r);
-		a + E.distanceEpsilon < t ? t < i ? e.IdealPosition = .5 * (i + a) : e.IdealPosition = i : e.IdealPosition = a;
+		a + O.distanceEpsilon < t ? t < i ? e.IdealPosition = .5 * (i + a) : e.IdealPosition = i : e.IdealPosition = a;
 	}
 	GoOverPathAndCreateLongSegs(e) {
-		let t = null, n = V.OppositeDir(this.NudgingDirection);
+		let t = null, n = H.OppositeDir(this.NudgingDirection);
 		for (let r of e.PathEdges()) {
 			let e = r.Direction;
 			e === this.NudgingDirection || e === n ? (t == null ? (r.LongestNudgedSegment = t = new Yc(this.LongestNudgedSegs.length), this.LongestNudgedSegs.push(t)) : r.LongestNudgedSegment = t, r.IsFixed && (t.IsFixed = !0)) : (r.LongestNudgedSegment = null, t = null);
@@ -12703,41 +12710,41 @@ var rl = class e {
 		e.ExtendPolylineToSourcePort(t, n.GeomEdge.sourcePort.Location), e.ExtendPolylineToTargetPort(t, n.GeomEdge.targetPort.Location), t.points.length < 2 && (t.points = [, ,], t.points[0] = n.GeomEdge.sourcePort.Location, t.points[1] = n.GeomEdge.targetPort.Location);
 	}
 	static ExtendPolylineToTargetPort(t, n) {
-		let r = t.points.length - 1, i = V.VectorDirectionPP(t.points[r - 1], t.points[r]);
+		let r = t.points.length - 1, i = H.VectorDirectionPP(t.points[r - 1], t.points[r]);
 		if (e.ProjectionsAreClose(t.points[r - 1], i, n)) {
 			t.points = t.points.slice(0, r);
 			return;
 		}
 		let a = t.points[r];
-		i === z.East || i === z.West ? t.points[r] = new j(n.x, a.y) : t.points[r] = new j(a.x, n.y);
+		i === B.East || i === B.West ? t.points[r] = new N(n.x, a.y) : t.points[r] = new N(a.x, n.y);
 	}
 	static ProjectionsAreClose(e, t, n) {
-		return t === z.East || t === z.West ? O(e.x, n.x) : O(e.y, n.y);
+		return t === B.East || t === B.West ? A(e.x, n.x) : A(e.y, n.y);
 	}
 	static ExtendPolylineToSourcePort(t, n) {
-		let r = V.VectorDirectionPP(t.points[0], t.points[1]);
+		let r = H.VectorDirectionPP(t.points[0], t.points[1]);
 		if (e.ProjectionsAreClose(t.points[1], r, n)) {
 			t.points = t.points.slice(1);
 			return;
 		}
 		let i = t.points[0];
-		r === z.East || r === z.West ? t.points[0] = new j(n.x, i.y) : t.points[0] = new j(i.x, n.y);
+		r === B.East || r === B.West ? t.points[0] = new N(n.x, i.y) : t.points[0] = new N(i.x, n.y);
 	}
 	static RemoveSwitchbacksAndMiddlePoints(t) {
 		let n = [], r = t[0];
 		n.push(r);
-		let i = t[1], a = V.VectorDirectionPP(r, i), o = 1;
+		let i = t[1], a = H.VectorDirectionPP(r, i), o = 1;
 		for (; ++o < t.length;) {
-			let s = V.VectorDirectionPP(i, t[o]);
-			s === a || V.OppositeDir(s) === a || s === z.None || (j.closeDistEps(r, i) || n.push(r = e.Rectilinearise(r, i)), a = s), i = t[o];
+			let s = H.VectorDirectionPP(i, t[o]);
+			s === a || H.OppositeDir(s) === a || s === B.None || (N.closeDistEps(r, i) || n.push(r = e.Rectilinearise(r, i)), a = s), i = t[o];
 		}
-		return j.closeDistEps(r, i) || n.push(e.Rectilinearise(r, i)), n;
+		return N.closeDistEps(r, i) || n.push(e.Rectilinearise(r, i)), n;
 	}
 	static NudgePaths(t, n, r, i, a) {
 		if (t.length === 0) return;
 		let o = new e(t, n, r, i);
-		o.Calculate(z.North, !0), o.Calculate(z.East, !1), o.Calculate(z.North, !1), a && o.RemoveStaircases();
-		for (let n of t) n.GeomEdge.curve = L.mkFromPoints(e.BuildPolylineForPath(n));
+		o.Calculate(B.North, !0), o.Calculate(B.East, !1), o.Calculate(B.North, !1), a && o.RemoveStaircases();
+		for (let n of t) n.GeomEdge.curve = R.mkFromPoints(e.BuildPolylineForPath(n));
 	}
 	RemoveStaircases() {
 		el.RemoveStaircases(this.Paths, this.HierarchyOfObstacles);
@@ -12749,7 +12756,7 @@ var rl = class e {
 	}
 	static *GetEdgePathFromPathEdgesAsDebugCurves(e, t, n, r) {
 		let i = r.ArrayOfPathPoints(), a = i.length, o = a > 1 ? (t - e) / (a - 1) : 1;
-		for (let t = 0; t < i.length - 1; t++) yield Z.mkDebugCurveTWCI(200, e + o * t, n, N.mkPP(i[t], i[t + 1]));
+		for (let t = 0; t < i.length - 1; t++) yield Z.mkDebugCurveTWCI(200, e + o * t, n, P.mkPP(i[t], i[t + 1]));
 	}
 };
 function il(e, t) {
@@ -12778,7 +12785,7 @@ var al = class {
 		return this.ListOfPointsAndCrossings[this.index++];
 	}
 	CurrentIsBeforeOrAt(e) {
-		return this.index >= this.ListOfPointsAndCrossings.length ? !1 : B.ComparePP(this.ListOfPointsAndCrossings[this.index].Location, e) <= 0;
+		return this.index >= this.ListOfPointsAndCrossings.length ? !1 : V.ComparePP(this.ListOfPointsAndCrossings[this.index].Location, e) <= 0;
 	}
 	get First() {
 		return this.ListOfPointsAndCrossings[0];
@@ -12801,13 +12808,13 @@ var al = class {
 				a.push(this.ListOfPointsAndCrossings[n++]);
 				continue;
 			}
-			let o = this.ListOfPointsAndCrossings[n], s = e.ListOfPointsAndCrossings[i], c = B.ComparePP(o.Location, s.Location);
+			let o = this.ListOfPointsAndCrossings[n], s = e.ListOfPointsAndCrossings[i], c = V.ComparePP(o.Location, s.Location);
 			c === 0 ? (a.push(o), ++n, ++i) : c === -1 ? (a.push(o), ++n) : (a.push(s), ++i);
 		}
 		this.ListOfPointsAndCrossings = a;
 	}
 	Trim(e, t) {
-		this.Reset(), !(this.ListOfPointsAndCrossings == null || this.ListOfPointsAndCrossings.length === 0) && (this.ListOfPointsAndCrossings = this.ListOfPointsAndCrossings.filter((n) => B.ComparePP(n.Location, e) >= 0 && B.ComparePP(n.Location, t) <= 0));
+		this.Reset(), !(this.ListOfPointsAndCrossings == null || this.ListOfPointsAndCrossings.length === 0) && (this.ListOfPointsAndCrossings = this.ListOfPointsAndCrossings.filter((n) => V.ComparePP(n.Location, e) >= 0 && V.ComparePP(n.Location, t) <= 0));
 	}
 	static ToCrossingArray(e, t) {
 		let n = 0, r = e.length;
@@ -12825,27 +12832,27 @@ var al = class {
 		return e.EdgeDirectionVV(t.Source, t.Target);
 	}
 	static EdgeDirectionVV(e, t) {
-		return B.GetDirections(e.point, t.point);
+		return V.GetDirections(e.point, t.point);
 	}
 	static GetEdgeEnd(t, n) {
 		return n === e.EdgeDirectionVE(t) ? t.Target : t.Source;
 	}
 	static FindAdjacentVertex(e, t) {
-		for (let n of e.InEdges) if (B.GetDirections(e.point, n.SourcePoint) === t) return n.Source;
-		for (let n of e.OutEdges) if (B.GetDirections(e.point, n.TargetPoint) === t) return n.Target;
+		for (let n of e.InEdges) if (V.GetDirections(e.point, n.SourcePoint) === t) return n.Source;
+		for (let n of e.OutEdges) if (V.GetDirections(e.point, n.TargetPoint) === t) return n.Target;
 		return null;
 	}
 	static FindAdjacentEdge(e, t) {
-		for (let n of e.InEdges) if (B.GetDirections(n.SourcePoint, e.point) === t) return n;
-		for (let n of e.OutEdges) if (B.GetDirections(e.point, n.TargetPoint) === t) return n;
+		for (let n of e.InEdges) if (V.GetDirections(n.SourcePoint, e.point) === t) return n;
+		for (let n of e.OutEdges) if (V.GetDirections(e.point, n.TargetPoint) === t) return n;
 		return null;
 	}
 	static FindBendPointBetween(t, n, r) {
-		return e.IsVerticalD(r) ? new j(n.x, t.y) : new j(t.x, n.y);
+		return e.IsVerticalD(r) ? new N(n.x, t.y) : new N(t.x, n.y);
 	}
 	static SegmentIntersectionPPP(t, n, r) {
-		let i = B.GetDirections(t, n);
-		return e.IsVerticalD(i) ? new j(t.x, r.y) : new j(r.x, t.y);
+		let i = V.GetDirections(t, n);
+		return e.IsVerticalD(i) ? new N(t.x, r.y) : new N(r.x, t.y);
 	}
 	static SegmentIntersectionSP(t, n) {
 		return e.SegmentIntersectionPPP(t.Start, t.End, n);
@@ -12860,14 +12867,14 @@ var al = class {
 		return e.IntervalsOverlapPPPP(t.Start, t.End, n.Start, n.End);
 	}
 	static IntervalsOverlapPPPP(t, n, r, i) {
-		return e.IntervalsAreCollinear(t, n, r, i) && B.ComparePP(t, i) !== B.ComparePP(n, r);
+		return e.IntervalsAreCollinear(t, n, r, i) && V.ComparePP(t, i) !== V.ComparePP(n, r);
 	}
 	static IntervalsAreCollinear(t, n, r, i) {
 		let a = e.IsVerticalPP(t, n);
-		return e.IsVerticalPP(r, i) === a ? a ? B.Equal(t.x, r.x) : B.Equal(t.y, r.y) : !1;
+		return e.IsVerticalPP(r, i) === a ? a ? V.Equal(t.x, r.x) : V.Equal(t.y, r.y) : !1;
 	}
 	static IntervalsAreSame(e, t, n, r) {
-		return B.EqualPP(e, n) && B.EqualPP(t, r);
+		return V.EqualPP(e, n) && V.EqualPP(t, r);
 	}
 	static IntervalsIntersect(t, n, r, i) {
 		let a = e.SegmentIntersectionPPP(t, n, r);
@@ -12877,57 +12884,57 @@ var al = class {
 		return e.SegmentIntersectionPPP(t.SourcePoint, t.TargetPoint, n);
 	}
 	static PointIsOnSegmentPPP(e, t, n) {
-		return B.EqualPP(e, n) || B.EqualPP(t, n) || B.GetDirections(e, n) === B.GetDirections(n, t);
+		return V.EqualPP(e, n) || V.EqualPP(t, n) || V.GetDirections(e, n) === V.GetDirections(n, t);
 	}
 	static PointIsOnSegmentSP(t, n) {
 		return e.PointIsOnSegmentPPP(t.Start, t.End, n);
 	}
 	static IsVerticalD(e) {
-		return (e & (z.North | z.South)) !== 0;
+		return (e & (B.North | B.South)) !== 0;
 	}
 	static IsVerticalE(t) {
-		return e.IsVerticalD(B.GetDirections(t.SourcePoint, t.TargetPoint));
+		return e.IsVerticalD(V.GetDirections(t.SourcePoint, t.TargetPoint));
 	}
 	static IsVerticalPP(t, n) {
-		return e.IsVerticalD(B.GetDirections(t, n));
+		return e.IsVerticalD(V.GetDirections(t, n));
 	}
 	static IsVertical(t) {
-		return e.IsVerticalD(B.GetDirections(t.start, t.end));
+		return e.IsVerticalD(V.GetDirections(t.start, t.end));
 	}
 	static IsAscending(e) {
-		return (e & (z.North | z.East)) !== 0;
+		return (e & (B.North | B.East)) !== 0;
 	}
 	static Slope(e, t, n) {
 		let r = t.sub(e);
 		return r.dot(n.PerpDirectionAsPoint) / r.dot(n.DirectionAsPoint);
 	}
 	static SortAscending(t, n) {
-		let r = B.GetDirections(t, n);
-		return z.None === r || e.IsAscending(r) ? [t, n] : [n, t];
+		let r = V.GetDirections(t, n);
+		return B.None === r || e.IsAscending(r) ? [t, n] : [n, t];
 	}
 	static RectangleBorderIntersect(t, n, r) {
 		switch (r) {
-			case z.North:
-			case z.South: return new j(n.x, e.GetRectangleBound(t, r));
-			case z.East:
-			case z.West: return new j(e.GetRectangleBound(t, r), n.y);
+			case B.North:
+			case B.South: return new N(n.x, e.GetRectangleBound(t, r));
+			case B.East:
+			case B.West: return new N(e.GetRectangleBound(t, r), n.y);
 			default: throw Error();
 		}
 	}
 	static GetRectangleBound(e, t) {
 		switch (t) {
-			case z.North: return e.top;
-			case z.South: return e.bottom;
-			case z.East: return e.right;
-			case z.West: return e.left;
+			case B.North: return e.top;
+			case B.South: return e.bottom;
+			case B.East: return e.right;
+			case B.West: return e.left;
 			default: throw Error();
 		}
 	}
 	static RectangleInteriorsIntersect(e, t) {
-		return B.Compare(e.bottom, t.top) < 0 && B.Compare(t.bottom, e.top) < 0 && B.Compare(e.left, t.right) < 0 && B.Compare(t.left, e.right) < 0;
+		return V.Compare(e.bottom, t.top) < 0 && V.Compare(t.bottom, e.top) < 0 && V.Compare(e.left, t.right) < 0 && V.Compare(t.left, e.right) < 0;
 	}
 	static PointIsInRectangleInterior(e, t) {
-		return B.Compare(e.y, t.top) < 0 && B.Compare(t.bottom, e.y) < 0 && B.Compare(e.x, t.right) < 0 && B.Compare(t.left, e.x) < 0;
+		return V.Compare(e.y, t.top) < 0 && V.Compare(t.bottom, e.y) < 0 && V.Compare(e.x, t.right) < 0 && V.Compare(t.left, e.x) < 0;
 	}
 }, sl = class e {
 	get Dir() {
@@ -12937,35 +12944,35 @@ var al = class {
 		this.dir = e;
 	}
 	constructor(e) {
-		this.Dir = e, this.DirectionAsPoint = V.toPoint(this.Dir), this.PerpDirection = z.North === e ? z.East : z.North, this.PerpDirectionAsPoint = V.toPoint(this.PerpDirection), this.OppositeDirection = V.OppositeDir(e);
+		this.Dir = e, this.DirectionAsPoint = H.toPoint(this.Dir), this.PerpDirection = B.North === e ? B.East : B.North, this.PerpDirectionAsPoint = H.toPoint(this.PerpDirection), this.OppositeDirection = H.OppositeDir(e);
 	}
 	get IsHorizontal() {
-		return z.East === this.Dir;
+		return B.East === this.Dir;
 	}
 	get IsVertical() {
-		return z.North === this.Dir;
+		return B.North === this.Dir;
 	}
 	Compare(e, t) {
 		let n = this.ComparePerpCoord(e, t);
 		return n === 0 ? this.CompareScanCoord(e, t) : n;
 	}
 	CompareScanCoord(e, t) {
-		return B.Compare(e.sub(t).dot(this.DirectionAsPoint), 0);
+		return V.Compare(e.sub(t).dot(this.DirectionAsPoint), 0);
 	}
 	ComparePerpCoord(e, t) {
-		return B.Compare(e.sub(t).dot(this.PerpDirectionAsPoint), 0);
+		return V.Compare(e.sub(t).dot(this.PerpDirectionAsPoint), 0);
 	}
 	IsFlatS(e) {
 		return this.IsFlatPP(e.Start, e.End);
 	}
 	IsFlatPP(e, t) {
-		return B.Equal(t.sub(e).dot(this.PerpDirectionAsPoint), 0);
+		return V.Equal(t.sub(e).dot(this.PerpDirectionAsPoint), 0);
 	}
 	IsPerpendicularS(e) {
 		return this.IsPerpendicularPP(e.Start, e.End);
 	}
 	IsPerpendicularPP(e, t) {
-		return B.Equal(t.sub(e).dot(this.DirectionAsPoint), 0);
+		return V.Equal(t.sub(e).dot(this.DirectionAsPoint), 0);
 	}
 	Coord(e) {
 		return e.dot(this.DirectionAsPoint);
@@ -12986,7 +12993,7 @@ var al = class {
 		return this.Dir.toString();
 	}
 };
-sl.HorizontalInstance = new sl(z.East), sl.VerticalInstance = new sl(z.North);
+sl.HorizontalInstance = new sl(B.East), sl.VerticalInstance = new sl(B.North);
 //#endregion
 //#region ../node_modules/@msagl/core/dist/routing/rectilinear/ScanSegment.js
 var $ = class e extends $o {
@@ -13032,7 +13039,7 @@ var $ = class e extends $o {
 	AppendVisibilityVertex(e, t) {
 		if (this.HighestVisibilityVertex == null) this.AddGroupCrossingsBeforeHighestVisibilityVertex(e, t) || this.SetInitialVisibilityVertex(t);
 		else {
-			if (B.IsPureLower(t.point, this.HighestVisibilityVertex.point)) return;
+			if (V.IsPureLower(t.point, this.HighestVisibilityVertex.point)) return;
 			this.AddGroupCrossingsBeforeHighestVisibilityVertex(e, t) || this.AppendHighestVisibilityVertex(t);
 		}
 	}
@@ -13041,7 +13048,7 @@ var $ = class e extends $o {
 		return X.AddEdge(n), n;
 	}
 	AppendHighestVisibilityVertex(e) {
-		B.EqualPP(this.HighestVisibilityVertex.point, e.point) || (this.AddVisibilityEdge(this.HighestVisibilityVertex, e), this.HighestVisibilityVertex = e);
+		V.EqualPP(this.HighestVisibilityVertex.point, e.point) || (this.AddVisibilityEdge(this.HighestVisibilityVertex, e), this.HighestVisibilityVertex = e);
 	}
 	LoadStartOverlapVertexIfNeeded(e) {
 		if (this.NeedStartOverlapVertex) {
@@ -13059,7 +13066,7 @@ var $ = class e extends $o {
 		this.AppendGroupCrossingsThroughPoint(e, this.Start) || this.LoadStartOverlapVertexIfNeeded(e);
 	}
 	OnSegmentIntersectorEnd(e) {
-		this.AppendGroupCrossingsThroughPoint(e, this.End), this.GroupBoundaryPointAndCrossingsList = null, (this.HighestVisibilityVertex == null || B.IsPureLower(this.HighestVisibilityVertex.point, this.End)) && this.LoadEndOverlapVertexIfNeeded(e);
+		this.AppendGroupCrossingsThroughPoint(e, this.End), this.GroupBoundaryPointAndCrossingsList = null, (this.HighestVisibilityVertex == null || V.IsPureLower(this.HighestVisibilityVertex.point, this.End)) && this.LoadEndOverlapVertexIfNeeded(e);
 	}
 	static Subsume(e, t, n, r, i, a, o, s) {
 		return s.extendStart = !0, s.extendEnd = !0, e.seg == null || !Q.IntervalsOverlapPPPP(e.seg.Start, e.seg.End, t, n) ? !1 : e.seg.Weight === r ? (s.extendStart = a.CompareScanCoord(t, e.seg.Start) === -1, s.extendEnd = a.CompareScanCoord(n, e.seg.End) === 1, (s.extendStart || s.extendEnd) && (o.Remove(e.seg), e.seg.startPoint = a.Min(e.seg.Start, t), e.seg.endPoint = a.Max(e.seg.End, n), e.seg = o.InsertUnique(e.seg).item, e.seg.MergeGroupBoundaryCrossingList(i)), !0) : e.seg.Start === t && e.seg.End === n ? (e.seg.Weight = Math.min(e.seg.Weight, r), !0) : !1;
@@ -13071,13 +13078,13 @@ var $ = class e extends $o {
 		return "[" + this.Start + " -> " + this.End + (this.IsOverlapped ? " olap" : " free") + "]";
 	}
 	ContainsPoint(e) {
-		return B.EqualPP(this.Start, e) || B.EqualPP(this.End, e) || B.GetDirections(this.Start, e) === B.GetDirections(e, this.End);
+		return V.EqualPP(this.Start, e) || V.EqualPP(this.End, e) || V.GetDirections(this.Start, e) === V.GetDirections(e, this.End);
 	}
 	get HasSparsePerpendicularCoords() {
 		return this.sparsePerpendicularCoords == null ? !1 : this.sparsePerpendicularCoords.size > 0;
 	}
 	CreatePointFromPerpCoord(e) {
-		return this.IsVertical ? new j(this.Start.x, e) : new j(e, this.Start.y);
+		return this.IsVertical ? new N(this.Start.x, e) : new N(e, this.Start.y);
 	}
 	AddSparseVertexCoord(e) {
 		this.sparsePerpendicularCoords ??= /* @__PURE__ */ new Set(), this.sparsePerpendicularCoords.add(e);
@@ -13088,7 +13095,7 @@ var $ = class e extends $o {
 	CreateSparseVerticesAndEdges(e) {
 		if (this.sparsePerpendicularCoords != null) {
 			this.AppendGroupCrossingsThroughPoint(e, this.Start);
-			for (let t of Array.from(this.sparsePerpendicularCoords.values()).sort(D)) {
+			for (let t of Array.from(this.sparsePerpendicularCoords.values()).sort(k)) {
 				let n = this.CreatePointFromPerpCoord(t);
 				this.AppendVisibilityVertex(e, e.FindVertex(n) ?? e.AddVertexP(n));
 			}
@@ -13099,14 +13106,14 @@ var $ = class e extends $o {
 		return this.LowestVisibilityVertex != null;
 	}
 	AddGroupCrossingsBeforeHighestVisibilityVertex(e, t) {
-		return this.AppendGroupCrossingsThroughPoint(e, t.point) ? (B.IsPureLower(this.HighestVisibilityVertex.point, t.point) && (this.AddVisibilityEdge(this.HighestVisibilityVertex, t), this.HighestVisibilityVertex = t), !0) : !1;
+		return this.AppendGroupCrossingsThroughPoint(e, t.point) ? (V.IsPureLower(this.HighestVisibilityVertex.point, t.point) && (this.AddVisibilityEdge(this.HighestVisibilityVertex, t), this.HighestVisibilityVertex = t), !0) : !1;
 	}
 	AppendGroupCrossingsThroughPoint(e, t) {
 		if (this.GroupBoundaryPointAndCrossingsList == null) return !1;
 		let n = !1;
 		for (; this.GroupBoundaryPointAndCrossingsList.CurrentIsBeforeOrAt(t);) {
 			let t = this.GroupBoundaryPointAndCrossingsList.Pop(), r = null, i = null;
-			B.ComparePP(t.Location, this.Start) > 0 && (r = ol.ToCrossingArray(t.Crossings, this.ScanDirection.OppositeDirection)), B.ComparePP(t.Location, this.End) < 0 && (i = ol.ToCrossingArray(t.Crossings, this.ScanDirection.Dir)), n = !0;
+			V.ComparePP(t.Location, this.Start) > 0 && (r = ol.ToCrossingArray(t.Crossings, this.ScanDirection.OppositeDirection)), V.ComparePP(t.Location, this.End) < 0 && (i = ol.ToCrossingArray(t.Crossings, this.ScanDirection.Dir)), n = !0;
 			let a = e.FindVertex(t.Location) ?? e.AddVertexP(t.Location);
 			e.AddVertexP(t.Location), r != null || i != null ? (this.AddLowCrossings(e, a, r), this.AddHighCrossings(e, a, i)) : this.LowestVisibilityVertex == null ? this.SetInitialVisibilityVertex(a) : this.AppendHighestVisibilityVertex(a);
 		}
@@ -13118,7 +13125,7 @@ var $ = class e extends $o {
 	}
 	AddCrossingEdge(e, t, n, r) {
 		let i = null;
-		this.HighestVisibilityVertex != null && (B.EqualPP(this.HighestVisibilityVertex.point, n.point) ? i = e.FindEdgePP(t.point, n.point) : this.AppendHighestVisibilityVertex(t)), i ??= this.AddVisibilityEdge(t, n);
+		this.HighestVisibilityVertex != null && (V.EqualPP(this.HighestVisibilityVertex.point, n.point) ? i = e.FindEdgePP(t.point, n.point) : this.AppendHighestVisibilityVertex(t)), i ??= this.AddVisibilityEdge(t, n);
 		let a = r.map((e) => e.Group.InputShape), o = i.IsPassable;
 		o == null ? i.IsPassable = () => {
 			for (let e of a) if (e.IsTransparent) return !0;
@@ -13146,7 +13153,7 @@ $.NormalWeight = Bo.DefaultWeight, $.ReflectionWeight = 5, $.OverlappedWeight = 
 //#region ../node_modules/@msagl/core/dist/routing/rectilinear/VertexEntry.js
 var cl = class {
 	constructor(e, t, n, r, i) {
-		this.IsClosed = !1, this.Vertex = e, this.Direction = t == null ? z.None : V.DirectionFromPointToPoint(t.Vertex.point, e.point), this.ResetEntry(t, n, r, i);
+		this.IsClosed = !1, this.Vertex = e, this.Direction = t == null ? B.None : H.DirectionFromPointToPoint(t.Vertex.point, e.point), this.ResetEntry(t, n, r, i);
 	}
 	ResetEntry(e, t, n, r) {
 		this.PreviousEntry = e, this.Length = t, this.NumberOfBends = n, this.Cost = r;
@@ -13184,14 +13191,14 @@ var cl = class {
 	InitPath(e, t, n) {
 		if (t === n || !this.InitEntryDirectionsAtTarget(n)) return !1;
 		this.Target = n, this.Source = t;
-		let r = this.TotalCostFromSourceToVertex(0, 0) + this.HeuristicDistanceFromVertexToTarget(t.point, z.None);
-		return r >= this.upperBoundOnCost ? !1 : (this.queue = new Js(D), this.visitedVertices = [t], e == null ? this.EnqueueInitialVerticesFromSource(r) : this.EnqueueInitialVerticesFromSourceEntries(e), this.queue.count > 0);
+		let r = this.TotalCostFromSourceToVertex(0, 0) + this.HeuristicDistanceFromVertexToTarget(t.point, B.None);
+		return r >= this.upperBoundOnCost ? !1 : (this.queue = new Js(k), this.visitedVertices = [t], e == null ? this.EnqueueInitialVerticesFromSource(r) : this.EnqueueInitialVerticesFromSourceEntries(e), this.queue.count > 0);
 	}
 	InitEntryDirectionsAtTarget(e) {
-		this.EntryDirectionsToTarget = z.None;
-		for (let t of e.OutEdges) this.EntryDirectionsToTarget |= V.DirectionFromPointToPoint(t.TargetPoint, e.point);
-		for (let t of e.InEdges) this.EntryDirectionsToTarget |= V.DirectionFromPointToPoint(t.SourcePoint, e.point);
-		return this.EntryDirectionsToTarget !== z.None;
+		this.EntryDirectionsToTarget = B.None;
+		for (let t of e.OutEdges) this.EntryDirectionsToTarget |= H.DirectionFromPointToPoint(t.TargetPoint, e.point);
+		for (let t of e.InEdges) this.EntryDirectionsToTarget |= H.DirectionFromPointToPoint(t.SourcePoint, e.point);
+		return this.EntryDirectionsToTarget !== B.None;
 	}
 	static IsInDirs(e, t) {
 		return e === (e & t);
@@ -13201,39 +13208,39 @@ var cl = class {
 	}
 	HeuristicDistanceFromVertexToTarget(t, n) {
 		let r = this.Target.point.sub(t);
-		if (O(r.x, 0) && O(r.y, 0)) return this.targetCostAdjustment;
-		let i = V.VectorDirection(r), a;
-		return n === z.None && (n = z.East | (z.North | (z.West | z.South))), a = this.GetNumberOfBends(n, i), this.CombinedCost(e.ManhattanDistance(t, this.Target.point), a) + this.targetCostAdjustment;
+		if (A(r.x, 0) && A(r.y, 0)) return this.targetCostAdjustment;
+		let i = H.VectorDirection(r), a;
+		return n === B.None && (n = B.East | (B.North | (B.West | B.South))), a = this.GetNumberOfBends(n, i), this.CombinedCost(e.ManhattanDistance(t, this.Target.point), a) + this.targetCostAdjustment;
 	}
 	GetNumberOfBends(t, n) {
-		return V.IsPureDirection(n) ? this.GetNumberOfBendsForPureDirection(t, n) : e.GetBendsForNotPureDirection(n, t, this.EntryDirectionsToTarget);
+		return H.IsPureDirection(n) ? this.GetNumberOfBendsForPureDirection(t, n) : e.GetBendsForNotPureDirection(n, t, this.EntryDirectionsToTarget);
 	}
 	GetNumberOfBendsForPureDirection(t, n) {
 		return (n & t) === n ? e.IsInDirs(n, this.EntryDirectionsToTarget) ? 0 : e.IsInDirs(e.Left(n), this.EntryDirectionsToTarget) || e.IsInDirs(e.Right(n), this.EntryDirectionsToTarget) ? 2 : 4 : this.GetNumberOfBendsForPureDirection(e.AddOneTurn[t], n) + 1;
 	}
 	static GetBendsForNotPureDirection(t, n, r) {
 		let i = t & n;
-		if (i === z.None) return e.GetBendsForNotPureDirection(t, e.AddOneTurn[n], r) + 1;
+		if (i === B.None) return e.GetBendsForNotPureDirection(t, e.AddOneTurn[n], r) + 1;
 		let a = t & r;
-		return a === z.None ? e.GetBendsForNotPureDirection(t, n, e.AddOneTurn[r]) + 1 : (i | a) === t ? 1 : 2;
+		return a === B.None ? e.GetBendsForNotPureDirection(t, n, e.AddOneTurn[r]) + 1 : (i | a) === t ? 1 : 2;
 	}
 	static Left(e) {
 		switch (e) {
-			case z.None: return z.None;
-			case z.North: return z.West;
-			case z.East: return z.North;
-			case z.South: return z.East;
-			case z.West: return z.South;
+			case B.None: return B.None;
+			case B.North: return B.West;
+			case B.East: return B.North;
+			case B.South: return B.East;
+			case B.West: return B.South;
 			default: throw Error("direction");
 		}
 	}
 	static Right(e) {
 		switch (e) {
-			case z.None: return z.None;
-			case z.North: return z.East;
-			case z.East: return z.South;
-			case z.South: return z.West;
-			case z.West: return z.North;
+			case B.None: return B.None;
+			case B.North: return B.East;
+			case B.East: return B.South;
+			case B.South: return B.West;
+			case B.West: return B.North;
 			default: throw Error("direction");
 		}
 	}
@@ -13242,7 +13249,7 @@ var cl = class {
 	}
 	static RestorePath(e, t) {
 		if (e.entry == null) return [];
-		let n = [], r = !1, i = z.None;
+		let n = [], r = !1, i = B.None;
 		for (;;) {
 			i === e.entry.Direction ? r = !0 : (r = !1, n.push(e.entry.Vertex.point), i = e.entry.Direction);
 			let a = e.entry.PreviousEntry;
@@ -13284,8 +13291,8 @@ var cl = class {
 	}
 	static GetLengthAndNumberOfBendsToNeighborVertex(t, n, r, i) {
 		i.length = t.Length + e.ManhattanDistance(t.Vertex.point, n.point) * r;
-		let a = V.DirectionFromPointToPoint(t.Vertex.point, n.point);
-		return i.numberOfBends = t.NumberOfBends, t.Direction !== z.None && a !== t.Direction && i.numberOfBends++, a;
+		let a = H.DirectionFromPointToPoint(t.Vertex.point, n.point);
+		return i.numberOfBends = t.NumberOfBends, t.Direction !== B.None && a !== t.Direction && i.numberOfBends++, a;
 	}
 	static ManhattanDistance(e, t) {
 		return Math.abs(t.x - e.x) + Math.abs(t.y - e.y);
@@ -13296,7 +13303,7 @@ var cl = class {
 			let t = this.queue.Dequeue(), n = t.Vertex;
 			if (n === this.Target) {
 				if (i == null) return this.Cleanup(), t;
-				if (t.Direction, this.EntryDirectionsToTarget === z.None) {
+				if (t.Direction, this.EntryDirectionsToTarget === B.None) {
 					let e = 0;
 					for (let t of this.Target.VertexEntries) i[e++] = t;
 					return this.Cleanup(), null;
@@ -13328,7 +13335,7 @@ var cl = class {
 			this.ExtendPathToNeighborVertex(t, a, n.Weight);
 			return;
 		}
-		let o = V.DirectionFromPointToPoint(t.Vertex.point, a.point), s = this.nextNeighbors[2];
+		let o = H.DirectionFromPointToPoint(t.Vertex.point, a.point), s = this.nextNeighbors[2];
 		o !== t.Direction && (s = this.nextNeighbors[o === i ? 1 : 0]), s.Set(a, n.Weight);
 	}
 	EnqueueInitialVerticesFromSource(t) {
@@ -13341,12 +13348,12 @@ var cl = class {
 		for (let t of e) t != null && this.queue.Enqueue(t, t.Cost);
 	}
 	ExtendPathToNeighborVertex(e, t, n) {
-		let r = V.DirectionFromPointToPoint(e.Vertex.point, t.point), i = t.VertexEntries == null ? null : t.VertexEntries[V.ToIndex(r)];
+		let r = H.DirectionFromPointToPoint(e.Vertex.point, t.point), i = t.VertexEntries == null ? null : t.VertexEntries[H.ToIndex(r)];
 		i == null ? this.CreateAndEnqueueReversedEntryToNeighborVertex(e, t, n) || this.CreateAndEnqueueEntryToNeighborVertex(e, t, n) : i.IsClosed || this.UpdateEntryToNeighborVertexIfNeeded(e, i, n);
 	}
 	CreateAndEnqueueReversedEntryToNeighborVertex(e, t, n) {
 		if (e.Vertex.VertexEntries != null) {
-			let r = V.DirectionFromPointToPoint(t.point, e.Vertex.point), i = e.Vertex.VertexEntries[V.ToIndex(r)];
+			let r = H.DirectionFromPointToPoint(t.point, e.Vertex.point), i = e.Vertex.VertexEntries[H.ToIndex(r)];
 			if (i != null) return this.QueueReversedEntryToNeighborVertexIfNeeded(e, i, n), !0;
 		}
 		return !1;
@@ -13360,11 +13367,11 @@ var cl = class {
 	}
 };
 ul.DefaultBendPenaltyAsAPercentageOfDistance = 4, ul.AddOneTurn = [
-	z.None,
-	z.North | z.East | z.West,
-	z.North | z.East | z.South,
+	B.None,
+	B.North | B.East | B.West,
+	B.North | B.East | B.South,
 	15,
-	z.East | z.South | z.West,
+	B.East | B.South | B.West,
 	15,
 	15,
 	15,
@@ -13402,7 +13409,7 @@ var dl = class e {
 		for (let e of n) for (let t of i) p.push([e, t]);
 		p.sort(([e, t], [n, r]) => m(e, t) - m(n, r));
 		for (let [n, i] of p) {
-			if (j.closeDistEps(n.point, i.point)) continue;
+			if (N.closeDistEps(n.point, i.point)) continue;
 			let u = h(n, c) * d, p = h(i, l) * d, g = o.bestCost;
 			if (r != null) {
 				for (let e = 0; e < f.length; e++) f[e] = null;
@@ -13415,7 +13422,7 @@ var dl = class e {
 			}
 			if (_ == null) continue;
 			let v = _.Cost / m(n, i);
-			(_.Cost < o.bestCost || O(_.Cost, o.bestCost) && v < s) && (o.bestCost = _.Cost, o.bestEntry = _, s = _.Cost / m(n, i));
+			(_.Cost < o.bestCost || A(_.Cost, o.bestCost) && v < s) && (o.bestCost = _.Cost, o.bestEntry = _, s = _.Cost / m(n, i));
 		}
 		return o.bestEntry;
 		function m(e, t) {
@@ -13432,7 +13439,7 @@ var dl = class e {
 		}
 	}
 	static Barycenter(e) {
-		let t = new j(0, 0);
+		let t = new N(0, 0);
 		for (let n of e) t = t.add(n.point);
 		return t.div(e.length);
 	}
@@ -13541,16 +13548,16 @@ var ml = class extends es {
 	}
 	static mk(t, n, r) {
 		let i = new e(null, 0);
-		return i.PaddedPolyline = L.mkClosedFromPoints([j.RoundPoint(t), j.RoundPoint(n)]), i.Ordinal = r, i;
+		return i.PaddedPolyline = R.mkClosedFromPoints([N.RoundPoint(t), N.RoundPoint(n)]), i.Ordinal = r, i;
 	}
 	IsPolylineRectangle() {
 		if (this.PaddedPolyline.count !== 4) return !1;
-		let e = this.PaddedPolyline.startPoint, t = e.nextOnPolyline, n = V.VectorDirectionPP(e.point, t.point);
-		if (!V.IsPureDirection(n)) return !1;
+		let e = this.PaddedPolyline.startPoint, t = e.nextOnPolyline, n = H.VectorDirectionPP(e.point, t.point);
+		if (!H.IsPureDirection(n)) return !1;
 		do {
 			e = t, t = e.nextOnPolyline;
-			let r = V.DirectionFromPointToPoint(e.point, t.point);
-			if (r !== V.RotateRight(n)) return !1;
+			let r = H.DirectionFromPointToPoint(e.point, t.point);
+			if (r !== H.RotateRight(n)) return !1;
 			n = r;
 		} while (e !== this.PaddedPolyline.startPoint);
 		return !0;
@@ -13558,7 +13565,7 @@ var ml = class extends es {
 	static RoundVerticesAndSimplify(t) {
 		let n = t.startPoint;
 		do
-			n.point = j.RoundPoint(n.point), n = n.nextOnPolyline;
+			n.point = N.RoundPoint(n.point), n = n.nextOnPolyline;
 		while (n !== t.startPoint);
 		e.RemoveCloseAndCollinearVerticesInPlace(t), t.setInitIsRequired();
 	}
@@ -13566,9 +13573,9 @@ var ml = class extends es {
 		return this.ConvexHull == null || this === this.ConvexHull.PrimaryObstacle;
 	}
 	static RemoveCloseAndCollinearVerticesInPlace(e) {
-		let t = E.intersectionEpsilon * 10;
-		for (let n = e.startPoint.next; n != null; n = n.next) j.close(n.prev.point, n.point, t) && (n.next == null ? e.RemoveEndPoint() : (n.prev.next = n.next, n.next.prev = n.prev));
-		return j.close(e.start, e.end, t) && e.RemoveStartPoint(), e = e.RemoveCollinearVertices(), e.endPoint.prev != null && e.endPoint.prev !== e.startPoint && j.getTriangleOrientation(e.endPoint.prev.point, e.end, e.start) === k.Collinear && e.RemoveEndPoint(), e.startPoint.next != null && e.endPoint.prev !== e.startPoint && j.getTriangleOrientation(e.end, e.start, e.startPoint.next.point) === k.Collinear && e.RemoveStartPoint(), e.setInitIsRequired(), e;
+		let t = O.intersectionEpsilon * 10;
+		for (let n = e.startPoint.next; n != null; n = n.next) N.close(n.prev.point, n.point, t) && (n.next == null ? e.RemoveEndPoint() : (n.prev.next = n.next, n.next.prev = n.prev));
+		return N.close(e.start, e.end, t) && e.RemoveStartPoint(), e = e.RemoveCollinearVertices(), e.endPoint.prev != null && e.endPoint.prev !== e.startPoint && N.getTriangleOrientation(e.endPoint.prev.point, e.end, e.start) === j.Collinear && e.RemoveEndPoint(), e.startPoint.next != null && e.endPoint.prev !== e.startPoint && N.getTriangleOrientation(e.end, e.start, e.startPoint.next.point) === j.Collinear && e.RemoveStartPoint(), e.setInitIsRequired(), e;
 	}
 	get isOverlapped() {
 		return this.clump !== void 0 && this.clump.length > 0;
@@ -13586,7 +13593,7 @@ var ml = class extends es {
 		this.clump = null, this.IsRectangle = !1, this.ConvexHull = e, this.looseVisibilityPolyline = null;
 	}
 	static CreateLoosePolyline(t) {
-		let n = Us.CreatePaddedPolyline(t, E.intersectionEpsilon * 10);
+		let n = Us.CreatePaddedPolyline(t, O.intersectionEpsilon * 10);
 		return e.RoundVerticesAndSimplify(n), n;
 	}
 	get IsTransparentAncestor() {
@@ -13607,7 +13614,7 @@ var vl = class {
 		return this.IsOverlapped ? $.OverlappedWeight : $.NormalWeight;
 	}
 	get IsCollinearWithPort() {
-		return V.IsPureDirection(B.GetDirections(this.VisibilityBorderIntersect, this.ObstaclePort.Location));
+		return H.IsPureDirection(V.GetDirections(this.VisibilityBorderIntersect, this.ObstaclePort.Location));
 	}
 	get IsVertical() {
 		return Q.IsVertical(this.MaxVisibilitySegment);
@@ -13616,12 +13623,12 @@ var vl = class {
 		return !this.IsOverlapped && this.CanExtend && (!this.ObstaclePort.HasCollinearEntrances || this.IsCollinearWithPort);
 	}
 	get CanExtend() {
-		return B.GetDirections(this.MaxVisibilitySegment.start, this.MaxVisibilitySegment.end) !== z.None;
+		return V.GetDirections(this.MaxVisibilitySegment.start, this.MaxVisibilitySegment.end) !== B.None;
 	}
 	constructor(e, t, n, r) {
 		this.IsOverlapped = !1, this.unpaddedToPaddedBorderWeight = $.NormalWeight, this.ObstaclePort = e, this.UnpaddedBorderIntersect = t, this.OutwardDirection = n;
-		let i = N.mkPP(this.UnpaddedBorderIntersect, Q.RectangleBorderIntersect(e.Obstacle.VisibilityBoundingBox, this.UnpaddedBorderIntersect, n)), a = I.getAllIntersections(i, e.Obstacle.VisibilityPolyline, !0);
-		this.VisibilityBorderIntersect = j.RoundPoint(a[0].x);
+		let i = P.mkPP(this.UnpaddedBorderIntersect, Q.RectangleBorderIntersect(e.Obstacle.VisibilityBoundingBox, this.UnpaddedBorderIntersect, n)), a = L.getAllIntersections(i, e.Obstacle.VisibilityPolyline, !0);
+		this.VisibilityBorderIntersect = N.RoundPoint(a[0].x);
 		let o = { pacList: null };
 		this.MaxVisibilitySegment = r.CreateMaxVisibilitySegment(this.VisibilityBorderIntersect, this.OutwardDirection, o), this.pointAndCrossingsList = o.pacList, (this.Obstacle.isOverlapped || this.Obstacle.IsGroup && !this.Obstacle.IsInConvexHull) && (this.IsOverlapped = r.IntersectionIsInsideAnotherObstacle(null, this.Obstacle, this.VisibilityBorderIntersect, sl.GetInstance(this.OutwardDirection)), (!this.Obstacle.IsGroup || this.IsOverlapped || this.InteriorEdgeCrossesObstacle(r)) && (this.unpaddedToPaddedBorderWeight = $.OverlappedWeight)), this.Obstacle.IsInConvexHull && this.unpaddedToPaddedBorderWeight === $.NormalWeight && this.SetUnpaddedToPaddedBorderWeightFromHullSiblingOverlaps(r);
 	}
@@ -13629,18 +13636,18 @@ var vl = class {
 		(this.Obstacle.IsGroup ? this.InteriorEdgeCrossesObstacle(e) : this.InteriorEdgeCrossesConvexHullSiblings()) && (this.unpaddedToPaddedBorderWeight = $.OverlappedWeight);
 	}
 	InteriorEdgeCrossesObstacle(e) {
-		let t = R.mkPP(this.UnpaddedBorderIntersect, this.VisibilityBorderIntersect);
+		let t = z.mkPP(this.UnpaddedBorderIntersect, this.VisibilityBorderIntersect);
 		return this.InteriorEdgeCrossesObstacleRFI(t, (e) => e.VisibilityPolyline, Array.from(e.Root.GetLeafRectangleNodesIntersectingRectangle(t)).filter((e) => !e.UserData.IsGroup && e.UserData !== this.Obstacle).map((e) => e.UserData));
 	}
 	InteriorEdgeCrossesConvexHullSiblings() {
-		let e = R.mkPP(this.UnpaddedBorderIntersect, this.VisibilityBorderIntersect);
+		let e = z.mkPP(this.UnpaddedBorderIntersect, this.VisibilityBorderIntersect);
 		return this.InteriorEdgeCrossesObstacleRFI(e, (e) => e.PaddedPolyline, this.Obstacle.ConvexHull.Obstacles.filter((e) => e !== this.Obstacle));
 	}
 	InteriorEdgeCrossesObstacleRFI(e, t, n) {
 		let r = null;
 		for (let i of n) {
 			let n = t(i);
-			if (Q.RectangleInteriorsIntersect(e, n.boundingBox) && (r ??= N.mkPP(this.UnpaddedBorderIntersect, this.VisibilityBorderIntersect), I.intersectionOne(r, n, !1) != null || F.Outside !== I.PointRelativeToCurveLocation(this.UnpaddedBorderIntersect, n))) return !0;
+			if (Q.RectangleInteriorsIntersect(e, n.boundingBox) && (r ??= P.mkPP(this.UnpaddedBorderIntersect, this.VisibilityBorderIntersect), L.intersectionOne(r, n, !1) != null || I.Outside !== L.PointRelativeToCurveLocation(this.UnpaddedBorderIntersect, n))) return !0;
 		}
 		return !1;
 	}
@@ -13650,7 +13657,7 @@ var vl = class {
 	HasGroupCrossingBeforePoint(e) {
 		if (!this.HasGroupCrossings) return !1;
 		let t = Q.IsAscending(this.OutwardDirection) ? this.pointAndCrossingsList.First : this.pointAndCrossingsList.Last;
-		return B.GetDirections(this.MaxVisibilitySegment.start, t.Location) === B.GetDirections(t.Location, e);
+		return V.GetDirections(this.MaxVisibilitySegment.start, t.Location) === V.GetDirections(t.Location, e);
 	}
 	AddToAdjacentVertex(e, t, n, r) {
 		let i = e.VisGraph.FindVertex(this.VisibilityBorderIntersect);
@@ -13658,7 +13665,7 @@ var vl = class {
 			this.ExtendEdgeChain(e, i, i, n, r);
 			return;
 		}
-		this.OutwardDirection === B.GetDirections(t.point, this.VisibilityBorderIntersect) ? (this.VisibilityBorderIntersect = t.point, i = t) : (i = e.FindOrAddVertex(this.VisibilityBorderIntersect), e.FindOrAddEdge(i, t, this.InitialWeight)), this.ExtendEdgeChain(e, i, t, n, r);
+		this.OutwardDirection === V.GetDirections(t.point, this.VisibilityBorderIntersect) ? (this.VisibilityBorderIntersect = t.point, i = t) : (i = e.FindOrAddVertex(this.VisibilityBorderIntersect), e.FindOrAddEdge(i, t, this.InitialWeight)), this.ExtendEdgeChain(e, i, t, n, r);
 	}
 	ExtendEdgeChain(e, t, n, r, i) {
 		e.ExtendEdgeChainVRLPB(n, r, this.MaxVisibilitySegment, this.pointAndCrossingsList, this.IsOverlapped);
@@ -13670,7 +13677,7 @@ var vl = class {
 	}
 }, yl = class {
 	constructor(e, t) {
-		this.HasCollinearEntrances = !1, this.VisibilityRectangle = R.mkEmpty(), this.Port = e, this.Obstacle = t, this.PortEntrances = [], this.Location = j.RoundPoint(this.Port.Location);
+		this.HasCollinearEntrances = !1, this.VisibilityRectangle = z.mkEmpty(), this.Port = e, this.Obstacle = t, this.PortEntrances = [], this.Location = N.RoundPoint(this.Port.Location);
 	}
 	CreatePortEntrance(e, t, n) {
 		let r = new vl(this, e, t, n);
@@ -13686,7 +13693,7 @@ var vl = class {
 		this.CenterVertex = null;
 	}
 	get LocationHasChanged() {
-		return !j.closeDistEps(this.Location, j.RoundPoint(this.Port.Location));
+		return !N.closeDistEps(this.Location, N.RoundPoint(this.Port.Location));
 	}
 	get PortCurve() {
 		return this.Port.Curve;
@@ -13705,7 +13712,7 @@ var vl = class {
 		return this.IsOverlapped ? $.OverlappedWeight : $.NormalWeight;
 	}
 	get IsOutOfBounds() {
-		return z.None !== this.OutOfBoundsDirectionFromGraph;
+		return B.None !== this.OutOfBoundsDirectionFromGraph;
 	}
 	constructor(e, t) {
 		this.maxVisibilitySegmentsAndCrossings = [
@@ -13713,7 +13720,7 @@ var vl = class {
 			,
 			,
 			,
-		], this.OutOfBoundsDirectionFromGraph = z.None, this.GetVertex(e, t);
+		], this.OutOfBoundsDirectionFromGraph = B.None, this.GetVertex(e, t);
 	}
 	GetVertex(e, t) {
 		this.Vertex = e.FindOrAddVertex(t);
@@ -13723,7 +13730,7 @@ var vl = class {
 		return a == null ? a = e.AddEdgeToTargetEdge(this.Vertex, t, i) : this.AddToAdjacentVertex(e, a, n, r), this.ExtendEdgeChain(e, a, n, r), a;
 	}
 	AddToAdjacentVertex(e, t, n, r) {
-		B.EqualPP(this.Point, t.point) || e.FindOrAddEdge(this.Vertex, t, this.InitialWeight), this.ExtendEdgeChain(e, t, n, r);
+		V.EqualPP(this.Point, t.point) || e.FindOrAddEdge(this.Vertex, t, this.InitialWeight), this.ExtendEdgeChain(e, t, n, r);
 	}
 	ExtendEdgeChain(e, t, n, r) {
 		let i = this.IsOverlapped;
@@ -13732,19 +13739,19 @@ var vl = class {
 		e.ExtendEdgeChainVRLPB(t, r, a[0], a[1], i);
 	}
 	GetSegmentAndCrossings(e, t, n) {
-		let r = V.ToIndex(t), i = this.maxVisibilitySegmentsAndCrossings[r];
+		let r = H.ToIndex(t), i = this.maxVisibilitySegmentsAndCrossings[r];
 		if (i == null) {
 			let a = { pacList: null };
 			i = [n.ObstacleTree.CreateMaxVisibilitySegment(e.point, t, a), a.pacList], this.maxVisibilitySegmentsAndCrossings[r] = i;
-		} else B.GetDirections(e.point, i[0].start) === t && (i[0].start = e.point);
+		} else V.GetDirections(e.point, i[0].start) === t && (i[0].start = e.point);
 		return i;
 	}
 	MaxVisibilityInDirectionForNonOverlappedFreePoint(e, t) {
 		return this.GetSegmentAndCrossings(this.Vertex, e, t)[0].end;
 	}
 	AddOobEdgesFromGraphCorner(e, t) {
-		let n = B.GetDirections(t, this.Vertex.point), r = e.VisGraph.FindVertex(t);
-		e.ConnectVertexToTargetVertex(r, this.Vertex, n & (z.North | z.South), $.NormalWeight), e.ConnectVertexToTargetVertex(r, this.Vertex, n & (z.East | z.West), $.NormalWeight);
+		let n = V.GetDirections(t, this.Vertex.point), r = e.VisGraph.FindVertex(t);
+		e.ConnectVertexToTargetVertex(r, this.Vertex, n & (B.North | B.South), $.NormalWeight), e.ConnectVertexToTargetVertex(r, this.Vertex, n & (B.East | B.West), $.NormalWeight);
 	}
 	RemoveFromGraph() {
 		this.Vertex = null;
@@ -13754,16 +13761,16 @@ var vl = class {
 	}
 }, xl = class {
 	constructor(e, t) {
-		this.BoundaryWidth = E.distanceEpsilon, this.Group = e, this.DirectionToInside = t;
+		this.BoundaryWidth = O.distanceEpsilon, this.Group = e, this.DirectionToInside = t;
 	}
 	GetInteriorVertexPoint(e) {
-		return j.RoundPoint(e.add(V.toPoint(this.DirectionToInside).mul(this.BoundaryWidth)));
+		return N.RoundPoint(e.add(H.toPoint(this.DirectionToInside).mul(this.BoundaryWidth)));
 	}
 	toString() {
 		return zo.String.format("{0} {1}", this.DirectionToInside, this.Group);
 	}
 };
-xl.BoundaryWidth = E.distanceEpsilon;
+xl.BoundaryWidth = O.distanceEpsilon;
 //#endregion
 //#region ../node_modules/@msagl/core/dist/routing/rectilinear/AxisCoordinateEvent.js
 var Sl = class extends No {
@@ -13797,15 +13804,15 @@ var Sl = class extends No {
 	TraverseToSegmentContainingPoint(e) {
 		if (this.CurrentSegment.ContainsPoint(e)) return !0;
 		let t = this.IsHorizontal ? e.y : e.x;
-		if (!B.Equal(this.Coord, t)) {
+		if (!V.Equal(this.Coord, t)) {
 			for (; this.MoveNext(););
 			return !1;
 		}
 		for (;;) {
-			if ((this.CurrentSegment.NextSegment == null || B.GetDirections(this.CurrentSegment.End, e) == B.GetDirections(e, this.CurrentSegment.NextSegment.Start)) && j.closeIntersections(this.CurrentSegment.End, e)) return this.CurrentSegment.Update(this.CurrentSegment.Start, e), !0;
+			if ((this.CurrentSegment.NextSegment == null || V.GetDirections(this.CurrentSegment.End, e) == V.GetDirections(e, this.CurrentSegment.NextSegment.Start)) && N.closeIntersections(this.CurrentSegment.End, e)) return this.CurrentSegment.Update(this.CurrentSegment.Start, e), !0;
 			if (!this.MoveNext()) return !1;
 			if (this.CurrentSegment.ContainsPoint(e)) return !0;
-			if (B.IsPureLower(e, this.CurrentSegment.Start)) return this.CurrentSegment.Update(e, this.CurrentSegment.End), !0;
+			if (V.IsPureLower(e, this.CurrentSegment.Start)) return this.CurrentSegment.Update(e, this.CurrentSegment.End), !0;
 		}
 	}
 	MoveNext() {
@@ -13818,7 +13825,7 @@ var Sl = class extends No {
 		return e.equal(this.CurrentSegment.End) && this.CurrentSegment.NextSegment != null && e.equal(this.CurrentSegment.NextSegment.Start);
 	}
 	AddPerpendicularCoord(e) {
-		let t = this.IsHorizontal ? new j(e, this.Coord) : new j(this.Coord, e);
+		let t = this.IsHorizontal ? new N(e, this.Coord) : new N(this.Coord, e);
 		this.TraverseToSegmentContainingPoint(t), this.CurrentSegment.AddSparseVertexCoord(e);
 	}
 	toString() {
@@ -13971,12 +13978,12 @@ var Sl = class extends No {
 	}
 	GetOrderedListBetween(e, t) {
 		if (this.pointCrossingMap.size === 0) return null;
-		if (B.ComparePP(e, t) > 0) {
+		if (V.ComparePP(e, t) > 0) {
 			let n = e;
 			e = t, t = n;
 		}
 		this.pointList = [];
-		for (let n of this.pointCrossingMap.keys()) B.ComparePP(n, e) >= 0 && B.ComparePP(n, t) <= 0 && this.pointList.push(n);
+		for (let n of this.pointCrossingMap.keys()) V.ComparePP(n, e) >= 0 && V.ComparePP(n, t) <= 0 && this.pointList.push(n);
 		this.pointList.sort((e, t) => e.compareTo(t));
 		let n = new ol(), r = this.pointList.length;
 		for (let e = 0; e < r; e++) {
@@ -14114,8 +14121,8 @@ var Sl = class extends No {
 	}
 }, zl = class e {
 	static MungeClosestIntersectionInfo(t, n, r) {
-		let i = n.seg1.boundingBox, a = j.RoundPoint(n.x).clone();
-		return r ? new j(e.MungeIntersect(t.x, a.x, i.left, i.right), a.y) : new j(a.x, e.MungeIntersect(t.y, a.y, i.bottom, i.top));
+		let i = n.seg1.boundingBox, a = N.RoundPoint(n.x).clone();
+		return r ? new N(e.MungeIntersect(t.x, a.x, i.left, i.right), a.y) : new N(a.x, e.MungeIntersect(t.y, a.y, i.bottom, i.top));
 	}
 	static MungeIntersect(e, t, n, r) {
 		if (e < t) {
@@ -14125,7 +14132,7 @@ var Sl = class extends No {
 			let e = Math.max(n, r);
 			t > e && (t = e);
 		}
-		return j.RoundDouble(t);
+		return N.RoundDouble(t);
 	}
 }, Bl = class e {
 	constructor() {
@@ -14173,7 +14180,7 @@ var Sl = class extends No {
 		for (;;) if (this.AccumulateObstaclesForConvexHulls(), !this.CreateConvexHulls()) return;
 	}
 	static CalculateHierarchy(e) {
-		return W(Array.from(e).map((e) => Ma(e, e.VisibilityBoundingBox)));
+		return G(Array.from(e).map((e) => ja(e, e.VisibilityBoundingBox)));
 	}
 	AccumulateObstaclesForClumps() {
 		this.overlapPairs.clear();
@@ -14226,7 +14233,7 @@ var Sl = class extends No {
 		return e.contains(t.leftBottom) || e.contains(t.leftTop) || e.contains(t.rightTop) || e.contains(t.rightBottom);
 	}
 	static FirstPolylineStartIsInsideSecondPolyline(e, t) {
-		return I.PointRelativeToCurveLocation(e.start, t) !== F.Outside;
+		return L.PointRelativeToCurveLocation(e.start, t) !== I.Outside;
 	}
 	AddClumpToConvexHull(e) {
 		if (e.isOverlapped) {
@@ -14284,14 +14291,14 @@ var Sl = class extends No {
 		e.SetConvexHull(new Rl(gs.createConvexHullAsClosedPolyline(n), [e]));
 	}
 	static ObstaclesIntersect(t, n, r) {
-		return I.CurvesIntersect(t.VisibilityPolyline, n.VisibilityPolyline) ? (r.aIsInsideB = !1, r.bIsInsideA = !1, !0) : (r.aIsInsideB = e.FirstPolylineStartIsInsideSecondPolyline(t.VisibilityPolyline, n.VisibilityPolyline), r.bIsInsideA = !r.aIsInsideB && e.FirstPolylineStartIsInsideSecondPolyline(n.VisibilityPolyline, t.VisibilityPolyline), t.IsRectangle && n.IsRectangle ? !1 : e.ObstaclesAreCloseEnoughToBeConsideredTouching(t, n, r.aIsInsideB, r.bIsInsideA) ? (r.aIsInsideB = !1, r.bIsInsideA = !1, !0) : !1);
+		return L.CurvesIntersect(t.VisibilityPolyline, n.VisibilityPolyline) ? (r.aIsInsideB = !1, r.bIsInsideA = !1, !0) : (r.aIsInsideB = e.FirstPolylineStartIsInsideSecondPolyline(t.VisibilityPolyline, n.VisibilityPolyline), r.bIsInsideA = !r.aIsInsideB && e.FirstPolylineStartIsInsideSecondPolyline(n.VisibilityPolyline, t.VisibilityPolyline), t.IsRectangle && n.IsRectangle ? !1 : e.ObstaclesAreCloseEnoughToBeConsideredTouching(t, n, r.aIsInsideB, r.bIsInsideA) ? (r.aIsInsideB = !1, r.bIsInsideA = !1, !0) : !1);
 	}
 	static ObstaclesAreCloseEnoughToBeConsideredTouching(e, t, n, r) {
-		if (!n && !r) return I.CurvesIntersect(e.looseVisibilityPolyline, t.VisibilityPolyline);
+		if (!n && !r) return L.CurvesIntersect(e.looseVisibilityPolyline, t.VisibilityPolyline);
 		let i = n ? e.looseVisibilityPolyline : t.looseVisibilityPolyline, a = n ? t.VisibilityPolyline : e.VisibilityPolyline;
-		for (let e of i) if (I.PointRelativeToCurveLocation(e, a) === F.Outside) {
-			let t = I.ClosestPoint(a, e);
-			if (!j.closeIntersections(e, t)) return !0;
+		for (let e of i) if (L.PointRelativeToCurveLocation(e, a) === I.Outside) {
+			let t = L.ClosestPoint(a, e);
+			if (!N.closeIntersections(e, t)) return !0;
 		}
 		return !1;
 	}
@@ -14299,7 +14306,7 @@ var Sl = class extends No {
 		if (this.SpatialAncestorsAdjusted) return !1;
 		for (let e of this.GetAllGroups()) {
 			let t = e.VisibilityBoundingBox;
-			for (let n of this.Root.GetNodeItemsIntersectingRectangle(t)) if (n !== e && I.ClosedCurveInteriorsIntersect(n.VisibilityPolyline, e.VisibilityPolyline)) {
+			for (let n of this.Root.GetNodeItemsIntersectingRectangle(t)) if (n !== e && L.ClosedCurveInteriorsIntersect(n.VisibilityPolyline, e.VisibilityPolyline)) {
 				if (n.IsInConvexHull) for (let t of n.ConvexHull.Obstacles) this.AncestorSets.get(t.InputShape).add(e.InputShape);
 				this.AncestorSets.get(n.InputShape).add(e.InputShape);
 			}
@@ -14321,7 +14328,7 @@ var Sl = class extends No {
 	}
 	CreateMaxVisibilitySegment(e, t, n) {
 		let r = Q.RectangleBorderIntersect(this.GraphBox, e, t);
-		if (B.GetDirections(e, r) === z.None) return n.pacList = null, N.mkPP(e, e);
+		if (V.GetDirections(e, r) === B.None) return n.pacList = null, P.mkPP(e, e);
 		let i = this.RestrictSegmentWithObstacles(e, r);
 		return n.pacList = this.CurrentGroupBoundaryCrossingMap.GetOrderedListBetween(i.start, i.end), i;
 	}
@@ -14341,39 +14348,39 @@ var Sl = class extends No {
 		return this.insideHitTestIgnoreObstacle1 = null, this.insideHitTestIgnoreObstacle2 = null, this.insideHitTestScanDirection = t, this.Root.FirstHitNodeWithPredicate(e, this.InsideObstacleHitTest.bind(this)) != null;
 	}
 	InsideObstacleHitTest(e, t) {
-		if (t === this.insideHitTestIgnoreObstacle1 || t === this.insideHitTestIgnoreObstacle2 || t.IsGroup || !Q.PointIsInRectangleInterior(e, t.VisibilityBoundingBox)) return U.Continue;
-		let n = Q.RectangleBorderIntersect(t.VisibilityBoundingBox, e, this.insideHitTestScanDirection.dir).add(this.insideHitTestScanDirection.DirectionAsPoint), r = Q.RectangleBorderIntersect(t.VisibilityBoundingBox, e, this.insideHitTestScanDirection.OppositeDirection).sub(this.insideHitTestScanDirection.DirectionAsPoint), i = N.mkPP(r, n), a = I.getAllIntersections(i, t.VisibilityPolyline, !0);
+		if (t === this.insideHitTestIgnoreObstacle1 || t === this.insideHitTestIgnoreObstacle2 || t.IsGroup || !Q.PointIsInRectangleInterior(e, t.VisibilityBoundingBox)) return W.Continue;
+		let n = Q.RectangleBorderIntersect(t.VisibilityBoundingBox, e, this.insideHitTestScanDirection.dir).add(this.insideHitTestScanDirection.DirectionAsPoint), r = Q.RectangleBorderIntersect(t.VisibilityBoundingBox, e, this.insideHitTestScanDirection.OppositeDirection).sub(this.insideHitTestScanDirection.DirectionAsPoint), i = P.mkPP(r, n), a = L.getAllIntersections(i, t.VisibilityPolyline, !0);
 		if (a.length === 2) {
-			let t = j.RoundPoint(a[0].x), n = j.RoundPoint(a[1].x);
-			if (!B.EqualPP(e, t) && !B.EqualPP(e, n) && e.compareTo(t) !== e.compareTo(n) && !O(Math.floor(a[0].par1), Math.floor(a[1].par1))) return U.Stop;
+			let t = N.RoundPoint(a[0].x), n = N.RoundPoint(a[1].x);
+			if (!V.EqualPP(e, t) && !V.EqualPP(e, n) && e.compareTo(t) !== e.compareTo(n) && !A(Math.floor(a[0].par1), Math.floor(a[1].par1))) return W.Stop;
 		}
-		return U.Continue;
+		return W.Continue;
 	}
 	SegmentCrossesAnObstacle(e, t) {
 		this.stopAtGroups = !0, this.wantGroupCrossings = !1;
 		let n = this.RestrictSegmentPrivate(e, t);
-		return !B.EqualPP(n.end, t);
+		return !V.EqualPP(n.end, t);
 	}
 	SegmentCrossesANonGroupObstacle(e, t) {
 		this.stopAtGroups = !1, this.wantGroupCrossings = !1;
 		let n = this.RestrictSegmentPrivate(e, t);
-		return !B.EqualPP(n.end, t);
+		return !V.EqualPP(n.end, t);
 	}
 	RestrictSegmentWithObstacles(e, t) {
 		return this.stopAtGroups = !1, this.wantGroupCrossings = !0, this.RestrictSegmentPrivate(e, t);
 	}
 	RestrictSegmentPrivate(e, t) {
-		return this.GetRestrictedIntersectionTestSegment(e, t), this.currentRestrictedRay = N.mkPP(e, t), this.restrictedRayLengthSquared = e.sub(t).lengthSquared, this.CurrentGroupBoundaryCrossingMap.Clear(), this.RecurseRestrictRayWithObstacles(this.Root), this.currentRestrictedRay;
+		return this.GetRestrictedIntersectionTestSegment(e, t), this.currentRestrictedRay = P.mkPP(e, t), this.restrictedRayLengthSquared = e.sub(t).lengthSquared, this.CurrentGroupBoundaryCrossingMap.Clear(), this.RecurseRestrictRayWithObstacles(this.Root), this.currentRestrictedRay;
 	}
 	GetRestrictedIntersectionTestSegment(e, t) {
-		let n = B.GetDirections(e, t), r = z.West === n ? this.GraphBox.right : z.East === n ? this.GraphBox.left : e.x, i = z.West === n ? this.GraphBox.left : z.East === n ? this.GraphBox.right : t.x, a = z.South === n ? this.GraphBox.top * 2 : z.North === n ? this.GraphBox.bottom : e.y, o = z.South === n ? this.GraphBox.bottom : z.North === n ? this.GraphBox.top : e.y;
-		this.restrictedIntersectionTestSegment = N.mkPP(new j(r, a), new j(i, o));
+		let n = V.GetDirections(e, t), r = B.West === n ? this.GraphBox.right : B.East === n ? this.GraphBox.left : e.x, i = B.West === n ? this.GraphBox.left : B.East === n ? this.GraphBox.right : t.x, a = B.South === n ? this.GraphBox.top * 2 : B.North === n ? this.GraphBox.bottom : e.y, o = B.South === n ? this.GraphBox.bottom : B.North === n ? this.GraphBox.top : e.y;
+		this.restrictedIntersectionTestSegment = P.mkPP(new N(r, a), new N(i, o));
 	}
 	RecurseRestrictRayWithObstacles(e) {
 		if (!Q.RectangleInteriorsIntersect(this.currentRestrictedRay.boundingBox, e.irect)) return;
 		let t = e.UserData;
 		if (t != null) {
-			let e = I.getAllIntersections(this.restrictedIntersectionTestSegment, t.VisibilityPolyline, !0);
+			let e = L.getAllIntersections(this.restrictedIntersectionTestSegment, t.VisibilityPolyline, !0);
 			if (!t.IsGroup || this.stopAtGroups) {
 				this.LookForCloserNonGroupIntersectionToRestrictRay(e);
 				return;
@@ -14384,34 +14391,34 @@ var Sl = class extends No {
 		this.RecurseRestrictRayWithObstacles(e.Left), this.RecurseRestrictRayWithObstacles(e.Right);
 	}
 	LookForCloserNonGroupIntersectionToRestrictRay(e) {
-		let t = 0, n = null, r = this.restrictedRayLengthSquared, i = B.GetDirections(this.restrictedIntersectionTestSegment.start, this.restrictedIntersectionTestSegment.end);
+		let t = 0, n = null, r = this.restrictedRayLengthSquared, i = V.GetDirections(this.restrictedIntersectionTestSegment.start, this.restrictedIntersectionTestSegment.end);
 		for (let a of e) {
-			let e = j.RoundPoint(a.x), o = B.GetDirections(this.currentRestrictedRay.start, e);
-			if (o === V.OppositeDir(i)) continue;
-			if (t++, z.None === o) {
+			let e = N.RoundPoint(a.x), o = V.GetDirections(this.currentRestrictedRay.start, e);
+			if (o === H.OppositeDir(i)) continue;
+			if (t++, B.None === o) {
 				r = 0, n = a;
 				continue;
 			}
 			let s = e.sub(this.currentRestrictedRay.start).lengthSquared;
 			if (s < r) {
-				if (a.x.sub(this.currentRestrictedRay.start).lengthSquared < E.squareOfDistanceEpsilon) continue;
+				if (a.x.sub(this.currentRestrictedRay.start).lengthSquared < O.squareOfDistanceEpsilon) continue;
 				r = s, n = a;
 			}
 		}
 		if (n != null) {
 			if (t === 1) {
-				let e = j.RoundPoint(n.x);
-				if (j.closeIntersections(e, this.currentRestrictedRay.start) || j.closeIntersections(e, this.currentRestrictedRay.end)) return;
+				let e = N.RoundPoint(n.x);
+				if (N.closeIntersections(e, this.currentRestrictedRay.start) || N.closeIntersections(e, this.currentRestrictedRay.end)) return;
 			}
 			this.restrictedRayLengthSquared = r, this.currentRestrictedRay.end = zl.MungeClosestIntersectionInfo(this.currentRestrictedRay.start, n, !Q.IsVerticalPP(this.currentRestrictedRay.start, this.currentRestrictedRay.end));
 		}
 	}
 	AddGroupIntersectionsToRestrictedRay(e, t) {
 		for (let n of t) {
-			let t = j.RoundPoint(n.x);
+			let t = N.RoundPoint(n.x);
 			if (t.sub(this.currentRestrictedRay.start).lengthSquared > this.restrictedRayLengthSquared) continue;
-			let r = B.GetDirections(this.currentRestrictedRay.start, this.currentRestrictedRay.end), i = n.seg1, a = V.VectorDirection(i.derivative(n.par1)), o = r;
-			(a & V.RotateRight(r)) !== 0 && (o = V.OppositeDir(o)), this.CurrentGroupBoundaryCrossingMap.AddIntersection(t, e, o);
+			let r = V.GetDirections(this.currentRestrictedRay.start, this.currentRestrictedRay.end), i = n.seg1, a = H.VectorDirection(i.derivative(n.par1)), o = r;
+			(a & H.RotateRight(r)) !== 0 && (o = H.OppositeDir(o)), this.CurrentGroupBoundaryCrossingMap.AddIntersection(t, e, o);
 		}
 	}
 }, Vl = class {
@@ -14451,11 +14458,11 @@ var Sl = class extends No {
 	Compare(e, t) {
 		if (e.Obstacle === t.Obstacle) return e === t ? 0 : e instanceof hl ? -1 : 1;
 		let n = Wl.ScanLineIntersectSidePBS(this.linePositionAtLastInsertOrRemove, e, this.scanDirection), r = Wl.ScanLineIntersectSidePBS(this.linePositionAtLastInsertOrRemove, t, this.scanDirection), i = n.compareTo(r);
-		return i === 0 && (i = Qi(e instanceof hl, t instanceof hl), i === 0 && (i = D(e.Obstacle.Ordinal, t.Obstacle.Ordinal))), i;
+		return i === 0 && (i = Xi(e instanceof hl, t instanceof hl), i === 0 && (i = k(e.Obstacle.Ordinal, t.Obstacle.Ordinal))), i;
 	}
 }, Hl = class {
 	constructor(e) {
-		this.lookupSegment = $.mk(new j(0, 0), new j(0, 1)), this.ScanDirection = e, this.segmentTree = new jo((e, t) => this.Compare(e, t)), this.findIntersectorPred = (e) => this.CompareIntersector(e), this.findPointPred = (e) => this.CompareToPoint(e);
+		this.lookupSegment = $.mk(new N(0, 0), new N(0, 1)), this.ScanDirection = e, this.segmentTree = new jo((e, t) => this.Compare(e, t)), this.findIntersectorPred = (e) => this.CompareIntersector(e), this.findPointPred = (e) => this.CompareToPoint(e);
 	}
 	get Segments() {
 		return this.segmentTree.allNodes();
@@ -14470,7 +14477,7 @@ var Sl = class extends No {
 	Find(e, t) {
 		this.lookupSegment.Update(e, t);
 		let n = this.segmentTree.find(this.lookupSegment);
-		return n != null && B.EqualPP(n.item.End, t) ? n.item : null;
+		return n != null && V.EqualPP(n.item.End, t) ? n.item : null;
 	}
 	FindLowestIntersector(e, t) {
 		let n = this.FindLowestIntersectorNode(e, t);
@@ -14479,7 +14486,7 @@ var Sl = class extends No {
 	FindLowestIntersectorNode(e, t) {
 		this.lookupSegment.Update(e, e);
 		let n = this.segmentTree.findLast(this.findIntersectorPred);
-		if (B.EqualPP(e, t)) n != null && this.ScanDirection.Compare(n.item.End, e) < 0 && (n = null);
+		if (V.EqualPP(e, t)) n != null && this.ScanDirection.Compare(n.item.End, e) < 0 && (n = null);
 		else for (this.lookupSegment.Update(e, t); n != null && !n.item.IntersectsSegment(this.lookupSegment);) {
 			if (this.ScanDirection.Compare(n.item.Start, t) > 0) return null;
 			n = this.segmentTree.next(n);
@@ -14489,7 +14496,7 @@ var Sl = class extends No {
 	FindHighestIntersector(e, t) {
 		this.lookupSegment.Update(t, t);
 		let n = this.segmentTree.findLast(this.findIntersectorPred);
-		if (B.EqualPP(e, t)) n != null && this.ScanDirection.Compare(n.item.End, e) < 0 && (n = null);
+		if (V.EqualPP(e, t)) n != null && this.ScanDirection.Compare(n.item.End, e) < 0 && (n = null);
 		else for (this.lookupSegment.Update(e, t); n != null && !n.item.IntersectsSegment(this.lookupSegment);) {
 			if (this.ScanDirection.Compare(n.item.End, e) < 0) return null;
 			n = this.segmentTree.previous(n);
@@ -14558,7 +14565,7 @@ var Sl = class extends No {
 			,
 			,
 			,
-		], this.VertexEntries[V.ToIndex(e.Direction)] = e;
+		], this.VertexEntries[H.ToIndex(e.Direction)] = e;
 	}
 	RemoveVertexEntries() {
 		this.VertexEntries = null;
@@ -14580,12 +14587,12 @@ var Sl = class extends No {
 	GenerateVisibilityGraph() {
 		if (this.ObstacleTree.Root == null) return;
 		this.InitializeEventQueue(sl.HorizontalInstance);
-		let t = _l.FirstSentinelOrdinal, n = new j(this.ObstacleTree.GraphBox.left - e.SentinelOffset, this.ObstacleTree.GraphBox.bottom - e.SentinelOffset), r = new j(this.ObstacleTree.GraphBox.left - e.SentinelOffset, this.ObstacleTree.GraphBox.top + e.SentinelOffset), i = _l.CreateSentinel(n, r, this.ScanDirection, t++);
-		this.scanLine.Insert(i.ActiveHighSide, this.ObstacleTree.GraphBox.leftBottom), n = new j(this.ObstacleTree.GraphBox.right + e.SentinelOffset, this.ObstacleTree.GraphBox.bottom - e.SentinelOffset), r = new j(this.ObstacleTree.GraphBox.right + e.SentinelOffset, this.ObstacleTree.GraphBox.top + e.SentinelOffset), i = _l.CreateSentinel(n, r, this.ScanDirection, t++), this.scanLine.Insert(i.ActiveLowSide, this.ObstacleTree.GraphBox.leftBottom), this.ProcessEvents(), this.InitializeEventQueue(sl.VerticalInstance), n = new j(this.ObstacleTree.GraphBox.left - e.SentinelOffset, this.ObstacleTree.GraphBox.bottom - e.SentinelOffset), r = new j(this.ObstacleTree.GraphBox.right + e.SentinelOffset, this.ObstacleTree.GraphBox.bottom - e.SentinelOffset), i = _l.CreateSentinel(n, r, this.ScanDirection, t++), this.scanLine.Insert(i.ActiveHighSide, this.ObstacleTree.GraphBox.leftBottom), n = new j(this.ObstacleTree.GraphBox.left - e.SentinelOffset, this.ObstacleTree.GraphBox.top + e.SentinelOffset), r = new j(this.ObstacleTree.GraphBox.right + e.SentinelOffset, this.ObstacleTree.GraphBox.top + e.SentinelOffset), i = _l.CreateSentinel(n, r, this.ScanDirection, t), this.scanLine.Insert(i.ActiveLowSide, this.ObstacleTree.GraphBox.leftBottom), this.ProcessEvents();
+		let t = _l.FirstSentinelOrdinal, n = new N(this.ObstacleTree.GraphBox.left - e.SentinelOffset, this.ObstacleTree.GraphBox.bottom - e.SentinelOffset), r = new N(this.ObstacleTree.GraphBox.left - e.SentinelOffset, this.ObstacleTree.GraphBox.top + e.SentinelOffset), i = _l.CreateSentinel(n, r, this.ScanDirection, t++);
+		this.scanLine.Insert(i.ActiveHighSide, this.ObstacleTree.GraphBox.leftBottom), n = new N(this.ObstacleTree.GraphBox.right + e.SentinelOffset, this.ObstacleTree.GraphBox.bottom - e.SentinelOffset), r = new N(this.ObstacleTree.GraphBox.right + e.SentinelOffset, this.ObstacleTree.GraphBox.top + e.SentinelOffset), i = _l.CreateSentinel(n, r, this.ScanDirection, t++), this.scanLine.Insert(i.ActiveLowSide, this.ObstacleTree.GraphBox.leftBottom), this.ProcessEvents(), this.InitializeEventQueue(sl.VerticalInstance), n = new N(this.ObstacleTree.GraphBox.left - e.SentinelOffset, this.ObstacleTree.GraphBox.bottom - e.SentinelOffset), r = new N(this.ObstacleTree.GraphBox.right + e.SentinelOffset, this.ObstacleTree.GraphBox.bottom - e.SentinelOffset), i = _l.CreateSentinel(n, r, this.ScanDirection, t++), this.scanLine.Insert(i.ActiveHighSide, this.ObstacleTree.GraphBox.leftBottom), n = new N(this.ObstacleTree.GraphBox.left - e.SentinelOffset, this.ObstacleTree.GraphBox.top + e.SentinelOffset), r = new N(this.ObstacleTree.GraphBox.right + e.SentinelOffset, this.ObstacleTree.GraphBox.top + e.SentinelOffset), i = _l.CreateSentinel(n, r, this.ScanDirection, t), this.scanLine.Insert(i.ActiveLowSide, this.ObstacleTree.GraphBox.leftBottom), this.ProcessEvents();
 	}
 	static ScanLineIntersectSidePBS(e, t, n) {
 		let r = t.Direction, i = t.Start.x, a = t.Start.y;
-		return n.IsHorizontal ? (i += r.x / r.y * (e.y - t.Start.y), i = zl.MungeIntersect(e.x, i, t.Start.x, t.End.x), a = e.y) : (i = e.x, a += r.y / r.x * (e.x - t.Start.x), a = zl.MungeIntersect(e.y, a, t.Start.y, t.End.y)), new j(i, a);
+		return n.IsHorizontal ? (i += r.x / r.y * (e.y - t.Start.y), i = zl.MungeIntersect(e.x, i, t.Start.x, t.End.x), a = e.y) : (i = e.x, a += r.y / r.x * (e.x - t.Start.x), a = zl.MungeIntersect(e.y, a, t.Start.y, t.End.y)), new N(i, a);
 	}
 	GetOpenVertex(e) {
 		let t = e.startPoint, n = this.TraversePolylineForEvents(t), r = this.PointCompare(n.point, t.point);
@@ -14635,9 +14642,9 @@ var Sl = class extends No {
 	}
 	LoadReflectionEventsBB(t, n) {
 		if (t == null || this.SideReflectsUpward(t) || this.IsPerpendicular(t)) return;
-		let r = R.mkPP(t.Start, t.End), i = R.mkPP(n.Start, n.End);
+		let r = z.mkPP(t.Start, t.End), i = z.mkPP(n.Start, n.End);
 		if (this.ScanDirection.IsHorizontal ? !r.intersectsOnX(i) : !r.intersectsOnY(i)) return;
-		let a = R.intersect(r, i), o = a.leftBottom, s = a.rightTop, c = this.lookaheadScan.FindFirstInRange(o, s);
+		let a = z.intersect(r, i), o = a.leftBottom, s = a.rightTop, c = this.lookaheadScan.FindFirstInRange(o, s);
 		for (; c != null;) {
 			let n = e.ScanLineIntersectSidePBS(c.item.Site, t, this.ScanDirection.PerpendicularInstance);
 			this.ScanDirection.ComparePerpCoord(n, c.item.Site) > 0 ? this.AddReflectionEvent(c.item, t, n) : c.item.ReflectingObstacle !== t.Obstacle && this.lookaheadScan.MarkStaleSite(c.item), c = this.lookaheadScan.FindNextInRange(c, s);
@@ -14717,7 +14724,7 @@ var Sl = class extends No {
 	}
 	ProcessGroupSideEncounteredOnTraversalToNeighbor(e, t, n) {
 		if (!this.ScanLineCrossesObstacle(t, e.item.Obstacle)) return !1;
-		let r = e.item instanceof hl === Q.IsAscending(n) ? n : V.OppositeDir(n), i = this.ScanLineIntersectSide(t, e.item);
+		let r = e.item instanceof hl === Q.IsAscending(n) ? n : H.OppositeDir(n), i = this.ScanLineIntersectSide(t, e.item);
 		return this.CurrentGroupBoundaryCrossingMap.AddIntersection(i, e.item.Obstacle, r), !0;
 	}
 	FindNeighborsAndProcessVertexEvent(e, t, n) {
@@ -14781,13 +14788,13 @@ var Sl = class extends No {
 	}
 	MakeInBoundsLocation(e) {
 		let t = Math.max(e.x, this.ObstacleTree.GraphBox.left), n = Math.max(e.y, this.ObstacleTree.GraphBox.bottom);
-		return new j(Math.min(t, this.ObstacleTree.GraphBox.right), Math.min(n, this.ObstacleTree.GraphBox.top));
+		return new N(Math.min(t, this.ObstacleTree.GraphBox.right), Math.min(n, this.ObstacleTree.GraphBox.top));
 	}
 	IsInBoundsV(e) {
 		return this.IsInBoundsP(e.point);
 	}
 	IsInBoundsP(e) {
-		return B.EqualPP(e, this.MakeInBoundsLocation(e));
+		return V.EqualPP(e, this.MakeInBoundsLocation(e));
 	}
 };
 Wl.SentinelOffset = 1;
@@ -14795,7 +14802,7 @@ Wl.SentinelOffset = 1;
 //#region ../node_modules/@msagl/core/dist/routing/rectilinear/SparseVisibiltyGraphGenerator.js
 var Gl = class e extends Wl {
 	constructor() {
-		super(!1), this.horizontalVertexPoints = new G(), this.verticalVertexPoints = new G(), this.boundingBoxSteinerPoints = new G(), this.xCoordAccumulator = /* @__PURE__ */ new Set(), this.yCoordAccumulator = /* @__PURE__ */ new Set(), this.horizontalCoordMap = /* @__PURE__ */ new Map(), this.verticalCoordMap = /* @__PURE__ */ new Map();
+		super(!1), this.horizontalVertexPoints = new Fa(), this.verticalVertexPoints = new Fa(), this.boundingBoxSteinerPoints = new Fa(), this.xCoordAccumulator = /* @__PURE__ */ new Set(), this.yCoordAccumulator = /* @__PURE__ */ new Set(), this.horizontalCoordMap = /* @__PURE__ */ new Map(), this.verticalCoordMap = /* @__PURE__ */ new Map();
 	}
 	Clear() {
 		super.Clear(), this.Cleanup();
@@ -14822,10 +14829,10 @@ var Gl = class e extends Wl {
 	}
 	AddAxisCoordinateEvents(t) {
 		if (t.IsHorizontal) {
-			for (let t of this.yCoordAccumulator) this.eventQueue.Enqueue(new Sl(new j(this.ObstacleTree.GraphBox.left - e.SentinelOffset, t)));
+			for (let t of this.yCoordAccumulator) this.eventQueue.Enqueue(new Sl(new N(this.ObstacleTree.GraphBox.left - e.SentinelOffset, t)));
 			return;
 		}
-		for (let t of this.xCoordAccumulator) this.eventQueue.Enqueue(new Sl(new j(t, this.ObstacleTree.GraphBox.bottom - e.SentinelOffset)));
+		for (let t of this.xCoordAccumulator) this.eventQueue.Enqueue(new Sl(new N(t, this.ObstacleTree.GraphBox.bottom - e.SentinelOffset)));
 	}
 	ProcessCustomEvent(e) {
 		this.ProcessAxisCoordinate(e) || this.ProcessCustomEvent(e);
@@ -14845,17 +14852,17 @@ var Gl = class e extends Wl {
 		let a = this.LowNeighborSides.LowNeighbor.item, o = this.HighNeighborSides.HighNeighbor.item, s = this.ScanDirection.Dir, c = this.ScanDirection.OppositeDirection, l = this.ScanLineIntersectSide(r.Site, a), u = this.ScanLineIntersectSide(r.Site, o);
 		if (this.ObstacleTree.GraphBox.contains(l)) {
 			let e = Q.RectangleBorderIntersect(a.Obstacle.VisibilityBoundingBox, l, s);
-			B.IsPureLower(e, r.Site) && this.boundingBoxSteinerPoints.add(e);
+			V.IsPureLower(e, r.Site) && this.boundingBoxSteinerPoints.add(e);
 		}
 		if (this.ObstacleTree.GraphBox.contains(u)) {
 			let e = Q.RectangleBorderIntersect(o.Obstacle.VisibilityBoundingBox, u, c);
-			B.IsPureLower(r.Site, e) && this.boundingBoxSteinerPoints.add(e);
+			V.IsPureLower(r.Site, e) && this.boundingBoxSteinerPoints.add(e);
 		}
 		let d = {
 			lowCorner: void 0,
 			highCorner: void 0
 		};
-		e.GetBoundingCorners(t.item.Obstacle.VisibilityBoundingBox, r instanceof wl, this.ScanDirection.IsHorizontal, d), (B.IsPureLower(l, d.lowCorner) || a.Obstacle.IsInSameClump(r.Obstacle)) && i.add(d.lowCorner), (B.IsPureLower(d.highCorner, u) || o.Obstacle.IsInSameClump(r.Obstacle)) && i.add(d.highCorner);
+		e.GetBoundingCorners(t.item.Obstacle.VisibilityBoundingBox, r instanceof wl, this.ScanDirection.IsHorizontal, d), (V.IsPureLower(l, d.lowCorner) || a.Obstacle.IsInSameClump(r.Obstacle)) && i.add(d.lowCorner), (V.IsPureLower(d.highCorner, u) || o.Obstacle.IsInSameClump(r.Obstacle)) && i.add(d.highCorner);
 	}
 	static GetBoundingCorners(e, t, n, r) {
 		if (t) {
@@ -14882,7 +14889,7 @@ var Gl = class e extends Wl {
 			}
 			i++, !(i > 0) && (a = r.item.Obstacle.isOverlapped || r.item.Obstacle.OverlapsGroupCorner ? this.CreateScanSegment(a, r.item, $.OverlappedWeight) : this.ScanLineIntersectSide(a, r.item), this.CurrentGroupBoundaryCrossingMap.Clear(), o = !1);
 		}
-		let s = this.ScanDirection.IsHorizontal ? new j(this.ObstacleTree.GraphBox.right + e.SentinelOffset, a.y) : new j(a.x, this.ObstacleTree.GraphBox.top + e.SentinelOffset);
+		let s = this.ScanDirection.IsHorizontal ? new N(this.ObstacleTree.GraphBox.right + e.SentinelOffset, a.y) : new N(a.x, this.ObstacleTree.GraphBox.top + e.SentinelOffset);
 		this.parallelSegmentVector.CreateScanSegment(a, s, $.NormalWeight, this.CurrentGroupBoundaryCrossingMap.GetOrderedListBetween(a, s)), this.parallelSegmentVector.ScanSegmentsCompleteForCurrentSlot();
 	}
 	HandleGroupCrossing(e, t) {
@@ -14909,7 +14916,7 @@ var Gl = class e extends Wl {
 		this.VisibilityGraph = e.NewVisibilityGraph(), this.GenerateSparseIntersectionsAlongHorizontalAxis(), this.GenerateSparseIntersectionsAlongVerticalAxis(), this.ConnectAdjoiningScanSegments(), this.horizontalScanSegmentVector.CreateSparseVerticesAndEdges(this.VisibilityGraph), this.verticalScanSegmentVector.CreateSparseVerticesAndEdges(this.VisibilityGraph);
 	}
 	GenerateSparseIntersectionsAlongHorizontalAxis() {
-		this.currentAxisPointComparer = $i;
+		this.currentAxisPointComparer = Zi;
 		let e = Array.from(this.horizontalVertexPoints.values()).sort(this.currentAxisPointComparer), t = Array.from(this.boundingBoxSteinerPoints.values()).sort(this.currentAxisPointComparer);
 		this.ScanDirection = sl.HorizontalInstance, this.SetVectorsAndCoordMaps(this.ScanDirection), this.GenerateSparseIntersections(e, t);
 	}
@@ -15004,7 +15011,7 @@ var Gl = class e extends Wl {
 		return this.FindOrAddEdge(e, t, $.NormalWeight);
 	}
 	FindOrAddEdge(t, n, r) {
-		let i = B.GetPureDirectionVV(t, n), a = {
+		let i = V.GetPureDirectionVV(t, n), a = {
 			bracketSource: void 0,
 			bracketTarget: void 0,
 			splitVertex: void 0
@@ -15019,20 +15026,20 @@ var Gl = class e extends Wl {
 				bracketSource: null,
 				bracketTarget: null
 			};
-			e.FindBracketingVertices(n, t.point, V.OppositeDir(r), a) && (i.bracketSource = a.bracketTarget, i.splitVertex = t), i.bracketTarget = a.bracketSource;
+			e.FindBracketingVertices(n, t.point, H.OppositeDir(r), a) && (i.bracketSource = a.bracketTarget, i.splitVertex = t), i.bracketTarget = a.bracketSource;
 		}
 	}
 	static FindBracketingVertices(e, t, n, r) {
 		for (r.bracketSource = e; r.bracketTarget = Q.FindAdjacentVertex(r.bracketSource, n), r.bracketTarget != null;) {
-			if (j.closeDistEps(r.bracketTarget.point, t)) return !0;
-			if (n !== B.GetDirections(r.bracketTarget.point, t)) break;
+			if (N.closeDistEps(r.bracketTarget.point, t)) return !0;
+			if (n !== V.GetDirections(r.bracketTarget.point, t)) break;
 			r.bracketSource = r.bracketTarget;
 		}
 		return r.bracketTarget != null;
 	}
 	CreateEdge(e, t, n) {
 		let r = e, i = t;
-		B.IsPureLower(r.point, i.point) || (r = t, i = e);
+		V.IsPureLower(r.point, i.point) || (r = t, i = e);
 		let a = new Vo(r, i, n);
 		return X.AddEdge(a), this.AddedEdges.push(a), a;
 	}
@@ -15058,28 +15065,28 @@ var Gl = class e extends Wl {
 		for (;;) {
 			let r = Q.FindAdjacentVertex(e, t);
 			if (r == null) break;
-			let i = B.GetDirections(r.point, n);
-			if ((V.OppositeDir(t) & i) !== 0) return this.VisGraph.FindEdgePP(e.point, r.point);
+			let i = V.GetDirections(r.point, n);
+			if ((H.OppositeDir(t) & i) !== 0) return this.VisGraph.FindEdgePP(e.point, r.point);
 			e = r;
 		}
 		return null;
 	}
 	FindNearestPerpendicularOrContainingEdge(e, t, n) {
-		t & B.GetDirections(e.point, n);
+		t & V.GetDirections(e.point, n);
 		let r = e;
-		for (; z.None !== void 0;) {
+		for (; B.None !== void 0;) {
 			let e = Q.FindAdjacentVertex(r, void 0);
-			if (e == null || (V.OppositeDir(void 0) & B.GetDirections(e.point, n)) !== 0) break;
-			r = e, t & B.GetDirections(r.point, n);
+			if (e == null || (H.OppositeDir(void 0) & V.GetDirections(e.point, n)) !== 0) break;
+			r = e, t & V.GetDirections(r.point, n);
 		}
 		let i;
-		for (; i = this.FindPerpendicularOrContainingEdge(r, t, n), !(i != null || r === e);) r = Q.FindAdjacentVertex(r, V.OppositeDir(void 0));
+		for (; i = this.FindPerpendicularOrContainingEdge(r, t, n), !(i != null || r === e);) r = Q.FindAdjacentVertex(r, H.OppositeDir(void 0));
 		return i;
 	}
 	ConnectVertexToTargetVertex(e, t, n, r) {
-		if (j.closeDistEps(e.point, t.point)) return;
-		let i = B.GetDirections(e.point, t.point);
-		if (B.IsPureDirectionD(i)) {
+		if (N.closeDistEps(e.point, t.point)) return;
+		let i = V.GetDirections(e.point, t.point);
+		if (V.IsPureDirectionD(i)) {
 			this.FindOrAddEdgeVV(e, t);
 			return;
 		}
@@ -15091,42 +15098,42 @@ var Gl = class e extends Wl {
 		return r ?? (r = this.AddVertex(n), this.SplitEdge(t, r)), this.FindOrAddEdgeVV(e, r), r;
 	}
 	SplitEdge(e, t) {
-		return e == null ? null : j.closeDistEps(e.Source.point, t.point) || j.closeDistEps(e.Target.point, t.point) ? e : (e instanceof Vo || this.edgesToRestore.push(e), X.RemoveEdge(e), (this.IsSparseVg || e.Weight === $.OverlappedWeight) && t.Degree > 0 ? (this.FindOrAddEdge(t, e.Source, e.Weight), this.FindOrAddEdge(t, e.Target, e.Weight)) : (this.CreateEdge(t, e.Target, e.Weight), this.CreateEdge(e.Source, t, e.Weight)));
+		return e == null ? null : N.closeDistEps(e.Source.point, t.point) || N.closeDistEps(e.Target.point, t.point) ? e : (e instanceof Vo || this.edgesToRestore.push(e), X.RemoveEdge(e), (this.IsSparseVg || e.Weight === $.OverlappedWeight) && t.Degree > 0 ? (this.FindOrAddEdge(t, e.Source, e.Weight), this.FindOrAddEdge(t, e.Target, e.Weight)) : (this.CreateEdge(t, e.Target, e.Weight), this.CreateEdge(e.Source, t, e.Weight)));
 	}
 	ExtendEdgeChainVRLPB(e, t, n, r, i) {
-		let a = B.GetDirections(n.start, n.end);
-		if (a === z.None) return;
-		let o = Q.GetRectangleBound(t, a), s = Q.IsVerticalD(a) ? j.RoundPoint(new j(e.point.x, o)) : j.RoundPoint(new j(o, e.point.y));
-		if (j.closeDistEps(s, e.point) || B.GetDirections(e.point, s) !== a) return;
+		let a = V.GetDirections(n.start, n.end);
+		if (a === B.None) return;
+		let o = Q.GetRectangleBound(t, a), s = Q.IsVerticalD(a) ? N.RoundPoint(new N(e.point.x, o)) : N.RoundPoint(new N(o, e.point.y));
+		if (N.closeDistEps(s, e.point) || V.GetDirections(e.point, s) !== a) return;
 		let c = n;
-		B.GetDirections(s, c.end) === a && (c = N.mkPP(c.start, s)), this.ExtendEdgeChain(e, a, c, n, r, i);
+		V.GetDirections(s, c.end) === a && (c = P.mkPP(c.start, s)), this.ExtendEdgeChain(e, a, c, n, r, i);
 	}
 	ExtendEdgeChain(e, t, n, r, i, a) {
-		if (B.GetDirections(e.point, n.end) !== t) return;
-		let o = V.RotateLeft(t), s = Q.FindAdjacentVertex(e, o);
-		if (s == null && (o = V.OppositeDir(o), s = Q.FindAdjacentVertex(e, o), s == null)) return;
-		let c = V.OppositeDir(o), l = { spliceTarget: null };
+		if (V.GetDirections(e.point, n.end) !== t) return;
+		let o = H.RotateLeft(t), s = Q.FindAdjacentVertex(e, o);
+		if (s == null && (o = H.OppositeDir(o), s = Q.FindAdjacentVertex(e, o), s == null)) return;
+		let c = H.OppositeDir(o), l = { spliceTarget: null };
 		this.ExtendSpliceWorker(s, t, c, n, r, a, l) && this.ExtendSpliceWorker(l.spliceTarget, t, o, n, r, a, l), this.SpliceGroupBoundaryCrossings(i, e, n);
 	}
 	SpliceGroupBoundaryCrossings(t, n, r) {
 		if (t == null || t.Count() === 0) return;
 		t.Reset();
-		let i = r.start, a = r.end, o = B.GetDirections(i, a);
-		Q.IsAscending(o) || (i = r.end, a = r.start, o = V.OppositeDir(o)), n = e.TraverseToFirstVertexAtOrAbove(n, i, V.OppositeDir(o));
+		let i = r.start, a = r.end, o = V.GetDirections(i, a);
+		Q.IsAscending(o) || (i = r.end, a = r.start, o = H.OppositeDir(o)), n = e.TraverseToFirstVertexAtOrAbove(n, i, H.OppositeDir(o));
 		for (let e = n; e != null; e = Q.FindAdjacentVertex(e, o)) {
-			let r = B.ComparePP(e.point, a) >= 0;
+			let r = V.ComparePP(e.point, a) >= 0;
 			for (; t.CurrentIsBeforeOrAt(e.point);) {
 				let r = t.Pop();
-				B.ComparePP(r.Location, n.point) > 0 && B.ComparePP(r.Location, a) <= 0 && this.SpliceGroupBoundaryCrossing(e, r, V.OppositeDir(o)), B.ComparePP(r.Location, n.point) >= 0 && B.ComparePP(r.Location, a) < 0 && this.SpliceGroupBoundaryCrossing(e, r, o);
+				V.ComparePP(r.Location, n.point) > 0 && V.ComparePP(r.Location, a) <= 0 && this.SpliceGroupBoundaryCrossing(e, r, H.OppositeDir(o)), V.ComparePP(r.Location, n.point) >= 0 && V.ComparePP(r.Location, a) < 0 && this.SpliceGroupBoundaryCrossing(e, r, o);
 			}
 			if (r) break;
 		}
 	}
 	static TraverseToFirstVertexAtOrAbove(e, t, n) {
-		let r = e, i = V.OppositeDir(n);
+		let r = e, i = H.OppositeDir(n);
 		for (;;) {
 			let e = Q.FindAdjacentVertex(r, n);
-			if (e == null || B.GetDirections(e.point, t) === i) break;
+			if (e == null || V.GetDirections(e.point, t) === i) break;
 			r = e;
 		}
 		return r;
@@ -15145,7 +15152,7 @@ var Gl = class e extends Wl {
 		s.spliceTarget = Q.FindAdjacentVertex(c, r);
 		let l = { spliceSource: t };
 		for (; e.GetNextSpliceSource(l, r, n);) {
-			let t = Q.FindBendPointBetween(c.point, l.spliceSource.point, V.OppositeDir(r));
+			let t = Q.FindBendPointBetween(c.point, l.spliceSource.point, H.OppositeDir(r));
 			if (e.IsPointPastSegmentEnd(a, t)) break;
 			if (s.spliceTarget = e.GetSpliceTarget(l, r, t), s.spliceTarget == null) {
 				if (this.IsSkippableSpliceSourceWithNullSpliceTarget(l.spliceSource, n)) continue;
@@ -15155,7 +15162,7 @@ var Gl = class e extends Wl {
 			if (u != null) {
 				if (s.spliceTarget == null || this.VisGraph.FindEdgePP(c.point, t) != null) return s.spliceTarget ?? this.FindOrAddEdge(c, u, o ? $.OverlappedWeight : $.NormalWeight), !1;
 			} else u = this.AddVertex(t);
-			if (this.FindOrAddEdge(c, u, o ? $.OverlappedWeight : $.NormalWeight), this.FindOrAddEdge(l.spliceSource, u, o ? $.OverlappedWeight : $.NormalWeight), o &&= this.SeeIfSpliceIsStillOverlapped(n, u), c = u, (n & B.GetDirections(t, i.end)) === 0) {
+			if (this.FindOrAddEdge(c, u, o ? $.OverlappedWeight : $.NormalWeight), this.FindOrAddEdge(l.spliceSource, u, o ? $.OverlappedWeight : $.NormalWeight), o &&= this.SeeIfSpliceIsStillOverlapped(n, u), c = u, (n & V.GetDirections(t, i.end)) === 0) {
 				s.spliceTarget = null;
 				break;
 			}
@@ -15165,7 +15172,7 @@ var Gl = class e extends Wl {
 	static GetNextSpliceSource(e, t, n) {
 		let r = Q.FindAdjacentVertex(e.spliceSource, n);
 		if (r == null) for (r = e.spliceSource;;) {
-			if (r = Q.FindAdjacentVertex(r, V.OppositeDir(t)), r == null) return !1;
+			if (r = Q.FindAdjacentVertex(r, H.OppositeDir(t)), r == null) return !1;
 			let e = Q.FindAdjacentVertex(r, n);
 			if (e != null) {
 				r = e;
@@ -15175,33 +15182,33 @@ var Gl = class e extends Wl {
 		return e.spliceSource = r, !0;
 	}
 	static GetSpliceTarget(e, t, n) {
-		let r = B.GetDirections(e.spliceSource.point, n), i = r, a = e.spliceSource;
+		let r = V.GetDirections(e.spliceSource.point, n), i = r, a = e.spliceSource;
 		for (; i === r && (e.spliceSource = a, a = Q.FindAdjacentVertex(e.spliceSource, t), a != null);) {
-			if (j.closeDistEps(a.point, n)) {
+			if (N.closeDistEps(a.point, n)) {
 				a = Q.FindAdjacentVertex(a, t);
 				break;
 			}
-			i = B.GetDirections(a.point, n);
+			i = V.GetDirections(a.point, n);
 		}
 		return a;
 	}
 	SeeIfSpliceIsStillOverlapped(e, t) {
-		let n = this.FindNextEdge(t, V.RotateLeft(e)), r = n == null ? !1 : $.NormalWeight === n.Weight;
-		return r ||= (n = this.FindNextEdge(t, V.RotateRight(e)), n == null ? !1 : $.NormalWeight === n.Weight), !r || this.ObstacleTree.PointIsInsideAnObstaclePD(t.point, e);
+		let n = this.FindNextEdge(t, H.RotateLeft(e)), r = n == null ? !1 : $.NormalWeight === n.Weight;
+		return r ||= (n = this.FindNextEdge(t, H.RotateRight(e)), n == null ? !1 : $.NormalWeight === n.Weight), !r || this.ObstacleTree.PointIsInsideAnObstaclePD(t.point, e);
 	}
 	IsSkippableSpliceSourceWithNullSpliceTarget(t, n) {
 		if (e.IsSkippableSpliceSourceEdgeWithNullTarget(Q.FindAdjacentEdge(t, n))) return !0;
-		let r = Q.FindAdjacentEdge(t, V.OppositeDir(n));
+		let r = Q.FindAdjacentEdge(t, H.OppositeDir(n));
 		return e.IsSkippableSpliceSourceEdgeWithNullTarget(r) || e.IsReflectionEdge(r);
 	}
 	static IsSkippableSpliceSourceEdgeWithNullTarget(e) {
-		return e != null && e.IsPassable != null && O(e.Length, xl.BoundaryWidth);
+		return e != null && e.IsPassable != null && A(e.Length, xl.BoundaryWidth);
 	}
 	static IsReflectionEdge(e) {
 		return e != null && e.Weight === $.ReflectionWeight;
 	}
 	static IsPointPastSegmentEnd(e, t) {
-		return B.GetDirections(e.start, e.end) === B.GetDirections(e.end, t);
+		return V.GetDirections(e.start, e.end) === V.GetDirections(e.end, t);
 	}
 	toString() {
 		return zo.String.format("{0} {1}", this.AddedVertices.length, this.edgesToRestore.length);
@@ -15229,7 +15236,7 @@ var Gl = class e extends Wl {
 		return this.ObstacleTree.AncestorSets;
 	}
 	constructor(e) {
-		this.obstaclePortMap = /* @__PURE__ */ new Map(), this.freePointMap = new Ho(), this.freePointLocationsUsedByRouteEdges = new G(), this.RouteToCenterOfObstacles = !1, this.obstaclePortsInGraph = [], this.freePointsInGraph = /* @__PURE__ */ new Set(), this.activeAncestors = [], this.TransUtil = new Kl(e), this.graphGenerator = e;
+		this.obstaclePortMap = /* @__PURE__ */ new Map(), this.freePointMap = new Ho(), this.freePointLocationsUsedByRouteEdges = new Fa(), this.RouteToCenterOfObstacles = !1, this.obstaclePortsInGraph = [], this.freePointsInGraph = /* @__PURE__ */ new Set(), this.activeAncestors = [], this.TransUtil = new Kl(e), this.graphGenerator = e;
 	}
 	Clear() {
 		this.TransUtil.RemoveFromGraph(), this.obstaclePortMap.clear();
@@ -15239,8 +15246,8 @@ var Gl = class e extends Wl {
 	}
 	CreateObstaclePort(e, t) {
 		if (t.Curve == null) return null;
-		let n = j.RoundPoint(t.Location);
-		if (F.Outside === I.PointRelativeToCurveLocation(n, e.InputShape.BoundaryCurve) || e.InputShape.BoundaryCurve !== t.Curve && F.Outside === I.PointRelativeToCurveLocation(n, t.Curve)) return null;
+		let n = N.RoundPoint(t.Location);
+		if (I.Outside === L.PointRelativeToCurveLocation(n, e.InputShape.BoundaryCurve) || e.InputShape.BoundaryCurve !== t.Curve && I.Outside === L.PointRelativeToCurveLocation(n, t.Curve)) return null;
 		let r = new yl(t, e);
 		return this.obstaclePortMap.set(t, r), r;
 	}
@@ -15251,7 +15258,7 @@ var Gl = class e extends Wl {
 			let n = this.VisGraph.FindVertex(e.UnpaddedBorderIntersect);
 			n != null && t.push(n);
 		}
-		else t.push(this.VisGraph.FindVertex(j.RoundPoint(e.Location)));
+		else t.push(this.VisGraph.FindVertex(N.RoundPoint(e.Location)));
 		return t;
 	}
 	RemoveObstaclePorts(e) {
@@ -15271,12 +15278,12 @@ var Gl = class e extends Wl {
 	}
 	ConnectOobWaypointToEndpointVisibilityAtGraphBoundary(e, t) {
 		if (e == null || !e.IsOutOfBounds) return;
-		let n = this.FindVertices(t), r = e.OutOfBoundsDirectionFromGraph & (z.North | z.South);
-		this.ConnectToGraphAtPointsCollinearWithVertices(e, r, n), r = e.OutOfBoundsDirectionFromGraph & (z.East | z.West), this.ConnectToGraphAtPointsCollinearWithVertices(e, r, n);
+		let n = this.FindVertices(t), r = e.OutOfBoundsDirectionFromGraph & (B.North | B.South);
+		this.ConnectToGraphAtPointsCollinearWithVertices(e, r, n), r = e.OutOfBoundsDirectionFromGraph & (B.East | B.West), this.ConnectToGraphAtPointsCollinearWithVertices(e, r, n);
 	}
 	ConnectToGraphAtPointsCollinearWithVertices(e, t, n) {
-		if (z.None === t) return;
-		let r = V.OppositeDir(t);
+		if (B.None === t) return;
+		let r = H.OppositeDir(t);
 		for (let i of n) {
 			let n = this.InBoundsGraphBoxIntersect(i.point, t), a = this.VisGraph.FindVertex(n);
 			a != null && this.TransUtil.ConnectVertexToTargetVertex(e.Vertex, a, r, $.NormalWeight);
@@ -15293,7 +15300,7 @@ var Gl = class e extends Wl {
 		for (let e of this.ObstacleTree.GetAllGroups()) e.IsTransparentAncestor = !0, this.activeAncestors.push(e);
 	}
 	FindAncestorsAndObstaclePort(e, t) {
-		return t.oport = this.FindObstaclePort(e), this.AncestorSets.size === 0 ? null : t.oport == null ? new Set(Array.from(this.ObstacleTree.Root.AllHitItems(R.mkPP(e.Location, e.Location), (e) => e.IsGroup)).map((e) => e.InputShape)) : this.AncestorSets.get(t.oport.Obstacle.InputShape);
+		return t.oport = this.FindObstaclePort(e), this.AncestorSets.size === 0 ? null : t.oport == null ? new Set(Array.from(this.ObstacleTree.Root.AllHitItems(z.mkPP(e.Location, e.Location), (e) => e.IsGroup)).map((e) => e.InputShape)) : this.AncestorSets.get(t.oport.Obstacle.InputShape);
 	}
 	ActivateAncestors(e, t, n) {
 		for (let r of Ra(e, t)) {
@@ -15306,7 +15313,7 @@ var Gl = class e extends Wl {
 		this.activeAncestors = [];
 	}
 	RemoveControlPointsFromGraph() {
-		this.ClearActiveAncestors(), this.RemoveObstaclePortsFromGraph(), this.RemoveFreePointsFromGraph(), this.TransUtil.RemoveFromGraph(), this.portSpliceLimitRectangle = R.mkEmpty();
+		this.ClearActiveAncestors(), this.RemoveObstaclePortsFromGraph(), this.RemoveFreePointsFromGraph(), this.TransUtil.RemoveFromGraph(), this.portSpliceLimitRectangle = z.mkEmpty();
 	}
 	RemoveObstaclePortsFromGraph() {
 		for (let e of this.obstaclePortsInGraph) e.RemoveFromGraph();
@@ -15374,7 +15381,7 @@ var Gl = class e extends Wl {
 		return null;
 	}
 	static GetPathPointsFromOverlappingCollinearVisibility(e, t) {
-		return !Q.IntervalsAreSame(e.MaxVisibilitySegment.start, e.MaxVisibilitySegment.end, t.MaxVisibilitySegment.end, t.MaxVisibilitySegment.start) || e.HasGroupCrossings || t.HasGroupCrossings || j.closeDistEps(e.UnpaddedBorderIntersect, t.UnpaddedBorderIntersect) ? null : [e.UnpaddedBorderIntersect, t.UnpaddedBorderIntersect];
+		return !Q.IntervalsAreSame(e.MaxVisibilitySegment.start, e.MaxVisibilitySegment.end, t.MaxVisibilitySegment.end, t.MaxVisibilitySegment.start) || e.HasGroupCrossings || t.HasGroupCrossings || N.closeDistEps(e.UnpaddedBorderIntersect, t.UnpaddedBorderIntersect) ? null : [e.UnpaddedBorderIntersect, t.UnpaddedBorderIntersect];
 	}
 	static GetPathPointsFromIntersectingVisibility(e, t) {
 		let n = Q.SegmentsIntersectLL(e.MaxVisibilitySegment, t.MaxVisibilitySegment);
@@ -15385,37 +15392,37 @@ var Gl = class e extends Wl {
 		];
 	}
 	CreateObstaclePortEntrancesFromPoints(e) {
-		let t = this.graphGenerator.ObstacleTree.GraphBox, n = R.mkPP(j.RoundPoint(e.PortCurve.boundingBox.leftBottom), j.RoundPoint(e.PortCurve.boundingBox.rightTop)), r = j.RoundPoint(e.PortLocation), i = !1, a = {
+		let t = this.graphGenerator.ObstacleTree.GraphBox, n = z.mkPP(N.RoundPoint(e.PortCurve.boundingBox.leftBottom), N.RoundPoint(e.PortCurve.boundingBox.rightTop)), r = N.RoundPoint(e.PortLocation), i = !1, a = {
 			xx0: null,
 			xx1: null
 		};
-		if (!B.Equal(r.y, n.top) && !B.Equal(r.y, n.bottom)) {
+		if (!V.Equal(r.y, n.top) && !V.Equal(r.y, n.bottom)) {
 			i = !0;
-			let o = new N(t.left, r.y, t.right, r.y);
+			let o = new P(t.left, r.y, t.right, r.y);
 			this.GetBorderIntersections(r, o, e.PortCurve, a);
-			let s = new j(Math.min(a.xx0.x, a.xx1.x), r.y);
-			s.x < n.left && (s = new j(n.left, s.y));
-			let c = new j(Math.max(a.xx0.x, a.xx1.x), r.y);
-			c.x > n.right && (c = new j(n.right, c.y)), this.CreatePortEntrancesAtBorderIntersections(n, e, r, s, c);
+			let s = new N(Math.min(a.xx0.x, a.xx1.x), r.y);
+			s.x < n.left && (s = new N(n.left, s.y));
+			let c = new N(Math.max(a.xx0.x, a.xx1.x), r.y);
+			c.x > n.right && (c = new N(n.right, c.y)), this.CreatePortEntrancesAtBorderIntersections(n, e, r, s, c);
 		}
-		if (!B.Equal(r.x, n.left) && !B.Equal(r.x, n.right)) {
+		if (!V.Equal(r.x, n.left) && !V.Equal(r.x, n.right)) {
 			i = !0;
-			let o = new N(r.x, t.bottom, r.x, t.top);
+			let o = new P(r.x, t.bottom, r.x, t.top);
 			this.GetBorderIntersections(r, o, e.PortCurve, a);
-			let s = new j(r.x, Math.min(a.xx0.y, a.xx1.y));
-			s.y < t.bottom && (s = new j(s.x, t.bottom));
-			let c = new j(r.x, Math.max(a.xx0.y, a.xx1.y));
-			c.y > t.top && (c = new j(c.x, t.top)), this.CreatePortEntrancesAtBorderIntersections(n, e, r, s, c);
+			let s = new N(r.x, Math.min(a.xx0.y, a.xx1.y));
+			s.y < t.bottom && (s = new N(s.x, t.bottom));
+			let c = new N(r.x, Math.max(a.xx0.y, a.xx1.y));
+			c.y > t.top && (c = new N(c.x, t.top)), this.CreatePortEntrancesAtBorderIntersections(n, e, r, s, c);
 		}
 		i || this.CreateEntrancesForCornerPort(n, e, r);
 	}
 	GetBorderIntersections(e, t, n, r) {
-		let i = I.getAllIntersections(t, n, !0);
-		r.xx0 = j.RoundPoint(i[0].x), r.xx1 = j.RoundPoint(i[1].x);
+		let i = L.getAllIntersections(t, n, !0);
+		r.xx0 = N.RoundPoint(i[0].x), r.xx1 = N.RoundPoint(i[1].x);
 	}
 	CreatePortEntrancesAtBorderIntersections(e, t, n, r, i) {
-		let a = B.GetDirections(r, i);
-		B.EqualPP(r, n) || this.CreatePortEntrance(e, t, i, a), B.EqualPP(i, n) || this.CreatePortEntrance(e, t, r, V.OppositeDir(a));
+		let a = V.GetDirections(r, i);
+		V.EqualPP(r, n) || this.CreatePortEntrance(e, t, i, a), V.EqualPP(i, n) || this.CreatePortEntrance(e, t, r, H.OppositeDir(a));
 	}
 	static GetDerivative(e, t) {
 		let n = e.PortCurve.closestParameter(t), r = e.PortCurve.derivative(n), i = (e.PortCurve.parStart + e.PortCurve.parEnd) / 2;
@@ -15424,14 +15431,14 @@ var Gl = class e extends Wl {
 	CreatePortEntrance(t, n, r, i) {
 		n.CreatePortEntrance(r, i, this.ObstacleTree);
 		let a = sl.GetInstance(i), o = Q.GetRectangleBound(t, i) - a.Coord(r);
-		if (o < 0 && (o = -o), o > E.intersectionEpsilon) {
-			let t = V.VectorDirection(e.GetDerivative(n, r)), a;
-			i | V.OppositeDir(i), z.None !== (i & t) && (a = V.OppositeDir(a)), n.CreatePortEntrance(r, a, this.ObstacleTree);
+		if (o < 0 && (o = -o), o > O.intersectionEpsilon) {
+			let t = H.VectorDirection(e.GetDerivative(n, r)), a;
+			i | H.OppositeDir(i), B.None !== (i & t) && (a = H.OppositeDir(a)), n.CreatePortEntrance(r, a, this.ObstacleTree);
 		}
 	}
 	CreateEntrancesForCornerPort(e, t, n) {
-		let r = z.North;
-		B.EqualPP(n, e.leftBottom) ? r = z.South : B.EqualPP(n, e.leftTop) ? r = z.West : B.EqualPP(n, e.rightTop) ? r = z.North : B.EqualPP(n, e.rightBottom) && (r = z.East), t.CreatePortEntrance(n, r, this.ObstacleTree), t.CreatePortEntrance(n, V.RotateRight(r), this.ObstacleTree);
+		let r = B.North;
+		V.EqualPP(n, e.leftBottom) ? r = B.South : V.EqualPP(n, e.leftTop) ? r = B.West : V.EqualPP(n, e.rightTop) ? r = B.North : V.EqualPP(n, e.rightBottom) && (r = B.East), t.CreatePortEntrance(n, r, this.ObstacleTree), t.CreatePortEntrance(n, H.RotateRight(r), this.ObstacleTree);
 	}
 	AddObstaclePortEntranceToGraph(e) {
 		let t = this.VisGraph.FindVertex(e.VisibilityBorderIntersect);
@@ -15462,18 +15469,18 @@ var Gl = class e extends Wl {
 		if (a.segsegVertex == null) {
 			let i = this.FindOrCreateSegmentIntersectionVertexAndAssociatedEdge(e, n, t, r, a);
 			if (i != null) return i;
-		} else if (B.EqualPP(e, n)) return i.targetVertex = a.segsegVertex, this.TransUtil.FindNextEdge(i.targetVertex, V.OppositeDir(t.ScanDirection.Dir));
-		let o = B.GetDirections(n, e), s = B.GetDirections(a.segsegVertex.point, e);
+		} else if (V.EqualPP(e, n)) return i.targetVertex = a.segsegVertex, this.TransUtil.FindNextEdge(i.targetVertex, H.OppositeDir(t.ScanDirection.Dir));
+		let o = V.GetDirections(n, e), s = V.GetDirections(a.segsegVertex.point, e);
 		if (o === s) {
 			let t = {
 				bracketTarget: null,
 				bracketSource: null
 			};
-			return Kl.FindBracketingVertices(a.segsegVertex, e, o, t), this.TransUtil.FindNextEdge(t.bracketSource, V.RotateLeft(o)) ?? this.TransUtil.FindNextEdge(t.bracketSource, V.RotateRight(o));
+			return Kl.FindBracketingVertices(a.segsegVertex, e, o, t), this.TransUtil.FindNextEdge(t.bracketSource, H.RotateLeft(o)) ?? this.TransUtil.FindNextEdge(t.bracketSource, H.RotateRight(o));
 		}
 		s &= ~o;
 		let c = this.TransUtil.FindNearestPerpendicularOrContainingEdge(a.segsegVertex, s, e);
-		return c == null ? (i.targetVertex = this.TransUtil.AddVertex(n), this.TransUtil.FindOrAddEdge(i.targetVertex, t.HighestVisibilityVertex, t.Weight)) : (a.segsegVertex = Q.GetEdgeEnd(c, V.OppositeDir(s)), n = Q.SegmentIntersectionPPP(e, n, a.segsegVertex.point), B.EqualPP(a.segsegVertex.point, n) ? (i.targetVertex = a.segsegVertex, this.TransUtil.FindNextEdge(a.segsegVertex, s)) : (i.targetVertex = this.TransUtil.FindOrAddVertex(n), this.TransUtil.FindOrAddEdge(a.segsegVertex, i.targetVertex, r)));
+		return c == null ? (i.targetVertex = this.TransUtil.AddVertex(n), this.TransUtil.FindOrAddEdge(i.targetVertex, t.HighestVisibilityVertex, t.Weight)) : (a.segsegVertex = Q.GetEdgeEnd(c, H.OppositeDir(s)), n = Q.SegmentIntersectionPPP(e, n, a.segsegVertex.point), V.EqualPP(a.segsegVertex.point, n) ? (i.targetVertex = a.segsegVertex, this.TransUtil.FindNextEdge(a.segsegVertex, s)) : (i.targetVertex = this.TransUtil.FindOrAddVertex(n), this.TransUtil.FindOrAddEdge(a.segsegVertex, i.targetVertex, r)));
 	}
 	FindOrCreateSegmentIntersectionVertexAndAssociatedEdge(e, t, n, r, i) {
 		let a = (n.IsVertical ? this.HScanSegments : this.VScanSegments).FindHighestIntersector(n.Start, t);
@@ -15482,12 +15489,12 @@ var Gl = class e extends Wl {
 		if (i.segsegVertex = this.VisGraph.FindVertex(o), !i.segsegVertex) {
 			i.segsegVertex = this.TransUtil.AddVertex(o);
 			let e = this.AddEdgeToClosestSegmentEnd(n, i.segsegVertex, n.Weight);
-			if (this.AddEdgeToClosestSegmentEnd(a, i.segsegVertex, a.Weight), B.EqualPP(i.segsegVertex.point, t)) return i.targetVertex = i.segsegVertex, e;
+			if (this.AddEdgeToClosestSegmentEnd(a, i.segsegVertex, a.Weight), V.EqualPP(i.segsegVertex.point, t)) return i.targetVertex = i.segsegVertex, e;
 		}
-		return B.EqualPP(e, t) ? (i.targetVertex = this.TransUtil.FindOrAddVertex(t), this.TransUtil.FindOrAddEdge(i.segsegVertex, i.targetVertex, r)) : (i.targetVertex = null, null);
+		return V.EqualPP(e, t) ? (i.targetVertex = this.TransUtil.FindOrAddVertex(t), this.TransUtil.FindOrAddEdge(i.segsegVertex, i.targetVertex, r)) : (i.targetVertex = null, null);
 	}
 	AddEdgeToClosestSegmentEnd(e, t, n) {
-		return B.IsPureLower(e.HighestVisibilityVertex.point, t.point) ? this.TransUtil.FindOrAddEdge(e.HighestVisibilityVertex, t, n) : B.IsPureLower(t.point, e.LowestVisibilityVertex.point) ? this.TransUtil.FindOrAddEdge(t, e.LowestVisibilityVertex, n) : this.TransUtil.FindOrAddEdgeVV(e.LowestVisibilityVertex, t);
+		return V.IsPureLower(e.HighestVisibilityVertex.point, t.point) ? this.TransUtil.FindOrAddEdge(e.HighestVisibilityVertex, t, n) : V.IsPureLower(t.point, e.LowestVisibilityVertex.point) ? this.TransUtil.FindOrAddEdge(t, e.LowestVisibilityVertex, n) : this.TransUtil.FindOrAddEdgeVV(e.LowestVisibilityVertex, t);
 	}
 	GetPortSpliceLimitRectangle(e) {
 		if (!this.LimitPortVisibilitySpliceToEndpointBoundingBox) {
@@ -15498,7 +15505,7 @@ var Gl = class e extends Wl {
 	}
 	GetPortRectangle(e) {
 		let t = this.obstaclePortMap.get(e);
-		return t ? t.Obstacle.VisibilityBoundingBox.clone() : R.mkOnPoints([j.RoundPoint(e.Location)]);
+		return t ? t.Obstacle.VisibilityBoundingBox.clone() : z.mkOnPoints([N.RoundPoint(e.Location)]);
 	}
 	AddToLimitRectangle(e) {
 		this.graphGenerator.IsInBoundsP(e) && this.portSpliceLimitRectangle.add(e);
@@ -15508,30 +15515,30 @@ var Gl = class e extends Wl {
 		return t ? t.GetVertex(this.TransUtil, e) : (t = new bl(this.TransUtil, e), this.freePointMap.set(e, t)), this.freePointsInGraph.add(t), this.freePointLocationsUsedByRouteEdges.add(e), t;
 	}
 	AddFreePointToGraph(e) {
-		e = j.RoundPoint(e);
+		e = N.RoundPoint(e);
 		let t = this.VisGraph.FindVertex(e), n = this.FindOrCreateFreePoint(e);
 		if (t != null) return n;
 		if (!this.graphGenerator.IsInBoundsP(e)) return this.CreateOutOfBoundsFreePoint(n), n;
 		n.IsOverlapped = this.ObstacleTree.PointIsInsideAnObstacle(n.Point, this.HScanSegments.ScanDirection), this.VScanSegments.FindSegmentContainingPoint(e, !0);
-		let r = z.South;
-		for (let e = 0; e < 4; e++) this.ConnectFreePointToLateralEdge(n, r), r = V.RotateLeft(r);
+		let r = B.South;
+		for (let e = 0; e < 4; e++) this.ConnectFreePointToLateralEdge(n, r), r = H.RotateLeft(r);
 		return n;
 	}
 	CreateOutOfBoundsFreePoint(e) {
-		let t = e.Point, n = this.graphGenerator.MakeInBoundsLocation(t), r = B.GetDirections(n, t);
-		if (e.OutOfBoundsDirectionFromGraph = r, !B.IsPureDirectionD(r)) {
+		let t = e.Point, n = this.graphGenerator.MakeInBoundsLocation(t), r = V.GetDirections(n, t);
+		if (e.OutOfBoundsDirectionFromGraph = r, !V.IsPureDirectionD(r)) {
 			e.AddOobEdgesFromGraphCorner(this.TransUtil, n);
 			return;
 		}
-		let i = this.VisGraph.FindVertex(n), a = V.OppositeDir(r);
+		let i = this.VisGraph.FindVertex(n), a = H.OppositeDir(r);
 		if (i != null) e.AddToAdjacentVertex(this.TransUtil, i, a, this.portSpliceLimitRectangle);
 		else {
 			let o = this.FindorCreateNearestPerpEdgePPDN(t, n, r, $.NormalWeight);
 			o != null && (i = e.AddEdgeToAdjacentEdge(this.TransUtil, o, a, this.portSpliceLimitRectangle));
 		}
-		let o = Q.FindAdjacentVertex(i, V.RotateLeft(a));
+		let o = Q.FindAdjacentVertex(i, H.RotateLeft(a));
 		o != null && this.TransUtil.ConnectVertexToTargetVertex(e.Vertex, o, a, $.NormalWeight);
-		let s = Q.FindAdjacentVertex(i, V.RotateRight(a));
+		let s = Q.FindAdjacentVertex(i, H.RotateRight(a));
 		s != null && this.TransUtil.ConnectVertexToTargetVertex(e.Vertex, s, a, $.NormalWeight);
 	}
 	ConnectFreePointToLateralEdge(e, t) {
@@ -15552,7 +15559,7 @@ var Gl = class e extends Wl {
 		this.PortManager.LimitPortVisibilitySpliceToEndpointBoundingBox = e;
 	}
 	AddEdgeGeometryToRoute(e) {
-		j.closeDistEps(j.RoundPoint(e.sourcePort.Location), j.RoundPoint(e.targetPort.Location)) ? this.selfEdges.push(e) : this.EdgesToRoute.push(e);
+		N.closeDistEps(N.RoundPoint(e.sourcePort.Location), N.RoundPoint(e.targetPort.Location)) ? this.selfEdges.push(e) : this.EdgesToRoute.push(e);
 	}
 	get EdgeGeometriesToRoute() {
 		return this.EdgesToRoute;
@@ -15650,7 +15657,7 @@ var Gl = class e extends Wl {
 		this.FillEdgePathsWithShortestPaths(e), this.NudgePaths(e), this.RouteSelfEdges(), this.FinaliseEdgeGeometries();
 	}
 	RouteSelfEdges() {
-		for (let e of this.selfEdges) e.curve = Ta.RouteSelfEdge(e.sourcePort.Curve, Math.max(this.Padding, 2 * e.GetMaxArrowheadLength()), { smoothedPolyline: null });
+		for (let e of this.selfEdges) e.curve = wa.RouteSelfEdge(e.sourcePort.Curve, Math.max(this.Padding, 2 * e.GetMaxArrowheadLength()), { smoothedPolyline: null });
 	}
 	FillEdgePathsWithShortestPaths(e) {
 		this.PortManager.BeginRouteEdges();
@@ -15680,9 +15687,9 @@ var Gl = class e extends Wl {
 		return t.PathPoints = n.GetPath(r, i), a && e.EnsureNonNullPath(t), t.PathPoints != null && t.PathPoints.length > 0;
 	}
 	static EnsureNonNullPath(e) {
-		e.PathPoints ?? (B.IsPureDirection(e.GeomEdge.sourcePort.Location, e.GeomEdge.targetPort.Location) ? e.PathPoints = [e.GeomEdge.sourcePort.Location, e.GeomEdge.targetPort.Location] : e.PathPoints = [
+		e.PathPoints ?? (V.IsPureDirection(e.GeomEdge.sourcePort.Location, e.GeomEdge.targetPort.Location) ? e.PathPoints = [e.GeomEdge.sourcePort.Location, e.GeomEdge.targetPort.Location] : e.PathPoints = [
 			e.GeomEdge.sourcePort.Location,
-			new j(e.GeomEdge.sourcePort.Location.x, e.GeomEdge.targetPort.Location.y),
+			new N(e.GeomEdge.sourcePort.Location.x, e.GeomEdge.targetPort.Location.y),
 			e.GeomEdge.targetPort.Location
 		]);
 	}
@@ -15700,7 +15707,7 @@ var Gl = class e extends Wl {
 		this.removeStaircases = e;
 	}
 	FinaliseEdgeGeometries() {
-		for (let t of this.EdgesToRoute.concat(this.selfEdges)) t.curve != null && (t.curve instanceof L && (t.curve = e.FitArcsIntoCorners(this.CornerFitRadius, Array.from(t.curve))), e.CalculateArrowheads(t));
+		for (let t of this.EdgesToRoute.concat(this.selfEdges)) t.curve != null && (t.curve instanceof R && (t.curve = e.FitArcsIntoCorners(this.CornerFitRadius, Array.from(t.curve))), e.CalculateArrowheads(t));
 	}
 	CreateVisibilityGraph() {
 		this.GraphGenerator.Clear(), this.InitObstacleTree(), this.GraphGenerator.GenerateVisibilityGraph();
@@ -15729,13 +15736,13 @@ var Gl = class e extends Wl {
 		this.GraphGenerator.VisibilityGraph ?? this.CreateVisibilityGraph();
 	}
 	static FitArcsIntoCorners(t, n) {
-		if (t == 0) return L.mkFromPoints(n);
-		let r = e.GetFittedArcSegs(t, n), i = new I(), a = null;
+		if (t == 0) return R.mkFromPoints(n);
+		let r = e.GetFittedArcSegs(t, n), i = new L(), a = null;
 		for (let t of r) {
 			let r = e.EllipseIsAlmostLineSegment(t);
-			a == null ? r ? I.addLineSegment(i, n[0], e.CornerPoint(t)) : (I.addLineSegment(i, n[0], t.start), i.addSegment(t)) : r ? I.continueWithLineSegmentP(i, e.CornerPoint(t)) : (I.continueWithLineSegmentP(i, t.start), i.addSegment(t)), a = t;
+			a == null ? r ? L.addLineSegment(i, n[0], e.CornerPoint(t)) : (L.addLineSegment(i, n[0], t.start), i.addSegment(t)) : r ? L.continueWithLineSegmentP(i, e.CornerPoint(t)) : (L.continueWithLineSegmentP(i, t.start), i.addSegment(t)), a = t;
 		}
-		return i.segs.length > 0 ? I.continueWithLineSegmentP(i, n[n.length - 1]) : I.addLineSegment(i, n[0], n[n.length - 1]), i;
+		return i.segs.length > 0 ? L.continueWithLineSegmentP(i, n[n.length - 1]) : L.addLineSegment(i, n[0], n[n.length - 1]), i;
 	}
 	static CornerPoint(e) {
 		return e.center.add(e.aAxis.add(e.bAxis));
@@ -15748,14 +15755,14 @@ var Gl = class e extends Wl {
 		for (let a = 1; a < t.length - 1; a++) {
 			n = t[a + 1].sub(t[a]);
 			let o = n.length;
-			if (o < E.intersectionEpsilon) {
-				yield new P(0, 0, new j(0, 0), new j(0, 0), t[a]);
+			if (o < O.intersectionEpsilon) {
+				yield new F(0, 0, new N(0, 0), new N(0, 0), t[a]);
 				continue;
 			}
 			let s = n.div(o);
-			Math.abs(s.dot(r)) > .9 && (yield new P(0, 0, new j(0, 0), new j(0, 0), t[a]));
+			Math.abs(s.dot(r)) > .9 && (yield new F(0, 0, new N(0, 0), new N(0, 0), t[a]));
 			let c = Math.min(e, n.length / 2), l = s.mul(-c), u = r.mul(i);
-			yield new P(0, Math.PI / 2, l, u, t[a].sub(u.add(l))), r = s, i = c;
+			yield new F(0, Math.PI / 2, l, u, t[a].sub(u.add(l))), r = s, i = c;
 		}
 	}
 };
@@ -15771,14 +15778,14 @@ var Yl = class {
 	}
 }, Xl = class e {
 	static FindClosestPoints(e, t) {
-		let n = I.minDistWithinIntervals(e, t, e.parStart, e.parEnd, t.parStart, t.parEnd, (e.parStart + e.parEnd) / 2, (t.parStart + t.parEnd) / 2);
+		let n = L.minDistWithinIntervals(e, t, e.parStart, e.parEnd, t.parStart, t.parEnd, (e.parStart + e.parEnd) / 2, (t.parStart + t.parEnd) / 2);
 		if (n) return {
 			curveClosestPoint: n.aX,
 			labelSideClosest: n.bX
 		};
 	}
 	static GetSegmentInFrontOfLabel(e, t) {
-		if (e instanceof I) {
+		if (e instanceof L) {
 			for (let n of e.segs) if ((n.start.y - t) * (n.end.y - t) <= 0) return n;
 		}
 		return null;
@@ -15789,9 +15796,9 @@ var Yl = class {
 	}
 	static updateLabel(t, n) {
 		let r = null;
-		n.labelIsToTheRightOfTheSpline ? (t.label.positionCenter(new j(n.x + n.rightAnchor / 2, n.y)), r = N.mkPP(t.label.boundingBox.leftTop, t.label.boundingBox.leftBottom)) : n.labelIsToTheLeftOfTheSpline && (t.label.positionCenter(new j(n.x - n.leftAnchor / 2, n.y)), r = N.mkPP(t.label.boundingBox.rightTop, t.label.boundingBox.rightBottom));
+		n.labelIsToTheRightOfTheSpline ? (t.label.positionCenter(new N(n.x + n.rightAnchor / 2, n.y)), r = P.mkPP(t.label.boundingBox.leftTop, t.label.boundingBox.leftBottom)) : n.labelIsToTheLeftOfTheSpline && (t.label.positionCenter(new N(n.x - n.leftAnchor / 2, n.y)), r = P.mkPP(t.label.boundingBox.rightTop, t.label.boundingBox.rightBottom));
 		let i = e.GetSegmentInFrontOfLabel(t.curve, t.label.center.y);
-		if (i != null && I.getAllIntersections(t.curve, I.polyFromBox(t.label.boundingBox), !1).length === 0) {
+		if (i != null && L.getAllIntersections(t.curve, L.polyFromBox(t.label.boundingBox), !1).length === 0) {
 			let n = e.FindClosestPoints(i, r);
 			if (n) e.ShiftLabel(t, n.curveClosestPoint, n.labelSideClosest);
 			else {
@@ -16163,7 +16170,7 @@ var ou = class e {
 	}
 	static fromJSON(t) {
 		let n = new e();
-		return t.sameRanks && (n.sameRanks = t.sameRanks), t.verticalConstraints && (n.verticalConstraints = t.verticalConstraints), t.horizontalConstraints && (n.horizontalConstraints = t.horizontalConstraints), t.NoGainAdjacentSwapStepsBound && (n.horizontalConstraints = t.horizontalConstraints), t.RepetitionCoefficientForOrdering && (n.NoGainStepsForOrderingMultiplier = t.RepetitionCoefficientForOrdering), t.AspectRatio && (n.AspectRatio = t.AspectRatio), t.MaxNumberOfPassesInOrdering && (n.MaxNumberOfPassesInOrdering = t.MaxNumberOfPassesInOrdering), t.BrandesThreshold && (n.BrandesThreshold = t.BrandesThreshold), t.LabelCornersPreserveCoefficient && (n.LabelCornersPreserveCoefficient = t.LabelCornersPreserveCoefficient), t.MinNodeHeight && (n.MinNodeHeight = t.MinNodeHeight), t.MinNodeWidth && (n.MinNodeWidth = n.MinNodeWidth), t.SnapToGridByY && (n.SnapToGridByY = t.SnapToGridByY), t.yLayerSep && (n.yLayerSep = t.yLayerSep), t.transform && (n.transform = new xa(t.transform[0][0], t.transform[0][1], t.transform[0][2], t.transform[1][0], t.transform[1][1], t.transform[1][2])), t.GridSizeByY && (n.GridSizeByY = t.GridSizeByY), t.GridSizeByX && (n.GridSizeByX = t.GridSizeByX), t.commonLayoutSettings && (n.commonSettings = iu.fromJSON(t.commonLayoutSettings)), n;
+		return t.sameRanks && (n.sameRanks = t.sameRanks), t.verticalConstraints && (n.verticalConstraints = t.verticalConstraints), t.horizontalConstraints && (n.horizontalConstraints = t.horizontalConstraints), t.NoGainAdjacentSwapStepsBound && (n.horizontalConstraints = t.horizontalConstraints), t.RepetitionCoefficientForOrdering && (n.NoGainStepsForOrderingMultiplier = t.RepetitionCoefficientForOrdering), t.AspectRatio && (n.AspectRatio = t.AspectRatio), t.MaxNumberOfPassesInOrdering && (n.MaxNumberOfPassesInOrdering = t.MaxNumberOfPassesInOrdering), t.BrandesThreshold && (n.BrandesThreshold = t.BrandesThreshold), t.LabelCornersPreserveCoefficient && (n.LabelCornersPreserveCoefficient = t.LabelCornersPreserveCoefficient), t.MinNodeHeight && (n.MinNodeHeight = t.MinNodeHeight), t.MinNodeWidth && (n.MinNodeWidth = n.MinNodeWidth), t.SnapToGridByY && (n.SnapToGridByY = t.SnapToGridByY), t.yLayerSep && (n.yLayerSep = t.yLayerSep), t.transform && (n.transform = new ba(t.transform[0][0], t.transform[0][1], t.transform[0][2], t.transform[1][0], t.transform[1][1], t.transform[1][2])), t.GridSizeByY && (n.GridSizeByY = t.GridSizeByY), t.GridSizeByX && (n.GridSizeByX = t.GridSizeByX), t.commonLayoutSettings && (n.commonSettings = iu.fromJSON(t.commonLayoutSettings)), n;
 	}
 	get LayerSeparation() {
 		return this.yLayerSep;
@@ -16175,11 +16182,11 @@ var ou = class e {
 		return e ? this.LayerSeparation / 2 : this.LayerSeparation;
 	}
 	constructor() {
-		this.commonSettings = new iu(), this.verticalConstraints = new Ql(), this.horizontalConstraints = new eu(), this.NoGainAdjacentSwapStepsBound = 5, this.NoGainStepsForOrderingMultiplier = 1, this.AspectRatio = 0, this.MaxNumberOfPassesInOrdering = 24, this.BrandesThreshold = 600, this.LabelCornersPreserveCoefficient = .1, this.MinNodeHeight = 72 * .5 / 4, this.MinNodeWidth = 72 * .75 / 4, this.SnapToGridByY = au.None, this.yLayerSep = 30, this.transform = xa.getIdentity(), this.GridSizeByY = 0, this.GridSizeByX = 0, this.commonSettings.edgeRoutingSettings.EdgeRoutingMode = nu.SugiyamaSplines;
+		this.commonSettings = new iu(), this.verticalConstraints = new Ql(), this.horizontalConstraints = new eu(), this.NoGainAdjacentSwapStepsBound = 5, this.NoGainStepsForOrderingMultiplier = 1, this.AspectRatio = 0, this.MaxNumberOfPassesInOrdering = 24, this.BrandesThreshold = 600, this.LabelCornersPreserveCoefficient = .1, this.MinNodeHeight = 72 * .5 / 4, this.MinNodeWidth = 72 * .75 / 4, this.SnapToGridByY = au.None, this.yLayerSep = 30, this.transform = ba.getIdentity(), this.GridSizeByY = 0, this.GridSizeByX = 0, this.commonSettings.edgeRoutingSettings.EdgeRoutingMode = nu.SugiyamaSplines;
 	}
 	transformIsRotation(e) {
-		let t = xa.rotation(e);
-		for (let e = 0; e < 2; e++) for (let n = 0; n < 3; n++) if (!O(t.elements[e][n], this.transform.elements[e][n])) return !1;
+		let t = ba.rotation(e);
+		for (let e = 0; e < 2; e++) for (let n = 0; n < 3; n++) if (!A(t.elements[e][n], this.transform.elements[e][n])) return !1;
 		return !0;
 	}
 	get layerDirection() {
@@ -16192,16 +16199,16 @@ var ou = class e {
 	set layerDirection(e) {
 		switch (e) {
 			case tu.TB:
-				this.transform = xa.getIdentity();
+				this.transform = ba.getIdentity();
 				break;
 			case tu.LR:
-				this.transform = xa.rotation(Math.PI / 2);
+				this.transform = ba.rotation(Math.PI / 2);
 				break;
 			case tu.RL:
-				this.transform = xa.rotation(-Math.PI / 2);
+				this.transform = ba.rotation(-Math.PI / 2);
 				break;
 			case tu.BT:
-				this.transform = xa.rotation(Math.PI);
+				this.transform = ba.rotation(Math.PI);
 				break;
 			default: throw Error("unexpected layout direction");
 		}
@@ -16582,32 +16589,32 @@ var ou = class e {
 		this.Edges = new hu(), this.Sites = new hu();
 	}
 	containsPoint(t) {
-		return e.PointLocationForTriangle(t, this) !== F.Outside;
+		return e.PointLocationForTriangle(t, this) !== I.Outside;
 	}
 	static PointLocationForTriangle(e, t) {
 		let n = !1;
 		for (let r = 0; r < 3; r++) {
-			let i = j.signedDoubledTriangleArea(e, t.Sites.getItem(r).point, t.Sites.getItem(r + 1).point);
-			if (i < -E.distanceEpsilon) return F.Outside;
-			i < E.distanceEpsilon && (n = !0);
+			let i = N.signedDoubledTriangleArea(e, t.Sites.getItem(r).point, t.Sites.getItem(r + 1).point);
+			if (i < -O.distanceEpsilon) return I.Outside;
+			i < O.distanceEpsilon && (n = !0);
 		}
-		return n ? F.Boundary : F.Inside;
+		return n ? I.Boundary : I.Inside;
 	}
 	intersectsLine(t, n, r) {
-		if (e.PointLocationForTriangle(t, this) != F.Outside || e.PointLocationForTriangle(n, this) != F.Outside) return !0;
+		if (e.PointLocationForTriangle(t, this) != I.Outside || e.PointLocationForTriangle(n, this) != I.Outside) return !0;
 		for (let e of this.Edges) if (this.abIntersectsTrianglSide(t, n, e)) return !0;
 		return !1;
 	}
 	abIntersectsTrianglSide(e, t, n) {
-		return oa(e, t, n.lowerSite.point, n.upperSite.point);
+		return aa(e, t, n.lowerSite.point, n.upperSite.point);
 	}
 	static mkSSSD(t, n, r, i) {
-		let a = j.getTriangleOrientation(t.point, n.point, r.point), o = new e();
+		let a = N.getTriangleOrientation(t.point, n.point, r.point), o = new e();
 		switch (a) {
-			case k.Counterclockwise:
+			case j.Counterclockwise:
 				o.FillCcwTriangle(t, n, r, i);
 				break;
-			case k.Clockwise:
+			case j.Clockwise:
 				o.FillCcwTriangle(t, r, n, i);
 				break;
 			default: throw Error();
@@ -16616,11 +16623,11 @@ var ou = class e {
 	}
 	static mkSED(t, n, r) {
 		let i = new e();
-		switch (j.getTriangleOrientation(n.upperSite.point, n.lowerSite.point, t.point)) {
-			case k.Counterclockwise:
+		switch (N.getTriangleOrientation(n.upperSite.point, n.lowerSite.point, t.point)) {
+			case j.Counterclockwise:
 				n.CcwTriangle = i, i.Sites.setItem(0, n.upperSite), i.Sites.setItem(1, n.lowerSite);
 				break;
-			case k.Clockwise:
+			case j.Clockwise:
 				n.CwTriangle = i, i.Sites.setItem(0, n.lowerSite), i.Sites.setItem(1, n.upperSite);
 				break;
 			default: throw Error();
@@ -16654,7 +16661,7 @@ var ou = class e {
 		return this.Sites.getItem(t + 2);
 	}
 	BoundingBox() {
-		let e = R.mkPP(this.Sites.getItem(0).point, this.Sites.getItem(1).point);
+		let e = z.mkPP(this.Sites.getItem(0).point, this.Sites.getItem(1).point);
 		return e.add(this.Sites.getItem(2).point), e;
 	}
 	static mkSSSEED(t, n, r, i, a, o) {
@@ -16695,7 +16702,7 @@ var ou = class e {
 	FindConcaveEdge(e) {
 		let t = e, n;
 		do {
-			if (n = t.Next, j.getTriangleOrientation(t.Start.point, t.End.point, n.End.point) === k.Counterclockwise) return t;
+			if (n = t.Next, N.getTriangleOrientation(t.Start.point, t.End.point, n.End.point) === j.Counterclockwise) return t;
 			t = n;
 		} while (n !== e);
 		return null;
@@ -16714,7 +16721,7 @@ var ou = class e {
 	CreateDoubleLinkedListOfPerimeter() {
 		let t = this.FindFirsePerimeterEdge(), n = t, r = null, i, a = null, o = [];
 		do
-			i = e.CreatePerimeterElementFromEdge(n), o.push(N.mkPP(i.Start.point, i.End.point)), n = e.FindNextEdgeOnPerimeter(n), a == null ? r = i : (i.Prev = a, a.Next = i), a = i;
+			i = e.CreatePerimeterElementFromEdge(n), o.push(P.mkPP(i.Start.point, i.End.point)), n = e.FindNextEdgeOnPerimeter(n), a == null ? r = i : (i.Prev = a, a.Next = i), a = i;
 		while (n !== t);
 		return r.Prev = i, i.Next = r, r;
 	}
@@ -16755,14 +16762,14 @@ var ou = class e {
 	}
 	ShowFrontWithSite(e, t = null) {
 		let n = [];
-		if (e.Edges != null) for (let t of e.Edges) n.push(Z.mkDebugCurveTWCI(200, .8, t.constrained ? "Pink" : "Brown", N.mkPP(t.upperSite.point, t.lowerSite.point)));
-		n.push(Z.mkDebugCurveTWCI(200, 1, "Brown", P.mkFullEllipseNNP(.5, .5, e.point)));
+		if (e.Edges != null) for (let t of e.Edges) n.push(Z.mkDebugCurveTWCI(200, .8, t.constrained ? "Pink" : "Brown", P.mkPP(t.upperSite.point, t.lowerSite.point)));
+		n.push(Z.mkDebugCurveTWCI(200, 1, "Brown", F.mkFullEllipseNNP(.5, .5, e.point)));
 		for (let e of this.triangles) for (let t = 0; t < 3; t++) {
 			let r = e.Edges.getItem(t);
-			n.push(Z.mkDebugCurveTWCI(r.constrained ? 155 : 100, r.constrained ? .8 : .4, r.constrained ? "Pink" : "Navy", N.mkPP(r.upperSite.point, r.lowerSite.point)));
+			n.push(Z.mkDebugCurveTWCI(r.constrained ? 155 : 100, r.constrained ? .8 : .4, r.constrained ? "Pink" : "Navy", P.mkPP(r.upperSite.point, r.lowerSite.point)));
 		}
 		if (t != null) for (let e of t) n.push(Z.mkDebugCurveTWCI(100, .5, "Red", e));
-		for (let e of this.front) n.push(Z.mkDebugCurveTWCI(100, 5.5, "Green", N.mkPP(e.Edge.upperSite.point, e.Edge.lowerSite.point)));
+		for (let e of this.front) n.push(Z.mkDebugCurveTWCI(100, 5.5, "Green", P.mkPP(e.Edge.upperSite.point, e.Edge.lowerSite.point)));
 	}
 	Show(t) {
 		e.ShowCdt(Array.from(this.triangles.values()), this.front, null, null, [], t);
@@ -16771,7 +16778,7 @@ var ou = class e {
 		let s = [];
 		if (r != null) for (let e of r) s.push(Z.mkDebugCurveTWCI(200, .1, "Red", e));
 		if (i != null) for (let e of i) s.push(Z.mkDebugCurveTWCI(200, .1, "Blue", e));
-		if (n != null) for (let e of n) s.push(Z.mkDebugCurveTWCI(200, .1, "Green", N.mkPP(e.Edge.upperSite.point, e.Edge.lowerSite.point)));
+		if (n != null) for (let e of n) s.push(Z.mkDebugCurveTWCI(200, .1, "Green", P.mkPP(e.Edge.upperSite.point, e.Edge.lowerSite.point)));
 		for (let n of t) for (let t = 0; t < 3; t++) {
 			let r = n.Edges.getItem(t);
 			s.push(e.GetDebugCurveOfCdtEdge(r));
@@ -16779,10 +16786,10 @@ var ou = class e {
 		s = s.concat(a);
 	}
 	static GetDebugCurveOfCdtEdge(e) {
-		return e.CcwTriangle == null || e.CwTriangle == null ? Z.mkDebugCurveTWCI(255, .5, e.constrained ? "Brown" : "Black", N.mkPP(e.upperSite.point, e.lowerSite.point)) : Z.mkDebugCurveTWCI(200, e.constrained ? .8 : .2, e.constrained ? "Pink" : "Navy", N.mkPP(e.upperSite.point, e.lowerSite.point));
+		return e.CcwTriangle == null || e.CwTriangle == null ? Z.mkDebugCurveTWCI(255, .5, e.constrained ? "Brown" : "Black", P.mkPP(e.upperSite.point, e.lowerSite.point)) : Z.mkDebugCurveTWCI(200, e.constrained ? .8 : .2, e.constrained ? "Pink" : "Navy", P.mkPP(e.upperSite.point, e.lowerSite.point));
 	}
 	PointEvent(t) {
-		let n = this.ProjectToFront(t), r = { rightSite: null }, i = n.item.x + E.distanceEpsilon < t.point.x ? this.MiddleCase(t, n, r) : this.LeftCase(t, n, r), a = this.InsertSiteIntoFront(i, t, r.rightSite);
+		let n = this.ProjectToFront(t), r = { rightSite: null }, i = n.item.x + O.distanceEpsilon < t.point.x ? this.MiddleCase(t, n, r) : this.LeftCase(t, n, r), a = this.InsertSiteIntoFront(i, t, r.rightSite);
 		this.TriangulateEmptySpaceToTheRight(a), a = e.FindNodeInFrontBySite(this.front, i), this.TriangulateEmptySpaceToTheLeft(a);
 	}
 	LeftCase(e, t, n) {
@@ -16822,13 +16829,13 @@ var ou = class e {
 	}
 	TryTriangulateBasinToTheLeft(t) {
 		if (!e.DropsSharpEnoughToTheLeft(t.item)) return;
-		let n = new H.Stack();
+		let n = new U.Stack();
 		for (n.push(t.item.LeftSite);;) {
 			let r = n.pop();
 			t = e.FindNodeInFrontBySite(this.front, r);
 			let i = this.front.previous(t);
 			if (i == null) return;
-			if (j.getTriangleOrientation(i.item.LeftSite.point, t.item.LeftSite.point, t.item.RightSite.point) == k.Counterclockwise) n.push(i.item.LeftSite), this.ShortcutTwoFrontElements(i, t);
+			if (N.getTriangleOrientation(i.item.LeftSite.point, t.item.LeftSite.point, t.item.RightSite.point) == j.Counterclockwise) n.push(i.item.LeftSite), this.ShortcutTwoFrontElements(i, t);
 			else if (t.item.LeftSite.point.y > t.item.RightSite.point.y) n.push(i.item.LeftSite);
 			else {
 				if (i.item.LeftSite.point.y <= i.item.RightSite.point.y) return;
@@ -16860,13 +16867,13 @@ var ou = class e {
 	}
 	TryTriangulateBasinToTheRight(t) {
 		if (!e.DropsSharpEnoughToTheRight(t.item)) return;
-		let n = new H.Stack();
+		let n = new U.Stack();
 		for (n.push(t.item.LeftSite);;) {
 			let r = n.pop();
 			t = e.FindNodeInFrontBySite(this.front, r);
 			let i = this.front.next(t);
 			if (i == null) return;
-			if (j.getTriangleOrientation(t.item.LeftSite.point, t.item.RightSite.point, i.item.RightSite.point) == k.Counterclockwise) this.ShortcutTwoFrontElements(t, i), n.push(r);
+			if (N.getTriangleOrientation(t.item.LeftSite.point, t.item.RightSite.point, i.item.RightSite.point) == j.Counterclockwise) this.ShortcutTwoFrontElements(t, i), n.push(r);
 			else if (t.item.LeftSite.point.y > t.item.RightSite.point.y) n.push(t.item.RightSite);
 			else {
 				if (i.item.LeftSite.point.y >= i.item.RightSite.point.y) return;
@@ -16884,7 +16891,7 @@ var ou = class e {
 		return e.findLast((e) => e.LeftSite.point.x <= t.point.x);
 	}
 	InsertAndLegalizeTriangle(t, n) {
-		if (j.getTriangleOrientation(t.point, n.LeftSite.point, n.RightSite.point) !== k.Collinear) {
+		if (N.getTriangleOrientation(t.point, n.LeftSite.point, n.RightSite.point) !== j.Collinear) {
 			let e = gu.mkSED(t, n.Edge, this.createEdgeDelegate);
 			this.triangles.add(e), this.LegalizeEdge(t, e.Edges.getItem(0));
 		} else {
@@ -16961,7 +16968,7 @@ var ou = class e {
 		let e = this.piercedToTheLeftFrontElemNode;
 		do
 			this.elementsToBeRemovedFromFront.push(e.item), this.AddSiteToLeftPolygon(e.item.LeftSite), e = this.front.previous(e);
-		while (j.pointToTheLeftOfLine(e.item.LeftSite.point, this.a.point, this.b.point));
+		while (N.pointToTheLeftOfLine(e.item.LeftSite.point, this.a.point, this.b.point));
 		if (this.elementsToBeRemovedFromFront.push(e.item), this.AddSiteToRightPolygon(e.item.LeftSite), e.item.LeftSite === this.b) {
 			this.piercedToTheLeftFrontElemNode = e;
 			return;
@@ -16971,8 +16978,8 @@ var ou = class e {
 	FindPiercedTriangle(e) {
 		let t = e.item.Edge, n = t.CcwTriangle ?? t.CwTriangle, r = n.Edges.index(t);
 		for (let e = 1; e <= 2; e++) {
-			let t = n.Edges.getItem(e + r), i = yc.sign(j.signedDoubledTriangleArea(t.lowerSite.point, this.a.point, this.b.point));
-			if (yc.sign(j.signedDoubledTriangleArea(t.upperSite.point, this.a.point, this.b.point)) * i <= 0) {
+			let t = n.Edges.getItem(e + r), i = yc.sign(N.signedDoubledTriangleArea(t.lowerSite.point, this.a.point, this.b.point));
+			if (yc.sign(N.signedDoubledTriangleArea(t.upperSite.point, this.a.point, this.b.point)) * i <= 0) {
 				this.piercedTriangle = n, this.piercedEdge = t;
 				break;
 			}
@@ -16990,8 +16997,8 @@ var ou = class e {
 	PrepareNextStateAfterPiercedEdge() {
 		let t = this.piercedEdge.CwTriangle ?? this.piercedEdge.CcwTriangle, n = t.Edges.index(this.piercedEdge);
 		for (let r = 1; r <= 2; r++) {
-			let i = t.Edges.getItem(r + n), a = yc.sign(j.signedDoubledTriangleArea(i.lowerSite.point, this.a.point, this.b.point));
-			if (yc.sign(j.signedDoubledTriangleArea(i.upperSite.point, this.a.point, this.b.point)) * a <= 0) {
+			let i = t.Edges.getItem(r + n), a = yc.sign(N.signedDoubledTriangleArea(i.lowerSite.point, this.a.point, this.b.point));
+			if (yc.sign(N.signedDoubledTriangleArea(i.upperSite.point, this.a.point, this.b.point)) * a <= 0) {
 				if (i.CwTriangle != null && i.CcwTriangle != null) {
 					this.piercedTriangle = t, this.piercedEdge = i;
 					break;
@@ -17011,7 +17018,7 @@ var ou = class e {
 		let e = this.piercedToTheRightFrontElemNode;
 		do
 			this.elementsToBeRemovedFromFront.push(e.item), this.AddSiteToRightPolygon(e.item.RightSite), e = this.front.next(e);
-		while (j.pointToTheRightOfLine(e.item.RightSite.point, this.a.point, this.b.point));
+		while (N.pointToTheRightOfLine(e.item.RightSite.point, this.a.point, this.b.point));
 		if (this.elementsToBeRemovedFromFront.push(e.item), this.AddSiteToLeftPolygon(e.item.RightSite), e.item.RightSite === this.b) {
 			this.piercedToTheRightFrontElemNode = e;
 			return;
@@ -17034,13 +17041,13 @@ var ou = class e {
 	initEdgeTracer() {
 		this.elementsToBeRemovedFromFront = [], this.a = this.traversingEdge.upperSite, this.b = this.traversingEdge.lowerSite, this.removedTriangles = [];
 		let t = e.FindNodeInFrontBySite(this.front, this.a), n = this.front.previous(t);
-		if (j.pointToTheLeftOfLine(this.b.point, n.item.LeftSite.point, n.item.RightSite.point)) this.piercedToTheLeftFrontElemNode = n;
-		else if (j.pointToTheRightOfLine(this.b.point, t.item.RightSite.point, t.item.LeftSite.point)) this.piercedToTheRightFrontElemNode = t;
+		if (N.pointToTheLeftOfLine(this.b.point, n.item.LeftSite.point, n.item.RightSite.point)) this.piercedToTheLeftFrontElemNode = n;
+		else if (N.pointToTheRightOfLine(this.b.point, t.item.RightSite.point, t.item.LeftSite.point)) this.piercedToTheRightFrontElemNode = t;
 		else for (let e of this.a.Edges) {
 			let t = e.CcwTriangle;
-			if (t == null || j.pointToTheLeftOfLine(this.b.point, e.lowerSite.point, e.upperSite.point)) continue;
+			if (t == null || N.pointToTheLeftOfLine(this.b.point, e.lowerSite.point, e.upperSite.point)) continue;
 			let n = t.Edges.index(e), r = t.Sites.getItem(n + 2);
-			if (j.pointToTheLeftOfLineOrOnLine(this.b.point, r.point, e.upperSite.point)) {
+			if (N.pointToTheLeftOfLineOrOnLine(this.b.point, r.point, e.upperSite.point)) {
 				this.piercedEdge = t.Edges.getItem(n + 1), this.piercedTriangle = t;
 				break;
 			}
@@ -17056,11 +17063,11 @@ function bu(e, t, n, r) {
 	return xu(e, t, n, r) && Su(e, t, n, r);
 }
 function xu(e, t, n, r) {
-	return j.getTriangleOrientation(t.point, e.point, n.point) === k.Clockwise && j.getTriangleOrientation(n.point, e.point, r.point) === k.Clockwise;
+	return N.getTriangleOrientation(t.point, e.point, n.point) === j.Clockwise && N.getTriangleOrientation(n.point, e.point, r.point) === j.Clockwise;
 }
 function Su(e, t, n, r) {
 	let i = t.point.x - e.point.x, a = t.point.y - e.point.y, o = n.point.x - e.point.x, s = n.point.y - e.point.y, c = r.point.x - e.point.x, l = r.point.y - e.point.y, u = i * i + a * a, d = o * o + s * s, f = c * c + l * l;
-	return i * (s * f - l * d) - o * (a * f - l * u) + c * (a * d - s * u) > E.tolerance;
+	return i * (s * f - l * d) - o * (a * f - l * u) + c * (a * d - s * u) > O.tolerance;
 }
 function Cu(e, t) {
 	let n, r;
@@ -17090,15 +17097,15 @@ var wu = class e extends q {
 		return (n = this.PointsToSites.get(e)) ? n.Owner = t : (n = pu.mkSO(e, t), this.PointsToSites.set(e, n)), n;
 	}
 	AddP1AndP2() {
-		let e = R.mkEmpty();
+		let e = z.mkEmpty();
 		for (let t of this.PointsToSites.keys()) e.add(t);
-		this.P1 = new pu(e.leftBottom.add(new j(-10, -10))), this.P2 = new pu(e.rightBottom.add(new j(10, -10)));
+		this.P1 = new pu(e.leftBottom.add(new N(-10, -10))), this.P2 = new pu(e.rightBottom.add(new N(10, -10)));
 	}
 	AddPolylineToAllInputSites(e) {
 		if (this.simplifyObstacles) for (let t = e.startPoint; t != null;) {
 			let n = t.point;
 			if (t = t.next, !t) break;
-			for (; t.next && j.getTriangleOrientation(n, t.point, t.next.point) === k.Collinear;) t = t.next;
+			for (; t.next && N.getTriangleOrientation(n, t.point, t.next.point) === j.Collinear;) t = t.next;
 			this.AddConstrainedEdge(n, t.point, e);
 		}
 		else for (let t = e.startPoint; t.next != null; t = t.next) this.AddConstrainedEdge(t.point, t.next.point, e);
@@ -17153,12 +17160,12 @@ var wu = class e extends q {
 	static PointIsInsideOfTriangle(e, t) {
 		for (let n = 0; n < 3; n++) {
 			let r = t.Sites.getItem(n).point, i = t.Sites.getItem(n + 1).point;
-			if (j.signedDoubledTriangleArea(e, r, i) < E.distanceEpsilon * -1) return !1;
+			if (N.signedDoubledTriangleArea(e, r, i) < O.distanceEpsilon * -1) return !1;
 		}
 		return !0;
 	}
 	getRectangleNodeOnTriangles() {
-		return this.rectangleNodeOnTriangles ??= W(Array.from(this.GetTriangles().values()).map((e) => Ma(e, e.BoundingBox()))), this.rectangleNodeOnTriangles;
+		return this.rectangleNodeOnTriangles ??= G(Array.from(this.GetTriangles().values()).map((e) => ja(e, e.BoundingBox()))), this.rectangleNodeOnTriangles;
 	}
 };
 function Tu(e) {
@@ -17226,7 +17233,7 @@ var Du = class e {
 		return e < this.start ? this.start : e > this.end ? this.end : e;
 	}
 	intersects(e) {
-		return e.start > this.end + E.distanceEpsilon ? !1 : !(e.end < this.start - E.distanceEpsilon);
+		return e.start > this.end + O.distanceEpsilon ? !1 : !(e.end < this.start - O.distanceEpsilon);
 	}
 }, Ou = class {
 	get Count() {
@@ -17449,14 +17456,14 @@ var Du = class e {
 	RemoveOverlapsOnTinyGraph() {
 		if (this._nodes.length !== 1 && this._nodes.length === 2) {
 			let e = this._nodes[0], t = this._nodes[1];
-			j.closeDistEps(e.center, t.center) && (t.center = t.center.add(new j(.001, 0)));
-			let n = this.GetIdealDistanceBetweenTwoNodes(e, t), r = j.middle(e.center, t.center), i = e.center.sub(t.center), a = i.length;
+			N.closeDistEps(e.center, t.center) && (t.center = t.center.add(new N(.001, 0)));
+			let n = this.GetIdealDistanceBetweenTwoNodes(e, t), r = N.middle(e.center, t.center), i = e.center.sub(t.center), a = i.length;
 			i = i.mul(n / a * .5), e.center = r.add(i), t.center = r.sub(i);
 		}
 	}
 	GetIdealDistanceBetweenTwoNodes(e, t) {
 		let n = e.center.sub(t.center), r = Math.abs(n.x), i = Math.abs(n.y), a = (e.width + t.width) / 2 + this._settings.NodeSeparation, o = (e.height + t.height) / 2 + this._settings.NodeSeparation, s = Infinity, c = Infinity;
-		return r > E.tolerance && (s = a / r), i > E.tolerance && (c = o / i), Math.min(s, c) * n.length;
+		return r > O.tolerance && (s = a / r), i > O.tolerance && (c = o / i), Math.min(s, c) * n.length;
 	}
 	static AvgEdgeLength(e) {
 		let t = 0, n = 0;
@@ -17486,7 +17493,7 @@ var Du = class e {
 		return new ku(e, t, n, this._overlapForLayers).Run();
 	}
 	static GetIdealEdge(t, n, r, i, a) {
-		let o = { overlapFactor: 0 }, s = e.GetIdealEdgeLength(t, n, r, i, a, o), c = r.sub(i).length, l = R.mkSizeCenter(a[t], r), u = R.mkSizeCenter(a[n], i), d = o.overlapFactor > 1 ? c - s : e.GetDistanceRects(l, u);
+		let o = { overlapFactor: 0 }, s = e.GetIdealEdgeLength(t, n, r, i, a, o), c = r.sub(i).length, l = z.mkSizeCenter(a[t], r), u = z.mkSizeCenter(a[n], i), d = o.overlapFactor > 1 ? c - s : e.GetDistanceRects(l, u);
 		return {
 			source: Math.min(t, n),
 			target: Math.max(t, n),
@@ -17532,11 +17539,11 @@ function Pu(e, t, n, r) {
 	});
 }
 function Fu(e, t, n) {
-	let r = new G();
+	let r = new Fa();
 	for (let i = 0; i < e.length; i++) {
 		let a = e[i];
 		if (n || r.has(a)) do
-			a = new j(a.x + (2 * t.random() - 1) * n, a.y + (2 * t.random() - 1) * n);
+			a = new N(a.x + (2 * t.random() - 1) * n, a.y + (2 * t.random() - 1) * n);
 		while (r.has(a));
 		e[i] = a, r.add(a);
 	}
@@ -17583,14 +17590,14 @@ var Iu = class e extends q {
 		};
 		e.LayoutGraphWithMds(this.graph, this.settings, t, this.length), this.settings.RotationAngle !== 0 && uu.Rotate(t.x, t.y, this.settings.RotationAngle);
 		let n = 0;
-		for (let e of this.graph.shallowNodes) e.boundingBox && (e.center = new j(t.x[n] * this.settings.ScaleX, t.y[n] * this.settings.ScaleY)), n++;
+		for (let e of this.graph.shallowNodes) e.boundingBox && (e.center = new N(t.x[n] * this.settings.ScaleX, t.y[n] * this.settings.ScaleY)), n++;
 		this.settings.removeOverlaps && Nu.RemoveOverlaps(Array.from(this.graph.shallowNodes), this.settings.NodeSeparation), this.graph.pumpTheBoxToTheGraphWithMargins();
 	}
 	ScaleNodes(e, t) {
 		for (let n of e) n.center = n.center.mul(t);
 	}
 	static PackGraphs(e, t) {
-		if (e.length === 0) return R.mkEmpty();
+		if (e.length === 0) return z.mkEmpty();
 		if (e.length === 1) return e[0].boundingBox;
 		let n = e.map((e) => e.boundingBox), r = [];
 		for (let t of e) r.push({
@@ -17603,7 +17610,7 @@ var Iu = class e extends q {
 			let n = e.boundingBox.leftBottom.sub(t);
 			e.translate(n);
 		}
-		return new R({
+		return new z({
 			left: 0,
 			bottom: 0,
 			right: i.PackedWidth,
@@ -17746,17 +17753,17 @@ var Bu = class e extends q {
 		return r ? e.CreateLoop_(t, n, !1) : e.CreateLoop_(n, t, !0);
 	}
 	static CreateLoop_(t, n, r) {
-		let i = t.center, a = e.FindClosestPointOnBoxBoundary(t.center, n), o = a.sub(i), s = (Math.abs(o.x) < E.distanceEpsilon ? Math.min(i.y - n.bottom, n.top - i.y) : Math.min(i.x - n.left, n.right - i.x)) / 2, c = Math.min(1, s);
-		o.length <= E.distanceEpsilon && (o = new j(1, 0));
+		let i = t.center, a = e.FindClosestPointOnBoxBoundary(t.center, n), o = a.sub(i), s = (Math.abs(o.x) < O.distanceEpsilon ? Math.min(i.y - n.bottom, n.top - i.y) : Math.min(i.x - n.left, n.right - i.x)) / 2, c = Math.min(1, s);
+		o.length <= O.distanceEpsilon && (o = new N(1, 0));
 		let l = o.normalize(), u = l.rotate(Math.PI / 2), d = a.add(l.mul(1)), f = d.add(u.mul(c)), p = a.add(u.mul(c)), m = i.add(u.mul(c));
-		return (r ? ba.mkFromPoints([
+		return (r ? ya.mkFromPoints([
 			m,
 			p,
 			f,
 			d,
 			a,
 			i
-		]) : ba.mkFromPoints([
+		]) : ya.mkFromPoints([
 			i,
 			a,
 			d,
@@ -17767,17 +17774,17 @@ var Bu = class e extends q {
 	}
 	static FindClosestPointOnBoxBoundary(e, t) {
 		let n = e.x - t.left < t.right - e.x ? t.left : t.right, r = e.y - t.bottom < t.top - e.y ? t.bottom : t.top;
-		return Math.abs(n - e.x) < Math.abs(r - e.y) ? new j(n, e.y) : new j(e.x, r);
+		return Math.abs(n - e.x) < Math.abs(r - e.y) ? new N(n, e.y) : new N(e.x, r);
 	}
 	static GetEdgeLine(e) {
 		let t, n;
 		e.sourcePort == null ? (t = e.source.center, n = e.source.boundaryCurve) : (t = e.sourcePort.Location, n = e.sourcePort.Curve);
 		let r, i;
 		e.targetPort == null ? (r = e.target.center, i = e.target.boundaryCurve) : (r = e.targetPort.Location, i = e.targetPort.Curve);
-		let a = N.mkPP(t, r), o = I.getAllIntersections(n, a, !1);
+		let a = P.mkPP(t, r), o = L.getAllIntersections(n, a, !1);
 		if (o.length > 0) {
 			let e = a.trim(o[0].par1, 1);
-			e instanceof N && (a = e, o = I.getAllIntersections(i, a, !1), o.length > 0 && (e = a.trim(0, o[0].par1), e instanceof N && (a = e)));
+			e instanceof P && (a = e, o = L.getAllIntersections(i, a, !1), o.length > 0 && (e = a.trim(0, o[0].par1), e instanceof P && (a = e)));
 		}
 		return a;
 	}
@@ -17786,12 +17793,12 @@ var Bu = class e extends q {
 		if (t.source === t.target) {
 			let r = 2 / (3 * t.source.boundaryCurve.boundingBox.width), i = t.source.boundingBox.height / 4;
 			t.smoothedPolyline = e.CreateUnderlyingPolylineForSelfEdge(n, r, i), t.curve = t.smoothedPolyline.createCurve();
-		} else t.smoothedPolyline = ba.mkFromPoints([n, r]), t.curve = t.smoothedPolyline.createCurve();
+		} else t.smoothedPolyline = ya.mkFromPoints([n, r]), t.curve = t.smoothedPolyline.createCurve();
 		cc.trimSplineAndCalculateArrowheadsII(t, t.source.boundaryCurve, t.target.boundaryCurve, t.curve, !1);
 	}
 	static CreateUnderlyingPolylineForSelfEdge(e, t, n) {
-		let r = e.add(new j(0, n)), i = e.add(new j(t, n)), a = e.add(new j(t, n * -1)), o = e.add(new j(0, n * -1)), s = ya.mkSiteP(e), c = new ba(s);
-		return s = ya.mkSiteSP(s, r), s = ya.mkSiteSP(s, i), s = ya.mkSiteSP(s, a), s = ya.mkSiteSP(s, o), ya.mkSiteSP(s, e), c;
+		let r = e.add(new N(0, n)), i = e.add(new N(t, n)), a = e.add(new N(t, n * -1)), o = e.add(new N(0, n * -1)), s = va.mkSiteP(e), c = new ya(s);
+		return s = va.mkSiteSP(s, r), s = va.mkSiteSP(s, i), s = va.mkSiteSP(s, a), s = va.mkSiteSP(s, o), va.mkSiteSP(s, e), c;
 	}
 	static SetStraightLineEdgesWithUnderlyingPolylines(t) {
 		kf.CreatePortsIfNeeded(Array.from(t.deepEdges));
@@ -17829,7 +17836,7 @@ var Uu = class {}, Wu = class {
 })(Gu ||= {});
 var Ku = class {
 	constructor(e) {
-		this.location = e, this.boundingBox = R.rectangleOnPoint(e);
+		this.location = e, this.boundingBox = z.rectangleOnPoint(e);
 	}
 }, qu = class {
 	constructor(e, t) {
@@ -17922,8 +17929,8 @@ var Ku = class {
 	}
 	PlaceLabelAtFirstPosition(t) {
 		let n = t.parent, r = n.curve, i = this.edgeInfos.get(n).edgePoints, a = this.StartIndex(t, i.map((e) => e[1])), o = i[a][1], s = r.derivative(i[a][0]);
-		s.length < E.distanceEpsilon && (s = new j(1, 1)), s = s.normalize();
-		let c = new va(t.width, t.height), l = this.getLabelInfo(t), u = e.GetPossibleSides(l.placementSide, s)[0], d = e.GetLabelBounds(o, s, c, u);
+		s.length < O.distanceEpsilon && (s = new N(1, 1)), s = s.normalize();
+		let c = new _a(t.width, t.height), l = this.getLabelInfo(t), u = e.GetPossibleSides(l.placementSide, s)[0], d = e.GetLabelBounds(o, s, c, u);
 		this.SetLabelBounds(this.getLabelInfo(t), d);
 	}
 	StartIndex(e, t) {
@@ -17931,16 +17938,16 @@ var Ku = class {
 		return Math.min(t.length - 1, Math.max(0, Math.floor(t.length * n.placementOffset)));
 	}
 	CalculateCenterLabelInfoCenter(e) {
-		let t = this.getLabelInfo(e), n = new j(0, 0);
+		let t = this.getLabelInfo(e), n = new N(0, 0);
 		for (let e of t.innerPoints) n = n.add(e);
 		for (let e of t.outerPoints) n = n.add(e);
 		e.positionCenter(n.div(t.innerPoints.length + t.outerPoints.length));
 	}
 	PlaceEdgeLabelHorizontally(t) {
-		let n = t.label, r = this.getLabelInfo(n).edgePoints, i = new va(n.width, n.height), a = -1, o = R.mkEmpty(), s = t.curve;
+		let n = t.label, r = this.getLabelInfo(n).edgePoints, i = new _a(n.width, n.height), a = -1, o = z.mkEmpty(), s = t.curve;
 		for (let t of e.ExpandingSearch(this.StartIndex(n, r.map((e) => e[1])), 0, r.length)) {
 			let c = r[t], l = s.derivative(c[0]);
-			if (!O(l.lengthSquared, 0)) {
+			if (!A(l.lengthSquared, 0)) {
 				l = l.normalize();
 				for (let t of e.GetPossibleSides(this.getLabelInfo(n).placementSide, l)) {
 					let r = e.GetLabelBounds(c[1], l, i, t), s = this.ConflictIndexRL(r, n);
@@ -17967,7 +17974,7 @@ var Ku = class {
 			let e = Math.acos(Math.abs(i.x) / 1), t = 1 / Math.sin(e), r = 1 / Math.cos(e);
 			o += (i.x > 0 ? 1 : -1) * r, s += (i.y > 0 ? -1 : 1) * Math.min(t, n.height / 2);
 		}
-		return R.mkLeftBottomSize(o, s, n);
+		return z.mkLeftBottomSize(o, s, n);
 	}
 	SetLabelBounds(e, t) {
 		e.innerPoints = [t.leftTop, t.rightTop], e.outerPoints = [t.leftBottom, t.rightBottom];
@@ -17976,10 +17983,10 @@ var Ku = class {
 		switch (n.length === 0 && (t = Hu.Any), t) {
 			case Hu.Port: return [-1];
 			case Hu.Starboard: return [1];
-			case Hu.Top: return O(n.x, 0) ? e.GetPossibleSides(Hu.Left, n) : [1];
-			case Hu.Bottom: return O(n.x, 0) ? e.GetPossibleSides(Hu.Right, n) : [n.x < 0 ? -1 : 1];
-			case Hu.Left: return O(n.y, 0) ? e.GetPossibleSides(Hu.Top, n) : [n.y < 0 ? -1 : 1];
-			case Hu.Right: return O(n.y, 0) ? e.GetPossibleSides(Hu.Bottom, n) : [n.y < 0 ? 1 : -1];
+			case Hu.Top: return A(n.x, 0) ? e.GetPossibleSides(Hu.Left, n) : [1];
+			case Hu.Bottom: return A(n.x, 0) ? e.GetPossibleSides(Hu.Right, n) : [n.x < 0 ? -1 : 1];
+			case Hu.Left: return A(n.y, 0) ? e.GetPossibleSides(Hu.Top, n) : [n.y < 0 ? -1 : 1];
+			case Hu.Right: return A(n.y, 0) ? e.GetPossibleSides(Hu.Bottom, n) : [n.y < 0 ? 1 : -1];
 			default: return [-1, 1];
 		}
 	}
@@ -17996,7 +18003,7 @@ var Ku = class {
 	PlaceEdgeLabelOnCurve(t) {
 		let n = t.parent, r = this.getLabelInfo(t);
 		r.innerPoints = null;
-		let i = r.edgePoints, a = t.height / 2, o = new va(a, a), s = t.width;
+		let i = r.edgePoints, a = t.height / 2, o = new _a(a, a), s = t.width;
 		for (let r of e.ExpandingSearch(this.StartIndex(t, i), 0, i.length)) {
 			let e = this.GetSidesAndEdgeCurve(t, n, i, r);
 			for (let c of e) {
@@ -18022,14 +18029,14 @@ var Ku = class {
 		for (let i of e) {
 			let e = i.Center;
 			t.push(i.Inner), n.push(i.Outer);
-			let a = new qu(R.mkSizeCenter(new va(r.width * 2, r.height * 2), e), null);
+			let a = new qu(z.mkSizeCenter(new _a(r.width * 2, r.height * 2), e), null);
 			this.AddLabelObstacle(a);
 		}
 	}
 	ProcessExpandingSearchOnSide(t, n, r, i, a, o, s, c, l, u) {
 		for (let d of e.ExpandingSearch(t, 0, n.length)) {
 			let [e, f] = n[d], p = r.derivative(e);
-			if (O(p.lengthSquared, 0)) continue;
+			if (A(p.lengthSquared, 0)) continue;
 			let m = p.rotate(Math.PI / 2).normalize().mul(i), h = f.add(m.mul(a + o));
 			if (this.Conflict(h, a, s)) break;
 			{
@@ -18053,7 +18060,7 @@ var Ku = class {
 		return Number.MAX_VALUE;
 	}
 	ConflictIndex(e, t, n) {
-		let r = R.creatRectangleWithSize(new va(n.width * 2, n.height * 2), e), i = t * t;
+		let r = z.creatRectangleWithSize(new _a(n.width * 2, n.height * 2), e), i = t * t;
 		for (let t = 0; t < this.obstacleMaps.length; t++) if (this.obstacleMaps[t] != null) {
 			for (let t = 0; t < this.obstacleMaps.length; t++) if (this.obstacleMaps[t] != null) for (let n of this.obstacleMaps[t].GetAllIntersecting(r)) if (n instanceof Ku) {
 				if (e.sub(n.location).lengthSquared < i) return t;
@@ -18065,18 +18072,18 @@ var Ku = class {
 Yu.MinGranularity = 5, Yu.MaxGranularity = 50, Yu.LowerEdgeBound = 500, Yu.UpperEdgeBound = 3e3;
 //#endregion
 //#region ../node_modules/@msagl/core/dist/structs/algorithmData.js
-var Xu = class extends Yi {
+var Xu = class extends qi {
 	clone() {
 		throw Error("Method not implemented.");
 	}
 	rebind(e) {
-		this.entity = e, this.bind(Xi.AlgorithmDataIndex);
+		this.entity = e, this.bind(Ji.AlgorithmDataIndex);
 	}
 	constructor(e, t = null) {
-		super(e, Xi.AlgorithmDataIndex), this.data = t;
+		super(e, Ji.AlgorithmDataIndex), this.data = t;
 	}
 	static getAlgData(e) {
-		return e.getAttr(Xi.AlgorithmDataIndex);
+		return e.getAttr(Ji.AlgorithmDataIndex);
 	}
 };
 //#endregion
@@ -18096,7 +18103,7 @@ var Qu = class {
 		this.previousCenter = this.geomNode.center, this.center = this.geomNode.center, this.Width = this.geomNode.width, this.Height = this.geomNode.height;
 	}
 	constructor(e, t) {
-		this.force = new j(0, 0), this.stayWeight = 1, this.index = e, this.geomNode = t, this.ResetBounds();
+		this.force = new N(0, 0), this.stayWeight = 1, this.index = e, this.geomNode = t, this.ResetBounds();
 	}
 	ToString() {
 		return "FINode(" + (this.index + ("):" + this.geomNode));
@@ -18149,7 +18156,7 @@ var Qu = class {
 		return n.c = t, n.r = 0, n.r2 = 0, n;
 	}
 	static midPoint(e, t) {
-		return new j((t.x + e.x) / 2, (t.y + e.y) / 2);
+		return new N((t.x + e.x) / 2, (t.y + e.y) / 2);
 	}
 	static constructorPP(t, n) {
 		let r = new e();
@@ -18164,7 +18171,7 @@ var Qu = class {
 		let r = (t.y - e.y) / (t.x - e.x), i = (n.y - t.y) / (n.x - t.x);
 		K.assert(i != r);
 		let a, o = (r * i * (e.y - n.y) + i * (e.x + t.x) - r * (t.x + n.x)) / (2 * (i - r));
-		return a = Math.abs(r) > Math.abs(i) ? (e.y + t.y) / 2 - (o - (e.x + t.x) / 2) / r : (t.y + n.y) / 2 - (o - (t.x + n.x) / 2) / i, new j(o, a);
+		return a = Math.abs(r) > Math.abs(i) ? (e.y + t.y) / 2 - (o - (e.x + t.x) / 2) / r : (t.y + n.y) / 2 - (o - (t.x + n.x) / 2) / i, new N(o, a);
 	}
 	static Collinear(e, t, n) {
 		return e.x * (t.y - n.y) + (t.x * (n.y - e.y) + n.x * (e.y - t.y)) == 0;
@@ -18173,7 +18180,7 @@ var Qu = class {
 		e.count++;
 		let i = new e();
 		if (e.Collinear(t, n, r)) {
-			let a = new j(Math.min(t.x, Math.min(n.x, r.x)), Math.min(t.y, Math.max(n.y, r.y))), o = new j(Math.max(t.x, Math.max(n.x, r.x)), Math.max(t.y, Math.max(n.y, r.y)));
+			let a = new N(Math.min(t.x, Math.min(n.x, r.x)), Math.min(t.y, Math.max(n.y, r.y))), o = new N(Math.max(t.x, Math.max(n.x, r.x)), Math.max(t.y, Math.max(n.y, r.y)));
 			i.c = e.midPoint(a, o), i.r2 = i.Distance2(o), i.r = Math.sqrt(i.r2);
 		} else {
 			let a = n.x - t.x, o = r.x - n.x, s = r.x - t.x;
@@ -18224,7 +18231,7 @@ function od(e, t) {
 var sd = class {
 	static LinearComputation(e) {
 		let t = td(e), n = new ed();
-		return n.Center = new j(t.x, t.y), n.Radius = t.r, n;
+		return n.Center = new N(t.x, t.y), n.Radius = t.r, n;
 	}
 	static SlowComputation(e) {
 		let t = e.length, n = null, r = null;
@@ -18302,11 +18309,11 @@ var sd = class {
 	ApproximateForce(e) {
 		let t = pd(new ld(e.x, e.y), this.z0), n = hd(this.a[0], t), r = t, i = 0;
 		for (; n = pd(n, hd(fd(this.a[i], i), r)), i++, i != this.p;) r = dd(r, t);
-		return new j(n.re, -n.im);
+		return new N(n.re, -n.im);
 	}
 	static Force(e, t) {
 		let n = t.sub(e), r = n.lengthSquared;
-		return r < .1 ? r == 0 ? new j(1, 0) : n.div(.1) : n.div(r);
+		return r < .1 ? r == 0 ? new N(1, 0) : n.div(.1) : n.div(r);
 	}
 }, ld = class e {
 	constructor(e, t) {
@@ -18412,7 +18419,7 @@ var _d = class {
 		return e == gd.Horizontal ? this.point.x : this.point.y;
 	}
 	constructor(e) {
-		this.point = e, this.force = new j(0, 0);
+		this.point = e, this.force = new N(0, 0);
 	}
 }, xd = class {
 	particlesBy(e) {
@@ -18513,11 +18520,11 @@ var _d = class {
 		let t = e.length;
 		if (t > 16 && this.settings.ApproximateRepulsion) {
 			let n = Array(e.length), r = Math.PI / t * 2, i = 0;
-			for (let a = 0; a < t; a++) n[a] = new bd(e[a].Center.add(new j(Math.cos(i), Math.sin(i)).mul(1e-5))), i += r;
+			for (let a = 0; a < t; a++) n[a] = new bd(e[a].Center.add(new N(Math.cos(i), Math.sin(i)).mul(1e-5))), i += r;
 			new xd(n, 8).ComputeForces(5);
 			for (let t = 0; t < e.length; t++) this.AddRepulsiveForce(e[t], n[t].force);
 		} else for (let t of e) {
-			let n = new j(0, 0);
+			let n = new N(0, 0);
 			for (let r of e) t != r && (n = n.add(cd.Force(t.Center, r.Center)));
 			this.AddRepulsiveForce(t, n);
 		}
@@ -18525,7 +18532,7 @@ var _d = class {
 	SetBarycenter(e) {
 		let t = this.clustersInfo.get(e);
 		if (t != null) return t.barycenter;
-		let n = new j(0, 0);
+		let n = new N(0, 0);
 		if (e.shallowNodeCount || wd(e)) {
 			let t = this.clustersInfo.get(e);
 			if ((t == null || t.weight == null) && this.computeWeight(e), t.weight != null) {
@@ -18539,13 +18546,13 @@ var _d = class {
 		let t = 0;
 		for (let n of e.shallowNodes) n.entity instanceof to ? t += this.computeWeight(n) : t++;
 		let n = this.clustersInfo.get(e);
-		return n ?? this.clustersInfo.set(e, n = { barycenter: new j(0, 0) }), n.weight = t, t;
+		return n ?? this.clustersInfo.set(e, n = { barycenter: new N(0, 0) }), n.weight = t, t;
 	}
 	AddClusterForces(t) {
 		if (t != null) {
 			this.SetBarycenter(t);
 			for (let e of this.clusterEdges) {
-				let t = T.getGeom(e.source), n = T.getGeom(e.target), r = Xu.getAlgData(e.source).data, i = Xu.getAlgData(e.target).data, a = t.hasOwnProperty("shallowNodes"), o = a ? this.clustersInfo.get(t).barycenter : t.center, s = n.hasOwnProperty("shallowNodes"), c = s ? this.clustersInfo.get(n).barycenter : n.center, l = o.sub(c), u = l.length, d = 1e-8 * (this.settings.AttractiveInterClusterForceConstant * (u * Math.log(u + .1)));
+				let t = D.getGeom(e.source), n = D.getGeom(e.target), r = Xu.getAlgData(e.source).data, i = Xu.getAlgData(e.target).data, a = t.hasOwnProperty("shallowNodes"), o = a ? this.clustersInfo.get(t).barycenter : t.center, s = n.hasOwnProperty("shallowNodes"), c = s ? this.clustersInfo.get(n).barycenter : n.center, l = o.sub(c), u = l.length, d = 1e-8 * (this.settings.AttractiveInterClusterForceConstant * (u * Math.log(u + .1)));
 				if (l = l.mul(d), a) {
 					let e = t;
 					for (let t of e.shallowNodes) {
@@ -18572,7 +18579,7 @@ var _d = class {
 		else this.ComputeRepulsiveForces(this.nodes);
 		this.edges.forEach((e) => this.AddSpringForces(e));
 		for (let t of this.components) {
-			let n = new j(0, 0);
+			let n = new N(0, 0);
 			for (let e = 0; e < t.length; e++) n = n.add(t[e].Center);
 			n = n.div(t.length);
 			let r = -Infinity;
@@ -18605,7 +18612,7 @@ var _d = class {
 		return t;
 	}
 	ResetForceVectors() {
-		for (let e of this.nodes) e.force = new j(0, 0);
+		for (let e of this.nodes) e.force = new N(0, 0);
 	}
 	UpdateStepSize(e) {
 		this.energy < e ? ++this.progress >= 3 && (this.progress = 0, this.stepSize /= this.settings.Decay) : (this.progress = 0, this.stepSize *= this.settings.Decay);
@@ -18881,8 +18888,8 @@ var Td = class e {
 	}
 	*edges_() {
 		for (let e of this.topNodes) {
-			for (let t of e.outEdges) yield Ta.getGeom(t);
-			for (let t of e.selfEdges) yield Ta.getGeom(t);
+			for (let t of e.outEdges) yield wa.getGeom(t);
+			for (let t of e.selfEdges) yield wa.getGeom(t);
 		}
 	}
 	get shallowNodes() {
@@ -18892,7 +18899,7 @@ var Td = class e {
 		for (let e of this.topNodes) yield ao.getGeom(e);
 	}
 	pumpTheBoxToTheGraphWithMargins() {
-		let e = { b: R.mkEmpty() };
+		let e = { b: z.mkEmpty() };
 		return Co(this, e), this.boundingBox = e.b;
 	}
 	get shallowNodeCount() {
@@ -18984,7 +18991,7 @@ function Pd(e) {
 	do {
 		if (e.layoutSettings && e.layoutSettings.commonSettings.edgeRoutingSettings) return e.layoutSettings.commonSettings.edgeRoutingSettings;
 		let t = e.graph.parent;
-		if (t) e = T.getGeom(t);
+		if (t) e = D.getGeom(t);
 		else break;
 	} while (!0);
 	let t = new ru();
@@ -19051,7 +19058,7 @@ function Ld(e) {
 			let a = i.target, o = e.liftNode(a);
 			if (o == null || r === n && o === a || r === o) continue;
 			i.remove();
-			let s = new Ta(new Qa(r, o));
+			let s = new wa(new Qa(r, o));
 			t.push([s, i]);
 		}
 	}
@@ -19082,7 +19089,7 @@ function Vd(e) {
 function Hd(e) {
 	let t = e.boundingBox.leftBottom;
 	if (t.x < 0 || t.y < 0) {
-		let n = new j(-t.x, -t.y);
+		let n = new N(-t.x, -t.y);
 		e.translate(n);
 	}
 }
@@ -19091,7 +19098,7 @@ function Hd(e) {
 var Ud = class e {
 	static constructorStatic(t, n) {
 		let r = new e();
-		r.edges = t, r.nodeBoundaries = n, r.boundingBox = R.mkEmpty();
+		r.edges = t, r.nodeBoundaries = n, r.boundingBox = z.mkEmpty();
 		for (let e of r.nodeBoundaries) r.boundingBox = r.boundingBox.addRec(e.boundingBox);
 		return r;
 	}
@@ -19119,9 +19126,9 @@ var Gd = class {
 	}
 	FindFirstPiercedEdge() {
 		let e = this.GetHyperplaneSign(this.currentTriangle.Sites.item0), t = this.GetHyperplaneSign(this.currentTriangle.Sites.item1);
-		if (e !== t && j.getTriangleOrientation(this.end, this.currentTriangle.Sites.item0.point, this.currentTriangle.Sites.item1.point) == k.Clockwise) return this.positiveSign = e, this.negativeSign = t, this.currentTriangle.Edges.item0;
+		if (e !== t && N.getTriangleOrientation(this.end, this.currentTriangle.Sites.item0.point, this.currentTriangle.Sites.item1.point) == j.Clockwise) return this.positiveSign = e, this.negativeSign = t, this.currentTriangle.Edges.item0;
 		let n = this.GetHyperplaneSign(this.currentTriangle.Sites.item2);
-		return t !== n && j.getTriangleOrientation(this.end, this.currentTriangle.Sites.item1.point, this.currentTriangle.Sites.item2.point) == k.Clockwise ? (this.positiveSign = t, this.negativeSign = n, this.currentTriangle.Edges.item1) : (this.positiveSign = n, this.negativeSign = e, this.currentTriangle.Edges.item2);
+		return t !== n && N.getTriangleOrientation(this.end, this.currentTriangle.Sites.item1.point, this.currentTriangle.Sites.item2.point) == j.Clockwise ? (this.positiveSign = t, this.negativeSign = n, this.currentTriangle.Edges.item1) : (this.positiveSign = n, this.negativeSign = e, this.currentTriangle.Edges.item2);
 	}
 	FindNextPierced() {
 		if (this.currentTriangle = this.currentPiercedEdge.GetOtherTriangle_T(this.currentTriangle), this.currentTriangle == null) {
@@ -19129,11 +19136,11 @@ var Gd = class {
 			return;
 		}
 		let e = this.currentTriangle.Edges.index(this.currentPiercedEdge), t, n = this.currentTriangle.Sites.getItem(e + 2), r = this.GetHyperplaneSign(n);
-		this.negativeSign === 0 ? r === -1 || r === 0 ? (this.negativeSign = r, t = e + 1) : t = e + 2 : this.positiveSign === 0 ? r === 1 || r === 0 ? (this.positiveSign = r, t = e + 2) : t = e + 1 : r === this.positiveSign ? (this.positiveSign = r, t = e + 2) : (this.negativeSign = r, t = e + 1), this.currentPiercedEdge = j.signedDoubledTriangleArea(this.end, this.currentTriangle.Sites.getItem(t).point, this.currentTriangle.Sites.getItem(t + 1).point) < -E.distanceEpsilon ? this.currentTriangle.Edges.getItem(t) : null;
+		this.negativeSign === 0 ? r === -1 || r === 0 ? (this.negativeSign = r, t = e + 1) : t = e + 2 : this.positiveSign === 0 ? r === 1 || r === 0 ? (this.positiveSign = r, t = e + 2) : t = e + 1 : r === this.positiveSign ? (this.positiveSign = r, t = e + 2) : (this.negativeSign = r, t = e + 1), this.currentPiercedEdge = N.signedDoubledTriangleArea(this.end, this.currentTriangle.Sites.getItem(t).point, this.currentTriangle.Sites.getItem(t + 1).point) < -O.distanceEpsilon ? this.currentTriangle.Edges.getItem(t) : null;
 	}
 	GetHyperplaneSign(e) {
-		let t = j.signedDoubledTriangleArea(this.start, e.point, this.end);
-		return t > E.distanceEpsilon ? 1 : t < -E.distanceEpsilon ? -1 : 0;
+		let t = N.signedDoubledTriangleArea(this.start, e.point, this.end);
+		return t > O.distanceEpsilon ? 1 : t < -O.distanceEpsilon ? -1 : 0;
 	}
 	MoveNext() {
 		return this.currentPiercedEdge == null ? this.currentPiercedEdge = this.FindFirstPiercedEdge() : this.FindNextPierced(), this.currentPiercedEdge != null;
@@ -19174,7 +19181,7 @@ var Gd = class {
 			c.add(s);
 			let t = s.Owner;
 			if (i.has(t)) continue;
-			let l = e.FindPolylinePoint(t, s.point), u = N.minDistBetweenLineSegments(l.point, l.nextOnPolyline.point, n, r), d = u.dist, f = u.parab, p = u.parcd, m = N.minDistBetweenLineSegments(l.point, l.prevOnPolyline.point, n, r), h = m.dist, g = m.parab, _ = m.parcd, v, ee, te;
+			let l = e.FindPolylinePoint(t, s.point), u = P.minDistBetweenLineSegments(l.point, l.nextOnPolyline.point, n, r), d = u.dist, f = u.parab, p = u.parcd, m = P.minDistBetweenLineSegments(l.point, l.prevOnPolyline.point, n, r), h = m.dist, g = m.parab, _ = m.parcd, v, ee, te;
 			if (d < h) {
 				if (te = d, te > a) continue;
 				v = l.point.add(l.nextOnPolyline.point.sub(l.point).mul(f)), ee = n.add(r.sub(n).mul(p));
@@ -19202,11 +19209,11 @@ var Gd = class {
 	static PointLocationInsideTriangle(e, t) {
 		let n = !1;
 		for (let r = 0; r < 3; r++) {
-			let i = j.signedDoubledTriangleArea(e, t.Sites.getItem(r).point, t.Sites.getItem(r + 1).point);
-			if (i < E.distanceEpsilon * -1) return F.Outside;
-			i < E.distanceEpsilon && (n = !0);
+			let i = N.signedDoubledTriangleArea(e, t.Sites.getItem(r).point, t.Sites.getItem(r + 1).point);
+			if (i < O.distanceEpsilon * -1) return I.Outside;
+			i < O.distanceEpsilon && (n = !0);
 		}
-		return n ? F.Boundary : F.Inside;
+		return n ? I.Boundary : I.Inside;
 	}
 	static FindPolylinePoint(e, t) {
 		for (let n of e.polylinePoints()) if (n.point.equal(t)) return n;
@@ -19258,7 +19265,7 @@ var Gd = class {
 		} else {
 			let s = t.UserData;
 			if (i.has(s)) return !0;
-			if (I.PointRelativeToCurveLocation(n, s) !== F.Outside) return e.containingPoly = s, !1;
+			if (L.PointRelativeToCurveLocation(n, s) !== I.Outside) return e.containingPoly = s, !1;
 			let c = s.value(s.closestParameter(n)), l = c.sub(n).length;
 			l <= r && a.push([s, c]), o.minimalDistance = Math.min(l, o.minimalDistance);
 		}
@@ -19266,7 +19273,7 @@ var Gd = class {
 	}
 	static Create4gon(e, t, n, r) {
 		let i = t.sub(e).normalize();
-		return i = new j(i.y, i.x * -1), L.mkFromPoints([
+		return i = new N(i.y, i.x * -1), R.mkFromPoints([
 			e.add(i.mul(n / 2)),
 			e.sub(i.mul(n / 2)),
 			t.sub(i.mul(r / 2)),
@@ -19297,7 +19304,7 @@ var Gd = class {
 		this.Radius = 0, this.BundleBases = /* @__PURE__ */ new Map(), this.MetroNodeInfos = [], this._cachedIdealRadius = 0, this.SerialNumber = e, this.IsReal = t, this.Position = n;
 	}
 	debStop() {
-		return this.SerialNumber === 28 && this.Position.sub(new j(841.2662778763244, 303.3817005853006)).length < .001;
+		return this.SerialNumber === 28 && this.Position.sub(new N(841.2662778763244, 303.3817005853006)).length < .001;
 	}
 	get Position() {
 		return this._Position;
@@ -19343,7 +19350,7 @@ var Gd = class {
 		for (let e of this.metroGraphData.VirtualStations()) e.Radius = Math.max(e.Radius, this.bundlingSettings.MinHubRadius);
 	}
 	GrowHubs(e) {
-		let t = new Js(D);
+		let t = new Js(k);
 		for (let n of this.metroGraphData.VirtualStations()) t.Enqueue(n, -this.CalculatePotential(n, e));
 		let n = !1;
 		for (; !t.IsEmpty();) {
@@ -19408,9 +19415,9 @@ var Gd = class {
 		return e.GetMinRadiusForTwoAdjacentBundlesNPPPNNB(t, r, i.Position, a.Position, c, l, s);
 	}
 	static GetMinRadiusForTwoAdjacentBundlesNPPPNNB(e, t, n, r, i, a, o) {
-		if (i < E.distanceEpsilon || a < E.distanceEpsilon) return e;
-		let s = j.anglePCP(n, t, r);
-		if (s = Math.min(s, Math.PI * 2 - s), s < E.distanceEpsilon) return 2 * o.MaxHubRadius;
+		if (i < O.distanceEpsilon || a < O.distanceEpsilon) return e;
+		let s = N.anglePCP(n, t, r);
+		if (s = Math.min(s, Math.PI * 2 - s), s < O.distanceEpsilon) return 2 * o.MaxHubRadius;
 		if (s >= Math.PI / 2) return e * 1.05;
 		let c = Math.sin(s), l = Math.cos(s), u = i / (4 * c), d = a / (4 * c), f = 2 * Math.sqrt(u * u + (d * d + 2 * (d * l * u)));
 		return f = Math.min(f, 2 * o.MaxHubRadius), f = Math.max(f, e), f;
@@ -19435,7 +19442,7 @@ var Gd = class {
 		}
 	}
 	static testPointInside(e, t) {
-		return wu.PointIsInsideOfTriangle(e, t) ? U.Stop : U.Continue;
+		return wu.PointIsInsideOfTriangle(e, t) ? W.Stop : W.Continue;
 	}
 }, ef = class {
 	constructor() {
@@ -19535,7 +19542,7 @@ var Gd = class {
 		for (let e of this.regularEdges) this.SimplifyRegularEdge(e);
 	}
 	SimplifyRegularEdge(e) {
-		let t = e.curve, n = new H.Stack(), r = new G();
+		let t = e.curve, n = new U.Stack(), r = new Fa();
 		for (let e = t.endPoint; e != null; e = e.prev) {
 			let t = e.point;
 			if (r.has(e.point)) {
@@ -19593,7 +19600,7 @@ var Gd = class {
 		return e.SerialNumber < t.SerialNumber ? this.GetCreateOrderedIjInfo(e, t) : this.GetCreateOrderedIjInfo(t, e);
 	}
 	static closedeb(e, t) {
-		return e.Position.sub(new j(360.561, 428.416)).length < .1 && t.Position.sub(new j(414.281, 440.732)).length < .1;
+		return e.Position.sub(new N(360.561, 428.416)).length < .1 && t.Position.sub(new N(414.281, 440.732)).length < .1;
 	}
 	GetCreateOrderedIjInfo(e, t) {
 		let n = this.edgeInfoDictionary.get(e, t);
@@ -19633,13 +19640,13 @@ var Gd = class {
 		let t = this.PointToStations.get(e);
 		if (this.cachedEnterableLooseForEnd.has(e)) t.setELP(this.cachedEnterableLooseForEnd.get(e));
 		else {
-			for (let n of this.LooseTree.AllHitItems_(e)) I.PointRelativeToCurveLocation(e, n) === F.Inside && t.AddEnterableLoosePolyline(n);
+			for (let n of this.LooseTree.AllHitItems_(e)) L.PointRelativeToCurveLocation(e, n) === I.Inside && t.AddEnterableLoosePolyline(n);
 			this.cachedEnterableLooseForEnd.set(e, t.getELP());
 		}
 	}
 	AddTightEnterableForEnd(e) {
 		let t = this.PointToStations.get(e);
-		for (let n of this.TightTree.AllHitItems_(e)) I.PointRelativeToCurveLocation(e, n) === F.Inside && t.AddEnterableTightPolyline(n);
+		for (let n of this.TightTree.AllHitItems_(e)) L.PointRelativeToCurveLocation(e, n) === I.Inside && t.AddEnterableTightPolyline(n);
 	}
 	InitNodeEnterableTightPolylines(e, t) {
 		let n = this.EdgeTightEnterable == null ? /* @__PURE__ */ new Set() : this.EdgeTightEnterable.get(t);
@@ -19674,15 +19681,15 @@ var Gd = class {
 	PointIsAcceptableForEdge(e, t) {
 		if (this.LoosePolylineOfPort == null) return !0;
 		let n = e.sourceAndTargetLoosePolylines();
-		return I.PointRelativeToCurveLocation(t, n[0]) === F.Outside && I.PointRelativeToCurveLocation(t, n[1]) === F.Outside;
+		return L.PointRelativeToCurveLocation(t, n[0]) === I.Outside && L.PointRelativeToCurveLocation(t, n[1]) === I.Outside;
 	}
 };
 function nf(e, t, n) {
-	let r = j.crossProduct(e, n), i = e.dot(n), a = j.crossProduct(e, t), o = e.dot(t);
-	return O(a, 0) && rf(o, 0) ? O(r, 0) && rf(i, 0) ? 0 : 1 : O(r, 0) && rf(i, 0) ? -1 : O(a, 0) || O(r, 0) || a * r > 0 ? ta(j.crossProduct(n, t), 0) : -ta(Math.sign(a), 0);
+	let r = N.crossProduct(e, n), i = e.dot(n), a = N.crossProduct(e, t), o = e.dot(t);
+	return A(a, 0) && rf(o, 0) ? A(r, 0) && rf(i, 0) ? 0 : 1 : A(r, 0) && rf(i, 0) ? -1 : A(a, 0) || A(r, 0) || a * r > 0 ? $i(N.crossProduct(n, t), 0) : -$i(Math.sign(a), 0);
 }
 function rf(e, t) {
-	return ta(e, t) >= 0;
+	return $i(e, t) >= 0;
 }
 //#endregion
 //#region ../node_modules/@msagl/core/dist/routing/spline/bundling/CostCalculator.js
@@ -19738,7 +19745,7 @@ var af = class e {
 	}
 	RadiusCost(t, n) {
 		let r;
-		r = j.closeDistEps(t.Position, n) ? t.cachedIdealRadius : Qd.CalculateIdealHubRadiusWithNeighborsMBNP(this.metroGraphData, this.bundlingSettings, t, n);
+		r = N.closeDistEps(t.Position, n) ? t.cachedIdealRadius : Qd.CalculateIdealHubRadiusWithNeighborsMBNP(this.metroGraphData, this.bundlingSettings, t, n);
 		let i = { touchedObstacles: [] };
 		if (!this.metroGraphData.looseIntersections.HubAvoidsObstaclesSPNBA(t, n, r, i)) return e.Inf;
 		let a = 0;
@@ -19776,7 +19783,7 @@ var of = class {
 		return Array.from(this.polylineToEdgeGeom.keys());
 	}
 	constructor(e) {
-		this.polylineToEdgeGeom = /* @__PURE__ */ new Map(), this.pathsThroughPoints = new Ho(), this.interestingPoints = new G(), this.metroGraphData = e;
+		this.polylineToEdgeGeom = /* @__PURE__ */ new Map(), this.pathsThroughPoints = new Ho(), this.interestingPoints = new Fa(), this.metroGraphData = e;
 	}
 	Run() {
 		this.Init(), this.SwitchFlips();
@@ -19894,7 +19901,7 @@ var of = class {
 	ChangePolylineSegment(e, t, n, r) {
 		let i = e;
 		for (let e of r) {
-			let t = na.mkFromPoint(e.point);
+			let t = ea.mkFromPoint(e.point);
 			t.polyline = i.polyline, n ? (t.prev = i, i.next = t) : (t.next = i, i.prev = t), i = t;
 		}
 		n ? (i.next = t, t.prev = i) : (i.prev = t, t.next = i);
@@ -19917,7 +19924,7 @@ var of = class {
 		return this.numberOfReducedCrossings;
 	}
 	PolylineIsOK(e) {
-		let t = new G();
+		let t = new Fa();
 		for (let n = e.startPoint; n != null; n = n.next) {
 			if (n === e.startPoint) {
 				if (n.prev != null) return !1;
@@ -19943,7 +19950,7 @@ function cf(e, t, n) {
 //#region ../node_modules/@msagl/core/dist/routing/spline/bundling/PathFixer.js
 var lf = class e {
 	constructor(e, t) {
-		this.foundCrossings = new G(), this.crossingsThatShouldBecomeHubs = new G(), this.metroGraphData = e, this.polylineAcceptsPoint = t;
+		this.foundCrossings = new Fa(), this.crossingsThatShouldBecomeHubs = new Fa(), this.metroGraphData = e, this.polylineAcceptsPoint = t;
 	}
 	*Vertices() {
 		for (let e of this.Polylines) for (let t of e.polylinePoints()) yield t;
@@ -19953,17 +19960,17 @@ var lf = class e {
 	}
 	Edges() {
 		let e = new lc();
-		for (let t of this.Vertices()) t.next && e.set(new Fa(t.point, t.next.point), 0);
+		for (let t of this.Vertices()) t.next && e.set(new Pa(t.point, t.next.point), 0);
 		return Array.from(e.keys());
 	}
 	run() {
 		if (this.metroGraphData.Edges.length === 0) return !1;
 		let e = new lc(), t = new yo(null);
 		for (let e of this.Vertices()) {
-			let n = R.mkOnPoints([e.point]);
-			n.pad(E.intersectionEpsilon), t.Add(n, e.point);
+			let n = z.mkOnPoints([e.point]);
+			n.pad(O.intersectionEpsilon), t.Add(n, e.point);
 		}
-		let n = Aa(this.Edges(), (e) => R.mkPP(e.first, e.second));
+		let n = ka(this.Edges(), (e) => z.mkPP(e.first, e.second));
 		ys(n, n, (n, r) => this.IntersectTwoEdges.bind(n, r, e, t)), this.SortInsertedPoints(e);
 		let r = this.InsertPointsIntoPolylines(e), i = this.FixPaths(), a = this.RemoveUnimportantCrossings();
 		return i || r || a;
@@ -19976,7 +19983,7 @@ var lf = class e {
 		for (let t of e) this.SortInsideSegment(t[0], t[1]);
 	}
 	SortInsideSegment(e, t) {
-		t.sort((t, n) => D(A(t, e.first), A(n, e.first)));
+		t.sort((t, n) => k(M(t, e.first), M(n, e.first)));
 	}
 	InsertPointsIntoPolylines(e) {
 		let t = !1;
@@ -19988,17 +19995,17 @@ var lf = class e {
 		return n;
 	}
 	InsertPointsOnPolypoint(e, t, n) {
-		let r = new Fa(e.point, e.next.point), i = e.point !== r.first, a = t.get(r);
+		let r = new Pa(e.point, e.next.point), i = e.point !== r.first, a = t.get(r);
 		if (!a) return !1;
 		let o = e.next, s = e.polyline;
 		if (i) for (let t = a.length - 1; t >= 0; t--) {
 			if (this.polylineAcceptsPoint != null && !this.polylineAcceptsPoint(n, a[t])) continue;
-			let r = na.mkFromPoint(a[t]);
+			let r = ea.mkFromPoint(a[t]);
 			r.prev = e, r.polyline = s, e.next = r, e = r;
 		}
 		else for (let t = 0; t < a.length; t++) {
 			if (this.polylineAcceptsPoint != null && !this.polylineAcceptsPoint(n, a[t])) continue;
-			let r = na.mkFromPoint(a[t]);
+			let r = ea.mkFromPoint(a[t]);
 			r.prev = e, r.polyline = s, e.next = r, e = r;
 		}
 		return e.next = o, o.prev = e, !0;
@@ -20033,14 +20040,14 @@ var lf = class e {
 	}
 	RemoveUnimportantCrossingsFromPolyline(e) {
 		let t = !1;
-		for (let n = e.startPoint.next; n != null && n.next != null; n = n.next) if (this.pointsToDelete.has(n.point) && j.getTriangleOrientation(n.prev.point, n.point, n.next.point) === k.Collinear) {
+		for (let n = e.startPoint.next; n != null && n.next != null; n = n.next) if (this.pointsToDelete.has(n.point) && N.getTriangleOrientation(n.prev.point, n.point, n.next.point) === j.Collinear) {
 			let e = n.prev, r = n.next;
 			e.next = r, r.prev = e, n = e, t = !0;
 		}
 		return t;
 	}
 	IntersectTwoEdges(e, t, n, r) {
-		let i = N.IntersectPPPP(e.first, e.second, t.first, t.second);
+		let i = P.IntersectPPPP(e.first, e.second, t.first, t.second);
 		if (i) {
 			let a = this.FindExistingVertexOrCreateNew(r, i);
 			(this.AddVertexToSplittingList(e, n, a) || this.AddVertexToSplittingList(t, n, a)) && this.foundCrossings.add(a);
@@ -20049,11 +20056,11 @@ var lf = class e {
 	FindExistingVertexOrCreateNew(e, t) {
 		let n = e.RootNode.FirstHitNode(t);
 		if (n != null) return n.UserData;
-		let r = R.mkOnPoints([t]);
-		return r.pad(E.intersectionEpsilon), e.Add(r, t), t;
+		let r = z.mkOnPoints([t]);
+		return r.pad(O.intersectionEpsilon), e.Add(r, t), t;
 	}
 	AddVertexToSplittingList(e, t, n) {
-		if (!I.closeIntersectionPoints(n, e.first) && !I.closeIntersectionPoints(n, e.second)) {
+		if (!L.closeIntersectionPoints(n, e.first) && !L.closeIntersectionPoints(n, e.second)) {
 			let r = t.get(e);
 			if (r || (r = [], t.set(e, r)), !r.find((e) => e.equal(n))) return r.push(n), !0;
 		}
@@ -20061,7 +20068,7 @@ var lf = class e {
 	}
 }, uf = class {
 	isCorrectlyOrienected() {
-		return j.getTriangleOrientation(this.Curve.boundingBox.center, this.Curve.value(this.parEnd), this.Curve.value(this.parStart)) !== k.Counterclockwise;
+		return N.getTriangleOrientation(this.Curve.boundingBox.center, this.Curve.value(this.parEnd), this.Curve.value(this.parStart)) !== j.Counterclockwise;
 	}
 	get Count() {
 		return this.points.length;
@@ -20106,13 +20113,13 @@ var lf = class e {
 		return (this.parStart + this.parEnd) / 2;
 	}
 	get MidPoint() {
-		return j.middle(this.StartPoint, this.EndPoint);
+		return N.middle(this.StartPoint, this.EndPoint);
 	}
 	get Span() {
 		return this.SpanBetweenTwoParameters(this.parStart, this.parEnd);
 	}
 	SpanBetweenTwoParameters(e, t) {
-		return e <= t ? t - e : t - e + Ca(this.Curve);
+		return e <= t ? t - e : t - e + Sa(this.Curve);
 	}
 	RotateLeftPoint(e, t) {
 		return e === 0 ? this.EndPoint : this.RotatePoint(e, this.parEnd, t);
@@ -20121,22 +20128,22 @@ var lf = class e {
 		return e === 0 ? this.StartPoint : this.RotatePoint(e, this.parStart, t);
 	}
 	RotatePoint(e, t, n) {
-		let r = Ca(this.Curve) * n;
+		let r = Sa(this.Curve) * n;
 		return t += e * r, t = this.AdjustParam(t), this.Curve.value(t);
 	}
 	AdjustParam(e) {
 		return e > this.Curve.parEnd ? e = this.Curve.parStart + (e - this.Curve.parEnd) : e < this.Curve.parStart && (e = this.Curve.parEnd - (this.Curve.parStart - e)), e;
 	}
 	RotateBy(e, t, n) {
-		let r = Ca(this.Curve) * n;
+		let r = Sa(this.Curve) * n;
 		e !== 0 && (this.ParStart = this.AdjustParam(this.ParStart + e * r)), t !== 0 && (this.ParEnd = this.AdjustParam(this.ParEnd + t * r));
 	}
 	RelativeOrderOfBasesIsPreserved(e, t, n) {
-		let r = Ca(this.Curve) * n, i = this.parStart + e * r, a = this.parStart < this.parEnd ? this.parEnd + t * r : this.parEnd + Ca(this.Curve) + t * r;
-		if (i > a || this.SpanBetweenTwoParameters(i, a) > Ca(this.Curve) / 2) return !1;
+		let r = Sa(this.Curve) * n, i = this.parStart + e * r, a = this.parStart < this.parEnd ? this.parEnd + t * r : this.parEnd + Sa(this.Curve) + t * r;
+		if (i > a || this.SpanBetweenTwoParameters(i, a) > Sa(this.Curve) / 2) return !1;
 		if (this.Prev == null || this.SpanBetweenTwoParameters(this.Prev.ParMid, this.ParMid) > r && this.SpanBetweenTwoParameters(this.ParMid, this.Next.ParMid) > r) return !0;
-		let o = this.RotateLeftPoint(t, n), s = this.RotateRigthPoint(e, n), c = j.middle(o, s), l = this.MidPoint;
-		return !(j.getTriangleOrientation(this.CurveCenter, this.Prev.MidPoint, l) != j.getTriangleOrientation(this.CurveCenter, this.Prev.MidPoint, c) || j.getTriangleOrientation(this.CurveCenter, this.Next.MidPoint, l) != j.getTriangleOrientation(this.CurveCenter, this.Next.MidPoint, c));
+		let o = this.RotateLeftPoint(t, n), s = this.RotateRigthPoint(e, n), c = N.middle(o, s), l = this.MidPoint;
+		return !(N.getTriangleOrientation(this.CurveCenter, this.Prev.MidPoint, l) != N.getTriangleOrientation(this.CurveCenter, this.Prev.MidPoint, c) || N.getTriangleOrientation(this.CurveCenter, this.Next.MidPoint, l) != N.getTriangleOrientation(this.CurveCenter, this.Next.MidPoint, c));
 	}
 }, df = class e {
 	constructor(e, t, n, r) {
@@ -20153,17 +20160,17 @@ var lf = class e {
 	}
 	CalculateTightObstaclesForBundle(e, t) {
 		let n = this.SourceBase.Curve.boundingBox.diagonal / 2, r = this.TargetBase.Curve.boundingBox.diagonal / 2, i = qd.Create4gon(this.SourceBase.Position, this.TargetBase.Position, n * 2, r * 2);
-		this.tightObstaclesInTheBoundingBox = Array.from(e.AllHitItems(i.boundingBox, (e) => !t.has(e) && I.ClosedCurveInteriorsIntersect(i, e)));
+		this.tightObstaclesInTheBoundingBox = Array.from(e.AllHitItems(i.boundingBox, (e) => !t.has(e) && L.ClosedCurveInteriorsIntersect(i, e)));
 	}
 	SetEndParamsSymmetrically() {
-		let t = this.TargetBase.Position, n = this.SourceBase.Position, r = t.sub(n).normalize(), i = r.rotate90Ccw(), a = j.middle(t, n), o = r.mul(this.longEnoughSideLength), s = a.add(o), c = a.sub(o);
+		let t = this.TargetBase.Position, n = this.SourceBase.Position, r = t.sub(n).normalize(), i = r.rotate90Ccw(), a = N.middle(t, n), o = r.mul(this.longEnoughSideLength), s = a.add(o), c = a.sub(o);
 		if (this.SetRLParamsIfWidthIsFeasible(i.mul(this.TotalRequiredWidth / 2), s, c)) {
 			this.SetInitialMidParams();
 			return;
 		}
 		let l = this.TotalRequiredWidth, u = 0, d = l / 2;
 		for (; l - u > e.FeasibleWidthEpsilon;) this.SetRLParamsIfWidthIsFeasible(i.mul(d / 2), s, c) ? u = d : l = d, d = .5 * (l + u);
-		d <= e.FeasibleWidthEpsilon && (this.SetRLParamsIfWidthIsFeasible_(i.mul(e.FeasibleWidthEpsilon), new j(0, 0), s, c) || this.SetRLParamsIfWidthIsFeasible_(new j(0, 0), i.mul(-e.FeasibleWidthEpsilon), s, c)) && (d = 2 * e.FeasibleWidthEpsilon), this.SourceBase.InitialMidParameter = this.SourceBase.AdjustParam(this.SourceBase.ParStart + this.SourceBase.Span / 2), this.TargetBase.InitialMidParameter = this.TargetBase.AdjustParam(this.TargetBase.ParStart + this.TargetBase.Span / 2);
+		d <= e.FeasibleWidthEpsilon && (this.SetRLParamsIfWidthIsFeasible_(i.mul(e.FeasibleWidthEpsilon), new N(0, 0), s, c) || this.SetRLParamsIfWidthIsFeasible_(new N(0, 0), i.mul(-e.FeasibleWidthEpsilon), s, c)) && (d = 2 * e.FeasibleWidthEpsilon), this.SourceBase.InitialMidParameter = this.SourceBase.AdjustParam(this.SourceBase.ParStart + this.SourceBase.Span / 2), this.TargetBase.InitialMidParameter = this.TargetBase.AdjustParam(this.TargetBase.ParStart + this.TargetBase.Span / 2);
 	}
 	mkNameFromLRST() {
 		return "./tmp/leftRight" + this.SourceBase.Position.toString() + "_" + this.TargetBase.Position.toString() + ".svg";
@@ -20172,23 +20179,23 @@ var lf = class e {
 		return this.SetRLParamsIfWidthIsFeasible_(e, e.neg(), t, n);
 	}
 	SetRLParamsIfWidthIsFeasible_(e, t, n, r) {
-		let i = { par: 0 }, a = { par: 0 }, o = { par: 0 }, s = { par: 0 }, c = this.TrimSegWithBoundaryCurves(N.mkPP(n.add(e), r.add(e)), a, o);
-		return c == null || this.tightObstaclesInTheBoundingBox.find((e) => I.intersectionOne(c, e, !1) != null) || (c = this.TrimSegWithBoundaryCurves(N.mkPP(n.add(t), r.add(t)), s, i), c == null) || this.tightObstaclesInTheBoundingBox.find((e) => I.intersectionOne(c, e, !1) != null) ? !1 : (this.SourceBase.IsParent ? (this.SourceBase.ParStart = a.par, this.SourceBase.ParEnd = s.par) : (this.SourceBase.ParStart = s.par, this.SourceBase.ParEnd = a.par), this.TargetBase.IsParent ? (this.TargetBase.ParStart = i.par, this.TargetBase.ParEnd = o.par) : (this.TargetBase.ParStart = o.par, this.TargetBase.ParEnd = i.par), !0);
+		let i = { par: 0 }, a = { par: 0 }, o = { par: 0 }, s = { par: 0 }, c = this.TrimSegWithBoundaryCurves(P.mkPP(n.add(e), r.add(e)), a, o);
+		return c == null || this.tightObstaclesInTheBoundingBox.find((e) => L.intersectionOne(c, e, !1) != null) || (c = this.TrimSegWithBoundaryCurves(P.mkPP(n.add(t), r.add(t)), s, i), c == null) || this.tightObstaclesInTheBoundingBox.find((e) => L.intersectionOne(c, e, !1) != null) ? !1 : (this.SourceBase.IsParent ? (this.SourceBase.ParStart = a.par, this.SourceBase.ParEnd = s.par) : (this.SourceBase.ParStart = s.par, this.SourceBase.ParEnd = a.par), this.TargetBase.IsParent ? (this.TargetBase.ParStart = i.par, this.TargetBase.ParEnd = o.par) : (this.TargetBase.ParStart = o.par, this.TargetBase.ParEnd = i.par), !0);
 	}
 	SetInitialMidParams() {
 		let e = { par: 0 }, t = { par: 0 };
-		this.TrimSegWithBoundaryCurves(N.mkPP(this.TargetBase.CurveCenter, this.TargetBase.CurveCenter), t, e) == null ? (this.SourceBase.InitialMidParameter = this.SourceBase.AdjustParam(this.SourceBase.ParStart + this.SourceBase.Span / 2), this.TargetBase.InitialMidParameter = this.TargetBase.AdjustParam(this.TargetBase.ParStart + this.TargetBase.Span / 2)) : (this.SourceBase.InitialMidParameter = t.par, this.TargetBase.InitialMidParameter = e.par);
+		this.TrimSegWithBoundaryCurves(P.mkPP(this.TargetBase.CurveCenter, this.TargetBase.CurveCenter), t, e) == null ? (this.SourceBase.InitialMidParameter = this.SourceBase.AdjustParam(this.SourceBase.ParStart + this.SourceBase.Span / 2), this.TargetBase.InitialMidParameter = this.TargetBase.AdjustParam(this.TargetBase.ParStart + this.TargetBase.Span / 2)) : (this.SourceBase.InitialMidParameter = t.par, this.TargetBase.InitialMidParameter = e.par);
 	}
 	mkNameFromST() {
 		return "./tmp/mparam" + this.SourceBase.Position.toString() + "_" + this.TargetBase.Position.toString() + ".svg";
 	}
 	TrimSegWithBoundaryCurves(e, t, n) {
-		let r = I.getAllIntersections(e, this.SourceBase.Curve, !0);
+		let r = L.getAllIntersections(e, this.SourceBase.Curve, !0);
 		if (r.length === 0) return n.par = 0, t.par = 0, null;
 		let i;
-		if (i = r.length === 1 ? r[0] : this.SourceBase.IsParent ? r[0].par0 < r[1].par0 ? r[1] : r[0] : r[0].par0 < r[1].par0 ? r[0] : r[1], r = I.getAllIntersections(e, this.TargetBase.Curve, !0), r.length === 0) return n.par = 0, t.par = 0, null;
+		if (i = r.length === 1 ? r[0] : this.SourceBase.IsParent ? r[0].par0 < r[1].par0 ? r[1] : r[0] : r[0].par0 < r[1].par0 ? r[0] : r[1], r = L.getAllIntersections(e, this.TargetBase.Curve, !0), r.length === 0) return n.par = 0, t.par = 0, null;
 		let a;
-		return a = r.length === 1 ? r[0] : this.TargetBase.IsParent ? r[0].par0 > r[1].par0 ? r[1] : r[0] : r[0].par0 > r[1].par0 ? r[0] : r[1], t.par = i.par1, n.par = a.par1, N.mkPP(i.x, a.x);
+		return a = r.length === 1 ? r[0] : this.TargetBase.IsParent ? r[0].par0 > r[1].par0 ? r[1] : r[0] : r[0].par0 > r[1].par0 ? r[0] : r[1], t.par = i.par1, n.par = a.par1, P.mkPP(i.x, a.x);
 	}
 	RotateBy(e, t, n, r, i) {
 		let a = e !== 0 || t !== 0, o = n !== 0 || r !== 0;
@@ -20201,11 +20208,11 @@ var lf = class e {
 		let e = this.TargetBase.length;
 		for (let t = 0; t < e; t++) {
 			let n = this.TargetBase.Points[t].sub(this.SourceBase.Points[e - 1 - t]), r = n.length;
-			r >= E.tolerance && (n = n.div(r), this.TargetBase.Tangents[t] = n, this.SourceBase.Tangents[e - 1 - t] = n.neg());
+			r >= O.tolerance && (n = n.div(r), this.TargetBase.Tangents[t] = n, this.SourceBase.Tangents[e - 1 - t] = n.neg());
 		}
 	}
 	UpdatePointsOnBundleBase(e) {
-		let t = e.length, n = e.Points, r = N.mkPP(e.EndPoint, e.StartPoint), i = 1 / this.TotalRequiredWidth, a = this.HalfWidthArray[0];
+		let t = e.length, n = e.Points, r = P.mkPP(e.EndPoint, e.StartPoint), i = 1 / this.TotalRequiredWidth, a = this.HalfWidthArray[0];
 		n[0] = r.value(a * i);
 		for (let e = 1; e < t; e++) a += this.HalfWidthArray[e - 1] + this.HalfWidthArray[e], n[e] = r.value(a * i);
 	}
@@ -20232,7 +20239,7 @@ var lf = class e {
 		return !((e !== 0 || t !== 0) && !this.SourceBase.RelativeOrderOfBasesIsPreserved(e, t, i) || (n !== 0 || r !== 0) && !this.TargetBase.RelativeOrderOfBasesIsPreserved(n, r, i));
 	}
 	LineIsLegal(e, t) {
-		return this.tightObstaclesInTheBoundingBox.find((n) => I.intersectionOne(N.mkPP(e, t), n, !1) != null) == null;
+		return this.tightObstaclesInTheBoundingBox.find((n) => L.intersectionOne(P.mkPP(e, t), n, !1) != null) == null;
 	}
 };
 df.FeasibleWidthEpsilon = .1;
@@ -20260,12 +20267,12 @@ var ff = class {
 	}
 	AllocateBundleBases() {
 		this.externalBases = /* @__PURE__ */ new Map(), this.internalBases = /* @__PURE__ */ new Map(), this.Bundles = [];
-		for (let e of this.metroGraphData.Stations) e.BoundaryCurve ??= P.mkCircle(e.Radius, e.Position);
+		for (let e of this.metroGraphData.Stations) e.BoundaryCurve ??= F.mkCircle(e.Radius, e.Position);
 		for (let e of this.metroGraphData.Stations) for (let t of e.Neighbors) if (e.SerialNumber < t.SerialNumber) {
 			let n = new uf(this.metroGraphData.RealEdgeCount(e, t), e.BoundaryCurve, e.Position, e.IsReal);
 			e.BundleBases.set(t, n);
 			let r = new uf(this.metroGraphData.RealEdgeCount(e, t), t.BoundaryCurve, t.Position, t.IsReal);
-			t.BundleBases.set(e, r), I.PointRelativeToCurveLocation(t.Position, e.BoundaryCurve) === F.Outside ? I.PointRelativeToCurveLocation(e.Position, t.BoundaryCurve) === F.Outside ? (Ka(this.externalBases, e, n), Ka(this.externalBases, t, r)) : (r.IsParent = !0, Ka(this.externalBases, e, n), Ka(this.internalBases, t, r)) : (n.IsParent = !0, Ka(this.internalBases, e, n), Ka(this.externalBases, t, r));
+			t.BundleBases.set(e, r), L.PointRelativeToCurveLocation(t.Position, e.BoundaryCurve) === I.Outside ? L.PointRelativeToCurveLocation(e.Position, t.BoundaryCurve) === I.Outside ? (Ka(this.externalBases, e, n), Ka(this.externalBases, t, r)) : (r.IsParent = !0, Ka(this.externalBases, e, n), Ka(this.internalBases, t, r)) : (n.IsParent = !0, Ka(this.internalBases, e, n), Ka(this.externalBases, t, r));
 			let i = new df(n, r, this.metroGraphData.tightIntersections.ObstaclesToIgnoreForBundle(e, t), Array.from(this.metroOrdering.GetOrder(e, t)).map((e) => e.Width / 2));
 			n.OutgoingBundleInfo = r.IncomingBundleInfo = i, this.Bundles.push(i);
 		}
@@ -20312,11 +20319,11 @@ var ff = class {
 	}
 	GetBaseMiddleParamInDirection(e, t, n) {
 		let r = e.Curve;
-		if (r instanceof P) {
+		if (r instanceof F) {
 			let e = r;
-			if (e.isArc()) return j.angle(e.aAxis, n.sub(t));
+			if (e.isArc()) return N.angle(e.aAxis, n.sub(t));
 		}
-		let i = I.getAllIntersections(r, N.mkPP(t, n), !0);
+		let i = L.getAllIntersections(r, P.mkPP(t, n), !0);
 		for (let e of i) {
 			let r = e.x;
 			if (r.sub(t).dot(r.sub(n)) <= 0) return e.par0;
@@ -20339,13 +20346,13 @@ var ff = class {
 	}
 	ShrinkBasesToMakeTwoConsecutiveNeighborsHappy(e, t) {
 		let n = mf(e, t);
-		if (n == null || O(n.start, n.end)) return;
+		if (n == null || A(n.start, n.end)) return;
 		if (n.rbaseMiddle < n.lbaseMiddle) {
 			let n = e;
 			e = t, t = n;
 		}
 		let r = e.Span, i = t.Span, a = (n.end * r + n.start * i) / (i + r);
-		e.ParStart = e.AdjustParam(a + E.distanceEpsilon), t.ParEnd = t.AdjustParam(a - E.distanceEpsilon);
+		e.ParStart = e.AdjustParam(a + O.distanceEpsilon), t.ParEnd = t.AdjustParam(a - O.distanceEpsilon);
 	}
 	RegularCut(e, t, n, r, i, a) {
 		let o = (i * r + a * e) / (i + a), s = Math.min(t, r), c = Math.max(e, n);
@@ -20398,7 +20405,7 @@ var ff = class {
 	}
 	CenterCostBb(e) {
 		if (!e.BelongsToRealNode) return 0;
-		let t = e.ParMid, n = Math.min(e.InitialMidParameter, t), r = Math.max(e.InitialMidParameter, t), i = Math.min(r - n, n + (Ca(e.Curve) - r));
+		let t = e.ParMid, n = Math.min(e.InitialMidParameter, t), r = Math.max(e.InitialMidParameter, t), i = Math.min(r - n, n + (Sa(e.Curve) - r));
 		return e.CurveCenter.equal(e.Position) || e.IsParent ? i * i * 25 : i * i * 500;
 	}
 	AssymetryCost(e) {
@@ -20415,8 +20422,8 @@ var ff = class {
 	}
 	GetAssymetryCostOnData(e, t, n, r, i) {
 		let a = e.sub(n);
-		if (a.length < E.distanceEpsilon) return 0;
-		let o = t.add(r).dot(a), s = j.crossProduct(a, t), c = j.crossProduct(a, r), l = s - c, u = o * o + l * l, d = s * s + c * c;
+		if (a.length < O.distanceEpsilon) return 0;
+		let o = t.add(r).dot(a), s = N.crossProduct(a, t), c = N.crossProduct(a, r), l = s - c, u = o * o + l * l, d = s * s + c * c;
 		return 10 * u + i * d;
 	}
 	SeparationCost(e) {
@@ -20448,7 +20455,7 @@ var ff = class {
 };
 pf.Deltas = [[1, -1], [1, -1]], pf.SeparationCoeff = 1, pf.SqueezeCoeff = 1, pf.CenterCoeff = 10, pf.AssymetryCoeff = 1, pf.MaxIterations = 200, pf.MaxParameterChange = 8 / 360, pf.MinParameterChange = .1 / 360, pf.CostThreshold = 1e-5, pf.CostDeltaThreshold = .01;
 function mf(e, t) {
-	let n = Ca(e.Curve), r = e.ParEnd, i = e.ParStart < e.ParEnd ? e.ParStart : e.ParStart - n, a = t.ParEnd, o = t.ParStart < t.ParEnd ? t.ParStart : t.ParStart - n;
+	let n = Sa(e.Curve), r = e.ParEnd, i = e.ParStart < e.ParEnd ? e.ParStart : e.ParStart - n, a = t.ParEnd, o = t.ParStart < t.ParEnd ? t.ParStart : t.ParStart - n;
 	r > a ? r - o > n && (o += n, a += n) : a - i > n && (i += n, r += n);
 	let s = Math.min(r, a), c = Math.max(i, o);
 	return c <= s ? {
@@ -20472,18 +20479,18 @@ var hf = class {
 		this.Metrolines = e, this.BuildOrder();
 	}
 	*GetOrder(e, t) {
-		let n = new Fa(e.Position, t.Position), r = this.bundles.get(n).Metrolines;
+		let n = new Pa(e.Position, t.Position), r = this.bundles.get(n).Metrolines;
 		if (e.Position === n.first) for (let e = 0; e < r.length; e++) yield r[e];
 		else for (let e = r.length - 1; e >= 0; e--) yield r[e];
 	}
 	GetLineIndexInOrder(e, t, n) {
-		let r = new Fa(e.Position, t.Position), i = e.Position !== r.first, a = this.bundles.get(r).LineIndexInOrder;
+		let r = new Pa(e.Position, t.Position), i = e.Position !== r.first, a = this.bundles.get(r).LineIndexInOrder;
 		return i ? a.size - 1 - a.get(n) : a.get(n);
 	}
 	BuildOrder() {
 		this.bundles = new lc();
 		for (let e of this.Metrolines) for (let t = e.Polyline.startPoint; t.next != null; t = t.next) {
-			let n = new Fa(t.point, t.next.point), r = this.bundles.get(n);
+			let n = new Pa(t.point, t.next.point), r = this.bundles.get(n);
 			r || this.bundles.set(n, r = new hf()), r.Add(e);
 		}
 		for (let e of this.bundles) this.BuildOrderPP(e[0], e[1]);
@@ -20505,7 +20512,7 @@ var hf = class {
 		this.FindStationOnLine(r, i, n, a);
 		let l = a.polyPoint, u = a.next, d = a.prev, f = o, p = l, m, h;
 		for (; (h = c(f)) != null && (m = d(p)) != null && h.point.equal(m.point);) {
-			let e = new Fa(h.point, f.point);
+			let e = new Pa(h.point, f.point);
 			if (this.bundles.get(e).orderFixed) return this.CompareOnFixedOrder(e, t, n, !h.point.equal(e.first));
 			f = h, p = m;
 		}
@@ -20514,7 +20521,7 @@ var hf = class {
 			return -e.IsLeft(s(f).point.sub(t), h.point.sub(t), m.point.sub(t));
 		}
 		for (f = o, p = l; (h = s(f)) != null && (m = u(p)) != null && h.point.equal(m.point);) {
-			let e = new Fa(h.point, f.point);
+			let e = new Pa(h.point, f.point);
 			if (this.bundles.get(e).orderFixed) return this.CompareOnFixedOrder(e, t, n, !f.point.equal(e.first));
 			f = h, p = m;
 		}
@@ -20522,11 +20529,11 @@ var hf = class {
 			let t = f.point;
 			return e.IsLeft(c(f).point.sub(t), h.point.sub(t), m.point.sub(t));
 		}
-		return D(t.Index, n.Index);
+		return k(t.Index, n.Index);
 	}
 	CompareOnFixedOrder(e, t, n, r) {
 		let i = this.bundles.get(e).LineIndexInOrder;
-		return (r ? -1 : 1) * D(i.get(t), i.get(n));
+		return (r ? -1 : 1) * k(i.get(t), i.get(n));
 	}
 	FindStationOnLine(e, t, n, r) {
 		for (let i = n.Polyline.startPoint; i.next != null; i = i.next) {
@@ -20567,9 +20574,9 @@ var hf = class {
 		for (let e = 0; e < this.metroGraphData.Metrolines.length; e++) this.CreateCurveLine(this.metroGraphData.Metrolines[e], this.metroGraphData.Edges[e]);
 	}
 	CreateCurveLine(t, n) {
-		let r = new I(), i = e.FindCurveStart(this.metroGraphData, this.metroOrdering, t), a = e.HubSegsOfLine(this.metroGraphData, this.metroOrdering, t);
-		for (let e of a) e != null && (r.addSegment(N.mkPP(i, e.start)), r.addSegment(e), i = e.end);
-		r.addSegment(N.mkPP(i, e.FindCurveEnd(this.metroGraphData, this.metroOrdering, t))), n.curve = r;
+		let r = new L(), i = e.FindCurveStart(this.metroGraphData, this.metroOrdering, t), a = e.HubSegsOfLine(this.metroGraphData, this.metroOrdering, t);
+		for (let e of a) e != null && (r.addSegment(P.mkPP(i, e.start)), r.addSegment(e), i = e.end);
+		r.addSegment(P.mkPP(i, e.FindCurveEnd(this.metroGraphData, this.metroOrdering, t))), n.curve = r;
 	}
 	static FindCurveStart(e, t, n) {
 		let r = e.PointToStations.get(n.Polyline.startPoint.point), i = e.PointToStations.get(n.Polyline.startPoint.next.point), a = r.BundleBases.get(i), o = a.IsParent ? t.GetLineIndexInOrder(r, i, n) : t.GetLineIndexInOrder(i, r, n);
@@ -20586,7 +20593,7 @@ var hf = class {
 		let i = e.PointToStations.get(r.prev.point), a = e.PointToStations.get(r.point), o = a.BundleBases.get(i), s = t.GetLineIndexInOrder(i, a, n);
 		if (o.OrientedHubSegments[s] == null || o.OrientedHubSegments[s].Segment == null) {
 			let i = e.PointToStations.get(r.next.point), c = a.BundleBases.get(i), l = t.GetLineIndexInOrder(i, a, n);
-			return N.mkPP(o.Points[s], c.Points[l]);
+			return P.mkPP(o.Points[s], c.Points[l]);
 		}
 		return o.OrientedHubSegments[s].Segment;
 	}
@@ -20603,7 +20610,7 @@ var hf = class {
 	}
 	static ShowHubs(t, n, r, i, a = []) {
 		let o = e.GetAllDebugCurves(n, t);
-		r != null && o.push(Z.mkDebugCurveTWCI(255, 1, "red", Sa.mkDiamond(5, 25, r.Position))), o = o.concat(a);
+		r != null && o.push(Z.mkDebugCurveTWCI(255, 1, "red", xa.mkDiamond(5, 25, r.Position))), o = o.concat(a);
 	}
 	static GetAllDebugCurves(t, n) {
 		return e.GraphNodes(n).concat(e.VertexDebugCurves(t, n)).concat(e.DebugEdges(n));
@@ -20618,7 +20625,7 @@ var hf = class {
 		let r = [];
 		for (let i of n.Metrolines) {
 			let a = e.GetInterestingSegs(n, t, i), o = e.GetMonotoneColor(i.Polyline.start, i.Polyline.end, a);
-			for (let e of a) r.push(Z.mkDebugCurveTWCI(100, i.Width, o, N.mkPP(e[0], e[1])));
+			for (let e of a) r.push(Z.mkDebugCurveTWCI(100, i.Width, o, P.mkPP(e[0], e[1])));
 		}
 		return r;
 	}
@@ -20634,17 +20641,17 @@ var hf = class {
 	}
 	static DebugHubBases(e) {
 		let t = [];
-		for (let n of e.Stations) for (let e of n.BundleBases.values()) t.push(Z.mkDebugCurveTWCI(100, 1, "red", N.mkPP(e.EndPoint, e.StartPoint)));
+		for (let n of e.Stations) for (let e of n.BundleBases.values()) t.push(Z.mkDebugCurveTWCI(100, 1, "red", P.mkPP(e.EndPoint, e.StartPoint)));
 		return t;
 	}
 	static DebugCircles(e) {
-		return e.Stations.map((e) => Z.mkDebugCurveTWCI(100, .1, "blue", Sa.mkCircle(e.Radius, e.Position)));
+		return e.Stations.map((e) => Z.mkDebugCurveTWCI(100, .1, "blue", xa.mkCircle(e.Radius, e.Position)));
 	}
 	static DebugSegs(e) {
 		let t = [];
 		for (let n of e.VirtualStations()) for (let e of n.BundleBases.values()) for (let n of e.OrientedHubSegments) if (n != null) if (n.Segment == null) {
 			let r = n.Other.BundleBase, i = n.Index, a = n.Other.Index;
-			t.push(N.mkPP(e.Points[i], r.Points[a]));
+			t.push(P.mkPP(e.Points[i], r.Points[a]));
 		} else t.push(n.Segment);
 		return t.map((e) => Z.mkDebugCurveTWCI(100, .01, "green", e));
 	}
@@ -20653,38 +20660,38 @@ var hf = class {
 	}
 	static BiArc(t, n, r, i) {
 		let a = t.sub(r);
-		if (a.length < E.distanceEpsilon) return null;
+		if (a.length < O.distanceEpsilon) return null;
 		let o = a.dot(n.sub(i)), s = -n.dot(i);
 		if (n.dot(r.sub(t)) <= 0 && n.dot(i) <= 0) return e.StandardBezier(t, n, r, i);
 		let c = 2 * (s - 1), l = 2 * o, u = a.dot(a), d;
-		if (Math.abs(c) < E.distanceEpsilon) if (Math.abs(l) > E.distanceEpsilon) d = -u / l;
+		if (Math.abs(c) < O.distanceEpsilon) if (Math.abs(l) > O.distanceEpsilon) d = -u / l;
 		else return null;
 		else {
 			let e = l * l - 4 * c * u;
 			e < 0 && (e = 0), e = Math.sqrt(e), d = (-l + e) / (2 * c), d < 0 && (d = (-l - e) / (2 * c));
 		}
-		let f = t.add(n.mul(d)), p = r.add(i.mul(d)), m = j.middle(f, p);
-		if (j.getTriangleOrientation(t, f, m) !== j.getTriangleOrientation(m, p, r)) return e.StandardBezier(t, n, r, i);
-		let h = new I();
+		let f = t.add(n.mul(d)), p = r.add(i.mul(d)), m = N.middle(f, p);
+		if (N.getTriangleOrientation(t, f, m) !== N.getTriangleOrientation(m, p, r)) return e.StandardBezier(t, n, r, i);
+		let h = new L();
 		return h.addSegs([e.ArcOn(t, f, m), e.ArcOn(m, p, r)]), h;
 	}
 	static ArcOn(t, n, r) {
 		let i = { center: null };
-		if (Math.abs(j.signedDoubledTriangleArea(t, n, r)) < 1e-4 || !e.FindArcCenter(t, n, r, i)) return N.mkPP(t, r);
-		let a = i.center, o = A(t, a);
-		if (A(t, n) / o < 1e-4) return N.mkPP(t, r);
+		if (Math.abs(N.signedDoubledTriangleArea(t, n, r)) < 1e-4 || !e.FindArcCenter(t, n, r, i)) return P.mkPP(t, r);
+		let a = i.center, o = M(t, a);
+		if (M(t, n) / o < 1e-4) return P.mkPP(t, r);
 		let s = t.sub(a), c = Math.atan2(s.y, s.x), l = r.sub(a), u = Math.atan2(l.y, l.x), d = u - c;
-		if (d < 0 && (d += 2 * Math.PI, u += 2 * Math.PI), d <= Math.PI) return new P(c, u, new j(o, 0), new j(0, o), a);
+		if (d < 0 && (d += 2 * Math.PI, u += 2 * Math.PI), d <= Math.PI) return new F(c, u, new N(o, 0), new N(0, o), a);
 		for (u > 2 * Math.PI && (u -= 2 * Math.PI), c = Math.PI - c, u = Math.PI - u, c < 0 && (c += 2 * Math.PI); u < c;) u += 2 * Math.PI;
-		return d = u - c, new P(c, u, new j(-o, 0), new j(0, o), a);
+		return d = u - c, new F(c, u, new N(-o, 0), new N(0, o), a);
 	}
 	static FindArcCenter(e, t, n, r) {
 		let i = t.sub(e).rotate90Cw(), a = t.sub(n).rotate90Cw();
-		return r.center = j.lineLineIntersection(e, e.add(i), n, n.add(a)), r.center != null;
+		return r.center = N.lineLineIntersection(e, e.add(i), n, n.add(a)), r.center != null;
 	}
 	static StandardBezier(e, t, n, r) {
-		let i = A(e, n) / 4;
-		return fa.mkBezier([
+		let i = M(e, n) / 4;
+		return da.mkBezier([
 			e,
 			e.add(t.mul(i)),
 			n.add(r.mul(i)),
@@ -20705,9 +20712,9 @@ var hf = class {
 	}
 	FanCouple(e, t, n, r) {
 		let i = e.OrientedHubSegments[t], a = e.OrientedHubSegments[t + 1];
-		if (i == null || oa(i.Segment.start, i.Segment.end, a.Segment.start, a.Segment.end) || j.getTriangleOrientation(i.value(0), i.value(.5), i.value(1)) != j.getTriangleOrientation(a.value(0), a.value(.5), a.value(1))) return !1;
+		if (i == null || aa(i.Segment.start, i.Segment.end, a.Segment.start, a.Segment.end) || N.getTriangleOrientation(i.value(0), i.value(.5), i.value(1)) != N.getTriangleOrientation(a.value(0), a.value(.5), a.value(1))) return !1;
 		let o = this.BaseLength(i), s = this.BaseLength(a);
-		return Math.abs(o - s) < E.intersectionEpsilon ? !1 : o > s ? this.AdjustLongerSeg(i, a, n, r) : this.AdjustLongerSeg(a, i, n, r);
+		return Math.abs(o - s) < O.intersectionEpsilon ? !1 : o > s ? this.AdjustLongerSeg(i, a, n, r) : this.AdjustLongerSeg(a, i, n, r);
 	}
 	AdjustLongerSeg(e, t, n, r) {
 		let i = e.value(0).sub(t.value(0)), a = e.value(1).sub(t.value(1)), o = Math.min(i.length, a.length), s = t.value(.5), c = Math.max(i.length, a.length);
@@ -20719,18 +20726,18 @@ var hf = class {
 		let v = this.NicelyAligned(l, n, r, i, a, o);
 		do {
 			if (v === -1) {
-				let e = j.middle(l.B(1), p), t = j.middle(l.B(2), m);
-				h = l.B(1), g = l.B(2), l = new fa(u, e, t, d);
+				let e = N.middle(l.B(1), p), t = N.middle(l.B(2), m);
+				h = l.B(1), g = l.B(2), l = new da(u, e, t, d);
 			} else {
-				let e = j.middle(l.B(1), h), t = (l.B(2), g);
-				p = l.B(1), m = l.B(2), l = new fa(u, e, t, d);
+				let e = N.middle(l.B(1), h), t = (l.B(2), g);
+				p = l.B(1), m = l.B(2), l = new da(u, e, t, d);
 			}
 			if ((v = this.NicelyAligned(l, n, r, i, a, o)) === 0) return t.Segment = l, t.Other.Segment = l, !0;
 			if (f++ > 10) return !1;
 		} while (!0);
 	}
 	PullControlPointToTheCircle(e, t, n, r) {
-		let i = j.ProjectionToLine(e, t.highP, n), a = Math.sqrt(r * r - i.sub(n).lengthSquared), o = t.highP.sub(i), s = o.length;
+		let i = N.ProjectionToLine(e, t.highP, n), a = Math.sqrt(r * r - i.sub(n).lengthSquared), o = t.highP.sub(i), s = o.length;
 		s > a && (t.highP = i.add(o.mul(a / s)));
 	}
 	NicelyAligned(e, t, n, r, i, a) {
@@ -20773,12 +20780,12 @@ var vf = class e {
 		return !0;
 	}
 	static edgeIsPositionedCorrectly(e, t) {
-		let n = e[0], r = e[1], i = t.looseIntersections.ObstaclesToIgnoreForBundle(n, r), a = N.mkPP(n.Position, r.Position), o = Array.from(t.looseIntersections.obstacleTree.GetNodeItemsIntersectingRectangle(a.boundingBox)).filter((e) => !i.has(e)).filter((e) => I.CurvesIntersect(a, e));
+		let n = e[0], r = e[1], i = t.looseIntersections.ObstaclesToIgnoreForBundle(n, r), a = P.mkPP(n.Position, r.Position), o = Array.from(t.looseIntersections.obstacleTree.GetNodeItemsIntersectingRectangle(a.boundingBox)).filter((e) => !i.has(e)).filter((e) => L.CurvesIntersect(a, e));
 		return o.length > 0 ? (_f.ShowHubs(t, null, null, "./tmp/badcross.svg", [
 			Z.mkDebugCurveTWCI(200, 1, "Brown", a),
-			Z.mkDebugCurveTWCI(200, 1, "Red", Sa.mkCircle(2, n.Position)),
-			Z.mkDebugCurveTWCI(200, 1, "Blue", Sa.mkCircle(5, r.Position)),
-			Z.mkDebugCurveTWCI(100, 1, "Blue", Sa.mkCircle(5, r.Position))
+			Z.mkDebugCurveTWCI(200, 1, "Red", xa.mkCircle(2, n.Position)),
+			Z.mkDebugCurveTWCI(200, 1, "Blue", xa.mkCircle(5, r.Position)),
+			Z.mkDebugCurveTWCI(100, 1, "Blue", xa.mkCircle(5, r.Position))
 		].concat(o.map((e) => Z.mkDebugCurveTWCI(100, 1, "Pink", e)))), !1) : !0;
 	}
 	GetStationsForOptimizations(e) {
@@ -20818,7 +20825,7 @@ var vf = class e {
 		return this.metroGraphData.PointToStations.has(a) || !this.moveIsLegalForAdjacentBundles(t, a) ? !1 : (this.metroGraphData.MoveNode(t, a), this.cache.UpdateCostCache(t), !0);
 	}
 	moveIsLegalForAdjacentBundles(e, t) {
-		for (let n of this.metroGraphData.looseIntersections.obstacleTree.AllHitItems(R.mkOnPoints([t]), (e) => I.PointRelativeToCurveLocation(t, e) !== F.Outside)) if (e.getELP().has(n) === !1) return !1;
+		for (let n of this.metroGraphData.looseIntersections.obstacleTree.AllHitItems(z.mkOnPoints([t]), (e) => L.PointRelativeToCurveLocation(t, e) !== I.Outside)) if (e.getELP().has(n) === !1) return !1;
 		for (let n of e.Neighbors) {
 			let r = this.metroGraphData.looseIntersections.ObstaclesToIgnoreForBundle(n, e);
 			if (!this.metroGraphData.cdtIntersections.EdgeIsLegal_(n.Position, t, n.cdtTriangle, r)) return !1;
@@ -20827,7 +20834,7 @@ var vf = class e {
 	}
 	BuildDirection(e) {
 		let t = this.BuildForceForInk(e), n = this.BuildForceForPathLengths(e), r = this.BuildForceForRadius(e), i = this.BuildForceForBundle(e), a = t.add(n.add(r.add(i)));
-		return a.length < .1 ? new j(0, 0) : a.normalize();
+		return a.length < .1 ? new N(0, 0) : a.normalize();
 	}
 	BuildStepLength(t, n) {
 		let r = e.MinStep, i = this.CostGain(t, t.Position.add(n.mul(r)));
@@ -20848,7 +20855,7 @@ var vf = class e {
 		return r + a + o + i;
 	}
 	BuildForceForInk(e) {
-		let t = new j(0, 0);
+		let t = new N(0, 0);
 		for (let n of e.Neighbors) {
 			let r = n.Position.sub(e.Position);
 			t = t.add(r.normalize());
@@ -20856,7 +20863,7 @@ var vf = class e {
 		return t.mul(this.bundlingSettings.InkImportance);
 	}
 	BuildForceForPathLengths(e) {
-		let t = new j(0, 0);
+		let t = new N(0, 0);
 		for (let n of this.metroGraphData.MetroNodeInfosOfNode(e)) {
 			let r = n.Metroline, i = n.PolyPoint.next.point, a = n.PolyPoint.prev.point, o = i.sub(e.Position), s = a.sub(e.Position);
 			t = t.add(o.div(o.length * r.IdealLength)), t = t.add(s.div(s.length * r.IdealLength));
@@ -20864,8 +20871,8 @@ var vf = class e {
 		return t.mul(this.bundlingSettings.PathLengthImportance);
 	}
 	BuildForceForRadius(e) {
-		let t = new j(0, 0), n = e.cachedIdealRadius, r = { touchedObstacles: [] };
-		if (!this.metroGraphData.looseIntersections.HubAvoidsObstaclesSPNBA(e, e.Position, n, r)) throw _f.ShowHubs(this.metroGraphData, null, e, "./tmp/hubs.svg", [Z.mkDebugCurveTWCI(255, 1, "Brown", qd.containingPoly), Z.mkDebugCurveTWCI(100, 1, "Blue", Sa.mkCircle(n, e.Position))]), Error();
+		let t = new N(0, 0), n = e.cachedIdealRadius, r = { touchedObstacles: [] };
+		if (!this.metroGraphData.looseIntersections.HubAvoidsObstaclesSPNBA(e, e.Position, n, r)) throw _f.ShowHubs(this.metroGraphData, null, e, "./tmp/hubs.svg", [Z.mkDebugCurveTWCI(255, 1, "Brown", qd.containingPoly), Z.mkDebugCurveTWCI(100, 1, "Blue", xa.mkCircle(n, e.Position))]), Error();
 		for (let i of r.touchedObstacles) {
 			let r = 2 * (1 - i[1].sub(e.Position).length / n), a = e.Position.sub(i[1]).normalize();
 			t = t.add(a.mul(r));
@@ -20873,7 +20880,7 @@ var vf = class e {
 		return t.mul(this.bundlingSettings.HubRepulsionImportance);
 	}
 	BuildForceForBundle(e) {
-		let t = new j(0, 0);
+		let t = new N(0, 0);
 		for (let n of e.Neighbors) {
 			let r = this.metroGraphData.GetWidthSSN(e, n, this.bundlingSettings.EdgeSeparation), i = { closestDist: [] };
 			this.metroGraphData.cdtIntersections.BundleAvoidsObstacles(e, n, e.Position, n.Position, r / 2, i);
@@ -20887,7 +20894,7 @@ var vf = class e {
 };
 vf.MaxIterations = 100, vf.MaxStep = 50, vf.MinStep = 1, vf.MinRelativeChange = 5e-4;
 function yf() {
-	return new j(1 + 2 * As(), 1 + 2 * As());
+	return new N(1 + 2 * As(), 1 + 2 * As());
 }
 //#endregion
 //#region ../node_modules/@msagl/core/dist/routing/spline/bundling/StationPositionsAdjuster.js
@@ -20912,7 +20919,7 @@ var bf = class e {
 		let t = /* @__PURE__ */ new Map(), n = /* @__PURE__ */ new Set();
 		if (ys(e, e, (e, r) => this.TryToGlueStations(e, r, t, n)), t.size === 0) return !1;
 		for (let e = 0; e < this.metroGraphData.Edges.length; e++) this.RegenerateEdge(t, e);
-		let r = new G();
+		let r = new Fa();
 		for (let e of n) {
 			r.add(e.Position);
 			for (let t of e.Neighbors) t.IsReal || r.add(t.Position);
@@ -20921,10 +20928,10 @@ var bf = class e {
 	}
 	GetCirclesHierarchy() {
 		for (let e of this.metroGraphData.VirtualStations()) e.Radius = this.GetCurrentHubRadius(e);
-		return W(this.metroGraphData.VirtualStations().map(e));
+		return G(this.metroGraphData.VirtualStations().map(e));
 		function e(e) {
-			let t = e.Position, n = Math.max(e.Radius, 5), r = new j(n, n);
-			return Ma(e, R.mkPP(t.add(r), t.sub(r)));
+			let t = e.Position, n = Math.max(e.Radius, 5), r = new N(n, n);
+			return ja(e, z.mkPP(t.add(r), t.sub(r)));
 		}
 	}
 	GetCurrentHubRadius(e) {
@@ -20977,10 +20984,10 @@ var bf = class e {
 		}
 		if (!i) return;
 		let a = Array.from(r).map((e) => this.metroGraphData.PointToStations.get(e));
-		this.metroGraphData.Edges[n].curve = L.mkFromPoints(e.GluedPolyline(a, t));
+		this.metroGraphData.Edges[n].curve = R.mkFromPoints(e.GluedPolyline(a, t));
 	}
 	static GluedPolyline(t, n) {
-		let r, i = new H.Stack();
+		let r, i = new U.Stack();
 		i.push(t[0]);
 		let a = /* @__PURE__ */ new Set();
 		for (r = 1; r < t.length - 1; r++) {
@@ -20989,7 +20996,7 @@ var bf = class e {
 				for (; i.top !== o;) a.delete(i.pop());
 				continue;
 			}
-			j.closeDistEps(o.Position, i.top.Position) || (a.add(o), i.push(o));
+			N.closeDistEps(o.Position, i.top.Position) || (a.add(o), i.push(o));
 		}
 		return i.push(t[r]), Array.from(i).reverse().map((e) => e.Position);
 	}
@@ -21001,9 +21008,9 @@ var bf = class e {
 		this.ink = this.metroGraphData.Ink, this.polylineLength = /* @__PURE__ */ new Map();
 		for (let e of this.metroGraphData.Metrolines) {
 			this.polylineLength.set(e, e.Length);
-			for (let n = e.Polyline.startPoint; n.next != null; n = n.next) qa(t, new Fa(n.point, n.next.point), e);
+			for (let n = e.Polyline.startPoint; n.next != null; n = n.next) qa(t, new Pa(n.point, n.next.point), e);
 		}
-		let n = new G(), r = !1;
+		let n = new Fa(), r = !1;
 		for (let e of this.metroGraphData.Metrolines) {
 			let i = Ba(this.metroGraphData.PointToStations.get(e.Polyline.start).getELP(), this.metroGraphData.PointToStations.get(e.Polyline.end).getELP());
 			this.TrySeparateOnPolyline(e, t, n, i) && (r = !0);
@@ -21033,7 +21040,7 @@ var bf = class e {
 	GetInkgain(e, t, n, r, i) {
 		let [a, o, s] = this.FindPolylines(e, t), c = 0, l = this.ink, u = this.ink, d = n.sub(r).length, f = r.sub(i).length, p = n.sub(i).length;
 		a.size === s.size && (u -= d), o.size === s.size && (u -= f);
-		let m = t.get(new Fa(n, i));
+		let m = t.get(new Pa(n, i));
 		(!m || m.size === 0) && (u += p), c += af.InkError(l, u, this.bundlingSettings);
 		for (let e of s) {
 			let t = this.polylineLength.get(e), n = t - (d + f - p);
@@ -21045,9 +21052,9 @@ var bf = class e {
 		return v = Qd.GetMinRadiusForTwoAdjacentBundlesNPPPNNB(h, i, r, n, ee, g, this.bundlingSettings), v > h && (c -= af.RError(v, h, this.bundlingSettings)), c;
 	}
 	RemoveShortcuttedPolypoint(e, t) {
-		let n = e.point, r = e.next.point, i = e.next.next.point, [a, o, s] = this.FindPolylines(e, t), c = A(n, r), l = A(r, i), u = A(n, i);
+		let n = e.point, r = e.next.point, i = e.next.next.point, [a, o, s] = this.FindPolylines(e, t), c = M(n, r), l = M(r, i), u = M(n, i);
 		a.size === s.size && (this.ink -= c), o.size === s.size && (this.ink -= l);
-		let d = t.get(new Fa(n, i));
+		let d = t.get(new Pa(n, i));
 		(!d || d.size === 0) && (this.ink += u);
 		for (let e of s) {
 			let t = this.polylineLength.get(e);
@@ -21071,7 +21078,7 @@ var bf = class e {
 		t.next = n, n.prev = t;
 	}
 	GlueCollinearNeighbors(e) {
-		let t = new G(), n = !1;
+		let t = new Fa(), n = !1;
 		for (let r of this.metroGraphData.Stations) this.GlueCollinearNeighborsSPN(r, t, e) && (n = !0);
 		return n && (this.metroGraphData.Initialize(!1), vf.FixRoutingMBP(this.metroGraphData, this.bundlingSettings, t)), n;
 	}
@@ -21084,8 +21091,8 @@ var bf = class e {
 		return !0;
 	}
 	TryToGlueEdges(e, t, n, r, i) {
-		if (j.anglePCP(t.Position, e.Position, n.Position) < this.bundlingSettings.AngleThreshold) {
-			let a = A(t.Position, e.Position), o = A(n.Position, e.Position), s = Math.min(a, o) / Math.max(a, o);
+		if (N.anglePCP(t.Position, e.Position, n.Position) < this.bundlingSettings.AngleThreshold) {
+			let a = M(t.Position, e.Position), o = M(n.Position, e.Position), s = Math.min(a, o) / Math.max(a, o);
 			if (s < .05) return;
 			if (a < o) {
 				if (this.EdgeGluingIsAllowedSSS(e, t, n)) {
@@ -21103,30 +21110,30 @@ var bf = class e {
 		}
 	}
 	ConstructGluingPoint(e, t, n) {
-		let r = Math.min(A(t.Position, e.Position), A(n.Position, e.Position) / 2), i = t.Position.sub(e.Position).normalize().add(n.Position.sub(e.Position).normalize());
+		let r = Math.min(M(t.Position, e.Position), M(n.Position, e.Position) / 2), i = t.Position.sub(e.Position).normalize().add(n.Position.sub(e.Position).normalize());
 		return e.Position.add(i.mul(r / 2));
 	}
 	EdgeGluingIsAllowedSSS(e, t, n) {
 		if (t.IsReal || n.IsReal || !Ua(t.getELP(), n.getELP()) || !this.metroGraphData.cdtIntersections.EdgeIsLegal(t, n, t.Position, n.Position)) return !1;
 		let r = this.metroGraphData.looseIntersections.ObstaclesToIgnoreForBundle(e, n);
-		return !(sc.IntersectionsOfLineAndRectangleNodeOverPolylineLR(N.mkPP(e.Position, t.Position), this.metroGraphData.LooseTree).find((e) => !r.has(e.seg1)) || sc.IntersectionsOfLineAndRectangleNodeOverPolylineLR(N.mkPP(t.Position, n.Position), this.metroGraphData.LooseTree).find((e) => !r.has(e.seg1)) || this.ComputeCostDeltaAfterEdgeGluing(e, t, n, t.Position) < 0);
+		return !(sc.IntersectionsOfLineAndRectangleNodeOverPolylineLR(P.mkPP(e.Position, t.Position), this.metroGraphData.LooseTree).find((e) => !r.has(e.seg1)) || sc.IntersectionsOfLineAndRectangleNodeOverPolylineLR(P.mkPP(t.Position, n.Position), this.metroGraphData.LooseTree).find((e) => !r.has(e.seg1)) || this.ComputeCostDeltaAfterEdgeGluing(e, t, n, t.Position) < 0);
 	}
 	EdgeGluingIsAllowedSSSP(e, t, n, r) {
 		return !(!this.metroGraphData.looseIntersections.HubAvoidsObstaclesPNS__(r, 0, Ba(t.getELP(), n.getELP())) || !this.metroGraphData.cdtIntersections.EdgeIsLegal(e, null, e.Position, r) || !this.metroGraphData.cdtIntersections.EdgeIsLegal(t, null, t.Position, r) || !this.metroGraphData.cdtIntersections.EdgeIsLegal(n, null, n.Position, r) || this.ComputeCostDeltaAfterEdgeGluing(e, t, n, r) < 0);
 	}
 	ComputeCostDeltaAfterEdgeGluing(e, t, n, r) {
-		let i = 0, a = this.metroGraphData.Ink, o = this.metroGraphData.Ink - A(e.Position, n.Position) - A(e.Position, t.Position) + A(e.Position, r) + A(r, t.Position) + A(r, n.Position);
+		let i = 0, a = this.metroGraphData.Ink, o = this.metroGraphData.Ink - M(e.Position, n.Position) - M(e.Position, t.Position) + M(e.Position, r) + M(r, t.Position) + M(r, n.Position);
 		i += af.InkError(a, o, this.bundlingSettings);
 		for (let t of this.metroGraphData.GetIjInfo(e, n).Metrolines) {
-			let a = t.Length, o = t.Length - A(e.Position, n.Position) + A(e.Position, r) + A(r, n.Position);
+			let a = t.Length, o = t.Length - M(e.Position, n.Position) + M(e.Position, r) + M(r, n.Position);
 			i += af.PathLengthsError(a, o, t.IdealLength, this.bundlingSettings);
 		}
 		for (let n of this.metroGraphData.GetIjInfo(e, t).Metrolines) {
-			let a = n.Length, o = n.Length - A(e.Position, t.Position) + A(e.Position, r) + A(r, t.Position);
+			let a = n.Length, o = n.Length - M(e.Position, t.Position) + M(e.Position, r) + M(r, t.Position);
 			i += af.PathLengthsError(a, o, n.IdealLength, this.bundlingSettings);
 		}
 		let s = e.cachedIdealRadius, c = this.GetCurrentHubRadius(e), l = Qd.GetMinRadiusForTwoAdjacentBundles(c, e, e.Position, t, n, this.metroGraphData, this.bundlingSettings);
-		return l > c && (i += af.RError(l, c, this.bundlingSettings)), s > A(e.Position, r) && !e.IsReal && (i -= af.RError(s, A(e.Position, r), this.bundlingSettings)), i;
+		return l > c && (i += af.RError(l, c, this.bundlingSettings)), s > M(e.Position, r) && !e.IsReal && (i -= af.RError(s, M(e.Position, r), this.bundlingSettings)), i;
 	}
 	AddEdgeToGlue(e, t, n, r, i) {
 		i.has(n, e) || i.has(t, e) || i.has(e, n) || i.has(e, t) || (i.set(e, n, r), i.set(e, t, r));
@@ -21137,11 +21144,11 @@ var bf = class e {
 	}
 	SplitPolylinePoint(e, t) {
 		if (e.point === t || e.next.point === t) return;
-		let n = na.mkFromPoint(t);
+		let n = ea.mkFromPoint(t);
 		n.polyline = e.polyline, n.next = e.next, n.prev = e, n.next.prev = n, n.prev.next = n;
 	}
 	RelaxConstrainedEdges() {
-		let e = new G(), t = !1;
+		let e = new Fa(), t = !1;
 		for (let n of this.metroGraphData.VirtualEdges()) this.RelaxConstrainedEdge(n[0], n[1], e) && (t = !0);
 		return t && (this.metroGraphData.Initialize(!1), vf.FixRoutingMBP(this.metroGraphData, this.bundlingSettings, e)), t;
 	}
@@ -21152,8 +21159,8 @@ var bf = class e {
 		if (a.length > 0) {
 			let r = -1, i;
 			for (let n of a) {
-				if (Math.min(A(e.Position, n[1]), A(t.Position, n[1])) / A(e.Position, t.Position) < .1) continue;
-				let a = A(n[0], n[1]);
+				if (Math.min(M(e.Position, n[1]), M(t.Position, n[1])) / M(e.Position, t.Position) < .1) continue;
+				let a = M(n[0], n[1]);
 				(r === -1 || a < r) && (r = a, i = n[1]);
 			}
 			if (r === -1 || !this.metroGraphData.looseIntersections.HubAvoidsObstaclesPNS__(i, 0, Ba(e.getELP(), t.getELP()))) return !1;
@@ -21215,7 +21222,7 @@ var bf = class e {
 		super(null), this.bundlingSettings = r, this.bundlingSettings.edgeWidthShrinkCoeff = 1, this.edgesToRoute = e, this.regularEdges = e.filter((e) => e.source !== e.target), this.VisibilityGraph = n, this.shortestPathRouter = t, this.LoosePadding = i, this.LooseHierarchy = o, this.TightHierarchy = a, this.EdgeLooseEnterable = s, this.EdgeTightEnterable = c, this.loosePolylineOfPort = l, ks(0);
 	}
 	ThereAreOverlaps(e) {
-		return bs(e, e, I.CurvesIntersect);
+		return bs(e, e, L.CurvesIntersect);
 	}
 	run() {
 		if (this.ThereAreOverlaps(this.TightHierarchy)) {
@@ -21232,11 +21239,11 @@ var bf = class e {
 		for (let e of this.regularEdges) {
 			let t = e.sourcePort, n = e.targetPort;
 			if (t.Curve.boundingBox.containsRect(n.Curve.boundingBox)) {
-				let n = I.intersectionOne(t.Curve, N.mkPP(e.curve.start, e.curve.end), !1), r = e.curve;
+				let n = L.intersectionOne(t.Curve, P.mkPP(e.curve.start, e.curve.end), !1), r = e.curve;
 				r.startPoint.point = n.x;
 			}
 			if (n.Curve.boundingBox.containsRect(t.Curve.boundingBox)) {
-				let t = I.intersectionOne(n.Curve, N.mkPP(e.curve.start, e.curve.end), !0), r = e.curve;
+				let t = L.intersectionOne(n.Curve, P.mkPP(e.curve.start, e.curve.end), !0), r = e.curve;
 				r.endPoint.point = t.x;
 			}
 		}
@@ -21298,7 +21305,7 @@ var bf = class e {
 		return Array.from(t).map((e) => this.bundlingSettings.ActualEdgeWidth(e, n)).reduce((e, t) => e + t, 0) <= e.Capacity;
 	}
 	RouteSelfEdges() {
-		for (let e of this.edgesToRoute) e.source === e.target && (e.curve = Ta.RouteSelfEdge(e.source.boundaryCurve, this.LoosePadding * 2, { smoothedPolyline: null }));
+		for (let e of this.edgesToRoute) e.source === e.target && (e.curve = wa.RouteSelfEdge(e.source.boundaryCurve, this.LoosePadding * 2, { smoothedPolyline: null }));
 	}
 	FixArrowheads() {
 		for (let e of this.edgesToRoute) cc.trimSplineAndCalculateArrowheadsII(e, e.source.boundaryCurve, e.target.boundaryCurve, e.curve, !1);
@@ -21376,7 +21383,7 @@ var Cf = class {
 		for (let e of this.geomEdges) this.SetEdgeGeometryCurve(e);
 	}
 	SetEdgeGeometryCurve(t) {
-		let n = new L(), r = this.EdgesToRouteSources.get(t);
+		let n = new R(), r = this.EdgesToRouteSources.get(t);
 		n.addPoint(r.Point);
 		for (let e of this.EdgesToRoutes.get(t)) e.SourcePoint.equal(r.Point) ? (n.addPoint(e.TargetPoint), r = e.Target) : (n.addPoint(e.SourcePoint), r = e.Source);
 		t.curve = n, t.sourcePort instanceof ls && e.ExtendPolylineStartToClusterBoundary(n, t.sourcePort.Curve), t.targetPort instanceof ls && e.ExtendPolylineEndToClusterBoundary(n, t.targetPort.Curve);
@@ -21559,7 +21566,7 @@ var Cf = class {
 		t !== n && (e.Capacity = (Hs.DistancePoint(new Hs(t), e.lowerSite.point) + Hs.DistancePoint(new Hs(n), e.upperSite.point)) / 2);
 	}
 	SetVertexTriangles() {
-		vs(W(Array.from(this.cdt.GetTriangles()).map((e) => Ma(e, e.BoundingBox()))), W(this.vertexArray.map((e) => Ma(e, R.mkOnPoints([e.Point])))), (e, t) => this.TryToAssigenTriangleToVertex(e, t));
+		vs(G(Array.from(this.cdt.GetTriangles()).map((e) => ja(e, e.BoundingBox()))), G(this.vertexArray.map((e) => ja(e, z.mkOnPoints([e.Point])))), (e, t) => this.TryToAssigenTriangleToVertex(e, t));
 	}
 	TryToAssigenTriangleToVertex(e, t) {
 		t.Triangle == null && wu.PointIsInsideOfTriangle(t.Point, e) && (t.Triangle = e);
@@ -21575,13 +21582,13 @@ var Cf = class {
 	}
 }, Ef = class e {
 	constructor(e, t, n, r, i) {
-		this.multiEdges = e, this.interactiveEdgeRouter = t, this.bundlingSettings = r, this.bundlingSettings.edgeWidthShrinkCoeff = 1, this.transparentShapeSetter = i, this.nodeTree = Aa(n, (e) => e.boundingBox);
+		this.multiEdges = e, this.interactiveEdgeRouter = t, this.bundlingSettings = r, this.bundlingSettings.edgeWidthShrinkCoeff = 1, this.transparentShapeSetter = i, this.nodeTree = ka(n, (e) => e.boundingBox);
 	}
 	run() {
 		for (let e of this.GetIndependantPreGraphs()) new Sf(e.edges, new Tf(this.transparentShapeSetter, null, null), this.interactiveEdgeRouter.VisibilityGraph, this.bundlingSettings, this.interactiveEdgeRouter.LoosePadding, this.interactiveEdgeRouter.TightHierarchy, this.interactiveEdgeRouter.LooseHierarchy, null, null, null).run();
 	}
 	GetPortCurve(e) {
-		return this.nodeTree.FirstHitNodeWithPredicate(e.Location, (e, t) => I.PointRelativeToCurveLocation(e, t) === F.Outside ? U.Continue : U.Stop).UserData;
+		return this.nodeTree.FirstHitNodeWithPredicate(e.Location, (e, t) => L.PointRelativeToCurveLocation(e, t) === I.Outside ? W.Continue : W.Stop).UserData;
 	}
 	GetIndependantPreGraphs() {
 		let e = this.CreateInitialPregraphs();
@@ -21611,7 +21618,7 @@ var Cf = class {
 		return n.length ? Is(n, t.length) : null;
 	}
 	static EnumeratePairsOfIntersectedPreGraphs(e) {
-		let t = Aa(Array.from(Array(e.length).keys()), (t) => e[t].boundingBox), n = [];
+		let t = ka(Array.from(Array(e.length).keys()), (t) => e[t].boundingBox), n = [];
 		return ys(t, t, (e, t) => n.push(new J(e, t))), n;
 	}
 	CreateInitialPregraphs() {
@@ -21654,7 +21661,7 @@ var Cf = class {
 			return;
 		}
 		if (r.length == 0) {
-			this.poly = L.mkFromPoints([e.start, e.end]);
+			this.poly = R.mkFromPoints([e.start, e.end]);
 			return;
 		}
 		this.initDiagonals(r), this.refineFunnel();
@@ -21725,7 +21732,7 @@ var Cf = class {
 			right: this.poly.end,
 			left: i.point
 		}), c(this.d.length - 1, this.d);
-		let s = L.mkFromPoints(e);
+		let s = R.mkFromPoints(e);
 		for (let e = r; e != null; e = e.next) s.addPoint(e.point);
 		this.poly = s;
 		function c(e, t) {
@@ -21742,16 +21749,16 @@ var Cf = class {
 			}
 		}
 		function l(e) {
-			return e.next == null ? !0 : j.pointToTheLeftOfLineOrOnLine(o, e.point, e.next.point);
+			return e.next == null ? !0 : N.pointToTheLeftOfLineOrOnLine(o, e.point, e.next.point);
 		}
 		function u(e) {
-			return e.next == null ? !0 : j.pointToTheRightOfLineOrOnLine(o, e.point, e.next.point);
+			return e.next == null ? !0 : N.pointToTheRightOfLineOrOnLine(o, e.point, e.next.point);
 		}
 		function d(e) {
-			return j.pointToTheLeftOfLine(o, e.prev.point, e.point);
+			return N.pointToTheLeftOfLine(o, e.prev.point, e.point);
 		}
 		function f(e) {
-			return j.pointToTheRightOfLine(o, e.prev.point, e.point);
+			return N.pointToTheRightOfLine(o, e.prev.point, e.point);
 		}
 		function p() {
 			let s = r;
@@ -21792,7 +21799,7 @@ var Cf = class {
 	initDiagonals(e) {
 		for (let t of e) {
 			let e = t.edge, n = t.source.OppositeSite(e);
-			j.getTriangleOrientation(n.point, e.lowerSite.point, e.upperSite.point) == k.Counterclockwise ? this.d.push({
+			N.getTriangleOrientation(n.point, e.lowerSite.point, e.upperSite.point) == j.Counterclockwise ? this.d.push({
 				left: e.upperSite.point,
 				right: e.lowerSite.point
 			}) : this.d.push({
@@ -21889,11 +21896,11 @@ var kf = class e extends q {
 			for (let [e, t] of this.shapesToTightLooseCouples) this.loosePolylinesToNodes.set(t.LooseShape.BoundaryCurve, new Set([e.node.node]));
 			return;
 		}
-		let e = Aa(this.geomGraph.nodesBreadthFirst, (e) => e.boundingBox);
+		let e = ka(this.geomGraph.nodesBreadthFirst, (e) => e.boundingBox);
 		vs(this.GetLooseHierarchy(), e, (e, t) => {
-			if (I.CurveIsInsideOther(t.boundaryCurve, e)) {
+			if (L.CurveIsInsideOther(t.boundaryCurve, e)) {
 				let n = this.loosePolylinesToNodes.get(e);
-				for (let n of t.getAncestors()) if (!(n instanceof So && n.parent == null) && n.boundaryCurve != null && I.CurveIsInsideOther(n.boundaryCurve, e)) return;
+				for (let n of t.getAncestors()) if (!(n instanceof So && n.parent == null) && n.boundaryCurve != null && L.CurveIsInsideOther(n.boundaryCurve, e)) return;
 				n ?? this.loosePolylinesToNodes.set(e, n = /* @__PURE__ */ new Set()), n.add(t.node);
 			}
 		});
@@ -21987,7 +21994,7 @@ var kf = class e extends q {
 	}
 	getDebugCurvesFromEdgesAndCdt(e) {
 		let t = Array.from(this.geomGraph.deepEdges).map((e) => e.curve).filter((e) => e != null).filter((e) => e.count > 5).map((e) => Z.mkDebugCurveTWCI(200, 1, "Red", e));
-		for (let n of e.PointsToSites.values()) for (let e of n.Edges) t.push(Z.mkDebugCurveTWCI(200, .5, e.constrained ? "Blue" : "Green", N.mkPP(e.lowerSite.point, e.upperSite.point)));
+		for (let n of e.PointsToSites.values()) for (let e of n.Edges) t.push(Z.mkDebugCurveTWCI(200, .5, e.constrained ? "Blue" : "Green", P.mkPP(e.lowerSite.point, e.upperSite.point)));
 		return t;
 	}
 	RouteEdgesWithTheSamePassport(e, t, n) {
@@ -22036,7 +22043,7 @@ var kf = class e extends q {
 		}
 	}
 	getCdtFromPassport(e) {
-		let t = /* @__PURE__ */ new Set(), n = [], r = R.mkEmpty();
+		let t = /* @__PURE__ */ new Set(), n = [], r = z.mkEmpty();
 		for (let i of e) {
 			let e = this.LoosePolyOfOriginalShape(i);
 			if (e != null) {
@@ -22082,7 +22089,7 @@ var kf = class e extends q {
 		for (let e of r.values()) e.length === 1 || this.OverlapsDetected ? za(n.regularEdges, e) : (n.multiEdges ??= [], n.multiEdges.push(e));
 	}
 	static RegisterInPortLocationsToEdges(e, t) {
-		let n, r = new Fa(e.sourcePort.Location, e.targetPort.Location);
+		let n, r = new Pa(e.sourcePort.Location, e.targetPort.Location);
 		n = t.get(r), n || (n = [], t.set(r, n)), n.push(e);
 	}
 	static IsEdgeToParent(e) {
@@ -22166,12 +22173,12 @@ var kf = class e extends q {
 		}
 	}
 	GetTightHierarchy() {
-		return W(Array.from(this.shapesToTightLooseCouples.values()).map((e) => Ma(e.TightPolyline, e.TightPolyline.boundingBox)));
+		return G(Array.from(this.shapesToTightLooseCouples.values()).map((e) => ja(e.TightPolyline, e.TightPolyline.boundingBox)));
 	}
 	GetLooseHierarchy() {
 		let e = /* @__PURE__ */ new Set();
 		for (let t of this.shapesToTightLooseCouples.values()) e.add(t.LooseShape.BoundaryCurve);
-		return W(Array.from(e).map((e) => Ma(e, e.boundingBox)));
+		return G(Array.from(e).map((e) => ja(e, e.boundingBox)));
 	}
 	ScaleLooseShapesDown() {
 		for (let [, e] of this.shapesToTightLooseCouples) e.LooseShape.BoundaryCurve = Us.LoosePolylineWithFewCorners(e.TightPolyline, e.Distance / Sf.SuperLoosePaddingCoefficient, 0);
@@ -22192,7 +22199,7 @@ var kf = class e extends q {
 		let n = [];
 		e.sourcePort instanceof cs || za(n, this.AddVisibilityEdgesFromPort(e.sourcePort)), e.targetPort instanceof cs || za(n, this.AddVisibilityEdgesFromPort(e.targetPort));
 		let r = { smoothedPolyline: null };
-		if (j.closeDistEps(e.sourcePort.Location, e.targetPort.Location) ? e.curve = Ta.RouteSelfEdge(e.sourcePort.Curve, Math.max(this.LoosePadding * 2, e.GetMaxArrowheadLength()), r) : e.curve = t.RouteSplineFromPortToPortWhenTheWholeGraphIsReady(e.sourcePort, e.targetPort, !0, r), e.smoothedPolyline = null, e.curve == null) throw Error();
+		if (N.closeDistEps(e.sourcePort.Location, e.targetPort.Location) ? e.curve = wa.RouteSelfEdge(e.sourcePort.Curve, Math.max(this.LoosePadding * 2, e.GetMaxArrowheadLength()), r) : e.curve = t.RouteSplineFromPortToPortWhenTheWholeGraphIsReady(e.sourcePort, e.targetPort, !0, r), e.smoothedPolyline = null, e.curve == null) throw Error();
 		for (let e of n) X.RemoveEdge(e);
 		cc.trimSplineAndCalculateArrowheadsII(e, e.sourcePort.Curve, e.targetPort.Curve, e.curve, !1);
 	}
@@ -22231,14 +22238,14 @@ var kf = class e extends q {
 		return t != null && (n = this.ancestorSets.get(t)) != null && n.has(e);
 	}
 	static CreateLooseObstacleHierarachy(e) {
-		return W(e.map((e) => Ma(e, e.boundingBox)));
+		return G(e.map((e) => ja(e, e.boundingBox)));
 	}
 	CreateTightObstacleHierarachy(e) {
-		return W(e.map((e) => this.shapesToTightLooseCouples.get(e).TightPolyline).map((e) => Ma(e, e.boundingBox)));
+		return G(e.map((e) => this.shapesToTightLooseCouples.get(e).TightPolyline).map((e) => ja(e, e.boundingBox)));
 	}
 	CalculateVisibilityGraph() {
-		let e = this.LineSweeperPorts == null ? new G() : G.mk(this.LineSweeperPorts);
-		this.ProcessHookAnyWherePorts(e), this.portRTree = fo(Array.from(e.values()).map((e) => [R.rectangleOnPoint(e), e])), this.visGraph = new X(), this.FillVisibilityGraphUnderShape(this.root);
+		let e = this.LineSweeperPorts == null ? new Fa() : Fa.mk(this.LineSweeperPorts);
+		this.ProcessHookAnyWherePorts(e), this.portRTree = fo(Array.from(e.values()).map((e) => [z.rectangleOnPoint(e), e])), this.visGraph = new X(), this.FillVisibilityGraphUnderShape(this.root);
 	}
 	ProcessHookAnyWherePorts(e) {
 		for (let t of this.edges) t.sourcePort instanceof cs || t.sourcePort instanceof ls || e.add(t.sourcePort.Location), t.targetPort instanceof cs || t.targetPort instanceof ls || e.add(t.targetPort.Location);
@@ -22264,18 +22271,18 @@ var kf = class e extends q {
 		for (let n = e.startPoint; t = n.nextOnPolyline, this.visGraph.AddEdgePP(n.point, t.point), t !== e.startPoint; n = t);
 	}
 	RemoveInsidePortsAndSplitBoundaryIfNeeded(t) {
-		let n = new G();
+		let n = new Fa();
 		if (t == null) {
 			for (let e of this.portRTree.GetAllLeaves()) n.add(e);
 			return this.portRTree.clear(), n;
 		}
 		let r = t.boundingBox, i = this.portRTree.GetAllIntersecting(r);
-		for (let r of i) switch (I.PointRelativeToCurveLocation(r, t)) {
-			case F.Inside:
-				n.add(r), this.portRTree.Remove(R.rectangleOnPoint(r), r);
+		for (let r of i) switch (L.PointRelativeToCurveLocation(r, t)) {
+			case I.Inside:
+				n.add(r), this.portRTree.Remove(z.rectangleOnPoint(r), r);
 				break;
-			case F.Boundary:
-				this.portRTree.Remove(R.rectangleOnPoint(r), r);
+			case I.Boundary:
+				this.portRTree.Remove(z.rectangleOnPoint(r), r);
 				let i = e.FindPointOnPolylineToInsertAfter(t, r);
 				if (i != null) os.InsertPointIntoPolylineAfter(t, i, r);
 				else throw Error();
@@ -22286,9 +22293,9 @@ var kf = class e extends q {
 	static FindPointOnPolylineToInsertAfter(e, t) {
 		for (let n = e.startPoint;;) {
 			let r = n.nextOnPolyline;
-			if (j.closeDistEps(t, n.point) || j.closeDistEps(t, r.point)) return null;
-			let i = j.distToLineSegment(t, n.point, r.point).dist;
-			if (O(i, 0)) return n;
+			if (N.closeDistEps(t, n.point) || N.closeDistEps(t, r.point)) return null;
+			let i = N.distToLineSegment(t, n.point, r.point).dist;
+			if (A(i, 0)) return n;
 			if (n = r, n === e.startPoint) throw Error();
 		}
 	}
@@ -22327,11 +22334,11 @@ var kf = class e extends q {
 		for (let t of e) {
 			if (t.sourcePort == null) {
 				let e = t;
-				new ko(() => e.source.boundaryCurve, () => e.source.center, new j(0, 0));
+				new ko(() => e.source.boundaryCurve, () => e.source.center, new N(0, 0));
 			}
 			if (t.targetPort == null) {
 				let e = t;
-				new ko(() => e.target.boundaryCurve, () => e.target.center, new j(0, 0));
+				new ko(() => e.target.boundaryCurve, () => e.target.center, new N(0, 0));
 			}
 		}
 	}
@@ -22361,15 +22368,15 @@ var jf = class {
 	getMinTileSize() {
 		let e = 0, t = 0, n = 0;
 		for (let r of this.geomGraph.nodesBreadthFirst) r instanceof So || (n == 0 ? (e = r.width, t = r.height) : (e = (n * e + r.width) / (n + 1), t = (n * t + r.height) / (n + 1)), n++);
-		return new va(e * 10, t * 10);
+		return new _a(e * 10, t * 10);
 	}
 	fillTheLowestLayer() {
 		let e = new wo(), t = new To(this.topLevelTileRect), n = t.arrowheads, r = t.labels;
 		for (let e of this.geomGraph.graph.deepEdges) i(e);
 		t.nodes = Array.from(this.geomGraph.nodesBreadthFirst), e.set(0, 0, t), this.levels.push(e);
 		function i(e) {
-			let i = Ta.getGeom(e), a = Ta.getGeom(e).curve;
-			if (a instanceof I) for (let n of a.segs) t.addElement({
+			let i = wa.getGeom(e), a = wa.getGeom(e).curve;
+			if (a instanceof L) for (let n of a.segs) t.addElement({
 				edge: e,
 				curve: n,
 				startPar: n.parStart,
@@ -22445,7 +22452,7 @@ var jf = class {
 	regenerateCurveClipsUnderTileUpToLevel(e, t, n) {
 		e.arrowheads = [], e.initCurveClips();
 		for (let t of this.geomGraph.deepEdges) if (io(t.edge, n)) {
-			if (t.curve instanceof I) for (let n of t.curve.segs) e.addElement({
+			if (t.curve instanceof L) for (let n of t.curve.segs) e.addElement({
 				edge: t.edge,
 				curve: n,
 				startPar: n.parStart,
@@ -22592,7 +22599,7 @@ var jf = class {
 	getWHOnLevel(e) {
 		for (let t = this.tileSizes.length; t <= e; t++) {
 			let e = this.tileSizes[t - 1];
-			this.tileSizes.push(new va(e.width / 2, e.height / 2));
+			this.tileSizes.push(new _a(e.width / 2, e.height / 2));
 		}
 		return {
 			w: this.tileSizes[e].width,
@@ -22616,7 +22623,7 @@ var jf = class {
 		];
 		for (let e = 0; e < 2; e++) for (let t = 0; t < 2; t++) d[e * 2 + t] = new J(s * 2 + e, c * 2 + t);
 		r || this.generateSubtilesWithoutTileClips(l, i, u, a, d, n, t);
-		let f = new N(l, u + a, l + 2 * i, u + a), p = new N(l + i, u, l + i, u + 2 * a);
+		let f = new P(l, u + a, l + 2 * i, u + a), p = new P(l + i, u, l + i, u + 2 * a);
 		g();
 		let m = 0, h = !0;
 		for (let e of d) {
@@ -22634,7 +22641,7 @@ var jf = class {
 					let r = (n[0] + n[1]) / 2, s = t.value(r), c = s.x <= l + i ? 0 : 1, f = s.y <= u + a ? 0 : 1, p = d[2 * c + f], m = o.getI(p);
 					if (!m) {
 						let e = l + c * i, t = u + f * a;
-						m = new To(new R({
+						m = new To(new z({
 							left: e,
 							bottom: t,
 							top: t + a,
@@ -22651,7 +22658,7 @@ var jf = class {
 					let s = (n[r] + n[r + 1]) / 2, c = t.value(s), f = c.x <= l + i ? 0 : 1, p = c.y <= u + a ? 0 : 1, m = d[2 * f + p], h = o.getI(m);
 					if (!h) {
 						let e = l + f * i, t = u + p * a;
-						h = new To(new R({
+						h = new To(new z({
 							left: e,
 							bottom: t,
 							top: t + a,
@@ -22668,7 +22675,7 @@ var jf = class {
 			}
 		}
 		function _(e, t, n) {
-			let r = Array.from(I.getAllIntersections(e, f, !0)).concat(Array.from(I.getAllIntersections(e, p, !0))).map((e) => e.par0);
+			let r = Array.from(L.getAllIntersections(e, f, !0)).concat(Array.from(L.getAllIntersections(e, p, !0))).map((e) => e.par0);
 			return r.sort((e, t) => e - t), [t].concat(r.filter((e) => e >= t && e <= n), n);
 		}
 	}
@@ -22682,7 +22689,7 @@ var jf = class {
 	generateSubtilesWithoutTileClips(e, t, n, r, i, a, o) {
 		let s = 0;
 		for (let c = 0; c < 2; c++) for (let l = 0; l < 2; l++) {
-			let u = new R({
+			let u = new z({
 				left: e + t * c,
 				right: e + t * (c + 1),
 				bottom: n + r * l,
@@ -22692,14 +22699,14 @@ var jf = class {
 		}
 	}
 	innerClips(e, t, n) {
-		let r = [], i = Array.from(I.getAllIntersections(e, n, !0)).concat(Array.from(I.getAllIntersections(e, t, !0)));
+		let r = [], i = Array.from(L.getAllIntersections(e, n, !0)).concat(Array.from(L.getAllIntersections(e, t, !0)));
 		i.sort((e, t) => e.par0 - t.par0);
 		let a = [e.parStart];
 		for (let e = 0; e < i.length; e++) {
 			let t = i[e];
-			t.par0 > a[a.length - 1] + E.distanceEpsilon && a.push(t.par0);
+			t.par0 > a[a.length - 1] + O.distanceEpsilon && a.push(t.par0);
 		}
-		if (e.parEnd > a[a.length - 1] + E.distanceEpsilon && a.push(e.parEnd), a.length <= 2) return r.push(e), r;
+		if (e.parEnd > a[a.length - 1] + O.distanceEpsilon && a.push(e.parEnd), a.length <= 2) return r.push(e), r;
 		for (let t = 0; t < a.length - 1; t++) r.push(e.trim(a[t], a[t + 1]));
 		return r;
 	}
@@ -22708,7 +22715,7 @@ var jf = class {
 		for (let r of e.nodes) r.boundingBox.intersects(t) && n.nodes.push(r);
 		for (let r of e.labels) r.boundingBox.intersects(t) && n.labels.push(r);
 		for (let r of e.arrowheads) {
-			let e = R.mkPP(r.base, r.tip), i = r.tip.sub(r.base).div(3).rotate90Cw();
+			let e = z.mkPP(r.base, r.tip), i = r.tip.sub(r.base).div(3).rotate90Cw();
 			e.add(r.base.add(i)), e.add(r.base.sub(i)), e.intersects(t) && n.arrowheads.push(r);
 		}
 		return n.isEmpty() ? null : n;
@@ -23393,7 +23400,7 @@ var Yf = class e extends q {
 		return Math.floor((i[o - 1] * s + i[o] * c) / (s + c));
 	}
 	Init() {
-		let e = Array(this.nOfLayers).fill(0), t = new H.Stack();
+		let e = Array(this.nOfLayers).fill(0), t = new U.Stack();
 		for (let e = 0; e < this.properLayeredGraph.NodeCount; e++) this.properLayeredGraph.InEdgesCount(e) === 0 && t.push(e);
 		let n = Array(this.properLayeredGraph.NodeCount).fill(!1);
 		for (; t.size > 0;) {
@@ -23593,8 +23600,8 @@ var Yf = class e extends q {
 			let i = 0, a = 0;
 			for (; i < t.Layers[r].length;) {
 				for (; i < t.Layers[r].length && e.IsVirtualNode(t.Layers[r][i]);) i++;
-				for (let e = a; e < i; e++) n.set(t.Layers[r][e], new j(r, a));
-				i < t.Layers[r].length && n.set(t.Layers[r][i], new j(r, i)), i++, a = i;
+				for (let e = a; e < i; e++) n.set(t.Layers[r][e], new N(r, a));
+				i < t.Layers[r].length && n.set(t.Layers[r][i], new N(r, i)), i++, a = i;
 			}
 		}
 		return n;
@@ -23633,9 +23640,9 @@ var Yf = class e extends q {
 		return (t, n) => {
 			let r = this.firstSucc(t), i = this.firstSucc(n), a = this.firstPred(t), o = this.firstPred(n), s = this.nodePositions.get(r), c = this.nodePositions.get(i), l = this.nodePositions.get(a), u = this.nodePositions.get(o);
 			if (!s.equal(c)) return l.equal(u) ? s.compareTo(c) : l.compareTo(u);
-			if (this.properLayeredGraph.IsVirtualNode(r)) return l.equal(u) ? D(e.get(r), e.get(i)) : l.compareTo(u);
+			if (this.properLayeredGraph.IsVirtualNode(r)) return l.equal(u) ? k(e.get(r), e.get(i)) : l.compareTo(u);
 			for (; this.nodePositions.get(a).equal(this.nodePositions.get(o)) && this.properLayeredGraph.IsVirtualNode(a);) a = this.firstPred(a), o = this.firstPred(o);
-			return this.nodePositions.get(a).equal(this.nodePositions.get(o)) ? D(t, n) : this.nodePositions.get(a).compareTo(this.nodePositions.get(o));
+			return this.nodePositions.get(a).equal(this.nodePositions.get(o)) ? k(t, n) : this.nodePositions.get(a).compareTo(this.nodePositions.get(o));
 		};
 	}
 	RestoreLayerArrays(e) {
@@ -23656,7 +23663,7 @@ var Yf = class e extends q {
 		return e.getOrderOnGraph(r);
 	}
 	static getOrderOnGraph(e) {
-		let t = Array(e.nodeCount).fill(!1), n = new H.Stack(), r = [], i;
+		let t = Array(e.nodeCount).fill(!1), n = new U.Stack(), r = [], i;
 		for (let a = 0; a < e.nodeCount; a++) {
 			if (t[a]) continue;
 			let o = a;
@@ -23811,9 +23818,9 @@ var np = class {
 	}
 	initCutValues() {
 		this.initLimLowAndParent();
-		let e = new H.Stack();
+		let e = new U.Stack();
 		for (let t of this.leaves) e.push(t);
-		let t = new H.Stack();
+		let t = new U.Stack();
 		for (; e.length > 0;) {
 			for (; e.length > 0;) {
 				let n = e.pop(), r = this.parent(n);
@@ -23847,7 +23854,7 @@ var np = class {
 		this.initLowLimParentAndLeavesOnSubtree(1, 0);
 	}
 	initLowLimParentAndLeavesOnSubtree(e, t) {
-		let n = new H.Stack(), r = this.graph.outEdges[t], i = -1, a = this.graph.inEdges[t], o = -1;
+		let n = new U.Stack(), r = this.graph.outEdges[t], i = -1, a = this.graph.inEdges[t], o = -1;
 		for (n.push(new np(t, r, i, a, o)), this.vertices[t].low = e; n.length > 0;) {
 			let s = n.pop();
 			t = s.v, r = s.outEnum, i = s.i, a = s.inEnum, o = s.j;
@@ -23898,7 +23905,7 @@ var np = class {
 		for (let e of this.graph.edges) e.inTree = !1;
 		for (let e = 1; e < this.nodeCount; e++) this.vertices[e].inTree = !1;
 		this.vertices[0].inTree = !0, this.treeVertices.push(0);
-		let e = new H.Stack();
+		let e = new U.Stack();
 		for (e.push(0); e.length > 0;) {
 			let t = e.pop();
 			for (let n of this.graph.outEdges[t]) this.vertexInTree(n.target) || this.layers[n.source] - this.layers[n.target] === n.separation && (e.push(n.target), this.addVertexToTree(n.target), this.treeVertices.push(n.target), n.inTree = !0);
@@ -23929,7 +23936,7 @@ var np = class {
 		this.createPathForCutUpdates(e, t, n), this.updateLimLowLeavesAndParentsUnderNode(n), this.updateCuts(e), this.updateLayersUnderNode(n);
 	}
 	updateLayersUnderNode(e) {
-		let t = new H.Stack();
+		let t = new U.Stack();
 		t.push(e);
 		for (let t = 0; t < this.nodeCount; t++) this.low(e) <= this.lim(t) && this.lim(t) <= this.lim(e) && t !== e && (this.layers[t] = ep.infinity);
 		for (; t.length > 0;) {
@@ -23939,7 +23946,7 @@ var np = class {
 		}
 	}
 	updateCuts(e) {
-		let t = new H.Stack(), n = new H.Stack();
+		let t = new U.Stack(), n = new U.Stack();
 		for (t.push(e.source), t.push(e.target); t.length > 0;) {
 			for (; t.length > 0;) {
 				let e = t.pop(), r = this.parent(e);
@@ -24061,13 +24068,13 @@ var np = class {
 		this.y_ += e - this.ba;
 	}
 	get leftTop() {
-		return new j(this.left, this.top);
+		return new N(this.left, this.top);
 	}
 	get leftBottom() {
-		return new j(this.left, this.bottom);
+		return new N(this.left, this.bottom);
 	}
 	get rightBottom() {
-		return new j(this.right, this.bottom);
+		return new N(this.right, this.bottom);
 	}
 	get node() {
 		return this.node_;
@@ -24076,7 +24083,7 @@ var np = class {
 		this.node_ = e, this.polygonalBoundary_ = null;
 	}
 	get rightTop() {
-		return new j(this.right, this.top);
+		return new N(this.right, this.top);
 	}
 	constructor(e) {
 		this.padding = 0, this.alreadySitsOnASpline = !1, this.labelIsToTheLeftOfTheSpline = !1, this.labelIsToTheRightOfTheSpline = !1, this.labelCornersPreserveCoefficient = e;
@@ -24098,7 +24105,7 @@ var np = class {
 		this.polygonalBoundary_ = null, this.y_ = e;
 	}
 	get origin() {
-		return new j(this.x, this.y);
+		return new N(this.x, this.y);
 	}
 	get width() {
 		return this.la + this.ra;
@@ -24125,14 +24132,14 @@ var np = class {
 		t.addPoint(o.a), o.numberOfPoints === 2 && t.addPoint(o.b);
 	}
 	static padConvexCurve(t, n) {
-		let r = new L();
+		let r = new R();
 		e.padCorner(r, t.endPoint.prev, t.endPoint, t.startPoint, n), e.padCorner(r, t.endPoint, t.startPoint, t.startPoint.next, n);
 		for (let i = t.startPoint; i.next.next != null; i = i.next) e.padCorner(r, i, i.next, i.next.next, n);
 		return r.closed = !0, r;
 	}
 	static getPaddedCorner(e, t, n, r) {
-		let i = e.point, a = t.point, o = n.point, s = j.getTriangleOrientation(i, a, o) === k.Counterclockwise, c = a.sub(i), l = c.rotate((s ? -Math.PI : Math.PI) / 2).normalize(), u = c.normalize().add(a.sub(o).normalize());
-		if (u.length < E.intersectionEpsilon) return {
+		let i = e.point, a = t.point, o = n.point, s = N.getTriangleOrientation(i, a, o) === j.Counterclockwise, c = a.sub(i), l = c.rotate((s ? -Math.PI : Math.PI) / 2).normalize(), u = c.normalize().add(a.sub(o).normalize());
+		if (u.length < O.intersectionEpsilon) return {
 			a: a.add(l.mul(r)),
 			b: null,
 			numberOfPoints: 1
@@ -24145,44 +24152,44 @@ var np = class {
 		};
 	}
 	static *orientations(e) {
-		yield j.getTriangleOrientation(e.endPoint.point, e.startPoint.point, e.startPoint.next.point), yield j.getTriangleOrientation(e.endPoint.prev.point, e.endPoint.point, e.startPoint.point);
+		yield N.getTriangleOrientation(e.endPoint.point, e.startPoint.point, e.startPoint.next.point), yield N.getTriangleOrientation(e.endPoint.prev.point, e.endPoint.point, e.startPoint.point);
 		let t = e.startPoint;
-		for (; t.next.next != null;) yield j.getTriangleOrientation(t.point, t.next.point, t.next.next.point), t = t.next;
+		for (; t.next.next != null;) yield N.getTriangleOrientation(t.point, t.next.point, t.next.next.point), t = t.next;
 	}
 	static curveIsConvex(t) {
-		let n = k.Collinear;
-		for (let r of e.orientations(t)) if (r !== k.Collinear) {
-			if (n === k.Collinear) n = r;
+		let n = j.Collinear;
+		for (let r of e.orientations(t)) if (r !== j.Collinear) {
+			if (n === j.Collinear) n = r;
 			else if (r !== n) return !1;
 		}
 		return !0;
 	}
 	creatPolygonalBoundaryWithoutPadding() {
-		return this.hasLabel ? this.labelIsToTheLeftOfTheSpline ? this.polygonOnLeftLabel() : this.polygonOnRightLabel() : this.nodeBoundary == null ? this.standardRectBoundary() : I.polylineAroundClosedCurve(this.nodeBoundary);
+		return this.hasLabel ? this.labelIsToTheLeftOfTheSpline ? this.polygonOnLeftLabel() : this.polygonOnRightLabel() : this.nodeBoundary == null ? this.standardRectBoundary() : L.polylineAroundClosedCurve(this.nodeBoundary);
 	}
 	get nodeBoundary() {
 		return this.node == null ? null : this.node.boundaryCurve;
 	}
 	standardRectBoundary() {
-		let e = new L();
+		let e = new R();
 		return e.addPoint(this.leftTop), e.addPoint(this.rightTop), e.addPoint(this.rightBottom), e.addPoint(this.leftBottom), e.closed = !0, e;
 	}
 	polygonOnLeftLabel() {
 		let e = this.left + (1 - this.labelCornersPreserveCoefficient) * this.LabelWidth;
-		return L.mkClosedFromPoints([
-			new j(e, this.top),
+		return R.mkClosedFromPoints([
+			new N(e, this.top),
 			this.rightTop,
 			this.rightBottom,
-			new j(e, this.bottom),
-			new j(this.left, this.y)
+			new N(e, this.bottom),
+			new N(this.left, this.y)
 		]);
 	}
 	polygonOnRightLabel() {
 		let e = this.right - (1 - this.labelCornersPreserveCoefficient) * this.LabelWidth;
-		return L.mkClosedFromPoints([
-			new j(e, this.top),
-			new j(this.right, this.y),
-			new j(e, this.bottom),
+		return R.mkClosedFromPoints([
+			new N(e, this.top),
+			new N(this.right, this.y),
+			new N(e, this.bottom),
 			this.leftBottom,
 			this.leftTop
 		]);
@@ -24528,9 +24535,9 @@ var lp = class e {
 	Calc(e) {
 		if (e.length === 0) return null;
 		if (e.length === 1) return e[0];
-		let t = e[0].parallelogram, n = 1, r = M.parallelogramOfTwo(t, e[n].parallelogram).area;
+		let t = e[0].parallelogram, n = 1, r = na.parallelogramOfTwo(t, e[n].parallelogram).area;
 		for (let i = 2; i < e.length; i++) {
-			let a = M.parallelogramOfTwo(t, e[i].parallelogram).area;
+			let a = na.parallelogramOfTwo(t, e[i].parallelogram).area;
 			a > r && (n = i, r = a);
 		}
 		let i;
@@ -24538,10 +24545,10 @@ var lp = class e {
 			i = t;
 			break;
 		}
-		r = M.parallelogramOfTwo(e[n].parallelogram, e[i].parallelogram).area;
+		r = na.parallelogramOfTwo(e[n].parallelogram, e[i].parallelogram).area;
 		for (let t = 0; t < e.length; t++) {
 			if (t === n) continue;
-			let a = M.parallelogramOfTwo(e[n].parallelogram, e[t].parallelogram).area;
+			let a = na.parallelogramOfTwo(e[n].parallelogram, e[t].parallelogram).area;
 			a > r && (i = t, r = a);
 		}
 		let a = [], o = [];
@@ -24549,11 +24556,11 @@ var lp = class e {
 		let s = e[n].parallelogram, c = e[i].parallelogram;
 		for (let t = 0; t < e.length; t++) {
 			if (t === n || t === i) continue;
-			let r = M.parallelogramOfTwo(s, e[t].parallelogram), l = r.area - s.area, u = M.parallelogramOfTwo(c, e[t].parallelogram), d = u.area - c.area;
+			let r = na.parallelogramOfTwo(s, e[t].parallelogram), l = r.area - s.area, u = na.parallelogramOfTwo(c, e[t].parallelogram), d = u.area - c.area;
 			a.length * this.groupSplitThreshold < o.length ? (a.push(e[t]), s = r) : o.length * this.groupSplitThreshold < a.length ? (o.push(e[t]), c = u) : l < d ? (a.push(e[t]), s = r) : (o.push(e[t]), c = u);
 		}
 		return {
-			parallelogram: M.parallelogramOfTwo(s, c),
+			parallelogram: na.parallelogramOfTwo(s, c),
 			node: { children: [this.Calc(a), this.Calc(o)] },
 			seg: void 0,
 			leafBoxesOffset: void 0
@@ -24571,7 +24578,7 @@ var lp = class e {
 	}
 	FixCorner(e, t, n) {
 		if (e.equal(t)) return t;
-		let r = j.ClosestPointAtLineSegment(t, e, n), i = t.sub(r), a = Math.abs(i.y), o = this.layerSeparation / 2;
+		let r = N.ClosestPointAtLineSegment(t, e, n), i = t.sub(r), a = Math.abs(i.y), o = this.layerSeparation / 2;
 		return a > o && (i = i.mul(o / (a * 2))), i.add(t);
 	}
 	InsertSites() {
@@ -24583,7 +24590,7 @@ var lp = class e {
 			let a = e.absCotan(t.sub(this.currentBottomSite.point));
 			a < n && (n = a, r = t, i = !0);
 		}
-		return i ? O(n, e.absCotan(t)) ? !1 : (this.currentBottomSite = ya.mkSiteSPS(this.currentTopSite, this.FixCorner(this.currentTopSite.point, r, this.currentBottomSite.point), this.currentBottomSite), !0) : !1;
+		return i ? A(n, e.absCotan(t)) ? !1 : (this.currentBottomSite = va.mkSiteSPS(this.currentTopSite, this.FixCorner(this.currentTopSite.point, r, this.currentBottomSite.point), this.currentBottomSite), !0) : !1;
 	}
 	static absCotan(e) {
 		return Math.abs(e.x / e.y);
@@ -24594,7 +24601,7 @@ var lp = class e {
 			let a = e.absCotan(t.sub(this.currentTopSite.point));
 			a < n && (n = a, r = t, i = !0);
 		}
-		return i ? O(n, e.absCotan(t)) ? !1 : (this.currentTopSite = ya.mkSiteSPS(this.currentTopSite, this.FixCorner(this.currentTopSite.point, r, this.currentBottomSite.point), this.currentBottomSite), !0) : !1;
+		return i ? A(n, e.absCotan(t)) ? !1 : (this.currentTopSite = va.mkSiteSPS(this.currentTopSite, this.FixCorner(this.currentTopSite.point, r, this.currentBottomSite.point), this.currentBottomSite), !0) : !1;
 	}
 	Init() {
 		this.IsTopToTheLeftOfBottom() ? (this.topCorners = () => this.CornersToTheRightOfTop(), this.bottomCorners = () => this.CornersToTheLeftOfBottom()) : (this.topCorners = () => this.CornersToTheLeftOfTop(), this.bottomCorners = () => this.CornersToTheRightOfBottom());
@@ -24659,7 +24666,7 @@ var lp = class e {
 			if (this.NodeUCanBeCrossedByNodeV(t, s)) continue;
 			let c = this.anchors[t];
 			if (c.left >= i) break;
-			c.right > r && (c.topAnchor > o + E.distanceEpsilon ? (o = c.topAnchor, yield t) : c.bottomAnchor > a + E.distanceEpsilon && (a = c.bottomAnchor, yield t));
+			c.right > r && (c.topAnchor > o + O.distanceEpsilon ? (o = c.topAnchor, yield t) : c.bottomAnchor > a + O.distanceEpsilon && (a = c.bottomAnchor, yield t));
 		}
 	}
 	*LeftFromTheNode(e, t, n, r, i) {
@@ -24671,7 +24678,7 @@ var lp = class e {
 			if (this.NodeUCanBeCrossedByNodeV(t, s)) continue;
 			let c = this.anchors[t];
 			if (c.right <= r) break;
-			c.left < i && (c.topAnchor > o + E.distanceEpsilon ? (o = c.topAnchor, yield t) : c.bottomAnchor > a + E.distanceEpsilon && (a = c.bottomAnchor, yield t));
+			c.left < i && (c.topAnchor > o + O.distanceEpsilon ? (o = c.topAnchor, yield t) : c.bottomAnchor > a + O.distanceEpsilon && (a = c.bottomAnchor, yield t));
 		}
 	}
 }, dp = class e {
@@ -24696,7 +24703,7 @@ var lp = class e {
 				let t = this.anchors[i];
 				(r == null || r.origin.x > t.origin.x) && (r = t), e.push(t.polygonalBoundary);
 			}
-			r != null && this.thinRightNodes.push(N.mkLinePXY(r.origin, this.originalGraph.right, r.y).pNodeOverICurve()), t++;
+			r != null && this.thinRightNodes.push(P.mkLinePXY(r.origin, this.originalGraph.right, r.y).pNodeOverICurve()), t++;
 		}
 		return e;
 	}
@@ -24707,7 +24714,7 @@ var lp = class e {
 			for (let i of this.LeftBoundaryNodesOfANode(n, fp.GetNodeKind(t, this.edgePath))) (r === -1 || this.layerArrays.x[i] > this.layerArrays.x[r]) && (r = i), e.push(this.anchors[i].polygonalBoundary);
 			if (r !== -1) {
 				let e = this.anchors[r];
-				this.thinWestNodes.push(N.mkLinePXY(e.origin, this.originalGraph.left, e.origin.y).pNodeOverICurve());
+				this.thinWestNodes.push(P.mkLinePXY(e.origin, this.originalGraph.left, e.origin.y).pNodeOverICurve());
 			}
 			t++;
 		}
@@ -24728,7 +24735,7 @@ var lp = class e {
 		let a = e[t];
 		for (let n = t - 1; n >= 0; n--) {
 			let t = e[n], o = this.anchors[t];
-			o.topAnchor > i + E.distanceEpsilon ? this.NodeUCanBeCrossedByNodeV(t, a) || (i = o.topAnchor, r = Math.max(r, o.bottomAnchor), yield t) : o.bottomAnchor > r + E.distanceEpsilon && (this.NodeUCanBeCrossedByNodeV(t, a) || (i = Math.max(i, o.topAnchor), r = o.bottomAnchor, yield t));
+			o.topAnchor > i + O.distanceEpsilon ? this.NodeUCanBeCrossedByNodeV(t, a) || (i = o.topAnchor, r = Math.max(r, o.bottomAnchor), yield t) : o.bottomAnchor > r + O.distanceEpsilon && (this.NodeUCanBeCrossedByNodeV(t, a) || (i = Math.max(i, o.topAnchor), r = o.bottomAnchor, yield t));
 		}
 	}
 	IsVirtualVertex(e) {
@@ -24789,10 +24796,10 @@ var lp = class e {
 		return this.createRefinedPolyline(e), this.createSmoothedPolyline();
 	}
 	get GetPolyline() {
-		return new ba(this.headSite);
+		return new ya(this.headSite);
 	}
 	LineSegIntersectBound(t, n) {
-		let r = N.mkPP(t, n);
+		let r = P.mkPP(t, n);
 		return e.CurveIntersectsHierarchy(r, this.westHierarchy) || e.CurveIntersectsHierarchy(r, this.thinWestHierarchy) || e.CurveIntersectsHierarchy(r, this.eastHierarchy) || e.CurveIntersectsHierarchy(r, this.thinEastHierarchy);
 	}
 	SegIntersectWestBound(t, n) {
@@ -24802,7 +24809,7 @@ var lp = class e {
 		return e.SegIntersectsBound(t, n, this.eastHierarchy) || e.SegIntersectsBound(t, n, this.thinEastHierarchy);
 	}
 	TryToRemoveInflectionCorner(e) {
-		if (!e.s.next || !e.s.prev || e.s.turn === k.Counterclockwise && this.SegIntersectEastBound(e.s.prev, e.s.next) || e.s.turn === k.Clockwise && this.SegIntersectWestBound(e.s.prev, e.s.next)) {
+		if (!e.s.next || !e.s.prev || e.s.turn === j.Counterclockwise && this.SegIntersectEastBound(e.s.prev, e.s.next) || e.s.turn === j.Clockwise && this.SegIntersectWestBound(e.s.prev, e.s.next)) {
 			e.cut = !1, e.s = e.s.next;
 			return;
 		}
@@ -24810,18 +24817,18 @@ var lp = class e {
 		e.s.prev.next = t, t.prev = e.s.prev, e.s = t, e.cut = !0;
 	}
 	static SegIntersectsBound(t, n, r) {
-		return e.CurveIntersectsHierarchy(N.mkPP(t.point, n.point), r);
+		return e.CurveIntersectsHierarchy(P.mkPP(t.point, n.point), r);
 	}
 	static CurveIntersectsHierarchy(t, n) {
-		if (n == null || !M.intersect(t.pNodeOverICurve().parallelogram, n.parallelogram)) return !1;
+		if (n == null || !na.intersect(t.pNodeOverICurve().parallelogram, n.parallelogram)) return !1;
 		if (n.node.hasOwnProperty("children")) {
 			let r = n.node;
 			return e.CurveIntersectsHierarchy(t, r.children[0]) || e.CurveIntersectsHierarchy(t, r.children[1]);
 		}
-		return I.intersectionOne(t, n.seg, !1) != null;
+		return L.intersectionOne(t, n.seg, !1) != null;
 	}
 	static Flat(e) {
-		return j.getTriangleOrientation(e.prev.point, e.point, e.next.point) === k.Collinear;
+		return N.getTriangleOrientation(e.prev.point, e.point, e.next.point) === j.Collinear;
 	}
 	Reverse() {
 		let t = new e(this.edgePath, this.anchors, this.originalGraph, this.settings, this.layerArrays, this.layeredGraph, this.database), n = this.headSite, r = null;
@@ -24838,8 +24845,8 @@ var lp = class e {
 		up.Refine(t, n, e, this.anchors, this.layerArrays, this.layeredGraph, this.originalGraph, this.settings.LayerSeparation);
 	}
 	CreateInitialListOfSites() {
-		let e = this.headSite = ya.mkSiteP(this.EdgePathPoint(0));
-		for (let t = 1; t <= this.edgePath.count; t++) e = ya.mkSiteSP(e, this.EdgePathPoint(t));
+		let e = this.headSite = va.mkSiteP(this.EdgePathPoint(0));
+		for (let t = 1; t <= this.edgePath.count; t++) e = va.mkSiteSP(e, this.EdgePathPoint(t));
 	}
 	get TailSite() {
 		let e = this.headSite;
@@ -24848,7 +24855,7 @@ var lp = class e {
 	}
 	OptimizeForThreeSites() {
 		let e = this.EdgePathNode(0), t = this.EdgePathNode(2), n = this.anchors[e], r = this.anchors[t];
-		if (O(n.x, r.x)) return;
+		if (A(n.x, r.x)) return;
 		let i = {
 			ax: n.x,
 			bx: r.x,
@@ -24856,15 +24863,15 @@ var lp = class e {
 		};
 		if (!this.FindLegalPositions(n, r, i)) return;
 		let a = (n.y - r.y) / (n.bottom - r.top), o = .5 * (i.ax + i.bx), s = i.sign * ((i.ax - i.bx) * .5);
-		i.ax = o + a * (s * i.sign), i.bx = o - a * (s * i.sign), this.headSite.point = new j(i.ax, n.y);
+		i.ax = o + a * (s * i.sign), i.bx = o - a * (s * i.sign), this.headSite.point = new N(i.ax, n.y);
 		let c = this.headSite.next, l = c.point.y;
-		c.point = new j(this.MiddlePos(i.ax, i.bx, n, r, l), l), c.next.point = new j(i.bx, r.y);
+		c.point = new N(this.MiddlePos(i.ax, i.bx, n, r, l), l), c.next.point = new N(i.bx, r.y);
 		let u = this.anchors[this.EdgePathNode(1)];
 		u.x = c.point.x;
 	}
 	OptimizeForTwoSites() {
 		let e = this.EdgePathNode(0), t = this.EdgePathNode(1), n = this.anchors[e], r = this.anchors[t];
-		if (O(n.x, r.x)) return;
+		if (A(n.x, r.x)) return;
 		let i = {
 			ax: n.x,
 			bx: r.x,
@@ -24872,7 +24879,7 @@ var lp = class e {
 		};
 		if (!this.FindPositions(n, r, i)) return;
 		let a = (n.y - r.y) / (n.bottom - r.top), o = .5 * (i.ax + i.bx), s = i.sign * ((i.ax - i.bx) * .5);
-		i.ax = o + a * (s * i.sign), i.bx = o - a * (s * i.sign), this.headSite.point = new j(i.ax, n.y), this.headSite.next.point = new j(i.bx, r.y);
+		i.ax = o + a * (s * i.sign), i.bx = o - a * (s * i.sign), this.headSite.point = new N(i.ax, n.y), this.headSite.next.point = new N(i.bx, r.y);
 	}
 	FindLegalPositions(e, t, n) {
 		return this.FindPositions(e, t, n) ? this.PositionsAreLegal(n.ax, n.bx, n.sign, e, t, this.EdgePathNode(1)) : !1;
@@ -24887,16 +24894,16 @@ var lp = class e {
 		return !0;
 	}
 	OriginToOriginSegCrossesAnchorSide(e, t) {
-		let n = N.mkPP(e.origin, t.origin);
-		return e.x < t.x && I.CurvesIntersect(n, N.mkPP(e.rightBottom, e.rightTop)) || I.CurvesIntersect(n, N.mkPP(t.leftBottom, e.leftTop)) || e.x > t.x && I.CurvesIntersect(n, N.mkPP(e.leftBottom, e.leftTop)) || I.CurvesIntersect(n, N.mkPP(t.rightBottom, e.rightTop));
+		let n = P.mkPP(e.origin, t.origin);
+		return e.x < t.x && L.CurvesIntersect(n, P.mkPP(e.rightBottom, e.rightTop)) || L.CurvesIntersect(n, P.mkPP(t.leftBottom, e.leftTop)) || e.x > t.x && L.CurvesIntersect(n, P.mkPP(e.leftBottom, e.leftTop)) || L.CurvesIntersect(n, P.mkPP(t.rightBottom, e.rightTop));
 	}
 	OptimizeShortPath() {
 		this.edgePath.count > 2 || (this.edgePath.count === 2 && this.headSite.next.next != null && this.headSite.next.next.next == null && this.anchors[this.EdgePathNode(1)].node == null ? this.OptimizeForThreeSites() : this.edgePath.count === 1 && this.OptimizeForTwoSites());
 	}
 	PositionsAreLegal(e, t, n, r, i, a) {
-		if (!O(e, t) && (e - t) * n > 0) return !1;
+		if (!A(e, t) && (e - t) * n > 0) return !1;
 		let o = this.anchors[a], s = this.MiddlePos(e, t, r, i, o.y);
-		return this.MiddleAnchorLegal(s, a, o) ? !this.LineSegIntersectBound(new j(e, r.bottom), new j(t, i.top)) : !1;
+		return this.MiddleAnchorLegal(s, a, o) ? !this.LineSegIntersectBound(new N(e, r.bottom), new N(t, i.top)) : !1;
 	}
 	MiddleAnchorLegal(e, t, n) {
 		let r = this.NodeLayer(t), i = this.layerArrays.x[t], a = e - n.x;
@@ -24934,8 +24941,8 @@ var lp = class e {
 	}
 	createSmoothedPolyline() {
 		this.RemoveVerticesWithNoTurns();
-		let e = new I(), t = this.headSite, n = I.findCorner(t);
-		return n === void 0 ? e.addSegment(N.mkPP(this.headSite.point, this.TailSite.point)) : (this.createFilletCurve(e, {
+		let e = new L(), t = this.headSite, n = L.findCorner(t);
+		return n === void 0 ? e.addSegment(P.mkPP(this.headSite.point, this.TailSite.point)) : (this.createFilletCurve(e, {
 			a: t,
 			b: n.b,
 			c: n.c
@@ -24954,11 +24961,11 @@ var lp = class e {
 	}
 	ExtendCurveToEndpoints(e) {
 		let t = this.headSite.point;
-		if (!j.closeDistEps(t, e.start)) {
-			let n = new I();
-			n.addSegs([N.mkPP(t, e.start), e]), e = n;
+		if (!N.closeDistEps(t, e.start)) {
+			let n = new L();
+			n.addSegs([P.mkPP(t, e.start), e]), e = n;
 		}
-		return t = this.TailSite.point, j.closeDistEps(t, e.end) || e.addSegment(N.mkPP(e.end, t)), e;
+		return t = this.TailSite.point, N.closeDistEps(t, e.end) || e.addSegment(P.mkPP(e.end, t)), e;
 	}
 	createFilletCurve(e, t) {
 		for (; this.AddSmoothedCorner(t.a, t.b, t.c, e), t.a = t.b, t.b = t.c, t.b.next != null;) t.c = t.b.next;
@@ -24966,30 +24973,30 @@ var lp = class e {
 	AddSmoothedCorner(e, t, n, r) {
 		let i = .5, a;
 		do
-			a = I.createBezierSeg(i, i, e, t, n), t.previouisBezierCoefficient = i, i /= 2;
+			a = L.createBezierSeg(i, i, e, t, n), t.previouisBezierCoefficient = i, i /= 2;
 		while (this.BezierSegIntersectsBoundary(a));
 		if (i *= 2, i < .5) {
 			i = .5 * (i + i * 2);
-			let r = I.createBezierSeg(i, i, e, t, n);
+			let r = L.createBezierSeg(i, i, e, t, n);
 			this.BezierSegIntersectsBoundary(r) || (t.nextBezierCoefficient = i, t.previouisBezierCoefficient = i, a = r);
 		}
-		r.segs.length > 0 && !j.closeDistEps(r.end, a.start) && r.addSegment(N.mkPP(r.end, a.start)), r.addSegment(a);
+		r.segs.length > 0 && !N.closeDistEps(r.end, a.start) && r.addSegment(P.mkPP(r.end, a.start)), r.addSegment(a);
 	}
 	BezierSegIntersectsBoundary(e) {
-		return j.signedDoubledTriangleArea(e.B(0), e.B(1), e.B(2)) < 0 ? this.BezierSegIntersectsTree(e, this.thinWestHierarchy) || this.BezierSegIntersectsTree(e, this.westHierarchy) : this.BezierSegIntersectsTree(e, this.thinEastHierarchy) || this.BezierSegIntersectsTree(e, this.eastHierarchy);
+		return N.signedDoubledTriangleArea(e.B(0), e.B(1), e.B(2)) < 0 ? this.BezierSegIntersectsTree(e, this.thinWestHierarchy) || this.BezierSegIntersectsTree(e, this.westHierarchy) : this.BezierSegIntersectsTree(e, this.thinEastHierarchy) || this.BezierSegIntersectsTree(e, this.eastHierarchy);
 	}
 	BezierSegIntersectsTree(t, n) {
 		if (n == null) return !1;
-		if (M.intersect(t.pNodeOverICurve().parallelogram, n.parallelogram)) if (n.node.hasOwnProperty("children")) {
+		if (na.intersect(t.pNodeOverICurve().parallelogram, n.parallelogram)) if (n.node.hasOwnProperty("children")) {
 			let e = n.node;
 			return this.BezierSegIntersectsTree(t, e.children[0]) || this.BezierSegIntersectsTree(t, e.children[1]);
 		} else return e.BezierSegIntersectsBoundary(t, n.seg);
 		else return !1;
 	}
 	static BezierSegIntersectsBoundary(e, t) {
-		for (let n of I.getAllIntersections(e, t, !1)) if (t instanceof I) {
+		for (let n of L.getAllIntersections(e, t, !1)) if (t instanceof L) {
 			let e = t;
-			if (I.realCutWithClosedCurve(n, e, !1)) return !0;
+			if (L.realCutWithClosedCurve(n, e, !1)) return !0;
 		} else return !0;
 		return !1;
 	}
@@ -25028,12 +25035,12 @@ var lp = class e {
 			if (n.x === n.y) {
 				let e = this.Database.Anchors[n.x], r = e.leftAnchor;
 				for (let n of t) {
-					let t = this.settings.NodeSeparation + (this.settings.MinNodeWidth + r), i = e.bottomAnchor / 2, a = e.origin, o = a.add(new j(0, i)), s = a.add(new j(t, i)), c = a.add(new j(t, -i)), l = a.add(new j(0, -i)), u = ya.mkSiteP(a), d = new ba(u);
-					u = ya.mkSiteSP(u, o), u = ya.mkSiteSP(u, s), u = ya.mkSiteSP(u, c), u = ya.mkSiteSP(u, l), ya.mkSiteSP(u, a);
+					let t = this.settings.NodeSeparation + (this.settings.MinNodeWidth + r), i = e.bottomAnchor / 2, a = e.origin, o = a.add(new N(0, i)), s = a.add(new N(t, i)), c = a.add(new N(t, -i)), l = a.add(new N(0, -i)), u = va.mkSiteP(a), d = new ya(u);
+					u = va.mkSiteSP(u, o), u = va.mkSiteSP(u, s), u = va.mkSiteSP(u, c), u = va.mkSiteSP(u, l), va.mkSiteSP(u, a);
 					let f = d.createCurve();
 					if (n.curve = f, r = t, n.edge.label != null) {
 						r += n.edge.label.width;
-						let t = new j(f.value((f.parStart + f.parEnd) / 2).x + n.labelWidth / 2, e.y), i = new j(n.edge.label.width / 2, n.edge.label.height / 2), a = R.mkPP(t.add(i), t.sub(i));
+						let t = new N(f.value((f.parStart + f.parEnd) / 2).x + n.labelWidth / 2, e.y), i = new N(n.edge.label.width / 2, n.edge.label.height / 2), a = z.mkPP(t.add(i), t.sub(i));
 						n.edge.label.width = a.width, n.edge.label.height = a.height, n.edge.label.positionCenter(t);
 					}
 					cc.trimSplineAndCalculateArrowheadsII(n.edge, n.edge.source.boundaryCurve, n.edge.target.boundaryCurve, f, !1);
@@ -25050,9 +25057,9 @@ var lp = class e {
 	}
 	static UpdateLabel(t, n) {
 		let r = null;
-		n.labelIsToTheRightOfTheSpline ? (t.label.positionCenter(new j(n.x + n.rightAnchor / 2, n.y)), r = N.mkPP(t.label.boundingBox.leftTop, t.label.boundingBox.leftBottom)) : n.labelIsToTheLeftOfTheSpline && (t.label.positionCenter(new j(n.x - n.leftAnchor / 2, n.y)), r = N.mkPP(t.label.boundingBox.rightTop, t.label.boundingBox.rightBottom));
+		n.labelIsToTheRightOfTheSpline ? (t.label.positionCenter(new N(n.x + n.rightAnchor / 2, n.y)), r = P.mkPP(t.label.boundingBox.leftTop, t.label.boundingBox.leftBottom)) : n.labelIsToTheLeftOfTheSpline && (t.label.positionCenter(new N(n.x - n.leftAnchor / 2, n.y)), r = P.mkPP(t.label.boundingBox.rightTop, t.label.boundingBox.rightBottom));
 		let i = e.GetSegmentInFrontOfLabel(t.curve, t.label.center.y);
-		if (i != null && I.getAllIntersections(t.curve, I.polyFromBox(t.label.boundingBox), !1).length === 0) {
+		if (i != null && L.getAllIntersections(t.curve, L.polyFromBox(t.label.boundingBox), !1).length === 0) {
 			let n = {
 				curveClosestPoint: void 0,
 				labelSideClosest: void 0
@@ -25069,11 +25076,11 @@ var lp = class e {
 		i > n && e.label.positionCenter(e.label.center.add(r.div(i * (i - n))));
 	}
 	static FindClosestPoints(e, t, n) {
-		let r = I.minDistWithinIntervals(t, n, t.parStart, t.parEnd, n.parStart, n.parEnd, (t.parStart + t.parEnd) / 2, (n.parStart + n.parEnd) / 2);
+		let r = L.minDistWithinIntervals(t, n, t.parStart, t.parEnd, n.parStart, n.parEnd, (t.parStart + t.parEnd) / 2, (n.parStart + n.parEnd) / 2);
 		return r ? (e.curveClosestPoint = r.aX, e.labelSideClosest = r.bX, !0) : !1;
 	}
 	static GetSegmentInFrontOfLabel(e, t) {
-		if (e instanceof I) {
+		if (e instanceof L) {
 			let n = e;
 			for (let e of n.segs) if ((e.start.y - t) * (e.end.y - t) <= 0) return e;
 		}
@@ -25126,7 +25133,7 @@ var hp = class extends q {
 	}
 	run() {
 		if (this.originalGraph.shallowNodeCount === 0) {
-			this.originalGraph.boundingBox = R.mkEmpty();
+			this.originalGraph.boundingBox = z.mkEmpty();
 			return;
 		}
 		Fp(this.originalGraph, this.sugiyamaSettings.transform), this.engineLayerArrays = this.calculateLayers(), this.sugiyamaSettings.edgeRoutingSettings.EdgeRoutingMode === nu.SugiyamaSplines && this.runPostLayering(), Ip(this.originalGraph, this.sugiyamaSettings.transform);
@@ -25155,7 +25162,7 @@ var hp = class extends q {
 		let n = this.IntGraph.nodes[e], r = this.database.Anchors[e];
 		r.leftAnchor -= t / 2, r.rightAnchor -= t / 2;
 		let i = n.boundingBox.left, a = i - Math.floor(i / t) * t;
-		Math.abs(a) < .001 || (Math.abs(a) <= t / 2 ? n.center = n.center.add(new j(-a, 0)) : n.center = n.center.add(new j(t - a, 0)), r.x = n.center.x);
+		Math.abs(a) < .001 || (Math.abs(a) <= t / 2 ? n.center = n.center.add(new N(-a, 0)) : n.center = n.center.add(new N(t - a, 0)), r.x = n.center.x);
 	}
 	GetCurrentHeight() {
 		let e = new yc();
@@ -25238,7 +25245,7 @@ var hp = class extends q {
 	InsertVirtualEdgesIfNeeded(e) {
 		if (this.constrainedOrdering == null) {
 			for (let [t, n] of this.database.Multiedges.keyValues()) if (n.length % 2 == 0 && e.y[t.x] - 1 === e.y[t.y]) {
-				let e = new Ta(null), r = new Zl(t.x, t.y, e);
+				let e = new wa(null), r = new Zl(t.x, t.y, e);
 				r.IsVirtualEdge = !0, n.splice(n.length / 2, 0, r), this.IntGraph.addEdge(r);
 			}
 		}
@@ -25272,7 +25279,7 @@ var hp = class extends q {
 			if (t.labelIsToTheRightOfTheSpline) {
 				let n = this.GetSuccessorAndPredecessor(e);
 				if (!Op(t, n.predecessor, n.successor)) {
-					let e = n.predecessor.origin.sub(t.origin).length + n.successor.origin.sub(t.origin).length, r = new j(t.right - t.leftAnchor, t.y);
+					let e = n.predecessor.origin.sub(t.origin).length + n.successor.origin.sub(t.origin).length, r = new N(t.right - t.leftAnchor, t.y);
 					n.predecessor.origin.sub(r).length + n.successor.origin.sub(r).length < e && kp(t);
 				}
 			}
@@ -25299,7 +25306,7 @@ var hp = class extends q {
 		let t = (this.originalGraph.boundingBox.top + this.originalGraph.boundingBox.bottom) / 2;
 		for (let n of this.database.Anchors) n.bottomAnchor *= e, n.topAnchor *= e, n.y = t + e * (n.y - t);
 		let n = this.originalGraph.height * e;
-		this.originalGraph.boundingBox = new R({
+		this.originalGraph.boundingBox = new z({
 			left: this.originalGraph.boundingBox.left,
 			top: t + n / 2,
 			right: this.originalGraph.boundingBox.right,
@@ -25310,7 +25317,7 @@ var hp = class extends q {
 		let t = (this.originalGraph.boundingBox.left + this.originalGraph.boundingBox.right) / 2;
 		for (let n of this.database.Anchors) n.leftAnchor *= e, n.rightAnchor *= e, n.x = t + e * (n.x - t);
 		let n = this.originalGraph.width * e;
-		this.originalGraph.boundingBox = new R({
+		this.originalGraph.boundingBox = new z({
 			left: t - n / 2,
 			top: this.originalGraph.boundingBox.top,
 			right: t + n / 2,
@@ -25319,7 +25326,7 @@ var hp = class extends q {
 	}
 	CalculateOriginalGraphBox() {
 		if (this.anchors.length === 0) return;
-		let e = new R({
+		let e = new z({
 			left: this.anchors[0].left,
 			top: this.anchors[0].top,
 			right: this.anchors[0].right,
@@ -25518,9 +25525,9 @@ function Dp(e) {
 }
 function Op(e, t, n) {
 	if (e.labelIsToTheRightOfTheSpline) {
-		if (j.getTriangleOrientation(t.origin, e.origin, n.origin) === k.Clockwise) return !0;
+		if (N.getTriangleOrientation(t.origin, e.origin, n.origin) === j.Clockwise) return !0;
 		let r = e.leftAnchor, i = e.rightAnchor, a = e.x;
-		return kp(e), j.getTriangleOrientation(t.origin, e.origin, n.origin) === k.Counterclockwise ? !0 : (e.x = a, e.leftAnchor = r, e.rightAnchor = i, e.labelIsToTheRightOfTheSpline = !0, e.labelIsToTheLeftOfTheSpline = !1, !1);
+		return kp(e), N.getTriangleOrientation(t.origin, e.origin, n.origin) === j.Counterclockwise ? !0 : (e.x = a, e.leftAnchor = r, e.rightAnchor = i, e.labelIsToTheRightOfTheSpline = !0, e.labelIsToTheLeftOfTheSpline = !1, !1);
 	}
 	return !1;
 }
@@ -25538,7 +25545,7 @@ function jp(e, t, n, r) {
 	for (let e of a) {
 		i += n;
 		let r = e.edge.label;
-		r != null && (r.positionCenter(new j(r.center.x, t + i + r.height / 2)), i += r.height);
+		r != null && (r.positionCenter(new N(r.center.x, t + i + r.height / 2)), i += r.height);
 	}
 	return i;
 }
@@ -25562,7 +25569,7 @@ function Fp(e, t) {
 	let n = t.inverse();
 	for (let t of e.shallowNodes) t.transform(n);
 	for (let t of e.shallowEdges) if (t.label != null) {
-		let e = R.mkPP(n.multiplyPoint(new j(0, 0)), n.multiplyPoint(new j(t.label.width, t.label.height)));
+		let e = z.mkPP(n.multiplyPoint(new N(0, 0)), n.multiplyPoint(new N(t.label.width, t.label.height)));
 		t.label.width = e.width, t.label.height = e.height;
 	}
 }
@@ -25570,7 +25577,7 @@ function Ip(e, t) {
 	if (!t.isIdentity()) {
 		for (let n of e.shallowNodes) n.transform(t);
 		for (let n of e.shallowEdges) if (n.label != null) {
-			let e = R.mkPP(t.multiplyPoint(new j(0, 0)), t.multiplyPoint(new j(n.label.width, n.label.height)));
+			let e = z.mkPP(t.multiplyPoint(new N(0, 0)), t.multiplyPoint(new N(n.label.width, n.label.height)));
 			n.label.width = e.width, n.label.height = e.height;
 		}
 		Lp(e, t), e.graph.parent ?? (e.boundingBox = null);
@@ -25694,7 +25701,7 @@ function rm(e) {
 }
 function im(e) {
 	if (!e?.length) return null;
-	let t = e[0];
+	let t = e;
 	if (!t || t.length < 2) return null;
 	let n = t[0];
 	return {
@@ -25704,7 +25711,7 @@ function im(e) {
 }
 function am(e) {
 	if (!e?.length) return null;
-	let t = e[e.length - 1];
+	let t = e;
 	if (!t || t.length < 2) return null;
 	let n = t[t.length - 1];
 	return {
@@ -25721,11 +25728,12 @@ function om(e, t, n) {
 	let s = rm(a - r), c = o - i, l = (i + o) / 2 * Math.PI / 180;
 	return s *= Math.cos(l), Math.atan2(c, s) * 180 / Math.PI;
 }
-function sm(e, t) {
-	let n = im(e), r = am(e);
-	return !n || !r ? null : {
-		start: om(n.base, n.tip, t),
-		end: om(r.base, r.tip, t)
+function sm(e, t, n, r) {
+	if (n !== 0 || n !== r - 1) return;
+	let i = im(e), a = am(e);
+	if (!(!i || !a)) return {
+		start: n === 0 ? om(i.base, i.tip, t) : void 0,
+		end: n === r - 1 ? om(a.base, a.tip, t) : void 0
 	};
 }
 function cm(e) {
@@ -25739,80 +25747,84 @@ function cm(e) {
 	});
 }
 function lm(e) {
-	let { graphA: t, graphB: n, panel: r, parPath: i, layerIdx: a, edgeId: o, dataRecord: s, commentsData: c, theme: l } = e, { isLogic: u, graph: d } = r, { setEdge: f, findNode: p } = t, m = t.nodeCollection.findEdge, h = i[0], g = i.at(-1);
-	if (typeof g != "string" || typeof h != "string") return;
-	let _ = p(h);
-	if (!p(g) || !_) return;
-	let v = [], ee = [], te = [];
-	if (i.forEach((e, t) => {
+	let { graphA: t, graphB: n, panel: r, parPath: a, layerIdx: o, edgeId: s, dataRecord: c, commentsData: l, theme: u } = e, { isLogic: d, graph: f } = r, { setEdge: p, findNode: m } = t, { setEdge: h, findNode: g } = n, _ = t.nodeCollection.findEdge, v = a[0], ee = a.at(-1);
+	if (typeof ee != "string" || typeof v != "string") return;
+	let te = m(v);
+	if (!g(ee) || !te) return;
+	let ne = [], re = [], ie = [];
+	if (a.forEach((e, t) => {
 		if (typeof e == "string") {
-			let t = p(e);
-			if (t) {
-				let n = t.data.wasmId;
-				v.push(n), ee.push(e), te.push(e);
+			let n = t === a.length - 1 ? g(e) : m(e);
+			if (n) {
+				let t = n.data.wasmId;
+				ne.push(t), re.push(e), ie.push(e);
 			}
-		} else !r.isLogic && Array.isArray(e) && (v.push(void 0), te.push(e));
-	}), !v.length) return;
-	let ne = o ?? h + "-" + g, re = m(ne), ie;
-	if (!re) {
-		let e = v;
-		d.getEdgeVerticeIds.push([e, a]), ie = d.getEdgeVerticeIds.length - 1;
+		} else !r.isLogic && Array.isArray(e) && (ne.push(void 0), ie.push(e));
+	}), !ne.length) return;
+	let y = s ?? v + "-" + ee, b = _(y), ae;
+	if (!b) {
+		let e = ne;
+		f.getEdgeVerticeIds.push([Array.from(e), o]), ae = f.getEdgeVerticeIds.length - 1;
 		let t = {
-			dataRecord: s,
-			parPath: te,
-			edge_id: ie,
-			edgeId: ne
-		}, o = [];
-		if (u && ee.length > 2) {
-			let [e, n] = i.length ? um(te, r.positions, p) : [];
-			e.forEach((e, n) => {
-				let r = ne + (n ? "--" + n : ""), i = e[0].item.id, a = e.at(-1).item.id, s = f(r, i, a);
-				s && (s.setData(t), o.push(s));
+			dataRecord: c,
+			parPath: ie,
+			edge_id: ae,
+			edgeId: y
+		}, i = [];
+		if (re.length > 2) {
+			let [e, n] = a.length ? um(ie, r.positions, m, g) : [];
+			e?.forEach((e, n) => {
+				let r = y + (n ? "--" + n : ""), a = e[0].item.id, o = e.at(-1).item.id, s = p(r, a, o);
+				s && (s.setData(t), i.push(s));
 			});
 		} else {
-			if (re = f(ne, h, g, n), !re) {
-				console.warn("edge from rxdb not found in your datasource. Mixed namespaces? (edgeId, sourceId, targetId)", ne, h, g);
+			if (b = p(y, v, ee, n), !b) {
+				console.warn("edge from rxdb not found in your datasource. Mixed namespaces? (edgeId, sourceId, targetId)", y, v, ee);
 				return;
 			}
-			re?.setData(t), o.push(re);
+			b?.setData(t), i.push(b);
 		}
-		d.getWasmId2Edges[ie] = o;
+		f.getWasmId2Edges[ae] = i;
+	} else if (b && (ae = b.data.edge_id, ae !== void 0)) {
+		b.setAttrProp(i.EdgeDataIndex, "parPath", ie), f.getEdgeVerticeIds[ae][0];
+		let e = ne;
+		f.getEdgeVerticeIds[ae][0] = Array.from(e);
 	}
-	i.forEach((e, n) => {
+	a.forEach((e, n) => {
 		if (Array.isArray(e) && e.length > 2) {
-			let r = e[3], i = e[4], a = i && l.visualization.getColorByName(i), { style: o, layerName: u } = s || {};
+			let r = e[3], i = e[4], a = i && u.visualization.getColorByName(i), { style: o, layerName: s } = c || {};
 			if (r !== void 0 && o) {
 				let i = {
 					text: r,
 					iconColor: a ?? "#4ec2fc",
 					style: o,
 					root: t,
-					layerName: u,
+					layerName: s,
 					index: n,
 					coords: e.slice(0, 2),
-					edge: re
+					edge: b
 				};
-				c[ne] || (c[ne] = /* @__PURE__ */ new Map()), c[ne].set(n, i);
+				l[y] || (l[y] = /* @__PURE__ */ new Map()), l[y].set(n, i);
 			}
 		}
 	});
 }
-function um(e, t, n) {
+function um(e, t, n, r) {
 	if (e.length === 0) return [[]];
-	let r = e.map((e, t) => typeof e == "string" ? n(e) : e).filter((e) => e), i = [], a = [], o = [], s = [];
-	for (let e = 0; e < r.length; e++) {
-		let n = r[e], c = t[e];
-		c && (n.id && o.length > 0 && (o.push({
+	let i = e.map((t, i) => typeof t == "string" ? i === e.length - 1 ? r(t) : n(t) : t).filter((e) => e), a = [], o = [], s = [], c = [];
+	for (let e = 0; e < i.length; e++) {
+		let n = i[e], r = t[e];
+		r && (n.id && s.length > 0 && (s.push({
 			item: n,
 			gIdx: e,
-			coords: c
-		}), s.push(t[e]), i.push(o), a.push(s), o = [], s = []), o.push({
+			coords: r
+		}), c.push(t[e]), a.push(s), o.push(c), s = [], c = []), s.push({
 			item: n,
 			gIdx: e,
-			coords: c
-		}), s.push(c));
+			coords: r
+		}), c.push(r));
 	}
-	return [i, a];
+	return [a, o];
 }
 function dm(e) {
 	return typeof e == "string";
@@ -25844,7 +25856,7 @@ function pm(e, t, n) {
 	};
 }
 function mm(e) {
-	let t = Ta.getGeom(e);
+	let t = wa.getGeom(e);
 	return t?.source ? Array.from(t.getSmoothPolyPoints()).slice(1, -1).map((e) => [e.x, e.y]) : [];
 }
 function hm(e) {
@@ -25885,24 +25897,31 @@ function ym(e, t, n, r = !0) {
 	return e.map((e, i) => {
 		if (typeof e == "string") {
 			let e = t[i];
-			return [n[e * 2], n[e * 2 + 1]];
+			if (e !== void 0) {
+				let t = n[e * 2], r = n[e * 2 + 1];
+				if (t !== void 0) return [t, r];
+			}
 		} else if (Array.isArray(e)) return r ? e.slice(0, 2) : e;
 		return null;
 	}).filter((e) => e);
 }
+function bm(e, t) {
+	let n = t[0] - e[0], r = t[1] - e[1];
+	return Math.sqrt(n * n + r * r);
+}
 //#endregion
 //#region src/utils/defaults.ts
-var bm = "#4ec2fc", xm = 1.5, Sm = "default", Cm = "#0a55a1", wm = "#000000", Tm = "#299c46", Em = "#9acd32", Dm = "#299C46", Om = "#ed8128", km = "#f53636", Am = "#ed473b", jm = Cm, Mm = "rgba(154, 205, 50)", Nm = "#9acd32", Pm = {
-	color: Nm,
-	lineWidth: xm,
-	label: Sm
-}, Fm = "#f0fc", Im = "#e034b8cc", Lm = "#ffdd57e6", Rm = "#205299cc", zm = "#ffd70033", Bm = "#20529933", Vm = "#ffd70026", Hm = "#42a4f533", Um = "#e6ca5ce6", Wm = "#dfff7bcc", Gm = "#2fa1deb3", Km = "#f0f0f0", qm = "#e0be8b", Jm = {
+var xm = "#4ec2fc", Sm = 1.5, Cm = "default", wm = "#0a55a1", Tm = "#000000", Em = "#299c46", Dm = "#9acd32", Om = "#299C46", km = "#ed8128", Am = "#f53636", jm = "#ed473b", Mm = wm, Nm = "rgba(154, 205, 50)", Pm = "#9acd32", Fm = {
+	color: Pm,
+	lineWidth: Sm,
+	label: Cm
+}, Im = "#f0fc", Lm = "#e034b8cc", Rm = "#ffdd57e6", zm = "#205299cc", Bm = "#ffd70033", Vm = "#20529933", Hm = "#ffd70026", Um = "#42a4f533", Wm = "#e6ca5ce6", Gm = "#dfff7bcc", Km = "#2fa1deb3", qm = "#f0f0f0", Jm = "#e0be8b", Ym = {
 	Alerting: "#e0226e",
 	Pending: "#ff9900",
 	Normal: "#1b855e"
-}, Ym = "#cfe3d4", Xm = .5, Zm = {
+}, Xm = "#cfe3d4", Zm = .5, Qm = {
 	255: [
-		Jm.Alerting,
+		Ym.Alerting,
 		"Alerting",
 		[
 			224,
@@ -25912,7 +25931,7 @@ var bm = "#4ec2fc", xm = 1.5, Sm = "default", Cm = "#0a55a1", wm = "#000000", Tm
 		]
 	],
 	222: [
-		Jm.Pending,
+		Ym.Pending,
 		"Pending",
 		[
 			255,
@@ -25922,7 +25941,7 @@ var bm = "#4ec2fc", xm = 1.5, Sm = "default", Cm = "#0a55a1", wm = "#000000", Tm
 		]
 	],
 	111: [
-		Jm.Normal,
+		Ym.Normal,
 		"Normal",
 		[
 			27,
@@ -25931,11 +25950,11 @@ var bm = "#4ec2fc", xm = 1.5, Sm = "default", Cm = "#0a55a1", wm = "#000000", Tm
 			254
 		]
 	]
-}, Qm = {
-	Alerting: Zm[255],
-	Pending: Zm[222],
-	Normal: Zm[111]
-}, $m = 20, eh = "new rule", th = !0, nh = "", rh = "cisco/atm-switch", ih = -5, ah = 40, oh = 45, sh = 16, ch = 2, lh = {}, uh = {
+}, $m = {
+	Alerting: Qm[255],
+	Pending: Qm[222],
+	Normal: Qm[111]
+}, eh = 20, th = "new rule", nh = !0, rh = "", ih = "cisco/atm-switch", ah = -5, oh = 40, sh = 45, ch = 16, lh = 2, uh = {}, dh = {
 	shape: "binary-feature-collection",
 	points: {
 		type: "Point",
@@ -25997,22 +26016,22 @@ var bm = "#4ec2fc", xm = 1.5, Sm = "default", Cm = "#0a55a1", wm = "#000000", Tm
 		},
 		properties: []
 	}
-}, dh = [
-	Om,
+}, fh = [
 	km,
-	jm
-], fh = "fixed", ph = ".", mh = 25, hh = "mapgl", gh = "xy-namespaces", _h = "cmn", vh = "external", yh = "annots & alerts query (built-in)", bh = "source", xh = {
+	Am,
+	Mm
+], ph = "fixed", mh = ".", hh = 25, gh = "mapgl", _h = "xy-namespaces", vh = "cmn", yh = "external", bh = "annots & alerts query (built-in)", xh = "source", Sh = {
 	longitude: 0,
 	latitude: 0,
 	zoom: 1,
 	yZoom: 2
-}, Sh;
+}, Ch;
 (function(e) {
 	e.GeoJson = "geojson", e.Polygons = "polygons", e.Path = "path", e.Markers = "markers", e.Nodes = "nodes", e.Edges = "edges", e.Hyperedges = "routed", e.Clusters = "clusters", e.SVG = "icon", e.Circle = "circle", e.Label = "label", e.Comments = "comments", e.Hull = "convex-hull", e.Text = "text", e.Bboxes = "bboxes";
-})(Sh ||= {});
+})(Ch ||= {});
 //#endregion
 //#region src/structs/graph.ts
-var Ch = class e extends l {
+var wh = class e extends l {
 	root;
 	isLogic = !1;
 	comments = {};
@@ -26024,18 +26043,18 @@ var Ch = class e extends l {
 	version = 0;
 	isRoot = !1;
 	constructor(e = "__graph__", t = !1, n = !0) {
-		super(e), this.isRoot = t, this.isLogic = n, this.findNode = this.findNode.bind(this), this.addNode = this.addNode.bind(this), this.setEdge = this.setEdge.bind(this), this._bumpVersion = this._bumpVersion.bind(this), this.setRoot = this.setRoot.bind(this), this.findNodeRecursive = this.findNodeRecursive.bind(this), qr(this, {
-			version: x,
-			_bumpVersion: dr,
-			getVersion: Zt,
-			getEdgesGeometry: Zt,
-			getComments: Zt,
-			groupCounts: x,
-			getGroupCounts: Zt,
-			addNode: dr,
-			setEdge: dr,
-			addToGroup: dr,
-			rmFromGroup: dr
+		super(e), this.isRoot = t, this.isLogic = n, this.findNode = this.findNode.bind(this), this.addNode = this.addNode.bind(this), this.setEdge = this.setEdge.bind(this), this._bumpVersion = this._bumpVersion.bind(this), this.setRoot = this.setRoot.bind(this), this.findNodeRecursive = this.findNodeRecursive.bind(this), Gr(this, {
+			version: C,
+			_bumpVersion: lr,
+			getVersion: Yt,
+			getEdgesGeometry: Yt,
+			getComments: Yt,
+			groupCounts: C,
+			getGroupCounts: Yt,
+			addNode: lr,
+			setEdge: lr,
+			addToGroup: lr,
+			rmFromGroup: lr
 		});
 	}
 	addToGroup = (e, t) => {
@@ -26144,7 +26163,7 @@ var Ch = class e extends l {
 		let a = r ? r.nodeCollection.findShallow(n) : this.nodeCollection.findShallow(n);
 		if (a == null) return;
 		let o = new c(e, i, a);
-		return this.isLogic && new Ta(o), this.nodeCollection.addEdge(o), o;
+		return this.isLogic && new wa(o), this.nodeCollection.addEdge(o), o;
 	}
 	get shallowNodes() {
 		return this.nodeCollection.nodesShallow;
@@ -26201,7 +26220,7 @@ var Ch = class e extends l {
 	addNode(e) {
 		return r.assert(this.findNodeRecursive(e.id) == null), e.parent = this, this.nodeCollection.addNode(e), e;
 	}
-	nodeCollection = new Ji();
+	nodeCollection = new Ki();
 	get shallowNodeCount() {
 		return this.nodeCollection.nodeShallowCount;
 	}
@@ -26247,7 +26266,7 @@ var Ch = class e extends l {
 		for (let t of this.shallowNodes) t instanceof e && (yield* t.allSuccessorsDepthFirst()), yield t;
 	}
 	resetNodes = () => {
-		this.nodeCollection = new Ji(), this.positionRanges = [];
+		this.nodeCollection = new Ki(), this.positionRanges = [];
 	};
 	get getNodes() {
 		return this.nodeCollection.nodesShallow;
@@ -26275,57 +26294,51 @@ var Ch = class e extends l {
 		return this.wasm_edge_vertice_ids;
 	}
 	get getEdgesGeometry() {
-		let e = {}, t = {}, n = this.root.panel.positions;
-		return this.wasm2Edges.forEach((r, i) => {
-			if (!r.length) return;
-			let a = r[0], { source: o, data: s } = a, c = o.parent, l = this.findNode;
-			if (!s) return;
-			let u = s?.dataRecord;
-			s?.edge_id;
-			let { parPath: d } = s || {}, f = d[0], p = d, m = this.wasm_edge_vertice_ids[i][0], h = ym(p, m, n, !0), [g, _] = d.length ? um(p, h, l) : [], v = _;
-			g.length || Array.isArray(d) && g.push([{
-				item: f,
-				gIdx: 0
-			}, {
-				item: d.at(-1),
-				gIdx: 1
-			}]);
-			let ee = Ta.getGeom(a);
-			if (ee?.source && (ee?.curve?.start ? v.forEach((e, t) => {
-				e.length > 3 && (v[t] = e.slice(1, -1));
-			}) : (console.warn("Invalid controlPoints or polyPoints", f, a.id), v = [v])), !v.length) return;
-			let te = u, ne = sm(v, !this.isLogic), re = {
-				edgeId: a.id,
-				type: "Feature",
-				geometry: {
-					type: "MultiLineString",
-					coordinates: v
-				},
-				rowIndex: u?.rowIndex,
-				properties: {
-					...te ?? {},
-					locName: f,
-					segrPath: g,
-					...ne ? { arrowAngles: ne } : {}
-				}
-			}, ie = re.properties, ae = v[0][0], oe = v.at(-1).at(-1);
-			t[c.id] || (t[c.id] = []), t[c.id].push(re), a.setLineId(t[c.id].length - 1);
-			let { arcStyle: se } = ie, y = se?.arcConfig.height, ce = { units: "meters" };
-			function le(e, t) {
-				let n = t[0] - e[0], r = t[1] - e[1];
-				return Math.sqrt(n * n + r * r);
-			}
-			let ue = gm(this.isLogic ? le(ae, oe) : em(ae, oe, ce), 0, 0, .5, y === void 0 ? .5 : y), de = {
-				sourcePosition: ae,
-				targetPosition: oe,
-				midPoint: [..._m(ae, oe, this.isLogic), ue],
-				properties: ie,
-				edgeId: a.id
+		Array.from(this.root.graph.subgraphsBreadthFirst()).concat([this.root.graph]);
+		let e = this.root.visLayers.getCategories(), t = {}, n = {}, r = this.root.panel.positions;
+		return this.wasm2Edges.forEach((i, a) => {
+			if (!i.length) return;
+			let o = i[0], { source: s, data: c } = o, { target: l } = i[i.length - 1], u = s.parent, d = l.parent, f = u.findNode, p = d.findNode, m = o.data, h = m?.dataRecord, g = { arcStyle: { arcConfig: { height: void 0 } } }, _, v;
+			if (i.forEach((t, o) => {
+				m?.edge_id;
+				let { parPath: s } = m || {}, c = s[0], l, ee;
+				this.isLogic && !e.includes(u.id) && (l = !0), this.isLogic && !e.includes(d.id) && (ee = !0);
+				let te = s, ne = this.wasm_edge_vertice_ids[a][0], re = ym(te, ne, r, !0);
+				(l || ee) && (te = [te[0], te.at(-1)], re = [re[0], re.at(-1)]);
+				let [ie, y] = te.length ? um(te, re, f, p) : [[], []], b = y[o];
+				if (!b?.length) return;
+				let ae = wa.getGeom(t);
+				ae?.source && (ae?.curve?.start ? b.length > 3 && (b = b.slice(1, -1)) : console.warn("Invalid controlPoints or polyPoints", c, t.id));
+				let x = h, oe = sm(b, !this.isLogic, o, i.length), se = {
+					heIdx: a,
+					fragIdx: o,
+					edgeId: t.id,
+					type: "Feature",
+					geometry: {
+						type: "LineString",
+						coordinates: b
+					},
+					rowIndex: h?.rowIndex,
+					properties: {
+						...x ?? {},
+						locName: c,
+						segrPath: ie,
+						...oe ? { arrowAngles: oe } : {}
+					}
+				};
+				o === 0 && (g = se.properties, _ = b[0]), o === i.length - 1 && (v = b.at(-1)), n[u.id] || (n[u.id] = []), n[u.id].push(se), t.setLineId(n[u.id].length - 1);
+			}), !_ || !v) return;
+			let { arcStyle: ee } = g, te = ee?.arcConfig?.height, ne = gm(this.isLogic ? bm(_, v) : em(_, v, { units: "meters" }), 0, 0, .5, te === void 0 ? .5 : te), re = [..._m(_, v, this.isLogic), ne], ie = {
+				sourcePosition: _,
+				targetPosition: v,
+				midPoint: re,
+				properties: g,
+				edgeId: o.id
 			};
-			e[c.id] || (e[c.id] = []), e[c.id].push(de);
-		}), [t, e];
+			t[u.id] || (t[u.id] = []), t[u.id].push(ie), o.setArcId(t[u.id].length - 1);
+		}), [n, t];
 	}
-}, wh = class {
+}, Th = class {
 	colType;
 	layerName;
 	__state = {};
@@ -26364,4 +26377,4 @@ var Ch = class e extends l {
 	}
 };
 //#endregion
-export { Qm as ALERTING_NUMS, Jm as ALERTING_STATES, Zm as ALERT_MAP, yh as ANNOTS_LABEL, qm as ANNOT_CLUSTER_BK_COLOR, i as AttributeRegistry, Ym as BBOX_OUTLINE_COLOR, Xm as BBOX_OUTLINE_WIDTH, vh as CMN_NAMESPACE, _h as CMN_NAMESPACE_PREFIX, ym as CoordsConvert, Sa as CurveFactory, zm as DARK_AUTO_HIGHLIGHT, Lm as DARK_CENTER_PLOT, Vm as DARK_HULL_HIGHLIGHT, Km as DEFAULT_CLUSTER_BK_COLOR, oh as DEFAULT_CLUSTER_ICON_SIZE, sh as DEFAULT_CLUSTER_MAX_ZOOM, ah as DEFAULT_CLUSTER_SCALE, Sm as DEFAULT_COLOR_LABEL, Em as DEFAULT_COLOR_PICKER, bm as DEFAULT_COMMENT_COLOR, km as DEFAULT_CRITICAL_COLOR, Im as DEFAULT_EDIT_HANDLE_COLOR, nh as DEFAULT_ICON_NAME, rh as DEFAULT_ICON_NAME2, th as DEFAULT_ICON_RULE_IS_COLLAPSED, eh as DEFAULT_ICON_RULE_LABEL, $m as DEFAULT_ICON_SIZE, xm as DEFAULT_LINE_WIDTH, Nm as DEFAULT_NO_DATA_COLOR, Mm as DEFAULT_NO_DATA_COLOR_RGBA, jm as DEFAULT_NO_THRESHOLD_COLOR, Am as DEFAULT_NUMS_COLOR, Tm as DEFAULT_OK_COLOR, Dm as DEFAULT_OK_COLOR_SELECTED, ih as DEFAULT_SVG_ICON_V_OFFSET, Om as DEFAULT_WARNING_COLOR, c as Edge, nu as EdgeRoutingMode, Fm as FEATURE_EDIT_HANDLE_COLOR, fh as FIXED_COLOR_LABEL, wh as FeatSource, wm as GLOBAL_BORDER_COLOR, Cm as GLOBAL_FILL_COLOR, dh as GLOBAL_OVERRIDE_COLORS, So as GeomGraph, ao as GeomNode, Ch as Graph, Bm as LIGHT_AUTO_HIGHLIGHT, Rm as LIGHT_CENTER_PLOT, Hm as LIGHT_HULL_HIGHLIGHT, Um as LINES_EDIT_HANDLE_COLOR, Wm as LINES_SNAP_SOURCE_COLOR, Gm as LINES_SNAP_TARGET_COLOR, tu as LayerDirectionEnum, bh as MOC_LOC_FIELD, mh as NS_PADDING, ph as NS_SEPARATOR, l as Node, j as Point, gh as RXDB_LOGIC_NAMESPACES, hh as RXDB_NS_PREFIX, ch as SEL_LINE_WIDTH_MULTIPLIER, vm as SingleCoordsConvert, ou as SugiyamaLayoutSettings, jf as TileMap, lh as blankHoverInfo, Sh as colTypes, xh as defViewState, Pm as defaultThreshold, uh as emptyBiCol, sm as getArrowAngles, tm as getMiddleCoords, Nd as layoutGeomGraph, lm as pushPath, hm as runLayout, cm as sortAnnotations };
+export { $m as ALERTING_NUMS, Ym as ALERTING_STATES, Qm as ALERT_MAP, bh as ANNOTS_LABEL, Jm as ANNOT_CLUSTER_BK_COLOR, i as AttributeRegistry, Xm as BBOX_OUTLINE_COLOR, Zm as BBOX_OUTLINE_WIDTH, yh as CMN_NAMESPACE, vh as CMN_NAMESPACE_PREFIX, ym as CoordsConvert, xa as CurveFactory, Bm as DARK_AUTO_HIGHLIGHT, Rm as DARK_CENTER_PLOT, Hm as DARK_HULL_HIGHLIGHT, qm as DEFAULT_CLUSTER_BK_COLOR, sh as DEFAULT_CLUSTER_ICON_SIZE, ch as DEFAULT_CLUSTER_MAX_ZOOM, oh as DEFAULT_CLUSTER_SCALE, Cm as DEFAULT_COLOR_LABEL, Dm as DEFAULT_COLOR_PICKER, xm as DEFAULT_COMMENT_COLOR, Am as DEFAULT_CRITICAL_COLOR, Lm as DEFAULT_EDIT_HANDLE_COLOR, rh as DEFAULT_ICON_NAME, ih as DEFAULT_ICON_NAME2, nh as DEFAULT_ICON_RULE_IS_COLLAPSED, th as DEFAULT_ICON_RULE_LABEL, eh as DEFAULT_ICON_SIZE, Sm as DEFAULT_LINE_WIDTH, Pm as DEFAULT_NO_DATA_COLOR, Nm as DEFAULT_NO_DATA_COLOR_RGBA, Mm as DEFAULT_NO_THRESHOLD_COLOR, jm as DEFAULT_NUMS_COLOR, Em as DEFAULT_OK_COLOR, Om as DEFAULT_OK_COLOR_SELECTED, ah as DEFAULT_SVG_ICON_V_OFFSET, km as DEFAULT_WARNING_COLOR, c as Edge, nu as EdgeRoutingMode, Im as FEATURE_EDIT_HANDLE_COLOR, ph as FIXED_COLOR_LABEL, Th as FeatSource, Tm as GLOBAL_BORDER_COLOR, wm as GLOBAL_FILL_COLOR, fh as GLOBAL_OVERRIDE_COLORS, So as GeomGraph, ao as GeomNode, wh as Graph, Vm as LIGHT_AUTO_HIGHLIGHT, zm as LIGHT_CENTER_PLOT, Um as LIGHT_HULL_HIGHLIGHT, Wm as LINES_EDIT_HANDLE_COLOR, Gm as LINES_SNAP_SOURCE_COLOR, Km as LINES_SNAP_TARGET_COLOR, tu as LayerDirectionEnum, xh as MOC_LOC_FIELD, hh as NS_PADDING, mh as NS_SEPARATOR, l as Node, N as Point, _h as RXDB_LOGIC_NAMESPACES, gh as RXDB_NS_PREFIX, lh as SEL_LINE_WIDTH_MULTIPLIER, vm as SingleCoordsConvert, ou as SugiyamaLayoutSettings, jf as TileMap, uh as blankHoverInfo, Ch as colTypes, Sh as defViewState, Fm as defaultThreshold, dh as emptyBiCol, sm as getArrowAngles, tm as getMiddleCoords, Nd as layoutGeomGraph, lm as pushPath, hm as runLayout, cm as sortAnnotations };

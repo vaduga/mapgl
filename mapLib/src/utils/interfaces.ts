@@ -1,4 +1,4 @@
-import { Geometry, Position, GeoJsonProperties } from 'geojson';
+import { Geometry, Position, GeoJsonProperties, LineString } from 'geojson';
 import { MultiLineString } from 'geojson';
 import { FeatSource } from '../FeatSource';
 import { Edge } from '../structs/edge';
@@ -72,14 +72,13 @@ export type BiColProps = {
   edgeStyle: any; // StyleConfig
   arcStyle: any; // StyleConfig
   segrPath?: CoordsGuided[][];
-  d0?: number; // distances for offsets
-  d1?: number;
+  tilt?: number;
   liveUpd?: string;
   ack?: boolean;
   msg?: string;
   arrowAngles?: {
-    start: number;
-    end: number;
+    start: number | undefined;
+    end: number | undefined;
   };
 };
 
@@ -98,17 +97,14 @@ export interface Feature<G extends Geometry | null = Geometry, P = BiColProps> {
 
 export interface DeckLine<G extends Geometry | null = Geometry, P = BiColProps> {
   //id: number;
+  heIdx: number;
+  fragIdx: number;
   edgeId: string;
   type: 'Feature';
   rowIndex: number;
-  geometry: MultiLineString;
-  // from: { coordinates: Position };
-  // to: { coordinates: Position };
+  geometry: LineString;
   properties: Partial<P>;
 }
-
-// used for insta-render of parentPath line onEditing lines/icons
-export type CoordsAndProps = [Position[], string, number, number?];
 
 export type ParName = string;
 export type ParentInfo = {
@@ -118,7 +114,6 @@ export type ParentInfo = {
   rxEdgeId: string;
   edge: Edge;
   parPath: CoordRef[];
-  isEph: boolean;
   rPath: CoordRef[];
 };
 
@@ -167,7 +162,13 @@ export interface DeckInstaFeature<G extends Geometry | null = Geometry, P = Poin
 
 export type RGBAColor = [number, number, number] | [number, number, number, number];
 
-type libreLayer = { id: string; type: string; source: string; minzoom: number; maxzoom: number };
+type libreLayer = {
+  id: string;
+  type: string;
+  source: string;
+  minzoom: number;
+  maxzoom: number;
+};
 export type libreSource = {
   version: number;
   sources: {};

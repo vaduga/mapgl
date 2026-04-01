@@ -14,17 +14,18 @@ function SingleCoordsConvert(pathItem: any, panel: any, mode2D = true) {
   return null;
 }
 
-function CoordsConvert(subPath: any, wasmIds: number[], positions: Float64Array, mode2D = true) {
+function CoordsConvert(subPath: any, wasmIds: Array<number | undefined>, positions: Float64Array, mode2D = true) {
   let p = subPath
     .map((p: any, i: number) => {
       if (typeof p === 'string') {
         const wasmId = wasmIds[i];
-        const lng = positions[wasmId * 2];
-        const lat = positions[wasmId * 2 + 1];
-        if (lng !== undefined && !lat !== undefined) {
-          return [lng, lat];
+        if (wasmId !== undefined) {
+          const lng = positions[wasmId * 2];
+          const lat = positions[wasmId * 2 + 1];
+          if (lng !== undefined && !lat !== undefined) {
+            return [lng, lat];
+          }
         }
-        return [lng, lat];
       } else if (Array.isArray(p)) {
         return mode2D ? p.slice(0, 2) : p;
       }
@@ -35,4 +36,10 @@ function CoordsConvert(subPath: any, wasmIds: number[], positions: Float64Array,
   return p;
 }
 
-export { CoordsConvert, SingleCoordsConvert };
+function distance2D(a: number[], b: number[]) {
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+export { CoordsConvert, SingleCoordsConvert, distance2D };

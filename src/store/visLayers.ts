@@ -87,9 +87,13 @@ export class VisLayers {
   /* ---------------- SETTERS ---------------- */
 
   setFold(targetIndex: number | null, flag: boolean): void {
-    if (targetIndex === null) {return;}
+    if (targetIndex === null) {
+      return;
+    }
     const layer = findLayerMutByIndex(this.visLayers, targetIndex);
-    if (layer) {layer.fold = flag;}
+    if (layer) {
+      layer.fold = flag;
+    }
   }
 
   setVisible(targetIndex: number | null, name: string | null, group: string | null, flag: boolean): void {
@@ -112,7 +116,9 @@ export class VisLayers {
   getVisState(targetIndex: number | null, name: string | null, group: string | null): [boolean, boolean] {
     for (const layer of this.visLayers) {
       const state = tryGetVisState(layer, targetIndex, name, group);
-      if (state) {return state;}
+      if (state) {
+        return state;
+      }
     }
     return [false, false];
   }
@@ -182,9 +188,13 @@ function toLayerInfo(layer: VisLayer): LayerInfo {
 
 function findLayerMutByIndex(layers: VisLayer[], idx: number): VisLayer | undefined {
   for (const layer of layers) {
-    if (layer.index === idx) {return layer;}
+    if (layer.index === idx) {
+      return layer;
+    }
     const found = findLayerMutByIndex(layer.children, idx);
-    if (found) {return found;}
+    if (found) {
+      return found;
+    }
   }
   return;
 }
@@ -200,8 +210,10 @@ function tryGetVisState(
   }
 
   for (const child of layer.children) {
-    const state = tryGetVisState(child, idx, name, group);
-    if (state) {return state;}
+    const state = tryGetVisState(child, idx, name, child.group);
+    if (state) {
+      return state;
+    }
   }
 
   if (idx === null && name) {
@@ -214,7 +226,7 @@ function tryGetVisState(
 }
 
 function collectVisibleNames(layer: VisLayer, out: Set<string>) {
-  if (layer.group === colTypes.Markers && !layer.children.length && layer.visible && !layer.indeterminate) {
+  if (layer.visible && !layer.indeterminate) {
     out.add(layer.name);
   }
   for (const c of layer.children) {
