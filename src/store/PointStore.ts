@@ -27,11 +27,12 @@ class PointStore {
     const { panel, graph, subs, eventBus, pId } = this.root;
     const isLogic = panel.isLogic;
     const replaceVariables = root.replaceVariables;
-
     const nodeId = replaceVariables('$nodeId');
     //const edgeId = replaceVariables('$edgeId');
     let node, edge;
-    if (nodeId !== '$nodeId') {node = this.root.graph.findNodeRecursive(nodeId);}
+    if (nodeId !== '$nodeId') {
+      node = this.root.graph.findNodeRecursive(nodeId);
+    }
     // if (node && edgeId !== '$edgeId') {
     // for (const el of graph.deepEdges) {
     //   if (el.id === edgeId) {
@@ -48,14 +49,16 @@ class PointStore {
       eventBus.subscribe(SelectNodeEvent, (evt) => {
         //  console.log('evt.payload', evt.payload)
 
-        if (pId !== evt.payload.pId) {return;} //  && !isLogic  . logic layer crosshair selection
+        if (pId !== evt.payload.pId) {
+          return;
+        } //  && !isLogic  . logic layer crosshair selection
 
         const { nodeId, edgeId, graphId, fly, coord, select, zoomIn } = evt.payload;
 
         let wasmId;
         if (nodeId || edgeId || select) {
           let node, edge;
-          let subGraph = graphId && graph;
+          let subGraph = graphId && Array.from(graph.graphs()).find((el) => el.id === graphId);
           if (subGraph) {
             node = (nodeId && subGraph.findNode(nodeId)) ?? subGraph;
             edge = edgeId && subGraph.nodeCollection.getEdgesMap[edgeId];
@@ -77,7 +80,7 @@ class PointStore {
           wasmId = node?.data?.wasmId;
         }
 
-        if (fly && (wasmId !== undefined || coord)) {
+        if (wasmId !== undefined || coord) {
           const pos = panel.positions;
           const lng = pos[wasmId * 2];
           const lat = pos[wasmId * 2 + 1];
@@ -92,7 +95,7 @@ class PointStore {
             //@ts-ignore
             const scene = (map as Deck)?.deck?.viewManager.viewState[isLogic ? '3d-scene' : 'geo-view'];
             const mapZoom = zoomIn ? (isLogic ? 1.5 : 18) : scene?.zoom;
-            const zoom = isNaN(mapZoom) ? 2 : mapZoom ?? 18;
+            const zoom = isNaN(mapZoom) ? 2 : (mapZoom ?? 18);
 
             const viewState = {
               longitude,
@@ -104,9 +107,15 @@ class PointStore {
               target: [longitude, latitude, zoom],
             };
             if (select) {
-              this.setSelCoord({ type: 'Point', coordinates: [viewState.longitude, viewState.latitude] });
+              this.setSelCoord({
+                type: 'Point',
+                coordinates: [viewState.longitude, viewState.latitude],
+              });
             }
-            this.root.viewStore.setViewState(viewState);
+            if (fly) {
+              this.root.viewStore.setViewState(viewState);
+              this.setIsShowCenter({ ...viewState });
+            }
             this.setIsShowCenter({ ...viewState });
           }
         }

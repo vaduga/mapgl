@@ -119,7 +119,8 @@ function pushPath(props: PushPathProps) {
     edgeId: assignedEdgeId,
     dataRecord,
     commentsData,
-    theme } = props;
+    theme,
+  } = props;
   const { isLogic, graph } = panel;
 
   const { setEdge: setEdgeA, findNode: findNodeA } = graphA;
