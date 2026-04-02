@@ -128,7 +128,7 @@ function getFirstCoordinate(geojson) {
 
 function genRndNums(n: number, count: number): number[] {
   if (count <= 0 || count > n + 1) {
-    console.error('Invalid count of numbers requested.');
+    //console.error('Invalid count of numbers requested.');
     return [];
   }
   const uniqueNumbers: Set<number> = new Set();

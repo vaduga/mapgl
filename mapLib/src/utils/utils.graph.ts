@@ -205,12 +205,12 @@ function pushPath(props: PushPathProps) {
       // @ts-ignore
       edge = setEdgeA(edgeId, sourceId, targetId, graphB);
       if (!edge) {
-        console.warn(
-          'edge from rxdb not found in your datasource. Mixed namespaces? (edgeId, sourceId, targetId)',
-          edgeId,
-          sourceId,
-          targetId
-        );
+        // console.warn(
+        //   'edge from rxdb not found in your datasource. Mixed namespaces? (edgeId, sourceId, targetId)',
+        //   edgeId,
+        //   sourceId,
+        //   targetId
+        // );
         return;
       }
       edge?.setData(data);
@@ -327,7 +327,7 @@ function replaceSegmentsWithPolylines(
   }
 
   if (polylines.length !== getStringIndices(parPath).length - 1) {
-    console.warn('Polyline / segment mismatch', { polylines, parPath });
+    //console.warn('Polyline / segment mismatch', { polylines, parPath });
   }
 
   const newParPath: ParPathEl[] = [];

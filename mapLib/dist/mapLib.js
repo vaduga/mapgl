@@ -25778,10 +25778,7 @@ function lm(e) {
 				s && (s.setData(t), i.push(s));
 			});
 		} else {
-			if (ae = p(y, v, ee, n), !ae) {
-				console.warn("edge from rxdb not found in your datasource. Mixed namespaces? (edgeId, sourceId, targetId)", y, v, ee);
-				return;
-			}
+			if (ae = p(y, v, ee, n), !ae) return;
 			ae?.setData(t), i.push(ae);
 		}
 		f.getWasmId2Edges[oe] = i;
@@ -25838,10 +25835,7 @@ function pm(e, t, n) {
 		parPath: e,
 		wasmIds: t
 	};
-	n.length !== fm(e).length - 1 && console.warn("Polyline / segment mismatch", {
-		polylines: n,
-		parPath: e
-	});
+	n.length, fm(e).length - 1;
 	let i = [], a = [], o = 0;
 	for (let s = 0; s < r.length - 1; s++) {
 		let c = r[s];

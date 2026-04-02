@@ -1,5 +1,5 @@
 import { collectGroups, getGraphLayers, loadSvgIcons, newUniqueIconNames, toRGB4Array } from './utils.plugin';
-import { Graph } from 'mapLib';
+import {GeomGraph, Graph } from 'mapLib';
 import { LineTextLayer } from '../deckLayers/TextLayer/text-layer';
 import { MyIconLayer } from '../deckLayers/IconLayer/icon-layer';
 import { MyArcLayer } from '../deckLayers/ArcLayer/arc-layer';
@@ -48,31 +48,25 @@ async function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerPr
     );
   }
 
-  const graphLayers = getGraphLayers(panel);
-  const {visLayers, groupIndices, annots, graph} = panel;
+  const {visLayers, graph} = panel;
   const clusters = Array.from(graph.subgraphsBreadthFirst()) as Graph[];
   const graphs: Graph[] = clusters.concat([graph as Graph]);
-  const visNamespaces = visLayers.getVisibleNamespaces();
 
     /// Bboxes polygons
     if (isLogic) {
-
-      let bboxFeatCollection: {
-        type: 'FeatureCollection';
-        features: any[];
-      } = {
-        type: 'FeatureCollection',
-        features: [],
-      };
-
-      const allSubSpaces = Array.from(clusters).map((el) => el.id);
       const features: any[] = [];
-      const bboxCols: any = {}; //new Set()
+      const bboxCols: any = {};
       for (const c of clusters) {
-        const allNameSpaces = Array.from(graphs).map((el) => el.id);
         const gId = c.id
         if (gId && !bboxCols[gId]) {
-          const bbox = [100,100,100,100] //panel.hyperGraph.getBbox(gId, visNamespaces, NS_SEPARATOR, NS_PADDING);
+          //@ts-ignore
+          const rawBbox = GeomGraph.getGeom(c).getPumpedGraphWithMarginsBox()
+          const bbox = rawBbox && {
+            minX: rawBbox.left_,
+            minY: rawBbox.bottom_,
+            maxX: rawBbox.right_,
+            maxY: rawBbox.top_,
+          };
 
           const graph = Array.from(clusters).find((el) => el.id === gId);
           if (bbox) {
@@ -85,11 +79,6 @@ async function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerPr
         let minX, minY, maxX, maxY;
         ({minX, minY, maxX, maxY} = col.bbox);
 
-        const fillColors = [
-          [237, 239, 240, 50],
-          [91, 217, 196, 50],
-          [230, 204, 219, 50],
-        ];
         const polygonCoords: any = [
           [minX, minY],
           [maxX, minY],
@@ -111,20 +100,13 @@ async function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerPr
             center: [minX + (maxX - minX) / 2, minY + (maxY - minY) / 2],
           },
         };
-
-        const data = {
-          idx: features.length,
-          feature: polyFeature,
-          coordinates: [minX + (maxX - minX) / 2, minY + (maxY - minY) / 2],
-          rxPtId: col.graph.data?.rxPtId,
-        };
-        col.graph.setData(data);
-
         features.push(polyFeature);
       });
 
-      bboxFeatCollection.features = features;
-
+      let bboxFeatCollection = {
+        type: 'FeatureCollection',
+        features,
+      };
 
       if (bboxFeatCollection.features.length) {
         const props = {

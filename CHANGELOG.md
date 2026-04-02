@@ -1,5 +1,8 @@
 # Changelog Mapgl
 
+## 2.2.0
+- namespace subgraphs support to structure node graph branches with no clutter.
+
 ## 2.1.0
 
 - align styles with Grafana theme tokens. Theme support for widget buttons.
