@@ -25,8 +25,9 @@ export const EdgesGeojsonLayer = (props) => {
   const isLogic = panel.isLogic;
   const selectedFeatureIndexes = getSelectedIdxs?.get(colTypes.Edges)?.[srcGraphId] ?? [];
 
-  const categories = [getVisLayers.getCategories(), getVisLayers.getCategories()];
-  const categorySize = isLogic ? 2 : 1;
+  const cats = getVisLayers.getCategories()
+  const categories = [cats, cats];
+  const categorySize = 2;
 
   const units = options.common?.isMeters ? 'meters' : 'pixels';
   return new GeoJsonLayer({
@@ -42,7 +43,7 @@ export const EdgesGeojsonLayer = (props) => {
     },
     getFilterCategory: (d) => {
       const { style, layerName, root } = d.properties || {};
-      return isLogic ? [layerName, root.id]: layerName;
+      return [layerName, root.id];
     },
     filterCategories: categories,
     extensions: [new DataFilterExtension({ categorySize })],

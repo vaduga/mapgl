@@ -5,10 +5,12 @@ import { svgToDataURL } from '../OrthoLayer/donutChart';
 import { DataFilterExtension } from '@deck.gl/extensions';
 
 const MyIconLayer = (props) => {
-  const { data, getSelectedFeIndexes, onHover, highlightColor, panel, getVisLayers } = props;
+  const { data, onHover, highlightColor, panel, getVisLayers, showGraph } = props;
 
-  const visible = isVisible(getVisLayers, { index: null, name: colTypes.Comments, group: colTypes.Comments });
-  const categories = getVisLayers.getCategories();
+  const visible = showGraph && isVisible(getVisLayers, { index: null, name: colTypes.Comments, group: colTypes.Comments });
+  const cats = getVisLayers.getCategories()
+  const categories = [cats, cats]
+  const categorySize = 2;
 
   const svgico = svgToDataURL(`
 <svg fill="#000000" height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
@@ -47,7 +49,6 @@ const MyIconLayer = (props) => {
       mask: true,
     }),
     data,
-    selectedFeatureIndexes: getSelectedFeIndexes?.get(colTypes.Comments) ?? [],
     getPosition: (d: any) => d.geometry.coordinates,
     getColor: (d: any) => {
       const { iconColor } = d.properties;
@@ -59,11 +60,11 @@ const MyIconLayer = (props) => {
     sizeMinPixels: 5,
     sizeMaxPixels: 45,
     getFilterCategory: (d) => {
-      const { style, layerName } = d?.properties;
-      return layerName;
+      const { layerName, root } = d?.properties;
+      return [layerName, root.id];
     },
     filterCategories: categories,
-    extensions: [new DataFilterExtension({ categorySize: 1 })],
+    extensions: [new DataFilterExtension({ categorySize })],
 
     // Interactive props
     pickable: true,

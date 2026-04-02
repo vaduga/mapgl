@@ -555,23 +555,11 @@ export class Graph extends Node {
         const { parPath } = edgeData || {};
 
         const locName = parPath[0];
-
-        let centerA, centerB;
-        if (this.isLogic && !visibleNamespaces.includes(srcGraph.id)) {
-          centerA = true;
-        }
-        if (this.isLogic && !visibleNamespaces.includes(tarGraph.id)) {
-          centerB = true;
-        }
         let subPath = parPath;
 
         const wasmIds = this.wasm_edge_vertice_ids[heIdx][0];
-        let pathsCoords = CoordsConvert(subPath, wasmIds, positions, true);
+        const pathsCoords = CoordsConvert(subPath, wasmIds, positions, true);
 
-        if (centerA || centerB) {
-          subPath = [subPath[0], subPath.at(-1) as CoordRef];
-          pathsCoords = [pathsCoords[0], pathsCoords.at(-1) as CoordRef];
-        }
         const [segrPath, segrCoords] = subPath.length
           ? segregatePath(subPath, pathsCoords, findNodeA, findNodeB)
           : [[], []];

@@ -32,7 +32,6 @@ async function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerPr
 
   for (const col of biCols ?? []) {
     const visible = isVisible(getVisLayers, {index: null, name: col.graph.id, group: 'graph'});
-    console.log('visible', visible, col.graph.id)
     icons.push(
         isLogic
             ? new OrthoLayer({
@@ -182,7 +181,13 @@ async function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerPr
 
     /// Edges render
 
-    const visible = isVisible(getVisLayers, {
+    const showGraph = isVisible(getVisLayers, {
+      index: null,
+      name: 'graph',
+      group: 'graph',
+    });
+
+    const visible = showGraph && isVisible(getVisLayers, {
       index: null,
       name: colTypes.Edges,
       group: colTypes.Edges,
@@ -240,6 +245,7 @@ async function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerPr
     if (commentFeatures?.length && isHyper) {
       comments = MyIconLayer({
         ...layerProps,
+        showGraph,
         data: commentFeatures,
       });
     }
@@ -326,26 +332,26 @@ function createDerivedLayers(visLayers: VisLayers, graph: Graph, isLogic, replac
   const idToLayerIdx = new Map<string, number>();
   const graphIdx = visLayers.addLayer('graph', 'graph', 'graph', false, true, false, null, false);
 
-  for (const g of graphs) {
-    const id = g.id;
-    const segments = id.split(NS_SEPARATOR);
-    const label = segments[segments.length - 1]; // Use last segment as label
-    const parentId = segments.length > 1 ? segments.slice(0, -1).join(NS_SEPARATOR) : 'graph';
-    const parentIdx = parentId !== 'graph' ? idToLayerIdx.get(parentId) : graphIdx;
+    for (const g of graphs) {
+      const id = g.id;
+      const segments = id.split(NS_SEPARATOR);
+      const label = segments[segments.length - 1]; // Use last segment as label
+      const parentId = segments.length > 1 ? segments.slice(0, -1).join(NS_SEPARATOR) : 'graph';
+      const parentIdx = parentId !== 'graph' ? idToLayerIdx.get(parentId) : graphIdx;
 
-    const layerIdx = visLayers.addLayer(
-      label,
-      id,
-      parentId, //'graph',
-      false,
-      true,
-      false,
-      parentIdx ?? null,
-      false
-    );
+      const layerIdx = visLayers.addLayer(
+          label,
+          id,
+          parentId, //'graph',
+          false,
+          true,
+          false,
+          parentIdx ?? null,
+          false
+      );
 
-    idToLayerIdx.set(id, layerIdx);
-  }
+      idToLayerIdx.set(id, layerIdx);
+    }
 
   const hyperVar = useMockData ? '1' : replaceVariables(`$routed`); //(`$hyperedges`)
   const parsed = parseInt(hyperVar, 10);

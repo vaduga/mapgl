@@ -40,7 +40,8 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
     this.SVG = isVisible(props.getVisLayers, { index: null, name: colTypes.SVG, group: colTypes.SVG });
     this.Label = isVisible(props.getVisLayers, { index: null, name: colTypes.Label, group: colTypes.Label });
 
-    this.categories = props.getVisLayers.getCategories();
+    const cats = props.getVisLayers.getCategories();
+    this.categories = [cats, cats];
 
     this.getIcon = this.getIcon.bind(this);
     this.getIconSize = this.getIconSize.bind(this);
@@ -290,11 +291,11 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
               },
               autoHighlight: false,
               getFilterCategory: this.getSubLayerAccessor((d: any) => {
-                const { style, layerName } = d.properties;
-                return layerName;
+                const { style, layerName, root } = d.properties;
+                return [layerName, root.id];
               }),
               filterCategories: this.categories,
-              extensions: [new DataFilterExtension({ categorySize: 1 })],
+              extensions: [new DataFilterExtension({ categorySize: 2 })],
               // extensions: type === 'text' && textCount ? [new CollisionFilterExtension()] : [],
               // collisionGroup: type === 'text' ? 'text'+textCount : undefined,
               // collisionTestProps:
