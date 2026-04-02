@@ -1,6 +1,5 @@
 import { Graph } from 'mapLib';
-import { ViewState } from 'mapLib/utils';
-import { BiColProps } from 'mapLib/utils';
+import { ViewState, BiColProps } from 'mapLib/utils';
 
 export const expandTooltip = (
   info: any,
@@ -10,7 +9,13 @@ export const expandTooltip = (
   dataClickProps: any,
   selectGotoHandler: any
 ) => {
-  const { setSelCoord, setIsShowCenter, setTooltipObject, setLocalViewState, pId } = dataClickProps;
+  const {
+    setSelCoord,
+    setIsShowCenter,
+    setTooltipObject,
+    setLocalViewState,
+    pId,
+  } = dataClickProps;
   const position = info.coordinate;
   if (position) {
     const [longitude, latitude] = position.map((e: number) => parseFloat(e.toFixed(6)));
@@ -48,21 +53,28 @@ export const expandTooltip = (
     if (!props || info.object?.properties?.guideType) {
       return;
     }
-    const { frameRefId, locName, layerName, root } = props || {};
+    const { locName } = props || {};
 
     const subGraph: Graph | undefined = props.root ?? info.object?.properties?.root; // ?? for comments features
     const edge = subGraph?.nodeCollection?.getEdgesMap[edgeId];
-    const eNode = edge?.['source'];
 
-    if (comId) {
+    if (comId !== undefined && edge) {
       const { index } = props;
-      if (eNode) {selectGotoHandler({ pId, value: eNode.id, eventBus, select: true, fly: false, edge });}
+      selectGotoHandler({
+        pId,
+        value: locName,
+        graphId: (edge.source.parent as Graph).id,
+        eventBus,
+        select: true,
+        fly: false,
+        edge,
+      });
       return;
     }
 
     if (locName) {
       const nodeMap = subGraph?.nodeCollection?.getNodeMap;
-      const node = eNode ?? nodeMap?.get(locName) ?? subGraph;
+      const node = nodeMap?.get(locName) ?? subGraph;
       const feature = subGraph?.data?.feature ?? node?.data?.feature;
       const geom = feature?.geometry;
       const OSM = map?.getZoom && map?.getZoom();
@@ -79,8 +91,17 @@ export const expandTooltip = (
 
       setTooltipObject({ ...info, object }); // this pins tooltip
 
-      if (node)
-        {selectGotoHandler({ pId, value: node.id, graphId: subGraph?.id, eventBus, select: true, fly: false, edge });}
+      if (node) {
+        selectGotoHandler({
+          pId,
+          value: node.id,
+          graphId: subGraph?.id,
+          eventBus,
+          select: true,
+          fly: false,
+          edge,
+        });
+      }
     } else if (!props?.isHull) {
       // zoom on cluster click
       const { expZoom, exp_x, exp_y } = props || {};

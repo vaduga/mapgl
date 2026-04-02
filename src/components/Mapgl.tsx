@@ -344,7 +344,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     Object.entries(initComments)?.forEach(([edgeId, orderMap]) => {
       //@ts-ignore
       orderMap?.forEach((comment) => {
-        const { edge, text, iconColor, style, root, layerName, coords, index } = comment;
+        const { edge, text, iconColor, style, root, layerName, locName, coords, index } = comment;
         if (edge && text && iconColor && coords) {
           commentFeatures.push({
             type: 'Feature',
@@ -361,6 +361,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
               // @ts-ignore
               root: root as Graph,
               isComment: true,
+              locName,
               index,
               iconColor,
               style,

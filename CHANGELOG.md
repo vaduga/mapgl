@@ -2,6 +2,7 @@
 
 ## 2.2.0
 - namespace subgraphs support to structure node graph branches with no clutter.
+- better arrow tips positioning, scale on zoom
 
 ## 2.1.0
 

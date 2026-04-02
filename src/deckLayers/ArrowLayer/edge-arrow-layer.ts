@@ -59,7 +59,7 @@ function getLastPoints(d: ArrowFeature): { base: [number, number]; tip: [number,
     return null;
   }
 
-  const lastLine = coords; //[coords.length - 1];
+  const lastLine = coords[coords.length - 1];
   if (!lastLine || lastLine.length < 2) {
     return null;
   }
@@ -75,7 +75,7 @@ function getFirstPoints(d: ArrowFeature): { base: [number, number]; tip: [number
     return null;
   }
 
-  const firstLine = coords
+  const firstLine = coords[0]
   if (!firstLine || firstLine.length < 2) {
     return null;
   }
@@ -149,7 +149,7 @@ function getArrowColor(d: ArrowFeature, getGroupsLegend?: any): RGBAColor {
   return muted;
 }
 
-function expandArrowItems(data: ArrowFeature[] = [], getWasmId2Edges: Edge[][]): ArrowItem[] {
+function expandArrowItems(data: ArrowFeature[] = [], _getWasmId2Edges: Edge[][]): ArrowItem[] {
   const items: ArrowItem[] = [];
 
   const createItem = (
@@ -169,32 +169,20 @@ function expandArrowItems(data: ArrowFeature[] = [], getWasmId2Edges: Edge[][]):
   data.forEach((feature, lineIndex) => {
     const arrow = feature?.properties?.edgeStyle?.arrow;
     const angles = feature?.properties?.arrowAngles;
-    const edgeId = feature?.edgeId;
-    const heIdx = feature?.heIdx;
 
-    const hyperEdge = getWasmId2Edges[heIdx];
-    const firstEdgeId = hyperEdge?.[0]?.id;
-    const lastEdgeId = hyperEdge?.at(-1)?.id;
-
-    if (arrow === 1 && lastEdgeId === edgeId) {
+    if (arrow === 1) {
       items.push(createItem(feature, 'end', lineIndex, angles?.end));
       return;
     }
 
-    if (arrow === -1 && firstEdgeId === edgeId) {
+    if (arrow === -1) {
       items.push(createItem(feature, 'start', lineIndex, angles?.start));
       return;
     }
 
     if (arrow === 2) {
-      if (firstEdgeId === edgeId) {
-        items.push(createItem(feature, 'start', lineIndex, angles?.start));
-      }
-      if (lastEdgeId === edgeId) {
-        items.push(createItem(feature, 'end', lineIndex, angles?.end));
-      }
-
-      return;
+      items.push(createItem(feature, 'start', lineIndex, angles?.start));
+      items.push(createItem(feature, 'end', lineIndex, angles?.end));
     }
   });
 
@@ -248,7 +236,7 @@ export const EdgeArrowLayer = (props) => {
       return pos ?? [0, 0];
     },
     getAngle: (d: ArrowItem) => getArrowAngle(d.feature, d.placement, !isLogic),
-    getSize: (d: ArrowItem) => getArrowSize(d.feature, isLogic, units) * (selectedFeatureIndexes.includes(d.lineIndex) ? 1.2 : 1),
+    getSize: (d: ArrowItem) => getArrowSize(d.feature) * (selectedFeatureIndexes.includes(d.lineIndex) ? 1.2 : 1),
     getColor: (d: ArrowItem) => getArrowColor(d.feature, getGroupsLegend),
 
     // Deck typings in this build are stricter than runtime support for HTMLImageElement.

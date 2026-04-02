@@ -25715,7 +25715,7 @@ function om(e) {
 }
 function sm(e) {
 	if (!e?.length) return null;
-	let t = e;
+	let t = e[0];
 	if (!t || t.length < 2) return null;
 	let n = t[0];
 	return {
@@ -25725,7 +25725,7 @@ function sm(e) {
 }
 function cm(e) {
 	if (!e?.length) return null;
-	let t = e;
+	let t = e[e.length - 1];
 	if (!t || t.length < 2) return null;
 	let n = t[t.length - 1];
 	return {
@@ -25742,12 +25742,11 @@ function lm(e, t, n) {
 	let s = om(a - r), c = o - i, l = (i + o) / 2 * Math.PI / 180;
 	return s *= Math.cos(l), Math.atan2(c, s) * 180 / Math.PI;
 }
-function um(e, t, n, r) {
-	if (n !== 0 || n !== r - 1) return;
-	let i = sm(e), a = cm(e);
-	if (!(!i || !a)) return {
-		start: n === 0 ? lm(i.base, i.tip, t) : void 0,
-		end: n === r - 1 ? lm(a.base, a.tip, t) : void 0
+function um(e, t) {
+	let n = sm(e), r = cm(e);
+	return !n || !r ? null : {
+		start: lm(n.base, n.tip, t),
+		end: lm(r.base, r.tip, t)
 	};
 }
 function dm(e) {
@@ -25778,14 +25777,14 @@ function fm(e) {
 	let b = s ?? v + "-" + ee, ie = _(b), ae;
 	if (!ie) {
 		let e = ne;
-		f.getEdgeVerticeIds.push([Array.from(e), o]), ae = f.getEdgeVerticeIds.length - 1;
+		f.getEdgeVerticeIds.push([e, o]), ae = f.getEdgeVerticeIds.length - 1;
 		let t = {
 			dataRecord: c,
 			parPath: re,
 			edge_id: ae,
 			edgeId: b
 		}, i = [];
-		if (y.length > 2) {
+		if (d && y.length > 2) {
 			let [e, n] = a.length ? pm(re, r.positions, m, g) : [];
 			e?.forEach((n, a) => {
 				let o = b + (a ? "--" + a : ""), s = n[0].item.id, l = n.at(-1).item.id, u = p(o, s, l);
@@ -25803,14 +25802,15 @@ function fm(e) {
 	}
 	a.forEach((e, n) => {
 		if (Array.isArray(e) && e.length > 2) {
-			let r = e[3], i = e[4], a = i && u.visualization.getColorByName(i), { style: o, layerName: s } = c || {};
-			if (r !== void 0 && o) {
+			let r = e[3], i = e[4], o = i && u.visualization.getColorByName(i), { style: s, layerName: d } = c || {};
+			if (r !== void 0 && s) {
 				let i = {
 					text: r,
-					iconColor: a ?? "#4ec2fc",
-					style: o,
+					iconColor: o ?? "#4ec2fc",
+					style: s,
 					root: t,
-					layerName: s,
+					layerName: d,
+					locName: a[0],
 					index: n,
 					coords: e.slice(0, 2),
 					edge: ie
@@ -26309,24 +26309,21 @@ var Dh = class e extends l {
 			let a = r[0], { source: o, data: s } = a, { target: c } = r[r.length - 1], l = o.parent, u = c.parent, d = l.findNode, f = u.findNode, p = a.data, m = p?.dataRecord, h = { arcStyle: { arcConfig: { height: void 0 } } }, g, _;
 			if (r.forEach((e, a) => {
 				p?.edge_id;
-				let { parPath: o } = p || {}, s = o[0], c = o, u = this.wasm_edge_vertice_ids[i][0], v = Sm(c, u, n, !0), [ee, te] = c.length ? pm(c, v, d, f) : [[], []], ne = te[a];
+				let { parPath: o } = p || {}, s = o[0], c = o, u = this.wasm_edge_vertice_ids[i][0], v = Sm(c, u, n, !0), [ee, te] = c.length ? pm(c, v, d, f) : [[], []], ne = te;
 				if (!ne?.length) return;
 				let y = wa.getGeom(e);
-				y?.source && (y?.curve?.start && ne.length >= 2 ? ne = [
-					[y.curve.start.x, y.curve.start.y],
-					...ne.slice(1, -1),
-					[y.curve.end.x, y.curve.end.y]
-				] : y?.curve?.start || console.warn("Invalid controlPoints or polyPoints", s, e.id));
-				let re = m, b = um(ne, !this.isLogic, a, r.length), ie = {
+				if (y?.source && (y?.curve?.start ? ne.forEach((e, t) => {
+					e.length > 3 && (ne[t] = e.slice(1, -1));
+				}) : y?.curve?.start || (console.warn("Invalid controlPoints or polyPoints", s, e.id), ne = [ne])), !ne.length) return;
+				let re = m, b = um(ne, !this.isLogic), ie = {
 					...a === 0 && y?.sourceArrowhead?.tipPosition ? { start: [y.sourceArrowhead.tipPosition.x, y.sourceArrowhead.tipPosition.y] } : {},
 					...a === r.length - 1 && y?.targetArrowhead?.tipPosition ? { end: [y.targetArrowhead.tipPosition.x, y.targetArrowhead.tipPosition.y] } : {}
 				}, ae = {
 					heIdx: i,
-					fragIdx: a,
 					edgeId: e.id,
 					type: "Feature",
 					geometry: {
-						type: "LineString",
+						type: "MultiLineString",
 						coordinates: ne
 					},
 					rowIndex: m?.rowIndex,
@@ -26338,7 +26335,7 @@ var Dh = class e extends l {
 						...Object.keys(ie).length ? { arrowTips: ie } : {}
 					}
 				};
-				a === 0 && (h = ae.properties, g = y?.sourceArrowhead?.tipPosition ? [y.sourceArrowhead.tipPosition.x, y.sourceArrowhead.tipPosition.y] : ne[0]), a === r.length - 1 && (_ = y?.targetArrowhead?.tipPosition ? [y.targetArrowhead.tipPosition.x, y.targetArrowhead.tipPosition.y] : ne.at(-1)), t[l.id] || (t[l.id] = []), t[l.id].push(ae), e.setLineId(t[l.id].length - 1);
+				a === 0 && (h = ae.properties, g = y?.sourceArrowhead?.tipPosition ? [y.sourceArrowhead.tipPosition.x, y.sourceArrowhead.tipPosition.y] : ne[0][0]), a === r.length - 1 && (_ = y?.targetArrowhead?.tipPosition ? [y.targetArrowhead.tipPosition.x, y.targetArrowhead.tipPosition.y] : ne.at(-1).at(-1)), t[l.id] || (t[l.id] = []), t[l.id].push(ae), e.setLineId(t[l.id].length - 1);
 			}), !g || !_) return;
 			let { arcStyle: v } = h, ee = v?.arcConfig?.height, te = ym(this.isLogic ? Cm(g, _) : em(g, _, { units: "meters" }), 0, 0, .5, ee === void 0 ? .5 : ee), ne = [...bm(g, _, this.isLogic), te], y = {
 				sourcePosition: g,

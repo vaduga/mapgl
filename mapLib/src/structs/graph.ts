@@ -564,7 +564,7 @@ export class Graph extends Node {
           ? segregatePath(subPath, pathsCoords, findNodeA, findNodeB)
           : [[], []];
 
-        let coordinates = segrCoords[fragIdx];
+        let coordinates = segrCoords
         if (!coordinates?.length) {
           return;
         }
@@ -572,19 +572,24 @@ export class Graph extends Node {
         const geomEdge: GeomEdge = GeomEdge.getGeom(edge);
 
         if (geomEdge?.source) {
-          if (geomEdge?.curve?.start && coordinates.length >= 2) {
-            coordinates = [
-              [geomEdge.curve.start.x, geomEdge.curve.start.y],
-              ...coordinates.slice(1, -1),
-              [geomEdge.curve.end.x, geomEdge.curve.end.y],
-            ];
+          if (geomEdge?.curve?.start) {
+            coordinates.forEach((c: string | any[], i: any) => {
+              if (c.length > 3) {
+                coordinates[i] = c.slice(1, -1);
+              }
+            });
           } else if (!geomEdge?.curve?.start) {
             console.warn('Invalid controlPoints or polyPoints', locName, edge.id);
+            coordinates = [coordinates];
           }
         }
 
+        if (!coordinates.length) {
+          return;
+        }
+
         const propsOverride = dataRecord; /// as from frame initially (including duplicate records)
-        const arrowAngles = getArrowAngles(coordinates, !this.isLogic, fragIdx, edges.length);
+        const arrowAngles = getArrowAngles(coordinates, !this.isLogic);
         const arrowTips = {
           ...(fragIdx === 0 && geomEdge?.sourceArrowhead?.tipPosition
             ? {start: [geomEdge.sourceArrowhead.tipPosition.x, geomEdge.sourceArrowhead.tipPosition.y] as Position}
@@ -597,11 +602,10 @@ export class Graph extends Node {
         const newFeature: DeckLine = {
           //id: counter,
           heIdx,
-          fragIdx,
           edgeId: edge.id,
           type: 'Feature',
           geometry: {
-            type: 'LineString',
+            type: 'MultiLineString',
             coordinates,
           },
           rowIndex: dataRecord?.rowIndex, // can't pick original index without explicitely stating it
@@ -618,12 +622,12 @@ export class Graph extends Node {
           srcFeatureProps = newFeature.properties;
           sourcePosition = geomEdge?.sourceArrowhead?.tipPosition
             ? [geomEdge.sourceArrowhead.tipPosition.x, geomEdge.sourceArrowhead.tipPosition.y]
-            : coordinates[0];
+            : coordinates[0][0];
         }
         if (fragIdx === edges.length - 1) {
           targetPosition = geomEdge?.targetArrowhead?.tipPosition
             ? [geomEdge.targetArrowhead.tipPosition.x, geomEdge.targetArrowhead.tipPosition.y]
-            : coordinates.at(-1);
+            : coordinates.at(-1).at(-1);
         }
 
         if (!features[srcGraph.id]) {

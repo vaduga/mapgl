@@ -19,7 +19,6 @@ import { EdgeRoutingMode } from '@msagl/core/src/routing/EdgeRoutingMode';
 import { Position } from 'geojson';
 
 import midpoint from '@turf/midpoint';
-import { NS_SEPARATOR } from '../utils/defaults';
 
 type Vec2 = [number, number];
 type ArrowAngles = { start: number | undefined; end: number | undefined };
@@ -55,19 +54,19 @@ function wrapDeltaLonDeg(dLon: number): number {
   return dLon;
 }
 
-function getFirstPoints(coords: number[][]): { base: number[]; tip: number[] } | null {
-  if (!coords?.length) return null;
-  const firstLine = coords;
-  if (!firstLine || firstLine.length < 2) return null;
+function getFirstPoints(coords: number[][][]): { base: number[]; tip: number[] } | null {
+  if (!coords?.length) {return null;}
+  const firstLine = coords[0];
+  if (!firstLine || firstLine.length < 2) {return null;}
   const tip = firstLine[0];
   const base = firstLine[1];
   return { base, tip };
 }
 
-function getLastPoints(coords: number[][]): { base: number[]; tip: number[] } | null {
-  if (!coords?.length) return null;
-  const lastLine = coords;
-  if (!lastLine || lastLine.length < 2) return null;
+function getLastPoints(coords: number[][][]): { base: number[]; tip: number[] } | null {
+  if (!coords?.length) {return null;}
+  const lastLine = coords[coords.length - 1];
+  if (!lastLine || lastLine.length < 2) {return null;}
   const tip = lastLine[lastLine.length - 1];
   const base = lastLine[lastLine.length - 2];
   return { base, tip };
@@ -90,16 +89,13 @@ function getArrowAngleFromPoints(base: number[], tip: number[], isGeo: boolean):
   return (Math.atan2(dy, dx) * 180) / Math.PI;
 }
 
-function getArrowAngles(coords: number[][], isGeo: boolean, fragIdx: number, len: number): ArrowAngles | undefined {
-  if (fragIdx !== 0 || fragIdx !== len - 1) {
-    return undefined;
-  }
+function getArrowAngles(coords: number[][][], isGeo: boolean): ArrowAngles | null {
   const startPoints = getFirstPoints(coords);
   const endPoints = getLastPoints(coords);
-  if (!startPoints || !endPoints) return undefined;
+  if (!startPoints || !endPoints) {return null;}
   return {
-    start: fragIdx === 0 ? getArrowAngleFromPoints(startPoints.base, startPoints.tip, isGeo) : undefined,
-    end: fragIdx === len - 1 ? getArrowAngleFromPoints(endPoints.base, endPoints.tip, isGeo) : undefined,
+    start: getArrowAngleFromPoints(startPoints.base, startPoints.tip, isGeo),
+    end: getArrowAngleFromPoints(endPoints.base, endPoints.tip, isGeo),
   };
 }
 
@@ -188,7 +184,6 @@ function pushPath(props: PushPathProps) {
       parPathSan.push(coordRef);
     }
   });
-
   if (!wasmVerticeIds.length) {
     return;
   }
@@ -197,8 +192,8 @@ function pushPath(props: PushPathProps) {
   let edge = findEdgeA(edgeId);
   let edge_id;
   if (!edge) {
-    const newVerticeIds = wasmVerticeIds //createEdge(wasmVerticeIds, layerIdx);
-    graph.getEdgeVerticeIds.push([Array.from(newVerticeIds), layerIdx]);
+    const newVerticeIds = wasmVerticeIds;
+    graph.getEdgeVerticeIds.push([newVerticeIds, layerIdx]);
 
     edge_id = graph.getEdgeVerticeIds.length - 1;
 
@@ -211,7 +206,7 @@ function pushPath(props: PushPathProps) {
 
     const multiEdges: Edge[] = [];
 
-    if (nodes.length > 2) {
+    if (isLogic && nodes.length > 2) {
       const [segrPath, segrCoords] = parPath.length
         ? segregatePath(parPathSan, panel.positions, findNodeA, findNodeB)
         : [];
@@ -221,7 +216,6 @@ function pushPath(props: PushPathProps) {
         const start = frag[0].item.id;
         const end = frag.at(-1).item.id;
         const dummy = setEdgeA(extraId, start, end as string);
-
         if (dummy) {
           dummy.setData(data);
           if (panel.isLogic) {
@@ -282,6 +276,7 @@ function pushPath(props: PushPathProps) {
           style,
           root: graphA,
           layerName,
+          locName: parPath[0] as string,
           index,
           coords: element.slice(0, 2) as [number, number],
           edge,
@@ -420,13 +415,6 @@ function runLayout(panel: any) {
   //console.log('Clusters,', Array.from(rootGraph.Clusters), Array.from(graph.getClusteredConnectedComponents()))
 
   layoutGeomGraph(rootGraph);
-
-  // rootGraph.pumpTheBoxToTheGraphWithMargins()
-  //
-  // for (const subgraph of graph.subgraphsBreadthFirst()) {
-  //     const geom = GeomGraph.getGeom(subgraph)
-  //     geom?.pumpTheBoxToTheGraphWithMargins()
-  // }
 
   //@ts-ignore
   const { getEdgeVerticeIds, wasm2Edges } = graph as Graph;

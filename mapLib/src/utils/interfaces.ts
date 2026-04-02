@@ -102,11 +102,10 @@ export interface Feature<G extends Geometry | null = Geometry, P = BiColProps> {
 export interface DeckLine<G extends Geometry | null = Geometry, P = BiColProps> {
   //id: number;
   heIdx: number;
-  fragIdx: number;
   edgeId: string;
   type: 'Feature';
   rowIndex: number;
-  geometry: LineString;
+  geometry: MultiLineString;
   properties: Partial<P>;
 }
 
@@ -203,6 +202,7 @@ export type Comment = {
   root: Graph;
   isComment?: boolean;
   iconColor: string;
+  locName: string;
   style: any;
   index: number;
   coords?: Position;
