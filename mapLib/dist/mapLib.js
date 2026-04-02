@@ -325,16 +325,16 @@ Object.freeze(v);
 var ee = {};
 Object.freeze(ee);
 var te = typeof Proxy < "u", ne = /* @__PURE__ */ Object.toString();
-function y() {
+function re() {
 	te || d("`Proxy` objects are not available in the current environment. Please configure MobX to enable a fallback implementation.`");
 }
-function re(e) {
+function ie(e) {
 	T.verifyProxies && d("MobX is currently configured to be able to run in ES5 mode, but in ES5 MobX won't be able to " + e);
 }
-function b() {
+function y() {
 	return ++T.mobxGuid;
 }
-function ie(e) {
+function b(e) {
 	var t = !1;
 	return function() {
 		if (!t) return t = !0, e.apply(this, arguments);
@@ -525,7 +525,7 @@ function Ve(e, t) {
 }
 var S = /* @__PURE__ */ Symbol("mobx administration"), He = /* @__PURE__ */ function() {
 	function e(e) {
-		e === void 0 && (e = "Atom@" + b()), this.name_ = void 0, this.flags_ = 0, this.observers_ = /* @__PURE__ */ new Set(), this.lastAccessedBy_ = 0, this.lowestObserverState_ = w.NOT_TRACKING_, this.onBOL = void 0, this.onBUOL = void 0, this.name_ = e;
+		e === void 0 && (e = "Atom@" + y()), this.name_ = void 0, this.flags_ = 0, this.observers_ = /* @__PURE__ */ new Set(), this.lastAccessedBy_ = 0, this.lowestObserverState_ = w.NOT_TRACKING_, this.onBOL = void 0, this.onBUOL = void 0, this.name_ = e;
 	}
 	var t = e.prototype;
 	return t.onBO = function() {
@@ -964,7 +964,7 @@ function on(e) {
 var sn = "create", cn = /* @__PURE__ */ function(e) {
 	function t(t, n, r, i, a) {
 		var o;
-		return r === void 0 && (r = "ObservableValue@" + b()), i === void 0 && (i = !0), a === void 0 && (a = Ye.default), o = e.call(this, r) || this, o.enhancer = void 0, o.name_ = void 0, o.equals = void 0, o.hasUnreportedChange_ = !1, o.interceptors_ = void 0, o.changeListeners_ = void 0, o.value_ = void 0, o.dehancer = void 0, o.enhancer = n, o.name_ = r, o.equals = a, o.value_ = n(t, void 0, r), i && qn() && Jn({
+		return r === void 0 && (r = "ObservableValue@" + y()), i === void 0 && (i = !0), a === void 0 && (a = Ye.default), o = e.call(this, r) || this, o.enhancer = void 0, o.name_ = void 0, o.equals = void 0, o.hasUnreportedChange_ = !1, o.interceptors_ = void 0, o.changeListeners_ = void 0, o.value_ = void 0, o.dehancer = void 0, o.enhancer = n, o.name_ = r, o.equals = a, o.value_ = n(t, void 0, r), i && qn() && Jn({
 			type: sn,
 			object: o,
 			observableKind: "value",
@@ -1034,7 +1034,7 @@ var sn = "create", cn = /* @__PURE__ */ function(e) {
 	}, t;
 }(He), ln = /* @__PURE__ */ function() {
 	function e(e) {
-		this.dependenciesState_ = w.NOT_TRACKING_, this.observing_ = [], this.newObserving_ = null, this.observers_ = /* @__PURE__ */ new Set(), this.runId_ = 0, this.lastAccessedBy_ = 0, this.lowestObserverState_ = w.UP_TO_DATE_, this.unboundDepsCount_ = 0, this.value_ = new fn(null), this.name_ = void 0, this.triggeredBy_ = void 0, this.flags_ = 0, this.derivation = void 0, this.setter_ = void 0, this.isTracing_ = dn.NONE, this.scope_ = void 0, this.equals_ = void 0, this.requiresReaction_ = void 0, this.keepAlive_ = void 0, this.onBOL = void 0, this.onBUOL = void 0, e.get || d(31), this.derivation = e.get, this.name_ = e.name || "ComputedValue@" + b(), e.set && (this.setter_ = en(this.name_ + "-setter", e.set)), this.equals_ = e.equals || (e.compareStructural || e.struct ? Ye.structural : Ye.default), this.scope_ = e.context, this.requiresReaction_ = e.requiresReaction, this.keepAlive_ = !!e.keepAlive;
+		this.dependenciesState_ = w.NOT_TRACKING_, this.observing_ = [], this.newObserving_ = null, this.observers_ = /* @__PURE__ */ new Set(), this.runId_ = 0, this.lastAccessedBy_ = 0, this.lowestObserverState_ = w.UP_TO_DATE_, this.unboundDepsCount_ = 0, this.value_ = new fn(null), this.name_ = void 0, this.triggeredBy_ = void 0, this.flags_ = 0, this.derivation = void 0, this.setter_ = void 0, this.isTracing_ = dn.NONE, this.scope_ = void 0, this.equals_ = void 0, this.requiresReaction_ = void 0, this.keepAlive_ = void 0, this.onBOL = void 0, this.onBUOL = void 0, e.get || d(31), this.derivation = e.get, this.name_ = e.name || "ComputedValue@" + y(), e.set && (this.setter_ = en(this.name_ + "-setter", e.set)), this.equals_ = e.equals || (e.compareStructural || e.struct ? Ye.structural : Ye.default), this.scope_ = e.context, this.requiresReaction_ = e.requiresReaction, this.keepAlive_ = !!e.keepAlive;
 	}
 	var t = e.prototype;
 	return t.onBecomeStale_ = function() {
@@ -1337,7 +1337,7 @@ function Bn(e, t, n) {
 }
 var Vn = /* @__PURE__ */ function() {
 	function e(e, t, n, r) {
-		e === void 0 && (e = "Reaction@" + b()), this.name_ = void 0, this.onInvalidate_ = void 0, this.errorHandler_ = void 0, this.requiresObservable_ = void 0, this.observing_ = [], this.newObserving_ = [], this.dependenciesState_ = w.NOT_TRACKING_, this.runId_ = 0, this.unboundDepsCount_ = 0, this.flags_ = 0, this.isTracing_ = dn.NONE, this.name_ = e, this.onInvalidate_ = t, this.errorHandler_ = n, this.requiresObservable_ = r;
+		e === void 0 && (e = "Reaction@" + y()), this.name_ = void 0, this.onInvalidate_ = void 0, this.errorHandler_ = void 0, this.requiresObservable_ = void 0, this.observing_ = [], this.newObserving_ = [], this.dependenciesState_ = w.NOT_TRACKING_, this.runId_ = 0, this.unboundDepsCount_ = 0, this.flags_ = 0, this.isTracing_ = dn.NONE, this.name_ = e, this.onInvalidate_ = t, this.errorHandler_ = n, this.requiresObservable_ = r;
 	}
 	var t = e.prototype;
 	return t.onBecomeStale_ = function() {
@@ -1485,7 +1485,7 @@ function Zn(e) {
 	}) : Xn);
 }
 function Qn(e) {
-	return T.spyListeners.push(e), ie(function() {
+	return T.spyListeners.push(e), b(function() {
 		T.spyListeners = T.spyListeners.filter(function(t) {
 			return t !== e;
 		});
@@ -1518,7 +1518,7 @@ function dr(e) {
 function fr(e, t) {
 	var n;
 	t === void 0 && (t = ee), x(e) || d("Autorun expects a function as first argument"), dr(e) && d("Autorun does not accept actions since actions are untrackable");
-	var r = t?.name ?? (e.name || "Autorun@" + b()), i = !t.scheduler && !t.delay, a;
+	var r = t?.name ?? (e.name || "Autorun@" + y()), i = !t.scheduler && !t.delay, a;
 	if (i) a = new Vn(r, function() {
 		this.track(c);
 	}, t.onError, t.requiresObservable);
@@ -1671,22 +1671,22 @@ function Ir(e) {
 }
 var Lr = {
 	has: function(e, t) {
-		return T.trackingDerivation && re("detect new properties using the 'in' operator. Use 'has' from 'mobx' instead."), Ir(e).has_(t);
+		return T.trackingDerivation && ie("detect new properties using the 'in' operator. Use 'has' from 'mobx' instead."), Ir(e).has_(t);
 	},
 	get: function(e, t) {
 		return Ir(e).get_(t);
 	},
 	set: function(e, t, n) {
-		return oe(t) ? (Ir(e).values_.has(t) || re("add a new observable property through direct assignment. Use 'set' from 'mobx' instead."), Ir(e).set_(t, n, !0) ?? !0) : !1;
+		return oe(t) ? (Ir(e).values_.has(t) || ie("add a new observable property through direct assignment. Use 'set' from 'mobx' instead."), Ir(e).set_(t, n, !0) ?? !0) : !1;
 	},
 	deleteProperty: function(e, t) {
-		return re("delete properties from an observable object. Use 'remove' from 'mobx' instead."), oe(t) ? Ir(e).delete_(t, !0) ?? !0 : !1;
+		return ie("delete properties from an observable object. Use 'remove' from 'mobx' instead."), oe(t) ? Ir(e).delete_(t, !0) ?? !0 : !1;
 	},
 	defineProperty: function(e, t, n) {
-		return re("define property on an observable object. Use 'defineProperty' from 'mobx' instead."), Ir(e).defineProperty_(t, n) ?? !0;
+		return ie("define property on an observable object. Use 'defineProperty' from 'mobx' instead."), Ir(e).defineProperty_(t, n) ?? !0;
 	},
 	ownKeys: function(e) {
-		return T.trackingDerivation && re("iterate keys to detect added / removed properties. Use 'keys' from 'mobx' instead."), Ir(e).ownKeys_();
+		return T.trackingDerivation && ie("iterate keys to detect added / removed properties. Use 'keys' from 'mobx' instead."), Ir(e).ownKeys_();
 	},
 	preventExtensions: function(e) {
 		d(13);
@@ -1694,14 +1694,14 @@ var Lr = {
 };
 function Rr(e, t) {
 	var n;
-	return y(), e = vi(e, t), (n = e[S]).proxy_ ?? (n.proxy_ = new Proxy(e, Lr));
+	return re(), e = vi(e, t), (n = e[S]).proxy_ ?? (n.proxy_ = new Proxy(e, Lr));
 }
 function zr(e) {
 	return e.interceptors_ !== void 0 && e.interceptors_.length > 0;
 }
 function Br(e, t) {
 	var n = e.interceptors_ ||= [];
-	return n.push(t), ie(function() {
+	return n.push(t), b(function() {
 		var e = n.indexOf(t);
 		e !== -1 && n.splice(e, 1);
 	});
@@ -1720,7 +1720,7 @@ function Hr(e) {
 }
 function Ur(e, t) {
 	var n = e.changeListeners_ ||= [];
-	return n.push(t), ie(function() {
+	return n.push(t), b(function() {
 		var e = n.indexOf(t);
 		e !== -1 && n.splice(e, 1);
 	});
@@ -1755,7 +1755,7 @@ var Kr = "splice", qr = "update", Jr = 1e4, Yr = {
 	}
 }, Xr = /* @__PURE__ */ function() {
 	function e(e, t, n, r) {
-		e === void 0 && (e = "ObservableArray@" + b()), this.owned_ = void 0, this.legacyMode_ = void 0, this.atom_ = void 0, this.values_ = [], this.interceptors_ = void 0, this.changeListeners_ = void 0, this.enhancer_ = void 0, this.dehancer = void 0, this.proxy_ = void 0, this.lastKnownLength_ = 0, this.owned_ = n, this.legacyMode_ = r, this.atom_ = new He(e), this.enhancer_ = function(n, r) {
+		e === void 0 && (e = "ObservableArray@" + y()), this.owned_ = void 0, this.legacyMode_ = void 0, this.atom_ = void 0, this.values_ = [], this.interceptors_ = void 0, this.changeListeners_ = void 0, this.enhancer_ = void 0, this.dehancer = void 0, this.proxy_ = void 0, this.lastKnownLength_ = 0, this.owned_ = n, this.legacyMode_ = r, this.atom_ = new He(e), this.enhancer_ = function(n, r) {
 			return t(n, r, e + "[..]");
 		};
 	}
@@ -1876,7 +1876,7 @@ var Kr = "splice", qr = "update", Jr = 1e4, Yr = {
 	}, e;
 }();
 function Zr(e, t, n, r) {
-	return n === void 0 && (n = "ObservableArray@" + b()), r === void 0 && (r = !1), y(), Li(function() {
+	return n === void 0 && (n = "ObservableArray@" + y()), r === void 0 && (r = !1), re(), Li(function() {
 		var i = new Xr(n, t, r, !1);
 		de(i.values_, S, i);
 		var a = new Proxy(i.values_, Yr);
@@ -1970,7 +1970,7 @@ function ri(e) {
 var ii = {}, ai = "add", oi = "delete", si = /* @__PURE__ */ function() {
 	function e(e, t, n) {
 		var r = this;
-		t === void 0 && (t = Xe), n === void 0 && (n = "ObservableMap@" + b()), this.enhancer_ = void 0, this.name_ = void 0, this[S] = ii, this.data_ = void 0, this.hasMap_ = void 0, this.keysAtom_ = void 0, this.interceptors_ = void 0, this.changeListeners_ = void 0, this.dehancer = void 0, this.enhancer_ = t, this.name_ = n, x(Map) || d(18), Li(function() {
+		t === void 0 && (t = Xe), n === void 0 && (n = "ObservableMap@" + y()), this.enhancer_ = void 0, this.name_ = void 0, this[S] = ii, this.data_ = void 0, this.hasMap_ = void 0, this.keysAtom_ = void 0, this.interceptors_ = void 0, this.changeListeners_ = void 0, this.dehancer = void 0, this.enhancer_ = t, this.name_ = n, x(Map) || d(18), Li(function() {
 			r.keysAtom_ = We(r.name_ + ".keys()"), r.data_ = /* @__PURE__ */ new Map(), r.hasMap_ = /* @__PURE__ */ new Map(), e && r.merge(e);
 		});
 	}
@@ -2168,7 +2168,7 @@ function ui(e) {
 var di = {}, fi = /* @__PURE__ */ function() {
 	function e(e, t, n) {
 		var r = this;
-		t === void 0 && (t = Xe), n === void 0 && (n = "ObservableSet@" + b()), this.name_ = void 0, this[S] = di, this.data_ = /* @__PURE__ */ new Set(), this.atom_ = void 0, this.changeListeners_ = void 0, this.interceptors_ = void 0, this.dehancer = void 0, this.enhancer_ = void 0, this.name_ = n, x(Set) || d(22), this.enhancer_ = function(e, r) {
+		t === void 0 && (t = Xe), n === void 0 && (n = "ObservableSet@" + y()), this.name_ = void 0, this[S] = di, this.data_ = /* @__PURE__ */ new Set(), this.atom_ = void 0, this.changeListeners_ = void 0, this.interceptors_ = void 0, this.dehancer = void 0, this.enhancer_ = void 0, this.name_ = n, x(Set) || d(22), this.enhancer_ = function(e, r) {
 			return t(e, r, n);
 		}, Li(function() {
 			r.atom_ = We(r.name_), e && r.replace(e);
@@ -2521,7 +2521,7 @@ var hi = /* @__PURE__ */ Object.create(null), gi = "remove", _i = /* @__PURE__ *
 function vi(e, t) {
 	if (t && xi(e) && d("Options can't be provided for already observable objects."), xe(e, S)) return Fi(e) instanceof _i || d("Cannot convert '" + Ii(e) + "' into observable object:\nThe target is already observable of different type.\nExtending builtins is not supported."), e;
 	Object.isExtensible(e) || d("Cannot make the designated object observable; it is not extensible");
-	var n = t?.name ?? (ce(e) ? "ObservableObject" : e.constructor.name) + "@" + b();
+	var n = t?.name ?? (ce(e) ? "ObservableObject" : e.constructor.name) + "@" + y();
 	return ue(e, S, new _i(e, /* @__PURE__ */ new Map(), String(n), Ht(t))), e;
 }
 var yi = /* @__PURE__ */ fe("ObservableObjectAdministration", _i);
@@ -2561,7 +2561,7 @@ Oi(Di, Array.prototype);
 var ki = /* @__PURE__ */ function(e) {
 	function t(t, n, r, i) {
 		var a;
-		return r === void 0 && (r = "ObservableArray@" + b()), i === void 0 && (i = !1), a = e.call(this) || this, Li(function() {
+		return r === void 0 && (r = "ObservableArray@" + y()), i === void 0 && (i = !1), a = e.call(this) || this, Li(function() {
 			var e = new Xr(r, n, i, !0);
 			e.proxy_ = a, de(a, S, e), t && t.length && a.spliceWithArray(0, 0, t), Ti && Object.defineProperty(a, "0", wi);
 		}), a;
@@ -25764,39 +25764,39 @@ function fm(e) {
 	if (typeof ee != "string" || typeof v != "string") return;
 	let te = m(v);
 	if (!g(ee) || !te) return;
-	let ne = [], y = [], re = [];
+	let ne = [], re = [], ie = [];
 	if (a.forEach((e, t) => {
 		if (typeof e == "string") {
 			let n = t === a.length - 1 ? g(e) : m(e);
 			if (n) {
 				let t = n.data.wasmId;
-				ne.push(t), y.push(e), re.push(e);
+				ne.push(t), re.push(e), ie.push(e);
 			}
-		} else !r.isLogic && Array.isArray(e) && (ne.push(void 0), re.push(e));
+		} else !r.isLogic && Array.isArray(e) && (ne.push(void 0), ie.push(e));
 	}), !ne.length) return;
-	let b = s ?? v + "-" + ee, ie = _(b), ae;
-	if (!ie) {
+	let y = s ?? v + "-" + ee, b = _(y), ae;
+	if (!b) {
 		let e = ne;
 		f.getEdgeVerticeIds.push([e, o]), ae = f.getEdgeVerticeIds.length - 1;
 		let t = {
 			dataRecord: c,
-			parPath: re,
+			parPath: ie,
 			edge_id: ae,
-			edgeId: b
+			edgeId: y
 		}, i = [];
-		if (d && y.length > 2) {
-			let [e, n] = a.length ? pm(re, r.positions, m, g) : [];
+		if (d && re.length > 2) {
+			let [e, n] = a.length ? pm(ie, r.positions, m, g) : [];
 			e?.forEach((n, a) => {
-				let o = b + (a ? "--" + a : ""), s = n[0].item.id, l = n.at(-1).item.id, u = p(o, s, l);
+				let o = y + (a ? "--" + a : ""), s = n[0].item.id, l = n.at(-1).item.id, u = p(o, s, l);
 				u && (u.setData(t), r.isLogic && am(u, c, e.length === 1 ? "both" : a === 0 ? "start" : a === e.length - 1 ? "end" : "none"), i.push(u));
 			});
 		} else {
-			if (ie = p(b, v, ee, n), !ie) return;
-			ie?.setData(t), r.isLogic && am(ie, c, "both"), i.push(ie);
+			if (b = p(y, v, ee, n), !b) return;
+			b?.setData(t), r.isLogic && am(b, c, "both"), i.push(b);
 		}
 		f.getWasmId2Edges[ae] = i;
-	} else if (ie && (ae = ie.data.edge_id, ae !== void 0)) {
-		ie.setAttrProp(i.EdgeDataIndex, "parPath", re), r.isLogic && am(ie, c, "both"), f.getEdgeVerticeIds[ae][0];
+	} else if (b && (ae = b.data.edge_id, ae !== void 0)) {
+		b.setAttrProp(i.EdgeDataIndex, "parPath", ie), r.isLogic && am(b, c, "both"), f.getEdgeVerticeIds[ae][0];
 		let e = ne;
 		f.getEdgeVerticeIds[ae][0] = Array.from(e);
 	}
@@ -25813,9 +25813,9 @@ function fm(e) {
 					locName: a[0],
 					index: n,
 					coords: e.slice(0, 2),
-					edge: ie
+					edge: b
 				};
-				l[b] || (l[b] = /* @__PURE__ */ new Map()), l[b].set(n, i);
+				l[y] || (l[y] = /* @__PURE__ */ new Map()), l[y].set(n, i);
 			}
 		}
 	});
@@ -26306,45 +26306,42 @@ var Dh = class e extends l {
 		let e = {}, t = {}, n = this.root.panel.positions;
 		return this.wasm2Edges.forEach((r, i) => {
 			if (!r.length) return;
-			let a = r[0], { source: o, data: s } = a, { target: c } = r[r.length - 1], l = o.parent, u = c.parent, d = l.findNode, f = u.findNode, p = a.data, m = p?.dataRecord, h = { arcStyle: { arcConfig: { height: void 0 } } }, g, _;
-			if (r.forEach((e, a) => {
-				p?.edge_id;
-				let { parPath: o } = p || {}, s = o[0], c = o, u = this.wasm_edge_vertice_ids[i][0], v = Sm(c, u, n, !0), [ee, te] = c.length ? pm(c, v, d, f) : [[], []], ne = te;
-				if (!ne?.length) return;
-				let y = wa.getGeom(e);
-				if (y?.source && (y?.curve?.start ? ne.forEach((e, t) => {
-					e.length > 3 && (ne[t] = e.slice(1, -1));
-				}) : y?.curve?.start || (console.warn("Invalid controlPoints or polyPoints", s, e.id), ne = [ne])), !ne.length) return;
-				let re = m, b = um(ne, !this.isLogic), ie = {
-					...a === 0 && y?.sourceArrowhead?.tipPosition ? { start: [y.sourceArrowhead.tipPosition.x, y.sourceArrowhead.tipPosition.y] } : {},
-					...a === r.length - 1 && y?.targetArrowhead?.tipPosition ? { end: [y.targetArrowhead.tipPosition.x, y.targetArrowhead.tipPosition.y] } : {}
-				}, ae = {
-					heIdx: i,
-					edgeId: e.id,
-					type: "Feature",
-					geometry: {
-						type: "MultiLineString",
-						coordinates: ne
-					},
-					rowIndex: m?.rowIndex,
-					properties: {
-						...re ?? {},
-						locName: s,
-						segrPath: ee,
-						...b ? { arrowAngles: b } : {},
-						...Object.keys(ie).length ? { arrowTips: ie } : {}
-					}
-				};
-				a === 0 && (h = ae.properties, g = y?.sourceArrowhead?.tipPosition ? [y.sourceArrowhead.tipPosition.x, y.sourceArrowhead.tipPosition.y] : ne[0][0]), a === r.length - 1 && (_ = y?.targetArrowhead?.tipPosition ? [y.targetArrowhead.tipPosition.x, y.targetArrowhead.tipPosition.y] : ne.at(-1).at(-1)), t[l.id] || (t[l.id] = []), t[l.id].push(ae), e.setLineId(t[l.id].length - 1);
-			}), !g || !_) return;
-			let { arcStyle: v } = h, ee = v?.arcConfig?.height, te = ym(this.isLogic ? Cm(g, _) : em(g, _, { units: "meters" }), 0, 0, .5, ee === void 0 ? .5 : ee), ne = [...bm(g, _, this.isLogic), te], y = {
-				sourcePosition: g,
-				targetPosition: _,
-				midPoint: ne,
-				properties: h,
+			let a = r[0], { source: o, data: s } = a, { target: c } = r[r.length - 1], l = o.parent, u = c.parent, d = l.findNode, f = u.findNode, p = s?.dataRecord, m = { arcStyle: { arcConfig: { height: void 0 } } }, h, g;
+			s?.edge_id;
+			let { parPath: _ } = s || {}, v = _[0], ee = _, te = this.wasm_edge_vertice_ids[i][0], ne = Sm(ee, te, n, !0), [re, ie] = ee.length ? pm(ee, ne, d, f) : [[], []], y = ie;
+			if (!y?.length) return;
+			let b = wa.getGeom(a);
+			if (b?.source && (b?.curve?.start ? y.forEach((e, t) => {
+				e.length > 3 && (y[t] = e.slice(1, -1));
+			}) : b?.curve?.start || (console.warn("Invalid controlPoints or polyPoints", v, a.id), y = [y])), !y.length) return;
+			let ae = p, x = um(y, !this.isLogic), oe = {
+				...b?.sourceArrowhead?.tipPosition ? { start: [b.sourceArrowhead.tipPosition.x, b.sourceArrowhead.tipPosition.y] } : {},
+				...b?.targetArrowhead?.tipPosition ? { end: [b.targetArrowhead.tipPosition.x, b.targetArrowhead.tipPosition.y] } : {}
+			}, se = {
+				edgeId: a.id,
+				type: "Feature",
+				geometry: {
+					type: "MultiLineString",
+					coordinates: y
+				},
+				rowIndex: p?.rowIndex,
+				properties: {
+					...ae ?? {},
+					locName: v,
+					segrPath: re,
+					...x ? { arrowAngles: x } : {},
+					...Object.keys(oe).length ? { arrowTips: oe } : {}
+				}
+			};
+			if (m = se.properties, h = b?.sourceArrowhead?.tipPosition ? [b.sourceArrowhead.tipPosition.x, b.sourceArrowhead.tipPosition.y] : y[0][0], g = b?.targetArrowhead?.tipPosition ? [b.targetArrowhead.tipPosition.x, b.targetArrowhead.tipPosition.y] : y.at(-1).at(-1), t[l.id] || (t[l.id] = []), t[l.id].push(se), a.setLineId(t[l.id].length - 1), !h || !g) return;
+			let { arcStyle: ce } = m, le = ce?.arcConfig?.height, ue = ym(this.isLogic ? Cm(h, g) : em(h, g, { units: "meters" }), 0, 0, .5, le === void 0 ? .5 : le), de = [...bm(h, g, this.isLogic), ue], fe = {
+				sourcePosition: h,
+				targetPosition: g,
+				midPoint: de,
+				properties: m,
 				edgeId: a.id
 			};
-			e[l.id] || (e[l.id] = []), e[l.id].push(y), a.setArcId(e[l.id].length - 1);
+			e[l.id] || (e[l.id] = []), e[l.id].push(fe), a.setArcId(e[l.id].length - 1);
 		}), [t, e];
 	}
 }, Oh = class {

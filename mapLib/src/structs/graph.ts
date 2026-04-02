@@ -528,13 +528,13 @@ export class Graph extends Node {
       }
 
       const edge = edges[0];
-      const { source, data } = edge;
+      const { source, data: edgeData } = edge;
       const { target } = edges[edges.length - 1];
       const srcGraph = source.parent as Graph;
       const tarGraph = target.parent as Graph;
       const findNodeA = srcGraph.findNode;
       const findNodeB = tarGraph.findNode;
-      const edgeData = edge.data;
+
 
       const dataRecord = edgeData?.dataRecord as BiColProps;
       if (!dataRecord) {
@@ -547,17 +547,12 @@ export class Graph extends Node {
       let sourcePosition;
       let targetPosition;
 
-      /// Edges
+      const { parPath } = edgeData || {};
 
-      edges.forEach((edge, fragIdx) => {
-        const edge_id = edgeData?.edge_id;
+      const locName = parPath[0];
+      let subPath = parPath;
 
-        const { parPath } = edgeData || {};
-
-        const locName = parPath[0];
-        let subPath = parPath;
-
-        const wasmIds = this.wasm_edge_vertice_ids[heIdx][0];
+      const wasmIds = this.wasm_edge_vertice_ids[heIdx][0];
         const pathsCoords = CoordsConvert(subPath, wasmIds, positions, true);
 
         const [segrPath, segrCoords] = subPath.length
@@ -591,17 +586,16 @@ export class Graph extends Node {
         const propsOverride = dataRecord; /// as from frame initially (including duplicate records)
         const arrowAngles = getArrowAngles(coordinates, !this.isLogic);
         const arrowTips = {
-          ...(fragIdx === 0 && geomEdge?.sourceArrowhead?.tipPosition
+          ...(geomEdge?.sourceArrowhead?.tipPosition
             ? {start: [geomEdge.sourceArrowhead.tipPosition.x, geomEdge.sourceArrowhead.tipPosition.y] as Position}
             : {}),
-          ...(fragIdx === edges.length - 1 && geomEdge?.targetArrowhead?.tipPosition
+          ...(geomEdge?.targetArrowhead?.tipPosition
             ? {end: [geomEdge.targetArrowhead.tipPosition.x, geomEdge.targetArrowhead.tipPosition.y] as Position}
             : {}),
         };
 
         const newFeature: DeckLine = {
           //id: counter,
-          heIdx,
           edgeId: edge.id,
           type: 'Feature',
           geometry: {
@@ -618,24 +612,21 @@ export class Graph extends Node {
           },
         };
 
-        if (fragIdx === 0) {
-          srcFeatureProps = newFeature.properties;
-          sourcePosition = geomEdge?.sourceArrowhead?.tipPosition
-            ? [geomEdge.sourceArrowhead.tipPosition.x, geomEdge.sourceArrowhead.tipPosition.y]
-            : coordinates[0][0];
-        }
-        if (fragIdx === edges.length - 1) {
-          targetPosition = geomEdge?.targetArrowhead?.tipPosition
-            ? [geomEdge.targetArrowhead.tipPosition.x, geomEdge.targetArrowhead.tipPosition.y]
-            : coordinates.at(-1).at(-1);
-        }
+        srcFeatureProps = newFeature.properties;
+        sourcePosition = geomEdge?.sourceArrowhead?.tipPosition
+          ? [geomEdge.sourceArrowhead.tipPosition.x, geomEdge.sourceArrowhead.tipPosition.y]
+          : coordinates[0][0];
+
+        targetPosition = geomEdge?.targetArrowhead?.tipPosition
+          ? [geomEdge.targetArrowhead.tipPosition.x, geomEdge.targetArrowhead.tipPosition.y]
+          : coordinates.at(-1).at(-1);
 
         if (!features[srcGraph.id]) {
           features[srcGraph.id] = [];
         }
         features[srcGraph.id].push(newFeature);
         edge.setLineId(features[srcGraph.id].length - 1);
-      });
+
 
       /// Arcs
 

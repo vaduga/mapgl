@@ -25,8 +25,9 @@ export const MyArcLayer = (props) => {
     visible,
   } = props;
 
-  const categories = getVisLayers.getCategories();
-  const categorySize = 1;
+  const cats = getVisLayers.getCategories()
+  const categories = [cats, cats]
+  const categorySize = 2;
 
   type BartSegment = {
     properties;
@@ -95,7 +96,7 @@ export const MyArcLayer = (props) => {
     getTargetColor: (d: BartSegment) => getColor('sideB', d),
     getFilterCategory: (d) => {
       const { style, layerName, root } = d.properties;
-      return layerName;
+      return [layerName, root.id];
     },
 
     updateTriggers: {
