@@ -42,16 +42,15 @@ function getArrowBaseAndTip(
 function getArrowAnchorPosition(
   d: ArrowFeature,
   placement: ArrowPlacement,
-  units: 'pixels' | 'meters' | 'common',
+  isLogic: boolean,
 ): [number, number] | null {
-  const pts = getArrowBaseAndTip(d, placement);
-  if (!pts) {
-    return null;
+  if (!isLogic) {
+    const pts = placement === 'start' ? getFirstPoints(d) : getLastPoints(d);
+    return pts ? pts.tip : null;
   }
 
-  // In pixel mode the icon size is screen-constant, so anchoring at the
-  // trimmed line endpoint keeps the arrow visually attached while zooming.
-  return units === 'pixels' ? pts.base : pts.tip;
+  const pts = getArrowBaseAndTip(d, placement);
+  return pts ? pts.tip : null;
 }
 
 function getLastPoints(d: ArrowFeature): { base: [number, number]; tip: [number, number] } | null {
@@ -213,6 +212,8 @@ export const EdgeArrowLayer = (props) => {
     getVisLayers,
     getGroupsLegend,
     getWasmId2Edges,
+    autoHighlight,
+    highlightColor,
     time,
   } = props;
 
@@ -239,19 +240,21 @@ export const EdgeArrowLayer = (props) => {
     data: arrowData,
     visible,
     pickable: true,
+    autoHighlight,
+    highlightColor,
     billboard: false,
     getPosition: (d: ArrowItem) => {
-      const pos = getArrowAnchorPosition(d.feature, d.placement, sizeUnits);
+      const pos = getArrowAnchorPosition(d.feature, d.placement, isLogic);
       return pos ?? [0, 0];
     },
     getAngle: (d: ArrowItem) => getArrowAngle(d.feature, d.placement, !isLogic),
-    getSize: (d: ArrowItem) => getArrowSize(d.feature) * (selectedFeatureIndexes.includes(d.lineIndex) ? 1.2 : 1),
+    getSize: (d: ArrowItem) => getArrowSize(d.feature, isLogic, units) * (selectedFeatureIndexes.includes(d.lineIndex) ? 1.2 : 1),
     getColor: (d: ArrowItem) => getArrowColor(d.feature, getGroupsLegend),
 
     // Deck typings in this build are stricter than runtime support for HTMLImageElement.
     iconAtlas: getIconAtlasImage() as any,
     iconMapping,
-    getIcon: () => sizeUnits === 'pixels' ? 'triangle-n-ex' : 'triangle-n',
+    getIcon: () => isLogic && sizeUnits === 'pixels' ? 'triangle-n-ex' : 'triangle-n',
 
     sizeUnits: sizeUnits as any,
     sizeScale: 1,
