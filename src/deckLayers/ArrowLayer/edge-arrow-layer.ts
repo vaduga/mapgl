@@ -149,11 +149,12 @@ function getArrowColor(d: ArrowFeature, getGroupsLegend?: any): RGBAColor {
   return muted;
 }
 
-function expandArrowItems(data: ArrowFeature[] = [], _getWasmId2Edges: Edge[][]): ArrowItem[] {
+function expandArrowItems(data: ArrowFeature[] = [], getWasmId2Edges: Edge[][]): ArrowItem[] {
   const items: ArrowItem[] = [];
 
   const createItem = (
     feature: ArrowFeature,
+    edgeId: string,
     placement: ArrowPlacement,
     lineIndex: number,
     angle?: number,
@@ -162,27 +163,35 @@ function expandArrowItems(data: ArrowFeature[] = [], _getWasmId2Edges: Edge[][])
     placement,
     lineIndex,
     angle,
-    edgeId: feature.edgeId,
+    edgeId,
     properties: feature.properties,
   });
 
   data.forEach((feature, lineIndex) => {
     const arrow = feature?.properties?.edgeStyle?.arrow;
     const angles = feature?.properties?.arrowAngles;
+    const heIdx = feature?.heIdx;
+    const hyperEdge = getWasmId2Edges[heIdx];
+    const firstEdgeId = hyperEdge?.[0]?.id;
+    const lastEdgeId = hyperEdge?.at(-1)?.id;
+
+    if (!firstEdgeId || !lastEdgeId) {
+      return;
+    }
 
     if (arrow === 1) {
-      items.push(createItem(feature, 'end', lineIndex, angles?.end));
+      items.push(createItem(feature, lastEdgeId, 'end', lineIndex, angles?.end));
       return;
     }
 
     if (arrow === -1) {
-      items.push(createItem(feature, 'start', lineIndex, angles?.start));
+      items.push(createItem(feature, firstEdgeId, 'start', lineIndex, angles?.start));
       return;
     }
 
     if (arrow === 2) {
-      items.push(createItem(feature, 'start', lineIndex, angles?.start));
-      items.push(createItem(feature, 'end', lineIndex, angles?.end));
+      items.push(createItem(feature, firstEdgeId, 'start', lineIndex, angles?.start));
+      items.push(createItem(feature, lastEdgeId, 'end', lineIndex, angles?.end));
     }
   });
 

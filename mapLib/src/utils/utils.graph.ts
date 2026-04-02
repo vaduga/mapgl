@@ -40,12 +40,42 @@ function setGeomEdgeArrowheads(edge: Edge, dataRecord: BiColProps, placement: 's
   const geomEdge = GeomEdge.getGeom(edge) ?? new GeomEdge(edge);
   const arrow = dataRecord?.edgeStyle?.arrow ?? 0;
   const arrowLength = getEdgeArrowLength(dataRecord?.edgeStyle?.size);
-
   const enableSource = (arrow === -1 || arrow === 2) && (placement === 'start' || placement === 'both');
   const enableTarget = (arrow === 1 || arrow === 2) && (placement === 'end' || placement === 'both');
 
   geomEdge.sourceArrowhead = enableSource ? Object.assign(new Arrowhead(), { length: arrowLength }) : undefined as any;
   geomEdge.targetArrowhead = enableTarget ? Object.assign(new Arrowhead(), { length: arrowLength }) : undefined as any;
+}
+
+function getArrowPlacementForFragment(
+  arrow: number | undefined,
+  fragmentIndex: number,
+  fragmentCount: number,
+): 'start' | 'end' | 'both' | 'none' {
+  const isFirst = fragmentIndex === 0;
+  const isLast = fragmentIndex === fragmentCount - 1;
+
+  if (arrow === 1) {
+    return isLast ? 'end' : 'none';
+  }
+
+  if (arrow === -1) {
+    return isFirst ? 'start' : 'none';
+  }
+
+  if (arrow === 2) {
+    if (isFirst && isLast) {
+      return 'both';
+    }
+    if (isFirst) {
+      return 'start';
+    }
+    if (isLast) {
+      return 'end';
+    }
+  }
+
+  return 'none';
 }
 
 function wrapDeltaLonDeg(dLon: number): number {
@@ -219,7 +249,7 @@ function pushPath(props: PushPathProps) {
         if (dummy) {
           dummy.setData(data);
           if (panel.isLogic) {
-            const placement = segrPath.length === 1 ? 'both' : i === 0 ? 'start' : i === segrPath.length - 1 ? 'end' : 'none';
+            const placement = getArrowPlacementForFragment(dataRecord?.edgeStyle?.arrow, i, segrPath.length);
             setGeomEdgeArrowheads(dummy, dataRecord, placement);
           }
           multiEdges.push(dummy);

@@ -101,6 +101,7 @@ export interface Feature<G extends Geometry | null = Geometry, P = BiColProps> {
 
 export interface DeckLine<G extends Geometry | null = Geometry, P = BiColProps> {
   //id: number;
+  heIdx: number;
   edgeId: string;
   type: 'Feature';
   rowIndex: number;

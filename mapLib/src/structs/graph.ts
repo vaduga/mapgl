@@ -529,7 +529,8 @@ export class Graph extends Node {
 
       const edge = edges[0];
       const { source, data: edgeData } = edge;
-      const { target } = edges[edges.length - 1];
+      const lastEdge = edges[edges.length - 1];
+      const { target } = lastEdge
       const srcGraph = source.parent as Graph;
       const tarGraph = target.parent as Graph;
       const findNodeA = srcGraph.findNode;
@@ -565,12 +566,16 @@ export class Graph extends Node {
         }
 
         const geomEdge: GeomEdge = GeomEdge.getGeom(edge);
+        const lastEdgeGeom: GeomEdge = GeomEdge.getGeom(lastEdge);
 
         if (geomEdge?.source) {
           if (geomEdge?.curve?.start) {
             coordinates.forEach((c: string | any[], i: any) => {
               if (c.length > 3) {
-                coordinates[i] = c.slice(1, -1);
+                //     [geomEdge.curve.start.x, geomEdge.curve.start.y],
+                //     ...c.slice(1, -1),
+                //    [geomEdge.curve.end.x, geomEdge.curve.end.y],
+                coordinates[i] = c.slice(1, -1)
               }
             });
           } else if (!geomEdge?.curve?.start) {
@@ -589,13 +594,14 @@ export class Graph extends Node {
           ...(geomEdge?.sourceArrowhead?.tipPosition
             ? {start: [geomEdge.sourceArrowhead.tipPosition.x, geomEdge.sourceArrowhead.tipPosition.y] as Position}
             : {}),
-          ...(geomEdge?.targetArrowhead?.tipPosition
-            ? {end: [geomEdge.targetArrowhead.tipPosition.x, geomEdge.targetArrowhead.tipPosition.y] as Position}
+          ...(lastEdgeGeom?.targetArrowhead?.tipPosition
+            ? {end: [lastEdgeGeom.targetArrowhead.tipPosition.x, lastEdgeGeom.targetArrowhead.tipPosition.y] as Position}
             : {}),
         };
 
         const newFeature: DeckLine = {
           //id: counter,
+          heIdx,
           edgeId: edge.id,
           type: 'Feature',
           geometry: {
@@ -617,8 +623,8 @@ export class Graph extends Node {
           ? [geomEdge.sourceArrowhead.tipPosition.x, geomEdge.sourceArrowhead.tipPosition.y]
           : coordinates[0][0];
 
-        targetPosition = geomEdge?.targetArrowhead?.tipPosition
-          ? [geomEdge.targetArrowhead.tipPosition.x, geomEdge.targetArrowhead.tipPosition.y]
+        targetPosition = lastEdgeGeom?.targetArrowhead?.tipPosition
+          ? [lastEdgeGeom.targetArrowhead.tipPosition.x, lastEdgeGeom.targetArrowhead.tipPosition.y]
           : coordinates.at(-1).at(-1);
 
         if (!features[srcGraph.id]) {
