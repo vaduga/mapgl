@@ -4,6 +4,7 @@ import { Node } from '../structs/node';
 import { Edge } from '../structs/edge';
 import { AttributeRegistry } from '../structs/attributeRegistry';
 import {
+  Arrowhead,
   GeomGraph,
   LayerDirectionEnum,
   layoutGeomGraph,
@@ -22,6 +23,31 @@ import { NS_SEPARATOR } from '../utils/defaults';
 
 type Vec2 = [number, number];
 type ArrowAngles = { start: number | undefined; end: number | undefined };
+
+export function getEdgeArrowSize(edgeSize: number | undefined): number {
+  if (typeof edgeSize === 'number') {
+    const scaled = edgeSize * 6;
+    return Math.max(8, Math.min(24, scaled));
+  }
+  return 12;
+}
+
+export function getEdgeArrowLength(edgeSize: number | undefined): number {
+  return getEdgeArrowSize(edgeSize);
+}
+
+function setGeomEdgeArrowheads(edge: Edge, dataRecord: BiColProps, placement: 'start' | 'end' | 'both' | 'none') {
+  //@ts-ignore
+  const geomEdge = GeomEdge.getGeom(edge) ?? new GeomEdge(edge);
+  const arrow = dataRecord?.edgeStyle?.arrow ?? 0;
+  const arrowLength = getEdgeArrowLength(dataRecord?.edgeStyle?.size);
+
+  const enableSource = (arrow === -1 || arrow === 2) && (placement === 'start' || placement === 'both');
+  const enableTarget = (arrow === 1 || arrow === 2) && (placement === 'end' || placement === 'both');
+
+  geomEdge.sourceArrowhead = enableSource ? Object.assign(new Arrowhead(), { length: arrowLength }) : undefined as any;
+  geomEdge.targetArrowhead = enableTarget ? Object.assign(new Arrowhead(), { length: arrowLength }) : undefined as any;
+}
 
 function wrapDeltaLonDeg(dLon: number): number {
   if (dLon > 180) {return dLon - 360;}
@@ -198,6 +224,10 @@ function pushPath(props: PushPathProps) {
 
         if (dummy) {
           dummy.setData(data);
+          if (panel.isLogic) {
+            const placement = segrPath.length === 1 ? 'both' : i === 0 ? 'start' : i === segrPath.length - 1 ? 'end' : 'none';
+            setGeomEdgeArrowheads(dummy, dataRecord, placement);
+          }
           multiEdges.push(dummy);
         }
       });
@@ -214,6 +244,9 @@ function pushPath(props: PushPathProps) {
         return;
       }
       edge?.setData(data);
+      if (panel.isLogic) {
+        setGeomEdgeArrowheads(edge, dataRecord, 'both');
+      }
       multiEdges.push(edge);
     }
     graph.getWasmId2Edges[edge_id] = multiEdges;
@@ -222,6 +255,9 @@ function pushPath(props: PushPathProps) {
     if (edge_id !== undefined) {
       //console.log('edge_id', edge_id, edge.data.edgeId)
       edge.setAttrProp(AttributeRegistry.EdgeDataIndex, 'parPath', parPathSan);
+      if (panel.isLogic) {
+        setGeomEdgeArrowheads(edge, dataRecord, 'both');
+      }
       const prevVerticeIds = graph.getEdgeVerticeIds[edge_id][0];
       const newVerticeIds = wasmVerticeIds; //updateEdgeVertices(edge_id, wasmVerticeIds, prevVerticeIds);
       graph.getEdgeVerticeIds[edge_id][0] = Array.from(newVerticeIds);

@@ -1,9 +1,9 @@
 import { IconLayer } from '@deck.gl/layers';
 import { DataFilterExtension } from '@deck.gl/extensions';
-import { Geometry, Position } from 'geojson';
+import { Geometry } from 'geojson';
 import { getIconAtlasImage, iconMapping } from './arrow-atlas';
 import { toRGB4Array } from '../../utils';
-import { colTypes, DeckLine, PointFeatureProperties, RGBAColor, ALERTING_STATES } from 'mapLib/utils';
+import { colTypes, DeckLine, PointFeatureProperties, RGBAColor, ALERTING_STATES, getEdgeArrowSize } from 'mapLib/utils';
 import type { Edge } from 'mapLib';
 
 type ArrowFeature = DeckLine<Geometry, PointFeatureProperties>;
@@ -13,7 +13,46 @@ type ArrowItem = {
   placement: ArrowPlacement;
   lineIndex: number;
   angle?: number;
+  edgeId: string;
+  properties: ArrowFeature['properties'];
 };
+
+function getArrowTip(d: ArrowFeature, placement: ArrowPlacement): [number, number] | null {
+  const tip = d?.properties?.arrowTips?.[placement];
+  return Array.isArray(tip) && tip.length >= 2 ? [tip[0] as number, tip[1] as number] : null;
+}
+
+function getArrowBaseAndTip(
+  d: ArrowFeature,
+  placement: ArrowPlacement,
+): { base: [number, number]; tip: [number, number] } | null {
+  const pts = placement === 'start' ? getFirstPoints(d) : getLastPoints(d);
+  if (!pts) {
+    return null;
+  }
+
+  const arrowTip = getArrowTip(d, placement);
+  if (!arrowTip) {
+    return pts;
+  }
+
+  return { base: pts.tip, tip: arrowTip };
+}
+
+function getArrowAnchorPosition(
+  d: ArrowFeature,
+  placement: ArrowPlacement,
+  units: 'pixels' | 'meters' | 'common',
+): [number, number] | null {
+  const pts = getArrowBaseAndTip(d, placement);
+  if (!pts) {
+    return null;
+  }
+
+  // In pixel mode the icon size is screen-constant, so anchoring at the
+  // trimmed line endpoint keeps the arrow visually attached while zooming.
+  return units === 'pixels' ? pts.base : pts.tip;
+}
 
 function getLastPoints(d: ArrowFeature): { base: [number, number]; tip: [number, number] } | null {
   const coords = d?.geometry?.coordinates;
@@ -62,7 +101,7 @@ function wrapDeltaLonDeg(dLon: number): number {
 }
 
 function getArrowAngle(d: ArrowFeature, placement: ArrowPlacement, isGeo: boolean): number {
-  const pts = placement === 'start' ? getFirstPoints(d) : getLastPoints(d);
+  const pts = getArrowBaseAndTip(d, placement);
   if (!pts) {
     return 0;
   }
@@ -88,12 +127,7 @@ function getArrowAngle(d: ArrowFeature, placement: ArrowPlacement, isGeo: boolea
 }
 
 function getArrowSize(d: ArrowFeature): number {
-  const edgeSize = d?.properties?.edgeStyle?.size;
-  if (typeof edgeSize === 'number') {
-    const scaled = edgeSize * 6;
-    return Math.max(8, Math.min(24, scaled));
-  }
-  return 12;
+  return getEdgeArrowSize(d?.properties?.edgeStyle?.size);
 }
 
 function getArrowColor(d: ArrowFeature, getGroupsLegend?: any): RGBAColor {
@@ -119,6 +153,20 @@ function getArrowColor(d: ArrowFeature, getGroupsLegend?: any): RGBAColor {
 function expandArrowItems(data: ArrowFeature[] = [], getWasmId2Edges: Edge[][]): ArrowItem[] {
   const items: ArrowItem[] = [];
 
+  const createItem = (
+    feature: ArrowFeature,
+    placement: ArrowPlacement,
+    lineIndex: number,
+    angle?: number,
+  ): ArrowItem => ({
+    feature,
+    placement,
+    lineIndex,
+    angle,
+    edgeId: feature.edgeId,
+    properties: feature.properties,
+  });
+
   data.forEach((feature, lineIndex) => {
     const arrow = feature?.properties?.edgeStyle?.arrow;
     const angles = feature?.properties?.arrowAngles;
@@ -130,36 +178,21 @@ function expandArrowItems(data: ArrowFeature[] = [], getWasmId2Edges: Edge[][]):
     const lastEdgeId = hyperEdge?.at(-1)?.id;
 
     if (arrow === 1 && lastEdgeId === edgeId) {
-      items.push({ feature, placement: 'end', lineIndex, angle: angles?.end });
+      items.push(createItem(feature, 'end', lineIndex, angles?.end));
       return;
     }
 
     if (arrow === -1 && firstEdgeId === edgeId) {
-      items.push({
-        feature,
-        placement: 'start',
-        lineIndex,
-        angle: angles?.start,
-      });
+      items.push(createItem(feature, 'start', lineIndex, angles?.start));
       return;
     }
 
     if (arrow === 2) {
       if (firstEdgeId === edgeId) {
-        items.push({
-          feature,
-          placement: 'start',
-          lineIndex,
-          angle: angles?.start,
-        });
+        items.push(createItem(feature, 'start', lineIndex, angles?.start));
       }
       if (lastEdgeId === edgeId) {
-        items.push({
-          feature,
-          placement: 'end',
-          lineIndex,
-          angle: angles?.end,
-        });
+        items.push(createItem(feature, 'end', lineIndex, angles?.end));
       }
 
       return;
@@ -193,30 +226,36 @@ export const EdgeArrowLayer = (props) => {
   const baseData = Array.isArray(linesCollection) ? linesCollection : (linesCollection?.features ?? []);
   const arrowData = expandArrowItems(baseData, getWasmId2Edges);
   const units = options.common?.isMeters ? 'meters' : 'pixels';
+  const sizeUnits = isLogic ? 'common' : units;
+  const sizeConstraintProps = sizeUnits === 'pixels'
+    ? {
+      sizeMinPixels: 1,
+      sizeMaxPixels: 30,
+    }
+    : {};
 
   return new IconLayer({
     id: colTypes.Edges + '-arrow-' + srcGraphId,
     data: arrowData,
     visible,
-    pickable: false,
+    pickable: true,
     billboard: false,
     getPosition: (d: ArrowItem) => {
-      const pts = d.placement === 'start' ? getFirstPoints(d.feature) : getLastPoints(d.feature);
-      return pts ? pts.tip : [0, 0];
+      const pos = getArrowAnchorPosition(d.feature, d.placement, sizeUnits);
+      return pos ?? [0, 0];
     },
-    getAngle: (d: ArrowItem) => d.angle ?? getArrowAngle(d.feature, d.placement, !isLogic),
-    getSize: (d: ArrowItem) => getArrowSize(d.feature) * (selectedFeatureIndexes.includes(d.lineIndex) ? 2 : 1),
+    getAngle: (d: ArrowItem) => getArrowAngle(d.feature, d.placement, !isLogic),
+    getSize: (d: ArrowItem) => getArrowSize(d.feature) * (selectedFeatureIndexes.includes(d.lineIndex) ? 1.2 : 1),
     getColor: (d: ArrowItem) => getArrowColor(d.feature, getGroupsLegend),
 
     // Deck typings in this build are stricter than runtime support for HTMLImageElement.
     iconAtlas: getIconAtlasImage() as any,
     iconMapping,
-    getIcon: () => 'triangle-n',
+    getIcon: () => sizeUnits === 'pixels' ? 'triangle-n-ex' : 'triangle-n',
 
-    sizeUnits: units,
+    sizeUnits: sizeUnits as any,
     sizeScale: 1,
-    sizeMinPixels: 1,
-    sizeMaxPixels: 30,
+    ...sizeConstraintProps,
     depthTest: false,
     getFilterCategory: (d: ArrowItem) => {
       const { layerName, root } = d.feature?.properties || {};

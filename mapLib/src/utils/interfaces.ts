@@ -80,6 +80,10 @@ export type BiColProps = {
     start: number | undefined;
     end: number | undefined;
   };
+  arrowTips?: {
+    start?: Position;
+    end?: Position;
+  };
 };
 
 export type CoordsGuided = { item: CoordRef; gIdx: number; coords: Position };

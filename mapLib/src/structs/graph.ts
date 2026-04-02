@@ -12,7 +12,7 @@ import { paraboloid, getMidpoint, segregatePath, getArrowAngles } from '../utils
 
 import { Units } from '@turf/helpers';
 import distance from '@turf/distance';
-import { GeomEdge, GeomGraph, Point } from '@msagl/core';
+import {Arrowhead, GeomEdge, GeomGraph, Point } from '@msagl/core';
 import { distance2D } from '~/utils/utils.turf';
 
 type EdgeTuple = [Array<number | undefined>, number]; ///widxs, lidx, wrap, ametric, b,c
@@ -234,7 +234,7 @@ export class Graph extends Node {
     const newEdge = new Edge(id, s, t);
     if (this.isLogic) {
       //@ts-ignore
-      const gbc: GeomEdge = new GeomEdge(newEdge);
+      // const gbc: GeomEdge = new GeomEdge(newEdge);
       // gbc.sourceArrowhead = new Arrowhead()
       // gbc.targetArrowhead = new Arrowhead()
     }
@@ -572,18 +572,27 @@ export class Graph extends Node {
         const geomEdge: GeomEdge = GeomEdge.getGeom(edge);
 
         if (geomEdge?.source) {
-          if (geomEdge?.curve?.start) {
-            /// Leave node boundary ports only.
-            if (coordinates.length > 3) {
-              coordinates = coordinates.slice(1, -1);
-            }
-          } else {
+          if (geomEdge?.curve?.start && coordinates.length >= 2) {
+            coordinates = [
+              [geomEdge.curve.start.x, geomEdge.curve.start.y],
+              ...coordinates.slice(1, -1),
+              [geomEdge.curve.end.x, geomEdge.curve.end.y],
+            ];
+          } else if (!geomEdge?.curve?.start) {
             console.warn('Invalid controlPoints or polyPoints', locName, edge.id);
           }
         }
 
         const propsOverride = dataRecord; /// as from frame initially (including duplicate records)
         const arrowAngles = getArrowAngles(coordinates, !this.isLogic, fragIdx, edges.length);
+        const arrowTips = {
+          ...(fragIdx === 0 && geomEdge?.sourceArrowhead?.tipPosition
+            ? {start: [geomEdge.sourceArrowhead.tipPosition.x, geomEdge.sourceArrowhead.tipPosition.y] as Position}
+            : {}),
+          ...(fragIdx === edges.length - 1 && geomEdge?.targetArrowhead?.tipPosition
+            ? {end: [geomEdge.targetArrowhead.tipPosition.x, geomEdge.targetArrowhead.tipPosition.y] as Position}
+            : {}),
+        };
 
         const newFeature: DeckLine = {
           //id: counter,
@@ -601,15 +610,20 @@ export class Graph extends Node {
             locName,
             segrPath,
             ...(arrowAngles ? { arrowAngles } : {}),
+            ...(Object.keys(arrowTips).length ? { arrowTips } : {}),
           },
         };
 
         if (fragIdx === 0) {
           srcFeatureProps = newFeature.properties;
-          sourcePosition = coordinates[0];
+          sourcePosition = geomEdge?.sourceArrowhead?.tipPosition
+            ? [geomEdge.sourceArrowhead.tipPosition.x, geomEdge.sourceArrowhead.tipPosition.y]
+            : coordinates[0];
         }
         if (fragIdx === edges.length - 1) {
-          targetPosition = coordinates.at(-1);
+          targetPosition = geomEdge?.targetArrowhead?.tipPosition
+            ? [geomEdge.targetArrowhead.tipPosition.x, geomEdge.targetArrowhead.tipPosition.y]
+            : coordinates.at(-1);
         }
 
         if (!features[srcGraph.id]) {
