@@ -216,6 +216,7 @@ function getGroupRules(
       groupIdx: number;
       color?: string;
       label?: string;
+      nodeSize?: number;
       lineWidth?: number;
       iconName?: string;
       iconSize?: number;
@@ -233,6 +234,7 @@ function getGroupRules(
   }
 
   return thresholds.map((t) => ({
+    isEph: t.isEph,
     color: t.color,
     label: t.label,
     ...(t.lineWidth && { lineWidth: t.lineWidth }),

@@ -299,7 +299,7 @@ function collectGroups(allGroups: Rule[], iconNames: Set<string>, nsLayers: MapL
         label: 'fix-' + hexColor,
         color: hexColor,
         groupIdx: allGroups.length,
-        //isEph: true,
+        isEph: true,
         overrides: [
           {
             name: 'thrColor',

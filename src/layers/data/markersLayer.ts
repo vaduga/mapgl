@@ -340,14 +340,31 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               stValues.color = rgba;
 
               const matchedRules = getGroupRules(point, featSource.getGroups, theme, isFixed, locField, locName);
+              const baseGroup =
+                matchedRules.find(
+                  (rule) =>
+                    !rule.isEph &&
+                    (rule.color !== undefined ||
+                      rule.lineWidth !== undefined ||
+                      rule.nodeSize !== undefined ||
+                      rule.iconName !== undefined ||
+                      rule.iconSize !== undefined ||
+                      rule.iconVOffset !== undefined)
+                ) ??
+                matchedRules.find((rule) => !rule.isEph) ??
+                matchedRules[0];
               /// original threshold. May contain no color
-              group = matchedRules[0];
+              group = baseGroup ? { ...baseGroup } : undefined;
               /// escalate to the next threshold with color
               const nextThr = matchedRules.find((r) => r.color !== undefined);
 
               if (nextThr?.color) {
-                group.color = nextThr.color && toRGB4Array(nextThr.color);
-                group.groupIdx = nextThr.groupIdx;
+                if (group) {
+                  group.color = nextThr.color && toRGB4Array(nextThr.color);
+                  group.groupIdx = nextThr.groupIdx;
+                } else {
+                  group = { ...nextThr, color: toRGB4Array(nextThr.color) };
+                }
               } else {
                 const groupIdx = panel.groups.length;
                 const newGroup: Rule = {
@@ -355,13 +372,13 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                   color: hexColor,
                   isEph: true,
                   groupIdx,
-                      overrides: [
-                        {
-                          name: 'thrColor',
-                          type: FieldType.enum,
-                          value: [thrColor],
-                        },
-                      ],
+                  overrides: [
+                    {
+                      name: 'thrColor',
+                      type: FieldType.enum,
+                      value: [thrColor],
+                    },
+                  ],
                 };
 
                 featSource.addGroup(newGroup);
