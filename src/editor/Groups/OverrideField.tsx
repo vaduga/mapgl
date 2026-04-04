@@ -1,6 +1,6 @@
 import { AutoSizeInput, IconButton, InlineField, MultiSelect, Select, useStyles2, useTheme2 } from '@grafana/ui';
 import { OverField, Rule } from './rule-types';
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { FieldType, GrafanaTheme2 } from '@grafana/data';
 import { css } from '@emotion/css';
 import { FieldSelectEditor } from './FieldSelectEditor';
@@ -25,8 +25,36 @@ export const OverrideField: React.FC<OverrideFieldProps> = (options: OverrideFie
   const styles = useStyles2(getThresholdFieldStyles);
   const theme = useTheme2();
   const fieldNames = useFieldDisplayNames(options.context.data ?? []);
+  const [cachedThresholdOptions, setCachedThresholdOptions] = useState<RuleOption[]>([]);
+  const hasData = Boolean(options.context.data && options.context.data.length > 0);
+  const instanceState = options.context.instanceState;
+  const selectedMetricField = options.context.options?.config?.style?.color?.field;
+  const colorThresholds =
+    instanceState?.layer?.colorThresholds ??
+    options.context.options?.config?.style?.color?.thresholds ??
+    fieldNames.fields.get(selectedMetricField)?.config?.thresholds ??
+    undefined;
+  const tOptions: RuleOption[] =
+    colorThresholds?.steps
+      ?.map((t) => {
+        if (t === undefined) {
+          return null;
+        }
+        return {
+          color: theme.visualization.getColorByName(t.color),
+          label: t.color,
+          value: t.value,
+        };
+      })
+      .filter((t) => t !== null) ?? [];
 
-  if (options.context.data && options.context.data.length > 0) {
+  useEffect(() => {
+    if (tOptions.length) {
+      setCachedThresholdOptions(tOptions);
+    }
+  }, [tOptions]);
+
+  if (hasData) {
     const dataFields = options.context.data
       .flatMap((frame) => frame.fields)
       .map((field) => ({
@@ -50,28 +78,18 @@ export const OverrideField: React.FC<OverrideFieldProps> = (options: OverrideFie
     const fields = [thresField, ...dataFields, customField];
     const isThresField = options.overrideField.name === 'thrColor' && options.overrideField.type === 'enum';
 
-    const instanceState = options.context.instanceState;
-    const selectedMetricField = options.context.options?.config?.style?.color?.field;
-    const colorThresholds =
-      instanceState?.layer?.colorThresholds ??
-      options.context.options?.config?.style?.color?.thresholds ??
-      fieldNames.fields.get(selectedMetricField)?.config?.thresholds ??
-      undefined;
-
-    const tOptions: RuleOption[] =
-      colorThresholds?.steps
-        ?.map((t, idx) => {
-          if (t === undefined) {return null;}
-          return {
-            color: theme.visualization.getColorByName(t.color),
-            label: t.color,
-            value: t.value,
-          };
-        })
-        .filter((t) => t !== null) ?? [];
-
-    const thrColors = options.overrideField.value; //options.rule.thrIds
-    const storedOptions = thrColors?.length ? tOptions?.filter((t) => thrColors.includes(t.label)) : [];
+    const thrColors = Array.isArray(options.overrideField.value) ? options.overrideField.value : [];
+    const activeThresholdOptions = tOptions.length ? tOptions : cachedThresholdOptions;
+    const fallbackOptions: RuleOption[] = thrColors.map((color) => ({
+      color: theme.visualization.getColorByName(color),
+      label: color,
+      value: color as any,
+    }));
+    const mergedOptions = [
+      ...activeThresholdOptions,
+      ...fallbackOptions.filter((fallback) => !activeThresholdOptions.some((option) => option.label === fallback.label)),
+    ];
+    const storedOptions = thrColors.length ? mergedOptions.filter((t) => thrColors.includes(t.label)) : [];
     // setSelThresOpts(storedOptions)
     // setThresOpts(tOptions)
     // }, [combinedThresholds]);
@@ -115,7 +133,7 @@ export const OverrideField: React.FC<OverrideFieldProps> = (options: OverrideFie
           // shrink label="thr"
           <InlineField>
             <MultiSelect
-              options={tOptions}
+              options={mergedOptions}
               value={storedOptions}
               //@ts-ignore
               getOptionLabel={renderOption}

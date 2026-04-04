@@ -10,9 +10,20 @@ export interface LayerNameProps {
   onChange: (v: string) => void;
   verifyLayerNameUniqueness?: (nameToCheck: string) => boolean;
   overrideStyles?: boolean;
+  editTitle?: string;
+  emptyNameMessage?: string;
+  duplicateNameMessage?: string;
 }
 
-export const LayerName = ({ name, onChange, verifyLayerNameUniqueness, overrideStyles }: LayerNameProps) => {
+export const LayerName = ({
+  name,
+  onChange,
+  verifyLayerNameUniqueness,
+  overrideStyles,
+  editTitle = 'Edit layer name',
+  emptyNameMessage = 'An empty layer name is not allowed',
+  duplicateNameMessage = 'Layer name already exists',
+}: LayerNameProps) => {
   const styles = useStyles2(getStyles);
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -39,12 +50,12 @@ export const LayerName = ({ name, onChange, verifyLayerNameUniqueness, overrideS
     const newName = event.currentTarget.value.trim();
 
     if (newName.length === 0) {
-      setValidationError('An empty layer name is not allowed');
+      setValidationError(emptyNameMessage);
       return;
     }
 
     if (verifyLayerNameUniqueness && !verifyLayerNameUniqueness(newName) && newName !== name) {
-      setValidationError('Layer name already exists');
+      setValidationError(duplicateNameMessage);
       return;
     }
 
@@ -73,7 +84,7 @@ export const LayerName = ({ name, onChange, verifyLayerNameUniqueness, overrideS
         {!isEditing && (
           <button
             className={styles.layerNameWrapper}
-            title="Edit layer name"
+            title={editTitle}
             onClick={onEditLayer}
             data-testid="layer-name-div"
           >

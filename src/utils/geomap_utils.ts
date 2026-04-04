@@ -66,11 +66,11 @@ export const getNextLayerName = (panel: any) => {
 export const getNextGroupName = (groups: any) => {
   let idx = groups.length; // since basemap is 0, this looks right
   while (true && idx < 100) {
-    const name = `new rule ${idx++ + 1}`;
-    if (groups.find((l) => l.name === name) !== -1) {
+    const name = `group ${idx++ + 1}`;
+    if (!groups.some((group) => (group.rule?.label ?? group.label ?? group.name) === name)) {
       return name;
     }
   }
 
-  return `new rule ${Date.now()}`;
+  return `group ${Date.now()}`;
 };

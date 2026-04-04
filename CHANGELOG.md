@@ -2,6 +2,7 @@
 
 ## 2.2.0
 - namespace subgraphs support. Make your graph more branchy.
+- revamped Group rules section [#6](https://github.com/vaduga/mapgl/issues/6)
 - fix: group rules threshold options sync with node metric field  [#5](https://github.com/vaduga/mapgl/issues/5)
 - fix: scale on zoom for arrows and arc labels. Better arrow tips positioning.
 

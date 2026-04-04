@@ -1,8 +1,9 @@
-import React, { useMemo, useCallback, useId } from 'react';
+import React, { useId } from 'react';
 import { StandardEditorProps, SelectableValue } from '@grafana/data';
-import { Button, InlineField, InlineFieldRow, Select, Stack } from '@grafana/ui';
+import { Button, InlineField, InlineFieldRow, Select } from '@grafana/ui';
 import { NumberInput } from '../../grafana_core/app/core/components/OptionsUI/NumberInput';
 import { Trans, t } from '../../utils/i18n';
+import { StackCompat } from '../../components/Compat/StackCompat';
 
 import { type Options, type MapViewConfig, GeomapInstanceState } from '../../types';
 import { centerPointRegistry, MapCenterID } from '../../view';
@@ -18,17 +19,10 @@ export const MapViewEditor = ({
   const { isLogic } = context.instanceState || {};
   const labelWidth = 10;
 
-  const views = useMemo(() => {
-    const ids: string[] = [];
-    if (value?.id) {
-      ids.push(value.id);
-    } else {
-      ids.push(centerPointRegistry.list()[0].id);
-    }
-    return centerPointRegistry.selectOptions(ids);
-  }, [value?.id]);
+  const viewId = value?.id ?? centerPointRegistry.list()[0].id;
+  const views = centerPointRegistry.selectOptions([viewId]);
 
-  const onSetCurrentView = useCallback(() => {
+  const onSetCurrentView = () => {
     const { map, isLogic } = context.instanceState || {};
     //@ts-ignore
     const scene = (map as Deck)?.deck?.viewManager?.viewState?.[isLogic ? '3d-scene' : 'geo-view'];
@@ -48,23 +42,20 @@ export const MapViewEditor = ({
         });
       }
     }
-  }, [value, onChange, context.instanceState]);
+  };
 
-  const onSelectView = useCallback(
-    (selection: SelectableValue<string>) => {
-      const v = centerPointRegistry.getIfExists(selection.value);
-      if (v) {
-        onChange({
-          ...value,
-          id: v.id,
-          lat: v.lat ?? value?.lat,
-          lon: v.lon ?? value?.lon,
-          zoom: v.zoom ?? value?.zoom,
-        });
-      }
-    },
-    [value, onChange]
-  );
+  const onSelectView = (selection: SelectableValue<string>) => {
+    const v = centerPointRegistry.getIfExists(selection.value);
+    if (v) {
+      onChange({
+        ...value,
+        id: v.id,
+        lat: v.lat ?? value?.lat,
+        lon: v.lon ?? value?.lon,
+        zoom: v.zoom ?? value?.zoom,
+      });
+    }
+  };
 
   const viewInputId = useId();
   const zoomInputId = useId();
@@ -106,13 +97,13 @@ export const MapViewEditor = ({
         </InlineField>
       </InlineFieldRow>
 
-      {/*<Stack direction="column">*/}
-      <Button variant="secondary" size="sm" fullWidth onClick={onSetCurrentView}>
-        <span>
-          <Trans i18nKey="geomap.map-view-editor.use-current-map-settings">Use current map settings</Trans>
-        </span>
-      </Button>
-      {/*</Stack>*/}
+      <StackCompat direction="column" width="100%">
+        <Button variant="secondary" size="sm" fullWidth onClick={onSetCurrentView}>
+          <span>
+            <Trans i18nKey="geomap.map-view-editor.use-current-map-settings">Use current map settings</Trans>
+          </span>
+        </Button>
+      </StackCompat>
     </>
   );
 };

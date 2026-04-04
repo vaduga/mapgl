@@ -1,12 +1,10 @@
 import { css } from '@emotion/css';
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { GrafanaTheme2 } from '@grafana/data';
 //import { t, Trans } from '@grafana/i18n';
 import {
   Button,
-  InlineField,
-  InlineFieldRow,
-  Input,
+  IconButton,
   LinkButton,
   Popover,
   PopoverController,
@@ -42,14 +40,20 @@ export const ResourcePicker = (props: Props) => {
 
   const pickerTriggerRef = useRef<HTMLDivElement>(null);
   const hidePopperRef = useRef<(() => void) | null>(null);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const closePickerPopover = () => {
+    setIsPopoverOpen(false);
+    hidePopperRef.current?.();
+  };
   const popoverElement = (
-    <ResourcePickerPopover
+    <LazyResourcePickerPopover
+      isOpen={isPopoverOpen}
       onChange={onChange}
       value={value}
       mediaType={mediaType}
       folderName={folderName}
       maxFiles={maxFiles}
-      hidePopper={() => hidePopperRef.current?.()}
+      hidePopper={closePickerPopover}
     />
   );
 
@@ -76,42 +80,47 @@ export const ResourcePicker = (props: Props) => {
   };
 
   const renderNormalResourcePicker = () => (
-    <InlineFieldRow>
-      <InlineField label={null} grow>
-        <Input
-          value={getDisplayName(src, name)}
-          placeholder={placeholder}
-          readOnly={true}
-          prefix={sanitizedSrc && <SanitizedSVG src={sanitizedSrc} className={styles.icon} style={{ ...colorStyle }} />}
-          suffix={
-            <Button
-              aria-label={'ff'}
-              // aria-label={t('dimensions.resource-picker.aria-label-clear-value', 'Clear value')}
-              icon="times"
-              variant="secondary"
-              fill="text"
-              size="sm"
-              onClick={onClear}
-            />
-          }
-        />
-      </InlineField>
-    </InlineFieldRow>
+    <div className={styles.trigger}>
+      <div className={styles.triggerMain}>
+        {sanitizedSrc ? (
+          <SanitizedSVG src={sanitizedSrc} className={styles.icon} style={{ ...colorStyle }} />
+        ) : (
+          <div className={styles.iconPlaceholder} />
+        )}
+        <span className={styles.triggerText}>{getDisplayName(src, name) ?? placeholder}</span>
+      </div>
+      <IconButton
+        name="times"
+        tooltip="Clear value"
+        className={styles.clearButton}
+        onClick={(event) => {
+          event.stopPropagation();
+          onClear?.(event);
+        }}
+      />
+    </div>
   );
 
   return (
     <PopoverController content={popoverElement}>
       {(showPopper, hidePopper, popperProps) => {
         hidePopperRef.current = hidePopper;
+        const openPopover = () => {
+          setIsPopoverOpen(true);
+          showPopper();
+        };
+
         return (
           <>
-            {pickerTriggerRef.current && (
+            {pickerTriggerRef.current && isPopoverOpen && (
               <Popover
                 {...popperProps}
                 referenceElement={pickerTriggerRef.current}
-                onMouseEnter={showPopper}
                 onKeyDown={(event) => {
-                  closePopover(event, hidePopper);
+                  closePopover(event, () => {
+                    setIsPopoverOpen(false);
+                    hidePopper();
+                  });
                 }}
               />
             )}
@@ -119,10 +128,10 @@ export const ResourcePicker = (props: Props) => {
             <div
               ref={pickerTriggerRef}
               className={styles.pointer}
-              onClick={showPopper}
+              onClick={openPopover}
               onKeyDown={(e: React.KeyboardEvent) => {
                 if (e.key === 'Enter') {
-                  showPopper();
+                  openPopover();
                 }
               }}
               role="button"
@@ -138,6 +147,24 @@ export const ResourcePicker = (props: Props) => {
   );
 };
 
+type LazyResourcePickerPopoverProps = {
+  isOpen: boolean;
+  value?: string;
+  onChange: (value?: string) => void;
+  mediaType: MediaType;
+  folderName: ResourceFolderName;
+  maxFiles?: number;
+  hidePopper?: () => void;
+};
+
+const LazyResourcePickerPopover = ({ isOpen, ...props }: LazyResourcePickerPopoverProps) => {
+  if (!isOpen) {
+    return <div />;
+  }
+
+  return <ResourcePickerPopover {...props} />;
+};
+
 // strip the SVG off icons in the icons folder
 function getDisplayName(src?: string, name?: string): string | undefined {
   if (src?.startsWith('public/build/img/icons')) {
@@ -149,17 +176,69 @@ function getDisplayName(src?: string, name?: string): string | undefined {
   return name;
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
+const getStyles = (theme: GrafanaTheme2) => {
+  const iconWidth = theme.spacing(2.25);
+  const iconHeight = theme.spacing(1.75);
+
+  return {
   pointer: css({
     cursor: 'pointer',
-    'input[readonly]': {
-      cursor: 'pointer',
-    },
+    width: '100%',
+    minWidth: 0,
+    maxWidth: '100%',
+    overflow: 'hidden',
+
+  }),
+  trigger: css({
+    display: 'flex',
+    alignItems: 'center',
+    gap: theme.spacing(0.5),
+    width: '100%',
+    minWidth: 0,
+    maxWidth: '100%',
+    overflow: 'hidden',
+    height: theme.spacing(4),
+    minHeight: theme.spacing(4),
+    padding: `0 ${theme.spacing(0.5)}`,
+    border: `1px solid ${theme.components.input.borderColor}`,
+    borderRadius: theme.shape.radius.default,
+    background: theme.components.input.background,
+    boxSizing: 'border-box',
+  }),
+  triggerMain: css({
+    display: 'flex',
+    alignItems: 'center',
+    gap: theme.spacing(0.5),
+    flex: '1 1 auto',
+    minWidth: 0,
+    overflow: 'hidden',
+  }),
+  triggerText: css({
+    flex: '1 1 auto',
+    minWidth: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    fontSize: theme.typography.size.sm,
+    lineHeight: 1.25,
+  }),
+  clearButton: css({
+    flex: '0 0 auto',
+    padding: 0,
+    margin: 0,
+  }),
+  iconPlaceholder: css({
+    width: iconWidth,
+    height: iconHeight,
+    flex: '0 0 auto',
   }),
   icon: css({
     verticalAlign: 'middle',
     display: 'inline-block',
     fill: 'currentColor',
-    width: '25px',
+    width: iconWidth,
+    height: iconHeight,
+    flex: '0 0 auto',
   }),
-});
+  };
+};

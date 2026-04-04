@@ -1,9 +1,8 @@
-import React, { ReactNode, useEffect, useState } from 'react';
-import { FieldType, GrafanaTheme2, SelectableValue, StandardEditorsRegistryItem } from '@grafana/data';
+import React, { useEffect, useState } from 'react';
+import { FieldType, GrafanaTheme2, StandardEditorsRegistryItem } from '@grafana/data';
 import {
-  AutoSizeInput,
   ColorPicker,
-  Field,
+  InlineSwitch,
   IconButton,
   InlineField,
   InlineFieldRow,
@@ -12,13 +11,13 @@ import {
   Tooltip,
   useStyles2,
 } from '@grafana/ui';
+import { isEqual } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { css } from '@emotion/css';
 import { OverrideField } from './OverrideField';
-import { IconSvgSizes, IconVOffsetValues, OverField, OverrideTracker, Rule } from './rule-types';
+import { IconSvgSizes, OverField, OverrideTracker, Rule } from './rule-types';
 import { DEFAULT_COLOR_PICKER } from 'mapLib/utils';
 import { ResourceDimensionEditor } from '../../grafana_core/app/features/dimensions/editors';
-import { defaultStyleConfig } from '../../style/types';
 import { MediaType, ResourceFolderName } from '../../grafana_core/app/features/dimensions';
 import { ResourceDimensionMode } from '@grafana/schema';
 import { LineWidthStates, NodeSizeStates } from '../Groups/rule-types';
@@ -28,7 +27,6 @@ interface RuleItemProps {
   key: string;
   ID: string;
   colorSetter: any;
-  iconLabelSetter(index: number, value: string): void;
   lineWidthSetter: any;
   nodeSizeSetter: any;
   iconSizeSetter: any;
@@ -50,22 +48,24 @@ export type RuleOption = {
 //@ts-ignore
 export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, context) => {
   const styles = useStyles2(getRuleStyles);
-  const [oTracker, _setoTracker] = useState((): OverrideTracker[] => {
-    if (!options.rule.overrides) {
-      const empty: OverrideTracker[] = [];
-      return empty;
-    }
-    const items: OverrideTracker[] = [];
-    Object.values(options.rule.overrides).forEach((field: OverField, index: number) => {
-      items[index] = {
+  const [oTracker, _setoTracker] = useState<OverrideTracker[]>([]);
+
+  useEffect(() => {
+    const overrides = Object.values(options.rule.overrides ?? []) as OverField[];
+
+    _setoTracker((current) => {
+      const currentOverrides = current.map((entry) => entry.overrideField);
+      if (isEqual(currentOverrides, overrides)) {
+        return current;
+      }
+
+      return overrides.map((field: OverField, index: number) => ({
         overrideField: field,
         order: index,
-        ID: uuidv4(),
-      };
+        ID: current[index]?.ID ?? uuidv4(),
+      }));
     });
-
-    return items;
-  });
+  }, [options.rule.overrides]);
 
   const setTracker = (v: OverrideTracker[]) => {
     _setoTracker(v);
@@ -77,13 +77,29 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
   };
 
   const updateOverrideFieldNameType = (index: number, name: string, type: FieldType) => {
-    oTracker[index].overrideField = { ...oTracker[index].overrideField, name, type };
-    setTracker([...oTracker]);
+    setTracker(
+      oTracker.map((entry, entryIndex) =>
+        entryIndex === index
+          ? {
+              ...entry,
+              overrideField: { ...entry.overrideField, name, type },
+            }
+          : entry
+      )
+    );
   };
 
-  const updateOverrideFieldValue = (index: string, value: string) => {
-    oTracker[index].overrideField = { ...oTracker[index].overrideField, value };
-    setTracker([...oTracker]);
+  const updateOverrideFieldValue = (index: number, value: string | string[]) => {
+    setTracker(
+      oTracker.map((entry, entryIndex) =>
+        entryIndex === index
+          ? {
+              ...entry,
+              overrideField: { ...entry.overrideField, value },
+            }
+          : entry
+      )
+    );
   };
 
   const addField = () => {
@@ -118,21 +134,19 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
     setTracker([...allRules]);
   };
 
-  const [ruleLabel, setRuleLabel] = useState<any>(options.rule.label);
-  const [iconSize, setIconSize] = useState<any>(options.rule.iconSize);
-  const [iconVOffset, setIconVOffset] = useState<any>(options.rule.iconVOffset);
-  const [iconName, setIconName] = useState<string>(options.rule.iconName ?? '');
-  const [showColor, setShowColor] = useState<any>(options.rule.color);
   const handleIconChange = (icon: string | undefined) => {
     if (typeof icon !== 'string') {
       return;
     }
     options.iconNameSetter(options.index, icon);
-    setIconName(icon);
   };
   const maxFiles = 2000;
-  const [lineWidth, setLineWidth] = useState<any>();
-  const [nodeSize, setNodeSize] = useState<any>();
+  const showColor = options.rule.color !== undefined;
+  const iconName = options.rule.iconName ?? '';
+  const nodeSize = options.rule.nodeSize;
+  const lineWidth = options.rule.lineWidth;
+  const iconSize = options.rule.iconSize;
+  const iconVOffset = options.rule.iconVOffset;
 
   return (
     <InlineFieldRow className={styles.inlineRow}>
@@ -156,41 +170,41 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
             key="addColorPickerRuleField"
             variant="primary"
             name={showColor ? 'x' : 'circle'}
-            tooltip={`${showColor ? 'remove' : 'set'} color override`}
+            tooltip={`${showColor ? 'Remove' : 'Set'} group color`}
             onClick={() => {
               const color = showColor ? undefined : DEFAULT_COLOR_PICKER;
               options.colorSetter(options.index, color);
-              setShowColor(color);
             }}
           />
         </div>
       </InlineField>
-      <InlineField shrink label="label">
-        <AutoSizeInput
-          key={options.index}
-          defaultValue={ruleLabel}
-          placeholder={'rule label'}
-          onCommitChange={(e) => {
-            const { value } = e.currentTarget;
-            setRuleLabel(value);
-            options.iconLabelSetter(options.index, value);
-          }}
-          //options={typeof iconVOffset === 'number' ? IconVOffsetValues.concat([{value: iconVOffset,label: iconVOffset.toString()}]) : IconVOffsetValues}
-          //allowCustomValue={true}
-        />
+      <InlineField label="size">
+          <Tooltip content={'fix node size'}>
+            <div>
+              <InlineSwitch
+                value={typeof nodeSize === 'number'}
+                disabled={options.disabled}
+                onChange={() => {
+                  if (typeof nodeSize === 'number') {
+                    options.nodeSizeSetter(options.index, undefined);
+                    return;
+                  }
+                  options.nodeSizeSetter(options.index, NodeSizeStates[0]?.value);
+                }}
+              />
+            </div>
+          </Tooltip>
       </InlineField>
-      <Tooltip content={'fix node size'}>
+      {typeof nodeSize === 'number' && (
         <div>
           <Select
-            placeholder={'skip'}
             isClearable
             disabled={options.disabled}
             menuShouldPortal={true}
             value={options.rule.nodeSize}
             onChange={(v) => {
               if (v === null) {
-                setNodeSize(v);
-                options.nodeSizeSetter(options.index, v);
+                options.nodeSizeSetter(options.index, undefined);
                 return;
               }
 
@@ -198,7 +212,6 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
               if (!intValue) {
                 return;
               }
-              setNodeSize(v);
               options.nodeSizeSetter(options.index, intValue);
             }}
             options={
@@ -215,20 +228,34 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
             width="auto"
           />
         </div>
-      </Tooltip>
-      <Tooltip content={'fix line width'}>
+      )}
+      <InlineField label="width">
+          <Tooltip content={'fix line width'}>
+            <div>
+              <InlineSwitch
+                value={typeof lineWidth === 'number'}
+                disabled={options.disabled}
+                onChange={() => {
+                  if (typeof lineWidth === 'number') {
+                    options.lineWidthSetter(options.index, undefined);
+                    return;
+                  }
+                  options.lineWidthSetter(options.index, LineWidthStates[0]?.value);
+                }}
+              />
+            </div>
+          </Tooltip>
+      </InlineField>
+      {typeof lineWidth === 'number' && (
         <div>
           <Select
-            // title={'lineWidth7'} // doesnt work
-            placeholder={'skip'}
             isClearable
             disabled={options.disabled}
             menuShouldPortal={true}
             value={options.rule.lineWidth}
             onChange={(v) => {
               if (v === null) {
-                setLineWidth(v);
-                options.lineWidthSetter(options.index, v);
+                options.lineWidthSetter(options.index, undefined);
                 return;
               }
 
@@ -236,7 +263,6 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
               if (!intValue) {
                 return;
               }
-              setLineWidth(v);
               options.lineWidthSetter(options.index, intValue);
             }}
             options={
@@ -253,7 +279,7 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
             width="auto"
           />
         </div>
-      </Tooltip>
+      )}
 
       {oTracker &&
         oTracker.map((tracker: OverrideTracker, index: number) => {
@@ -282,7 +308,7 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
           onClick={addField}
         />
       </InlineField>
-      <InlineField shrink label={'icon'}>
+      <InlineField shrink label={'icon'} className={styles.iconField}>
         <ResourceDimensionEditor
           value={{ fixed: options.rule.iconName ?? '', mode: ResourceDimensionMode.Fixed }}
           context={context}
@@ -291,7 +317,7 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
               return;
             }
             if (v.fixed === 'custom_icon') {
-              setIconName(v.fixed);
+              options.iconNameSetter(options.index, v.fixed);
             } else {
               handleIconChange(v.fixed);
             }
@@ -319,7 +345,6 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
               onChange={(v) => {
                 // clearable
                 if (v === null) {
-                  setIconSize(v);
                   options.iconSizeSetter(options.index, v);
                   return;
                 }
@@ -328,7 +353,6 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
                 if (!intValue) {
                   return;
                 }
-                setIconSize(v);
                 options.iconSizeSetter(options.index, intValue);
               }}
               options={
@@ -347,23 +371,24 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
           </InlineField>
           <InlineField shrink label="offset" className={styles.voffset}>
             <Input
+              className={styles.offsetInput}
               disabled={options.disabled}
               type="number"
               step="1.0"
               key={options.index}
-              //menuShouldPortal={true}
-              defaultValue={iconVOffset}
+              value={iconVOffset ?? ''}
               onChange={(e) => {
                 const { value } = e.currentTarget;
-                const intValue = typeof value === 'string' ? parseFloat(value) : value;
-                if (typeof intValue !== 'number') {
+                if (value === '') {
+                  options.iconVOffsetSetter(options.index, undefined);
                   return;
                 }
-                setIconVOffset(intValue);
+                const intValue = typeof value === 'string' ? parseFloat(value) : value;
+                if (Number.isNaN(intValue)) {
+                  return;
+                }
                 options.iconVOffsetSetter(options.index, intValue);
               }}
-              //options={typeof iconVOffset === 'number' ? IconVOffsetValues.concat([{value: iconVOffset,label: iconVOffset.toString()}]) : IconVOffsetValues}
-              //allowCustomValue={true}
             />
           </InlineField>
         </>
@@ -388,17 +413,63 @@ const getRuleStyles = (theme: GrafanaTheme2) => {
       flex: 1 0 auto;
     `,
     inlineRow: css`
-      //display: flex;
-      //align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: ${theme.spacing(1)};
       margin-top: ${theme.spacing(1.25)};
+      width: 100%;
+      max-width: 100%;
+
+      & > * {
+        min-width: 0;
+      }
     `,
     voffset: css`
-      //display: inline-block; /* Ensures the field takes only the space it needs */
-      width: 30%;
+      width: 8rem;
       flex-shrink: 1;
     `,
     addButton: css`
       align-items: center;
+    `,
+    iconField: css`
+      flex: 1 1 100%;
+      min-width: 0;
+      width: 100%;
+      max-width: 100%;
+      overflow: hidden;
+
+      & > div {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+      }
+
+      & [class*='inline-field-row'] {
+        width: 100%;
+        min-width: 0;
+      }
+
+      & [role='button'] {
+        width: 100%;
+        min-width: 0;
+      }
+
+      & input {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+      }
+    `,
+    offsetInput: css`
+      width: 4.5rem;
+      min-width: 4.5rem;
+
+      & input {
+        padding-left: ${theme.spacing(0.5)};
+        padding-right: ${theme.spacing(0.5)};
+        text-align: right;
+      }
     `,
   };
 };
