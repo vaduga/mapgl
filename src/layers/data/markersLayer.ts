@@ -243,10 +243,8 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
           }
 
           const colorField = style.dims.color?.field;
-          const colorThresholds = colorField?.config?.thresholds;
-          if (colorThresholds) {
-            featSource.setThresholds(colorThresholds);
-          }
+          const colorThresholds = style.config?.color?.thresholds ?? colorField?.config?.thresholds;
+          featSource.setThresholds(colorThresholds);
 
           const fieldValues = new Map(frame.fields.map((f) => [f.name, f.values]));
           const mock = panel.useMockData ? indexFields(frame) : undefined;

@@ -13,6 +13,10 @@ import {
 import { DimensionSupplier } from '../grafana_core/app/features/dimensions';
 import { RGBAColor } from 'mapLib/utils';
 
+export interface ColorDimensionConfigWithThresholds extends ColorDimensionConfig {
+  thresholds?: unknown;
+}
+
 export enum GeometryTypeId {
   Point = 'point',
   Line = 'line',
@@ -34,7 +38,7 @@ export interface ArcOption {
 // StyleConfig is saved in panel json and is used to configure how items get rendered
 export interface StyleConfig {
   group?: Rule;
-  color?: ColorDimensionConfig;
+  color?: ColorDimensionConfigWithThresholds;
   arcs?: ArcOption[];
   opacity?: number; // defaults to 80%
   arrow?: 0 | 1 | -1 | 2;

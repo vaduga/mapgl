@@ -9,6 +9,7 @@ function countMatchingKeysAndValues(props, o, theme, locField, isFixed) {
   let oCount = 0;
 
   if (!o?.length) {
+    hasAllValuesMatch = 1;
     return [oCount, hasAllValuesMatch, hasLocMatch, hasThrMatch];
   }
   const overrides: OverField[] = o.slice();
@@ -16,7 +17,10 @@ function countMatchingKeysAndValues(props, o, theme, locField, isFixed) {
   if (isFixed) {
     const thrColorIdx = overrides?.findIndex((o) => o.name === 'thrColor');
     if (thrColorIdx !== -1) {
-      overrides[thrColorIdx] = { ...overrides[thrColorIdx], value: [FIXED_COLOR_LABEL] };
+      overrides[thrColorIdx] = {
+        ...overrides[thrColorIdx],
+        value: [FIXED_COLOR_LABEL],
+      };
     } else {
       overrides.push({
         name: 'thrColor',

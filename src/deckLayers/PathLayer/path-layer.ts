@@ -1,9 +1,7 @@
 import { isVisible, makeColorDarker, makeColorLighter, toRGB4Array } from '../../utils';
-import { colTypes } from 'mapLib/utils';
 import { PathLayer } from '@deck.gl/layers';
-import { BBOX_OUTLINE_COLOR, BBOX_OUTLINE_WIDTH, SEL_LINE_WIDTH_MULTIPLIER } from 'mapLib/utils';
+import { colTypes, BBOX_OUTLINE_COLOR, BBOX_OUTLINE_WIDTH, SEL_LINE_WIDTH_MULTIPLIER } from 'mapLib/utils';
 import { PathStyleExtension } from '@deck.gl/extensions';
-import { toJS } from 'mobx';
 
 function MyPathLayer(props) {
   const {

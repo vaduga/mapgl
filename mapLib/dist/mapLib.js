@@ -26073,7 +26073,9 @@ var Oh = class e extends l {
 			addNode: lr,
 			setEdge: lr,
 			addToGroup: lr,
-			rmFromGroup: lr
+			rmFromGroup: lr,
+			resetNodes: lr,
+			reset: lr
 		});
 	}
 	addToGroup = (e, t) => {

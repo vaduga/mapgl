@@ -1,12 +1,10 @@
-import React, { FunctionComponent, useCallback, useMemo, useState } from 'react';
-import { orderBy } from 'lodash';
-import { Button, CollapsableSection, IconButton, useStyles2, useTheme, useTheme2 } from '@grafana/ui';
+import React, { useEffect, useState } from 'react';
+import { Button, CollapsableSection, IconButton, useStyles2 } from '@grafana/ui';
 import { v4 as uuidv4 } from 'uuid';
 import { defaultGroup, OverrideTracker, Rule, RuleTracker } from './rule-types';
 import { RuleItem } from './RuleItem';
 import { GrafanaTheme2, StandardEditorProps } from '@grafana/data';
 import { css } from '@emotion/css';
-import { StyleConfig } from '../../style/types';
 import { getNextGroupName } from '../../utils/geomap_utils';
 
 type Props = StandardEditorProps<Rule[]>;
@@ -15,15 +13,12 @@ export const GroupsEditor = ({ onChange, item, ...props }: Props) => {
   const { disabled } = item.settings || {};
   const s = useStyles2(svgIconsFieldStyles);
   const [tracker, _setTracker] = useState<RuleTracker[]>([]);
+  const context = props.context;
 
-  const context = useMemo(() => {
-    if (!item.settings?.frameMatcher) {
-      // return props.context;
-    }
-
-    const groups = props.context.options?.config?.groups ?? [defaultGroup(getNextGroupName([]))];
-
+  useEffect(() => {
+    const groups = props.value ?? props.context.options?.config?.groups ?? [];
     const items: RuleTracker[] = [];
+
     groups.forEach((value: Rule, index: number) => {
       items[index] = {
         rule: value,
@@ -32,14 +27,8 @@ export const GroupsEditor = ({ onChange, item, ...props }: Props) => {
       };
     });
 
-    _setTracker(items); //structuredClone(items));
-
-    return props.context;
-    //return { ...props.context, data: props.context.data.filter(item.settings.frameMatcher) };
-  }, [props.context.options.name]); //, item.settings]); //props.context
-
-  // v9 compatible
-  const theme2 = useTheme2();
+    _setTracker(items);
+  }, [props.context.options?.config?.groups, props.value]);
 
   const setRules = (val: Rule[]) => {
     onChange(val as any);
@@ -54,54 +43,57 @@ export const GroupsEditor = ({ onChange, item, ...props }: Props) => {
     setRules(allRules);
   };
 
+  const updateTrackerRule = (index: number, update: (rule: Rule) => Rule) => {
+    setTracker(
+      tracker.map((entry, entryIndex) =>
+        entryIndex === index
+          ? {
+              ...entry,
+              rule: update(entry.rule),
+            }
+          : entry
+      )
+    );
+  };
+
   const updateRuleOverrides = (index: number, overrides: OverrideTracker) => {
     if (!overrides) {
       return;
     }
 
-    tracker[index].rule = { ...tracker[index].rule, overrides };
-    setTracker(tracker);
+    updateTrackerRule(index, (rule) => ({ ...rule, overrides }));
   };
 
   const updateRuleColor = (index: number, color: string) => {
-    tracker[index].rule = { ...tracker[index].rule, color };
-    setTracker(tracker);
+    updateTrackerRule(index, (rule) => ({ ...rule, color }));
   };
 
   const updateRuleLabel = (index: number, label: string) => {
-    tracker[index].rule = { ...tracker[index].rule, label };
-    tracker[index].rule.label = label;
-    setTracker(tracker);
+    updateTrackerRule(index, (rule) => ({ ...rule, label }));
   };
 
   const updateLineWidth = (index: number, width: number) => {
-    tracker[index].rule = { ...tracker[index].rule, lineWidth: width };
-    setTracker(tracker);
+    updateTrackerRule(index, (rule) => ({ ...rule, lineWidth: width }));
   };
 
   const updateNodeSize = (index: number, size: number) => {
-    tracker[index].rule = { ...tracker[index].rule, nodeSize: size };
-    setTracker(tracker);
+    updateTrackerRule(index, (rule) => ({ ...rule, nodeSize: size }));
   };
 
   const updateIconSize = (index: number, size: number) => {
-    tracker[index].rule = { ...tracker[index].rule, iconSize: size };
-    setTracker(tracker);
+    updateTrackerRule(index, (rule) => ({ ...rule, iconSize: size }));
   };
 
   const updateIconCollapsed = (index: number) => {
-    tracker[index].rule = { ...tracker[index].rule, collapse: !tracker[index].rule.collapse };
-    setTracker(tracker);
+    updateTrackerRule(index, (rule) => ({ ...rule, collapse: !rule.collapse }));
   };
 
   const updateIconVOffset = (index: number, size: number) => {
-    tracker[index].rule = { ...tracker[index].rule, iconVOffset: size };
-    setTracker(tracker);
+    updateTrackerRule(index, (rule) => ({ ...rule, iconVOffset: size }));
   };
 
   const updateIconName = (index: number, name: string) => {
-    tracker[index].rule = { ...tracker[index].rule, iconName: name };
-    setTracker(tracker);
+    updateTrackerRule(index, (rule) => ({ ...rule, iconName: name }));
   };
 
   const removeRule = (index: number) => {

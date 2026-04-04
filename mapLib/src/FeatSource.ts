@@ -35,7 +35,6 @@ export class FeatSource {
   }
 
   setThresholds = (colorThresholds: any | undefined): void => {
-    // ThresholdsConfig
     this.colorThresholds = colorThresholds ?? {};
   };
 

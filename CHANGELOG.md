@@ -1,8 +1,9 @@
 # Changelog Mapgl
 
 ## 2.2.0
-- namespace subgraphs support to structure node graph branches with no clutter.
-- better arrow tips positioning, scale on zoom
+- namespace subgraphs support. Make your graph more branchy.
+- fix: group rules threshold options sync with node metric field  [#5](https://github.com/vaduga/mapgl/issues/5)
+- fix: scale on zoom for arrows and arc labels. Better arrow tips positioning.
 
 ## 2.1.0
 

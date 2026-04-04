@@ -78,19 +78,13 @@ export const pathLayer: ExtendMapLayerRegistryItem<PathConfig> = {
 
           const info = getGeometryField(frame, matchers);
           if (info.warning) {
-            //console.log('Could not find locations', info.warning);
-            // continue; // ???
+            //console.log(info.warning);
+            continue; // ???
           }
 
           const field = info.field;
 
           if (field) {
-            const colorField = style.dims.color?.field;
-            const colorThresholds = colorField?.config?.thresholds;
-            if (colorThresholds) {
-              featSource.setThresholds(colorThresholds);
-            }
-
             const dataFrame = new DataFrameView(frame).toArray();
             const points: Feature[] = (field.values as Geometry[]).map((geometry, i) => {
               const point = dataFrame[i];
@@ -111,7 +105,7 @@ export const pathLayer: ExtendMapLayerRegistryItem<PathConfig> = {
               }
 
               const entries = Object.entries(point);
-              const locName = entries.length > 0 && locField ? point[locField] ?? entries[0][1] : undefined;
+              const locName = entries.length > 0 && locField ? (point[locField] ?? entries[0][1]) : undefined;
 
               const newFeature: any = {
                 id: i,

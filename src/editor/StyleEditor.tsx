@@ -11,6 +11,7 @@ import {
   TextDimensionEditor,
 } from '../grafana_core/app/features/dimensions/editors';
 import { defaultTextConfig } from '../grafana_core/app/features/dimensions/types';
+import { setOptionImmutably } from '../grafana_core/app/dashboard/components/PanelEditor/utils';
 
 import { defaultStyleConfig, StyleConfig } from '../style/types';
 import { styleUsesText } from '../style/utils';
@@ -48,7 +49,21 @@ export const StyleEditor = (props: Props) => {
   };
 
   const onColorChange = (colorValue: ColorDimensionConfig | undefined) => {
-    onChange({ ...value, color: colorValue });
+    const nextValue = { ...value, color: colorValue };
+
+    if (!isEdge && props.context.instanceState?.onChange && props.context.options) {
+      const nextOptions = setOptionImmutably(props.context.options, 'config.style', nextValue);
+      props.context.instanceState.onChange({
+        ...nextOptions,
+        config: {
+          ...nextOptions.config,
+          groups: [...(nextOptions.config?.groups ?? [])],
+        },
+      });
+      return;
+    }
+
+    onChange(nextValue);
   };
 
   const onOpacityChange = (opacityValue: number | undefined) => {

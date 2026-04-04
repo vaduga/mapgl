@@ -1,13 +1,12 @@
 import { css } from '@emotion/css';
-import { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import { GrafanaTheme2, SelectableValue, StandardEditorProps } from '@grafana/data';
 import { ColorDimensionConfig } from '@grafana/schema';
 import { ColorPicker, useStyles2 } from '@grafana/ui';
 import { ComboboxCompat } from '../../../../../components/Compat/ComboboxCompat';
 import { useFieldDisplayNames, useMatcherSelectOptions } from '../../../../components/MatchersUI/utils';
-
-import React from 'react';
+import { ColorDimensionConfigWithThresholds } from '../../../../../style/types';
 
 interface ColorDimensionSettings {
   isClearable?: boolean;
@@ -45,20 +44,24 @@ export const ColorDimensionEditor = (props: StandardEditorProps<ColorDimensionCo
 
       const field = selection.value;
       if (field && field !== fixedColorOption.value) {
+        const thresholds = names.fields.get(field)?.config?.thresholds;
+
         onChange({
-          ...value,
+          ...(value as ColorDimensionConfigWithThresholds),
           field,
-        });
+          thresholds,
+        } as ColorDimensionConfig);
       } else {
         const fixed = value?.fixed ?? defaultColor;
         onChange({
-          ...value,
+          ...(value as ColorDimensionConfigWithThresholds),
           field: undefined,
           fixed,
-        });
+          thresholds: undefined,
+        } as ColorDimensionConfig);
       }
     },
-    [fixedColorOption.value, onChange, value]
+    [fixedColorOption.value, names.fields, onChange, value]
   );
 
   const onColorChange = useCallback(

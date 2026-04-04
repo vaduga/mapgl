@@ -58,6 +58,8 @@ export class Graph extends Node {
       setEdge: action,
       addToGroup: action,
       rmFromGroup: action,
+      resetNodes: action,
+      reset: action,
     });
 
     //autorun(() => console.log('v.', toJS(this.getVersion)));

@@ -5,6 +5,7 @@ import { FieldType, GrafanaTheme2 } from '@grafana/data';
 import { css } from '@emotion/css';
 import { FieldSelectEditor } from './FieldSelectEditor';
 import { RuleOption } from './RuleItem';
+import { useFieldDisplayNames } from '../../grafana_core/components/MatchersUI/utils';
 
 interface OverrideFieldProps {
   overrideField: OverField;
@@ -23,6 +24,7 @@ interface OverrideFieldProps {
 export const OverrideField: React.FC<OverrideFieldProps> = (options: OverrideFieldProps) => {
   const styles = useStyles2(getThresholdFieldStyles);
   const theme = useTheme2();
+  const fieldNames = useFieldDisplayNames(options.context.data ?? []);
 
   if (options.context.data && options.context.data.length > 0) {
     const dataFields = options.context.data
@@ -49,9 +51,13 @@ export const OverrideField: React.FC<OverrideFieldProps> = (options: OverrideFie
     const isThresField = options.overrideField.name === 'thrColor' && options.overrideField.type === 'enum';
 
     const instanceState = options.context.instanceState;
-    let { colorThresholds } = instanceState?.layer || {};
+    const selectedMetricField = options.context.options?.config?.style?.color?.field;
+    const colorThresholds =
+      instanceState?.layer?.colorThresholds ??
+      options.context.options?.config?.style?.color?.thresholds ??
+      fieldNames.fields.get(selectedMetricField)?.config?.thresholds ??
+      undefined;
 
-    // useEffect(() => {
     const tOptions: RuleOption[] =
       colorThresholds?.steps
         ?.map((t, idx) => {
