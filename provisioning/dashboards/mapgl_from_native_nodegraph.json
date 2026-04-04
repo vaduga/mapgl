@@ -18,7 +18,6 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 3,
   "links": [],
   "panels": [
     {
@@ -120,7 +119,7 @@
         "basemap": {
           "config": {},
           "name": "Layer 0",
-          "type": "default"
+          "type": "blank"
         },
         "common": {
           "isAppAuth": false,
@@ -174,7 +173,12 @@
                   "field": "metricReduced",
                   "fixed": "dark-green"
                 },
-                "opacity": 0.5
+                "opacity": 0.5,
+                "size": {
+                  "fixed": 3,
+                  "max": 20,
+                  "min": 5
+                }
               },
               "groups": [
                 {
@@ -188,7 +192,9 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": ["red"]
+                      "value": [
+                        "red"
+                      ]
                     }
                   ]
                 },
@@ -208,7 +214,9 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": ["semi-dark-green"]
+                      "value": [
+                        "semi-dark-green"
+                      ]
                     }
                   ]
                 },
@@ -243,7 +251,9 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": ["semi-dark-green"]
+                      "value": [
+                        "semi-dark-green"
+                      ]
                     }
                   ]
                 },
@@ -258,7 +268,10 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": ["dark-green", "green"]
+                      "value": [
+                        "dark-green",
+                        "green"
+                      ]
                     }
                   ]
                 },
@@ -273,7 +286,9 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": ["#EAB839"]
+                      "value": [
+                        "#EAB839"
+                      ]
                     }
                   ]
                 },
@@ -288,7 +303,9 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": ["#6ED0E0"]
+                      "value": [
+                        "#6ED0E0"
+                      ]
                     }
                   ]
                 }
@@ -304,11 +321,22 @@
                   "field": "metricReduced",
                   "fixed": "dark-green"
                 },
+                "text": {
+                  "field": "source",
+                  "fixed": "",
+                  "mode": "field"
+                },
                 "useGroups": true
               },
               "vertices": {}
             },
-            "displayProperties": ["city", "model", "metricReduced", "bps", "aggrType"],
+            "displayProperties": [
+              "city",
+              "model",
+              "metricReduced",
+              "bps",
+              "aggrType"
+            ],
             "edgeLabelField": "bps",
             "isShowBW": true,
             "isShowTooltip": true,
@@ -322,7 +350,9 @@
             "name": "uni",
             "parField": "srcPath",
             "parentName": "parent",
-            "searchProperties": ["city"],
+            "searchProperties": [
+              "city"
+            ],
             "throughputField": "bps",
             "type": "markers"
           }
@@ -429,13 +459,13 @@
         "updatesLog": false,
         "view": {
           "allLayers": true,
-          "id": "fit",
-          "lat": 0,
-          "lon": 0,
-          "zoom": 15
+          "id": "coords",
+          "lat": 776.357321,
+          "lon": 707.728937,
+          "zoom": -1.26
         }
       },
-      "pluginVersion": "2.0.0",
+      "pluginVersion": "2.2.0",
       "targets": [
         {
           "datasource": {
@@ -446,19 +476,24 @@
           "queryType": "table",
           "rawQueryText": "select * from nodes_nodegraph_ds;",
           "refId": "nodes",
-          "timeColumns": ["time", "ts"]
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
         },
         {
           "datasource": {
             "type": "frser-sqlite-datasource",
             "uid": "b6c1a5f4-6225-4788-8ed6-540fb078e8bc"
           },
-          "hide": false,
           "queryText": "select * from edges_nodegraph_ds;",
           "queryType": "table",
           "rawQueryText": "select * from edges_nodegraph_ds;",
           "refId": "edges",
-          "timeColumns": ["time", "ts"]
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
         }
       ],
       "title": "Unified data frame for nodes and edges",
@@ -476,7 +511,10 @@
             "alias": "metricReduced",
             "mode": "reduceRow",
             "reduce": {
-              "include": ["metric 1", "metric 2"],
+              "include": [
+                "metric 1",
+                "metric 2"
+              ],
               "reducer": "lastNotNull"
             }
           }
@@ -493,60 +531,14 @@
     "list": [
       {
         "current": {
-          "text": "target",
-          "value": "target"
+          "text": "1",
+          "value": "1"
         },
-        "hide": 2,
-        "includeAll": false,
-        "name": "locRole",
-        "options": [
-          {
-            "selected": true,
-            "text": "target",
-            "value": "target"
-          },
-          {
-            "selected": false,
-            "text": "source",
-            "value": "source"
-          }
-        ],
-        "query": "target, source",
-        "type": "custom"
-      },
-      {
-        "current": {
-          "text": "",
-          "value": ""
-        },
-        "hide": 2,
-        "name": "target",
-        "options": [
-          {
-            "selected": true,
-            "text": "",
-            "value": ""
-          }
-        ],
-        "query": "",
-        "type": "textbox"
-      },
-      {
-        "current": {
-          "text": "",
-          "value": ""
-        },
-        "hide": 2,
-        "name": "source",
-        "options": [
-          {
-            "selected": true,
-            "text": "",
-            "value": ""
-          }
-        ],
-        "query": "",
-        "type": "textbox"
+        "name": "routed",
+        "options": [],
+        "query": "0,1",
+        "type": "custom",
+        "valuesFormat": "csv"
       }
     ]
   },
@@ -555,8 +547,9 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "browser",
   "title": "From native Grafana Node graph dataframes",
   "uid": "gwtl87",
-  "version": 1
+  "version": 2,
+  "weekStart": ""
 }
