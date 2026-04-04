@@ -6,7 +6,7 @@
 [![Project Site](https://img.shields.io/badge/Project-site-blue)](https://mapgl.org)
 [✉️][email]
 
-Network **Geo map** / **Node Graph** with autolayout and spline edge routing.
+Network **Geo map** / **Node Graph** with distributed graph autolayout and spline edge routing.  
 
 Start new panel with a sample node graph to test styles and modes.
 
@@ -32,6 +32,7 @@ width="600"
 ### Features
 
 - **Node graph** with layered auto-layout or **Geomap view**
+- Namespace subgraphs for a distributed graph.
 - Webgl GPU-acceleration for rendering large data volumes
 - Arc sections on nodes for multiple metrics.
 - Multi-segment routes
