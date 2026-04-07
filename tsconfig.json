@@ -1,11 +1,16 @@
 {
   "extends": "./.config/tsconfig.json",
   "compilerOptions": {
+    "rootDir": ".",
+    "baseUrl": "src",
     "removeComments": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitAny": false,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "paths": {
+      "~/*": ["../mapLib/src/*"]
+    }
   },
-  "include": ["./mapLib/src"]
+  "include": ["src", "mapLib/src", ".config/types"]
 }

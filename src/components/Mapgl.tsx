@@ -479,7 +479,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
   };
 
   useEffect(() => {
-    if (panel.layers < 2) {
+    if (panel.layers.length < 2) {
       return;
     }
     getLayers();
