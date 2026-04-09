@@ -5,7 +5,7 @@ import { GrafanaTheme2, PanelData, PanelProps } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { PanelContext, PanelContextProvider, PanelContextRoot } from '@grafana/ui';
 import { Options, MapLayerState, MapViewConfig } from './types';
-import { runLayout, ViewState, defViewState } from 'mapLib/utils';
+import { runLayout, ViewState, defViewState, CMN_NAMESPACE } from 'mapLib/utils';
 import { notifyPanelEditor } from './utils/geomap_utils';
 import { getActions } from './utils/actions';
 import Mapgl from './components/Mapgl';
@@ -29,7 +29,6 @@ interface State {
   svgIcons?;
 }
 
-import { CMN_NAMESPACE } from 'mapLib/utils';
 import { Rule } from './editor/Groups/rule-types';
 import { VisLayers } from './store/visLayers';
 
