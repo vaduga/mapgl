@@ -609,7 +609,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
       {(isShowEdgeLegend || isShowLegend) && (
         <div className={s.legendStack}>
-          {isShowEdgeLegend && memoEdgeLegend}
+          {isShowEdgeLegend && !isHyper && memoEdgeLegend}
           {isShowLegend && memoLegend}
         </div>
       )}

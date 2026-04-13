@@ -13,7 +13,6 @@ import { RootStoreProvider, fillAnnots, initGroups, genVisLayers, initBinaryProp
 import { applyLayerFilter, initLayer } from './utils/layers';
 import { ORTHO_BASEMAP_CONFIG } from './layers/registry';
 import { defaultMarkersConfig } from './layers/data/markersLayer';
-import { Map as MaplibreMap } from '@vis.gl/react-maplibre';
 import { Graph, GeomGraph, BiColProps } from 'mapLib';
 
 import { initViewExtent } from './utils/utils.map';
@@ -23,9 +22,7 @@ type Props = PanelProps<Options>;
 
 interface State {
   viewState: ViewState;
-  authReady: boolean;
   source: string | {} | undefined;
-  hasYaScriptLoaded?: boolean;
   svgIcons?;
 }
 
@@ -79,6 +76,7 @@ export class GeomapPanel extends Component<Props, State> {
     // @ts-ignore
     new GeomGraph(rootGraph);
     this.graph = rootGraph;
+    this.visLayers = new VisLayers();
 
     // Default layer starter-values
     if (!options.dataLayers?.length) {
@@ -86,7 +84,7 @@ export class GeomapPanel extends Component<Props, State> {
     }
 
     this.locLabelName = locLabelName;
-    this.state = { authReady: false, source: undefined, hasYaScriptLoaded: false, viewState: defViewState };
+    this.state = { source: undefined, viewState: defViewState };
 
     this.panelContext = {
       onToggleSeriesVisibility: undefined,
@@ -116,8 +114,6 @@ export class GeomapPanel extends Component<Props, State> {
 
   async componentDidMount() {
     this.panelContext = { ...this.context, ...this.panelContext };
-    this.visLayers = new VisLayers();
-    this.setState({ authReady: true });
   }
 
   componentWillUnmount() {
@@ -328,9 +324,6 @@ export class GeomapPanel extends Component<Props, State> {
   };
 
   render() {
-    if (!this.state.authReady) {
-      return <div>Authorizing…(F5,F12)</div>; // blocks other logic
-    }
 
     const { data, options, replaceVariables, fieldConfig, eventBus } = this.props;
 
