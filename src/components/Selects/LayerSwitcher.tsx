@@ -94,7 +94,16 @@ LayerSwitcher.renderPanel = (geomap: GeomapPanel, setVisRefresh, setMobxLegendRe
   // panel.dispatchEvent(rendercomplete_event);
 };
 
-LayerSwitcher.renderLayer_ = (geomap, setVisRefresh, setMobxLegendRefresh, lyr: LayerTreeInfo, idx, options, render) => {
+LayerSwitcher.renderLayer_ = (
+  geomap,
+  setVisRefresh,
+  setMobxLegendRefresh,
+  lyr: LayerTreeInfo,
+  idx,
+  options,
+  render,
+  depth = 0
+) => {
   const li = document.createElement('li');
   const { label: lyrLabel } = lyr || {};
   const checkboxId = LayerSwitcher.uuid();
@@ -120,7 +129,7 @@ LayerSwitcher.renderLayer_ = (geomap, setVisRefresh, setMobxLegendRefresh, lyr: 
         li.classList.add('group');
       }
 
-      if (typeof lyr.fold === 'boolean') {
+      if (depth > 0 && typeof lyr.fold === 'boolean') {
         li.classList.add(CSS_PREFIX + 'fold');
         li.classList.add(CSS_PREFIX + (lyr.fold ? 'close' : 'open'));
         const btn = document.createElement('button');
@@ -159,7 +168,7 @@ LayerSwitcher.renderLayer_ = (geomap, setVisRefresh, setMobxLegendRefresh, lyr: 
 
       const ul = document.createElement('ul');
       li.appendChild(ul);
-      LayerSwitcher.renderLayers_(lyr.children, geomap, setVisRefresh, setMobxLegendRefresh, ul, options, render);
+      LayerSwitcher.renderLayers_(lyr.children, geomap, setVisRefresh, setMobxLegendRefresh, ul, options, render, depth + 1);
     }
   } else {
     li.className = 'layer';
@@ -193,7 +202,8 @@ LayerSwitcher.renderLayers_ = (
   setMobxLegendRefresh,
   elm,
   options,
-  render
+  render,
+  depth = 0
 ) => {
   let children = [...layers];
   if (options.reverse) {
@@ -203,7 +213,9 @@ LayerSwitcher.renderLayers_ = (
   for (let i = 0, l: LayerTreeInfo; i < children.length; i++) {
     l = children[i];
     if (l.name) {
-      elm.appendChild(LayerSwitcher.renderLayer_(geomap, setVisRefresh, setMobxLegendRefresh, l, i, options, render));
+      elm.appendChild(
+        LayerSwitcher.renderLayer_(geomap, setVisRefresh, setMobxLegendRefresh, l, i, options, render, depth)
+      );
     }
   }
 };
