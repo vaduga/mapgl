@@ -8,7 +8,7 @@ import process from 'process';
 import os from 'os';
 import path from 'path';
 import { glob } from 'glob';
-import { SOURCE_DIR } from './constants.ts';
+import { SOURCE_DIR } from './constants';
 
 export function isWSL() {
   if (process.platform !== 'linux') {

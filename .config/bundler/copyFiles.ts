@@ -3,7 +3,7 @@
  *
  */
 
-import { getPluginJson, hasReadme } from './utils.ts';
+import { getPluginJson, hasReadme } from './utils';
 
 const pluginJson = getPluginJson();
 const logoPaths: string[] = Array.from(new Set([pluginJson.info?.logos?.large, pluginJson.info?.logos?.small])).filter(

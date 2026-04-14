@@ -13,12 +13,12 @@ import ReplaceInFileWebpackPlugin from 'replace-in-file-webpack-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
 import { RspackVirtualModulePlugin } from 'rspack-plugin-virtual-module';
 
-import RspackLiveReloadPlugin from './liveReloadPlugin.ts';
-import { BuildModeRspackPlugin } from './BuildModeRspackPlugin.ts';
-import { DIST_DIR, SOURCE_DIR } from '../bundler/constants.ts';
-import { getCPConfigVersion, getEntries, getPackageJson, getPluginJson, isWSL } from '../bundler/utils.ts';
-import { externals } from '../bundler/externals.ts';
-import { copyFilePatterns } from '../bundler/copyFiles.ts';
+import RspackLiveReloadPlugin from './liveReloadPlugin';
+import { BuildModeRspackPlugin } from './BuildModeRspackPlugin';
+import { DIST_DIR, SOURCE_DIR } from '../bundler/constants';
+import { getCPConfigVersion, getEntries, getPackageJson, getPluginJson, isWSL } from '../bundler/utils';
+import { externals } from '../bundler/externals';
+import { copyFilePatterns } from '../bundler/copyFiles';
 
 const { SubresourceIntegrityPlugin } = rspack.experiments;
 const pluginJson = getPluginJson();
