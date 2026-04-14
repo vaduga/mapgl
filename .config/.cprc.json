@@ -1,3 +1,6 @@
 {
-  "version": "5.27.1"
+  "version": "5.27.1",
+  "features": {
+    "useExperimentalRspack": true
+  }
 }
