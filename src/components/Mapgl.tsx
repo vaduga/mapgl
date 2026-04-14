@@ -501,7 +501,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     return (
       <div className={s.timeNcoords}>
         {!!getGroupsLegend?.find((el) => el.label === ANNOTS_LABEL) && <StateTime time={time} />}
-        <PositionTracker isLogic={panel.isLogic} />
+        {!isLogic && <PositionTracker isLogic={panel.isLogic} />}
       </div>
     );
   }, [getSelCoord, time, getGroupsLegend]);
