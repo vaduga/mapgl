@@ -1,10 +1,5 @@
-import { type LayerInfo, type VisLayerEntry, VisLayer } from './visLayer';
+import { type LayerInfo, type LayerTreeInfo, type VisLayerEntry, VisLayer } from './visLayer';
 import { colTypes } from 'mapLib/utils';
-
-export interface VisLayerInfo {
-  topLevel: LayerInfo[];
-  children: LayerInfo[][];
-}
 
 export class VisLayers {
   visLayers: VisLayer[] = [];
@@ -45,34 +40,14 @@ export class VisLayers {
   /* ---------------- VISIBILITY SYNC ---------------- */
 
   setGroupVisibility(): void {
-    for (const grp of this.visLayers) {
-      const childVis = grp.children.map((c) => c.visible);
-
-      if (childVis.every(Boolean)) {
-        grp.visible = true;
-        grp.indeterminate = false;
-      } else if (childVis.every((v) => !v)) {
-        grp.visible = false;
-        grp.indeterminate = false;
-      } else {
-        grp.visible = true;
-        grp.indeterminate = true;
-      }
+    for (const layer of this.visLayers) {
+      syncGroupVisibility(layer);
     }
   }
 
   setChildVisibility(): void {
-    for (const grp of this.visLayers) {
-      const gv = grp.visible;
-      const gi = grp.indeterminate;
-
-      for (const child of grp.children) {
-        child.indeterminate = false;
-
-        if ((!gv || gi) && child.visible) {
-          child.indeterminate = true;
-        }
-      }
+    for (const layer of this.visLayers) {
+      syncChildVisibility(layer, false);
     }
   }
 
@@ -96,18 +71,7 @@ export class VisLayers {
   }
 
   setVisible(targetIndex: number | null, name: string | null, group: string | null, flag: boolean): void {
-    const flat: VisLayerEntry[] = [];
-    flattenLayers(this.visLayers, [], flat);
-
-    const parentVisibility = new Map<number, boolean>();
-    for (const entry of flat) {
-      const allVisible = entry.path
-        .filter((i) => i !== entry.layer.index)
-        .every((i) => flat.find((e) => e.layer.index === i)?.layer.visible ?? true);
-      parentVisibility.set(entry.layer.index, allVisible);
-    }
-
-    recurseAndSet(this.visLayers, targetIndex, name, group, flag, parentVisibility);
+    recurseAndSet(this.visLayers, targetIndex, name, group, flag, true);
   }
 
   /* ---------------- GETTERS ---------------- */
@@ -122,19 +86,8 @@ export class VisLayers {
     return [false, false];
   }
 
-  getLayersWithChildren(): VisLayerInfo {
-    const topLevel: LayerInfo[] = [];
-    const children: LayerInfo[][] = [];
-
-    for (const layer of this.visLayers) {
-      topLevel.push(toLayerInfo(layer));
-
-      const list: LayerInfo[] = [];
-      flattenChildren(layer.children, list);
-      children.push(list);
-    }
-
-    return { topLevel, children };
+  getLayerTree(): LayerTreeInfo[] {
+    return this.visLayers.map(toLayerTreeInfo);
   }
 
   /* ---------------- ACTIVE LAYERS ---------------- */
@@ -164,13 +117,6 @@ function flattenLayers(layers: VisLayer[], prefix: number[], out: VisLayerEntry[
   }
 }
 
-function flattenChildren(layers: VisLayer[], out: LayerInfo[]) {
-  for (const layer of layers) {
-    out.push(toLayerInfo(layer));
-    flattenChildren(layer.children, out);
-  }
-}
-
 function toLayerInfo(layer: VisLayer): LayerInfo {
   return {
     index: layer.index,
@@ -182,6 +128,13 @@ function toLayerInfo(layer: VisLayer): LayerInfo {
     visible: layer.visible,
     indeterminate: layer.indeterminate,
     combine: layer.combine,
+  };
+}
+
+function toLayerTreeInfo(layer: VisLayer): LayerTreeInfo {
+  return {
+    ...toLayerInfo(layer),
+    children: layer.children.map(toLayerTreeInfo),
   };
 }
 
@@ -233,6 +186,42 @@ function collectVisibleNames(layer: VisLayer, out: Set<string>) {
   }
 }
 
+function syncGroupVisibility(layer: VisLayer): void {
+  for (const child of layer.children) {
+    syncGroupVisibility(child);
+  }
+
+  if (!layer.children.length) {
+    return;
+  }
+
+  const allVisible = layer.children.every((child) => child.visible && !child.indeterminate);
+  const allHidden = layer.children.every((child) => !child.visible && !child.indeterminate);
+  if (allVisible) {
+    layer.visible = true;
+    layer.indeterminate = false;
+  } else if (allHidden) {
+    layer.visible = false;
+    layer.indeterminate = false;
+  } else {
+    layer.visible = true;
+    layer.indeterminate = true;
+  }
+}
+
+function syncChildVisibility(layer: VisLayer, maskedByAncestor: boolean): void {
+  const currentMasked = maskedByAncestor || !layer.visible || layer.indeterminate;
+  for (const child of layer.children) {
+    child.indeterminate = false;
+    if (currentMasked && child.visible) {
+      child.indeterminate = true;
+    }
+
+    const childMasked = currentMasked || !child.visible || child.indeterminate;
+    syncChildVisibility(child, childMasked);
+  }
+}
+
 function updateDescendants(layer: VisLayer, flag: boolean, parentVisible: boolean) {
   for (const child of layer.children) {
     if (flag) {
@@ -259,22 +248,22 @@ function recurseAndSet(
   name: string | null,
   group: string | null,
   flag: boolean,
-  parentVis: Map<number, boolean>
+  ancestorsVisible: boolean
 ): boolean {
   for (const layer of layers) {
     const matched =
       idx !== null ? layer.index === idx : name && group ? layer.name === name && layer.group === group : false;
 
     if (matched) {
-      const parentsOn = parentVis.get(layer.index) ?? true;
-      layer.indeterminate = parentsOn ? false : flag;
+      layer.indeterminate = ancestorsVisible ? false : flag;
       layer.visible = flag;
 
-      updateDescendants(layer, flag, layer.visible && !layer.indeterminate);
+      updateDescendants(layer, flag, ancestorsVisible && layer.visible && !layer.indeterminate);
       return true;
     }
 
-    if (recurseAndSet(layer.children, idx, name, group, flag, parentVis)) {
+    const nextAncestorsVisible = ancestorsVisible && layer.visible && !layer.indeterminate;
+    if (recurseAndSet(layer.children, idx, name, group, flag, nextAncestorsVisible)) {
       return true;
     }
   }

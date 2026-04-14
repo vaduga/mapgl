@@ -1,9 +1,9 @@
 import { getStyles } from './LayerSwitcher.styles';
 import React, { useEffect, useState, useRef } from 'react';
-import { VisLayer } from './VisLayer';
 import { colTypes } from 'mapLib/utils';
 import { GeomapPanel } from '../../GeomapPanel';
 import { useStyles2 } from '@grafana/ui';
+import type { LayerTreeInfo } from '../../store/visLayer';
 
 const CSS_PREFIX = 'layer-switcher-';
 
@@ -18,14 +18,6 @@ const LayerSwitcher = (props) => {
 
   const hiddenClassName = `ol-control yo layer-switcher${LayerSwitcher.isTouchDevice_() ? ' touch' : ''}`;
 
-  const shownClassName = 'shown';
-
-  useEffect(() => {
-    if (panelVisible) {
-      renderPanel();
-    }
-  }, [panelVisible, visLayers]);
-
   const togglePanel = () => {
     setPanelVisible(!panelVisible);
   };
@@ -38,6 +30,12 @@ const LayerSwitcher = (props) => {
       reverse: false,
     });
   };
+
+  useEffect(() => {
+    if (panelVisible) {
+      renderPanel();
+    }
+  }, [panelVisible, visLayers]);
 
   return (
     <div ref={elementRef} className={`${styles.root} ${hiddenClassName} ${panelVisible ? 'shown' : ''} ${className}`}>
@@ -78,52 +76,10 @@ LayerSwitcher.renderPanel = (geomap: GeomapPanel, setVisRefresh, setMobxLegendRe
   const ul = document.createElement('ul');
   panel.appendChild(ul);
 
-  const { topLevel, children: ch } = geomap.visLayers!.getLayersWithChildren();
-
-  const vl: VisLayer[] = [];
-
-  topLevel?.forEach((layerInfo, i) => {
-    const childInfos = ch?.[i] ?? [];
-
-    // Build a map: name => VisLayer instance
-    const nameToLayer = new Map<string, VisLayer>();
-    for (const info of childInfos) {
-      // @ts-ignore
-      info.fold = info.fold ? 'close' : 'open';
-      // @ts-ignore
-      nameToLayer.set(info.name, new VisLayer(info));
-    }
-
-    // Assign children recursively based on dot-separated name hierarchy
-    for (const [name, layer] of nameToLayer) {
-      const parentName = name.split('.').slice(0, -1).join('.');
-      if (parentName && nameToLayer.has(parentName)) {
-        const parent = nameToLayer.get(parentName)!;
-        if (!parent.children) {parent.children = [];}
-        parent.children.push(layer);
-      }
-    }
-
-    // Collect only root-level children (those without a parent in the list)
-    const rootChildren: VisLayer[] = [];
-    for (const [name, layer] of nameToLayer) {
-      const parentName = name.split('.').slice(0, -1).join('.');
-      if (!parentName || !nameToLayer.has(parentName)) {
-        rootChildren.push(layer);
-      }
-    }
-
-    // Attach the structured children to the current top-level VisLayer
-    // @ts-ignore
-    layerInfo.children = rootChildren;
-
-    // Create the VisLayer and push to result
-    // @ts-ignore
-    vl.push(new VisLayer(layerInfo));
-  });
+  const layers = geomap.visLayers!.getLayerTree();
 
   LayerSwitcher.renderLayers_(
-    vl,
+    layers,
     geomap,
     setVisRefresh,
     setMobxLegendRefresh,
@@ -138,12 +94,12 @@ LayerSwitcher.renderPanel = (geomap: GeomapPanel, setVisRefresh, setMobxLegendRe
   // panel.dispatchEvent(rendercomplete_event);
 };
 
-LayerSwitcher.renderLayer_ = (geomap, setVisRefresh, setMobxLegendRefresh, lyr, idx, options, render) => {
+LayerSwitcher.renderLayer_ = (geomap, setVisRefresh, setMobxLegendRefresh, lyr: LayerTreeInfo, idx, options, render) => {
   const li = document.createElement('li');
-  const { label: lyrLabel, name: lyrName } = lyr || {};
+  const { label: lyrLabel } = lyr || {};
   const checkboxId = LayerSwitcher.uuid();
   const label = document.createElement('label');
-  const hasChildren = Array.isArray(lyr.children); //&& lyr.children.length > 0;
+  const hasChildren = lyr.children.length > 0;
 
   const serviceGroups = [
     'graph',
@@ -156,15 +112,7 @@ LayerSwitcher.renderLayer_ = (geomap, setVisRefresh, setMobxLegendRefresh, lyr, 
     colTypes.Hyperedges,
   ];
 
-  const max = 18;
-  const min = 1;
-  const selOptions: any = [];
-  for (let i = max; i >= min; i--) {
-    selOptions.push({ label: i.toString(), value: i });
-  }
-
-  //@ts-ignore
-  if (lyr.group && hasChildren && !lyr['combine']) {
+  if (lyr.group && hasChildren && !lyr.combine) {
     const hasGraph = geomap.visLayers.hasGraph();
 
     if (!serviceGroups.includes(lyr.group) || hasGraph) {
@@ -172,9 +120,9 @@ LayerSwitcher.renderLayer_ = (geomap, setVisRefresh, setMobxLegendRefresh, lyr, 
         li.classList.add('group');
       }
 
-      if (['close', 'open'].includes(lyr.fold)) {
+      if (typeof lyr.fold === 'boolean') {
         li.classList.add(CSS_PREFIX + 'fold');
-        li.classList.add(CSS_PREFIX + lyr.fold);
+        li.classList.add(CSS_PREFIX + (lyr.fold ? 'close' : 'open'));
         const btn = document.createElement('button');
         const icon = document.createElement('span');
         icon.className = 'layer-switcher-group-icon';
@@ -188,7 +136,7 @@ LayerSwitcher.renderLayer_ = (geomap, setVisRefresh, setMobxLegendRefresh, lyr, 
         li.appendChild(btn);
       }
 
-      if (options.groupSelectStyle != 'none') {
+      if (options.groupSelectStyle !== 'none') {
         const input = document.createElement('input');
         input.type = 'checkbox';
         input.id = checkboxId;
@@ -211,9 +159,7 @@ LayerSwitcher.renderLayer_ = (geomap, setVisRefresh, setMobxLegendRefresh, lyr, 
 
       const ul = document.createElement('ul');
       li.appendChild(ul);
-      //@ts-ignore
-      const layers = lyr.children;
-      LayerSwitcher.renderLayers_(layers, geomap, setVisRefresh, setMobxLegendRefresh, ul, options, render);
+      LayerSwitcher.renderLayers_(lyr.children, geomap, setVisRefresh, setMobxLegendRefresh, ul, options, render);
     }
   } else {
     li.className = 'layer';
@@ -241,7 +187,7 @@ LayerSwitcher.renderLayer_ = (geomap, setVisRefresh, setMobxLegendRefresh, lyr, 
 };
 
 LayerSwitcher.renderLayers_ = (
-  layers: VisLayer[],
+  layers: LayerTreeInfo[],
   geomap,
   setVisRefresh,
   setMobxLegendRefresh,
@@ -254,7 +200,7 @@ LayerSwitcher.renderLayers_ = (
     children.reverse();
   }
 
-  for (let i = 0, l: VisLayer; i < children.length; i++) {
+  for (let i = 0, l: LayerTreeInfo; i < children.length; i++) {
     l = children[i];
     if (l.name) {
       elm.appendChild(LayerSwitcher.renderLayer_(geomap, setVisRefresh, setMobxLegendRefresh, l, i, options, render));
@@ -263,13 +209,13 @@ LayerSwitcher.renderLayers_ = (
 };
 
 LayerSwitcher.setVisible_ = (geomap, lyr, index, visible, groupSelectStyle) => {
-  const { visLayers, graph } = geomap as GeomapPanel;
+  const { visLayers } = geomap as GeomapPanel;
 
   visLayers!.setVisible(lyr.index, lyr.name, lyr.group, visible); /// lyr.name, lyr.group,
 
   if (lyr.group && !lyr.combine && groupSelectStyle === 'children') {
-    lyr.children?.forEach((l, i) => {
-      LayerSwitcher.setVisible_(visLayers, l, i, visible, groupSelectStyle);
+    lyr.children.forEach((l, i) => {
+      LayerSwitcher.setVisible_(geomap, l, i, visible, groupSelectStyle);
     });
   }
 };
@@ -277,16 +223,17 @@ LayerSwitcher.setVisible_ = (geomap, lyr, index, visible, groupSelectStyle) => {
 LayerSwitcher.uuid = () => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     const r = (Math.random() * 16) | 0,
-      v = c == 'x' ? r : (r & 0x3) | 0x8;
+      v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 };
 
 LayerSwitcher.toggleFold_ = (lyr, li, visLayers) => {
-  li.classList.remove(CSS_PREFIX + lyr.fold);
-  lyr.setFold(lyr.fold === 'open' ? 'close' : 'open');
-  li.classList.add(CSS_PREFIX + lyr.fold);
-  visLayers.setFold(lyr.index, lyr.fold === 'close' ? 1 : 0); /// lyr.name, lyr.group,
+  li.classList.remove(CSS_PREFIX + (lyr.fold ? 'close' : 'open'));
+  const nextFold = !lyr.fold;
+  lyr.fold = nextFold;
+  li.classList.add(CSS_PREFIX + (nextFold ? 'close' : 'open'));
+  visLayers.setFold(lyr.index, nextFold);
 };
 
 export default LayerSwitcher;

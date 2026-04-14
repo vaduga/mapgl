@@ -383,7 +383,6 @@
             },
             "edgeIdField": "edge_id",
             "isShowTooltip": true,
-            "isWrapEdges": 0,
             "locField": "vertexA",
             "location": {
               "mode": "auto"
@@ -542,7 +541,6 @@
             "displayProperties": ["metric", "edge_id", "vertexA", "vertexB", "bps"],
             "edgeIdField": "edge_id",
             "isShowTooltip": true,
-            "isWrapEdges": 0,
             "locField": "vertexA",
             "location": {
               "mode": "auto"

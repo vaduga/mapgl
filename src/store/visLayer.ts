@@ -80,3 +80,7 @@ export interface LayerInfo {
   indeterminate: boolean;
   combine: boolean | null;
 }
+
+export interface LayerTreeInfo extends LayerInfo {
+  children: LayerTreeInfo[];
+}

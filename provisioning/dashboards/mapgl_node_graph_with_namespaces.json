@@ -469,7 +469,6 @@
             ],
             "edgeIdField": "edge_id",
             "isShowTooltip": true,
-            "isWrapEdges": 0,
             "locField": "vertexA",
             "location": {
               "mode": "auto"
@@ -974,7 +973,6 @@
             ],
             "edgeIdField": "edge_id",
             "isShowTooltip": true,
-            "isWrapEdges": 0,
             "locField": "vertexA",
             "location": {
               "mode": "auto"

@@ -43,7 +43,6 @@ export interface MarkersConfig {
   };
   groups?: Rule[];
   showStat2?: boolean;
-  isWrapEdges?: 0 | 1 | 2 | 3;
   vertexA_NS?: string;
   vertexB_NS?: string;
 }
@@ -64,8 +63,7 @@ const defaultOptions: MarkersConfig = {
     height: 0.5,
     capacity: { fixed: 1 },
   },
-  showStat2: false,
-  isWrapEdges: 0,
+  showStat2: false
 };
 
 export const MARKERS_LAYER_ID = colTypes.Markers;

@@ -79,7 +79,6 @@ export interface ExtendMapLayerOptions<TConfig = any> {
   locField?: string;
   parField?: string;
   edgeIdField?: string;
-  isWrapEdges?: 0 | 1 | 2 | 3;
   config?: TConfig;
   query?: MatcherConfig; //filterData
   location?: ExtendFrameGeometrySource;
@@ -87,7 +86,6 @@ export interface ExtendMapLayerOptions<TConfig = any> {
   displayProperties?: string[];
   searchProperties?: string[];
   titleField?: string;
-  yMapsKey?: string;
 }
 
 export interface ExtendMapLayerRegistryItem<TConfig = ExtendMapLayerOptions> extends RegistryItemWithOptions {
