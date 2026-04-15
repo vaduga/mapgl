@@ -20,14 +20,19 @@ Mapgl Panel plugin dev environment
    ```bash
    npm install
    ```
+3. Build plugin in development mode and run in watch mode
 
-3. Build plugin in production mode
+   ```
+   npm run dev
+   ```      
+
+4. Build plugin in production mode
 
    ```bash
    npm run build
    ```
 
-4. Spin up a Grafana instance and run the plugin inside it (using Docker)
+5. Spin up a Grafana instance and run the plugin inside it (using Docker)
 
    ```bash
    docker compose up --build
