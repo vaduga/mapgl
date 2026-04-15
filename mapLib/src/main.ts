@@ -2,7 +2,7 @@
 export { Graph } from './structs/graph';
 export { Node } from './structs/node';
 export { Edge } from './structs/edge';
-export { midpoint as getMiddleCoords } from '@turf/midpoint';
+
 export {
   CurveFactory,
   GeomNode,
