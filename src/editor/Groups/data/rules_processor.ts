@@ -1,6 +1,6 @@
 import { OverField, Rule } from '../rule-types';
 import { FieldType } from '@grafana/data';
-import { FIXED_COLOR_LABEL } from 'mapLib';
+import { FIXED_COLOR_LABEL } from 'mapLib/utils';
 
 function countMatchingKeysAndValues(props, o, theme, locField, isFixed) {
   let hasAllValuesMatch = 0;

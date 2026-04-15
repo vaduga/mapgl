@@ -1,8 +1,7 @@
 import { toRGB4Array } from '../../utils';
-import { DeckLine } from 'mapLib';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import { Geometry } from 'geojson';
-import { colTypes, PointFeatureProperties, RGBAColor, ALERTING_STATES } from 'mapLib/utils';
+import { type DeckLine, colTypes, PointFeatureProperties, RGBAColor, ALERTING_STATES } from 'mapLib/utils';
 import { DataFilterExtension } from '@deck.gl/extensions';
 
 export const EdgesGeojsonLayer = (props) => {
@@ -78,8 +77,11 @@ export const EdgesGeojsonLayer = (props) => {
     lineWidthScale: 1,
     lineWidthMinPixels: 0.1,
     //lineWidthMaxPixels: 15,
+    lineJointRounded: false,
+    lineCapRounded: true,
+    //lineMiterLimit: 4,
 
-    // Interactive props
+    // Transactions
     pickable,
     autoHighlight,
   });

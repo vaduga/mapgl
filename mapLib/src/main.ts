@@ -16,5 +16,3 @@ export {
 } from '@msagl/core';
 export { FeatSource } from './FeatSource';
 export { AttributeRegistry } from './structs/attributeRegistry';
-
-export * from './utils/index';

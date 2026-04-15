@@ -29,9 +29,12 @@ export default defineConfig({
     minify: true,
     reportCompressedSize: true,
     lib: {
-      entry: path.resolve(__dirname, 'src/main.ts'),
+      entry: {
+        mapLib: path.resolve(__dirname, 'src/main.ts'),
+        utils: path.resolve(__dirname, 'src/utils/index.ts'),
+      },
       name: 'mapLib',
-      fileName: 'mapLib',
+      fileName: (_, entryName) => `${entryName}.js`,
       formats: ['es'],
     },
     target: 'esnext',
@@ -41,8 +44,6 @@ export default defineConfig({
       },
 
       plugins: [
-        //wasm(),
-        //topLevelAwait(),
         typescriptPaths({
           preserveExtensions: true,
         }) as Plugin,
@@ -64,8 +65,6 @@ export default defineConfig({
 
             fs.mkdirSync(destDir, { recursive: true });
             fs.copyFileSync(srcPkg, destPkg);
-
-            //console.log('Created subpackage: mapLib/utils');
           },
         },
       ],

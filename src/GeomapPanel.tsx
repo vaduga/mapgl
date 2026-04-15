@@ -5,7 +5,7 @@ import { GrafanaTheme2, PanelData, PanelProps } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { PanelContext, PanelContextProvider, PanelContextRoot } from '@grafana/ui';
 import { Options, MapLayerState, MapViewConfig } from './types';
-import { runLayout, ViewState, defViewState, CMN_NAMESPACE } from 'mapLib/utils';
+import { runLayout, ViewState, defViewState, CMN_NAMESPACE, BiColProps } from 'mapLib/utils';
 import { notifyPanelEditor } from './utils/geomap_utils';
 import { getActions } from './utils/actions';
 import Mapgl from './components/Mapgl';
@@ -13,7 +13,7 @@ import { RootStoreProvider, fillAnnots, initGroups, genVisLayers, initBinaryProp
 import { applyLayerFilter, initLayer } from './utils/layers';
 import { ORTHO_BASEMAP_CONFIG } from './layers/registry';
 import { defaultMarkersConfig } from './layers/data/markersLayer';
-import { Graph, GeomGraph, BiColProps } from 'mapLib';
+import { Graph, GeomGraph } from 'mapLib';
 
 import { initViewExtent } from './utils/utils.map';
 import { Deck } from '@deck.gl/core';
