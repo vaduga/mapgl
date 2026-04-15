@@ -485,7 +485,6 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               frameRefId,
               rowIndex: i,
               root: graphA,
-              featSource,
               locName,
               style: stValues,
               edgeStyle: edgeStValues,

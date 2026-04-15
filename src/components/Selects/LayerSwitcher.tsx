@@ -24,7 +24,9 @@ const LayerSwitcher = (props) => {
 
   const renderPanel = () => {
     const panel = panelRef.current;
-    if (!panel) {return;}
+    if (!panel) {
+      return;
+    }
     LayerSwitcher.renderPanel(geomap, setVisRefresh, setMobxLegendRefresh, panel, {
       groupSelectStyle: 'group', /// 'children'
       reverse: false,
@@ -168,7 +170,16 @@ LayerSwitcher.renderLayer_ = (
 
       const ul = document.createElement('ul');
       li.appendChild(ul);
-      LayerSwitcher.renderLayers_(lyr.children, geomap, setVisRefresh, setMobxLegendRefresh, ul, options, render, depth + 1);
+      LayerSwitcher.renderLayers_(
+        lyr.children,
+        geomap,
+        setVisRefresh,
+        setMobxLegendRefresh,
+        ul,
+        options,
+        render,
+        depth + 1
+      );
     }
   } else {
     li.className = 'layer';

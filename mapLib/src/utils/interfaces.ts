@@ -1,6 +1,5 @@
 import { Geometry, Position, GeoJsonProperties, LineString } from 'geojson';
 import { MultiLineString } from 'geojson';
-import { FeatSource } from '../FeatSource';
 import { Edge } from '../structs/edge';
 import { Node } from '../structs/node';
 import { Entity } from '../structs/entity';
@@ -66,7 +65,6 @@ export type BiColProps = {
   frameRefId: string | undefined;
   rowIndex: number;
   root: Graph;
-  featSource: FeatSource;
   thrColor?: string; /// injected to get style group from props
   style: any; // StyleConfig
   edgeStyle: any; // StyleConfig
