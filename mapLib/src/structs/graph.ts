@@ -12,7 +12,7 @@ import { paraboloid, getMidpoint, segregatePath, getArrowAngles } from '../utils
 
 import { Units } from '@turf/helpers';
 import distance from '@turf/distance';
-import {Arrowhead, GeomEdge, GeomGraph, Point } from '@msagl/core';
+import { Arrowhead, GeomEdge, GeomGraph, Point } from '@msagl/core';
 import { distance2D } from '~/utils/utils.turf';
 
 type EdgeTuple = [Array<number | undefined>, number]; ///widxs, lidx, wrap, ametric, b,c
@@ -99,7 +99,9 @@ export class Graph extends Node {
    */
   removeSubgraph() {
     const parent = this.parent as Graph;
-    if (parent) {parent.removeNode(this);}
+    if (parent) {
+      parent.removeNode(this);
+    }
 
     for (const c of this.outGoingEdges()) {
       if (c.attachedAtSource) {
@@ -126,14 +128,18 @@ export class Graph extends Node {
     for (const n of this.nodesBreadthFirst) {
       for (const e of n.outEdges) {
         const t = e.target;
-        if (t === this) {continue;}
+        if (t === this) {
+          continue;
+        }
         if (!this.isAncestor(t)) {
           yield { edge: e, node: t, attachedAtSource: false };
         }
       }
       for (const e of n.inEdges) {
         const s = e.source;
-        if (s === this) {continue;}
+        if (s === this) {
+          continue;
+        }
         if (!this.isAncestor(s)) {
           yield { edge: e, node: s, attachedAtSource: true };
         }
@@ -157,7 +163,9 @@ export class Graph extends Node {
     const processed = new Set<Node>();
     const q = new Queue<Node>();
     for (const v of this.nodesBreadthFirst) {
-      if (processed.has(v)) {continue;}
+      if (processed.has(v)) {
+        continue;
+      }
       processed.add(v);
       q.enqueue(v);
       const component = new Set<Node>();
@@ -192,10 +200,14 @@ export class Graph extends Node {
   }
   hasSomeAttrOnIndex(index: number): boolean {
     for (const n of this.nodesBreadthFirst) {
-      if (n.getAttr(index)) {return true;}
+      if (n.getAttr(index)) {
+        return true;
+      }
     }
     for (const n of this.deepEdges) {
-      if (n.getAttr(index)) {return true;}
+      if (n.getAttr(index)) {
+        return true;
+      }
     }
     return false;
   }
@@ -207,20 +219,28 @@ export class Graph extends Node {
 
   noEmptySubgraphs(): boolean {
     for (const g of this.subgraphsBreadthFirst()) {
-      if (g.shallowNodeCount === 0) {return false;}
+      if (g.shallowNodeCount === 0) {
+        return false;
+      }
     }
     return true;
   }
 
   hasSubgraphs(): boolean {
-    for (const n of this.shallowNodes) {if (n instanceof Graph) {return true;}}
+    for (const n of this.shallowNodes) {
+      if (n instanceof Graph) {
+        return true;
+      }
+    }
     return false;
   }
 
   /** iterates breadth first  */
   *subgraphsBreadthFirst(): IterableIterator<Graph> {
     for (const n of this.nodesBreadthFirst) {
-      if (n instanceof Graph) {yield n as Graph;}
+      if (n instanceof Graph) {
+        yield n as Graph;
+      }
     }
   }
 
@@ -230,9 +250,13 @@ export class Graph extends Node {
 
   setEdge(id: string, sourceId: string, targetId: string, subGraphB?: Graph): Edge | undefined {
     const s = this.nodeCollection.findShallow(sourceId);
-    if (s == null) {return;}
+    if (s == null) {
+      return;
+    }
     const t = subGraphB ? subGraphB.nodeCollection.findShallow(targetId) : this.nodeCollection.findShallow(targetId);
-    if (t == null) {return;}
+    if (t == null) {
+      return;
+    }
     const newEdge = new Edge(id, s, t);
     if (this.isLogic) {
       //@ts-ignore
@@ -292,7 +316,9 @@ export class Graph extends Node {
     for (const g of this.shallowNodes) {
       if (g instanceof Graph) {
         const nn = g.findNodeRecursive(id);
-        if (nn) {return nn;}
+        if (nn) {
+          return nn;
+        }
       }
     }
     //@ts-ignore
@@ -326,13 +352,17 @@ export class Graph extends Node {
         yield e;
       }
       for (const e of node.inEdges) {
-        if (!this.isAncestor(e.source)) {yield e;}
+        if (!this.isAncestor(e.source)) {
+          yield e;
+        }
       }
     }
   }
 
   isConsistent(): boolean {
-    if (this.parent) {return (this.parent as Graph).isConsistent();}
+    if (this.parent) {
+      return (this.parent as Graph).isConsistent();
+    }
 
     return this.eachNodeIdIsUnique() && this.nodeCollection.isConsistent();
   }
@@ -532,12 +562,11 @@ export class Graph extends Node {
       const edge = edges[0];
       const { source, data: edgeData } = edge;
       const lastEdge = edges[edges.length - 1];
-      const { target } = lastEdge
+      const { target } = lastEdge;
       const srcGraph = source.parent as Graph;
       const tarGraph = target.parent as Graph;
       const findNodeA = srcGraph.findNode;
       const findNodeB = tarGraph.findNode;
-
 
       const dataRecord = edgeData?.dataRecord as BiColProps;
       if (!dataRecord) {
@@ -556,85 +585,86 @@ export class Graph extends Node {
       let subPath = parPath;
 
       const wasmIds = this.wasm_edge_vertice_ids[heIdx][0];
-        const pathsCoords = CoordsConvert(subPath, wasmIds, positions, true);
+      const pathsCoords = CoordsConvert(subPath, wasmIds, positions, true);
 
-        const [segrPath, segrCoords] = subPath.length
-          ? segregatePath(subPath, pathsCoords, findNodeA, findNodeB)
-          : [[], []];
+      const [segrPath, segrCoords] = subPath.length
+        ? segregatePath(subPath, pathsCoords, findNodeA, findNodeB)
+        : [[], []];
 
-        let coordinates = segrCoords
-        if (!coordinates?.length) {
-          return;
+      let coordinates = segrCoords;
+      if (!coordinates?.length) {
+        return;
+      }
+
+      const geomEdge: GeomEdge = GeomEdge.getGeom(edge);
+      const lastEdgeGeom: GeomEdge = GeomEdge.getGeom(lastEdge);
+
+      if (geomEdge?.source) {
+        if (geomEdge?.curve?.start) {
+          coordinates.forEach((c: string | any[], i: any) => {
+            if (c.length > 3) {
+              //     [geomEdge.curve.start.x, geomEdge.curve.start.y],
+              //     ...c.slice(1, -1),
+              //    [geomEdge.curve.end.x, geomEdge.curve.end.y],
+              coordinates[i] = c.slice(1, -1);
+            }
+          });
+        } else if (!geomEdge?.curve?.start) {
+          console.warn('Invalid controlPoints or polyPoints', locName, edge.id);
+          coordinates = [coordinates];
         }
+      }
 
-        const geomEdge: GeomEdge = GeomEdge.getGeom(edge);
-        const lastEdgeGeom: GeomEdge = GeomEdge.getGeom(lastEdge);
+      if (!coordinates.length) {
+        return;
+      }
 
-        if (geomEdge?.source) {
-          if (geomEdge?.curve?.start) {
-            coordinates.forEach((c: string | any[], i: any) => {
-              if (c.length > 3) {
-                //     [geomEdge.curve.start.x, geomEdge.curve.start.y],
-                //     ...c.slice(1, -1),
-                //    [geomEdge.curve.end.x, geomEdge.curve.end.y],
-                coordinates[i] = c.slice(1, -1)
-              }
-            });
-          } else if (!geomEdge?.curve?.start) {
-            console.warn('Invalid controlPoints or polyPoints', locName, edge.id);
-            coordinates = [coordinates];
-          }
-        }
+      const propsOverride = dataRecord; /// as from frame initially (including duplicate records)
+      const arrowAngles = getArrowAngles(coordinates, !this.isLogic);
+      const arrowTips = {
+        ...(geomEdge?.sourceArrowhead?.tipPosition
+          ? { start: [geomEdge.sourceArrowhead.tipPosition.x, geomEdge.sourceArrowhead.tipPosition.y] as Position }
+          : {}),
+        ...(lastEdgeGeom?.targetArrowhead?.tipPosition
+          ? {
+              end: [lastEdgeGeom.targetArrowhead.tipPosition.x, lastEdgeGeom.targetArrowhead.tipPosition.y] as Position,
+            }
+          : {}),
+      };
 
-        if (!coordinates.length) {
-          return;
-        }
+      const newFeature: DeckLine = {
+        //id: counter,
+        heIdx,
+        edgeId: edge.id,
+        type: 'Feature',
+        geometry: {
+          type: 'MultiLineString',
+          coordinates,
+        },
+        rowIndex: dataRecord?.rowIndex, // can't pick original index without explicitely stating it
+        properties: {
+          ...(propsOverride ?? {}),
+          locName,
+          segrPath,
+          ...(arrowAngles ? { arrowAngles } : {}),
+          ...(Object.keys(arrowTips).length ? { arrowTips } : {}),
+        },
+      };
 
-        const propsOverride = dataRecord; /// as from frame initially (including duplicate records)
-        const arrowAngles = getArrowAngles(coordinates, !this.isLogic);
-        const arrowTips = {
-          ...(geomEdge?.sourceArrowhead?.tipPosition
-            ? {start: [geomEdge.sourceArrowhead.tipPosition.x, geomEdge.sourceArrowhead.tipPosition.y] as Position}
-            : {}),
-          ...(lastEdgeGeom?.targetArrowhead?.tipPosition
-            ? {end: [lastEdgeGeom.targetArrowhead.tipPosition.x, lastEdgeGeom.targetArrowhead.tipPosition.y] as Position}
-            : {}),
-        };
+      srcFeatureProps = newFeature.properties;
+      sourcePosition = geomEdge?.sourceArrowhead?.tipPosition
+        ? [geomEdge.sourceArrowhead.tipPosition.x, geomEdge.sourceArrowhead.tipPosition.y]
+        : coordinates[0][0];
 
-        const newFeature: DeckLine = {
-          //id: counter,
-          heIdx,
-          edgeId: edge.id,
-          type: 'Feature',
-          geometry: {
-            type: 'MultiLineString',
-            coordinates,
-          },
-          rowIndex: dataRecord?.rowIndex, // can't pick original index without explicitely stating it
-          properties: {
-            ...(propsOverride ?? {}),
-            locName,
-            segrPath,
-            ...(arrowAngles ? { arrowAngles } : {}),
-            ...(Object.keys(arrowTips).length ? { arrowTips } : {}),
-          },
-        };
+      targetPosition = lastEdgeGeom?.targetArrowhead?.tipPosition
+        ? [lastEdgeGeom.targetArrowhead.tipPosition.x, lastEdgeGeom.targetArrowhead.tipPosition.y]
+        : coordinates.at(-1).at(-1);
 
-        srcFeatureProps = newFeature.properties;
-        sourcePosition = geomEdge?.sourceArrowhead?.tipPosition
-          ? [geomEdge.sourceArrowhead.tipPosition.x, geomEdge.sourceArrowhead.tipPosition.y]
-          : coordinates[0][0];
-
-        targetPosition = lastEdgeGeom?.targetArrowhead?.tipPosition
-          ? [lastEdgeGeom.targetArrowhead.tipPosition.x, lastEdgeGeom.targetArrowhead.tipPosition.y]
-          : coordinates.at(-1).at(-1);
-
-        if (!features[srcGraph.id]) {
-          features[srcGraph.id] = [];
-        }
-        features[srcGraph.id].push(newFeature);
-        edge.setLineId(features[srcGraph.id].length - 1);
-
+      if (!features[srcGraph.id]) {
+        features[srcGraph.id] = [];
+      }
+      features[srcGraph.id].push(newFeature);
+      edge.setLineId(features[srcGraph.id].length - 1);
 
       /// Arcs
 
@@ -675,7 +705,9 @@ export function* shallowConnectedComponents(graph: Graph): IterableIterator<Node
   const enqueueed = new Set<Node>();
   const queue = new Queue<Node>();
   for (const n of graph.shallowNodes) {
-    if (enqueueed.has(n)) {continue;}
+    if (enqueueed.has(n)) {
+      continue;
+    }
     const nodes = new Array<Node>();
     enqueue(n, queue, enqueueed);
     while (queue.length > 0) {
@@ -688,8 +720,12 @@ export function* shallowConnectedComponents(graph: Graph): IterableIterator<Node
     yield nodes;
   }
   function* neighbors(n: Node): IterableIterator<Node> {
-    for (const e of n.outEdges) {yield e.target;}
-    for (const e of n.inEdges) {yield e.source;}
+    for (const e of n.outEdges) {
+      yield e.target;
+    }
+    for (const e of n.inEdges) {
+      yield e.source;
+    }
   }
   function enqueue(n: Node, queue: Queue<Node>, enqueueed: Set<Node>) {
     if (!enqueueed.has(n)) {

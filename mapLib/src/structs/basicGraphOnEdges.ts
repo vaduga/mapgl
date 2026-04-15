@@ -31,8 +31,12 @@ export class BasicGraphOnEdges<TEdge extends IEdge> {
   selfEdges: TEdge[][];
 
   *incidentEdges(v: number): IterableIterator<TEdge> {
-    for (const e of this.outEdges[v]) {yield e;}
-    for (const e of this.inEdges[v]) {yield e;}
+    for (const e of this.outEdges[v]) {
+      yield e;
+    }
+    for (const e of this.inEdges[v]) {
+      yield e;
+    }
   }
 
   static deleteFromArray(arr: any, obj: any) {
@@ -58,8 +62,12 @@ export class BasicGraphOnEdges<TEdge extends IEdge> {
   static vertexCount(edges: Iterable<IEdge>) {
     let nov = 0;
     for (const ie of edges) {
-      if (ie.source >= nov) {nov = ie.source;}
-      if (ie.target >= nov) {nov = ie.target;}
+      if (ie.source >= nov) {
+        nov = ie.source;
+      }
+      if (ie.target >= nov) {
+        nov = ie.target;
+      }
     }
     return ++nov;
   }
@@ -134,7 +142,9 @@ export class BasicGraphOnEdges<TEdge extends IEdge> {
 
   // We assume that the graph is connected here
   *nodesOfConnectedGraph(): IterableIterator<number> {
-    if (this.edges.length === 0) {return;}
+    if (this.edges.length === 0) {
+      return;
+    }
     const enqueed = new Set<number>();
     const q = new Queue<number>();
     let i = this.edges[0].source;

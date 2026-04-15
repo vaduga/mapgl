@@ -7,8 +7,8 @@ import { getStyleDimension } from '../../utils/geomap_utils';
 import { getStyleConfigState } from '../../style/utils';
 import { Options } from '../../types';
 import { GeomapPanel } from '../../GeomapPanel';
-import { Feature, FeatSource } from 'mapLib';
-import { colTypes } from 'mapLib/utils';
+import { FeatSource } from 'mapLib';
+import { type Feature, colTypes } from 'mapLib/utils';
 
 export interface GeoJsonConfig {
   style: StyleConfig;

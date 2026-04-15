@@ -5,7 +5,9 @@ export abstract class Attribute {
   entity: Entity;
   /** this in the index of where the attribute is positioned in the attribute array of the entity */
   bind(index: number) {
-    if (this.entity) {this.entity.setAttr(index, this);}
+    if (this.entity) {
+      this.entity.setAttr(index, this);
+    }
   }
 
   abstract rebind(e: Entity): void;

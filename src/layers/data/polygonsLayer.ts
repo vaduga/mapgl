@@ -3,8 +3,8 @@ import { PanelData, DataFrameView, GrafanaTheme2, PanelProps } from '@grafana/da
 import { getGeometryField, getLocationMatchers } from '../../utils/location';
 import { ExtendMapLayerRegistryItem, ExtendFrameGeometrySourceMode, ExtendMapLayerOptions } from '../../extension';
 
-import { Feature, FeatSource } from 'mapLib';
-import { colTypes } from 'mapLib/utils';
+import { FeatSource } from 'mapLib';
+import { type Feature, colTypes } from 'mapLib/utils';
 import { toJS } from 'mobx';
 import { StyleEditor } from '../../editor/StyleEditor';
 import { defaultStyleConfig, StyleConfig } from '../../style/types';

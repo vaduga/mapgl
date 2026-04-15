@@ -97,7 +97,7 @@ export async function updateLayer(
     layers[layerIndex]?.handler.dispose?.();
     layers[layerIndex] = info;
   } catch (err) {
-    console.warn('ERROR', err); // eslint-disable-line no-console
+    console.warn('ERROR', err);  
     return false;
   }
 
@@ -136,7 +136,7 @@ export async function initLayer(
   }
 
   const handler = await item.create(panel, options, config.theme2, layerIdx);
-  const layer = handler.init(); // eslint-disable-line
+  const layer = handler.init();  
   if (options.opacity != null) {
     //layer.setOpacity(options.opacity);
   }

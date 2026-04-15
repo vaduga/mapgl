@@ -29,7 +29,9 @@ export class NodeCollection {
   _edgeMap: Record<string, Edge> = {};
 
   private *nodes_(): IterableIterator<Node> {
-    for (const p of this.nodeMap.values()) {yield p;}
+    for (const p of this.nodeMap.values()) {
+      yield p;
+    }
   }
 
   private *graphs_(): IterableIterator<Graph> {

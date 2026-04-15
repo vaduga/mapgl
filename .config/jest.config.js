@@ -11,6 +11,9 @@ const { grafanaESModules, nodeModulesToTransform } = require('./jest/utils');
 module.exports = {
   moduleNameMapper: {
     '\\.(css|scss|sass)$': 'identity-obj-proxy',
+    '^mapLib$': '<rootDir>/mapLib/src/main.ts',
+    '^mapLib/utils$': '<rootDir>/mapLib/src/utils/index.ts',
+    '^~/(.*)$': '<rootDir>/mapLib/src/$1',
     'react-inlinesvg': path.resolve(__dirname, 'jest', 'mocks', 'react-inlinesvg.tsx'),
   },
   modulePaths: ['<rootDir>/src'],

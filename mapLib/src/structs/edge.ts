@@ -98,10 +98,14 @@ export class Edge extends Entity {
 
   EdgeToAncestor(): ToAncestorEnum {
     if (this.source instanceof Graph) {
-      if (this.target.isDescendantOf((this.source as Graph))) {return ToAncestorEnum.FromAncestor;}
+      if (this.target.isDescendantOf(this.source as Graph)) {
+        return ToAncestorEnum.FromAncestor;
+      }
     }
     if (this.target instanceof Graph) {
-      if (this.source.isDescendantOf((this.target as Graph))) {return ToAncestorEnum.ToAncestor;}
+      if (this.source.isDescendantOf(this.target as Graph)) {
+        return ToAncestorEnum.ToAncestor;
+      }
     }
     return ToAncestorEnum.None;
   }

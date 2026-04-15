@@ -47,7 +47,7 @@ export const plugin = new PanelPlugin<Options>(GeomapPanel)
     });
 
     //console.log('mdule.tsx ctx', context)
-    // eslint-disable-next-line
+     
     const state = context.instanceState as GeomapInstanceState;
     //console.log('state?.layers', state?.layers, state, context)
     if (!state?.layers) {
@@ -82,7 +82,7 @@ export const plugin = new PanelPlugin<Options>(GeomapPanel)
           id: 'layers',
           path: '',
           name: '',
-          // eslint-disable-next-line react/display-name
+           
           editor: () => <div>The basemap layer is configured by the server admin.</div>,
         });
       } else if (baselayer) {

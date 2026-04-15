@@ -15,7 +15,7 @@ import {
   Graph as MSGraph,
 } from '@msagl/core';
 
-import { EdgeRoutingMode } from '@msagl/core/src/routing/EdgeRoutingMode';
+import { EdgeRoutingMode } from '@msagl/core';
 import { Position } from 'geojson';
 
 import midpoint from '@turf/midpoint';
@@ -43,14 +43,18 @@ function setGeomEdgeArrowheads(edge: Edge, dataRecord: BiColProps, placement: 's
   const enableSource = (arrow === -1 || arrow === 2) && (placement === 'start' || placement === 'both');
   const enableTarget = (arrow === 1 || arrow === 2) && (placement === 'end' || placement === 'both');
 
-  geomEdge.sourceArrowhead = enableSource ? Object.assign(new Arrowhead(), { length: arrowLength }) : undefined as any;
-  geomEdge.targetArrowhead = enableTarget ? Object.assign(new Arrowhead(), { length: arrowLength }) : undefined as any;
+  geomEdge.sourceArrowhead = enableSource
+    ? Object.assign(new Arrowhead(), { length: arrowLength })
+    : (undefined as any);
+  geomEdge.targetArrowhead = enableTarget
+    ? Object.assign(new Arrowhead(), { length: arrowLength })
+    : (undefined as any);
 }
 
 function getArrowPlacementForFragment(
   arrow: number | undefined,
   fragmentIndex: number,
-  fragmentCount: number,
+  fragmentCount: number
 ): 'start' | 'end' | 'both' | 'none' {
   const isFirst = fragmentIndex === 0;
   const isLast = fragmentIndex === fragmentCount - 1;
@@ -79,24 +83,36 @@ function getArrowPlacementForFragment(
 }
 
 function wrapDeltaLonDeg(dLon: number): number {
-  if (dLon > 180) {return dLon - 360;}
-  if (dLon < -180) {return dLon + 360;}
+  if (dLon > 180) {
+    return dLon - 360;
+  }
+  if (dLon < -180) {
+    return dLon + 360;
+  }
   return dLon;
 }
 
 function getFirstPoints(coords: number[][][]): { base: number[]; tip: number[] } | null {
-  if (!coords?.length) {return null;}
+  if (!coords?.length) {
+    return null;
+  }
   const firstLine = coords[0];
-  if (!firstLine || firstLine.length < 2) {return null;}
+  if (!firstLine || firstLine.length < 2) {
+    return null;
+  }
   const tip = firstLine[0];
   const base = firstLine[1];
   return { base, tip };
 }
 
 function getLastPoints(coords: number[][][]): { base: number[]; tip: number[] } | null {
-  if (!coords?.length) {return null;}
+  if (!coords?.length) {
+    return null;
+  }
   const lastLine = coords[coords.length - 1];
-  if (!lastLine || lastLine.length < 2) {return null;}
+  if (!lastLine || lastLine.length < 2) {
+    return null;
+  }
   const tip = lastLine[lastLine.length - 1];
   const base = lastLine[lastLine.length - 2];
   return { base, tip };
@@ -122,7 +138,9 @@ function getArrowAngleFromPoints(base: number[], tip: number[], isGeo: boolean):
 function getArrowAngles(coords: number[][][], isGeo: boolean): ArrowAngles | null {
   const startPoints = getFirstPoints(coords);
   const endPoints = getLastPoints(coords);
-  if (!startPoints || !endPoints) {return null;}
+  if (!startPoints || !endPoints) {
+    return null;
+  }
   return {
     start: getArrowAngleFromPoints(startPoints.base, startPoints.tip, isGeo),
     end: getArrowAngleFromPoints(endPoints.base, endPoints.tip, isGeo),
@@ -136,14 +154,14 @@ function sortAnnotations(annotations: any[]) {
     const stateA = a.newState.startsWith('Alerting')
       ? 'Alerting'
       : a.newState.startsWith('Pending')
-      ? 'Pending'
-      : 'Normal';
+        ? 'Pending'
+        : 'Normal';
 
     const stateB = b.newState.startsWith('Alerting')
       ? 'Alerting'
       : b.newState.startsWith('Pending')
-      ? 'Pending'
-      : 'Normal';
+        ? 'Pending'
+        : 'Normal';
 
     return stateOrder[stateA] - stateOrder[stateB];
   });
@@ -162,17 +180,7 @@ interface PushPathProps {
 }
 
 function pushPath(props: PushPathProps) {
-  let {
-    graphA,
-    graphB,
-    panel,
-    parPath,
-    layerIdx,
-    edgeId: assignedEdgeId,
-    dataRecord,
-    commentsData,
-    theme,
-  } = props;
+  let { graphA, graphB, panel, parPath, layerIdx, edgeId: assignedEdgeId, dataRecord, commentsData, theme } = props;
   const { isLogic, graph } = panel;
 
   const { setEdge: setEdgeA, findNode: findNodeA } = graphA;
@@ -424,7 +432,9 @@ function replaceSegmentsWithPolylines(
 
 function getSmoothPolyline(edge: any): Position[] {
   const geom = GeomEdge.getGeom(edge);
-  if (!geom?.source) {return [];}
+  if (!geom?.source) {
+    return [];
+  }
 
   return Array.from(geom.getSmoothPolyPoints())
     .slice(1, -1)
@@ -477,7 +487,9 @@ function runLayout(panel: any) {
 
   for (const n of rootGraph.nodesBreadthFirst) {
     const node = n.node as unknown as Node;
-    if (!node.data) {continue;}
+    if (!node.data) {
+      continue;
+    }
     const { feature, wasmId: id } = node.data;
     panel.positions[id * 2] = n.center.x;
     panel.positions[id * 2 + 1] = n.center.y;
@@ -518,11 +530,4 @@ function getMidpoint(sourcePosition: Position, targetPosition: Position, isLogic
 
 export type { PushPathProps };
 
-export {
-  pushPath,
-  getArrowAngles,
-  sortAnnotations,
-  paraboloid,
-  segregatePath,
-  runLayout,
-  getMidpoint };
+export { pushPath, getArrowAngles, sortAnnotations, paraboloid, segregatePath, runLayout, getMidpoint };

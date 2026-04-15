@@ -84,7 +84,7 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
   }
 
   private updateStateBinary({ props, changeFlags }): void {
-    // eslint-disable-next-line @typescript-eslint/unbound-method
+     
     const layerProps = createLayerPropsFromBinary(props.data, this.encodePickingColor);
     this.setState({ layerProps });
   }
@@ -212,7 +212,7 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
 
           // Picking colors are per-point but for text per-character are required
           // getPickingInfo() maps back to the correct index
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+           
           // TODO - type binary data
           // @ts-ignore
           //const {instancePickingColors, ...rest} = pointsLayerProps?.data?.attributes

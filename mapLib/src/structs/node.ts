@@ -45,9 +45,15 @@ export class Node extends Entity {
   }
 
   private *_edges(): IterableIterator<Edge> {
-    for (const e of this.inEdges) {yield e;}
-    for (const e of this.outEdges) {yield e;}
-    for (const e of this.selfEdges) {yield e;}
+    for (const e of this.inEdges) {
+      yield e;
+    }
+    for (const e of this.outEdges) {
+      yield e;
+    }
+    for (const e of this.selfEdges) {
+      yield e;
+    }
   }
 
   get edges(): IterableIterator<Edge> {

@@ -3,12 +3,15 @@
   "compilerOptions": {
     "rootDir": ".",
     "baseUrl": "src",
+    "ignoreDeprecations": "6.0",
     "removeComments": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitAny": false,
     "strictNullChecks": true,
     "paths": {
+      "mapLib": ["../mapLib/src/main.ts"],
+      "mapLib/utils": ["../mapLib/src/utils/index.ts"],
       "~/*": ["../mapLib/src/*"]
     }
   },
