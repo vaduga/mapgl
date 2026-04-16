@@ -33,7 +33,6 @@ import { throttleTime } from 'rxjs';
 import { StateTime } from './Geocoder/StateTime';
 import { Layer, MapView, OrbitView } from 'deck.gl';
 import LayerSwitcher from './Selects/LayerSwitcher';
-import { MyCenterPlot } from '../deckLayers/Centerplot/centerPlot';
 import { BinaryFeatureCollection, BinaryPointFeature } from '@loaders.gl/schema';
 
 import { ThresholdEdgeChangeEvent } from '../utils/bus.events';
@@ -466,10 +465,6 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
       edgeLabels.forEach((l) => {
         newLayers.push(l);
       });
-
-      if (getIsShowCenter && getSelectedNode) {
-        newLayers.push(MyCenterPlot({ getIsShowCenter, theme: theme2 }));
-      }
 
       flushSync(() => {
         setLayers(newLayers.filter((el) => el !== null && el !== undefined));
