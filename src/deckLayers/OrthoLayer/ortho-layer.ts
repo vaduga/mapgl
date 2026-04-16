@@ -61,6 +61,8 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
 
     this.getIcon = this.getIcon.bind(this);
     this.getIconSize = this.getIconSize.bind(this);
+    this.getIconPixelOffset = this.getIconPixelOffset.bind(this);
+    this.getTextPixelOffset = this.getTextPixelOffset.bind(this);
     this.getPointRadius = this.getPointRadius.bind(this);
     this.getPickingInfo = this.getPickingInfo.bind(this);
   }
