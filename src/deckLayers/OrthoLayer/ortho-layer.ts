@@ -11,7 +11,11 @@ import { isVisible } from '../../utils/utils.layers';
 
 export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} = {}> extends GeoJsonLayer {
   static layerName = 'OrthoLayer composite';
-  static defaultProps = { ...super.defaultProps, getText: undefined, pointType: 'circle+icon+text+text' };
+  static defaultProps = {
+    ...super.defaultProps,
+    getText: undefined,
+    pointType: 'circle+icon+text+text',
+  };
   time;
   id;
   hoverCluster;
@@ -36,9 +40,21 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
     this.time = props.time;
     this.theme = props.theme2;
     this.biCol = props.biCol;
-    this.Circle = isVisible(props.getVisLayers, { index: null, name: colTypes.Circle, group: colTypes.Circle });
-    this.SVG = isVisible(props.getVisLayers, { index: null, name: colTypes.SVG, group: colTypes.SVG });
-    this.Label = isVisible(props.getVisLayers, { index: null, name: colTypes.Label, group: colTypes.Label });
+    this.Circle = isVisible(props.getVisLayers, {
+      index: null,
+      name: colTypes.Circle,
+      group: colTypes.Circle,
+    });
+    this.SVG = isVisible(props.getVisLayers, {
+      index: null,
+      name: colTypes.SVG,
+      group: colTypes.SVG,
+    });
+    this.Label = isVisible(props.getVisLayers, {
+      index: null,
+      name: colTypes.Label,
+      group: colTypes.Label,
+    });
 
     const cats = props.getVisLayers.getCategories();
     this.categories = [cats, cats];
@@ -55,7 +71,7 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
 
   updateState({ props, oldProps, changeFlags }: UpdateParameters<this>): void {
     const rebuildIndex =
-      //@ts-ignore
+      // @ts-ignore
       changeFlags.dataChanged || props.maxZoom !== oldProps.maxZoom;
 
     if (rebuildIndex) {
@@ -102,9 +118,12 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
   }
 
   getIcon(d) {
-    const { group, arcs } = d.properties?.style || {};
+    const { style } = d.properties || {};
+    const { group, arcs } = style || {};
     const iconName = group?.iconName;
     const svgIcon = iconName && this.svgIcons[iconName];
+    const iconSize = this.getIconSize(d);
+    const { width, height } = this.getIconDimensions(d, iconSize);
 
     if (arcs?.length) {
       const colorCounts = {};
@@ -113,11 +132,6 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
           count: 1
         };
       });
-      const size = d.properties.style?.size;
-      //const selId = this.getSelectedNode?.id
-      //const isHead = selId === d.properties.locName
-      const diam = size; //isHead ? size * 1.3 : size
-      const packedIconSize = getDonutIconSrcSize(diam);
       const icon = {
         url: svgToDataURL(
           createDonutChart({
@@ -125,21 +139,20 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
             stripeCounts: undefined,
             allTotal: arcs.length,
             bkColor: undefined,
-            radius: diam / 2,
+            radius: iconSize / 2,
             isDark: this.theme.isDark,
             userSvgUrl: svgIcon ? svgIcon.svgDataUrl : null, // embed user SVG
           })
         ),
-        width: packedIconSize,
-        height: packedIconSize,
+        width,
+        height,
       };
       return icon;
     } else if (svgIcon) {
-      const { svgDataUrl, width, height } = svgIcon;
       return {
-        url: svgDataUrl,
-        width, //128
-        height, //128
+        url: svgIcon.svgDataUrl,
+        width,
+        height,
         id: iconName,
       };
     }
@@ -175,15 +188,32 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
     return (diam / 2) * multiPly;
   }
 
+  getIconDimensions(d, iconSize = this.getIconSize(d)) {
+    const { style } = d.properties || {};
+    const { group, arcs } = style || {};
+
+    if (arcs?.length) {
+      const packedSize = getDonutIconSrcSize(iconSize);
+      return { width: packedSize, height: packedSize };
+    }
+
+    const iconName = group?.iconName;
+    const svgIcon = iconName && this.svgIcons[iconName];
+    if (svgIcon) {
+      return { width: svgIcon.width, height: svgIcon.height };
+    }
+
+    return { width: 1, height: 1 };
+  }
+
   getTextPixelOffset(d, z) {
-    const { style, locName } = d.properties;
-    const { group, size } = style || { size: 0 };
-    const selId = this.getSelectedNode?.id;
-    const isHead = selId === locName;
-    const multiPly = isHead ? 1.3 : 1;
-    const baseOffset = ((group?.iconSize ?? size) / 1.5) * multiPly;
-    const dynamicOffset = baseOffset * Math.pow(2, z);
-    return [0, dynamicOffset];
+    const iconSize = this.getIconSize(d);
+    const icon = this.getIconDimensions(d, iconSize);
+    const renderedIconHeight = iconSize * Math.pow(2, z);
+    const aspectRatio = icon?.width && icon?.height ? icon.height / icon.width : 1;
+    const gap = 2;
+
+    return [0, renderedIconHeight * aspectRatio * 0.5 + gap];
   }
 
   private renderPointLayers(): Layer[] | null {
@@ -241,6 +271,8 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
               return f.properties.style?.textConfig?.fontSize ?? 12;
             });
             textProps.getText = this.getSubLayerAccessor(this.getText);
+            textProps.getTextAnchor = 'middle';
+            textProps.getAlignmentBaseline = 'top';
             textProps.updateTriggers = {
               getPixelOffset: z, // Forces re-evaluation on zoom change
               collisionTestProps: z,
