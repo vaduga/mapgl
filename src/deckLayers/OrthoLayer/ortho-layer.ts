@@ -165,10 +165,19 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
       id: 'blank',
     };
   }
-  getIconPixelOffset(d) {
+  getIconPixelOffset(d, z) {
     const { group, arcs } = d.properties?.style || {};
     const iconVOffset = group?.iconVOffset;
-    return [0, arcs?.length ? 0 : iconVOffset ?? -5];
+    if (arcs?.length) {
+      return [0, 0];
+    }
+
+    const iconSize = this.getIconSize(d);
+    const { height } = this.getIconDimensions(d, iconSize);
+    const renderedIconHeight = iconSize * Math.pow(2, z);
+    const scaledOffset = (iconVOffset ?? -5) * (renderedIconHeight / height);
+
+    return [0, scaledOffset];
   }
   getIconSize(d) {
     const selId = this.getSelectedNode?.id;
@@ -264,6 +273,13 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
         const sizeScale = ICON_SCALE_BASE * iconScaleFactor;
 
         const textProps: any = {};
+        const iconProps: any = {};
+        if (type === 'icon') {
+          iconProps.getPixelOffset = this.getSubLayerAccessor((f) => this.getIconPixelOffset(f, z));
+          iconProps.updateTriggers = {
+            getPixelOffset: z,
+          };
+        }
         if (type === 'text') {
           if (textCount) {
             textProps.getPixelOffset = this.getSubLayerAccessor((f) => this.getTextPixelOffset(f, z));
@@ -318,6 +334,7 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
               getRadius: this.getSubLayerAccessor(this.getPointRadius),
               sizeScale,
               radiusScale: 1,
+              ...iconProps,
               ...textProps,
               stroked: false,
               lineHeight: 0.8,
