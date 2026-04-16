@@ -1,5 +1,9 @@
 import { svgToDataURL } from '../OrthoLayer/donutChart';
 
+const ARROW_ATLAS_SCALE = 2;
+const ARROW_ATLAS_WIDTH = 256 * ARROW_ATLAS_SCALE;
+const ARROW_ATLAS_HEIGHT = 128 * ARROW_ATLAS_SCALE;
+
 type IconMapping = {
   [key: string]: {
     mask: boolean;
@@ -13,7 +17,7 @@ type IconMapping = {
 };
 
 const svgAtlas = `<?xml version="1.0" encoding="utf-8"?>
-<svg width="256" height="128" version="1.1" baseProfile="tiny" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 64 32" overflow="visible" xml:space="preserve">
+<svg width="${ARROW_ATLAS_WIDTH}" height="${ARROW_ATLAS_HEIGHT}" version="1.1" baseProfile="tiny" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 64 32" overflow="visible" xml:space="preserve">
 <g> <rect fill="none" width="8" height="16"/> <polygon points="1.65,14.35 0.94,13.65 6.59,8 0.94,2.35 1.65,1.65 8,8 	"/>
 </g>
 <g> <rect x="8" fill="none" width="8" height="8"/> <polygon points="12.65,7.35 11.94,6.65 14.59,4 11.94,1.35 12.65,0.65 16,4 	"/>
@@ -53,8 +57,8 @@ export function getIconAtlasImage(): string | HTMLImageElement {
   if (!iconAtlasImage) {
     const img = new Image();
     // Important for Deck/Luma texture initialization in some runtimes.
-    img.width = 256;
-    img.height = 128;
+    img.width = ARROW_ATLAS_WIDTH;
+    img.height = ARROW_ATLAS_HEIGHT;
     img.src = iconAtlas;
     iconAtlasImage = img;
   }
@@ -62,7 +66,7 @@ export function getIconAtlasImage(): string | HTMLImageElement {
   return iconAtlasImage;
 }
 
-const imageScale = 1;
+const imageScale = ARROW_ATLAS_SCALE;
 
 function scale(mapping: IconMapping, s: number): IconMapping {
   for (const key in mapping) {

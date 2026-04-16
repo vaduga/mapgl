@@ -1,4 +1,16 @@
-import { ALERTING_STATES, DEFAULT_CLUSTER_BK_COLOR } from 'mapLib/utils';
+import { ALERTING_STATES } from 'mapLib/utils';
+
+const MAX_ICON_SOURCE_SIZE = 1020;
+const DONUT_SOURCE_SCALE = 4;
+type CountEntry = { count: number; label?: string };
+type CountMap = Record<string, number | CountEntry>;
+type StripeItem = { color: string; count: number };
+const ORDERED_ALERT_COLORS = [
+  '__background__',
+  ALERTING_STATES.Alerting,
+  ALERTING_STATES.Pending,
+  ALERTING_STATES.Normal,
+];
 
 function svgToDataURL(svg) {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
@@ -6,26 +18,35 @@ function svgToDataURL(svg) {
 
 // SVG donut chart for nodeGraph icons and clusters
 
-function createDonutChart({ colorCounts, radius = 45, userSvgUrl }) {
-  const offsets: number[] = [];
-  let total = 0;
+function createDonutChart({
+  colorCounts = {},
+  stripeCounts,
+  allTotal,
+  radius = 45,
+  bkColor,
+  isDark = false,
+  userSvgUrl,
+}) {
+  void isDark;
 
-  const counts: any[] = Object.values(colorCounts);
+  const counts: CountEntry[] = Object.values(colorCounts);
   const colors: string[] = Object.keys(colorCounts);
-
-  if (counts.length) {
-    counts.forEach((item, i) => {
-      offsets.push(total);
-      total += item.count;
-    });
-  }
+  const total = allTotal ?? getTotalCount(counts);
+  const stripeData = getStripeData({
+    stripeCounts,
+    total,
+    bkColor,
+  });
 
   const r = radius;
   const r0 = Math.round(r * 0.73);
+  const ringRadius = (r + r0) / 2;
+  const strokeWidth = r - r0;
   const w = r * 2;
+  const sourceSize = getDonutIconSrcSize(w);
 
   let svg = `
-  <svg width='${w * 2}' height='${w * 2}' stroke-width='1' viewBox='0 0 ${w} ${w}' 
+  <svg width='${sourceSize}' height='${sourceSize}' stroke-width='1' viewBox='0 0 ${w} ${w}' 
   xmlns='http://www.w3.org/2000/svg'  
   >`;
 
@@ -37,12 +58,32 @@ function createDonutChart({ colorCounts, radius = 45, userSvgUrl }) {
           </defs>`;
 
   // Drawing outer segments
-  let startAngle = 0;
+  let startFraction = 0;
 
-  for (let i = 0; i < counts.length; i++) {
-    const endAngle = startAngle + (counts[i].count / total) * 360;
-    svg += donutSegment(startAngle / 360, endAngle / 360, r, r0, colors[i]);
-    startAngle = endAngle;
+  if (total > 0) {
+    for (let i = 0; i < counts.length; i++) {
+      const segmentFraction = counts[i].count / total;
+      svg += donutSegment(startFraction, segmentFraction, r, ringRadius, strokeWidth, colors[i]);
+      startFraction += segmentFraction;
+    }
+  }
+
+  if (bkColor) {
+    svg += `<circle cx='${formatSvgNumber(r)}' cy='${formatSvgNumber(r)}' r='${formatSvgNumber(r0)}' fill='${bkColor}'/>`;
+  }
+
+  // Drawing horizontal stripes inside the donut chart
+  if (stripeData.total > 0) {
+    const revertOffset = r - r0;
+    let stripeOffset = revertOffset;
+
+    for (const stripe of stripeData.items) {
+      const stripeHeight = (stripe.count / stripeData.total) * (w - revertOffset * 2);
+      svg += `<rect x='0' y='${formatSvgNumber(stripeOffset)}' width='${w}' height='${formatSvgNumber(
+        stripeHeight
+      )}' fill='${stripe.color}' mask='url(#donutMask)'/>`;
+      stripeOffset += stripeHeight;
+    }
   }
 
   // Overlay the user SVG icon (centered)
@@ -63,24 +104,116 @@ function createDonutChart({ colorCounts, radius = 45, userSvgUrl }) {
   return svg;
 }
 
-function donutSegment(start, end, r, r0, color) {
-  if (end - start === 1) {
-    end -= 0.00001;
+function donutSegment(startFraction, segmentFraction, center, ringRadius, strokeWidth, color) {
+  if (startFraction >= 1 || segmentFraction <= 0) {
+    return '';
   }
-  const a0 = 2 * Math.PI * (start - 0.25);
-  const a1 = 2 * Math.PI * (end - 0.25);
-  const x0 = Math.cos(a0),
-    y0 = Math.sin(a0);
-  const x1 = Math.cos(a1),
-    y1 = Math.sin(a1);
-  const largeArc = end - start > 0.5 ? 1 : 0;
 
-  // draw an SVG path
-  return `<path d="M ${r + r0 * x0} ${r + r0 * y0} L ${r + r * x0} ${r + r * y0} A ${r} ${r} 0 ${largeArc} 1 ${
-    r + r * x1
-  } ${r + r * y1} L ${r + r0 * x1} ${r + r0 * y1} A ${r0} ${r0} 0 ${largeArc} 0 ${r + r0 * x0} ${
-    r + r0 * y0
-  }" fill="${color}" />`;
+  const circumference = 2 * Math.PI * ringRadius;
+  const segmentLength = circumference * segmentFraction;
+
+  if (segmentFraction >= 1) {
+    return `<circle cx="${formatSvgNumber(center)}" cy="${formatSvgNumber(center)}" r="${formatSvgNumber(
+      ringRadius
+    )}" fill="none" stroke="${color}" stroke-width="${formatSvgNumber(
+      strokeWidth
+    )}" />`;
+  }
+
+  return `<circle cx="${formatSvgNumber(center)}" cy="${formatSvgNumber(center)}" r="${formatSvgNumber(
+    ringRadius
+  )}" fill="none" stroke="${color}" stroke-width="${formatSvgNumber(
+    strokeWidth
+  )}" stroke-dasharray="${formatSvgNumber(segmentLength)} ${formatSvgNumber(
+    circumference - segmentLength
+  )}" stroke-dashoffset="${formatSvgNumber(-circumference * startFraction)}" transform="rotate(-90 ${formatSvgNumber(
+    center
+  )} ${formatSvgNumber(center)})" />`;
 }
 
-export { svgToDataURL, createDonutChart };
+function formatSvgNumber(value: number) {
+  return Number(value.toFixed(4));
+}
+
+function getTotalCount(counts: CountEntry[]) {
+  let total = 0;
+
+  for (const item of counts) {
+    total += item.count;
+  }
+
+  return total;
+}
+
+function getStripeData({
+  stripeCounts,
+  total,
+  bkColor,
+}: {
+  stripeCounts?: CountMap;
+  total: number;
+  stripeTotal?: number;
+  bkColor: string;
+}) {
+  if (!stripeCounts && !bkColor) {
+    return { items: [] as StripeItem[], total: 0 };
+  }
+
+  const normalizedCounts: CountMap = { ...(stripeCounts ?? {}) };
+  const stripeTotal = getTotalCount(Object.values(normalizedCounts) as CountEntry[]);
+  const unknownCount = Math.max(0, total - stripeTotal);
+
+  if ( unknownCount > 0 ) {
+    normalizedCounts[bkColor] = {
+      count: unknownCount,
+      label: 'Unknown',
+    };
+  }
+
+  const orderedColors = ORDERED_ALERT_COLORS.map((color) => (color === '__background__' ? bkColor : color));
+  const items: StripeItem[] = [];
+  let resolvedTotal = 0;
+
+  for (const color of orderedColors) {
+    const value = normalizedCounts[color];
+    const count = normalizeStripeCount(value);
+    if (count <= 0) {
+      continue;
+    }
+
+    items.push({ color, count });
+    resolvedTotal += count;
+  }
+
+  if (!items.length) {
+    for (const [color, value] of Object.entries(normalizedCounts)) {
+      const count = normalizeStripeCount(value);
+      if (count <= 0) {
+        continue;
+      }
+
+      items.push({ color, count });
+      resolvedTotal += count;
+    }
+  }
+
+  return { items, total: resolvedTotal };
+}
+
+function normalizeStripeCount(value: number | CountEntry) {
+  if (typeof value === 'number') {
+    return value;
+  }
+
+  if (value && typeof value.count === 'number') {
+    return value.count;
+  }
+
+  return 0;
+}
+
+function getDonutIconSrcSize(size: number) {
+  return Math.min(Math.max(size, size * DONUT_SOURCE_SCALE), MAX_ICON_SOURCE_SIZE);
+}
+
+export { svgToDataURL, createDonutChart, getDonutIconSrcSize };

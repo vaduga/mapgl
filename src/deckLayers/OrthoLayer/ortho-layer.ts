@@ -3,8 +3,8 @@ import { Layer, LayerData, PickingInfo, UpdateParameters, _ConstructorOf } from 
 import { POINT_LAYER, forwardProps } from './sub-layer-map';
 
 import { createLayerPropsFromBinary } from './geojson-layer-props';
-import { colTypes, DEFAULT_CLUSTER_BK_COLOR } from 'mapLib/utils';
-import { createDonutChart, svgToDataURL } from './donutChart';
+import { colTypes } from 'mapLib/utils';
+import { createDonutChart, getDonutIconSrcSize, svgToDataURL } from './donutChart';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import { DataFilterExtension } from '@deck.gl/extensions';
 import { isVisible } from '../../utils/utils.layers';
@@ -84,7 +84,6 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
   }
 
   private updateStateBinary({ props, changeFlags }): void {
-     
     const layerProps = createLayerPropsFromBinary(props.data, this.encodePickingColor);
     this.setState({ layerProps });
   }
@@ -111,23 +110,28 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
       const colorCounts = {};
       arcs.forEach((color) => {
         colorCounts[color] = {
-          count: 1 / arcs.length,
+          count: 1
         };
       });
       const size = d.properties.style?.size;
       //const selId = this.getSelectedNode?.id
       //const isHead = selId === d.properties.locName
       const diam = size; //isHead ? size * 1.3 : size
+      const packedIconSize = getDonutIconSrcSize(diam);
       const icon = {
         url: svgToDataURL(
           createDonutChart({
             colorCounts,
-            radius: diam * 2, ///2 ,
+            stripeCounts: undefined,
+            allTotal: arcs.length,
+            bkColor: undefined,
+            radius: diam / 2,
+            isDark: this.theme.isDark,
             userSvgUrl: svgIcon ? svgIcon.svgDataUrl : null, // embed user SVG
           })
         ),
-        width: diam * 4,
-        height: diam * 4,
+        width: packedIconSize,
+        height: packedIconSize,
       };
       return icon;
     } else if (svgIcon) {

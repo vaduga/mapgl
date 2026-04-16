@@ -2,7 +2,7 @@ import { isVisible } from '../../utils';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import { CollisionFilterExtension, DataFilterExtension } from '@deck.gl/extensions';
 
-import { createDonutChart, svgToDataURL } from '../OrthoLayer/donutChart';
+import { createDonutChart, getDonutIconSrcSize, svgToDataURL } from '../OrthoLayer/donutChart';
 import { colTypes } from 'mapLib/utils';
 
 const NodesGeojsonLayer = (props) => {
@@ -14,6 +14,7 @@ const NodesGeojsonLayer = (props) => {
     highlightColor,
     options,
     svgIcons,
+    theme,
     isLogic,
     getVisLayers,
     visible,
@@ -83,16 +84,21 @@ const NodesGeojsonLayer = (props) => {
         const isHead = selId === d.properties.locName;
         const size = d.properties.style?.size;
         const diam = isHead ? size * 1.3 : size;
+        const packedIconSize = getDonutIconSrcSize(diam);
         const icon = {
           url: svgToDataURL(
             createDonutChart({
               colorCounts,
+              stripeCounts: undefined,
+              allTotal: arcs.length,
+              bkColor: undefined,
               radius: diam / 2,
+              isDark: theme.isDark,
               userSvgUrl: svgIcon ? svgIcon.svgDataUrl : null, // embed user SVG
             })
           ),
-          width: diam * 2,
-          height: diam * 2,
+          width: packedIconSize,
+          height: packedIconSize,
         };
         return icon;
       } else if (svgIcon) {
