@@ -110,10 +110,11 @@ const NodesGeojsonLayer = (props) => {
         return icon;
       } else if (svgIcon) {
         const { svgDataUrl } = svgIcon;
+        const iconBoxSize = Math.max(svgIcon.width ?? 1, svgIcon.height ?? 1);
         return {
           url: svgDataUrl,
-          width: svgIcon.width,
-          height: svgIcon.height,
+          width: iconBoxSize,
+          height: iconBoxSize,
           id: iconName,
         };
       }

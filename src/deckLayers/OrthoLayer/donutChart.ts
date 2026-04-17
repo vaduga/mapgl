@@ -88,7 +88,7 @@ function createDonutChart({
 
   // Overlay the user SVG icon (centered)
   if (userSvgUrl) {
-    const imageSize = r0 * 1.4; // Slightly smaller than the inner radius to fit well
+    const imageSize = r0 * 1.7; // Slightly smaller than the inner radius to fit well
     const imageX = r - imageSize / 2; // Centered X
     const imageY = r - imageSize / 2; // Centered Y
 
