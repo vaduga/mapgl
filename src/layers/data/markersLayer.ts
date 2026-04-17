@@ -669,6 +669,13 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               });
             },
           })
+          .addCustomEditor({
+            category: ['Groups'],
+            id: 'config.groups',
+            path: 'config.groups',
+            name: 'legend label, SVG icon, circle color override',
+            editor: GroupsEditor,
+          })
           .addRadio({
             path: 'config.edgeStyle.arrow',
             category: ['Edge Styles'],
@@ -795,13 +802,6 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
             name: 'Apply',
             category: ['Groups'],
             defaultValue: defaultOptions.style.useGroups,
-          })
-          .addCustomEditor({
-            category: ['Groups'],
-            id: 'config.groups',
-            path: 'config.groups',
-            name: 'legend label, SVG icon, circle color override',
-            editor: GroupsEditor,
           });
       },
     };
