@@ -28,8 +28,8 @@ export const MyArcLayer = (props) => {
 
   const cats = getVisLayers.getCategories();
   const add = cats[1];
-  const categories = isLogic ? cats : cats.concat([add]);
-  const categorySize = isLogic ? 2 : 3;
+  const categories = cats.concat([add]);
+  const categorySize = 3;
 
   type BartSegment = {
     properties;
@@ -99,7 +99,7 @@ export const MyArcLayer = (props) => {
     getFilterCategory: (d) => {
       const { style, layerName, root } = d.properties;
       const groupIdx = style?.group?.groupIdx;
-      return isLogic ? [groupIdx, layerName] : [groupIdx, layerName, root.id];
+      return [groupIdx, layerName, root.id];
     },
 
     updateTriggers: {

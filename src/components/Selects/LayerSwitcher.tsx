@@ -8,7 +8,7 @@ import type { LayerTreeInfo } from '../../store/visLayer';
 const CSS_PREFIX = 'layer-switcher-';
 
 const LayerSwitcher = (props) => {
-  const { label, className, panel: geomap, setVisRefresh, setMobxLegendRefresh } = props;
+  const { label, className, panel: geomap, setVisRefresh } = props;
   const { visLayers } = geomap;
   const styles = useStyles2(getStyles);
 
@@ -27,7 +27,7 @@ const LayerSwitcher = (props) => {
     if (!panel) {
       return;
     }
-    LayerSwitcher.renderPanel(geomap, setVisRefresh, setMobxLegendRefresh, panel, {
+    LayerSwitcher.renderPanel(geomap, setVisRefresh, panel, {
       groupSelectStyle: 'group', /// 'children'
       reverse: false,
     });
@@ -60,7 +60,7 @@ LayerSwitcher.isTouchDevice_ = () => {
   }
 };
 
-LayerSwitcher.renderPanel = (geomap: GeomapPanel, setVisRefresh, setMobxLegendRefresh, panel, options) => {
+LayerSwitcher.renderPanel = (geomap: GeomapPanel, setVisRefresh, panel, options) => {
   const render_event = new Event('render');
   panel.dispatchEvent(render_event);
   options = options || {};
@@ -84,11 +84,10 @@ LayerSwitcher.renderPanel = (geomap: GeomapPanel, setVisRefresh, setMobxLegendRe
     layers,
     geomap,
     setVisRefresh,
-    setMobxLegendRefresh,
     ul,
     options,
     function render(_changedLyr) {
-      LayerSwitcher.renderPanel(geomap, setVisRefresh, setMobxLegendRefresh, panel, options);
+      LayerSwitcher.renderPanel(geomap, setVisRefresh, panel, options);
     }
   );
 
@@ -99,7 +98,6 @@ LayerSwitcher.renderPanel = (geomap: GeomapPanel, setVisRefresh, setMobxLegendRe
 LayerSwitcher.renderLayer_ = (
   geomap,
   setVisRefresh,
-  setMobxLegendRefresh,
   lyr: LayerTreeInfo,
   idx,
   options,
@@ -157,7 +155,6 @@ LayerSwitcher.renderLayer_ = (
           const target = e.target as HTMLInputElement;
           LayerSwitcher.setVisible_(geomap, lyr, idx, target?.checked, options.groupSelectStyle);
           setVisRefresh(Math.random() + 1);
-          setMobxLegendRefresh(Math.random() + 1);
           render(lyr);
         };
         li.appendChild(input);
@@ -174,7 +171,6 @@ LayerSwitcher.renderLayer_ = (
         lyr.children,
         geomap,
         setVisRefresh,
-        setMobxLegendRefresh,
         ul,
         options,
         render,
@@ -193,7 +189,6 @@ LayerSwitcher.renderLayer_ = (
       const target = e.target as HTMLInputElement;
       LayerSwitcher.setVisible_(geomap, lyr, idx, target.checked, options.groupSelectStyle);
       setVisRefresh(Math.random() + 1);
-      setMobxLegendRefresh(Math.random() + 1);
       render(lyr);
     };
     li.appendChild(input);
@@ -210,7 +205,6 @@ LayerSwitcher.renderLayers_ = (
   layers: LayerTreeInfo[],
   geomap,
   setVisRefresh,
-  setMobxLegendRefresh,
   elm,
   options,
   render,
@@ -225,7 +219,7 @@ LayerSwitcher.renderLayers_ = (
     l = children[i];
     if (l.name) {
       elm.appendChild(
-        LayerSwitcher.renderLayer_(geomap, setVisRefresh, setMobxLegendRefresh, l, i, options, render, depth)
+        LayerSwitcher.renderLayer_(geomap, setVisRefresh, l, i, options, render, depth)
       );
     }
   }

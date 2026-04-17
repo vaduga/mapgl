@@ -40,7 +40,6 @@ import { useFullscreenPortalBridge } from './hooks/useFullscreenPortalBridge';
 
 const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, replaceVariables, eventBus }) => {
   const { pointStore, viewStore } = useRootStore();
-  const { setVisRefresh: setMobxLegendRefresh } = viewStore;
 
   const { isShowEdgeLegend, isShowLegend, isShowSwitcher } = options.common || {};
   const s = useStyles2(getStyles);
@@ -483,7 +482,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
   const memoLayerSwitcher = useMemo(() => {
     return (
       <LayerSwitcher
-        {...{ theme: theme2, label: 'layers', className: '', panel, setVisRefresh, setMobxLegendRefresh }}
+        {...{ theme: theme2, label: 'layers', className: '', panel, setVisRefresh }}
       />
     );
   }, [visLayers]);
@@ -529,7 +528,6 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
       visLayers.setActiveGroups(newStates);
       setVisRefresh(Math.random() + 1);
-      setMobxLegendRefresh(Math.random() + 1);
     },
     [getGroupsLegend, visLayers]
   );

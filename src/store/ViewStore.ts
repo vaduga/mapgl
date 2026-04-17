@@ -6,7 +6,6 @@ import { VizLegendItem } from '@grafana/ui';
 class ViewStore {
   root: RootStore;
   time: number = Date.now();
-  forceRefresh = Math.random() + 1;
 
   viewState: ViewState;
 
@@ -30,17 +29,11 @@ class ViewStore {
     this.viewState = viewState;
   };
 
-  setVisRefresh = (rnd) => {
-    this.forceRefresh = rnd;
-  };
-
   get getTime() {
     return this.time;
   }
 
   get getGroupsLegend() {
-    const t = this.forceRefresh; /// #TODO make a proper mobx trigger
-
     const nodeThres: VizLegendItem[] = [];
     if (!this.root.visLayers) {
       return nodeThres;
