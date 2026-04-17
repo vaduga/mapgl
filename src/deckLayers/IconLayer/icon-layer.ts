@@ -8,8 +8,7 @@ const MyIconLayer = (props) => {
   const { data, onHover, highlightColor, panel, getVisLayers, showGraph } = props;
 
   const visible = showGraph && isVisible(getVisLayers, { index: null, name: colTypes.Comments, group: colTypes.Comments });
-  const cats = getVisLayers.getCategories()
-  const categories = [cats, cats]
+  const categories = getVisLayers.getCategories();
   const categorySize = 2;
 
   const svgico = svgToDataURL(`
@@ -60,8 +59,8 @@ const MyIconLayer = (props) => {
     sizeMinPixels: 5,
     sizeMaxPixels: 45,
     getFilterCategory: (d) => {
-      const { layerName, root } = d?.properties;
-      return [layerName, root.id];
+      const { style, layerName } = d?.properties;
+      return [style.group?.groupIdx, layerName];
     },
     filterCategories: categories,
     extensions: [new DataFilterExtension({ categorySize })],

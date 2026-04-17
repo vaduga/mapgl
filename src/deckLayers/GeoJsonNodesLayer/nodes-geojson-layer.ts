@@ -44,7 +44,7 @@ const NodesGeojsonLayer = (props) => {
   const units = options.common?.isMeters ? 'meters' : 'pixels';
 
   const categories = getVisLayers.getCategories();
-  const categorySize = 1;
+  const categorySize = 2;
 
   const isMeterSizing = units === 'meters';
 
@@ -140,7 +140,8 @@ const NodesGeojsonLayer = (props) => {
     },
     getFilterCategory: (d) => {
       const { style, layerName } = d.properties || {};
-      return layerName;
+      const groupIdx = style?.group.groupIdx;
+      return categorySize > 1 ? [groupIdx, layerName] : groupIdx;
     },
     filterCategories: categories,
     extensions: [new DataFilterExtension({ categorySize })],
@@ -153,6 +154,9 @@ const NodesGeojsonLayer = (props) => {
             ? [new CollisionFilterExtension(), new DataFilterExtension({ categorySize })]
             : [new DataFilterExtension({ categorySize })],
         sizeUnits: units,
+        // collisionTestProps: {
+        //   sizeScale: 3,
+        // },
         // unexpected effect with this on - some text invisible
         // fontSettings: {sdf: true},
       },

@@ -3,6 +3,7 @@ import { colTypes } from 'mapLib/utils';
 
 export class VisLayers {
   visLayers: VisLayer[] = [];
+  activeGroups: Uint8Array = new Uint8Array();
 
   constructor() {}
 
@@ -90,13 +91,32 @@ export class VisLayers {
     return this.visLayers.map(toLayerTreeInfo);
   }
 
-  /* ---------------- ACTIVE LAYERS ---------------- */
+  /* ---------------- ACTIVE GROUPS ---------------- */
 
-  getCategories(): string[] {
-    return this.getVisibleNamespaces();
+  setActiveGroups(groups: Uint8Array): void {
+    this.activeGroups = new Uint8Array(groups); //new Uint8Array(groups.length).fill(1)
+  }
+
+  getActiveGroups(): Uint8Array {
+    return this.activeGroups;
+  }
+
+  getCategories(): [Uint8Array, string[]] {
+    return [this.getActiveGroupIndexes(), this.getVisibleNamespaces()];
   }
 
   /* ---------------- PRIVATE ---------------- */
+
+  private getActiveGroupIndexes(): Uint8Array {
+    const result: number[] = [];
+    const groups = this.activeGroups; // Uint8Array
+    for (let i = 0; i < groups.length; i++) {
+      if (groups[i] === 1) {
+        result.push(i);
+      }
+    }
+    return new Uint8Array(result);
+  }
 
   private getVisibleNamespaces(): string[] {
     const out: Set<string> = new Set();

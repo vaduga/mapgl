@@ -29,8 +29,10 @@ const LineTextLayer = ({
   }
 
   // 'arcLabels'
-  const categories = getVisLayers.getCategories();
-  const categorySize = 1;
+  const cats = getVisLayers.getCategories();
+  const add = cats[1];
+  const categories = cats.concat([add]);
+  const categorySize = 3;
 
   const Labels = visible && isVisible(getVisLayers, { index: null, name: colTypes.Label, group: colTypes.Label });
   const lTheme = baseLayer?.options?.config?.theme;
@@ -72,7 +74,8 @@ const LineTextLayer = ({
     },
     getFilterCategory: (d) => {
       const { style, layerName, root } = d.properties || {};
-      return [layerName];
+      const groupIdx = style?.group?.groupIdx;
+      return [groupIdx, layerName, root.id];
     },
     filterCategories: categories,
     ...(extensions.length && { extensions }),

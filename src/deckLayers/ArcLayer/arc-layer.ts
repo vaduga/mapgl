@@ -21,13 +21,15 @@ export const MyArcLayer = (props) => {
     options,
     getVisLayers,
     getGroupsLegend,
+    isLogic,
     getSelEdges,
     visible,
   } = props;
 
-  const cats = getVisLayers.getCategories()
-  const categories = [cats, cats]
-  const categorySize = 2;
+  const cats = getVisLayers.getCategories();
+  const add = cats[1];
+  const categories = isLogic ? cats : cats.concat([add]);
+  const categorySize = isLogic ? 2 : 3;
 
   type BartSegment = {
     properties;
@@ -51,8 +53,8 @@ export const MyArcLayer = (props) => {
       const color = annotState?.startsWith('Normal')
         ? ALERTING_STATES.Normal
         : annotState === 'Alerting'
-        ? ALERTING_STATES.Alerting
-        : ALERTING_STATES.Pending;
+          ? ALERTING_STATES.Alerting
+          : ALERTING_STATES.Pending;
       return toRGB4Array(color, 1);
     }
 
@@ -96,7 +98,8 @@ export const MyArcLayer = (props) => {
     getTargetColor: (d: BartSegment) => getColor('sideB', d),
     getFilterCategory: (d) => {
       const { style, layerName, root } = d.properties;
-      return [layerName, root.id];
+      const groupIdx = style?.group?.groupIdx;
+      return isLogic ? [groupIdx, layerName] : [groupIdx, layerName, root.id];
     },
 
     updateTriggers: {

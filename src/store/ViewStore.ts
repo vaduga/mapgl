@@ -46,6 +46,8 @@ class ViewStore {
       return nodeThres;
     }
 
+    let active_indexes = this.root.visLayers.getActiveGroups();
+
     const { options } = this.root;
     const dataLayers = options.dataLayers;
 
@@ -59,7 +61,7 @@ class ViewStore {
             color: g.color,
             label: (g.label ?? g.color) + (count ? ' ' + count : ''),
             yAxis: 1,
-            disabled: false,
+            disabled: !active_indexes[i], //getGroupsLegend?.find(el => el.data?.rawLabel === g.label)?.disabled ??
             data: { rawLabel: g.label ?? g.color, groupIdx: g.groupIdx, count },
           });
         }
@@ -75,7 +77,7 @@ class ViewStore {
           color: ALERTING_STATES.Alerting,
           label: ANNOTS_LABEL,
           yAxis: 1,
-          disabled: false,
+          disabled: !active_indexes[i],
           data: { rawLabel: ANNOTS_LABEL, groupIdx: i, count: 0 },
         });
       }

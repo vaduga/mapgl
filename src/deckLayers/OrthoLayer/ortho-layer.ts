@@ -61,8 +61,7 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
       group: colTypes.Label,
     });
 
-    const cats = props.getVisLayers.getCategories();
-    this.categories = [cats, cats];
+    this.categories = props.getVisLayers.getCategories();
 
     this.getIcon = this.getIcon.bind(this);
     this.getIconSize = this.getIconSize.bind(this);
@@ -316,8 +315,8 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
               },
               autoHighlight: false,
               getFilterCategory: this.getSubLayerAccessor((d: any) => {
-                const { style, layerName, root } = d.properties;
-                return [layerName, root.id];
+                const { style, layerName } = d.properties;
+                return [style?.group.groupIdx, layerName];
               }),
               filterCategories: this.categories,
               extensions: [new DataFilterExtension({ categorySize: 2 })],

@@ -305,6 +305,8 @@ function genVisLayers(panel: GeomapPanel, props) {
     }
   }
 
+  const len = groups.length + (hasAnnots ? 1 : 0);
+  visLayers.setActiveGroups(new Uint8Array(len).fill(1));
   return visLayers;
 }
 

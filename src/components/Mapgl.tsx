@@ -374,7 +374,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     /// Graphs nodes
 
     const { groupIndices, annots } = panel;
-    const visNamespaces = visLayers.getCategories()
+    const visNamespaces = visLayers.getCategories()[1]
     // @ts-ignore
     const biCols: BinaryFeatureCollection & Array<{ layerName: string }> = graphs
       .filter((g) => visNamespaces.includes(g.id))
@@ -501,6 +501,39 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     );
   }, [getSelCoord, time, getGroupsLegend]);
 
+  const onLabelClick = useCallback(
+    (clickItem: VizLegendItem) => {
+      const active_indexes = visLayers.getActiveGroups();
+      const allChecked = active_indexes.every((item) => item);
+
+      let newStates;
+      if (hasAnnots && clickItem.data?.rawLabel === ANNOTS_LABEL) {
+        active_indexes[active_indexes.length - 1] = active_indexes[active_indexes.length - 1] ? 0 : 1;
+        newStates = active_indexes;
+      } else {
+        const itemIdx = clickItem.data.groupIdx;
+        const unCheck = !allChecked && itemIdx > -1 && active_indexes[itemIdx];
+
+        newStates = active_indexes.map((item, i) => {
+          if (hasAnnots && i === itemIdx) {
+            return 1;
+          }
+
+          if (i === itemIdx) {
+            return 1;
+          } else {
+            return unCheck ? 1 : 0;
+          }
+        });
+      }
+
+      visLayers.setActiveGroups(newStates);
+      setVisRefresh(Math.random() + 1);
+      setMobxLegendRefresh(Math.random() + 1);
+    },
+    [getGroupsLegend, visLayers]
+  );
+
   const memoEdgeLegend = useMemo(() => {
     if (!edgeLegend?.length) {
       return null;
@@ -532,7 +565,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
           items={getGroupsLegend.filter(
             (item, i) => item.data.count || (hasAnnots && i === getGroupsLegend.length - 1)
           )}
-          onLabelClick={() => {}}
+          onLabelClick={(item) => onLabelClick(item)}
         />
       </div>
     );

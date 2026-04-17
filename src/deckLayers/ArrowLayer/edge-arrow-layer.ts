@@ -217,9 +217,9 @@ export const EdgeArrowLayer = (props) => {
   const selectedFeatureIndexes = getSelectedIdxs?.get(colTypes.Edges)?.[srcGraphId] ?? [];
 
   const isLogic = panel.isLogic;
-  const cats = getVisLayers.getCategories()
-  const categories = [cats, cats]
-  const categorySize = 2;
+  const cats = getVisLayers.getCategories();
+  const categories = cats.concat([cats[1]]);
+  const categorySize = 3;
 
   const baseData = Array.isArray(linesCollection) ? linesCollection : (linesCollection?.features ?? []);
   const arrowData = expandArrowItems(baseData, getWasmId2Edges);
@@ -258,8 +258,8 @@ export const EdgeArrowLayer = (props) => {
     ...sizeConstraintProps,
     depthTest: false,
     getFilterCategory: (d: ArrowItem) => {
-      const { layerName, root } = d.feature?.properties || {};
-      return [layerName, root.id];
+      const { style, layerName, root } = d.feature?.properties || {};
+      return [style?.group.groupIdx, layerName, root.id];
     },
     filterCategories: categories,
     extensions: [new DataFilterExtension({ categorySize })],
