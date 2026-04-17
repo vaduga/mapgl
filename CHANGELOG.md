@@ -1,5 +1,10 @@
 # Changelog Mapgl
 
+## 2.3.0
+- ...
+- box all SVGs (raw/donut) in circle boundaries. Simplify group rules (rm icon size)
+- text labels offset calculated from circle boundary, not center. CollisionFilter for labels can be enabled with 'Use meters' flag.
+
 ## 2.2.0
 - namespace subgraphs support. Make your graph more branchy.
 - revamped Group rules section [#6](https://github.com/vaduga/mapgl/issues/6)

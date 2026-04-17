@@ -15,23 +15,22 @@ import { isEqual } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { css } from '@emotion/css';
 import { OverrideField } from './OverrideField';
-import { IconSvgSizes, OverField, OverrideTracker, Rule } from './rule-types';
+import { OverField, OverrideTracker, Rule } from './rule-types';
 import { DEFAULT_COLOR_PICKER } from 'mapLib/utils';
 import { ResourceDimensionEditor } from '../../grafana_core/app/features/dimensions/editors';
 import { MediaType, ResourceFolderName } from '../../grafana_core/app/features/dimensions';
 import { ResourceDimensionMode } from '@grafana/schema';
-import { LineWidthStates, NodeSizeStates } from '../Groups/rule-types';
+import { DEFAULT_LINE_WIDTH, LineWidthStates, NodeSizeStates } from '../Groups/rule-types';
 
 interface RuleItemProps {
   rule: Rule;
   key: string;
   ID: string;
   colorSetter: any;
-  lineWidthSetter: any;
-  nodeSizeSetter: any;
-  iconSizeSetter: any;
+  widthSetter: any;
+  sizeSetter: any;
   iconNameSetter: any;
-  iconVOffsetSetter: any;
+  offsetSetter: any;
   overrideSetter: any;
   remover: any;
   index: number;
@@ -143,10 +142,9 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
   const maxFiles = 2000;
   const showColor = options.rule.color !== undefined;
   const iconName = options.rule.iconName ?? '';
-  const nodeSize = options.rule.nodeSize;
-  const lineWidth = options.rule.lineWidth;
-  const iconSize = options.rule.iconSize;
-  const iconVOffset = options.rule.iconVOffset;
+  const nodeSize = options.rule.size;
+  const lineWidth = options.rule.width;
+  const iconVOffset = options.rule.offset;
 
   return (
     <InlineFieldRow className={styles.inlineRow}>
@@ -186,10 +184,10 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
                 disabled={options.disabled}
                 onChange={() => {
                   if (typeof nodeSize === 'number') {
-                    options.nodeSizeSetter(options.index, undefined);
+                    options.sizeSetter(options.index, undefined);
                     return;
                   }
-                  options.nodeSizeSetter(options.index, NodeSizeStates[0]?.value);
+                  options.sizeSetter(options.index, NodeSizeStates[0]?.value);
                 }}
               />
             </div>
@@ -201,10 +199,10 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
             isClearable
             disabled={options.disabled}
             menuShouldPortal={true}
-            value={options.rule.nodeSize}
+            value={options.rule.size}
             onChange={(v) => {
               if (v === null) {
-                options.nodeSizeSetter(options.index, undefined);
+                options.sizeSetter(options.index, undefined);
                 return;
               }
 
@@ -212,7 +210,7 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
               if (!intValue) {
                 return;
               }
-              options.nodeSizeSetter(options.index, intValue);
+              options.sizeSetter(options.index, intValue);
             }}
             options={
               typeof nodeSize === 'number'
@@ -237,10 +235,10 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
                 disabled={options.disabled}
                 onChange={() => {
                   if (typeof lineWidth === 'number') {
-                    options.lineWidthSetter(options.index, undefined);
+                    options.widthSetter(options.index, undefined);
                     return;
                   }
-                  options.lineWidthSetter(options.index, LineWidthStates[0]?.value);
+                  options.widthSetter(options.index, DEFAULT_LINE_WIDTH);
                 }}
               />
             </div>
@@ -252,10 +250,10 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
             isClearable
             disabled={options.disabled}
             menuShouldPortal={true}
-            value={options.rule.lineWidth}
+            value={options.rule.width}
             onChange={(v) => {
               if (v === null) {
-                options.lineWidthSetter(options.index, undefined);
+                options.widthSetter(options.index, undefined);
                 return;
               }
 
@@ -263,7 +261,7 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
               if (!intValue) {
                 return;
               }
-              options.lineWidthSetter(options.index, intValue);
+              options.widthSetter(options.index, intValue);
             }}
             options={
               typeof lineWidth === 'number'
@@ -337,38 +335,6 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
       </InlineField>
       {iconName && (
         <>
-          <InlineField label="size">
-            <Select
-              disabled={options.disabled}
-              menuShouldPortal={true}
-              value={iconSize}
-              onChange={(v) => {
-                // clearable
-                if (v === null) {
-                  options.iconSizeSetter(options.index, v);
-                  return;
-                }
-                //
-                const intValue = typeof v.value === 'string' ? parseFloat(v.value) : v.value;
-                if (!intValue) {
-                  return;
-                }
-                options.iconSizeSetter(options.index, intValue);
-              }}
-              options={
-                typeof iconSize === 'number'
-                  ? IconSvgSizes.concat([
-                      {
-                        value: iconSize,
-                        label: iconSize.toString(),
-                      },
-                    ])
-                  : IconSvgSizes
-              }
-              allowCustomValue={true}
-              isClearable={true}
-            />
-          </InlineField>
           <InlineField shrink label="offset" className={styles.voffset}>
             <Input
               className={styles.offsetInput}
@@ -380,14 +346,14 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
               onChange={(e) => {
                 const { value } = e.currentTarget;
                 if (value === '') {
-                  options.iconVOffsetSetter(options.index, undefined);
+                  options.offsetSetter(options.index, undefined);
                   return;
                 }
                 const intValue = typeof value === 'string' ? parseFloat(value) : value;
                 if (Number.isNaN(intValue)) {
                   return;
                 }
-                options.iconVOffsetSetter(options.index, intValue);
+                options.offsetSetter(options.index, intValue);
               }}
             />
           </InlineField>

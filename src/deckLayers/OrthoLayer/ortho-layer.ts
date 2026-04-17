@@ -5,6 +5,11 @@ import { POINT_LAYER, forwardProps } from './sub-layer-map';
 import { createLayerPropsFromBinary } from './geojson-layer-props';
 import { colTypes } from 'mapLib/utils';
 import { createDonutChart, getDonutIconSrcSize, svgToDataURL } from './donutChart';
+import {
+  getResolvedIconSize,
+  getResolvedPointRadius,
+  getResolvedTextPixelOffset,
+} from '../nodeGeometry';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import { DataFilterExtension } from '@deck.gl/extensions';
 import { isVisible } from '../../utils/utils.layers';
@@ -125,7 +130,6 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
     const iconName = group?.iconName;
     const svgIcon = iconName && this.svgIcons[iconName];
     const iconSize = this.getIconSize(d);
-    const { width, height } = this.getIconDimensions(d, iconSize);
 
     if (arcs?.length) {
       const colorCounts = {};
@@ -146,15 +150,15 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
             userSvgUrl: svgIcon ? svgIcon.svgDataUrl : null, // embed user SVG
           })
         ),
-        width,
-        height,
+        width: getDonutIconSrcSize(iconSize),
+        height: getDonutIconSrcSize(iconSize),
       };
       return icon;
     } else if (svgIcon) {
       return {
         url: svgIcon.svgDataUrl,
-        width,
-        height,
+        width: svgIcon.width,
+        height: svgIcon.height,
         id: iconName,
       };
     }
@@ -169,62 +173,24 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
   }
   getIconPixelOffset(d, z) {
     const { group, arcs } = d.properties?.style || {};
-    const iconVOffset = group?.iconVOffset;
+    const offset = group?.offset;
     if (arcs?.length) {
       return [0, 0];
     }
 
-    const iconSize = this.getIconSize(d);
-    const { height } = this.getIconDimensions(d, iconSize);
-    const renderedIconHeight = iconSize * Math.pow(2, z);
-    const scaledOffset = (iconVOffset ?? -5) * (renderedIconHeight / height);
+    const scaledOffset = (offset ?? 0) * Math.pow(2, z);
 
     return [0, scaledOffset];
   }
   getIconSize(d) {
-    const selId = this.getSelectedNode?.id;
-    const { style, locName } = d.properties || {};
-    const isHead = selId === locName;
-    const group = style?.group;
-    const size = group?.iconSize ?? style?.size;
-    return isHead ? size * 1.3 : size;
+    return getResolvedIconSize(d, this.getSelectedNode?.id);
   }
   getPointRadius(d) {
-    const { style, locName } = d.properties;
-    const selId = this.getSelectedNode?.id;
-    const { size, group } = style || { size: 0 };
-    const diam = group?.nodeSize ?? size;
-    const isHead = selId === locName;
-    const multiPly = isHead ? 1.3 : 1;
-    return (diam / 2) * multiPly;
-  }
-
-  getIconDimensions(d, iconSize = this.getIconSize(d)) {
-    const { style } = d.properties || {};
-    const { group, arcs } = style || {};
-
-    if (arcs?.length) {
-      const packedSize = getDonutIconSrcSize(iconSize);
-      return { width: packedSize, height: packedSize };
-    }
-
-    const iconName = group?.iconName;
-    const svgIcon = iconName && this.svgIcons[iconName];
-    if (svgIcon) {
-      return { width: svgIcon.width, height: svgIcon.height };
-    }
-
-    return { width: 1, height: 1 };
+    return getResolvedPointRadius(d, this.getSelectedNode?.id);
   }
 
   getTextPixelOffset(d, z) {
-    const iconSize = this.getIconSize(d);
-    const icon = this.getIconDimensions(d, iconSize);
-    const renderedIconHeight = iconSize * Math.pow(2, z);
-    const aspectRatio = icon?.width && icon?.height ? icon.height / icon.width : 1;
-    const gap = 2;
-
-    return [0, renderedIconHeight * aspectRatio * 0.5 + gap];
+    return getResolvedTextPixelOffset(d, this.getSelectedNode?.id, { gap: 2, scale: Math.pow(2, z) });
   }
 
   private renderPointLayers(): Layer[] | null {
@@ -322,7 +288,11 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
               id,
               visible,
               opacity,
-              updateTriggers: { ...forwardedProps.updateTriggers, getIcon: this.time, getSize: [this.getSelectedNode] },
+              updateTriggers: {
+                ...forwardedProps.updateTriggers,
+                getIcon: this.time,
+                getSize: [this.getSelectedNode],
+              },
               highlightedObjectIndex,
               getIcon: this.getSubLayerAccessor(this.getIcon),
               getPixelOffset: this.getSubLayerAccessor(this.getIconPixelOffset),

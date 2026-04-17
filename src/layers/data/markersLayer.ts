@@ -343,11 +343,10 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                   (rule) =>
                     !rule.isEph &&
                     (rule.color !== undefined ||
-                      rule.lineWidth !== undefined ||
-                      rule.nodeSize !== undefined ||
+                      rule.width !== undefined ||
+                      rule.size !== undefined ||
                       rule.iconName !== undefined ||
-                      rule.iconSize !== undefined ||
-                      rule.iconVOffset !== undefined)
+                      rule.offset !== undefined)
                 ) ??
                 matchedRules.find((rule) => !rule.isEph) ??
                 matchedRules[0];
@@ -397,16 +396,13 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                 stValues.text = dims.text.get(i);
               }
 
-              if (group.nodeSize !== undefined) {
-                stValues.size = group.nodeSize;
+              if (group.size !== undefined) {
+                stValues.size = group.size;
               }
 
               if (panel.isLogic && style.arcDims) {
                 const arcs = style.arcDims.map((arc) => arc.color?.get(i));
                 stValues.arcs = arcs;
-                if (arcs.length && group.iconSize !== undefined && group.iconSize > 0) {
-                  stValues.size = group.iconSize;
-                }
               }
             }
 
@@ -428,8 +424,8 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                 edgeStValues.size = edgeDims.size.get(i);
               }
 
-              if (group.lineWidth !== undefined) {
-                edgeStValues.size = group.lineWidth;
+              if (group.width !== undefined) {
+                edgeStValues.size = group.width;
               }
               if (edgeDims?.text) {
                 edgeStValues.text = edgeDims.text.get(i);

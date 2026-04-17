@@ -3,6 +3,11 @@ import { GeoJsonLayer } from '@deck.gl/layers';
 import { CollisionFilterExtension, DataFilterExtension } from '@deck.gl/extensions';
 
 import { createDonutChart, getDonutIconSrcSize, svgToDataURL } from '../OrthoLayer/donutChart';
+import {
+  getResolvedIconSize,
+  getResolvedPointRadius,
+  getResolvedTextPixelOffset,
+} from '../nodeGeometry';
 import { colTypes } from 'mapLib/utils';
 
 const NodesGeojsonLayer = (props) => {
@@ -20,14 +25,36 @@ const NodesGeojsonLayer = (props) => {
     visible,
   } = props;
 
-  const Circle = isVisible(getVisLayers, { index: null, name: colTypes.Circle, group: colTypes.Circle });
-  const SVG = isVisible(getVisLayers, { index: null, name: colTypes.SVG, group: colTypes.SVG });
-  const Labels = isVisible(getVisLayers, { index: null, name: colTypes.Label, group: colTypes.Label });
+  const Circle = isVisible(getVisLayers, {
+    index: null,
+    name: colTypes.Circle,
+    group: colTypes.Circle,
+  });
+  const SVG = isVisible(getVisLayers, {
+    index: null,
+    name: colTypes.SVG,
+    group: colTypes.SVG,
+  });
+  const Labels = isVisible(getVisLayers, {
+    index: null,
+    name: colTypes.Label,
+    group: colTypes.Label,
+  });
 
   const units = options.common?.isMeters ? 'meters' : 'pixels';
 
   const categories = getVisLayers.getCategories();
   const categorySize = 1;
+
+  const isMeterSizing = units === 'meters';
+
+  const getNodeTextPixelOffset = (d) => {
+    if (isMeterSizing && !isLogic) {
+      return [0, 0];
+    }
+
+    return getResolvedTextPixelOffset(d, getSelectedNode?.id, { gap: 0 });
+  };
 
   return new GeoJsonLayer({
     id: biCol.graph.id + '-view',
@@ -40,33 +67,16 @@ const NodesGeojsonLayer = (props) => {
     // },
     pointType: isLogic ? 'circle+text' : 'circle+icon+text',
     getText: (d: any) => d.properties?.style?.text,
-    getTextAlignmentBaseline: 'center',
-    getTextPixelOffset: (d) => {
-      if (isLogic) {
-        const selId = getSelectedNode?.id;
-        const isHead = selId === d.properties.locName;
-        const size = d.properties.style?.size;
-        const diam = isHead ? size * 1.3 : size;
-        return [0, (diam / 2) * 1.4];
-      }
-      let offsetX = 0;
-      let offsetY = 15;
-      // if (d.properties?.style?.textConfig) {
-      //     ({offsetX, offsetY} = d.properties?.style?.textConfig)
-      // }
-      return [offsetX, offsetY];
-    },
+    getTextAlignmentBaseline: isLogic ? 'center' : 'top',
+    getTextAnchor: isLogic ? 'middle' : 'middle',
+    getTextPixelOffset: getNodeTextPixelOffset,
     getTextSize: (d) => {
       const size = d.properties.style?.textConfig?.fontSize;
       return size ?? 12;
     },
     stroked: false,
     getPointRadius: (d) => {
-      const selId = getSelectedNode?.id;
-      const isHead = selId === d.properties.locName;
-      const { style } = d.properties;
-      const diam = style.size;
-      return isHead ? (diam / 2) * 1.3 : diam / 2;
+      return getResolvedPointRadius(d, getSelectedNode?.id);
     },
     getIcon: (d) => {
       const { group, arcs } = d.properties.style || {};
@@ -80,11 +90,8 @@ const NodesGeojsonLayer = (props) => {
             count: 1 / arcs.length,
           };
         });
-        const selId = getSelectedNode?.id;
-        const isHead = selId === d.properties.locName;
-        const size = d.properties.style?.size;
-        const diam = isHead ? size * 1.3 : size;
-        const packedIconSize = getDonutIconSrcSize(diam);
+        const iconSize = getResolvedIconSize(d, getSelectedNode?.id);
+        const packedIconSize = getDonutIconSrcSize(iconSize);
         const icon = {
           url: svgToDataURL(
             createDonutChart({
@@ -92,7 +99,7 @@ const NodesGeojsonLayer = (props) => {
               stripeCounts: undefined,
               allTotal: arcs.length,
               bkColor: undefined,
-              radius: diam / 2,
+              radius: iconSize / 2,
               isDark: theme.isDark,
               userSvgUrl: svgIcon ? svgIcon.svgDataUrl : null, // embed user SVG
             })
@@ -102,11 +109,11 @@ const NodesGeojsonLayer = (props) => {
         };
         return icon;
       } else if (svgIcon) {
-        const { svgDataUrl, width, height } = svgIcon;
+        const { svgDataUrl } = svgIcon;
         return {
           url: svgDataUrl,
-          width, //128
-          height, //128
+          width: svgIcon.width,
+          height: svgIcon.height,
           id: iconName,
         };
       }
@@ -122,20 +129,11 @@ const NodesGeojsonLayer = (props) => {
     iconSizeScale: 1,
     getIconPixelOffset: (d) => {
       const { style } = d.properties || {};
-      const iconVOffset = style?.group.iconVOffset;
-      return [0, iconVOffset ?? -5];
+      const offset = style?.group.offset;
+      return [0, offset ?? 0];
     },
     getIconSize: (d) => {
-      const selId = getSelectedNode?.id;
-      const { style, locName } = d.properties || {};
-      const isHead = selId === locName;
-      if (isLogic) {
-        const size = style?.size;
-        const diam = isHead ? size * 1.3 : size;
-        return diam;
-      }
-      const iconSize = style?.group.iconSize;
-      return iconSize ? (isHead ? iconSize * 1.5 : iconSize) : 30;
+      return getResolvedIconSize(d, getSelectedNode?.id);
     },
     parameters: {
       depthTest: false,
@@ -150,12 +148,11 @@ const NodesGeojsonLayer = (props) => {
       'points-text': {
         visible: Labels,
         //filterCategories: categories,
-        extensions: [new DataFilterExtension({ categorySize }), new CollisionFilterExtension()],
-        //collisionGroup: 'text',
-        sizeUnits: 'pixels',
-        collisionTestProps: {
-          sizeScale: 3,
-        },
+        extensions:
+          units === 'meters'
+            ? [new CollisionFilterExtension(), new DataFilterExtension({ categorySize })]
+            : [new DataFilterExtension({ categorySize })],
+        sizeUnits: units,
         // unexpected effect with this on - some text invisible
         // fontSettings: {sdf: true},
       },
@@ -170,8 +167,8 @@ const NodesGeojsonLayer = (props) => {
         // updateTriggers: {
         //   getIcon: [svgIcons, updHost]},
         extensions: [new CollisionFilterExtension(), new DataFilterExtension({ categorySize })],
-        collisionGroup: 'icons',
-        sizeUnits: 'pixels',
+        collisionGroup: 'nodes-icon',
+        sizeUnits: units,
         // looks like props are shared across the group
         collisionTestProps: {
           sizeScale: 1,
@@ -185,7 +182,7 @@ const NodesGeojsonLayer = (props) => {
         visible: Circle,
         opacity: biCol.opacity,
         extensions: [new CollisionFilterExtension(), new DataFilterExtension({ categorySize })],
-        collisionGroup: 'circle',
+        collisionGroup: 'nodes-circle',
         collisionTestProps: {
           sizeScale: 1,
         },

@@ -179,8 +179,7 @@
                   "collapse": false,
                   "color": "#3275d9b8",
                   "iconName": "databases/knexjs",
-                  "iconSize": 20,
-                  "iconVOffset": -5,
+                  "offset": -5,
                   "label": "unode",
                   "overrides": [
                     {
@@ -201,8 +200,7 @@
                   "collapse": false,
                   "color": "#A352CC",
                   "iconName": "databases/memsql",
-                  "iconSize": 20,
-                  "iconVOffset": -5,
+                  "offset": -5,
                   "label": "conn",
                   "overrides": [
                     {
@@ -222,8 +220,8 @@
                 {
                   "collapse": false,
                   "iconName": "networking/camera",
-                  "iconSize": 85,
-                  "iconVOffset": -5,
+                  "size": 85,
+                  "offset": -5,
                   "label": "U5",
                   "overrides": [
                     {
@@ -244,8 +242,7 @@
                   "collapse": true,
                   "color": "#C4162A",
                   "iconName": "",
-                  "iconSize": 20,
-                  "iconVOffset": -5,
+                  "offset": -5,
                   "label": "node-down",
                   "overrides": [
                     {
@@ -360,8 +357,7 @@
                   "collapse": false,
                   "color": "#C4162A",
                   "iconName": "networking/bridge",
-                  "iconSize": 20,
-                  "iconVOffset": -5,
+                  "offset": -5,
                   "label": "down",
                   "overrides": [
                     {
@@ -377,8 +373,8 @@
                   "collapse": false,
                   "color": "#73BF69",
                   "iconName": "networking/atm-switch",
-                  "iconSize": 20,
-                  "iconVOffset": -5,
+                  "size": 20,
+                  "offset": -5,
                   "label": "up",
                   "overrides": [
                     {
@@ -394,8 +390,7 @@
                   "collapse": false,
                   "color": "#8AB8FF",
                   "iconName": "networking/cloud",
-                  "iconSize": 20,
-                  "iconVOffset": -5,
+                  "offset": -5,
                   "label": "info",
                   "overrides": [
                     {
@@ -411,8 +406,7 @@
                   "collapse": false,
                   "color": "#FF780A",
                   "iconName": "",
-                  "iconSize": 20,
-                  "iconVOffset": -5,
+                  "offset": -5,
                   "label": "danger",
                   "overrides": [
                     {
@@ -687,8 +681,7 @@
                   "collapse": false,
                   "color": "#3275d9b8",
                   "iconName": "databases/knexjs",
-                  "iconSize": 20,
-                  "iconVOffset": -5,
+                  "offset": -5,
                   "label": "unode",
                   "overrides": [
                     {
@@ -709,8 +702,7 @@
                   "collapse": false,
                   "color": "#A352CC",
                   "iconName": "databases/memsql",
-                  "iconSize": 20,
-                  "iconVOffset": -5,
+                  "offset": -5,
                   "label": "conn",
                   "overrides": [
                     {
@@ -730,8 +722,8 @@
                 {
                   "collapse": false,
                   "iconName": "networking/camera",
-                  "iconSize": 85,
-                  "iconVOffset": -5,
+                  "size": 85,
+                  "offset": -5,
                   "label": "U5",
                   "overrides": [
                     {
@@ -752,8 +744,7 @@
                   "collapse": true,
                   "color": "#C4162A",
                   "iconName": "",
-                  "iconSize": 20,
-                  "iconVOffset": -5,
+                  "offset": -5,
                   "label": "node-down",
                   "overrides": [
                     {
@@ -866,8 +857,7 @@
                   "collapse": false,
                   "color": "#C4162A",
                   "iconName": "networking/bridge",
-                  "iconSize": 20,
-                  "iconVOffset": -5,
+                  "offset": -5,
                   "label": "down",
                   "overrides": [
                     {
@@ -883,8 +873,8 @@
                   "collapse": false,
                   "color": "#73BF69",
                   "iconName": "networking/atm-switch",
-                  "iconSize": 20,
-                  "iconVOffset": -5,
+                  "size": 20,
+                  "offset": -5,
                   "label": "up",
                   "overrides": [
                     {
@@ -900,8 +890,7 @@
                   "collapse": false,
                   "color": "#8AB8FF",
                   "iconName": "networking/cloud",
-                  "iconSize": 20,
-                  "iconVOffset": -5,
+                  "offset": -5,
                   "label": "info",
                   "overrides": [
                     {
@@ -916,9 +905,7 @@
                 {
                   "collapse": false,
                   "color": "#FF780A",
-                  "iconName": "",
-                  "iconSize": 20,
-                  "iconVOffset": -5,
+                  "offset": -5,
                   "label": "danger",
                   "overrides": [
                     {

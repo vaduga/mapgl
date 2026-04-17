@@ -301,8 +301,7 @@
                   "color": "#1F60C4",
                   "groupIdx": 0,
                   "iconName": "databases/knexjs",
-                  "iconSize": 20,
-                  "iconVOffset": -5,
+                  "offset": -5,
                   "label": "unode",
                   "overrides": [
                     {
@@ -322,8 +321,7 @@
                   "color": "#A352CC",
                   "groupIdx": 1,
                   "iconName": "databases/memsql",
-                  "iconSize": 20,
-                  "iconVOffset": -5,
+                  "offset": -5,
                   "label": "conn",
                   "lineWidth": 10,
                   "nodeSize": 20.1,
@@ -344,8 +342,7 @@
                   "collapse": true,
                   "color": "#C4162A",
                   "iconName": "databases/couchbase",
-                  "iconSize": 20,
-                  "iconVOffset": -5,
+                  "offset": -5,
                   "label": "d2",
                   "overrides": [
                     {
@@ -460,8 +457,7 @@
                   "color": "#E02F44",
                   "groupIdx": 2,
                   "iconName": "networking/bridge",
-                  "iconSize": 20,
-                  "iconVOffset": -5,
+                  "offset": -5,
                   "label": "new rule 1",
                   "overrides": [
                     {
@@ -476,8 +472,7 @@
                   "color": "#9acd32",
                   "groupIdx": 3,
                   "iconName": "networking/atm-switch",
-                  "iconSize": 20,
-                  "iconVOffset": -5,
+                  "offset": -5,
                   "label": "up",
                   "overrides": [
                     {
@@ -492,8 +487,7 @@
                   "color": "#8AB8FF",
                   "groupIdx": 4,
                   "iconName": "networking/cloud",
-                  "iconSize": 20,
-                  "iconVOffset": -5,
+                  "offset": -5,
                   "label": "new rule 3",
                   "overrides": [
                     {

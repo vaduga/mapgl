@@ -118,14 +118,6 @@ export type ParentInfo = {
   rPath: CoordRef[];
 };
 
-export type Sources = { [key: ParName]: ParentInfo };
-
-export type Threshold = {
-  color: string;
-  lineWidth?: number;
-  label: string;
-};
-
 export type PointFeatureProperties = GeoJsonProperties & {
   frameName: string;
   rowIndex: number;

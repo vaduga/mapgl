@@ -216,11 +216,10 @@ function getGroupRules(
       groupIdx: number;
       color?: string;
       label?: string;
-      nodeSize?: number;
-      lineWidth?: number;
+      size?: number;
+      width?: number;
       iconName?: string;
-      iconSize?: number;
-      iconVOffset?: number;
+      offset?: number;
     }>
   | [] {
   if (!groups.length) {
@@ -237,11 +236,10 @@ function getGroupRules(
     isEph: t.isEph,
     color: t.color,
     label: t.label,
-    ...(t.lineWidth && { lineWidth: t.lineWidth }),
-    ...(t.nodeSize && { nodeSize: t.nodeSize }),
+    ...(t.width && { width: t.width }),
+    ...(t.size && { size: t.size }),
     iconName: t.iconName,
-    iconSize: t.iconSize,
-    iconVOffset: t.iconVOffset,
+    offset: t.offset,
     groupIdx: t.groupIdx,
   }));
 }

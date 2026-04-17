@@ -185,8 +185,7 @@
                   "collapse": true,
                   "color": "#C4162A",
                   "iconName": "databases/couchbase",
-                  "iconSize": 20,
-                  "iconVOffset": -5,
+                  "offset": -5,
                   "label": "down",
                   "overrides": [
                     {
@@ -202,8 +201,7 @@
                   "collapse": true,
                   "color": "#1F60C4",
                   "iconName": "databases/aws-rds-relational-database-service",
-                  "iconSize": 10,
-                  "iconVOffset": -1,
+                  "offset": -1,
                   "label": "node",
                   "overrides": [
                     {
@@ -224,8 +222,7 @@
                   "collapse": true,
                   "color": "#8F3BB8",
                   "iconName": "databases/memsql",
-                  "iconSize": 20,
-                  "iconVOffset": -5,
+                  "offset": -5,
                   "label": "upstream",
                   "overrides": [
                     {
@@ -238,9 +235,7 @@
                 {
                   "collapse": true,
                   "color": "#443079",
-                  "iconName": "",
-                  "iconSize": 20,
-                  "iconVOffset": -5,
+                  "offset": -5,
                   "label": "connector",
                   "overrides": [
                     {
@@ -261,8 +256,7 @@
                   "collapse": true,
                   "color": "#56A64B",
                   "iconName": "networking/atm-switch",
-                  "iconSize": 15,
-                  "iconVOffset": -5,
+                  "offset": -5,
                   "label": "up",
                   "overrides": [
                     {
@@ -278,9 +272,8 @@
                 {
                   "collapse": true,
                   "color": "#E0B400",
-                  "iconName": "",
                   "iconSize": 20,
-                  "iconVOffset": -5,
+                  "offset": -5,
                   "label": "danger",
                   "overrides": [
                     {
@@ -295,9 +288,8 @@
                 {
                   "collapse": true,
                   "color": "#2ec6cedb",
-                  "iconName": "",
                   "iconSize": 20,
-                  "iconVOffset": -5,
+                  "offset": -5,
                   "label": "info",
                   "overrides": [
                     {

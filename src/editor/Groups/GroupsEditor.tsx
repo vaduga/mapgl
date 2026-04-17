@@ -94,16 +94,12 @@ export const GroupsEditor = ({ onChange, item, ...props }: Props) => {
     );
   };
 
-  const updateLineWidth = (index: number, width: number) => {
-    updateTrackerRule(index, (rule) => ({ ...rule, lineWidth: width }));
+  const updateWidth = (index: number, width: number) => {
+    updateTrackerRule(index, (rule) => ({ ...rule, width }));
   };
 
-  const updateNodeSize = (index: number, size: number) => {
-    updateTrackerRule(index, (rule) => ({ ...rule, nodeSize: size }));
-  };
-
-  const updateIconSize = (index: number, size: number) => {
-    updateTrackerRule(index, (rule) => ({ ...rule, iconSize: size }));
+  const updateSize = (index: number, size: number) => {
+    updateTrackerRule(index, (rule) => ({ ...rule, size }));
   };
 
   const onDragEnd = (result: DropResult) => {
@@ -123,8 +119,8 @@ export const GroupsEditor = ({ onChange, item, ...props }: Props) => {
     );
   };
 
-  const updateIconVOffset = (index: number, size: number) => {
-    updateTrackerRule(index, (rule) => ({ ...rule, iconVOffset: size }));
+  const updateOffset = (index: number, offset: number) => {
+    updateTrackerRule(index, (rule) => ({ ...rule, offset }));
   };
 
   const updateIconName = (index: number, name: string) => {
@@ -259,10 +255,9 @@ export const GroupsEditor = ({ onChange, item, ...props }: Props) => {
                               ID={entry.ID}
                               rule={entry.rule}
                               colorSetter={updateRuleColor}
-                              lineWidthSetter={updateLineWidth}
-                              nodeSizeSetter={updateNodeSize}
-                              iconSizeSetter={updateIconSize}
-                              iconVOffsetSetter={updateIconVOffset}
+                              widthSetter={updateWidth}
+                              sizeSetter={updateSize}
+                              offsetSetter={updateOffset}
                               iconNameSetter={updateIconName}
                               overrideSetter={updateRuleOverrides}
                               remover={removeRule}
@@ -287,8 +282,14 @@ export const GroupsEditor = ({ onChange, item, ...props }: Props) => {
 };
 
 const sanitizeRule = (rule: Rule): Rule => {
-  const { collapse, ...nextRule } = rule;
-  return nextRule;
+  const { collapse, width, size, offset, ...rest } = rule
+
+  return {
+    ...rest,
+    ...(width !== undefined ? { width } : {}),
+    ...(size !== undefined ? { size } : {}),
+    ...(offset !== undefined ? { offset } : {}),
+  };
 };
 
 const sanitizeRules = (rules: Rule[]): Rule[] => rules.map((rule) => sanitizeRule(rule));
