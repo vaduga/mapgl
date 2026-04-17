@@ -18,6 +18,26 @@ export const getResolvedIconSize = (feature: any, selectedNodeId?: string) => {
   return getResolvedCircleDiameter(feature, selectedNodeId) * sizeMultiplier;
 };
 
+export const getFittedIconSize = (targetBoxSize: number, width?: number, height?: number) => {
+  if (!width || !height || width <= 0 || height <= 0) {
+    return targetBoxSize;
+  }
+
+  const aspectRatio = width / height;
+  return aspectRatio > 1 ? targetBoxSize / aspectRatio : targetBoxSize;
+};
+
+export const getFittedDimensions = (targetBoxSize: number, width?: number, height?: number) => {
+  if (!width || !height || width <= 0 || height <= 0) {
+    return { width: targetBoxSize, height: targetBoxSize };
+  }
+
+  const aspectRatio = width / height;
+  return aspectRatio > 1
+    ? { width: targetBoxSize, height: targetBoxSize / aspectRatio }
+    : { width: targetBoxSize * aspectRatio, height: targetBoxSize };
+};
+
 export const getResolvedTextPixelOffset = (
   feature: any,
   selectedNodeId?: string,

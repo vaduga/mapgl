@@ -1,4 +1,5 @@
 import { ALERTING_STATES } from 'mapLib/utils';
+import { getFittedDimensions } from '../nodeGeometry';
 
 const MAX_ICON_SOURCE_SIZE = 1020;
 const DONUT_SOURCE_SCALE = 4;
@@ -16,6 +17,28 @@ function svgToDataURL(svg) {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
+function getPackedSvgIcon(svgIcon, sourceBoxSize: number) {
+  if (!svgIcon?.svgDataUrl) {
+    return null;
+  }
+
+  const packedSize = getFittedDimensions(sourceBoxSize, svgIcon.width, svgIcon.height);
+  const packedSvg = `
+  <svg width="${packedSize.width}" height="${packedSize.height}"
+    viewBox="0 0 ${packedSize.width} ${packedSize.height}"
+    xmlns="http://www.w3.org/2000/svg">
+    <image href="${svgIcon.svgDataUrl}" x="0" y="0"
+      width="${packedSize.width}" height="${packedSize.height}"
+      preserveAspectRatio="xMidYMid meet" />
+  </svg>`;
+
+  return {
+    svgDataUrl: svgToDataURL(packedSvg),
+    width: packedSize.width,
+    height: packedSize.height,
+  };
+}
+
 // SVG donut chart for nodeGraph icons and clusters
 
 function createDonutChart({
@@ -25,9 +48,12 @@ function createDonutChart({
   radius = 45,
   bkColor,
   isDark = false,
-  userSvgUrl,
+  svgIcon,
 }) {
   void isDark;
+  const userSvgUrl = svgIcon?.svgDataUrl;
+  const userSvgWidth = svgIcon?.width;
+  const userSvgHeight = svgIcon?.height;
 
   const counts: CountEntry[] = Object.values(colorCounts);
   const colors: string[] = Object.keys(colorCounts);
@@ -88,13 +114,14 @@ function createDonutChart({
 
   // Overlay the user SVG icon (centered)
   if (userSvgUrl) {
-    const imageSize = r0 * 1.7; // Slightly smaller than the inner radius to fit well
-    const imageX = r - imageSize / 2; // Centered X
-    const imageY = r - imageSize / 2; // Centered Y
+    const innerCircleBoxSize = ((r0 * 2) / Math.SQRT2) * 1.1;
+    const imageSize = getFittedDimensions(innerCircleBoxSize, userSvgWidth, userSvgHeight);
+    const imageX = r - imageSize.width / 2;
+    const imageY = r - imageSize.height / 2;
 
     svg += `
     <image href="${userSvgUrl}" x="${imageX}" y="${imageY}" 
-      width="${imageSize}" height="${imageSize}" 
+      width="${imageSize.width}" height="${imageSize.height}" 
       preserveAspectRatio="xMidYMid meet" />
   `;
   }
@@ -216,4 +243,4 @@ function getDonutIconSrcSize(size: number) {
   return Math.min(Math.max(size, size * DONUT_SOURCE_SCALE), MAX_ICON_SOURCE_SIZE);
 }
 
-export { svgToDataURL, createDonutChart, getDonutIconSrcSize };
+export { svgToDataURL, createDonutChart, getDonutIconSrcSize, getPackedSvgIcon };

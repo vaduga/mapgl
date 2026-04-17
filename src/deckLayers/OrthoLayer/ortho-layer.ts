@@ -4,8 +4,9 @@ import { POINT_LAYER, forwardProps } from './sub-layer-map';
 
 import { createLayerPropsFromBinary } from './geojson-layer-props';
 import { colTypes } from 'mapLib/utils';
-import { createDonutChart, getDonutIconSrcSize, svgToDataURL } from './donutChart';
+import { createDonutChart, getDonutIconSrcSize, getPackedSvgIcon, svgToDataURL } from './donutChart';
 import {
+  getFittedIconSize,
   getResolvedIconSize,
   getResolvedPointRadius,
   getResolvedTextPixelOffset,
@@ -23,7 +24,6 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
   };
   time;
   id;
-  hoverCluster;
   visible;
   graph;
   theme;
@@ -146,7 +146,7 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
             bkColor: undefined,
             radius: iconSize / 2,
             isDark: this.theme.isDark,
-            userSvgUrl: svgIcon ? svgIcon.svgDataUrl : null, // embed user SVG
+            svgIcon,
           })
         ),
         width: getDonutIconSrcSize(iconSize),
@@ -154,11 +154,11 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
       };
       return icon;
     } else if (svgIcon) {
-      const iconBoxSize = Math.max(svgIcon.width ?? 1, svgIcon.height ?? 1);
+      const packedSvgIcon = getPackedSvgIcon(svgIcon, getDonutIconSrcSize(getResolvedIconSize(d, this.getSelectedNode?.id)));
       return {
-        url: svgIcon.svgDataUrl,
-        width: iconBoxSize,
-        height: iconBoxSize,
+        url: packedSvgIcon?.svgDataUrl ?? svgIcon.svgDataUrl,
+        width: packedSvgIcon?.width ?? svgIcon.width,
+        height: packedSvgIcon?.height ?? svgIcon.height,
         id: iconName,
       };
     }
@@ -183,7 +183,16 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
     return [0, scaledOffset];
   }
   getIconSize(d) {
-    return getResolvedIconSize(d, this.getSelectedNode?.id);
+    const targetBoxSize = getResolvedIconSize(d, this.getSelectedNode?.id);
+    const { group, arcs } = d.properties?.style || {};
+
+    if (arcs?.length) {
+      return targetBoxSize;
+    }
+
+    const iconName = group?.iconName;
+    const svgIcon = iconName && this.svgIcons[iconName];
+    return getFittedIconSize(targetBoxSize, svgIcon?.width, svgIcon?.height);
   }
   getPointRadius(d) {
     return getResolvedPointRadius(d, this.getSelectedNode?.id);

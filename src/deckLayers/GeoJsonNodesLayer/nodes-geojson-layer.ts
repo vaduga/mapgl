@@ -2,8 +2,9 @@ import { isVisible } from '../../utils';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import { CollisionFilterExtension, DataFilterExtension } from '@deck.gl/extensions';
 
-import { createDonutChart, getDonutIconSrcSize, svgToDataURL } from '../OrthoLayer/donutChart';
+import { createDonutChart, getDonutIconSrcSize, getPackedSvgIcon, svgToDataURL } from '../OrthoLayer/donutChart';
 import {
+  getFittedIconSize,
   getResolvedIconSize,
   getResolvedPointRadius,
   getResolvedTextPixelOffset,
@@ -48,6 +49,19 @@ const NodesGeojsonLayer = (props) => {
 
   const isMeterSizing = units === 'meters';
 
+  const getNodeIconSize = (d) => {
+    const targetBoxSize = getResolvedIconSize(d, getSelectedNode?.id);
+    const { group, arcs } = d.properties?.style || {};
+
+    if (isLogic && arcs?.length) {
+      return targetBoxSize;
+    }
+
+    const iconName = group?.iconName;
+    const svgIcon = iconName && svgIcons[iconName];
+    return getFittedIconSize(targetBoxSize, svgIcon?.width, svgIcon?.height);
+  };
+
   const getNodeTextPixelOffset = (d) => {
     if (isMeterSizing && !isLogic) {
       return [0, 0];
@@ -90,7 +104,7 @@ const NodesGeojsonLayer = (props) => {
             count: 1 / arcs.length,
           };
         });
-        const iconSize = getResolvedIconSize(d, getSelectedNode?.id);
+        const iconSize = getNodeIconSize(d);
         const packedIconSize = getDonutIconSrcSize(iconSize);
         const icon = {
           url: svgToDataURL(
@@ -101,7 +115,7 @@ const NodesGeojsonLayer = (props) => {
               bkColor: undefined,
               radius: iconSize / 2,
               isDark: theme.isDark,
-              userSvgUrl: svgIcon ? svgIcon.svgDataUrl : null, // embed user SVG
+              svgIcon,
             })
           ),
           width: packedIconSize,
@@ -109,12 +123,11 @@ const NodesGeojsonLayer = (props) => {
         };
         return icon;
       } else if (svgIcon) {
-        const { svgDataUrl } = svgIcon;
-        const iconBoxSize = Math.max(svgIcon.width ?? 1, svgIcon.height ?? 1);
+        const packedSvgIcon = getPackedSvgIcon(svgIcon, getDonutIconSrcSize(getResolvedIconSize(d, getSelectedNode?.id)));
         return {
-          url: svgDataUrl,
-          width: iconBoxSize,
-          height: iconBoxSize,
+          url: packedSvgIcon?.svgDataUrl ?? svgIcon.svgDataUrl,
+          width: packedSvgIcon?.width ?? svgIcon.width,
+          height: packedSvgIcon?.height ?? svgIcon.height,
           id: iconName,
         };
       }
@@ -134,7 +147,7 @@ const NodesGeojsonLayer = (props) => {
       return [0, offset ?? 0];
     },
     getIconSize: (d) => {
-      return getResolvedIconSize(d, getSelectedNode?.id);
+      return getNodeIconSize(d);
     },
     parameters: {
       depthTest: false,
