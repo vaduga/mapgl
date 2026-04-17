@@ -1,4 +1,4 @@
-import { isVisible } from '../../utils';
+import { getTintedSvgIcon, isVisible, resolveSvgTintMode, toRgbaString } from '../../utils';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import { CollisionFilterExtension, DataFilterExtension } from '@deck.gl/extensions';
 
@@ -22,8 +22,10 @@ const NodesGeojsonLayer = (props) => {
     svgIcons,
     theme,
     isLogic,
+    isHyper,
     getVisLayers,
-    visible,
+    panel,
+    visible
   } = props;
 
   const Circle = isVisible(getVisLayers, {
@@ -43,7 +45,6 @@ const NodesGeojsonLayer = (props) => {
   });
 
   const units = options.common?.isMeters ? 'meters' : 'pixels';
-
   const categories = getVisLayers.getCategories();
   const categorySize = 2;
 
@@ -96,6 +97,16 @@ const NodesGeojsonLayer = (props) => {
       const { group, arcs } = d.properties.style || {};
       const iconName = group?.iconName;
       const svgIcon = iconName && svgIcons[iconName];
+      const tintColor = group?.color ? toRgbaString(group.color) : d.properties?.thrColor;
+      const requestedTintMode = group?.svgTintMode ?? 'none';
+      const resolvedTintMode = resolveSvgTintMode(svgIcon, requestedTintMode);
+      const tintedSvgIcon = getTintedSvgIcon(
+        svgIcon,
+        tintColor,
+        {
+          mode: resolvedTintMode,
+        }
+      );
 
       if (isLogic && arcs?.length) {
         const colorCounts = {};
@@ -115,20 +126,23 @@ const NodesGeojsonLayer = (props) => {
               bkColor: undefined,
               radius: iconSize / 2,
               isDark: theme.isDark,
-              svgIcon,
+              svgIcon: tintedSvgIcon,
             })
           ),
           width: packedIconSize,
           height: packedIconSize,
         };
         return icon;
-      } else if (svgIcon) {
-        const packedSvgIcon = getPackedSvgIcon(svgIcon, getDonutIconSrcSize(getResolvedIconSize(d, getSelectedNode?.id)));
+      } else if (tintedSvgIcon) {
+        const packedSvgIcon = getPackedSvgIcon(
+          tintedSvgIcon,
+          getDonutIconSrcSize(getResolvedIconSize(d, getSelectedNode?.id))
+        );
         return {
-          url: packedSvgIcon?.svgDataUrl ?? svgIcon.svgDataUrl,
-          width: packedSvgIcon?.width ?? svgIcon.width,
-          height: packedSvgIcon?.height ?? svgIcon.height,
-          id: iconName,
+          url: packedSvgIcon?.svgDataUrl ?? tintedSvgIcon.svgDataUrl,
+          width: packedSvgIcon?.width ?? tintedSvgIcon.width,
+          height: packedSvgIcon?.height ?? tintedSvgIcon.height,
+          id: `${iconName}:${resolvedTintMode}:${tintColor ?? 'base'}`,
         };
       }
       // no custom svg icon loaded

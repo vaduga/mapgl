@@ -5,7 +5,19 @@ import { FieldType, SelectableValue } from '@grafana/data';
 import { svgToDataURL } from '../deckLayers/OrthoLayer/donutChart';
 import { MarkersConfig } from '../layers/data/markersLayer';
 import { Rule } from '../editor/Groups/rule-types';
-import { MapLayerState, PLUGIN_ID } from '../types';
+import { MapLayerState, PLUGIN_ID, SvgTintMode } from '../types';
+
+type SvgIconVariant = {
+  svgDataUrl: string;
+  svgText?: string;
+  width?: number;
+  height?: number;
+};
+
+type SvgIconRecord = SvgIconVariant & {
+  colorVariants?: Record<string, SvgIconVariant>;
+  colorVariantPromises?: Record<string, Promise<SvgIconVariant | undefined>>;
+};
 
 function parseObjFromString(str) {
   // Regular expression to extract key-value pairs
@@ -106,6 +118,164 @@ function toRgbaString(arr) {
     throw new Error('Input must be an array of exactly 4 elements.');
   }
   return `rgba(${arr[0]}, ${arr[1]}, ${arr[2]}, ${arr[3] ?? 255})`;
+}
+
+function replaceSvgPaintDeclarations(cssText: string, color: string) {
+  return cssText.replace(/\b(fill|stroke)\s*:\s*(?!none\b)(?!url\()/gi, `$1:${color}`);
+}
+
+function replaceSvgPaintInStyleAttribute(styleValue: string, color: string) {
+  return styleValue.replace(/\b(fill|stroke)\s*:\s*(?!none\b)(?!url\()([^;]+)/gi, (_, prop) => `${prop}:${color}`);
+}
+
+function recolorSvgMarkup(svgText: string, color: string) {
+  const parser = new DOMParser();
+  const xmlDoc = parser.parseFromString(svgText, 'image/svg+xml');
+  const svgElement = xmlDoc.getElementsByTagName('svg')[0];
+
+  if (!svgElement) {
+    return svgText;
+  }
+
+  svgElement.setAttribute('color', color);
+
+  xmlDoc.querySelectorAll('style').forEach((styleNode) => {
+    if (styleNode.textContent) {
+      styleNode.textContent = replaceSvgPaintDeclarations(styleNode.textContent, color);
+    }
+  });
+
+  xmlDoc.querySelectorAll('*').forEach((element) => {
+    const fill = element.getAttribute('fill');
+    if (fill && fill !== 'none' && !fill.startsWith('url(')) {
+      element.setAttribute('fill', color);
+    }
+
+    const stroke = element.getAttribute('stroke');
+    if (stroke && stroke !== 'none' && !stroke.startsWith('url(')) {
+      element.setAttribute('stroke', color);
+    }
+
+    const styleValue = element.getAttribute('style');
+    if (styleValue) {
+      element.setAttribute('style', replaceSvgPaintInStyleAttribute(styleValue, color));
+    }
+  });
+
+  return new XMLSerializer().serializeToString(xmlDoc);
+}
+
+function resolveSvgTintMode(
+  svgIcon: SvgIconRecord | undefined,
+  requestedMode: SvgTintMode = 'none'
+): SvgTintMode {
+  void svgIcon;
+  if (requestedMode === 'none') {
+    return 'none';
+  }
+
+  return requestedMode;
+}
+
+function loadImageElement(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.crossOrigin = 'anonymous';
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = src;
+  });
+}
+
+async function renderCanvasTintedSvgIcon(svgIcon: SvgIconRecord, color: string): Promise<SvgIconVariant | undefined> {
+  if (!svgIcon.svgDataUrl) {
+    return undefined;
+  }
+
+  const image = await loadImageElement(svgIcon.svgDataUrl);
+  const width = svgIcon.width ?? image.naturalWidth ?? image.width;
+  const height = svgIcon.height ?? image.naturalHeight ?? image.height;
+
+  if (!width || !height) {
+    return undefined;
+  }
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+
+  const context = canvas.getContext('2d');
+  if (!context) {
+    return undefined;
+  }
+
+  context.clearRect(0, 0, width, height);
+  context.drawImage(image, 0, 0, width, height);
+  context.globalCompositeOperation = 'multiply';
+  context.fillStyle = color;
+  context.fillRect(0, 0, width, height);
+  context.globalCompositeOperation = 'destination-in';
+  context.drawImage(image, 0, 0, width, height);
+  context.globalCompositeOperation = 'source-over';
+
+  return {
+    svgDataUrl: canvas.toDataURL('image/png'),
+    width,
+    height,
+  };
+}
+
+function getTintedSvgIcon(
+  svgIcon: SvgIconRecord | undefined,
+  color?: string,
+  opts?: { mode?: SvgTintMode; onReady?: () => void }
+): SvgIconVariant | undefined {
+  if (!svgIcon || !color || color === FIXED_COLOR_LABEL) {
+    return svgIcon;
+  }
+
+  const mode = resolveSvgTintMode(svgIcon, opts?.mode ?? 'none');
+  if (mode === 'none') {
+    return svgIcon;
+  }
+  const cacheKey = `${mode}:${color}`;
+
+  svgIcon.colorVariants ??= {};
+  const cached = svgIcon.colorVariants[cacheKey];
+  if (cached) {
+    return cached;
+  }
+
+  if (mode === 'canvasTint') {
+    svgIcon.colorVariantPromises ??= {};
+    if (!svgIcon.colorVariantPromises[cacheKey]) {
+      svgIcon.colorVariantPromises[cacheKey] = renderCanvasTintedSvgIcon(svgIcon, color)
+        .then((variant) => {
+          if (variant) {
+            svgIcon.colorVariants![cacheKey] = variant;
+            opts?.onReady?.();
+          }
+          delete svgIcon.colorVariantPromises?.[cacheKey];
+          return variant;
+        })
+        .catch(() => {
+          delete svgIcon.colorVariantPromises?.[cacheKey];
+          return undefined;
+        });
+    }
+
+    return svgIcon;
+  }
+
+  if (!svgIcon.svgText) {
+    return svgIcon;
+  }
+
+  const recoloredSvgText = recolorSvgMarkup(svgIcon.svgText, color);
+  const { svgText, svgDataUrl, width, height } = addSVGattributes(recoloredSvgText);
+  const variant = { svgText, svgDataUrl, width: width ? parseInt(width) : undefined, height: height ? parseInt(height) : undefined };
+  svgIcon.colorVariants[cacheKey] = variant;
+  return variant;
 }
 
 function getFirstCoordinate(geojson) {
@@ -214,7 +384,7 @@ const genValuesWithIncrement = (
 async function parseSvgFileToString(
   svgIconName: string,
   uController: AbortController
-): Promise<[string, { svgDataUrl: string; width?: number; height?: number }] | null> {
+): Promise<[string, SvgIconRecord] | null> {
   const signal = uController.signal;
   if (!svgIconName) {return null;}
 
@@ -233,12 +403,13 @@ async function parseSvgFileToString(
     const svgString = await response.text();
     if (signal.aborted) {throw new DOMException('Aborted', 'AbortError');}
 
-    const { svgDataUrl, width, height } = addSVGattributes(svgString);
+    const { svgText, svgDataUrl, width, height } = addSVGattributes(svgString);
     if (signal.aborted) {throw new DOMException('Aborted', 'AbortError');}
 
     return [
       svgIconName,
       {
+        svgText,
         svgDataUrl,
         ...(width ? { width: parseInt(width) } : {}),
         ...(height ? { height: parseInt(height) } : {}),
@@ -258,13 +429,13 @@ async function loadSvgIcons(
   if (!names?.length) {return svgIcons;}
 
   try {
-    const promises: Array<Promise<[string, { svgDataUrl: string; width?: number; height?: number }] | null>> =
+    const promises: Array<Promise<[string, SvgIconRecord] | null>> =
       names.map((name) => parseSvgFileToString(name, loadController));
 
     const res = await Promise.all(promises);
 
     res
-      .filter((v): v is [string, { svgDataUrl: string; width?: number; height?: number }] => v !== null)
+      .filter((v): v is [string, SvgIconRecord] => v !== null)
       .forEach(([name, obj]) => {
         svgIcons[name] = obj;
       });
@@ -447,4 +618,6 @@ export {
   cutBinaryProps,
   getGraphLayers,
   getBounds,
+  getTintedSvgIcon,
+  resolveSvgTintMode,
 };

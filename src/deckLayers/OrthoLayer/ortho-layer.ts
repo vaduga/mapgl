@@ -5,6 +5,7 @@ import { POINT_LAYER, forwardProps } from './sub-layer-map';
 import { createLayerPropsFromBinary } from './geojson-layer-props';
 import { colTypes } from 'mapLib/utils';
 import { createDonutChart, getDonutIconSrcSize, getPackedSvgIcon, svgToDataURL } from './donutChart';
+import { getTintedSvgIcon, resolveSvgTintMode, toRgbaString } from '../../utils';
 import {
   getFittedIconSize,
   getResolvedIconSize,
@@ -35,6 +36,7 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
   Circle;
   SVG;
   Label;
+  setVisRefresh;
 
   constructor(props) {
     super(props);
@@ -45,6 +47,7 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
     this.time = props.time;
     this.theme = props.theme2;
     this.biCol = props.biCol;
+    this.setVisRefresh = props.setVisRefresh;
     this.Circle = isVisible(props.getVisLayers, {
       index: null,
       name: colTypes.Circle,
@@ -128,6 +131,12 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
     const { group, arcs } = style || {};
     const iconName = group?.iconName;
     const svgIcon = iconName && this.svgIcons[iconName];
+    const tintColor = group?.color ? toRgbaString(group.color) : d.properties?.thrColor;
+    const requestedTintMode = group?.svgTintMode ?? 'none';
+    const resolvedTintMode = resolveSvgTintMode(svgIcon, requestedTintMode);
+    const tintedSvgIcon = getTintedSvgIcon(svgIcon, tintColor, {
+      mode: resolvedTintMode,
+    });
     const iconSize = this.getIconSize(d);
 
     if (arcs?.length) {
@@ -146,20 +155,23 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
             bkColor: undefined,
             radius: iconSize / 2,
             isDark: this.theme.isDark,
-            svgIcon,
+            svgIcon: tintedSvgIcon,
           })
         ),
         width: getDonutIconSrcSize(iconSize),
         height: getDonutIconSrcSize(iconSize),
       };
       return icon;
-    } else if (svgIcon) {
-      const packedSvgIcon = getPackedSvgIcon(svgIcon, getDonutIconSrcSize(getResolvedIconSize(d, this.getSelectedNode?.id)));
+    } else if (tintedSvgIcon) {
+      const packedSvgIcon = getPackedSvgIcon(
+        tintedSvgIcon,
+        getDonutIconSrcSize(getResolvedIconSize(d, this.getSelectedNode?.id))
+      );
       return {
-        url: packedSvgIcon?.svgDataUrl ?? svgIcon.svgDataUrl,
-        width: packedSvgIcon?.width ?? svgIcon.width,
-        height: packedSvgIcon?.height ?? svgIcon.height,
-        id: iconName,
+        url: packedSvgIcon?.svgDataUrl ?? tintedSvgIcon.svgDataUrl,
+        width: packedSvgIcon?.width ?? tintedSvgIcon.width,
+        height: packedSvgIcon?.height ?? tintedSvgIcon.height,
+        id: `${iconName}:${resolvedTintMode}:${tintColor ?? 'base'}`,
       };
     }
     // empty svg icon

@@ -127,6 +127,10 @@ export const GroupsEditor = ({ onChange, item, ...props }: Props) => {
     updateTrackerRule(index, (rule) => ({ ...rule, iconName: name }));
   };
 
+  const updateSvgTintMode = (index: number, svgTintMode: string) => {
+    updateTrackerRule(index, (rule) => ({ ...rule, svgTintMode: svgTintMode as Rule['svgTintMode'] }));
+  };
+
   const removeRule = (index: number) => {
     const allRules = [...tracker];
     let removeIndex = 0;
@@ -259,6 +263,7 @@ export const GroupsEditor = ({ onChange, item, ...props }: Props) => {
                               sizeSetter={updateSize}
                               offsetSetter={updateOffset}
                               iconNameSetter={updateIconName}
+                              svgTintModeSetter={updateSvgTintMode}
                               overrideSetter={updateRuleOverrides}
                               remover={removeRule}
                               index={index}

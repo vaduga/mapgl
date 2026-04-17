@@ -1,6 +1,7 @@
 import { OverField, Rule } from '../rule-types';
 import { FieldType } from '@grafana/data';
 import { FIXED_COLOR_LABEL } from 'mapLib/utils';
+import { SvgTintMode } from '../../../types';
 
 function countMatchingKeysAndValues(props, o, theme, locField, isFixed) {
   let hasAllValuesMatch = 0;
@@ -218,6 +219,7 @@ function getGroupRules(
       label?: string;
       size?: number;
       width?: number;
+      svgTintMode?: SvgTintMode;
       iconName?: string;
       offset?: number;
     }>
@@ -238,6 +240,7 @@ function getGroupRules(
     label: t.label,
     ...(t.width && { width: t.width }),
     ...(t.size && { size: t.size }),
+    svgTintMode: t.svgTintMode,
     iconName: t.iconName,
     offset: t.offset,
     groupIdx: t.groupIdx,

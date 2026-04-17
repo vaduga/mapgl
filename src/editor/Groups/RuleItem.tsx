@@ -15,7 +15,7 @@ import { isEqual } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { css } from '@emotion/css';
 import { OverrideField } from './OverrideField';
-import { OverField, OverrideTracker, Rule } from './rule-types';
+import { OverField, OverrideTracker, Rule, SvgTintModeOptions } from './rule-types';
 import { DEFAULT_COLOR_PICKER } from 'mapLib/utils';
 import { ResourceDimensionEditor } from '../../grafana_core/app/features/dimensions/editors';
 import { MediaType, ResourceFolderName } from '../../grafana_core/app/features/dimensions';
@@ -30,6 +30,7 @@ interface RuleItemProps {
   widthSetter: any;
   sizeSetter: any;
   iconNameSetter: any;
+  svgTintModeSetter: any;
   offsetSetter: any;
   overrideSetter: any;
   remover: any;
@@ -145,6 +146,7 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
   const nodeSize = options.rule.size;
   const lineWidth = options.rule.width;
   const iconVOffset = options.rule.offset;
+  const svgTintMode = options.rule.svgTintMode ?? 'none';
 
   return (
     <InlineFieldRow className={styles.inlineRow}>
@@ -335,6 +337,21 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
       </InlineField>
       {iconName && (
         <>
+          <InlineField shrink label="render" className={styles.tintModeField}>
+            <Select
+              disabled={options.disabled}
+              menuShouldPortal={true}
+              value={SvgTintModeOptions.find((option) => option.value === svgTintMode)}
+              options={SvgTintModeOptions}
+              onChange={(selection) => {
+                if (!selection?.value) {
+                  return;
+                }
+                options.svgTintModeSetter(options.index, selection.value);
+              }}
+              width="auto"
+            />
+          </InlineField>
           <InlineField shrink label="offset" className={styles.voffset}>
             <Input
               className={styles.offsetInput}
@@ -394,6 +411,10 @@ const getRuleStyles = (theme: GrafanaTheme2) => {
     voffset: css`
       width: 8rem;
       flex-shrink: 1;
+    `,
+    tintModeField: css`
+      min-width: 12rem;
+      flex: 1 1 12rem;
     `,
     addButton: css`
       align-items: center;

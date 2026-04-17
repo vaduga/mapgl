@@ -61,6 +61,7 @@ export interface Options {
     isShowEdgeLegend: boolean;
     isShowSwitcher: boolean;
     isAppAuth: boolean;
+    svgTintMode?: SvgTintMode;
   };
   dataLayers: ExtendMapLayerOptions[];
 }
@@ -133,3 +134,5 @@ export enum MapCenterID {
   Fit = 'fit',
   Zero = 'zero',
 }
+
+export type SvgTintMode = 'none' | 'markup' | 'canvasTint';

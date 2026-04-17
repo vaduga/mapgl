@@ -1,6 +1,7 @@
 # Changelog Mapgl
 
 ## 2.3.0
+- icon color tinting strategy per node group
 - ad hoc node group filter in the legend
 - box SVGs (raw/donut) into circle boundaries. Simplify group rules (rm icon size)
 - text labels offset calculated from circle boundary, not center. CollisionFilter for labels can be enabled with 'Use meters units' flag.

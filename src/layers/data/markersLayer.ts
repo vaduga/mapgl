@@ -338,6 +338,9 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               stValues.color = rgba;
 
               const matchedRules = getGroupRules(point, featSource.getGroups, theme, isFixed, locField, locName);
+              const tintModeRule =
+                matchedRules.find((rule) => !rule.isEph && rule.svgTintMode !== undefined) ??
+                matchedRules.find((rule) => rule.svgTintMode !== undefined);
               const baseGroup =
                 matchedRules.find(
                   (rule) =>
@@ -346,6 +349,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                       rule.width !== undefined ||
                       rule.size !== undefined ||
                       rule.iconName !== undefined ||
+                      rule.svgTintMode !== undefined ||
                       rule.offset !== undefined)
                 ) ??
                 matchedRules.find((rule) => !rule.isEph) ??
@@ -388,6 +392,11 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                 }
                 group.groupIdx = newGroup.groupIdx;
               }
+
+              if (group) {
+                group.svgTintMode = tintModeRule?.svgTintMode ?? group.svgTintMode ?? baseGroup?.svgTintMode ?? 'none';
+              }
+
               stValues.group = group;
               if (dims?.size) {
                 stValues.size = dims.size.get(i);
