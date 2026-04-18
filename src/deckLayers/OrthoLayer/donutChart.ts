@@ -17,13 +17,78 @@ function svgToDataURL(svg) {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
+function getSvgViewBox(svgElement: SVGElement, fallbackWidth?: number, fallbackHeight?: number) {
+  const currentViewBox = svgElement.getAttribute('viewBox');
+  if (currentViewBox) {
+    return currentViewBox;
+  }
+
+  const widthAttr = Number(svgElement.getAttribute('width'));
+  const heightAttr = Number(svgElement.getAttribute('height'));
+  const width = widthAttr || fallbackWidth;
+  const height = heightAttr || fallbackHeight;
+
+  return width && height ? `0 0 ${width} ${height}` : undefined;
+}
+
+function getSizedSvgMarkup(
+  svgIcon,
+  {
+    x,
+    y,
+    width,
+    height,
+  }: {
+    x?: number;
+    y?: number;
+    width: number;
+    height: number;
+  }
+) {
+  if (!svgIcon?.svgText) {
+    return null;
+  }
+
+  const parser = new DOMParser();
+  const xmlDoc = parser.parseFromString(svgIcon.svgText, 'image/svg+xml');
+  const svgElement = xmlDoc.getElementsByTagName('svg')[0];
+
+  if (!svgElement) {
+    return null;
+  }
+
+  const viewBox = getSvgViewBox(svgElement, svgIcon.width, svgIcon.height);
+  if (viewBox) {
+    svgElement.setAttribute('viewBox', viewBox);
+  }
+
+  svgElement.setAttribute('width', String(width));
+  svgElement.setAttribute('height', String(height));
+  svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+  if (x !== undefined) {
+    svgElement.setAttribute('x', String(x));
+  }
+
+  if (y !== undefined) {
+    svgElement.setAttribute('y', String(y));
+  }
+
+  return new XMLSerializer().serializeToString(svgElement);
+}
+
 function getPackedSvgIcon(svgIcon, sourceBoxSize: number) {
   if (!svgIcon?.svgDataUrl) {
     return null;
   }
 
   const packedSize = getFittedDimensions(sourceBoxSize, svgIcon.width, svgIcon.height);
-  const packedSvg = `
+  const packedSvg =
+    getSizedSvgMarkup(svgIcon, {
+      width: packedSize.width,
+      height: packedSize.height,
+    }) ??
+    `
   <svg width="${packedSize.width}" height="${packedSize.height}"
     viewBox="0 0 ${packedSize.width} ${packedSize.height}"
     xmlns="http://www.w3.org/2000/svg">
@@ -33,6 +98,7 @@ function getPackedSvgIcon(svgIcon, sourceBoxSize: number) {
   </svg>`;
 
   return {
+    svgText: packedSvg,
     svgDataUrl: svgToDataURL(packedSvg),
     width: packedSize.width,
     height: packedSize.height,
@@ -119,7 +185,14 @@ function createDonutChart({
     const imageX = r - imageSize.width / 2;
     const imageY = r - imageSize.height / 2;
 
-    svg += `
+    svg +=
+      getSizedSvgMarkup(svgIcon, {
+        x: formatSvgNumber(imageX),
+        y: formatSvgNumber(imageY),
+        width: formatSvgNumber(imageSize.width),
+        height: formatSvgNumber(imageSize.height),
+      }) ??
+      `
     <image href="${userSvgUrl}" x="${imageX}" y="${imageY}" 
       width="${imageSize.width}" height="${imageSize.height}" 
       preserveAspectRatio="xMidYMid meet" />

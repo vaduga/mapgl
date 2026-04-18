@@ -119,8 +119,8 @@ export const plugin = new PanelPlugin<Options>(GeomapPanel)
       .addBooleanSwitch({
         category: ['Other'],
         path: 'common.isMeters',
-        name: 'Meters for Style Sizing',
-        description: 'use meters instead of pixels (scale on zoom)',
+        name: 'Meters for sizing',
+        description: 'Use meters in Geo (scales with zoom).',
         defaultValue: false,
       })
       .addTextInput({

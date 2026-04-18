@@ -167,11 +167,13 @@ export default class OrthoLayer<FeaturePropertiesT = any, ExtraProps extends {} 
         tintedSvgIcon,
         getDonutIconSrcSize(getResolvedIconSize(d, this.getSelectedNode?.id))
       );
+      const iconWidth = packedSvgIcon?.width ?? tintedSvgIcon.width;
+      const iconHeight = packedSvgIcon?.height ?? tintedSvgIcon.height;
       return {
         url: packedSvgIcon?.svgDataUrl ?? tintedSvgIcon.svgDataUrl,
-        width: packedSvgIcon?.width ?? tintedSvgIcon.width,
-        height: packedSvgIcon?.height ?? tintedSvgIcon.height,
-        id: `${iconName}:${resolvedTintMode}:${tintColor ?? 'base'}`,
+        width: iconWidth,
+        height: iconHeight,
+        id: `${iconName}:${resolvedTintMode}:${tintColor ?? 'base'}:${iconWidth ?? 'auto'}x${iconHeight ?? 'auto'}`,
       };
     }
     // empty svg icon

@@ -128,11 +128,13 @@ const NodesGeojsonLayer = (props) => {
           tintedSvgIcon,
           getDonutIconSrcSize(getResolvedIconSize(d, getSelectedNode?.id))
         );
+        const iconWidth = packedSvgIcon?.width ?? tintedSvgIcon.width;
+        const iconHeight = packedSvgIcon?.height ?? tintedSvgIcon.height;
         return {
           url: packedSvgIcon?.svgDataUrl ?? tintedSvgIcon.svgDataUrl,
-          width: packedSvgIcon?.width ?? tintedSvgIcon.width,
-          height: packedSvgIcon?.height ?? tintedSvgIcon.height,
-          id: `${iconName}:${resolvedTintMode}:${tintColor ?? 'base'}`,
+          width: iconWidth,
+          height: iconHeight,
+          id: `${iconName}:${resolvedTintMode}:${tintColor ?? 'base'}:${iconWidth ?? 'auto'}x${iconHeight ?? 'auto'}`,
         };
       }
       // no custom svg icon loaded
