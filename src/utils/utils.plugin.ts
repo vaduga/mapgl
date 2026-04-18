@@ -117,7 +117,8 @@ function toRgbaString(arr) {
   if (!Array.isArray(arr) || arr.length < 3) {
     throw new Error('Input must be an array of exactly 4 elements.');
   }
-  return `rgba(${arr[0]}, ${arr[1]}, ${arr[2]}, ${arr[3] ?? 255})`;
+  const alpha = arr[3] === undefined ? 1 : Math.max(0, Math.min(arr[3], 255)) / 255;
+  return `rgba(${arr[0]}, ${arr[1]}, ${arr[2]}, ${alpha})`;
 }
 
 function replaceSvgPaintDeclarations(cssText: string, color: string) {
