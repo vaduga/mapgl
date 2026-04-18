@@ -48,8 +48,6 @@ const NodesGeojsonLayer = (props) => {
   const categories = getVisLayers.getCategories();
   const categorySize = 2;
 
-  const isMeterSizing = units === 'meters';
-
   const getNodeIconSize = (d) => {
     const targetBoxSize = getResolvedIconSize(d, getSelectedNode?.id);
     const { group, arcs } = d.properties?.style || {};
@@ -64,10 +62,6 @@ const NodesGeojsonLayer = (props) => {
   };
 
   const getNodeTextPixelOffset = (d) => {
-    if (isMeterSizing && !isLogic) {
-      return [0, 0];
-    }
-
     return getResolvedTextPixelOffset(d, getSelectedNode?.id, { gap: 0 });
   };
 
@@ -80,10 +74,10 @@ const NodesGeojsonLayer = (props) => {
     // parameters: {
     //   depthTest: false
     // },
-    pointType: isLogic ? 'circle+text' : 'circle+icon+text',
+    pointType: 'circle+icon+text',
     getText: (d: any) => d.properties?.style?.text,
-    getTextAlignmentBaseline: isLogic ? 'center' : 'top',
-    getTextAnchor: isLogic ? 'middle' : 'middle',
+    getTextAlignmentBaseline: 'top',
+    getTextAnchor: 'middle',
     getTextPixelOffset: getNodeTextPixelOffset,
     getTextSize: (d) => {
       const size = d.properties.style?.textConfig?.fontSize;
@@ -100,13 +94,9 @@ const NodesGeojsonLayer = (props) => {
       const tintColor = group?.color ? toRgbaString(group.color) : d.properties?.thrColor;
       const requestedTintMode = group?.svgTintMode ?? 'none';
       const resolvedTintMode = resolveSvgTintMode(svgIcon, requestedTintMode);
-      const tintedSvgIcon = getTintedSvgIcon(
-        svgIcon,
-        tintColor,
-        {
-          mode: resolvedTintMode,
-        }
-      );
+      const tintedSvgIcon = getTintedSvgIcon(svgIcon, tintColor, {
+        mode: resolvedTintMode,
+      });
 
       if (isLogic && arcs?.length) {
         const colorCounts = {};
@@ -169,22 +159,15 @@ const NodesGeojsonLayer = (props) => {
     getFilterCategory: (d) => {
       const { style, layerName } = d.properties || {};
       const groupIdx = style?.group.groupIdx;
-      return categorySize > 1 ? [groupIdx, layerName] : groupIdx;
+      return [groupIdx, layerName];
     },
     filterCategories: categories,
     extensions: [new DataFilterExtension({ categorySize })],
     _subLayerProps: {
       'points-text': {
         visible: Labels,
-        //filterCategories: categories,
-        extensions:
-          units === 'meters'
-            ? [new CollisionFilterExtension(), new DataFilterExtension({ categorySize })]
-            : [new DataFilterExtension({ categorySize })],
+        extensions: [new DataFilterExtension({ categorySize })],
         sizeUnits: units,
-        // collisionTestProps: {
-        //   sizeScale: 3,
-        // },
         // unexpected effect with this on - some text invisible
         // fontSettings: {sdf: true},
       },

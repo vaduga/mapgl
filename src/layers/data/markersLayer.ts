@@ -669,6 +669,12 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               });
             },
           })
+          .addBooleanSwitch({
+            path: 'config.style.useGroups',
+            name: 'Apply',
+            category: ['Groups'],
+            defaultValue: defaultOptions.style.useGroups,
+          })
           .addCustomEditor({
             category: ['Groups'],
             id: 'config.groups',
@@ -797,12 +803,6 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
             showIf: (opts) => opts.config.showStat2 && (!!opts.parField || useMockData),
             defaultValue: defaultOptions.arcConfig.capacity,
           })
-          .addBooleanSwitch({
-            path: 'config.style.useGroups',
-            name: 'Apply',
-            category: ['Groups'],
-            defaultValue: defaultOptions.style.useGroups,
-          });
       },
     };
   },
