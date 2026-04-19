@@ -291,6 +291,7 @@ export const CiscoIcons = [
 ];
 
 export const NetworkingIcons = [
+  'linux',
   'a-b-switch',
   'atm-switch-2',
   'atm-switch',

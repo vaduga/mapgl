@@ -12,7 +12,7 @@ import MapLibre, { AttributionControl } from '@vis.gl/react-maplibre';
 import type { Graph } from 'mapLib';
 
 import Menu from '../components/Menu';
-import { useRootStore, toRGB4Array, genPrimaryLayers, selectGotoHandler, expandTooltip } from '../utils';
+import { useRootStore, toRGB4Array, genPrimaryLayers, genNodeLayers, genEdgeLayers, selectGotoHandler, expandTooltip } from '../utils';
 import { Tooltip } from './Tooltips/Tooltip';
 import { MyPolygonsLayer } from '../deckLayers/PolygonsLayer/polygons-layer';
 import { MyGeoJsonLayer } from '../deckLayers/GeoJsonStaticLayer/static-geojson-layer';
@@ -77,10 +77,40 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
   const [hoverInfo, setHoverInfo] = useState({});
   const [layers, setLayers] = useState<Layer[]>([]);
   const [localViewState, setLocalViewState] = useState<ViewState>(getViewState);
+  const [menuRefreshToken, setMenuRefreshToken] = useState(0);
   const timeZone = replaceVariables('$__timezone');
   const [time, setTime] = useState<any>(data.timeRange?.to.unix() * 1000);
   const [edgeLegend, setEdgeLegend] = useState<VizLegendItem[]>([]);
   const hasAnnots = !!data.annotations?.length;
+  const layerCount = panel.layers.length;
+  const panelRenderDeps = [
+    panel.layers,
+    panel.features,
+    panel.positions,
+    panel.colors,
+    panel.groupIndices,
+    panel.annots,
+    panel.groups,
+  ];
+
+  const layerCacheRef = useRef<any>(null);
+  const svgTintRefreshFrameRef = useRef<number | null>(null);
+  const DEBUG_DISABLE_NODE_CACHE = true;
+
+  const composeLayersFromCache = useCallback((cache, nodeLayers: Layer[], edgeLayers?: { arcsBase: Layer[]; lines: Layer[]; edgeLabels: Layer[] }) => {
+    const arcsBase = edgeLayers?.arcsBase ?? cache.arcsBase;
+    const lines = edgeLayers?.lines ?? cache.lines;
+    const edgeLabels = edgeLayers?.edgeLabels ?? cache.edgeLabels;
+    return [
+      ...cache.secLayers,
+      ...cache.bboxes,
+      ...arcsBase,
+      ...lines,
+      ...nodeLayers,
+      ...(cache.comments ? [cache.comments] : []),
+      ...edgeLabels,
+    ].filter((el) => el !== null && el !== undefined);
+  }, []);
 
   useEffect(() => {
     if (!time || !annots?.length) {
@@ -187,15 +217,39 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     };
   }, [eventBus]);
 
+  useEffect(() => {
+    return () => {
+      if (svgTintRefreshFrameRef.current !== null) {
+        cancelAnimationFrame(svgTintRefreshFrameRef.current);
+      }
+    };
+  }, []);
+
+  const refreshMenuAfterInit = useCallback(async () => {
+    await initMapRef(deckRef);
+    setMenuRefreshToken((token) => token + 1);
+  }, [initMapRef]);
+
   const onMapLoad = useCallback(() => {
-    initMapRef(deckRef);
+    void refreshMenuAfterInit();
+  }, [refreshMenuAfterInit]);
+
+  const onSvgIconReady = useCallback(() => {
+    if (svgTintRefreshFrameRef.current !== null) {
+      return;
+    }
+
+    svgTintRefreshFrameRef.current = requestAnimationFrame(() => {
+      svgTintRefreshFrameRef.current = null;
+      setVisRefresh((refresh) => refresh + 1);
+    });
   }, []);
 
   useEffect(() => {
     if (isLogic && !source) {
-      initMapRef(deckRef);
+      void refreshMenuAfterInit();
     }
-  }, [isLogic]);
+  }, [isLogic, source, refreshMenuAfterInit]);
 
   const dataClickProps = {
     //<editor-fold desc="dataClickProps">
@@ -230,6 +284,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     svgIcons: panel.svgIcons,
     setHoverInfo,
     hoverInfo,
+    onSvgIconReady,
     isHyper,
     getVisLayers: visLayers,
     getGroupsLegend,
@@ -265,11 +320,10 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
   const getLayers = () => {
     const secLayers: any = [];
-    let newLayers: any = [];
 
     const secDataLayers = panel.layers
       .slice(1)
-      .filter(el => el.layer.colType !== colTypes.Markers && el.layer.features?.length);
+      .filter((el) => el.layer.colType !== colTypes.Markers && el.layer.features?.length);
     let poly = 0,
       path = 0,
       geojson = 0;
@@ -323,10 +377,9 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
         }
       });
 
-    newLayers = newLayers.concat(secLayers);
-
     let initComments: CommentsData = {};
-    let initLineFeatures: any = isHyper ? graph.getEdgesGeometry[0] : graph.getEdgesGeometry[1];
+    const edgesGeometry = graph.getEdgesGeometry;
+    const initLineFeatures: any = isHyper ? edgesGeometry[0] : edgesGeometry[1];
 
     if (!isLogic) {
       for (const subGraph of graphs) {
@@ -340,7 +393,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     let counter = 0;
     const commentFeatures: ComFeature[] = [];
     Object.entries(initComments)?.forEach(([edgeId, orderMap]) => {
-      //@ts-ignore
+      // @ts-ignore
       orderMap?.forEach((comment) => {
         const { edge, text, iconColor, style, root, layerName, locName, coords, index } = comment;
         if (edge && text && iconColor && coords) {
@@ -373,7 +426,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     /// Graphs nodes
 
     const { groupIndices, annots } = panel;
-    const visNamespaces = visLayers.getCategories()[1]
+    const visNamespaces = visLayers.getCategories()[1];
     // @ts-ignore
     const biCols: BinaryFeatureCollection & Array<{ layerName: string }> = graphs
       .filter((g) => visNamespaces.includes(g.id))
@@ -403,6 +456,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
         let offset = 0;
 
         const featureIds = { value: new Uint16Array(totalCount), size: 1 };
+        const globalFeatureIds = { value: new Uint32Array(totalCount), size: 1 };
 
         for (let [start, end] of positionRanges) {
           if (!end) {
@@ -415,6 +469,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
           cutGroupIndices.set(groupIndices.subarray(start, end), offset);
 
           for (let i = start; i < end; i++) {
+            globalFeatureIds.value[offset] = offset;
             featureIds.value[offset++] = i; // `i` is your global index
           }
         }
@@ -434,7 +489,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
               getColor: { value: cutColors, size: 4, normalized: true }, /// label use no opacity
             },
             featureIds,
-            globalFeatureIds: featureIds,
+            globalFeatureIds,
             properties: features,
             // numericProps: {  /// for points it can be derived from index, for lines - datarecord has other rowIndex, considering multiple edges
             // rowIndex: {value: featureIds, size: 1},
@@ -444,40 +499,91 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
       })
       .filter((el) => el);
 
-    async function prepLayers() {
-      const res = await genPrimaryLayers({
-        layerProps,
-        biCols,
-        lineFeatures: initLineFeatures,
-        commentFeatures,
-      });
+    const res = genPrimaryLayers({
+      layerProps,
+      biCols,
+      lineFeatures: initLineFeatures,
+      commentFeatures,
+    });
 
-      const [bboxes, icons, arcsBase, lines, comments, edgeLabels] = res;
-      const icoLinesOrdered = [...bboxes, ...arcsBase, ...lines, ...icons];
+    const [bboxes, icons, arcsBase, lines, comments, edgeLabels] = res;
+    const cache = {
+      secLayers,
+      bboxes,
+      arcsBase,
+      lines,
+      comments,
+      edgeLabels,
+      biCols,
+      currentNodeLayers: icons,
+      lineFeatures: initLineFeatures,
+    };
+    layerCacheRef.current = cache;
+    const nextLayers = composeLayersFromCache(cache, icons);
 
-      newLayers = newLayers.concat(icoLinesOrdered);
-
-      if (comments) {
-        newLayers.push(comments);
-      }
-
-      edgeLabels.forEach((l) => {
-        newLayers.push(l);
-      });
-
-      flushSync(() => {
-        setLayers(newLayers.filter((el) => el !== null && el !== undefined));
-      });
-    }
-    prepLayers();
+    flushSync(() => {
+      setLayers(nextLayers);
+    });
   };
 
   useEffect(() => {
-    if (panel.layers.length < 2) {
+    if (layerCount < 2) {
       return;
     }
     getLayers();
-  }, [graph.getVersion, getTooltipObject, time, getViewState, visRefresh]);
+  }, [graph.getVersion, time, visRefresh, layerCount, ...panelRenderDeps]);
+
+  useEffect(() => {
+    const cache = layerCacheRef.current;
+    if (!cache) {
+      return;
+    }
+
+    const icons = genNodeLayers({
+      biCols: cache.biCols,
+      layerProps,
+    });
+    const edgeLayers = genEdgeLayers({
+      lineFeatures: cache.lineFeatures,
+      layerProps,
+      isHyperOverride: isHyper,
+    });
+    cache.currentNodeLayers = DEBUG_DISABLE_NODE_CACHE ? null : icons;
+    const nextLayers = composeLayersFromCache(cache, icons, edgeLayers);
+
+    flushSync(() => {
+      setLayers(nextLayers);
+    });
+  }, [getSelectedNode?.id, getSelEdges, composeLayersFromCache]);
+
+  useEffect(() => {
+    const cache = layerCacheRef.current;
+    if (!cache) {
+      return;
+    }
+
+    const edgesGeometry = graph.getEdgesGeometry;
+    const lineFeatures = isHyper ? edgesGeometry[0] : edgesGeometry[1];
+    cache.lineFeatures = lineFeatures;
+    const edgeLayers = genEdgeLayers({
+      lineFeatures,
+      layerProps,
+      isHyperOverride: isHyper,
+    });
+
+    const nodeLayers =
+      !DEBUG_DISABLE_NODE_CACHE && cache.currentNodeLayers
+        ? cache.currentNodeLayers
+        : genNodeLayers({
+            biCols: cache.biCols,
+            layerProps,
+          });
+
+    const nextLayers = composeLayersFromCache(cache, nodeLayers, edgeLayers);
+    flushSync(() => {
+      setLayers(nextLayers);
+    });
+  }, [isHyper, composeLayersFromCache]);
 
   const memoLayerSwitcher = useMemo(() => {
     return (
@@ -485,11 +591,11 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
         {...{ theme: theme2, label: 'layers', className: '', panel, setVisRefresh }}
       />
     );
-  }, [visLayers]);
+  }, [visLayers])
 
   const memoMenu = useMemo(() => {
-    return <Menu eventBus={eventBus} {...{ options, time, timeZone, data, panel }} />;
-  }, [options, panel.layers, graph.getVersion, data]);
+    return <Menu eventBus={eventBus} refreshToken={menuRefreshToken} {...{ options, time, timeZone, data, panel }} />;
+  }, [options, time, timeZone, data, panel, menuRefreshToken]);
 
   const memoPositionTracker = useMemo(() => {
     return (
@@ -584,7 +690,13 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     }),
   ];
   if (!isLogic) {
-    widgets.push(new CompassWidget({ id: 'compass', placement: 'top-right', className: s.compass }));
+    widgets.push(
+      new CompassWidget({
+        id: 'compass',
+        placement: 'top-right',
+        className: s.compass,
+      })
+    );
   }
 
   ///// return
@@ -617,7 +729,12 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
             attributionControl={false}
           >
             <AttributionControl
-              style={{ zIndex: theme2.zIndex.dropdown, position: 'absolute', top: 5, right: theme2.spacing(1.5) }}
+              style={{
+                zIndex: theme2.zIndex.dropdown,
+                position: 'absolute',
+                top: 5,
+                right: theme2.spacing(1.5),
+              }}
             />
           </MapLibre>
         )}

@@ -10,7 +10,7 @@ const defaultProps = {
 };
 
 export default class AnimatedBlobsLayer extends GradientArcLayer {
-  static componentName = 'light-blobs';
+  static layerName = 'AnimatedBlobsLayer';
 
   getShaders() {
     const shaders = super.getShaders();
@@ -106,7 +106,10 @@ export default class AnimatedBlobsLayer extends GradientArcLayer {
     }
 `,
     };
-    return { ...shaders, modules: [...shaders.modules.filter((m) => m.name !== 'arc'), arcUniforms] };
+    return {
+      ...shaders,
+      modules: [...shaders.modules.filter((m) => m.name !== 'arc'), arcUniforms],
+    };
   }
   initializeState() {
     super.initializeState();

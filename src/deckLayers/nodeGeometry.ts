@@ -13,14 +13,23 @@ export const getResolvedPointRadius = (feature: any, selectedNodeId?: string) =>
 export const getResolvedIconSize = (feature: any, selectedNodeId?: string) => {
   const { style } = feature?.properties || {};
   const hasDonutChartIcon = Boolean(style?.arcs?.length);
-  const sizeMultiplier = hasDonutChartIcon ? 1 : 0.9;
+  const sizeMultiplier = 1;
 
   return getResolvedCircleDiameter(feature, selectedNodeId) * sizeMultiplier;
 };
 
+export const getMaxResolvedIconSize = (feature: any) => {
+  const { style } = feature?.properties || {};
+  const hasDonutChartIcon = Boolean(style?.arcs?.length);
+  const sizeMultiplier = 1;
+  const diameter = feature?.properties?.style?.size ?? 0;
+
+  return diameter * sizeMultiplier;
+};
+
 export const getFittedIconSize = (targetBoxSize: number, width?: number, height?: number) => {
   if (!width || !height || width <= 0 || height <= 0) {
-    return targetBoxSize;
+    return targetBoxSize
   }
 
   const aspectRatio = width / height;

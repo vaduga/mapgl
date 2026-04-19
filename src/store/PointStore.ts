@@ -4,6 +4,7 @@ import { blankHoverInfo, colTypes, Info, ViewState } from 'mapLib/utils';
 import { Edge, Graph, Node } from 'mapLib';
 import { Deck } from '@deck.gl/core';
 import { SelectNodeEvent } from '../utils/bus.events';
+import { Subscription } from 'rxjs';
 
 class PointStore {
   root: RootStore;
@@ -21,6 +22,7 @@ class PointStore {
   };
 
   tooltipObject: Info = blankHoverInfo;
+  private eventSub = new Subscription();
 
   constructor(root: RootStore) {
     this.root = root;
@@ -45,10 +47,7 @@ class PointStore {
     }
     //}
 
-    subs.add(
-      eventBus.subscribe(SelectNodeEvent, (evt) => {
-        //  console.log('evt.payload', evt.payload)
-
+    const selectNodeSub = eventBus.subscribe(SelectNodeEvent, (evt) => {
         if (pId !== evt.payload.pId) {
           return;
         } //  && !isLogic  . logic layer crosshair selection
@@ -119,11 +118,11 @@ class PointStore {
             this.setIsShowCenter({ ...viewState });
           }
         }
-      })
-    );
+      });
+    this.eventSub.add(selectNodeSub);
+    subs.add(selectNodeSub);
 
     makeAutoObservable(this);
-    //autorun(() => console.log('getSelelectedNode', this.getSelectedNode))//, toJS(this.getSelFeature)));
   }
 
   get getIsShowCenter() {
@@ -210,6 +209,10 @@ class PointStore {
     }
 
     this.setSelEdges(pickedEdges);
+  };
+
+  dispose = () => {
+    this.eventSub.unsubscribe();
   };
 }
 

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   fill="rgb(239,107,26)"
+   width="42.666668"
+   height="42.666668"
+   viewBox="0 0 32.000001 32.000001"
+   version="1.1"
+   preserveAspectRatio="xMidYMid meet"
+   id="svg839"
+   sodipodi:docname="rare.svg"
+   inkscape:version="1.0.1 (c497b03c, 2020-09-10)">
+  <metadata
+     id="metadata845">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs843" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="2050"
+     inkscape:window-height="1193"
+     id="namedview841"
+     showgrid="false"
+     inkscape:zoom="15.3125"
+     inkscape:cx="21.333333"
+     inkscape:cy="21.773333"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg839" />
+  <title
+     id="title833">router-solid</title>
+  <path
+     d="M 16,0 A 16,16 0 1 0 32,16 16,16 0 0 0 16,0 Z m -4.14,8.25 a 0.8,0.8 0 0 1 1.13,0 l 2.21,2.19 V 4.26 a 0.8,0.8 0 0 1 1.6,0 v 6.18 L 19,8.25 a 0.80257398,0.80257398 0 1 1 1.13,1.14 L 16,13.48 11.86,9.38 a 0.8,0.8 0 0 1 0,-1.13 z M 8.32,20.07 a 0.8,0.8 0 0 1 -1.13,0 L 3,16 7.19,11.91 a 0.8,0.8 0 1 1 1.12,1.14 l -2.2,2.14 h 6.27 a 0.8,0.8 0 0 1 0,1.6 H 6.11 l 2.2,2.15 a 0.8,0.8 0 0 1 0.01,1.13 z m 11.82,3.67 a 0.8,0.8 0 0 1 -1.13,0 L 16.8,21.56 v 6.17 a 0.8,0.8 0 0 1 -1.6,0 V 21.56 L 13,23.75 a 0.80257398,0.80257398 0 1 1 -1.13,-1.14 l 4.13,-4.1 4.14,4.1 a 0.8,0.8 0 0 1 0,1.13 z m 4.67,-3.66 a 0.8,0.8 0 1 1 -1.12,-1.14 l 2.2,-2.15 h -6.26 a 0.8,0.8 0 0 1 0,-1.6 h 6.27 l -2.2,-2.14 a 0.8,0.8 0 1 1 1.12,-1.14 L 29,16 Z"
+     class="clr-i-solid clr-i-solid-path-1"
+     id="path835" />
+  <rect
+     x="-2"
+     y="-1.67"
+     width="36"
+     height="36"
+     fill-opacity="0"
+     id="rect837" />
+</svg>
+

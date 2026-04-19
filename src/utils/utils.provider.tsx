@@ -1,10 +1,6 @@
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode, useEffect, useRef } from 'react';
 
 import RootStore from '../store/RootStore';
-import { usePanelContext } from '@grafana/ui';
-
-// holds a reference to the store (singleton)
-let store: RootStore | undefined = undefined;
 
 const StoreContext = createContext<RootStore | undefined>(undefined);
 
@@ -14,10 +10,22 @@ interface RootStoreProviderProps {
 }
 
 export const RootStoreProvider = ({ children, props }: RootStoreProviderProps) => {
-  //only create the store once ( store is a singleton)
+  const storeRef = useRef<RootStore | null>(null);
 
-  const root = store ?? new RootStore(props);
-  return <StoreContext.Provider value={root}>{children}</StoreContext.Provider>;
+  if (!storeRef.current) {
+    storeRef.current = new RootStore(props);
+  } else {
+    storeRef.current.syncFromProps(props);
+  }
+
+  useEffect(() => {
+    return () => {
+      storeRef.current?.dispose();
+      storeRef.current = null;
+    };
+  }, []);
+
+  return <StoreContext.Provider value={storeRef.current}>{children}</StoreContext.Provider>;
 };
 
 // hook

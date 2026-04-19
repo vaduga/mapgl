@@ -274,7 +274,12 @@ function getTintedSvgIcon(
 
   const recoloredSvgText = recolorSvgMarkup(svgIcon.svgText, color);
   const { svgText, svgDataUrl, width, height } = addSVGattributes(recoloredSvgText);
-  const variant = { svgText, svgDataUrl, width: width ? parseInt(width) : undefined, height: height ? parseInt(height) : undefined };
+  const variant = {
+    svgText,
+    svgDataUrl,
+    width: width ? parseInt(width, 10) : undefined,
+    height: height ? parseInt(height, 10) : undefined,
+  };
   svgIcon.colorVariants[cacheKey] = variant;
   return variant;
 }
@@ -412,8 +417,8 @@ async function parseSvgFileToString(
       {
         svgText,
         svgDataUrl,
-        ...(width ? { width: parseInt(width) } : {}),
-        ...(height ? { height: parseInt(height) } : {}),
+        ...(width ? { width: parseInt(width, 10) } : {}),
+        ...(height ? { height: parseInt(height, 10) } : {}),
       },
     ];
   } catch (error: any) {
@@ -427,7 +432,9 @@ async function loadSvgIcons(
   svgIcons: Record<string, any>,
   loadController: AbortController
 ): Promise<Record<string, any>> {
-  if (!names?.length) {return svgIcons;}
+  if (!names?.length) {
+    return svgIcons;
+  }
 
   try {
     const promises: Array<Promise<[string, SvgIconRecord] | null>> =
@@ -462,7 +469,9 @@ function collectGroups(allGroups: Rule[], iconNames: Set<string>, nsLayers: MapL
         const gCopy = { ...rule, groupIdx: allGroups.length };
         groups.push(gCopy);
         allGroups.push(gCopy);
-        if (rule.iconName) {iconNames.add(rule.iconName);}
+        if (rule.iconName) {
+          iconNames.add(rule.iconName);
+        }
       });
     }
     if (!field && fixed) {

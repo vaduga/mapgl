@@ -266,7 +266,7 @@ export const EdgeArrowLayer = (props) => {
 
     updateTriggers: {
       getColor: time,
-      getSize: time,
+      getSize: [time, selectedFeatureIndexes],
       getAngle: time,
     },
   });

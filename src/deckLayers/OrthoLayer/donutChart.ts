@@ -1,7 +1,7 @@
 import { ALERTING_STATES } from 'mapLib/utils';
 import { getFittedDimensions } from '../nodeGeometry';
 
-const MAX_ICON_SOURCE_SIZE = 1020;
+const MAX_ICON_SOURCE_SIZE = 1020;///384;
 const DONUT_SOURCE_SCALE = 4;
 type CountEntry = { count: number; label?: string };
 type CountMap = Record<string, number | CountEntry>;
@@ -312,7 +312,9 @@ function normalizeStripeCount(value: number | CountEntry) {
   return 0;
 }
 
-function getDonutIconSrcSize(size: number) {
+function getDonutIconSrcSize(size: number, options?: { scale?: number; maxSize?: number }) {
+  const scale = options?.scale ?? DONUT_SOURCE_SCALE;
+  const maxSize = options?.maxSize ?? MAX_ICON_SOURCE_SIZE;
   return Math.min(Math.max(size, size * DONUT_SOURCE_SCALE), MAX_ICON_SOURCE_SIZE);
 }
 

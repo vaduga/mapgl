@@ -6,14 +6,20 @@ import { GrafanaTheme2 } from '@grafana/data';
 
 import ReactSelectSearch from './Selects/ReactSelectSearch';
 
-const Menu = ({ eventBus, options, data, panel }) => {
+const Menu = ({ eventBus, options, data, panel, refreshToken }) => {
   const s = useStyles2(getStyles);
 
   return (
     <div className={s.myMenu}>
       <InlineFieldRow className={s.inlineRow}>
         <InlineField>
-          <ReactSelectSearch isMainLocSearch={true} eventBus={eventBus} data={data} options={options} />
+          <ReactSelectSearch
+            isMainLocSearch={true}
+            eventBus={eventBus}
+            data={data}
+            options={options}
+            refreshToken={refreshToken}
+          />
         </InlineField>
       </InlineFieldRow>
     </div>

@@ -15,7 +15,9 @@ class ViewStore {
     this.root = root;
     this.viewState = viewState;
 
-    makeAutoObservable(this);
+    makeAutoObservable(this, {
+     root: false,
+    });
     //autorun(() => console.log('getVisLayers', toJS(this.getVisLayers)));
     //autorun(() => console.log('getGroupsLegend', toJS(this.getGroupsLegend)));
     //makeObservable(this, {forceRefresh: observable, setVisRefresh: action, getVisRefresh: computed, getVisLayers: computed, getGroupsLegend: computed}, { autoBind: true })//, { autoBind: true })
@@ -35,18 +37,15 @@ class ViewStore {
 
   get getGroupsLegend() {
     const nodeThres: VizLegendItem[] = [];
-    if (!this.root.visLayers) {
+    const { graph, groups, hasAnnots, visLayers } = this.root;
+
+    if (!visLayers) {
       return nodeThres;
     }
 
-    let active_indexes = this.root.visLayers.getActiveGroups();
+    let active_indexes = visLayers.getActiveGroups();
 
-    const { options } = this.root;
-    const dataLayers = options.dataLayers;
-
-    if (dataLayers.length) {
-      const { groups, graph } = this.root.panel;
-
+    if (groups.length || hasAnnots) {
       groups.forEach((g, i) => {
         if (g.color) {
           const count = graph.getGroupCounts.get(i) ?? 0;
@@ -62,7 +61,6 @@ class ViewStore {
 
       //console.log('groups', groups)
 
-      const hasAnnots = this.root.panel.hasAnnots;
       if (hasAnnots) {
         const i = groups.length;
 

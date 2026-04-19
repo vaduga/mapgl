@@ -50,7 +50,7 @@ export class Graph extends Node {
       version: observable,
       _bumpVersion: action,
       getVersion: computed,
-      getEdgesGeometry: computed,
+      //getEdgesGeometry: computed,
       getComments: computed,
       groupCounts: observable,
       getGroupCounts: computed,

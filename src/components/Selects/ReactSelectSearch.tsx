@@ -27,6 +27,7 @@ type MapRefProps = {
   value?: string;
   placeholder?: string;
   isMainLocSearch?: boolean;
+  refreshToken?: number;
   total?: number;
   options: any;
   data: any;
@@ -43,6 +44,7 @@ const ReactSelectSearch: FC<MapRefProps> = ({
   wait = 300,
   placeholder = 'Search',
   isMainLocSearch = false,
+  refreshToken = 0,
   ...props
 }) => {
   const s = useStyles2(getStyles);
@@ -101,12 +103,11 @@ const ReactSelectSearch: FC<MapRefProps> = ({
   const placeholderText = `Search: ${total2}`;
   const locName = isMainLocSearch ? getSelectedNode?.id : undefined;
   const selectedOption = filteredOptions.find((option) => option.nodeId === locName);
-  const optionsKey = filteredOptions.map((option) => `${option.graphId}:${option.nodeId}`).join('|');
 
   return (
     <div className={s.select}>
       <ComboboxCompat
-        key={optionsKey}
+        key={refreshToken}
         options={filteredOptions}
         value={selectedOption}
         width="auto"

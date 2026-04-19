@@ -240,8 +240,10 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
             return;
           }
 
+          const { field: nodeMetricField, fixed } = style.config?.color || {};
+          const isFixed = !nodeMetricField && Boolean(fixed);
           const colorField = style.dims.color?.field;
-          const colorThresholds = style.config?.color?.thresholds ?? colorField?.config?.thresholds;
+          const colorThresholds = isFixed ? undefined : style.config?.color?.thresholds ?? colorField?.config?.thresholds;
           featSource.setThresholds(colorThresholds);
 
           const fieldValues = new Map(frame.fields.map((f) => [f.name, f.values]));
@@ -322,22 +324,37 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
 
             // try {
 
-            const { field: nodeMetricField, fixed } = style.config?.color || {};
-            const isFixed = !nodeMetricField && fixed;
-
             if ((!dims || !Object.keys(dims).length) && !fixed) {
               return;
             }
             let group;
-            const hexColor = dims?.color?.get(i) ?? (fixed && theme.visualization.getColorByName(fixed));
+            const fixedColor = fixed ? theme.visualization.getColorByName(fixed) : undefined;
+            const hexColor = isFixed ? fixedColor : dims?.color?.get(i) ?? fixedColor;
             if (hexColor) {
-              const thrColor = isFixed ? FIXED_COLOR_LABEL : hexColor; // for group rules
-              point.thrColor = thrColor;
+              const thrColor = isFixed ? undefined : hexColor;
+              if (thrColor !== undefined) {
+                point.thrColor = thrColor;
+              }
 
               const rgba = toRGB4Array(hexColor);
               stValues.color = rgba;
 
               const matchedRules = getGroupRules(point, featSource.getGroups, theme, isFixed, locField, locName);
+              const fixedFallbackGroup =
+                isFixed &&
+                featSource
+                  .getGroups
+                  .find(
+                    (rule) =>
+                      rule.isEph &&
+                      rule.color === hexColor &&
+                      rule.overrides?.some(
+                        (override) =>
+                          override.name === 'thrColor' &&
+                          Array.isArray(override.value) &&
+                          override.value.includes(FIXED_COLOR_LABEL)
+                      )
+                  );
               const tintModeRule =
                 matchedRules.find((rule) => !rule.isEph && rule.svgTintMode !== undefined) ??
                 matchedRules.find((rule) => rule.svgTintMode !== undefined);
@@ -356,8 +373,10 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                 matchedRules[0];
               /// original threshold. May contain no color
               group = baseGroup ? { ...baseGroup } : undefined;
-              /// escalate to the next threshold with color
-              const nextThr = matchedRules.find((r) => r.color !== undefined);
+              /// Prefer explicit group rule colors over ephemeral threshold/fixed fallbacks.
+              const nextThr =
+                matchedRules.find((r) => !r.isEph && r.color !== undefined) ??
+                matchedRules.find((r) => r.color !== undefined);
 
               if (nextThr?.color) {
                 if (group) {
@@ -365,6 +384,14 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                   group.groupIdx = nextThr.groupIdx;
                 } else {
                   group = { ...nextThr, color: toRGB4Array(nextThr.color) };
+                }
+              } else if (isFixed) {
+                const fallbackGroup = fixedFallbackGroup ? { ...fixedFallbackGroup, color: rgba } : undefined;
+                if (group) {
+                  group.color = rgba;
+                  group.groupIdx = fallbackGroup?.groupIdx ?? group.groupIdx;
+                } else {
+                  group = fallbackGroup;
                 }
               } else {
                 const groupIdx = panel.groups.length;
@@ -377,7 +404,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                     {
                       name: 'thrColor',
                       type: FieldType.enum,
-                      value: [thrColor],
+                      value: [thrColor ?? hexColor],
                     },
                   ],
                 };
@@ -672,11 +699,11 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
           .addBooleanSwitch({
             path: 'config.style.useGroups',
             name: 'Apply',
-            category: ['Groups'],
+            category: ['Node Groups'],
             defaultValue: defaultOptions.style.useGroups,
           })
           .addCustomEditor({
-            category: ['Groups'],
+            category: ['Node Groups'],
             id: 'config.groups',
             path: 'config.groups',
             name: 'legend label, SVG icon, circle color override',
@@ -802,7 +829,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
             },
             showIf: (opts) => opts.config.showStat2 && (!!opts.parField || useMockData),
             defaultValue: defaultOptions.arcConfig.capacity,
-          })
+          });
       },
     };
   },

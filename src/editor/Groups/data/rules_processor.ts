@@ -1,6 +1,5 @@
 import { OverField, Rule } from '../rule-types';
 import { FieldType } from '@grafana/data';
-import { FIXED_COLOR_LABEL } from 'mapLib/utils';
 import { SvgTintMode } from '../../../types';
 
 function countMatchingKeysAndValues(props, o, theme, locField, isFixed) {
@@ -14,22 +13,6 @@ function countMatchingKeysAndValues(props, o, theme, locField, isFixed) {
     return [oCount, hasAllValuesMatch, hasLocMatch, hasThrMatch];
   }
   const overrides: OverField[] = o.slice();
-
-  if (isFixed) {
-    const thrColorIdx = overrides?.findIndex((o) => o.name === 'thrColor');
-    if (thrColorIdx !== -1) {
-      overrides[thrColorIdx] = {
-        ...overrides[thrColorIdx],
-        value: [FIXED_COLOR_LABEL],
-      };
-    } else {
-      overrides.push({
-        name: 'thrColor',
-        type: FieldType.enum,
-        value: [FIXED_COLOR_LABEL],
-      });
-    }
-  }
 
   const allKeysMatched = overrides?.every((override) => {
     const key = override.name;
