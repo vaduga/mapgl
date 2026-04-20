@@ -5,7 +5,7 @@ import { colTypes, RGBAColor, ALERTING_STATES } from 'mapLib/utils';
 import AnimatedBlobsLayer from './animated-blobs-layer';
 import GradientArcLayer from './gradient-arc-layer';
 import { DataFilterExtension } from '@deck.gl/extensions';
-import { Matrix4 } from '@math.gl/core';
+
 export const MyArcLayer = (props) => {
   const {
     srcGraphId,

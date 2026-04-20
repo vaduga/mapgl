@@ -1,7 +1,7 @@
 import { ALERTING_STATES } from 'mapLib/utils';
 import { getFittedDimensions } from '../nodeGeometry';
 
-const MAX_ICON_SOURCE_SIZE = 1020;///384;
+const MAX_ICON_SOURCE_SIZE = 1020; ///384;
 const DONUT_SOURCE_SCALE = 4;
 type CountEntry = { count: number; label?: string };
 type CountMap = Record<string, number | CountEntry>;
@@ -107,15 +107,7 @@ function getPackedSvgIcon(svgIcon, sourceBoxSize: number) {
 
 // SVG donut chart for nodeGraph icons and clusters
 
-function createDonutChart({
-  colorCounts = {},
-  stripeCounts,
-  allTotal,
-  radius = 45,
-  bkColor,
-  isDark = false,
-  svgIcon,
-}) {
+function createDonutChart({ colorCounts = {}, stripeCounts, allTotal, radius = 45, bkColor, isDark = false, svgIcon }) {
   void isDark;
   const userSvgUrl = svgIcon?.svgDataUrl;
   const userSvgWidth = svgIcon?.width;
@@ -215,9 +207,7 @@ function donutSegment(startFraction, segmentFraction, center, ringRadius, stroke
   if (segmentFraction >= 1) {
     return `<circle cx="${formatSvgNumber(center)}" cy="${formatSvgNumber(center)}" r="${formatSvgNumber(
       ringRadius
-    )}" fill="none" stroke="${color}" stroke-width="${formatSvgNumber(
-      strokeWidth
-    )}" />`;
+    )}" fill="none" stroke="${color}" stroke-width="${formatSvgNumber(strokeWidth)}" />`;
   }
 
   return `<circle cx="${formatSvgNumber(center)}" cy="${formatSvgNumber(center)}" r="${formatSvgNumber(
@@ -263,7 +253,7 @@ function getStripeData({
   const stripeTotal = getTotalCount(Object.values(normalizedCounts) as CountEntry[]);
   const unknownCount = Math.max(0, total - stripeTotal);
 
-  if ( unknownCount > 0 ) {
+  if (unknownCount > 0) {
     normalizedCounts[bkColor] = {
       count: unknownCount,
       label: 'Unknown',

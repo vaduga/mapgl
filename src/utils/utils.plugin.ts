@@ -2,7 +2,7 @@ import turfbbox from '@turf/bbox';
 import { FeatSource } from 'mapLib';
 import { colTypes, RGBAColor, FIXED_COLOR_LABEL } from 'mapLib/utils';
 import { FieldType, SelectableValue } from '@grafana/data';
-import { svgToDataURL } from '../deckLayers/OrthoLayer/donutChart';
+import { svgToDataURL } from '../deckLayers/GeoJsonNodesLayer/donutChart';
 import { MarkersConfig } from '../layers/data/markersLayer';
 import { Rule } from '../editor/Groups/rule-types';
 import { MapLayerState, PLUGIN_ID, SvgTintMode } from '../types';
@@ -166,10 +166,7 @@ function recolorSvgMarkup(svgText: string, color: string) {
   return new XMLSerializer().serializeToString(xmlDoc);
 }
 
-function resolveSvgTintMode(
-  svgIcon: SvgIconRecord | undefined,
-  requestedMode: SvgTintMode = 'none'
-): SvgTintMode {
+function resolveSvgTintMode(svgIcon: SvgIconRecord | undefined, requestedMode: SvgTintMode = 'none'): SvgTintMode {
   void svgIcon;
   if (requestedMode === 'none') {
     return 'none';
@@ -392,7 +389,9 @@ async function parseSvgFileToString(
   uController: AbortController
 ): Promise<[string, SvgIconRecord] | null> {
   const signal = uController.signal;
-  if (!svgIconName) {return null;}
+  if (!svgIconName) {
+    return null;
+  }
 
   const isPublic = svgIconName.startsWith('public/');
   const localName = isPublic ? svgIconName : `public/plugins/${PLUGIN_ID}/img/icons/${svgIconName}.svg`;
@@ -400,17 +399,23 @@ async function parseSvgFileToString(
 
   try {
     const response = await fetch(svgFilePath, { signal });
-    if (signal.aborted) {throw new DOMException('Aborted', 'AbortError');}
+    if (signal.aborted) {
+      throw new DOMException('Aborted', 'AbortError');
+    }
 
     if (!response.ok) {
       throw new Error(`Failed to fetch SVG file. Status: ${response.status}`);
     }
 
     const svgString = await response.text();
-    if (signal.aborted) {throw new DOMException('Aborted', 'AbortError');}
+    if (signal.aborted) {
+      throw new DOMException('Aborted', 'AbortError');
+    }
 
     const { svgText, svgDataUrl, width, height } = addSVGattributes(svgString);
-    if (signal.aborted) {throw new DOMException('Aborted', 'AbortError');}
+    if (signal.aborted) {
+      throw new DOMException('Aborted', 'AbortError');
+    }
 
     return [
       svgIconName,
@@ -422,7 +427,9 @@ async function parseSvgFileToString(
       },
     ];
   } catch (error: any) {
-    if (error?.name === 'AbortError') {throw error;}
+    if (error?.name === 'AbortError') {
+      throw error;
+    }
     return null;
   }
 }
@@ -437,8 +444,9 @@ async function loadSvgIcons(
   }
 
   try {
-    const promises: Array<Promise<[string, SvgIconRecord] | null>> =
-      names.map((name) => parseSvgFileToString(name, loadController));
+    const promises: Array<Promise<[string, SvgIconRecord] | null>> = names.map((name) =>
+      parseSvgFileToString(name, loadController)
+    );
 
     const res = await Promise.all(promises);
 
@@ -450,7 +458,9 @@ async function loadSvgIcons(
 
     return svgIcons;
   } catch (err: any) {
-    if (err?.name === 'AbortError') {return svgIcons;} // silent abort
+    if (err?.name === 'AbortError') {
+      return svgIcons;
+    } // silent abort
     throw err;
   }
 }
@@ -577,7 +587,7 @@ function initBinaryProps(panel) {
 
 function cutBinaryProps(panel) {
   const end = panel.vCount;
-  panel.positions = panel.positions.slice(0, end * 2)
+  panel.positions = panel.positions.slice(0, end * 2);
   panel.colors = panel.colors.slice(0, end * 4);
   panel.muted = panel.colors.slice(0, end * 4);
   panel.annots = panel.annots.slice(0, end * 4);

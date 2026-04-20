@@ -27,7 +27,6 @@ type MapRefProps = {
   value?: string;
   placeholder?: string;
   isMainLocSearch?: boolean;
-  refreshToken?: number;
   total?: number;
   options: any;
   data: any;
@@ -44,7 +43,6 @@ const ReactSelectSearch: FC<MapRefProps> = ({
   wait = 300,
   placeholder = 'Search',
   isMainLocSearch = false,
-  refreshToken = 0,
   ...props
 }) => {
   const s = useStyles2(getStyles);
@@ -68,7 +66,7 @@ const ReactSelectSearch: FC<MapRefProps> = ({
         dataLayers?.length && dataLayers.find((el) => el.type === colTypes.Markers && el.name === layerName);
       const searchProperties = layer?.searchProperties;
       const frame: DataFrame | undefined = frameRefId
-        ? data.series.find((el) => el.refId === frameRefId || el.name === frameRefId) ?? data.series[0]
+        ? (data.series.find((el) => el.refId === frameRefId || el.name === frameRefId) ?? data.series[0])
         : data.series[0];
 
       const paneProps = searchProperties?.length ? searchProperties : [];
@@ -103,11 +101,12 @@ const ReactSelectSearch: FC<MapRefProps> = ({
   const placeholderText = `Search: ${total2}`;
   const locName = isMainLocSearch ? getSelectedNode?.id : undefined;
   const selectedOption = filteredOptions.find((option) => option.nodeId === locName);
+  const optionsKey = filteredOptions.map((option) => `${option.graphId}:${option.nodeId}`).join('|');
 
   return (
     <div className={s.select}>
       <ComboboxCompat
-        key={refreshToken}
+        // key={optionsKey}
         options={filteredOptions}
         value={selectedOption}
         width="auto"

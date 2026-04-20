@@ -63,7 +63,11 @@ function getLayersSelection(items: Array<ExtendMapLayerRegistryItem<any>>, curre
   const alpha: Array<SelectableValue<string>> = [];
 
   for (const layer of items) {
-    const option: SelectableValue<string> = { label: layer.name, value: layer.id, description: layer.description };
+    const option: SelectableValue<string> = {
+      label: layer.name,
+      value: layer.id,
+      description: layer.description,
+    };
 
     switch (layer.state) {
       case PluginState.alpha:

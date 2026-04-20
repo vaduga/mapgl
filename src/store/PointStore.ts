@@ -48,77 +48,77 @@ class PointStore {
     //}
 
     const selectNodeSub = eventBus.subscribe(SelectNodeEvent, (evt) => {
-        if (pId !== evt.payload.pId) {
-          return;
-        } //  && !isLogic  . logic layer crosshair selection
+      if (pId !== evt.payload.pId) {
+        return;
+      } //  && !isLogic  . logic layer crosshair selection
 
-        const { nodeId, edgeId, graphId, fly, coord, select, zoomIn } = evt.payload;
+      const { nodeId, edgeId, graphId, fly, coord, select, zoomIn } = evt.payload;
 
-        let wasmId;
-        if (nodeId || edgeId || select) {
-          let node, edge;
-          let subGraph = graphId && Array.from(graph.graphs()).find((el) => el.id === graphId);
-          if (subGraph) {
-            node = (nodeId && subGraph.findNode(nodeId)) ?? subGraph;
-            edge = edgeId && subGraph.nodeCollection.getEdgesMap[edgeId];
-          } else {
-            node = nodeId && graph.findNodeRecursive(nodeId);
-            if (edgeId) {
-              for (const el of graph.deepEdges) {
-                if (el.id === edgeId) {
-                  edge = el;
-                  break;
-                }
+      let wasmId;
+      if (nodeId || edgeId || select) {
+        let node, edge;
+        let subGraph = graphId && Array.from(graph.graphs()).find((el) => el.id === graphId);
+        if (subGraph) {
+          node = (nodeId && subGraph.findNode(nodeId)) ?? subGraph;
+          edge = edgeId && subGraph.nodeCollection.getEdgesMap[edgeId];
+        } else {
+          node = nodeId && graph.findNodeRecursive(nodeId);
+          if (edgeId) {
+            for (const el of graph.deepEdges) {
+              if (el.id === edgeId) {
+                edge = el;
+                break;
               }
             }
           }
-
-          if (select || edge) {
-            this.setSelectedNode(node ? node : undefined, edge ? [edge] : []);
-          }
-          wasmId = node?.data?.wasmId;
         }
 
-        if (wasmId !== undefined || coord) {
-          const pos = panel.positions;
-          const lng = pos[wasmId * 2];
-          const lat = pos[wasmId * 2 + 1];
+        if (select || edge) {
+          this.setSelectedNode(node ? node : undefined, edge ? [edge] : []);
+        }
+        wasmId = node?.data?.wasmId;
+      }
 
-          const coordsFromValue = [lng, lat];
+      if (wasmId !== undefined || coord) {
+        const pos = panel.positions;
+        const lng = pos[wasmId * 2];
+        const lat = pos[wasmId * 2 + 1];
 
-          if (coord || (lng && lat)) {
-            const map = this.root.map;
+        const coordsFromValue = [lng, lat];
 
-            const longitude = coord ? coord[0] : coordsFromValue[0];
-            const latitude = coord ? coord[1] : coordsFromValue[1];
-            //@ts-ignore
-            const scene = (map as Deck)?.deck?.viewManager.viewState[isLogic ? '3d-scene' : 'geo-view'];
-            const mapZoom = zoomIn ? (isLogic ? 1.5 : 18) : scene?.zoom;
-            const zoom = isNaN(mapZoom) ? 2 : (mapZoom ?? 18);
+        if (coord || (lng && lat)) {
+          const map = this.root.map;
 
-            const viewState = {
-              longitude,
-              latitude,
-              transitionDuration: 250,
-              rotationX: -90,
-              zoom,
-              yZoom: zoom + 1,
-              target: [longitude, latitude, zoom],
-            };
-            if (select) {
-              this.setSelCoord({
-                type: 'Point',
-                coordinates: [viewState.longitude, viewState.latitude],
-              });
-            }
-            if (fly) {
-              this.root.viewStore.setViewState(viewState);
-              this.setIsShowCenter({ ...viewState });
-            }
+          const longitude = coord ? coord[0] : coordsFromValue[0];
+          const latitude = coord ? coord[1] : coordsFromValue[1];
+          //@ts-ignore
+          const scene = (map as Deck)?.deck?.viewManager.viewState[isLogic ? '3d-scene' : 'geo-view'];
+          const mapZoom = zoomIn ? (isLogic ? 1.5 : 18) : scene?.zoom;
+          const zoom = isNaN(mapZoom) ? 2 : (mapZoom ?? 18);
+
+          const viewState = {
+            longitude,
+            latitude,
+            transitionDuration: 250,
+            rotationX: -90,
+            zoom,
+            yZoom: zoom + 1,
+            target: [longitude, latitude, zoom],
+          };
+          if (select) {
+            this.setSelCoord({
+              type: 'Point',
+              coordinates: [viewState.longitude, viewState.latitude],
+            });
+          }
+          if (fly) {
+            this.root.viewStore.setViewState(viewState);
             this.setIsShowCenter({ ...viewState });
           }
+          this.setIsShowCenter({ ...viewState });
         }
-      });
+      }
+    });
     this.eventSub.add(selectNodeSub);
     subs.add(selectNodeSub);
 
@@ -178,7 +178,9 @@ class PointStore {
 
       if (selEdges?.length) {
         const edgesByLayer = selEdges.reduce<Record<string, number[]>>((acc, e) => {
-          if (e.id == null || e.lineId == null) {return acc;}
+          if (e.id == null || e.lineId == null) {
+            return acc;
+          }
           const layerId = String((e.source.parent as Graph).id);
           (acc[layerId] ??= []).push(e.lineId);
           return acc;
@@ -194,7 +196,9 @@ class PointStore {
   }
 
   setSelectedNode = (node: Node | undefined | null, pickedEdges: Edge[] = []) => {
-    if (node === null || node === undefined) {this.selectedNode = null;}
+    if (node === null || node === undefined) {
+      this.selectedNode = null;
+    }
     if (node) {
       this.selectedNode = node;
       const feature = node?.data?.feature;

@@ -73,7 +73,11 @@ export const carto: ExtendMapLayerRegistryItem<CartoConfig> = {
           name: 'Theme',
           settings: {
             options: [
-              { value: LayerTheme.Auto, label: 'Auto', description: 'Match grafana theme' },
+              {
+                value: LayerTheme.Auto,
+                label: 'Auto',
+                description: 'Match grafana theme',
+              },
               { value: LayerTheme.Light, label: 'Light' },
               { value: LayerTheme.Dark, label: 'Dark' },
             ],

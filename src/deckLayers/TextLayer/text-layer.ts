@@ -34,7 +34,13 @@ const LineTextLayer = ({
   const categories = cats.concat([add]);
   const categorySize = 3;
 
-  const Labels = visible && isVisible(getVisLayers, { index: null, name: colTypes.Label, group: colTypes.Label });
+  const Labels =
+    visible &&
+    isVisible(getVisLayers, {
+      index: null,
+      name: colTypes.Label,
+      group: colTypes.Label,
+    });
   const lTheme = baseLayer?.options?.config?.theme;
   const isAuto = !lTheme || lTheme === 'auto';
   const isDark = isAuto ? theme.isDark : lTheme === 'dark';

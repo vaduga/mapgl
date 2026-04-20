@@ -90,7 +90,8 @@ export const GroupsEditor = ({ onChange, item, ...props }: Props) => {
 
   const canRenameGroup = (nameToCheck: string, currentId?: string) => {
     return !tracker.some(
-      (entry) => entry.ID !== currentId && (entry.rule.label ?? 'rule').trim().toLowerCase() === nameToCheck.trim().toLowerCase()
+      (entry) =>
+        entry.ID !== currentId && (entry.rule.label ?? 'rule').trim().toLowerCase() === nameToCheck.trim().toLowerCase()
     );
   };
 
@@ -287,7 +288,7 @@ export const GroupsEditor = ({ onChange, item, ...props }: Props) => {
 };
 
 const sanitizeRule = (rule: Rule): Rule => {
-  const { collapse, width, size, offset, ...rest } = rule
+  const { collapse, width, size, offset, ...rest } = rule;
 
   return {
     ...rest,

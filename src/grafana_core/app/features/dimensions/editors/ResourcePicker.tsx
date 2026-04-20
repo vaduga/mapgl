@@ -2,15 +2,7 @@ import { css } from '@emotion/css';
 import React, { useRef, useState } from 'react';
 import { GrafanaTheme2 } from '@grafana/data';
 //import { t, Trans } from '@grafana/i18n';
-import {
-  Button,
-  IconButton,
-  LinkButton,
-  Popover,
-  PopoverController,
-  useStyles2,
-  useTheme2,
-} from '@grafana/ui';
+import { Button, IconButton, LinkButton, Popover, PopoverController, useStyles2, useTheme2 } from '@grafana/ui';
 
 import { getPublicOrAbsoluteUrl } from '../resource';
 import { MediaType, ResourceFolderName, ResourcePickerSize } from '../types';
@@ -181,64 +173,63 @@ const getStyles = (theme: GrafanaTheme2) => {
   const iconHeight = theme.spacing(1.75);
 
   return {
-  pointer: css({
-    cursor: 'pointer',
-    width: '100%',
-    minWidth: 0,
-    maxWidth: '100%',
-    overflow: 'hidden',
-
-  }),
-  trigger: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(0.5),
-    width: '100%',
-    minWidth: 0,
-    maxWidth: '100%',
-    overflow: 'hidden',
-    height: theme.spacing(4),
-    minHeight: theme.spacing(4),
-    padding: `0 ${theme.spacing(0.5)}`,
-    border: `1px solid ${theme.components.input.borderColor}`,
-    borderRadius: theme.shape.radius.default,
-    background: theme.components.input.background,
-    boxSizing: 'border-box',
-  }),
-  triggerMain: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(0.5),
-    flex: '1 1 auto',
-    minWidth: 0,
-    overflow: 'hidden',
-  }),
-  triggerText: css({
-    flex: '1 1 auto',
-    minWidth: 0,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    fontSize: theme.typography.size.sm,
-    lineHeight: 1.25,
-  }),
-  clearButton: css({
-    flex: '0 0 auto',
-    padding: 0,
-    margin: 0,
-  }),
-  iconPlaceholder: css({
-    width: iconWidth,
-    height: iconHeight,
-    flex: '0 0 auto',
-  }),
-  icon: css({
-    verticalAlign: 'middle',
-    display: 'inline-block',
-    fill: 'currentColor',
-    width: iconWidth,
-    height: iconHeight,
-    flex: '0 0 auto',
-  }),
+    pointer: css({
+      cursor: 'pointer',
+      width: '100%',
+      minWidth: 0,
+      maxWidth: '100%',
+      overflow: 'hidden',
+    }),
+    trigger: css({
+      display: 'flex',
+      alignItems: 'center',
+      gap: theme.spacing(0.5),
+      width: '100%',
+      minWidth: 0,
+      maxWidth: '100%',
+      overflow: 'hidden',
+      height: theme.spacing(4),
+      minHeight: theme.spacing(4),
+      padding: `0 ${theme.spacing(0.5)}`,
+      border: `1px solid ${theme.components.input.borderColor}`,
+      borderRadius: theme.shape.radius.default,
+      background: theme.components.input.background,
+      boxSizing: 'border-box',
+    }),
+    triggerMain: css({
+      display: 'flex',
+      alignItems: 'center',
+      gap: theme.spacing(0.5),
+      flex: '1 1 auto',
+      minWidth: 0,
+      overflow: 'hidden',
+    }),
+    triggerText: css({
+      flex: '1 1 auto',
+      minWidth: 0,
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap',
+      fontSize: theme.typography.size.sm,
+      lineHeight: 1.25,
+    }),
+    clearButton: css({
+      flex: '0 0 auto',
+      padding: 0,
+      margin: 0,
+    }),
+    iconPlaceholder: css({
+      width: iconWidth,
+      height: iconHeight,
+      flex: '0 0 auto',
+    }),
+    icon: css({
+      verticalAlign: 'middle',
+      display: 'inline-block',
+      fill: 'currentColor',
+      width: iconWidth,
+      height: iconHeight,
+      flex: '0 0 auto',
+    }),
   };
 };

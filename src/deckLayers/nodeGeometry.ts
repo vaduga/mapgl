@@ -29,7 +29,7 @@ export const getMaxResolvedIconSize = (feature: any) => {
 
 export const getFittedIconSize = (targetBoxSize: number, width?: number, height?: number) => {
   if (!width || !height || width <= 0 || height <= 0) {
-    return targetBoxSize
+    return targetBoxSize;
   }
 
   const aspectRatio = width / height;

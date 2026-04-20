@@ -1,7 +1,7 @@
 import React from 'react';
 import { selectGotoHandler, toRgbaString, useRootStore } from '../../utils';
 import { css } from '@emotion/css';
-import { IconButton, SeriesIcon, useStyles2, useTheme2, VizTooltipContainer } from '@grafana/ui';
+import { IconButton, SeriesIcon, useStyles2, VizTooltipContainer } from '@grafana/ui';
 import { DataFrame, Field, FieldType, GrafanaTheme2 } from '@grafana/data';
 import { BiColProps, colTypes } from 'mapLib/utils';
 import { DataHoverView } from './DataHoverView';
@@ -13,13 +13,12 @@ const includes = ['ack', 'msg', 'all_annots', 'liveUpd']; //liveStat
 const TOOLTIP_OFFSET = 10;
 
 const Tooltip = ({ data, panel, info, eventBus, setHoverInfo, time, isClosed = false, dataLayers }) => {
+  const s = useStyles2(getStyles);
+  const { pointStore, pId } = useRootStore();
+
   if (!info || !Object.entries(info).length) {
     return null;
   }
-
-  const s = useStyles2(getStyles);
-  const { pointStore, pId } = useRootStore();
-  const theme = useTheme2();
   const { getTooltipObject, setTooltipObject } = pointStore;
 
   let { x, y, object, coordinate, featureType, index, layer: deckLayer } = info;
@@ -27,7 +26,9 @@ const Tooltip = ({ data, panel, info, eventBus, setHoverInfo, time, isClosed = f
   let props = object?.properties ?? object;
   let rowIndex;
 
-  if (!x && !y && !coordinate) {return;}
+  if (!x && !y && !coordinate) {
+    return;
+  }
 
   const points = deckLayer?.props.data.points;
   if (points && (featureType === 'points' || info.viewport?.id === '3d-scene') && index !== -1) {
@@ -41,9 +42,13 @@ const Tooltip = ({ data, panel, info, eventBus, setHoverInfo, time, isClosed = f
 
   let pinned = false;
   if (!props || index === -1) {
-    if (isClosed) {return null;}
+    if (isClosed) {
+      return null;
+    }
     ({ x, y, object } = getTooltipObject); // pinned object
-    if (!x && !y) {return;}
+    if (!x && !y) {
+      return;
+    }
     props = object.properties;
     pinned = true;
   }
@@ -88,7 +93,7 @@ const Tooltip = ({ data, panel, info, eventBus, setHoverInfo, time, isClosed = f
   };
 
   const frame: DataFrame | undefined = frameRefId
-    ? data.series.find((el) => el.refId === frameRefId || el.name === frameRefId) ?? data.series[0]
+    ? (data.series.find((el) => el.refId === frameRefId || el.name === frameRefId) ?? data.series[0])
     : data.series[0];
 
   if (frame) {
@@ -125,7 +130,12 @@ const Tooltip = ({ data, panel, info, eventBus, setHoverInfo, time, isClosed = f
     }
     const value = props[name];
     if (value !== undefined) {
-      extraFields.push({ name, values: [value], type: FieldType.string, config: {} });
+      extraFields.push({
+        name,
+        values: [value],
+        type: FieldType.string,
+        config: {},
+      });
     }
   });
 
@@ -146,7 +156,15 @@ const Tooltip = ({ data, panel, info, eventBus, setHoverInfo, time, isClosed = f
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <a
               onClick={() => {
-                selectGotoHandler({ pId, value: node?.id, edge, eventBus, graphId: graph.id, select: true });
+                selectGotoHandler({
+                  pId,
+                  value: node?.id,
+                  edge,
+                  eventBus,
+                  graphId: graph.id,
+                  select: true,
+                  fly: false,
+                });
                 setTooltipObject({
                   ...getTooltipObject,
                   object: {
@@ -160,7 +178,11 @@ const Tooltip = ({ data, panel, info, eventBus, setHoverInfo, time, isClosed = f
                   },
                 });
               }}
-              style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                textDecoration: 'none',
+              }}
             >
               <span>{edgeId}</span>
               <div className={s.seriesIcons}>

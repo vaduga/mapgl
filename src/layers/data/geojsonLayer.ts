@@ -194,5 +194,8 @@ export const getGeoJsonProps = async (context) => {
     return [];
   }
   let geoData = await ds.json();
-  return Object.keys(geoData.features[0].properties).map((el) => ({ value: el, label: el }));
+  return Object.keys(geoData.features[0].properties).map((el) => ({
+    value: el,
+    label: el,
+  }));
 };

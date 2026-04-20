@@ -27,8 +27,6 @@ export const EdgesGeojsonLayer = (props) => {
   const categorySize = 3;
   const selectedFeatureIndexes = getSelectedIdxs?.get(colTypes.Edges)?.[srcGraphId] ?? [];
 
-
-
   const units = options.common?.isMeters ? 'meters' : 'pixels';
   return new GeoJsonLayer({
     visible,
@@ -61,8 +59,8 @@ export const EdgesGeojsonLayer = (props) => {
         const color = annotState?.startsWith('Normal')
           ? ALERTING_STATES.Normal
           : annotState === 'Alerting'
-          ? ALERTING_STATES.Alerting
-          : ALERTING_STATES.Pending;
+            ? ALERTING_STATES.Alerting
+            : ALERTING_STATES.Pending;
         return toRGB4Array(color, 1) as [number, number, number];
       }
 

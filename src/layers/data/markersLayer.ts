@@ -21,11 +21,19 @@ import { Options } from '../../types';
 import { GeomapPanel } from '../../GeomapPanel';
 import { getQueryFields } from '../../editor/getQueryFields';
 import { GroupsEditor } from '../../editor/Groups/GroupsEditor';
-import {OverField, Rule} from '../../editor/Groups/rule-types';
+import { OverField, Rule } from '../../editor/Groups/rule-types';
 import { CapacityDimensionEditor } from '../../editor/Other/CapacityEditor';
 import { ArcOptionsEditor } from '../../editor/ArcOptionsEditor';
 import { CurveFactory, Graph, FeatSource, AttributeRegistry, GeomNode, Point as MSPoint } from 'mapLib';
-import { CMN_NAMESPACE, MOC_LOC_FIELD, FIXED_COLOR_LABEL, pushPath, PushPathProps, colTypes, BiColProps } from 'mapLib/utils';
+import {
+  CMN_NAMESPACE,
+  MOC_LOC_FIELD,
+  FIXED_COLOR_LABEL,
+  pushPath,
+  PushPathProps,
+  colTypes,
+  BiColProps,
+} from 'mapLib/utils';
 import { findField } from '../../grafana_core/app/features/dimensions';
 
 export interface MarkersConfig {
@@ -63,7 +71,7 @@ const defaultOptions: MarkersConfig = {
     height: 0.5,
     capacity: { fixed: 1 },
   },
-  showStat2: false
+  showStat2: false,
 };
 
 export const MARKERS_LAYER_ID = colTypes.Markers;
@@ -243,7 +251,9 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
           const { field: nodeMetricField, fixed } = style.config?.color || {};
           const isFixed = !nodeMetricField && Boolean(fixed);
           const colorField = style.dims.color?.field;
-          const colorThresholds = isFixed ? undefined : style.config?.color?.thresholds ?? colorField?.config?.thresholds;
+          const colorThresholds = isFixed
+            ? undefined
+            : (style.config?.color?.thresholds ?? colorField?.config?.thresholds);
           featSource.setThresholds(colorThresholds);
 
           const fieldValues = new Map(frame.fields.map((f) => [f.name, f.values]));
@@ -261,7 +271,9 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
           };
 
           const ruleFieldNames = Array.from(
-            new Set(panel.groups.flatMap((group) => (group.overrides as OverField[])?.map((override) => override.name) ?? []))
+            new Set(
+              panel.groups.flatMap((group) => (group.overrides as OverField[])?.map((override) => override.name) ?? [])
+            )
           );
           const makeRulePoint = (rowIndex: number, thrColor?: string) => {
             const point: Record<string, any> = {};
@@ -329,7 +341,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
             }
             let group;
             const fixedColor = fixed ? theme.visualization.getColorByName(fixed) : undefined;
-            const hexColor = isFixed ? fixedColor : dims?.color?.get(i) ?? fixedColor;
+            const hexColor = isFixed ? fixedColor : (dims?.color?.get(i) ?? fixedColor);
             if (hexColor) {
               const thrColor = isFixed ? undefined : hexColor;
               if (thrColor !== undefined) {
@@ -342,19 +354,17 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               const matchedRules = getGroupRules(point, featSource.getGroups, theme, isFixed, locField, locName);
               const fixedFallbackGroup =
                 isFixed &&
-                featSource
-                  .getGroups
-                  .find(
-                    (rule) =>
-                      rule.isEph &&
-                      rule.color === hexColor &&
-                      rule.overrides?.some(
-                        (override) =>
-                          override.name === 'thrColor' &&
-                          Array.isArray(override.value) &&
-                          override.value.includes(FIXED_COLOR_LABEL)
-                      )
-                  );
+                featSource.getGroups.find(
+                  (rule) =>
+                    rule.isEph &&
+                    rule.color === hexColor &&
+                    rule.overrides?.some(
+                      (override) =>
+                        override.name === 'thrColor' &&
+                        Array.isArray(override.value) &&
+                        override.value.includes(FIXED_COLOR_LABEL)
+                    )
+                );
               const tintModeRule =
                 matchedRules.find((rule) => !rule.isEph && rule.svgTintMode !== undefined) ??
                 matchedRules.find((rule) => rule.svgTintMode !== undefined);

@@ -1,10 +1,9 @@
-import { useCallback, useMemo } from 'react';
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import { SelectableValue, StandardEditorContext } from '@grafana/data';
+import { t } from '../../utils/i18n';
 import { InlineFieldRow, InlineField, RadioButtonGroup, Select } from '@grafana/ui';
 import { NumberInput } from '../../grafana_core/app/core/components/OptionsUI/NumberInput';
-import { t } from '../../utils/i18n';
 
 import { GeomapInstanceState, type Options, type MapViewConfig } from '../../types';
 
@@ -35,17 +34,19 @@ const DataScopeOptions: Array<SelectableValue<DataScopeValues>> = ScopeOptions.m
 }));
 
 export const FitMapViewEditor = ({ labelWidth, value, onChange, context }: Props) => {
+  const dataLayers = context.options?.dataLayers;
+
   const layers = useMemo(() => {
     //console.log('context.options', context.options)
-    if (context.options?.dataLayers) {
-      return context.options.dataLayers.map((layer) => ({
+    if (dataLayers) {
+      return dataLayers.map((layer) => ({
         label: layer.name,
         value: layer.name,
         description: undefined,
       }));
     }
     return [];
-  }, [context.options?.dataLayers]);
+  }, [dataLayers]);
 
   const onSelectLayer = useCallback(
     (selection: SelectableValue<string>) => {
@@ -89,8 +90,8 @@ export const FitMapViewEditor = ({ labelWidth, value, onChange, context }: Props
   const currentDataScope = value.allLayers
     ? DataScopeValues.all
     : !value.allLayers && value.lastOnly
-    ? DataScopeValues.last
-    : DataScopeValues.layer;
+      ? DataScopeValues.last
+      : DataScopeValues.layer;
 
   const onDataScopeChange = (dataScope: DataScopeValues) => {
     if (dataScope !== DataScopeValues.all && !value.layer) {

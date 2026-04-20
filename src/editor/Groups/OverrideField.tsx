@@ -87,7 +87,9 @@ export const OverrideField: React.FC<OverrideFieldProps> = (options: OverrideFie
     }));
     const mergedOptions = [
       ...activeThresholdOptions,
-      ...fallbackOptions.filter((fallback) => !activeThresholdOptions.some((option) => option.label === fallback.label)),
+      ...fallbackOptions.filter(
+        (fallback) => !activeThresholdOptions.some((option) => option.label === fallback.label)
+      ),
     ];
     const storedOptions = thrColors.length ? mergedOptions.filter((t) => thrColors.includes(t.label)) : [];
     // setSelThresOpts(storedOptions)

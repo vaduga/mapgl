@@ -84,7 +84,10 @@ export class GeomapPanel extends Component<Props, State> {
     }
 
     this.locLabelName = locLabelName;
-    this.state = { source: undefined, viewState: defViewState };
+    this.state = {
+      source: undefined,
+      viewState: defViewState,
+    };
 
     this.panelContext = {
       onToggleSeriesVisibility: undefined,
@@ -120,7 +123,7 @@ export class GeomapPanel extends Component<Props, State> {
     //console.log('willUnmount')
     this.graph?.disposeAutorun();
     this.graph.reset();
-    this.vCount = 0
+    this.vCount = 0;
     for (const g of this.graph.graphs()) {
       this.graph?.disposeAutorun();
       g.reset();
@@ -221,7 +224,7 @@ export class GeomapPanel extends Component<Props, State> {
       }
 
       this.graph.reset();
-      this.vCount = 0
+      this.vCount = 0;
       initBinaryProps(this);
 
       const d = { ...this.props.data };
@@ -260,7 +263,7 @@ export class GeomapPanel extends Component<Props, State> {
       g.resetNodes();
     }
     this.graph.reset();
-    this.vCount = 0
+    this.vCount = 0;
     initBinaryProps(this);
 
     try {
@@ -324,7 +327,6 @@ export class GeomapPanel extends Component<Props, State> {
   };
 
   render() {
-
     const { data, options, replaceVariables, fieldConfig, eventBus } = this.props;
 
     return (

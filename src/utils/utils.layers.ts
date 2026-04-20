@@ -1,17 +1,17 @@
 import { collectGroups, getGraphLayers, loadSvgIcons, newUniqueIconNames, toRGB4Array } from './utils.plugin';
-import {GeomGraph, Graph } from 'mapLib';
+import { GeomGraph, Graph } from 'mapLib';
 import { LineTextLayer } from '../deckLayers/TextLayer/text-layer';
 import { MyIconLayer } from '../deckLayers/IconLayer/icon-layer';
 import { MyArcLayer } from '../deckLayers/ArcLayer/arc-layer';
 import { GeoJsonLayer, PathLayer, TextLayer } from '@deck.gl/layers';
 import { Layer } from '@deck.gl/core';
-import { DeckLine, colTypes,
-  NS_SEPARATOR,
-  NS_PADDING,
-  BBOX_OUTLINE_WIDTH,
-  BBOX_OUTLINE_COLOR } from 'mapLib/utils';
+import { DeckLine, colTypes, NS_SEPARATOR, NS_PADDING, BBOX_OUTLINE_WIDTH, BBOX_OUTLINE_COLOR } from 'mapLib/utils';
 import { Rule } from 'editor/Groups/rule-types';
-import { LogicMainLabelTextLayer, LogicPlaceholderTextLayer, NodesGeojsonLayer } from '../deckLayers/GeoJsonNodesLayer/nodes-geojson-layer';
+import {
+  LogicMainLabelTextLayer,
+  LogicPlaceholderTextLayer,
+  NodesGeojsonLayer,
+} from '../deckLayers/GeoJsonNodesLayer/nodes-geojson-layer';
 import { EdgesGeojsonLayer } from '../deckLayers/GeoJsonEdgesLayer/edges-geojson-layer';
 import { EdgeArrowLayer } from '../deckLayers/ArrowLayer/edge-arrow-layer';
 import { GeomapPanel } from '../GeomapPanel';
@@ -22,7 +22,7 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
   const lines: any[] = [];
   const arcsBase: any[] = [];
   const edgeLabels: any[] = [];
-  const {theme, baseLayer, options, getVisLayers, isHyper, panel, isLogic} = layerProps;
+  const { theme, baseLayer, options, getVisLayers, isHyper, panel, isLogic } = layerProps;
 
   const icons: Layer[] = [];
 
@@ -31,7 +31,7 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
   const lineLayer = EdgesGeojsonLayer;
 
   for (const col of biCols ?? []) {
-    const visible = isVisible(getVisLayers, {index: null, name: col.graph.id, group: 'graph'});
+    const visible = isVisible(getVisLayers, { index: null, name: col.graph.id, group: 'graph' });
     if (isLogic) {
       icons.push(
         nodeLayer({
@@ -55,192 +55,193 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
     }
   }
 
-  const {visLayers, graph} = panel;
+  const { visLayers, graph } = panel;
   const clusters = Array.from(graph.subgraphsBreadthFirst()) as Graph[];
   const graphs: Graph[] = clusters.concat([graph as Graph]);
 
-    /// Bboxes polygons
-    if (isLogic) {
-      const features: any[] = [];
-      const bboxCols: any = {};
-      for (const c of clusters) {
-        const gId = c.id
-        if (gId && !bboxCols[gId]) {
-          //@ts-ignore
-          const rawBbox = GeomGraph.getGeom(c).getPumpedGraphWithMarginsBox()
-          const bbox = rawBbox && {
-            minX: rawBbox.left_,
-            minY: rawBbox.bottom_,
-            maxX: rawBbox.right_,
-            maxY: rawBbox.top_,
-          };
+  /// Bboxes polygons
+  if (isLogic) {
+    const features: any[] = [];
+    const bboxCols: any = {};
+    for (const c of clusters) {
+      const gId = c.id;
+      if (gId && !bboxCols[gId]) {
+        //@ts-ignore
+        const rawBbox = GeomGraph.getGeom(c).getPumpedGraphWithMarginsBox();
+        const bbox = rawBbox && {
+          minX: rawBbox.left_,
+          minY: rawBbox.bottom_,
+          maxX: rawBbox.right_,
+          maxY: rawBbox.top_,
+        };
 
-          const graph = Array.from(clusters).find((el) => el.id === gId);
-          if (bbox) {
-            bboxCols[gId] = {graph, bbox};
-          }
+        const graph = Array.from(clusters).find((el) => el.id === gId);
+        if (bbox) {
+          bboxCols[gId] = { graph, bbox };
         }
-      }
-
-      Object.values(bboxCols).forEach((col: any, i) => {
-        let minX, minY, maxX, maxY;
-        ({minX, minY, maxX, maxY} = col.bbox);
-
-        const polygonCoords: any = [
-          [minX, minY],
-          [maxX, minY],
-          [maxX, maxY],
-          [minX, maxY],
-          [minX, minY],
-        ];
-
-        const polyFeature = {
-          type: 'Polygon',
-          properties: {
-            id: col.graph.id,
-            locName: col.graph.id,
-            root: col.graph,
-          },
-          geometry: {
-            type: 'Polygon',
-            coordinates: [polygonCoords],
-            center: [minX + (maxX - minX) / 2, minY + (maxY - minY) / 2],
-          },
-        };
-        features.push(polyFeature);
-      });
-
-      let bboxFeatCollection = {
-        type: 'FeatureCollection',
-        features,
-      };
-
-      if (bboxFeatCollection.features.length) {
-        const props = {
-          id: 'bbox-polygons',
-          ...layerProps,
-          rects: bboxFeatCollection,
-          biCols,
-          getLineColor: toRGB4Array(BBOX_OUTLINE_COLOR),
-          getLineWidth: BBOX_OUTLINE_WIDTH,
-          lineWidthUnits: 'pixels', // or 'meters'
-          lineWidthScale: 1,
-          filled: true,
-          stroked: true,
-        };
-        const polygonsLayer = new GeoJsonLayer({
-          ...props,
-          data: bboxFeatCollection,
-          filled: false,
-        });
-        bboxes.push(polygonsLayer);
-
-        bboxFeatCollection.features.forEach((feature) => {
-          const id = feature.properties.id;
-          const geom = feature.geometry.coordinates[0];
-
-          const [[minX, minY], [maxX], [, maxY]] = geom;
-
-          const center_y = Math.max(maxY, minY);
-          const center_x = (minX + maxX) / 2;
-
-          const data = [
-            {
-              text: id,
-              coordinates: [center_x, center_y],
-            },
-          ];
-          bboxes.push(
-              LineTextLayer({
-                id: 'bbox-' + id,
-                data,
-                theme,
-                visible: true,
-                baseLayer: layerProps.baseLayer,
-                isLogic,
-                options,
-                getVisLayers: visLayers,
-                type: 'bbox',
-              })
-          );
-        });
       }
     }
 
-    /// Edges render
+    Object.values(bboxCols).forEach((col: any, i) => {
+      let minX, minY, maxX, maxY;
+      ({ minX, minY, maxX, maxY } = col.bbox);
 
-    const showGraph = isVisible(getVisLayers, {
-      index: null,
-      name: 'graph',
-      group: 'graph',
+      const polygonCoords: any = [
+        [minX, minY],
+        [maxX, minY],
+        [maxX, maxY],
+        [minX, maxY],
+        [minX, minY],
+      ];
+
+      const polyFeature = {
+        type: 'Polygon',
+        properties: {
+          id: col.graph.id,
+          locName: col.graph.id,
+          root: col.graph,
+        },
+        geometry: {
+          type: 'Polygon',
+          coordinates: [polygonCoords],
+          center: [minX + (maxX - minX) / 2, minY + (maxY - minY) / 2],
+        },
+      };
+      features.push(polyFeature);
     });
 
-    const visible = showGraph && isVisible(getVisLayers, {
+    let bboxFeatCollection = {
+      type: 'FeatureCollection',
+      features,
+    };
+
+    if (bboxFeatCollection.features.length) {
+      const props = {
+        id: 'bbox-polygons',
+        ...layerProps,
+        rects: bboxFeatCollection,
+        biCols,
+        getLineColor: toRGB4Array(BBOX_OUTLINE_COLOR),
+        getLineWidth: BBOX_OUTLINE_WIDTH,
+        lineWidthUnits: 'pixels', // or 'meters'
+        lineWidthScale: 1,
+        filled: true,
+        stroked: true,
+      };
+      const polygonsLayer = new GeoJsonLayer({
+        ...props,
+        data: bboxFeatCollection,
+        filled: false,
+      });
+      bboxes.push(polygonsLayer);
+
+      bboxFeatCollection.features.forEach((feature) => {
+        const id = feature.properties.id;
+        const geom = feature.geometry.coordinates[0];
+
+        const [[minX, minY], [maxX], [, maxY]] = geom;
+
+        const center_y = Math.max(maxY, minY);
+        const center_x = (minX + maxX) / 2;
+
+        const data = [
+          {
+            text: id,
+            coordinates: [center_x, center_y],
+          },
+        ];
+        bboxes.push(
+          LineTextLayer({
+            id: 'bbox-' + id,
+            data,
+            theme,
+            visible: true,
+            baseLayer: layerProps.baseLayer,
+            isLogic,
+            options,
+            getVisLayers: visLayers,
+            type: 'bbox',
+          })
+        );
+      });
+    }
+  }
+
+  /// Edges render
+
+  const showGraph = isVisible(getVisLayers, {
+    index: null,
+    name: 'graph',
+    group: 'graph',
+  });
+
+  const visible =
+    showGraph &&
+    isVisible(getVisLayers, {
       index: null,
       name: colTypes.Edges,
       group: colTypes.Edges,
     });
 
-    if (lineFeatures && Object.keys(lineFeatures).length) {
-      for (const [srcGraphId, features] of Object.entries(lineFeatures)) {
-        if (!(features as DeckLine[])?.length) {
-          continue;
-        }
+  if (lineFeatures && Object.keys(lineFeatures).length) {
+    for (const [srcGraphId, features] of Object.entries(lineFeatures)) {
+      if (!(features as DeckLine[])?.length) {
+        continue;
+      }
 
-        if (!isHyper) {
-          const props = {
-            ...layerProps,
-            srcGraphId,
-            lineFeatures: features,
+      if (!isHyper) {
+        const props = {
+          ...layerProps,
+          srcGraphId,
+          lineFeatures: features,
+          visible,
+        };
+
+        lines.push(MyArcLayer(props));
+        arcsBase.push(MyArcLayer({ ...props, isBase: true }));
+
+        edgeLabels.push(
+          LineTextLayer({
+            getVisLayers,
+            id: srcGraphId,
+            data: features,
             visible,
-          };
+            type: 'arcLabels',
+            isLogic,
+            options,
+            baseLayer,
+            theme,
+          })
+        );
+      } else {
+        const linesCollection = {
+          type: 'FeatureCollection' as const,
+          features: (features as DeckLine[]).filter(Boolean),
+        };
 
-          lines.push(MyArcLayer(props));
-          arcsBase.push(MyArcLayer({...props, isBase: true}));
+        const props = {
+          ...layerProps,
+          srcGraphId,
+          linesCollection,
+          getWasmId2Edges: graph.getWasmId2Edges,
+          visible,
+        };
 
-          edgeLabels.push(
-              LineTextLayer({
-                getVisLayers,
-                id: srcGraphId,
-                data: features,
-                visible,
-                type: 'arcLabels',
-                isLogic,
-                options,
-                baseLayer,
-                theme,
-              })
-          );
-        } else {
-          const linesCollection = {
-            type: 'FeatureCollection' as const,
-            features: (features as DeckLine[]).filter(Boolean),
-          };
-
-          const props = {
-            ...layerProps,
-            srcGraphId,
-            linesCollection,
-            getWasmId2Edges: graph.getWasmId2Edges,
-            visible,
-          };
-
-          lines.push(lineLayer(props));
-          lines.push(EdgeArrowLayer(props));
-        }
+        lines.push(lineLayer(props));
+        lines.push(EdgeArrowLayer(props));
       }
     }
+  }
 
-    if (commentFeatures?.length && isHyper) {
-      comments = MyIconLayer({
-        ...layerProps,
-        showGraph,
-        data: commentFeatures,
-      });
-    }
+  if (commentFeatures?.length && isHyper) {
+    comments = MyIconLayer({
+      ...layerProps,
+      showGraph,
+      data: commentFeatures,
+    });
+  }
 
-    return [bboxes, icons, arcsBase, lines, comments, edgeLabels];
-
+  return [bboxes, icons, arcsBase, lines, comments, edgeLabels];
 }
 
 function genNodeLayers({ biCols, layerProps }) {
@@ -273,10 +274,17 @@ function genNodeLayers({ biCols, layerProps }) {
     }
   }
   return icons;
-
 }
 
-function genEdgeLayers({ lineFeatures, layerProps, isHyperOverride }: { lineFeatures: any; layerProps: any; isHyperOverride?: boolean }) {
+function genEdgeLayers({
+  lineFeatures,
+  layerProps,
+  isHyperOverride,
+}: {
+  lineFeatures: any;
+  layerProps: any;
+  isHyperOverride?: boolean;
+}) {
   const { theme, baseLayer, options, getVisLayers, panel, isLogic } = layerProps;
   const isHyper = isHyperOverride ?? layerProps.isHyper;
   const lines: any[] = [];
@@ -291,11 +299,13 @@ function genEdgeLayers({ lineFeatures, layerProps, isHyperOverride }: { lineFeat
     group: 'graph',
   });
 
-  const visible = showGraph && isVisible(getVisLayers, {
-    index: null,
-    name: colTypes.Edges,
-    group: colTypes.Edges,
-  });
+  const visible =
+    showGraph &&
+    isVisible(getVisLayers, {
+      index: null,
+      name: colTypes.Edges,
+      group: colTypes.Edges,
+    });
 
   if (lineFeatures && Object.keys(lineFeatures).length) {
     for (const [srcGraphId, features] of Object.entries(lineFeatures)) {
@@ -474,4 +484,13 @@ function createDerivedLayers(visLayers: VisLayers, graph: Graph, isLogic, replac
   );
 }
 
-export { genPrimaryLayers, genNodeLayers, genEdgeLayers, initGroups, isVisible, genVisLayers, createDerivedLayers, findSubgraphById };
+export {
+  genPrimaryLayers,
+  genNodeLayers,
+  genEdgeLayers,
+  initGroups,
+  isVisible,
+  genVisLayers,
+  createDerivedLayers,
+  findSubgraphById,
+};

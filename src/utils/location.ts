@@ -320,20 +320,7 @@ function pointFieldFromGeoJSON(
     }
 
     if (graph) {
-      createNode(
-        fields,
-        nodes,
-        ranges,
-        i,
-        len,
-        root,
-        panel,
-        graph,
-        buffer,
-        state,
-        feature?.coordinates,
-        isLogic
-      );
+      createNode(fields, nodes, ranges, i, len, root, panel, graph, buffer, state, feature?.coordinates, isLogic);
       continue;
     }
     buffer[state.index++] = {
@@ -367,7 +354,7 @@ function pointFieldFromLonLat(
   const len = lon.values.length;
   const buffer = graph ? new Float64Array(len * 2) : new Array<Geometry>(len);
   const nodes = new Array<Node>(len);
-  const startIdx = panel?.vCount ?? 0 ;
+  const startIdx = panel?.vCount ?? 0;
   const state = { graph: undefined, index: 0, startIdx };
   const ranges = [];
 
@@ -412,7 +399,7 @@ function pointFieldFromGeohash(
   const len = geohash.values.length;
   const buffer = graph ? new Float64Array(len * 2) : new Array<Geometry>(len);
   const nodes = new Array<Node>(len);
-  const startIdx = panel?.vCount ?? 0 ;
+  const startIdx = panel?.vCount ?? 0;
   const state = { graph: undefined, index: 0, startIdx };
   const ranges = [];
   for (let i = 0; i < len; i++) {

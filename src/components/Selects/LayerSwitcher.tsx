@@ -80,30 +80,15 @@ LayerSwitcher.renderPanel = (geomap: GeomapPanel, setVisRefresh, panel, options)
 
   const layers = geomap.visLayers!.getLayerTree();
 
-  LayerSwitcher.renderLayers_(
-    layers,
-    geomap,
-    setVisRefresh,
-    ul,
-    options,
-    function render(_changedLyr) {
-      LayerSwitcher.renderPanel(geomap, setVisRefresh, panel, options);
-    }
-  );
+  LayerSwitcher.renderLayers_(layers, geomap, setVisRefresh, ul, options, function render(_changedLyr) {
+    LayerSwitcher.renderPanel(geomap, setVisRefresh, panel, options);
+  });
 
   // const rendercomplete_event = new Event('rendercomplete');
   // panel.dispatchEvent(rendercomplete_event);
 };
 
-LayerSwitcher.renderLayer_ = (
-  geomap,
-  setVisRefresh,
-  lyr: LayerTreeInfo,
-  idx,
-  options,
-  render,
-  depth = 0
-) => {
+LayerSwitcher.renderLayer_ = (geomap, setVisRefresh, lyr: LayerTreeInfo, idx, options, render, depth = 0) => {
   const li = document.createElement('li');
   const { label: lyrLabel } = lyr || {};
   const checkboxId = LayerSwitcher.uuid();
@@ -167,15 +152,7 @@ LayerSwitcher.renderLayer_ = (
 
       const ul = document.createElement('ul');
       li.appendChild(ul);
-      LayerSwitcher.renderLayers_(
-        lyr.children,
-        geomap,
-        setVisRefresh,
-        ul,
-        options,
-        render,
-        depth + 1
-      );
+      LayerSwitcher.renderLayers_(lyr.children, geomap, setVisRefresh, ul, options, render, depth + 1);
     }
   } else {
     li.className = 'layer';
@@ -201,15 +178,7 @@ LayerSwitcher.renderLayer_ = (
   return li;
 };
 
-LayerSwitcher.renderLayers_ = (
-  layers: LayerTreeInfo[],
-  geomap,
-  setVisRefresh,
-  elm,
-  options,
-  render,
-  depth = 0
-) => {
+LayerSwitcher.renderLayers_ = (layers: LayerTreeInfo[], geomap, setVisRefresh, elm, options, render, depth = 0) => {
   let children = [...layers];
   if (options.reverse) {
     children.reverse();
@@ -218,9 +187,7 @@ LayerSwitcher.renderLayers_ = (
   for (let i = 0, l: LayerTreeInfo; i < children.length; i++) {
     l = children[i];
     if (l.name) {
-      elm.appendChild(
-        LayerSwitcher.renderLayer_(geomap, setVisRefresh, l, i, options, render, depth)
-      );
+      elm.appendChild(LayerSwitcher.renderLayer_(geomap, setVisRefresh, l, i, options, render, depth));
     }
   }
 };

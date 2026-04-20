@@ -1,11 +1,7 @@
 import { FieldType, SelectableValue } from '@grafana/data';
 import { genValuesWithIncrement } from '../../utils';
 import { SvgTintMode } from '../../types';
-import {
-  DEFAULT_ICON_NAME,
-  DEFAULT_ICON_RULE_IS_COLLAPSED,
-  DEFAULT_SVG_ICON_V_OFFSET,
-} from 'mapLib/utils';
+import { DEFAULT_ICON_NAME, DEFAULT_ICON_RULE_IS_COLLAPSED, DEFAULT_SVG_ICON_V_OFFSET } from 'mapLib/utils';
 
 export interface Rule {
   width?: number;

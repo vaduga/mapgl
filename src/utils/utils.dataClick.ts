@@ -9,13 +9,7 @@ export const expandTooltip = (
   dataClickProps: any,
   selectGotoHandler: any
 ) => {
-  const {
-    setSelCoord,
-    setIsShowCenter,
-    setTooltipObject,
-    setLocalViewState,
-    pId,
-  } = dataClickProps;
+  const { setSelCoord, setIsShowCenter, setTooltipObject, setLocalViewState, pId } = dataClickProps;
   const position = info.coordinate;
   if (position) {
     const [longitude, latitude] = position.map((e: number) => parseFloat(e.toFixed(6)));

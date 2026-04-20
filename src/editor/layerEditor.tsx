@@ -49,7 +49,11 @@ export function getLayerEditor(opts: LayerEditorOptions): NestedPanelOptions<Ext
     values: (parent: NestedValueAccess) => ({
       getContext: (parent) => {
         //console.log('in layer editor ctx', parent, opts.state )
-        return { ...parent, options: opts.state.options, instanceState: opts.state };
+        return {
+          ...parent,
+          options: opts.state.options,
+          instanceState: opts.state,
+        };
       },
       getValue: (path: string) => lodashGet(opts.state.options, path),
       onChange: (path: string, value: string) => {
@@ -162,7 +166,7 @@ export function getLayerEditor(opts: LayerEditorOptions): NestedPanelOptions<Ext
             getOptions:
               options?.type === colTypes.GeoJson
                 ? async (context) => await getGeoJsonProps(context)
-                : getQueryFields ?? [],
+                : (getQueryFields ?? []),
           },
           showIf: (opts) => opts.isShowTooltip,
           //showIf: (opts) => typeof opts.query !== 'undefined',

@@ -1,16 +1,17 @@
 # Changelog Mapgl
 
 ## 2.3.0
-- icon color tinting strategy per node group
-- ad hoc node group filter in the legend
-- box SVGs (raw/donut) into circle boundaries. Simplify group rules (rm icon size)
-- text labels offset calculated from circle boundary, not center. CollisionFilter for labels can be enabled with 'Use meters units' flag.
-- SVG (raw/donut/arrows) resampled for high-res
+
+- icon color tinting config for Node Groups
+- adhoc node group filter in the legend. GPU-fast
+- SVGs (raw/donut) resampled for highres, boxed into circle boundaries. Simplify group rules (rm icon size)
+- text labels offset from circle boundary (not from center point).
 
 ## 2.2.0
+
 - namespace subgraphs support. Make your graph more branchy.
 - revamped Group rules section [#6](https://github.com/vaduga/mapgl/issues/6)
-- fix: group rules threshold options sync with node metric field  [#5](https://github.com/vaduga/mapgl/issues/5)
+- fix: group rules threshold options sync with node metric field [#5](https://github.com/vaduga/mapgl/issues/5)
 - fix: scale on zoom for arrows and arc labels. Better arrow tips positioning.
 
 ## 2.1.0

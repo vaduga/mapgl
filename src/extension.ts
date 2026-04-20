@@ -40,7 +40,6 @@ export interface ExtendFrameGeometrySource {
   geojson?: string;
 }
 
- 
 export const ExtendFrameGeometrySourceMode = {
   ...GeojsonFrameGeometrySourceMode,
   ...FrameGeometrySourceMode,

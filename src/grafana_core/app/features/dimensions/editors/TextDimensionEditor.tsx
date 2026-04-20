@@ -191,7 +191,9 @@ const FieldNamePickerCompact = ({ value, onChange, context, item, id, className 
       value={selectedOption}
       options={selectOptions}
       onChange={onChangeOption}
-      placeholder={settings.placeholderText ?? t('grafana-ui.matchers-ui.field-name-picker.placeholder', 'Select field')}
+      placeholder={
+        settings.placeholderText ?? t('grafana-ui.matchers-ui.field-name-picker.placeholder', 'Select field')
+      }
       isClearable={settings.isClearable}
     />
   );
@@ -206,9 +208,7 @@ type CompactStringInputProps = {
 };
 
 const CompactStringInput = ({ id, value, onChange, suffix, className }: CompactStringInputProps) => {
-  const commitValue = (
-    e: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>
-  ) => {
+  const commitValue = (e: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>) => {
     let nextValue = value ?? '';
 
     if ('key' in e) {

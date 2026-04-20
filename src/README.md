@@ -6,9 +6,9 @@
 [![Project Site](https://img.shields.io/badge/Project-site-blue)](https://mapgl.org)
 [✉️][email]
 
-[//]: # ([![Change Log]&#40;https://img.shields.io/badge/Change-log-blue.svg?style=flat&#41;]&#40;https://github.com/vaduga/mapgl/blob/main/CHANGELOG.md&#41;)
+[//]: # '[![Change Log](https://img.shields.io/badge/Change-log-blue.svg?style=flat)](https://github.com/vaduga/mapgl/blob/main/CHANGELOG.md)'
 
-Network **Geo map** / **Node Graph** with distributed graph autolayout and spline edge routing.  
+Network **Geo map** / **Node Graph** with distributed graph autolayout and spline edge routing.
 
 Start new panel with a sample node graph to test styles and modes.
 

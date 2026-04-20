@@ -5,7 +5,11 @@ import { colTypes } from 'mapLib/utils';
 const MyGeoJsonLayer = (props) => {
   const { data, onHover, highlightColor, index, name, pickable, getVisLayers, options } = props;
 
-  const Geo = isVisible(getVisLayers, { index: null, name, group: colTypes.GeoJson });
+  const Geo = isVisible(getVisLayers, {
+    index: null,
+    name,
+    group: colTypes.GeoJson,
+  });
   const units = options.common?.isMeters ? 'meters' : 'pixels';
 
   return new GeoJsonLayer({

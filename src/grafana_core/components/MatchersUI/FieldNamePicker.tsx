@@ -1,10 +1,9 @@
-import { useCallback } from 'react';
+import React, { useCallback } from 'react';
 
 import { FieldNamePickerConfigSettings, SelectableValue, StandardEditorProps } from '@grafana/data';
 import { t } from '../../../utils/i18n';
 
 import { useFieldDisplayNames, useMatcherSelectOptions, frameHasName } from './utils';
-import React from 'react';
 import { ComboboxCompat } from '../../../components/Compat/ComboboxCompat';
 
 type Props = StandardEditorProps<string, FieldNamePickerConfigSettings>;

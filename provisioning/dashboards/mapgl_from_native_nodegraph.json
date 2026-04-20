@@ -191,9 +191,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "red"
-                      ]
+                      "value": ["red"]
                     }
                   ]
                 },
@@ -212,9 +210,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "semi-dark-green"
-                      ]
+                      "value": ["semi-dark-green"]
                     }
                   ]
                 },
@@ -246,9 +242,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "semi-dark-green"
-                      ]
+                      "value": ["semi-dark-green"]
                     }
                   ]
                 },
@@ -262,10 +256,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "dark-green",
-                        "green"
-                      ]
+                      "value": ["dark-green", "green"]
                     }
                   ]
                 },
@@ -279,9 +270,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "#EAB839"
-                      ]
+                      "value": ["#EAB839"]
                     }
                   ]
                 },
@@ -295,9 +284,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "#6ED0E0"
-                      ]
+                      "value": ["#6ED0E0"]
                     }
                   ]
                 }
@@ -322,13 +309,7 @@
               },
               "vertices": {}
             },
-            "displayProperties": [
-              "city",
-              "model",
-              "metricReduced",
-              "bps",
-              "aggrType"
-            ],
+            "displayProperties": ["city", "model", "metricReduced", "bps", "aggrType"],
             "edgeLabelField": "bps",
             "isShowBW": true,
             "isShowTooltip": true,
@@ -342,9 +323,7 @@
             "name": "uni",
             "parField": "srcPath",
             "parentName": "parent",
-            "searchProperties": [
-              "city"
-            ],
+            "searchProperties": ["city"],
             "throughputField": "bps",
             "type": "markers"
           }
@@ -468,10 +447,7 @@
           "queryType": "table",
           "rawQueryText": "select * from nodes_nodegraph_ds;",
           "refId": "nodes",
-          "timeColumns": [
-            "time",
-            "ts"
-          ]
+          "timeColumns": ["time", "ts"]
         },
         {
           "datasource": {
@@ -482,10 +458,7 @@
           "queryType": "table",
           "rawQueryText": "select * from edges_nodegraph_ds;",
           "refId": "edges",
-          "timeColumns": [
-            "time",
-            "ts"
-          ]
+          "timeColumns": ["time", "ts"]
         }
       ],
       "title": "Unified data frame for nodes and edges",
@@ -503,10 +476,7 @@
             "alias": "metricReduced",
             "mode": "reduceRow",
             "reduce": {
-              "include": [
-                "metric 1",
-                "metric 2"
-              ],
+              "include": ["metric 1", "metric 2"],
               "reducer": "lastNotNull"
             }
           }

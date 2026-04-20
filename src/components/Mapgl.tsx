@@ -12,7 +12,15 @@ import MapLibre, { AttributionControl } from '@vis.gl/react-maplibre';
 import type { Graph } from 'mapLib';
 
 import Menu from '../components/Menu';
-import { useRootStore, toRGB4Array, genPrimaryLayers, genNodeLayers, genEdgeLayers, selectGotoHandler, expandTooltip } from '../utils';
+import {
+  useRootStore,
+  toRGB4Array,
+  genPrimaryLayers,
+  genNodeLayers,
+  genEdgeLayers,
+  selectGotoHandler,
+  expandTooltip,
+} from '../utils';
 import { Tooltip } from './Tooltips/Tooltip';
 import { MyPolygonsLayer } from '../deckLayers/PolygonsLayer/polygons-layer';
 import { MyGeoJsonLayer } from '../deckLayers/GeoJsonStaticLayer/static-geojson-layer';
@@ -27,7 +35,10 @@ import {
   ANNOTS_LABEL,
   NS_SEPARATOR,
   ComFeature,
-  colTypes, ViewState, sortAnnotations, CommentsData
+  colTypes,
+  ViewState,
+  sortAnnotations,
+  CommentsData,
 } from 'mapLib/utils';
 import { throttleTime } from 'rxjs';
 import { StateTime } from './Geocoder/StateTime';
@@ -40,6 +51,7 @@ import { useFullscreenPortalBridge } from './hooks/useFullscreenPortalBridge';
 
 const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, replaceVariables, eventBus }) => {
   const { pointStore, viewStore } = useRootStore();
+  const { setVisRefresh: setMobxLegendRefresh } = viewStore;
 
   const { isShowEdgeLegend, isShowLegend, isShowSwitcher } = options.common || {};
   const s = useStyles2(getStyles);
@@ -77,40 +89,33 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
   const [hoverInfo, setHoverInfo] = useState({});
   const [layers, setLayers] = useState<Layer[]>([]);
   const [localViewState, setLocalViewState] = useState<ViewState>(getViewState);
-  const [menuRefreshToken, setMenuRefreshToken] = useState(0);
   const timeZone = replaceVariables('$__timezone');
   const [time, setTime] = useState<any>(data.timeRange?.to.unix() * 1000);
   const [edgeLegend, setEdgeLegend] = useState<VizLegendItem[]>([]);
   const hasAnnots = !!data.annotations?.length;
   const layerCount = panel.layers.length;
-  const panelRenderDeps = [
-    panel.layers,
-    panel.features,
-    panel.positions,
-    panel.colors,
-    panel.groupIndices,
-    panel.annots,
-    panel.groups,
-  ];
 
   const layerCacheRef = useRef<any>(null);
   const svgTintRefreshFrameRef = useRef<number | null>(null);
   const DEBUG_DISABLE_NODE_CACHE = true;
 
-  const composeLayersFromCache = useCallback((cache, nodeLayers: Layer[], edgeLayers?: { arcsBase: Layer[]; lines: Layer[]; edgeLabels: Layer[] }) => {
-    const arcsBase = edgeLayers?.arcsBase ?? cache.arcsBase;
-    const lines = edgeLayers?.lines ?? cache.lines;
-    const edgeLabels = edgeLayers?.edgeLabels ?? cache.edgeLabels;
-    return [
-      ...cache.secLayers,
-      ...cache.bboxes,
-      ...arcsBase,
-      ...lines,
-      ...nodeLayers,
-      ...(cache.comments ? [cache.comments] : []),
-      ...edgeLabels,
-    ].filter((el) => el !== null && el !== undefined);
-  }, []);
+  const composeLayersFromCache = useCallback(
+    (cache, nodeLayers: Layer[], edgeLayers?: { arcsBase: Layer[]; lines: Layer[]; edgeLabels: Layer[] }) => {
+      const arcsBase = edgeLayers?.arcsBase ?? cache.arcsBase;
+      const lines = edgeLayers?.lines ?? cache.lines;
+      const edgeLabels = edgeLayers?.edgeLabels ?? cache.edgeLabels;
+      return [
+        ...cache.secLayers,
+        ...cache.bboxes,
+        ...arcsBase,
+        ...lines,
+        ...nodeLayers,
+        ...(cache.comments ? [cache.comments] : []),
+        ...edgeLabels,
+      ].filter((el) => el !== null && el !== undefined);
+    },
+    []
+  );
 
   useEffect(() => {
     if (!time || !annots?.length) {
@@ -225,14 +230,9 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     };
   }, []);
 
-  const refreshMenuAfterInit = useCallback(async () => {
-    await initMapRef(deckRef);
-    setMenuRefreshToken((token) => token + 1);
-  }, [initMapRef]);
-
   const onMapLoad = useCallback(() => {
-    void refreshMenuAfterInit();
-  }, [refreshMenuAfterInit]);
+    initMapRef(deckRef);
+  }, []);
 
   const onSvgIconReady = useCallback(() => {
     if (svgTintRefreshFrameRef.current !== null) {
@@ -247,9 +247,9 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
   useEffect(() => {
     if (isLogic && !source) {
-      void refreshMenuAfterInit();
+      initMapRef(deckRef);
     }
-  }, [isLogic, source, refreshMenuAfterInit]);
+  }, [isLogic]);
 
   const dataClickProps = {
     //<editor-fold desc="dataClickProps">
@@ -531,7 +531,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
       return;
     }
     getLayers();
-  }, [graph.getVersion, time, visRefresh, layerCount, ...panelRenderDeps]);
+  }, [graph.getVersion, getTooltipObject, time, getViewState, visRefresh]);
 
   useEffect(() => {
     const cache = layerCacheRef.current;
@@ -588,14 +588,20 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
   const memoLayerSwitcher = useMemo(() => {
     return (
       <LayerSwitcher
-        {...{ theme: theme2, label: 'layers', className: '', panel, setVisRefresh }}
+        {...{
+          theme: theme2,
+          label: 'layers',
+          className: '',
+          panel,
+          setVisRefresh,
+        }}
       />
     );
-  }, [visLayers])
+  }, [visLayers]);
 
   const memoMenu = useMemo(() => {
-    return <Menu eventBus={eventBus} refreshToken={menuRefreshToken} {...{ options, time, timeZone, data, panel }} />;
-  }, [options, time, timeZone, data, panel, menuRefreshToken]);
+    return <Menu eventBus={eventBus} {...{ options, time, timeZone, data, panel }} />;
+  }, [options, panel.layers, graph.getVersion, data]);
 
   const memoPositionTracker = useMemo(() => {
     return (
@@ -634,6 +640,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
       visLayers.setActiveGroups(newStates);
       setVisRefresh(Math.random() + 1);
+      setMobxLegendRefresh(Math.random() + 1);
     },
     [getGroupsLegend, visLayers]
   );

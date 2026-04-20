@@ -40,14 +40,14 @@ export const plugin = new PanelPlugin<Options>(GeomapPanel)
       category,
       id: 'view',
       path: 'view',
-      name: 'Initial view', // don't show it
-      description: 'Map position on load',
+      name: 'Initial view',
+      //description: 'Position on load',
       editor: MapViewEditor,
       defaultValue: defaultMapViewConfig,
     });
 
     //console.log('mdule.tsx ctx', context)
-     
+
     const state = context.instanceState as GeomapInstanceState;
     //console.log('state?.layers', state?.layers, state, context)
     if (!state?.layers) {
@@ -82,7 +82,7 @@ export const plugin = new PanelPlugin<Options>(GeomapPanel)
           id: 'layers',
           path: '',
           name: '',
-           
+
           editor: () => <div>The basemap layer is configured by the server admin.</div>,
         });
       } else if (baselayer) {

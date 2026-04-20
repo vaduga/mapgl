@@ -179,21 +179,21 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
         </div>
       </InlineField>
       <InlineField label="size">
-          <Tooltip content={'fix node size'}>
-            <div>
-              <InlineSwitch
-                value={typeof nodeSize === 'number'}
-                disabled={options.disabled}
-                onChange={() => {
-                  if (typeof nodeSize === 'number') {
-                    options.sizeSetter(options.index, undefined);
-                    return;
-                  }
-                  options.sizeSetter(options.index, NodeSizeStates[0]?.value);
-                }}
-              />
-            </div>
-          </Tooltip>
+        <Tooltip content={'fix node size'}>
+          <div>
+            <InlineSwitch
+              value={typeof nodeSize === 'number'}
+              disabled={options.disabled}
+              onChange={() => {
+                if (typeof nodeSize === 'number') {
+                  options.sizeSetter(options.index, undefined);
+                  return;
+                }
+                options.sizeSetter(options.index, NodeSizeStates[0]?.value);
+              }}
+            />
+          </div>
+        </Tooltip>
       </InlineField>
       {typeof nodeSize === 'number' && (
         <div>
@@ -230,21 +230,21 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
         </div>
       )}
       <InlineField label="width">
-          <Tooltip content={'fix line width'}>
-            <div>
-              <InlineSwitch
-                value={typeof lineWidth === 'number'}
-                disabled={options.disabled}
-                onChange={() => {
-                  if (typeof lineWidth === 'number') {
-                    options.widthSetter(options.index, undefined);
-                    return;
-                  }
-                  options.widthSetter(options.index, DEFAULT_LINE_WIDTH);
-                }}
-              />
-            </div>
-          </Tooltip>
+        <Tooltip content={'fix line width'}>
+          <div>
+            <InlineSwitch
+              value={typeof lineWidth === 'number'}
+              disabled={options.disabled}
+              onChange={() => {
+                if (typeof lineWidth === 'number') {
+                  options.widthSetter(options.index, undefined);
+                  return;
+                }
+                options.widthSetter(options.index, DEFAULT_LINE_WIDTH);
+              }}
+            />
+          </div>
+        </Tooltip>
       </InlineField>
       {typeof lineWidth === 'number' && (
         <div>

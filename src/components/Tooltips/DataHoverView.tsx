@@ -77,7 +77,12 @@ export function getDisplayValuesAndLinks(
   const links: Array<LinkModel<Field>> = [];
   const linkLookup = new Set<string>();
 
-  let annotations: Field = { name: 'all_annots', values: [], type: FieldType.string, config: {} };
+  let annotations: Field = {
+    name: 'all_annots',
+    values: [],
+    type: FieldType.string,
+    config: {},
+  };
   if (all_annots) {
     const sortedAnnots: any = all_annots.length > 1 ? sortAnnotations(all_annots) : all_annots;
     if (sortedAnnots?.length) {
@@ -236,7 +241,7 @@ const getStyles = (theme: GrafanaTheme2, padding = 0) => {
     wrapper: css({
       padding: `${padding}px`,
       background: theme.components.tooltip.background,
-      borderRadius: theme.shape.borderRadius(2),
+      borderRadius: theme.shape.radius.default,
     }),
     header: css({
       background: theme.colors.background.secondary,

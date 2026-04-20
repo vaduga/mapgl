@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 
 import {
   DataFrame,
@@ -12,7 +12,6 @@ import { t } from '../../../utils/i18n';
 
 import { FieldMatcherUIRegistryItem, MatcherUIProps } from './types';
 import { MultiSelect, Select } from '@grafana/ui';
-import React from 'react';
 
 const recoverRefIdMissing = (
   newRefIds: SelectableValue[],

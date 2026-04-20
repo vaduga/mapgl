@@ -1,11 +1,10 @@
 import { css } from '@emotion/css';
-import { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 
 import { StandardEditorProps, SelectableValue, GrafanaTheme2 } from '@grafana/data';
 import { Alert, Select, useStyles2 } from '@grafana/ui';
 
 import { COUNTRIES_GAZETTEER_PATH, Gazetteer, getGazetteer } from '../gazetteer/gazetteer';
-import React from 'react';
 
 const defaultPaths: Array<SelectableValue<string>> = [
   {

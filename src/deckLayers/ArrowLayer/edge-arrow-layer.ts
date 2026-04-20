@@ -24,7 +24,7 @@ function getArrowTip(d: ArrowFeature, placement: ArrowPlacement): [number, numbe
 
 function getArrowBaseAndTip(
   d: ArrowFeature,
-  placement: ArrowPlacement,
+  placement: ArrowPlacement
 ): { base: [number, number]; tip: [number, number] } | null {
   const pts = placement === 'start' ? getFirstPoints(d) : getLastPoints(d);
   if (!pts) {
@@ -39,11 +39,7 @@ function getArrowBaseAndTip(
   return { base: pts.tip, tip: arrowTip };
 }
 
-function getArrowAnchorPosition(
-  d: ArrowFeature,
-  placement: ArrowPlacement,
-  isLogic: boolean,
-): [number, number] | null {
+function getArrowAnchorPosition(d: ArrowFeature, placement: ArrowPlacement, isLogic: boolean): [number, number] | null {
   if (!isLogic) {
     const pts = placement === 'start' ? getFirstPoints(d) : getLastPoints(d);
     return pts ? pts.tip : null;
@@ -75,7 +71,7 @@ function getFirstPoints(d: ArrowFeature): { base: [number, number]; tip: [number
     return null;
   }
 
-  const firstLine = coords[0]
+  const firstLine = coords[0];
   if (!firstLine || firstLine.length < 2) {
     return null;
   }
@@ -157,7 +153,7 @@ function expandArrowItems(data: ArrowFeature[] = [], getWasmId2Edges: Edge[][]):
     edgeId: string,
     placement: ArrowPlacement,
     lineIndex: number,
-    angle?: number,
+    angle?: number
   ): ArrowItem => ({
     feature,
     placement,
@@ -225,12 +221,13 @@ export const EdgeArrowLayer = (props) => {
   const arrowData = expandArrowItems(baseData, getWasmId2Edges);
   const units = options.common?.isMeters ? 'meters' : 'pixels';
   const sizeUnits = isLogic ? 'common' : units;
-  const sizeConstraintProps = sizeUnits === 'pixels'
-    ? {
-      sizeMinPixels: 1,
-      sizeMaxPixels: 30,
-    }
-    : {};
+  const sizeConstraintProps =
+    sizeUnits === 'pixels'
+      ? {
+          sizeMinPixels: 1,
+          sizeMaxPixels: 30,
+        }
+      : {};
 
   return new IconLayer({
     id: colTypes.Edges + '-arrow-' + srcGraphId,
@@ -251,7 +248,7 @@ export const EdgeArrowLayer = (props) => {
     // Deck typings in this build are stricter than runtime support for HTMLImageElement.
     iconAtlas: getIconAtlasImage() as any,
     iconMapping,
-    getIcon: () => isLogic && sizeUnits === 'pixels' ? 'triangle-n-ex' : 'triangle-n',
+    getIcon: () => (isLogic && sizeUnits === 'pixels' ? 'triangle-n-ex' : 'triangle-n'),
 
     sizeUnits: sizeUnits as any,
     sizeScale: 1,

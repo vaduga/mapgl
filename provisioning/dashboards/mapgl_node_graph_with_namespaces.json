@@ -185,9 +185,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "semi-dark-green"
-                      ]
+                      "value": ["semi-dark-green"]
                     },
                     {
                       "name": "namespaceA",
@@ -206,9 +204,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "semi-dark-green"
-                      ]
+                      "value": ["semi-dark-green"]
                     },
                     {
                       "name": "namespaceA",
@@ -232,9 +228,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "semi-dark-green"
-                      ]
+                      "value": ["semi-dark-green"]
                     }
                   ]
                 },
@@ -248,9 +242,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "red"
-                      ]
+                      "value": ["red"]
                     }
                   ]
                 }
@@ -303,11 +295,7 @@
               "id": "byRefId",
               "options": "B"
             },
-            "searchProperties": [
-              "source",
-              "target",
-              "aggrType"
-            ],
+            "searchProperties": ["source", "target", "aggrType"],
             "type": "markers"
           },
           {
@@ -363,9 +351,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "red"
-                      ]
+                      "value": ["red"]
                     }
                   ]
                 },
@@ -380,9 +366,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "semi-dark-green"
-                      ]
+                      "value": ["semi-dark-green"]
                     }
                   ]
                 },
@@ -396,9 +380,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "light-blue"
-                      ]
+                      "value": ["light-blue"]
                     }
                   ]
                 },
@@ -412,9 +394,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "semi-dark-orange"
-                      ]
+                      "value": ["semi-dark-orange"]
                     }
                   ]
                 }
@@ -455,12 +435,7 @@
               "vertexA_NS": "namespaceA",
               "vertexB_NS": "namespaceB"
             },
-            "displayProperties": [
-              "metric",
-              "bps",
-              "model",
-              "vertexA"
-            ],
+            "displayProperties": ["metric", "bps", "model", "vertexA"],
             "edgeIdField": "edge_id",
             "isShowTooltip": true,
             "locField": "vertexA",
@@ -499,10 +474,7 @@
           "queryType": "table",
           "rawQueryText": "select * from switches;",
           "refId": "A",
-          "timeColumns": [
-            "time",
-            "ts"
-          ]
+          "timeColumns": ["time", "ts"]
         },
         {
           "datasource": {
@@ -513,10 +485,7 @@
           "queryType": "table",
           "rawQueryText": "select * from uNodes;",
           "refId": "B",
-          "timeColumns": [
-            "time",
-            "ts"
-          ]
+          "timeColumns": ["time", "ts"]
         }
       ],
       "title": "Nested namespaces",
@@ -687,9 +656,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "semi-dark-green"
-                      ]
+                      "value": ["semi-dark-green"]
                     },
                     {
                       "name": "namespaceA",
@@ -708,9 +675,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "semi-dark-green"
-                      ]
+                      "value": ["semi-dark-green"]
                     },
                     {
                       "name": "namespaceA",
@@ -734,9 +699,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "semi-dark-green"
-                      ]
+                      "value": ["semi-dark-green"]
                     }
                   ]
                 },
@@ -750,9 +713,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "red"
-                      ]
+                      "value": ["red"]
                     }
                   ]
                 }
@@ -803,11 +764,7 @@
               "id": "byRefId",
               "options": "B"
             },
-            "searchProperties": [
-              "source",
-              "target",
-              "aggrType"
-            ],
+            "searchProperties": ["source", "target", "aggrType"],
             "type": "markers"
           },
           {
@@ -863,9 +820,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "red"
-                      ]
+                      "value": ["red"]
                     }
                   ]
                 },
@@ -880,9 +835,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "semi-dark-green"
-                      ]
+                      "value": ["semi-dark-green"]
                     }
                   ]
                 },
@@ -896,9 +849,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "light-blue"
-                      ]
+                      "value": ["light-blue"]
                     }
                   ]
                 },
@@ -911,9 +862,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "semi-dark-orange"
-                      ]
+                      "value": ["semi-dark-orange"]
                     }
                   ]
                 }
@@ -952,12 +901,7 @@
                 "useGroups": true
               }
             },
-            "displayProperties": [
-              "metric",
-              "bps",
-              "model",
-              "vertexA"
-            ],
+            "displayProperties": ["metric", "bps", "model", "vertexA"],
             "edgeIdField": "edge_id",
             "isShowTooltip": true,
             "locField": "vertexA",
@@ -996,10 +940,7 @@
           "queryType": "table",
           "rawQueryText": "select * from switches;",
           "refId": "A",
-          "timeColumns": [
-            "time",
-            "ts"
-          ]
+          "timeColumns": ["time", "ts"]
         },
         {
           "datasource": {
@@ -1010,10 +951,7 @@
           "queryType": "table",
           "rawQueryText": "select * from uNodes;",
           "refId": "B",
-          "timeColumns": [
-            "time",
-            "ts"
-          ]
+          "timeColumns": ["time", "ts"]
         }
       ],
       "title": "Common namespace (external)",

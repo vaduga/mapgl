@@ -1,4 +1,4 @@
-import { svgToDataURL } from '../OrthoLayer/donutChart';
+import { svgToDataURL } from '../GeoJsonNodesLayer/donutChart';
 
 const ARROW_ATLAS_SCALE = 2;
 const ARROW_ATLAS_WIDTH = 256 * ARROW_ATLAS_SCALE;
@@ -75,8 +75,12 @@ function scale(mapping: IconMapping, s: number): IconMapping {
     m.y *= s;
     m.width *= s;
     m.height *= s;
-    if (m.anchorX) {m.anchorX *= s;}
-    if (m.anchorY) {m.anchorY *= s;}
+    if (m.anchorX) {
+      m.anchorX *= s;
+    }
+    if (m.anchorY) {
+      m.anchorY *= s;
+    }
   }
   return mapping;
 }

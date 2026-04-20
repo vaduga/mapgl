@@ -104,7 +104,7 @@ export const polygonsLayer: ExtendMapLayerRegistryItem<PolygonsConfig> = {
               }
 
               const entries = Object.entries(point);
-              const locName = entries.length > 0 && locField ? point[locField] ?? entries[0][1] : undefined;
+              const locName = entries.length > 0 && locField ? (point[locField] ?? entries[0][1]) : undefined;
 
               const newFeature: any = {
                 id: i,

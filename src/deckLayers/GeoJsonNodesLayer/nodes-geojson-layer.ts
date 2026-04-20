@@ -2,7 +2,7 @@ import { getTintedSvgIcon, isVisible, resolveSvgTintMode, toRgbaString } from '.
 import { GeoJsonLayer, TextLayer } from '@deck.gl/layers';
 import { CollisionFilterExtension, DataFilterExtension } from '@deck.gl/extensions';
 
-import { createDonutChart, getDonutIconSrcSize, getPackedSvgIcon, svgToDataURL } from '../OrthoLayer/donutChart';
+import { createDonutChart, getDonutIconSrcSize, getPackedSvgIcon, svgToDataURL } from './donutChart';
 import {
   getFittedIconSize,
   getMaxResolvedIconSize,
@@ -283,7 +283,7 @@ const NodesGeojsonLayer = (props) => {
 
       if (isLogic && arcs?.length) {
         const maxIconSize = getMaxResolvedIconSize(d);
-        const packedIconSize = getDonutIconSrcSize(maxIconSize)
+        const packedIconSize = getDonutIconSrcSize(maxIconSize);
 
         const donutCacheKey = `donut:${iconName ?? 'none'}:${resolvedTintMode}:${tintColor ?? 'base'}:${packedIconSize}:${(
           arcs as string[]
@@ -308,7 +308,7 @@ const NodesGeojsonLayer = (props) => {
               bkColor: undefined,
               radius: maxIconSize / 2,
               isDark: theme.isDark,
-              svgIcon: tintedSvgIcon
+              svgIcon: tintedSvgIcon,
             })
           ),
           width: packedIconSize,
@@ -474,7 +474,7 @@ const LogicPlaceholderTextLayer = (props) => {
     autoHighlight,
     sizeUnits: units,
     getText: () => '-\n-',
-    getColor: [240,240,240,50],
+    getColor: [240, 240, 240, 50],
     getPosition: (d: any) => d.coordinates,
     getPixelOffset: (d: any) => {
       const offset = d.properties?.style?.group?.offset;
@@ -508,8 +508,18 @@ const LogicPlaceholderTextLayer = (props) => {
 export { LogicPlaceholderTextLayer };
 
 const LogicMainLabelTextLayer = (props) => {
-  const { biCol, getVisLayers, visible, getSelectedNode, options, isLogic, pickable, onHover, autoHighlight, highlightColor } =
-    props;
+  const {
+    biCol,
+    getVisLayers,
+    visible,
+    getSelectedNode,
+    options,
+    isLogic,
+    pickable,
+    onHover,
+    autoHighlight,
+    highlightColor,
+  } = props;
   const Labels = isVisible(getVisLayers, {
     index: null,
     name: colTypes.Label,

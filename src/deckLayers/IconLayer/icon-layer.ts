@@ -1,13 +1,19 @@
 import { isVisible, toRGB4Array } from '../../utils';
 import { IconLayer } from '@deck.gl/layers';
 import { colTypes } from 'mapLib/utils';
-import { svgToDataURL } from '../OrthoLayer/donutChart';
+import { svgToDataURL } from '../GeoJsonNodesLayer/donutChart';
 import { DataFilterExtension } from '@deck.gl/extensions';
 
 const MyIconLayer = (props) => {
   const { data, onHover, highlightColor, panel, getVisLayers, showGraph } = props;
 
-  const visible = showGraph && isVisible(getVisLayers, { index: null, name: colTypes.Comments, group: colTypes.Comments });
+  const visible =
+    showGraph &&
+    isVisible(getVisLayers, {
+      index: null,
+      name: colTypes.Comments,
+      group: colTypes.Comments,
+    });
   const categories = getVisLayers.getCategories();
   const categorySize = 2;
 

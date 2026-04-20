@@ -23,7 +23,11 @@ const MyPolygonsLayer = (props) => {
     options,
   } = props;
 
-  const Poly = isVisible(getVisLayers, { index: null, name, group: colTypes.Polygons });
+  const Poly = isVisible(getVisLayers, {
+    index: null,
+    name,
+    group: colTypes.Polygons,
+  });
   const units = options.common?.isMeters ? 'meters' : 'pixels';
 
   return new PolygonLayer({

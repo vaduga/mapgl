@@ -3,13 +3,7 @@ const grafanaConfig = require('@grafana/eslint-config/flat');
 /** @type {import('eslint').Linter.Config[]} */
 module.exports = [
   {
-    ignores: [
-      'dist/**',
-      'node_modules/**',
-      'docker_data/**',
-      'mapLib/dist/**',
-      '.config/**',
-    ],
+    ignores: ['dist/**', 'node_modules/**', 'docker_data/**', 'mapLib/dist/**', '.config/**'],
   },
   ...grafanaConfig,
   {
@@ -18,7 +12,7 @@ module.exports = [
     rules: {
       'react/prop-types': 'off',
       'react-hooks/exhaustive-deps': 'off',
-      'react-hooks/set-state-in-effect': 'off'
+      'react-hooks/set-state-in-effect': 'off',
     },
   },
   {
