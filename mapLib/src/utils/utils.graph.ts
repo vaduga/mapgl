@@ -180,7 +180,17 @@ interface PushPathProps {
 }
 
 function pushPath(props: PushPathProps) {
-  let { graphA, graphB, panel, parPath, layerIdx, edgeId: assignedEdgeId, dataRecord, commentsData, theme } = props;
+  let {
+    graphA,
+    graphB,
+    panel,
+    parPath,
+    layerIdx,
+    edgeId: assignedEdgeId,
+    dataRecord,
+    commentsData,
+    theme,
+  } = props;
   const { isLogic, graph } = panel;
 
   const { setEdge: setEdgeA, findNode: findNodeA } = graphA;

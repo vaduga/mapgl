@@ -546,7 +546,7 @@ export class Graph extends Node {
   get getEdgesGeometry() {
     const clusters = Array.from(this.root.graph.subgraphsBreadthFirst()) as Graph[];
     const graphs: Graph[] = clusters.concat([this.root.graph as Graph]);
-    const visibleNamespaces = this.root.visLayers.getCategories();
+
 
     const arcsFeatures: Record<string, any[]> = {};
     const features: Record<string, DeckLine[]> = {};
