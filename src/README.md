@@ -1,7 +1,7 @@
 [![Downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgrafana.com%2Fapi%2Fplugins%2Fvaduga-mapgl-panel&query=%24.downloads&logo=grafana&label=downloads)](https://grafana.com/grafana/plugins/vaduga-mapgl-panel)
-[![GitHub](https://img.shields.io/github/stars/vaduga/mapgl?style=social)](https://github.com/vaduga/mapgl)
 [![Discord](https://img.shields.io/discord/973739619118088232?logo=discord&logoColor=%232490D7)](https://discord.gg/DZCAfzYwjC)
-[![Telegram Url](https://img.shields.io/badge/Telegram-blue?logo=telegram)](https://t.me/mapgrafana)  
+[![Telegram Url](https://img.shields.io/badge/Telegram-blue?logo=telegram)](https://t.me/mapgrafana)
+[![GitHub](https://img.shields.io/github/stars/vaduga/mapgl?style=social)](https://github.com/vaduga/mapgl)
 [![YOUTUBE](https://img.shields.io/youtube/channel/subscribers/UCxjo9tNt0ApLBpB46m49wvw)](https://www.youtube.com/@mapgraf)
 [![Project Site](https://img.shields.io/badge/Project-site-blue)](https://mapgl.org)
 [✉️][email]
