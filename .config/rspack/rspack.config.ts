@@ -20,7 +20,6 @@ import { getCPConfigVersion, getEntries, getPackageJson, getPluginJson, isWSL } 
 import { externals } from '../bundler/externals';
 import { copyFilePatterns } from '../bundler/copyFiles';
 
-const { SubresourceIntegrityPlugin } = rspack.experiments;
 const pluginJson = getPluginJson();
 const cpVersion = getCPConfigVersion();
 const virtualPublicPath = new RspackVirtualModulePlugin({
@@ -178,7 +177,7 @@ const config = async (env): Promise<Configuration> => {
           ],
         },
       ]),
-      new SubresourceIntegrityPlugin({
+      new rspack.SubresourceIntegrityPlugin({
         hashFuncNames: ['sha256'],
       }),
       ...(env.development
