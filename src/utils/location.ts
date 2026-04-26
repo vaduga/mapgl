@@ -68,8 +68,8 @@ export interface LocationFieldMatchers {
   // Field mappings
   geojson: FieldFinder;
   geohash: FieldFinder;
-  latitude: FieldFinder;
   longitude: FieldFinder;
+  latitude: FieldFinder;
   h3: FieldFinder;
   wkt: FieldFinder;
   lookup: FieldFinder;
@@ -81,8 +81,8 @@ const defaultMatchers: LocationFieldMatchers = {
   mode: ExtendFrameGeometrySourceMode.Auto,
   geojson: matchLowerNames(new Set(['location', 'geojson'])),
   geohash: matchLowerNames(new Set(['geohash'])),
-  latitude: matchLowerNames(new Set(['latitude', 'lat'])),
   longitude: matchLowerNames(new Set(['longitude', 'lon', 'lng'])),
+  latitude: matchLowerNames(new Set(['latitude', 'lat'])),
   h3: matchLowerNames(new Set(['h3'])),
   wkt: matchLowerNames(new Set(['wkt'])),
   lookup: matchLowerNames(new Set(['lookup'])),
@@ -106,9 +106,6 @@ export async function getLocationMatchers(src?: ExtendFrameGeometrySource): Prom
       info.gazetteer = await getGazetteer(src?.gazetteer);
       break;
     case ExtendFrameGeometrySourceMode.Coords:
-      if (src?.latitude) {
-        info.latitude = getFieldFinder(getFieldMatcher({ id: FieldMatcherID.byName, options: src.latitude }));
-      }
       if (src?.longitude) {
         info.longitude = getFieldFinder(
           getFieldMatcher({
@@ -116,6 +113,9 @@ export async function getLocationMatchers(src?: ExtendFrameGeometrySource): Prom
             options: src.longitude,
           })
         );
+      }
+      if (src?.latitude) {
+        info.latitude = getFieldFinder(getFieldMatcher({ id: FieldMatcherID.byName, options: src.latitude }));
       }
       break;
     case ExtendFrameGeometrySourceMode.Geojson:
@@ -132,8 +132,8 @@ export interface LocationFields {
   // Field mappings
   geojson?: Field;
   geohash?: Field;
-  latitude?: Field;
   longitude?: Field;
+  latitude?: Field;
   h3?: Field;
   wkt?: Field;
   lookup?: Field;
@@ -161,9 +161,9 @@ export function getLocationFields(frame: DataFrame, location: LocationFieldMatch
       return fields;
     }
 
-    fields.latitude = location.latitude(frame);
     fields.longitude = location.longitude(frame);
-    if (fields.latitude && fields.longitude) {
+    fields.latitude = location.latitude(frame);
+    if (fields.longitude && fields.latitude) {
       fields.mode = ExtendFrameGeometrySourceMode.Coords;
       return fields;
     }
@@ -184,8 +184,8 @@ export function getLocationFields(frame: DataFrame, location: LocationFieldMatch
       fields.geojson = location.geojson(frame);
       break;
     case ExtendFrameGeometrySourceMode.Coords:
-      fields.latitude = location.latitude(frame);
       fields.longitude = location.longitude(frame);
+      fields.latitude = location.latitude(frame);
       break;
     case ExtendFrameGeometrySourceMode.Geohash:
       fields.geohash = location.geohash(frame);
@@ -214,15 +214,17 @@ export function getGeometryField(
   fields.vertexB_NS = vertexB_NS ? findField(frame, vertexB_NS) : undefined;
 
   const isLogic = panel?.isLogic;
-  if (isLogic) {
-    const rndValues = frame.fields?.[0].values;
-    const frameLen = frame.length ?? rndValues.length; // rndField for len
-    //@ts-ignore
-    fields.geojson = { values: rndValues };
+  if (isLogic && root && graph) {
+    const len = fields.locName?.values?.length;
+    const frameLen = frame.length ?? len ?? 0; // rndField for len
+    if (!frameLen) {
+      return {
+        field: undefined,
+      };
+    }
 
     return {
-      // @ts-ignore
-      field: frameLen && pointFieldFromGeoJSON(fields.geojson, fields, panel, root, graph, true),
+      field: pointFieldFromAutolayout(frameLen, fields, panel, root, graph),
     };
   }
 
@@ -230,8 +232,7 @@ export function getGeometryField(
     case ExtendFrameGeometrySourceMode.Auto:
       if (fields.geo) {
         return {
-          // @ts-ignore
-          field: fields.geo,
+          field: fields.geo as Field<Geometry>,
         };
       }
       return {
@@ -263,7 +264,6 @@ export function getGeometryField(
     case ExtendFrameGeometrySourceMode.Geohash:
       if (fields.geohash) {
         return {
-          //pointFieldFromGeohash
           field: pointFieldFromGeohash(fields.geohash, fields, panel, root, graph),
           derived: true,
           description: `${fields.mode}`,
@@ -294,33 +294,61 @@ export function getGeometryField(
   return { warning: 'unable to find geometry' };
 }
 
-function pointFieldFromGeoJSON(
-  geojson: Field<string>,
-  fields?: LocationFields,
-  panel?: GeomapPanel,
-  root?: FeatSource,
-  graph?: Graph,
-  isLogic = false
+function pointFieldFromAutolayout(
+  len: number,
+  fields: LocationFields,
+  panel: GeomapPanel,
+  root: FeatSource,
+  graph: Graph
 ): ExtendedField<Geometry | Float64Array> {
-  const len = geojson?.values?.length ?? 0;
-  const buffer = graph ? new Float64Array(len * 2) : new Array<Geometry>(len);
+  const buffer = new Float64Array(len * 2);
   const nodes = new Array<Node>();
   const startIdx = panel?.vCount;
   const state = { graph: undefined, index: 0, startIdx };
   const ranges = [];
 
   for (let i = 0; i < len; i++) {
-    if (!geojson?.values[i] && !isLogic) {
+      createNode(fields, nodes, ranges, i, len, root, panel, graph, buffer, state, undefined);
+  }
+
+  const values = new Float64Array((buffer as Float64Array).slice(0, state.index));
+
+  return {
+    name: 'Point',
+    type: FieldType.geo,
+    values,
+    nodes,
+    ranges,
+    config: hiddenTooltipField,
+  };
+}
+
+function pointFieldFromGeoJSON(
+  geojson: Field<string>,
+  fields?: LocationFields,
+  panel?: GeomapPanel,
+  root?: FeatSource,
+  graph?: Graph
+): ExtendedField<Geometry | Float64Array> {
+  const len = geojson?.values?.length ?? 0;
+  const buffer = graph ? new Float64Array(len * 2) : new Array<Geometry>(len);
+  const nodes = new Array<Node>();
+  const startIdx = panel?.vCount ?? 0;
+  const state = { graph: undefined, index: 0, startIdx };
+  const ranges = [];
+
+  for (let i = 0; i < len; i++) {
+    if (!geojson?.values[i]) {
       continue;
     }
-    const feature = !isLogic && JSON.parse(geojson.values[i] as string);
-    if (!feature && !isLogic) {
+    const feature = JSON.parse(geojson.values[i] as string);
+    if (!feature) {
       //console.log('no feature', geojson.values[i]);
       continue;
     }
 
     if (graph) {
-      createNode(fields, nodes, ranges, i, len, root, panel, graph, buffer, state, feature?.coordinates, isLogic);
+      createNode(fields, nodes, ranges, i, len, root, panel, graph, buffer, state, feature?.coordinates);
       continue;
     }
     buffer[state.index++] = {
@@ -479,13 +507,14 @@ const hiddenTooltipField: FieldConfig = Object.freeze({
   },
 });
 
-function createNode(fields, nodes, ranges, i, len, root, panel, graph, coords, state, coordinates, isLogic?) {
+function createNode(fields, nodes, ranges, i, len, root, panel, graph, coords, state, coordinates) {
   const { locName, vertexA_NS } = fields || {};
   if (!locName) {
     return;
   }
 
   const id = locName.values[i];
+  const isLogic = panel.isLogic;
 
   const namespace = isLogic && vertexA_NS?.values[i] ? vertexA_NS.values[i] : CMN_NAMESPACE;
   const srcGraph = ensureNestedSubgraph(graph, namespace);

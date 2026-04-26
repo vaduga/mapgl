@@ -2,7 +2,7 @@
 
 ## 2.3.0
 
-- icon color tinting config for Node Groups
+- icon color tint config for Node Groups [#8](https://github.com/vaduga/mapgl/issues/8)
 - adhoc node group filter in the legend. GPU-fast
 - SVGs (raw/donut) resampled for highres, boxed into circle boundaries. Simplify group rules (rm icon size)
 - text labels offset from circle boundary (not from center point).

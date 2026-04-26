@@ -341,7 +341,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
             }
             let group;
             const fixedColor = fixed ? theme.visualization.getColorByName(fixed) : undefined;
-            const hexColor = isFixed ? fixedColor : (dims?.color?.get(i) ?? fixedColor);
+            const hexColor = isFixed ? fixedColor : dims?.color?.get(i) ?? fixedColor;
             if (hexColor) {
               const thrColor = isFixed ? undefined : hexColor;
               if (thrColor !== undefined) {
