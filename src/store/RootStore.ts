@@ -4,11 +4,11 @@ import { Graph } from 'mapLib';
 import { MapLayerState } from '../types';
 import { EventBus, FieldConfig, PanelData } from '@grafana/data';
 import { Deck } from '@deck.gl/core';
-import { GeomapPanel } from '../GeomapPanel';
+import { MapPanel } from '../MapPanel';
 import type { VisLayers } from './visLayers';
 
 class RootStore {
-  panel: GeomapPanel;
+  panel: MapPanel;
   pId: number;
   auth: any;
   fieldConfig: FieldConfig;

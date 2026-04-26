@@ -14,7 +14,7 @@ import {
 } from '../deckLayers/GeoJsonNodesLayer/nodes-geojson-layer';
 import { EdgesGeojsonLayer } from '../deckLayers/GeoJsonEdgesLayer/edges-geojson-layer';
 import { EdgeArrowLayer } from '../deckLayers/ArrowLayer/edge-arrow-layer';
-import { GeomapPanel } from '../GeomapPanel';
+import { MapPanel } from '../MapPanel';
 import { VisLayers } from '../store/visLayers';
 
 function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps }) {
@@ -394,7 +394,7 @@ function findSubgraphById(graph: Graph, id: string): Graph | undefined {
   return undefined;
 }
 
-function genVisLayers(panel: GeomapPanel, props) {
+function genVisLayers(panel: MapPanel, props) {
   const { groups, isLogic, graph, hasAnnots, useMockData } = panel;
   const { options, replaceVariables } = props;
   const dataLayers = options.dataLayers;

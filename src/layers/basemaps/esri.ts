@@ -1,7 +1,7 @@
 import { GrafanaTheme2, RegistryItem, Registry } from '@grafana/data';
 import { xyzTiles, defaultXYZConfig, XYZConfig } from './generic';
 import { ExtendMapLayerHandler, ExtendMapLayerOptions, ExtendMapLayerRegistryItem } from '../../extension';
-import { GeomapPanel } from '../../GeomapPanel';
+import { MapPanel } from '../../MapPanel';
 import { libreSource } from 'mapLib/utils';
 
 interface PublicServiceItem extends RegistryItem {
@@ -60,7 +60,7 @@ export const esriXYZTiles: ExtendMapLayerRegistryItem<ESRIXYZConfig> = {
   name: 'ArcGIS MapServer',
   isBaseMap: true,
 
-  create: (panel: GeomapPanel, options: ExtendMapLayerOptions<ESRIXYZConfig>, theme: GrafanaTheme2) => ({
+  create: (panel: MapPanel, options: ExtendMapLayerOptions<ESRIXYZConfig>, theme: GrafanaTheme2) => ({
     init: (): libreSource => {
       const cfg = { ...options.config };
       const svc = publicServiceRegistry.getIfExists(cfg.server ?? DEFAULT_SERVICE)!;

@@ -39,12 +39,7 @@ function getArrowBaseAndTip(
   return { base: pts.tip, tip: arrowTip };
 }
 
-function getArrowAnchorPosition(d: ArrowFeature, placement: ArrowPlacement, isLogic: boolean): [number, number] | null {
-  if (!isLogic) {
-    const pts = placement === 'start' ? getFirstPoints(d) : getLastPoints(d);
-    return pts ? pts.tip : null;
-  }
-
+function getArrowAnchorPosition(d: ArrowFeature, placement: ArrowPlacement): [number, number] | null {
   const pts = getArrowBaseAndTip(d, placement);
   return pts ? pts.tip : null;
 }
@@ -238,7 +233,7 @@ export const EdgeArrowLayer = (props) => {
     highlightColor,
     billboard: false,
     getPosition: (d: ArrowItem) => {
-      const pos = getArrowAnchorPosition(d.feature, d.placement, isLogic);
+      const pos = getArrowAnchorPosition(d.feature, d.placement);
       return pos ?? [0, 0];
     },
     getAngle: (d: ArrowItem) => getArrowAngle(d.feature, d.placement, !isLogic),

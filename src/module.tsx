@@ -4,7 +4,7 @@ import { config } from '@grafana/runtime';
 import { commonOptionsBuilder } from '@grafana/ui';
 import React from 'react';
 
-import { GeomapPanel } from './GeomapPanel';
+import { MapPanel } from './MapPanel';
 
 import { LayersEditor } from './editor/LayersEditor';
 import { MapViewEditor } from './editor/MapView/MapViewEditor';
@@ -13,7 +13,7 @@ import { defaultMapViewConfig, Options, GeomapInstanceState } from './types';
 
 void initPluginTranslations('vaduga-mapgl-panel');
 
-export const plugin = new PanelPlugin<Options>(GeomapPanel)
+export const plugin = new PanelPlugin<Options>(MapPanel)
   .setNoPadding()
   .useFieldConfig({
     useCustomConfig: (builder) => {

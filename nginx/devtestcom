@@ -3,7 +3,7 @@ server {
 
   include /etc/nginx/sites-enabled/http_headers.conf;
 
-server_name dev.test.ru ;
+server_name dev.test.com ;
 
 
   location / {

@@ -1,7 +1,7 @@
 import { getStyles } from './LayerSwitcher.styles';
 import React, { useEffect, useState, useRef } from 'react';
 import { colTypes } from 'mapLib/utils';
-import { GeomapPanel } from '../../GeomapPanel';
+import { MapPanel } from '../../MapPanel';
 import { useStyles2 } from '@grafana/ui';
 import type { LayerTreeInfo } from '../../store/visLayer';
 
@@ -60,7 +60,7 @@ LayerSwitcher.isTouchDevice_ = () => {
   }
 };
 
-LayerSwitcher.renderPanel = (geomap: GeomapPanel, setVisRefresh, panel, options) => {
+LayerSwitcher.renderPanel = (geomap: MapPanel, setVisRefresh, panel, options) => {
   const render_event = new Event('render');
   panel.dispatchEvent(render_event);
   options = options || {};
@@ -193,7 +193,7 @@ LayerSwitcher.renderLayers_ = (layers: LayerTreeInfo[], geomap, setVisRefresh, e
 };
 
 LayerSwitcher.setVisible_ = (geomap, lyr, index, visible, groupSelectStyle) => {
-  const { visLayers } = geomap as GeomapPanel;
+  const { visLayers } = geomap as MapPanel;
 
   visLayers!.setVisible(lyr.index, lyr.name, lyr.group, visible); /// lyr.name, lyr.group,
 

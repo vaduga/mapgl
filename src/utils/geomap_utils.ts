@@ -2,7 +2,7 @@ import { DataFrame, GrafanaTheme2 } from '@grafana/data';
 
 import { defaultStyleConfig, StyleConfig, StyleConfigState, StyleDimensions } from '../style/types';
 import { getColorDimension, getScaledDimension, getTextDimension } from '../grafana_core/app/features/dimensions';
-import { GeomapPanel } from '../GeomapPanel';
+import { MapPanel } from '../MapPanel';
 import { MapLayerState, Options } from '../types';
 
 export function getStyleDimension(
@@ -36,7 +36,7 @@ export function getStyleDimension(
   return dims;
 }
 
-export const notifyPanelEditor = (geomapPanel: GeomapPanel, layers: MapLayerState[], selected: number) => {
+export const notifyPanelEditor = (geomapPanel: MapPanel, layers: MapLayerState[], selected: number) => {
   // Notify the panel editor
   if (geomapPanel.panelContext && geomapPanel.panelContext.onInstanceStateChange) {
     geomapPanel.panelContext.onInstanceStateChange({

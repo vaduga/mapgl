@@ -18,7 +18,7 @@ import { getStyleConfigState } from '../../style/utils';
 import { getGroupRules } from '../../editor/Groups/data/rules_processor';
 
 import { Options } from '../../types';
-import { GeomapPanel } from '../../GeomapPanel';
+import { MapPanel } from '../../MapPanel';
 import { getQueryFields } from '../../editor/getQueryFields';
 import { GroupsEditor } from '../../editor/Groups/GroupsEditor';
 import { OverField, Rule } from '../../editor/Groups/rule-types';
@@ -103,7 +103,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
    */
 
   create: async (
-    panel: GeomapPanel,
+    panel: MapPanel,
     options: ExtendMapLayerOptions<MarkersConfig>,
     theme: GrafanaTheme2,
     layerIdx?: number

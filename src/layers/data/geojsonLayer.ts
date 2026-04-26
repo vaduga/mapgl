@@ -6,7 +6,7 @@ import { StyleEditor } from '../../editor/StyleEditor';
 import { getStyleDimension } from '../../utils/geomap_utils';
 import { getStyleConfigState } from '../../style/utils';
 import { Options } from '../../types';
-import { GeomapPanel } from '../../GeomapPanel';
+import { MapPanel } from '../../MapPanel';
 import { FeatSource } from 'mapLib';
 import { type Feature, colTypes } from 'mapLib/utils';
 
@@ -44,7 +44,7 @@ export const geojsonLayer: ExtendMapLayerRegistryItem<GeoJsonConfig> = {
    * @param props
    * @param options
    */
-  create: async (panel: GeomapPanel, options: ExtendMapLayerOptions<GeoJsonConfig>, theme: GrafanaTheme2) => {
+  create: async (panel: MapPanel, options: ExtendMapLayerOptions<GeoJsonConfig>, theme: GrafanaTheme2) => {
     // Assert default values
     const config = {
       ...defaultOptions,

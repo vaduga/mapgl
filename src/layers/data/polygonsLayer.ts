@@ -11,7 +11,7 @@ import { defaultStyleConfig, StyleConfig } from '../../style/types';
 import { getStyleConfigState } from '../../style/utils';
 import { getStyleDimension } from '../../utils/geomap_utils';
 import { Options } from '../../types';
-import { GeomapPanel } from '../../GeomapPanel';
+import { MapPanel } from '../../MapPanel';
 import { Geometry } from 'geojson';
 
 export interface PolygonsConfig {
@@ -48,7 +48,7 @@ export const polygonsLayer: ExtendMapLayerRegistryItem<PolygonsConfig> = {
    * @param props
    * @param options
    */
-  create: async (panel: GeomapPanel, options: ExtendMapLayerOptions<PolygonsConfig>, theme: GrafanaTheme2) => {
+  create: async (panel: MapPanel, options: ExtendMapLayerOptions<PolygonsConfig>, theme: GrafanaTheme2) => {
     // Assert default values
     const config = {
       ...defaultOptions,

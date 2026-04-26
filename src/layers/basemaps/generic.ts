@@ -1,6 +1,6 @@
 import { GrafanaTheme2 } from '@grafana/data';
 import { ExtendMapLayerOptions, ExtendMapLayerRegistryItem } from '../../extension';
-import { GeomapPanel } from '../../GeomapPanel';
+import { MapPanel } from '../../MapPanel';
 import { libreSource } from 'mapLib/utils';
 
 export interface XYZConfig {
@@ -20,7 +20,7 @@ export const xyzTiles: ExtendMapLayerRegistryItem<XYZConfig> = {
   name: 'XYZ Tile layer',
   isBaseMap: true,
 
-  create: (panel: GeomapPanel, options: ExtendMapLayerOptions<XYZConfig>, theme: GrafanaTheme2) => ({
+  create: (panel: MapPanel, options: ExtendMapLayerOptions<XYZConfig>, theme: GrafanaTheme2) => ({
     init: (): libreSource => {
       const cfg = { ...options.config };
       if (!cfg.url) {

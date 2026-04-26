@@ -29,7 +29,7 @@ interface State {
 import { Rule } from './editor/Groups/rule-types';
 import { VisLayers } from './store/visLayers';
 
-export class GeomapPanel extends Component<Props, State> {
+export class MapPanel extends Component<Props, State> {
   private svgLoadController: AbortController | null = null;
   declare context: React.ContextType<typeof PanelContextRoot>;
   static contextType = PanelContextRoot;

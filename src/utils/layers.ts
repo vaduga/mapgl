@@ -1,7 +1,7 @@
 import { getFrameMatchers, PanelData, textUtil } from '@grafana/data';
 import { config } from '@grafana/runtime';
 
-import { GeomapPanel } from '../GeomapPanel';
+import { MapPanel } from '../MapPanel';
 import { MARKERS_LAYER_ID, MarkersConfig } from '../layers/data/markersLayer';
 import { geomapLayerRegistry, ORTHO_BASEMAP_CONFIG } from '../layers/registry';
 import { MapLayerState } from '../types';
@@ -35,7 +35,7 @@ export const applyLayerFilter = (
 
 // panel: GeomapPanel
 export async function updateLayer(
-  panel: GeomapPanel,
+  panel: MapPanel,
   uid: string,
   newOptions: ExtendMapLayerOptions
 ): Promise<boolean> {
@@ -108,7 +108,7 @@ export async function updateLayer(
 }
 
 export async function initLayer(
-  panel: GeomapPanel,
+  panel: MapPanel,
   options: ExtendMapLayerOptions,
   isBasemap = false,
   layerIdx?

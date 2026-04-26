@@ -5,7 +5,7 @@ import { orthoLayer } from './basemaps/blank';
 
 import { dataLayers } from './data';
 import { ExtendMapLayerRegistryItem, ExtendMapLayerOptions } from '../extension';
-import { GeomapPanel } from '../GeomapPanel';
+import { MapPanel } from '../MapPanel';
 import { carto } from './basemaps/carto';
 
 export const ORTHO_BASEMAP_CONFIG: ExtendMapLayerOptions = {
@@ -27,7 +27,7 @@ export const defaultBaseLayer: ExtendMapLayerRegistryItem = {
   name: 'Default base layer',
   isBaseMap: true,
 
-  create: (panel: GeomapPanel, options: ExtendMapLayerOptions, theme: GrafanaTheme2) => {
+  create: (panel: MapPanel, options: ExtendMapLayerOptions, theme: GrafanaTheme2) => {
     const serverLayerType = config?.geomapDefaultBaseLayerConfig?.type;
     if (serverLayerType) {
       const layer = geomapLayerRegistry.getIfExists(serverLayerType);

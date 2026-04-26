@@ -9,7 +9,7 @@ ENV GRAFANA_PORT=3000
 ## Copy configuration
 COPY default.conf /etc/nginx/templates/default.conf.template
 COPY proxy.conf /etc/nginx/conf.d/proxy.conf
-COPY devtestru /etc/nginx/conf.d/devtestru.conf
+COPY devtestcom /etc/nginx/conf.d/devtest.conf
 COPY ssl/ /etc/nginx/ssl/
 COPY http_headers.conf /etc/nginx/conf.d/http_headers.conf
 

@@ -1,7 +1,7 @@
 import { cloneDeep } from 'lodash';
 
 import { FrameGeometrySourceMode } from '@grafana/schema';
-import { GeomapPanel } from '../GeomapPanel';
+import { MapPanel } from '../MapPanel';
 import { geomapLayerRegistry } from '../layers/registry';
 import { defaultStyleConfig } from '../style/types';
 import { GeomapLayerActions, MapLayerState } from '../types';
@@ -9,7 +9,7 @@ import { GeomapLayerActions, MapLayerState } from '../types';
 import { initLayer } from './layers';
 import { getNextLayerName } from './geomap_utils';
 
-export const getActions = (panel: GeomapPanel) => {
+export const getActions = (panel: MapPanel) => {
   const actions: GeomapLayerActions = {
     selectLayer: (uid: string) => {
       const selected = panel.layers.findIndex((v) => v.options.name === uid);

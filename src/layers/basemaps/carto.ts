@@ -1,6 +1,6 @@
 import { EventBus, GrafanaTheme2, MapLayerOptions } from '@grafana/data';
 import { ExtendMapLayerOptions, ExtendMapLayerRegistryItem } from '../../extension';
-import { GeomapPanel } from '../../GeomapPanel';
+import { MapPanel } from '../../MapPanel';
 import { libreSource } from 'mapLib/utils';
 
 // https://carto.com/help/building-maps/basemap-list/
@@ -32,7 +32,7 @@ export const carto: ExtendMapLayerRegistryItem<CartoConfig> = {
    * Function that configures transformation and returns a transformer
    * @param options
    */
-  create: (panel: GeomapPanel, options: ExtendMapLayerOptions<CartoConfig>, theme: GrafanaTheme2) => ({
+  create: (panel: MapPanel, options: ExtendMapLayerOptions<CartoConfig>, theme: GrafanaTheme2) => ({
     init: (): libreSource => {
       const cfg = { ...defaultCartoConfig, ...options.config };
       let style = cfg.theme as string;

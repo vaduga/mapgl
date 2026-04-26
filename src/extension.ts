@@ -12,7 +12,7 @@ import {
 } from '@grafana/data';
 import { libreSource } from 'mapLib/utils';
 import { ReactNode } from 'react';
-import { GeomapPanel } from './GeomapPanel';
+import { MapPanel } from './MapPanel';
 import { FeatSource } from 'mapLib';
 
 export interface MatcherConfig<TOptions = any> {
@@ -102,7 +102,7 @@ export interface ExtendMapLayerRegistryItem<TConfig = ExtendMapLayerOptions> ext
   hideOpacity?: boolean;
 
   create: (
-    panel: GeomapPanel,
+    panel: MapPanel,
     options: ExtendMapLayerOptions<TConfig>,
     theme: GrafanaTheme2,
     idx?: number

@@ -1,6 +1,6 @@
 import { ExtendMapLayerOptions, ExtendMapLayerRegistryItem } from '../../extension';
 import { GrafanaTheme2 } from '@grafana/data';
-import { GeomapPanel } from '../../GeomapPanel';
+import { MapPanel } from '../../MapPanel';
 
 export const standard: ExtendMapLayerRegistryItem = {
   id: 'osm-standard',
@@ -8,7 +8,7 @@ export const standard: ExtendMapLayerRegistryItem = {
   name: 'Open Street Map',
   isBaseMap: true,
 
-  create: (panel: GeomapPanel, options, theme: GrafanaTheme2) => ({
+  create: (panel: MapPanel, options, theme: GrafanaTheme2) => ({
     init: () => {
       return {
         version: 8,

@@ -1,6 +1,6 @@
 import { GrafanaTheme2 } from '@grafana/data';
 import { ExtendMapLayerOptions, ExtendMapLayerRegistryItem } from '../../extension';
-import { GeomapPanel } from '../../GeomapPanel';
+import { MapPanel } from '../../MapPanel';
 
 export interface JsonConfig {
   url: string;
@@ -19,7 +19,7 @@ export const fromJson: ExtendMapLayerRegistryItem<JsonConfig> = {
   name: 'From .json',
   isBaseMap: true,
 
-  create: (panel: GeomapPanel, options: ExtendMapLayerOptions<JsonConfig>, theme: GrafanaTheme2) => ({
+  create: (panel: MapPanel, options: ExtendMapLayerOptions<JsonConfig>, theme: GrafanaTheme2) => ({
     init: () => {
       const cfg = { ...options.config };
       if (!cfg.url) {

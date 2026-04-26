@@ -15,7 +15,7 @@ import { Geometry, Point } from 'geojson';
 import { findField } from '../grafana_core/app/features/dimensions';
 import { GeomGraph, Graph, Node, FeatSource } from 'mapLib';
 import { CMN_NAMESPACE, NS_SEPARATOR } from 'mapLib/utils';
-import { GeomapPanel } from '../GeomapPanel';
+import { MapPanel } from '../MapPanel';
 
 export type NamespaceRange = [
   graphId: string,
@@ -204,7 +204,7 @@ export function getGeometryField(
   locField?: string,
   vertexA_NS?: string,
   vertexB_NS?: string,
-  panel?: GeomapPanel,
+  panel?: MapPanel,
   root?: FeatSource,
   graph?: Graph
 ): FrameGeometryField {
@@ -297,7 +297,7 @@ export function getGeometryField(
 function pointFieldFromAutolayout(
   len: number,
   fields: LocationFields,
-  panel: GeomapPanel,
+  panel: MapPanel,
   root: FeatSource,
   graph: Graph
 ): ExtendedField<Geometry | Float64Array> {
@@ -326,7 +326,7 @@ function pointFieldFromAutolayout(
 function pointFieldFromGeoJSON(
   geojson: Field<string>,
   fields?: LocationFields,
-  panel?: GeomapPanel,
+  panel?: MapPanel,
   root?: FeatSource,
   graph?: Graph
 ): ExtendedField<Geometry | Float64Array> {
@@ -375,7 +375,7 @@ function pointFieldFromLonLat(
   lon: Field<number>,
   lat: Field<number>,
   fields?: LocationFields,
-  panel?: GeomapPanel,
+  panel?: MapPanel,
   root?: FeatSource,
   graph?: Graph
 ): ExtendedField<Geometry | Float64Array> {
@@ -420,7 +420,7 @@ function pointFieldFromLonLat(
 function pointFieldFromGeohash(
   geohash: Field<string>,
   fields?: LocationFields,
-  panel?: GeomapPanel,
+  panel?: MapPanel,
   root?: FeatSource,
   graph?: Graph
 ): ExtendedField<Geometry | Float64Array> {
@@ -463,7 +463,7 @@ function getGeoFieldFromGazetteer(
   gaz: Gazetteer,
   field: Field<string>,
   fields?: LocationFields,
-  panel?: GeomapPanel,
+  panel?: MapPanel,
   root?: FeatSource,
   graph?: Graph
 ): ExtendedField<Geometry | Float64Array> {
