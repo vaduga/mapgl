@@ -8,11 +8,29 @@
 
 [//]: # '[![Change Log](https://img.shields.io/badge/Change-log-blue.svg?style=flat)](https://github.com/vaduga/mapgl/blob/main/CHANGELOG.md)'
 
-Network **Geo map** / **Node Graph** with distributed graph autolayout and spline edge routing.
+Start a new panel with a mock node graph to test styles and modes.
 
-Start new panel with a sample node graph to test styles and modes.
 
-Full support for native Grafana field config: Thresholds, Mappings, Units, Overrides, Data links.
+---
+
+### Features
+
+- **Node graph** with layered auto-layout or **Geomap view**
+- Namespace subgraphs for a distributed graph.
+- Webgl GPU-acceleration for rendering large data volumes
+- Arc sections on nodes for multiple metrics.
+- Multi-segment routes
+- Support for parallel routes
+- Network interface TX/RX load visualization using bi-metric arcs
+- Ad-hoc filtering by layers, node groups in the legend
+- Dynamic drill-down data links to external panels
+
+
+---
+
+### 🕹️ Demo
+
+[Playground](https://play.mapgl.org) with open configuration
 
 ---
 
@@ -31,20 +49,6 @@ width="600"
 
 ---
 
-### Features
-
-- **Node graph** with layered auto-layout or **Geomap view**
-- Namespace subgraphs for a distributed graph.
-- Webgl GPU-acceleration for rendering large data volumes
-- Arc sections on nodes for multiple metrics.
-- Multi-segment routes
-- Support for parallel routes
-- Network interface TX/RX load visualization using bi-metric arcs
-- Ad-hoc filtering by layers, node groups in the legend
-- Dynamic drill-down data links to external panels
-
----
-
 ### Data Format
 
 <img
@@ -53,16 +57,9 @@ alt="NodeGraph"
 width="900"
 />
 
-\*Field names are examples only.
-Unified (Graph+Geo) single dataframe for nodes and edges avoids hardcoded dataframe requirements of the native Geomap/NodeGraph.
+*Unified dataframe model for nodes and links. Field names are examples only; Mapgl does not require fixed field names.  
 
-Each data source record may contain:
-
-- `node id` and `coordinates` for Geo view (not required for NodeGraph auto-layout)
-- `parent id` or a full path with intermediate node IDs or raw coordinates
-- `edge id` (optional, used to support parallel links)
-- `node status` metric
-- `transmit` and `receive` metrics for link load
+See [Panel configuration](https://mapgl.org/documentation) for setup details and dataframe usage.
 
 ---
 
@@ -80,11 +77,9 @@ Use Grafana’s built-in transformations to prepare and merge data from:
 
 ---
 
-### 🕹️ Demo
+### Field Config
+Full support for native Grafana field config:
 
-[Playground](https://play.mapgl.org) with open configuration
-
-### Grafana Field Config
 
 - `Thresholds` – value ranges with associated colors to visually indicate status
 - `Mapping` – rename displayed values
