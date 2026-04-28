@@ -27,7 +27,7 @@ This layer renders:
 - nodes with status colors derived from the best-matching node group style, with fall back to native Grafana thresholds
 - donut-chart icons for several metrics per node 
 - spline-routed links between nodes (the 'routed' mode)
-- direct-mode links with dual-side metrics
+- direct-mode Arc links with dual-side metrics
 
 
 ### How topology is generated from the dataframe
