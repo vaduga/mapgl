@@ -294,6 +294,17 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     //</editor-fold>
   };
 
+  const viewStateChanger = (c) => {
+    flushSync(() => {
+      const modView = {
+        ...c.viewState,
+        ...(isYaMaps ? defDeckViewPort(c) : {}),
+        rotationX: -90,
+      };
+      setLocalViewState(modView);
+    });
+  };
+
   useEffect(() => {
     flushSync(() => {
       if (!getViewState) {
@@ -704,7 +715,9 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
         views={views}
         ref={deckRef}
         layers={layers}
-        initialViewState={viewState}
+        initialViewState={ isLogic ? undefined : viewState}
+        viewState={isLogic ? viewState : undefined}
+        onViewStateChange={isLogic ? viewStateChanger : undefined}
         controller={{
           dragMode: 'pan',
           dragRotate: !isLogic,
