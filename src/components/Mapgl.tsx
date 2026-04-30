@@ -699,11 +699,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
   const viewStateChanger = (c) => {
     flushSync(() => {
-      const modView = {
-        ...c.viewState,
-        ...(isLogic ? { rotationX: -90 } : {}),
-      };
-      setLocalViewState(modView);
+      setLocalViewState(c.viewState);
     });
   };
 
