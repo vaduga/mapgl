@@ -16,8 +16,6 @@ import {
   useRootStore,
   toRGB4Array,
   genPrimaryLayers,
-  genNodeLayers,
-  genEdgeLayers,
   selectGotoHandler,
   expandTooltip,
 } from '../utils';
@@ -85,7 +83,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const { fullscreenContainer } = useFullscreenPortalBridge(containerRef);
 
-  const [visRefresh, setVisRefresh] = useState(Math.random() + 1);
+  const [visRefresh, setVisRefresh] = useState(1);
   const [hoverInfo, setHoverInfo] = useState({});
   const [layers, setLayers] = useState<Layer[]>([]);
   const [localViewState, setLocalViewState] = useState<ViewState>(getViewState);
@@ -98,24 +96,6 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
   const layerCacheRef = useRef<any>(null);
   const svgTintRefreshFrameRef = useRef<number | null>(null);
   const DEBUG_DISABLE_NODE_CACHE = true;
-
-  const composeLayersFromCache = useCallback(
-    (cache, nodeLayers: Layer[], edgeLayers?: { arcsBase: Layer[]; lines: Layer[]; edgeLabels: Layer[] }) => {
-      const arcsBase = edgeLayers?.arcsBase ?? cache.arcsBase;
-      const lines = edgeLayers?.lines ?? cache.lines;
-      const edgeLabels = edgeLayers?.edgeLabels ?? cache.edgeLabels;
-      return [
-        ...cache.secLayers,
-        ...cache.bboxes,
-        ...arcsBase,
-        ...lines,
-        ...nodeLayers,
-        ...(cache.comments ? [cache.comments] : []),
-        ...edgeLabels,
-      ].filter((el) => el !== null && el !== undefined);
-    },
-    []
-  );
 
   useEffect(() => {
     if (!time || !annots?.length) {
@@ -314,7 +294,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
     const secDataLayers = panel.layers
       .slice(1)
-      .filter((el) => el.layer.colType !== colTypes.Markers && el.layer.features?.length);
+      .filter(el => el.layer.colType !== colTypes.Markers && el.layer.features?.length);
     let poly = 0,
       path = 0,
       geojson = 0;
@@ -498,19 +478,16 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     });
 
     const [bboxes, icons, arcsBase, lines, comments, edgeLabels] = res;
-    const cache = {
-      secLayers,
-      bboxes,
-      arcsBase,
-      lines,
-      comments,
-      edgeLabels,
-      biCols,
-      currentNodeLayers: icons,
-      lineFeatures: initLineFeatures,
-    };
-    layerCacheRef.current = cache;
-    const nextLayers = composeLayersFromCache(cache, icons);
+
+    const nextLayers = [
+      ...secLayers,
+      ...bboxes,
+      ...arcsBase,
+      ...lines,
+      ...icons,
+      ...(comments ? [comments] : []),
+      ...edgeLabels,
+    ].filter((el) => el !== null && el !== undefined);
 
     flushSync(() => {
       setLayers(nextLayers);
@@ -524,57 +501,6 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     getLayers();
   }, [graph.getVersion, getTooltipObject, time, getViewState, visRefresh]);
 
-  useEffect(() => {
-    const cache = layerCacheRef.current;
-    if (!cache) {
-      return;
-    }
-
-    const icons = genNodeLayers({
-      biCols: cache.biCols,
-      layerProps,
-    });
-    const edgeLayers = genEdgeLayers({
-      lineFeatures: cache.lineFeatures,
-      layerProps,
-      isHyperOverride: isHyper,
-    });
-    cache.currentNodeLayers = DEBUG_DISABLE_NODE_CACHE ? null : icons;
-    const nextLayers = composeLayersFromCache(cache, icons, edgeLayers);
-
-    flushSync(() => {
-      setLayers(nextLayers);
-    });
-  }, [getSelectedNode?.id, getSelEdges, composeLayersFromCache]);
-
-  useEffect(() => {
-    const cache = layerCacheRef.current;
-    if (!cache) {
-      return;
-    }
-
-    const edgesGeometry = graph.getEdgesGeometry;
-    const lineFeatures = isHyper ? edgesGeometry[0] : edgesGeometry[1];
-    cache.lineFeatures = lineFeatures;
-    const edgeLayers = genEdgeLayers({
-      lineFeatures,
-      layerProps,
-      isHyperOverride: isHyper,
-    });
-
-    const nodeLayers =
-      !DEBUG_DISABLE_NODE_CACHE && cache.currentNodeLayers
-        ? cache.currentNodeLayers
-        : genNodeLayers({
-            biCols: cache.biCols,
-            layerProps,
-          });
-
-    const nextLayers = composeLayersFromCache(cache, nodeLayers, edgeLayers);
-    flushSync(() => {
-      setLayers(nextLayers);
-    });
-  }, [isHyper, composeLayersFromCache]);
 
   const memoLayerSwitcher = useMemo(() => {
     return (

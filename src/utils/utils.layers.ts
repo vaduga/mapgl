@@ -1,11 +1,17 @@
 import { collectGroups, getGraphLayers, loadSvgIcons, newUniqueIconNames, toRGB4Array } from './utils.plugin';
-import { GeomGraph, Graph } from 'mapLib';
 import { LineTextLayer } from '../deckLayers/TextLayer/text-layer';
 import { MyIconLayer } from '../deckLayers/IconLayer/icon-layer';
 import { MyArcLayer } from '../deckLayers/ArcLayer/arc-layer';
 import { GeoJsonLayer, PathLayer, TextLayer } from '@deck.gl/layers';
 import { Layer } from '@deck.gl/core';
-import { DeckLine, colTypes, NS_SEPARATOR, NS_PADDING, BBOX_OUTLINE_WIDTH, BBOX_OUTLINE_COLOR } from 'mapLib/utils';
+import { GeomGraph, Graph } from 'mapLib';
+import {
+  BBOX_OUTLINE_COLOR,
+  BBOX_OUTLINE_WIDTH,
+  NS_SEPARATOR,
+  NS_PADDING,
+  DeckLine, colTypes
+} from 'mapLib/utils';
 import { Rule } from 'editor/Groups/rule-types';
 import {
   LogicMainLabelTextLayer,
@@ -244,122 +250,6 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
   return [bboxes, icons, arcsBase, lines, comments, edgeLabels];
 }
 
-function genNodeLayers({ biCols, layerProps }) {
-  const { getVisLayers, isLogic } = layerProps;
-  const icons: Layer[] = [];
-  const nodeLayer = NodesGeojsonLayer;
-
-  for (const col of biCols ?? []) {
-    const visible = isVisible(getVisLayers, { index: null, name: col.graph.id, group: 'graph' });
-    if (isLogic) {
-      icons.push(
-        nodeLayer({
-          ...layerProps,
-          biCol: col,
-          visible,
-          pointTypeOverride: 'circle+icon',
-          idSuffix: '-main',
-        })
-      );
-      icons.push(LogicPlaceholderTextLayer({ ...layerProps, biCol: col, visible }));
-      icons.push(LogicMainLabelTextLayer({ ...layerProps, biCol: col, visible }));
-    } else {
-      icons.push(
-        nodeLayer({
-          ...layerProps,
-          biCol: col,
-          visible,
-        })
-      );
-    }
-  }
-  return icons;
-}
-
-function genEdgeLayers({
-  lineFeatures,
-  layerProps,
-  isHyperOverride,
-}: {
-  lineFeatures: any;
-  layerProps: any;
-  isHyperOverride?: boolean;
-}) {
-  const { theme, baseLayer, options, getVisLayers, panel, isLogic } = layerProps;
-  const isHyper = isHyperOverride ?? layerProps.isHyper;
-  const lines: any[] = [];
-  const arcsBase: any[] = [];
-  const edgeLabels: any[] = [];
-  const lineLayer = EdgesGeojsonLayer;
-  const graph = panel.graph;
-
-  const showGraph = isVisible(getVisLayers, {
-    index: null,
-    name: 'graph',
-    group: 'graph',
-  });
-
-  const visible =
-    showGraph &&
-    isVisible(getVisLayers, {
-      index: null,
-      name: colTypes.Edges,
-      group: colTypes.Edges,
-    });
-
-  if (lineFeatures && Object.keys(lineFeatures).length) {
-    for (const [srcGraphId, features] of Object.entries(lineFeatures)) {
-      if (!(features as DeckLine[])?.length) {
-        continue;
-      }
-
-      if (!isHyper) {
-        const props = {
-          ...layerProps,
-          srcGraphId,
-          lineFeatures: features,
-          visible,
-        };
-
-        lines.push(MyArcLayer(props));
-        arcsBase.push(MyArcLayer({ ...props, isBase: true }));
-
-        edgeLabels.push(
-          LineTextLayer({
-            getVisLayers,
-            id: srcGraphId,
-            data: features,
-            visible,
-            type: 'arcLabels',
-            isLogic,
-            options,
-            baseLayer,
-            theme,
-          })
-        );
-      } else {
-        const linesCollection = {
-          type: 'FeatureCollection' as const,
-          features: (features as DeckLine[]).filter(Boolean),
-        };
-
-        const props = {
-          ...layerProps,
-          srcGraphId,
-          linesCollection,
-          getWasmId2Edges: graph.getWasmId2Edges,
-          visible,
-        };
-
-        lines.push(lineLayer(props));
-        lines.push(EdgeArrowLayer(props));
-      }
-    }
-  }
-
-  return { arcsBase, lines, edgeLabels };
-}
-
 async function initGroups(groups: Rule[], layers, svgIcons, theme, loadController: AbortController, reload = false) {
   const nsLayers = layers?.slice(1); //reload ? 1 : 0)
 
@@ -486,8 +376,6 @@ function createDerivedLayers(visLayers: VisLayers, graph: Graph, isLogic, replac
 
 export {
   genPrimaryLayers,
-  genNodeLayers,
-  genEdgeLayers,
   initGroups,
   isVisible,
   genVisLayers,
