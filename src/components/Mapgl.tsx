@@ -673,11 +673,12 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     );
   }, [getGroupsLegend]);
 
-  const views = isLogic
-    ? [new OrbitView({ id: '3d-scene', controller: true })]
-    : [new MapView({ id: 'geo-view', controller: true })];
-  const viewState = {};
-  viewState[isLogic ? '3d-scene' : 'geo-view'] = localViewState;
+  const viewId = isLogic ? '3d-scene' : 'geo-view';
+  const views = useMemo(
+    () => [isLogic ? new OrbitView({ id: viewId, controller: true }) : new MapView({ id: viewId, controller: true })],
+    [isLogic, viewId]
+  );
+  const deckViewState = useMemo(() => ({ [viewId]: localViewState }), [viewId, localViewState]);
 
   const widgets: any = [
     new FullscreenWidget({
@@ -697,12 +698,6 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     );
   }
 
-  const viewStateChanger = (c) => {
-    flushSync(() => {
-      setLocalViewState(c.viewState);
-    });
-  };
-
   ///// return
   return (
     <div className={s.container} ref={containerRef}>
@@ -711,8 +706,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
         views={views}
         ref={deckRef}
         layers={layers}
-        viewState={viewState}
-        onViewStateChange={viewStateChanger}
+        initialViewState={deckViewState}
         controller={{
           dragMode: 'pan',
           dragRotate: !isLogic,
