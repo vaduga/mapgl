@@ -13,6 +13,7 @@ import {
   CurveFactory,
   GeomEdge,
   Graph as MSGraph,
+  Point,
 } from '@msagl/core';
 
 import { EdgeRoutingMode } from '@msagl/core';
@@ -22,6 +23,14 @@ import midpoint from '@turf/midpoint';
 
 type Vec2 = [number, number];
 type ArrowAngles = { start: number | undefined; end: number | undefined };
+type ArrowTips = { start?: Position; end?: Position };
+
+type EdgeTerminals = {
+  coordinates: Position[][];
+  arrowTips: ArrowTips;
+  sourcePosition?: Position;
+  targetPosition?: Position;
+};
 
 export function getEdgeArrowSize(edgeSize: number | undefined): number {
   if (typeof edgeSize === 'number') {
@@ -135,15 +144,71 @@ function getArrowAngleFromPoints(base: number[], tip: number[], isGeo: boolean):
   return (Math.atan2(dy, dx) * 180) / Math.PI;
 }
 
-function getArrowAngles(coords: number[][][], isGeo: boolean): ArrowAngles | null {
+function getArrowAngles(coords: number[][][], isGeo: boolean, arrowTips?: ArrowTips): ArrowAngles | null {
   const startPoints = getFirstPoints(coords);
   const endPoints = getLastPoints(coords);
   if (!startPoints || !endPoints) {
     return null;
   }
   return {
-    start: getArrowAngleFromPoints(startPoints.base, startPoints.tip, isGeo),
-    end: getArrowAngleFromPoints(endPoints.base, endPoints.tip, isGeo),
+    start: getArrowAngleFromPoints(startPoints.base, arrowTips?.start ?? startPoints.tip, isGeo),
+    end: getArrowAngleFromPoints(endPoints.base, arrowTips?.end ?? endPoints.tip, isGeo),
+  };
+}
+
+function cloneCoordinates(coords: number[][][]): Position[][] {
+  return coords.map((line) => line.map((point) => [...point] as Position));
+}
+
+function toPosition(point?: Point | null): Position | undefined {
+  return point ? ([point.x, point.y] as Position) : undefined;
+}
+
+function getEdgeTerminals(
+  coords: number[][][],
+  sourceGeomEdge?: GeomEdge,
+  targetGeomEdge?: GeomEdge
+): EdgeTerminals | null {
+  if (!coords?.length) {
+    return null;
+  }
+
+  const coordinates = cloneCoordinates(coords);
+  const arrowTips: ArrowTips = {};
+  const sourceArrowhead = sourceGeomEdge?.sourceArrowhead;
+  const targetArrowhead = targetGeomEdge?.targetArrowhead;
+  const sourceCurveStart = toPosition(sourceGeomEdge?.curve?.start);
+  const targetCurveEnd = toPosition(targetGeomEdge?.curve?.end);
+  const sourceTip = toPosition(sourceArrowhead?.tipPosition);
+  const targetTip = toPosition(targetArrowhead?.tipPosition);
+
+  const firstPoints = getFirstPoints(coords);
+  if (firstPoints) {
+    if (sourceTip) {
+      arrowTips.start = sourceTip;
+    }
+    coordinates[0][0] = sourceCurveStart ?? ([...firstPoints.tip] as Position);
+  }
+
+  const lastPoints = getLastPoints(coords);
+  if (lastPoints) {
+    if (targetTip) {
+      arrowTips.end = targetTip;
+    }
+    const lastLineIndex = coordinates.length - 1;
+    const lastPointIndex = coordinates[lastLineIndex].length - 1;
+    coordinates[lastLineIndex][lastPointIndex] = targetCurveEnd ?? ([...lastPoints.tip] as Position);
+  }
+
+  const sourcePosition = (arrowTips.start ?? coordinates[0]?.[0]) as Position | undefined;
+  const lastLine = coordinates.at(-1);
+  const targetPosition = (arrowTips.end ?? lastLine?.at(-1)) as Position | undefined;
+
+  return {
+    coordinates,
+    arrowTips,
+    sourcePosition,
+    targetPosition,
   };
 }
 
@@ -540,4 +605,14 @@ function getMidpoint(sourcePosition: Position, targetPosition: Position, isLogic
 
 export type { PushPathProps };
 
-export { pushPath, getArrowAngles, sortAnnotations, paraboloid, segregatePath, runLayout, getMidpoint };
+export {
+  pushPath,
+  getArrowAngles,
+  getEdgeTerminals,
+  sortAnnotations,
+  paraboloid,
+  segregatePath,
+  runLayout,
+  getSmoothPolyline,
+  getMidpoint,
+};

@@ -8,11 +8,18 @@ import { action, autorun, computed, makeObservable, observable, toJS } from 'mob
 import { CommentsData, CoordRef, DeckLine, BiColProps } from '../utils/interfaces';
 import { MultiLineString, Position } from 'geojson';
 import { CoordsConvert, NS_SEPARATOR } from '../utils';
-import { paraboloid, getMidpoint, segregatePath, getArrowAngles } from '../utils/utils.graph';
+import {
+  paraboloid,
+  getMidpoint,
+  segregatePath,
+  getArrowAngles,
+  getEdgeTerminals,
+  getSmoothPolyline,
+} from '../utils/utils.graph';
 
 import { Units } from '@turf/helpers';
 import distance from '@turf/distance';
-import { Arrowhead, GeomEdge, GeomGraph, Point } from '@msagl/core';
+import { Arrowhead, GeomEdge, GeomGraph } from '@msagl/core';
 import { distance2D } from '~/utils/utils.turf';
 
 type EdgeTuple = [Array<number | undefined>, number]; ///widxs, lidx, wrap, ametric, b,c
@@ -591,7 +598,9 @@ export class Graph extends Node {
         ? segregatePath(subPath, pathsCoords, findNodeA, findNodeB)
         : [[], []];
 
-      let coordinates = segrCoords;
+      let coordinates: Position[][] = this.isLogic
+        ? edges.map(getSmoothPolyline).filter((line) => line?.length)
+        : segrCoords;
       if (!coordinates?.length) {
         return;
       }
@@ -599,38 +608,23 @@ export class Graph extends Node {
       const geomEdge: GeomEdge = GeomEdge.getGeom(edge);
       const lastEdgeGeom: GeomEdge = GeomEdge.getGeom(lastEdge);
 
-      if (geomEdge?.source) {
-        if (geomEdge?.curve?.start) {
-          coordinates.forEach((c: string | any[], i: any) => {
-            if (c.length > 3) {
-              //     [geomEdge.curve.start.x, geomEdge.curve.start.y],
-              //     ...c.slice(1, -1),
-              //    [geomEdge.curve.end.x, geomEdge.curve.end.y],
-              coordinates[i] = c.slice(1, -1);
-            }
-          });
-        } else if (!geomEdge?.curve?.start) {
-          console.warn('Invalid controlPoints or polyPoints', locName, edge.id);
-          coordinates = [coordinates];
-        }
+      if (geomEdge?.source && !geomEdge?.curve?.start) {
+        console.warn('Invalid controlPoints or polyPoints', locName, edge.id);
       }
 
       if (!coordinates.length) {
         return;
       }
 
+      const edgeTerminals = getEdgeTerminals(coordinates, geomEdge, lastEdgeGeom);
+      if (!edgeTerminals) {
+        return;
+      }
+      coordinates = edgeTerminals.coordinates;
+
       const propsOverride = dataRecord; /// as from frame initially (including duplicate records)
-      const arrowAngles = getArrowAngles(coordinates, !this.isLogic);
-      const arrowTips = {
-        ...(geomEdge?.sourceArrowhead?.tipPosition
-          ? { start: [geomEdge.sourceArrowhead.tipPosition.x, geomEdge.sourceArrowhead.tipPosition.y] as Position }
-          : {}),
-        ...(lastEdgeGeom?.targetArrowhead?.tipPosition
-          ? {
-              end: [lastEdgeGeom.targetArrowhead.tipPosition.x, lastEdgeGeom.targetArrowhead.tipPosition.y] as Position,
-            }
-          : {}),
-      };
+      const arrowTips = edgeTerminals.arrowTips;
+      const arrowAngles = getArrowAngles(coordinates, !this.isLogic, arrowTips);
 
       const newFeature: DeckLine = {
         //id: counter,
@@ -652,13 +646,8 @@ export class Graph extends Node {
       };
 
       srcFeatureProps = newFeature.properties;
-      sourcePosition = geomEdge?.sourceArrowhead?.tipPosition
-        ? [geomEdge.sourceArrowhead.tipPosition.x, geomEdge.sourceArrowhead.tipPosition.y]
-        : coordinates[0][0];
-
-      targetPosition = lastEdgeGeom?.targetArrowhead?.tipPosition
-        ? [lastEdgeGeom.targetArrowhead.tipPosition.x, lastEdgeGeom.targetArrowhead.tipPosition.y]
-        : coordinates.at(-1).at(-1);
+      sourcePosition = edgeTerminals.sourcePosition;
+      targetPosition = edgeTerminals.targetPosition;
 
       if (!features[srcGraph.id]) {
         features[srcGraph.id] = [];
