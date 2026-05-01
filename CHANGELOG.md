@@ -1,5 +1,9 @@
 # Changelog Mapgl
 
+## 2.4.0
+- edge routing modes: SugiyamaSplines/Rectilinear
+- edge curve interpolation on GPU shaders
+
 ## 2.3.0
 
 - icon color tint config for Node Groups [#8](https://github.com/vaduga/mapgl/issues/8)

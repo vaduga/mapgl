@@ -159,7 +159,7 @@ export const EdgesGeojsonLayer = (props) => {
   const categorySize = 3;
   const selectedFeatureIndexes = getSelectedIdxs?.get(colTypes.Edges)?.[srcGraphId] ?? [];
   const lineFeatures = linesCollection?.features ?? [];
-  const curveSegments = getCurveSegments(lineFeatures, getWasmId2Edges);
+  const curveSegments = isLogic ? getCurveSegments(lineFeatures, getWasmId2Edges) : [];
 
   const getLineWidth = (d, k) => {
     const featureIndex = d.featureIndex ?? k.index;
@@ -205,7 +205,7 @@ export const EdgesGeojsonLayer = (props) => {
     getFilterCategory: (d) => {
       const feature = d.feature ?? d;
       const { style, layerName, root } = feature.properties || {};
-      return [style?.group.groupIdx, layerName, root.id];
+      return [style?.group.groupIdx, layerName, root?.id];
     },
     filterCategories: categories,
     extensions: [new DataFilterExtension({ categorySize })],

@@ -17,7 +17,7 @@ export type CurveEdgeSegment<DataT = any> = {
 };
 
 type CurveEdgeLayerProps<DataT> = {
-  data: CurveEdgeSegment<DataT>[];
+  data: Array<CurveEdgeSegment<DataT>>;
   widthUnits?: Unit;
   widthScale?: number;
   widthMinPixels?: number;
@@ -46,14 +46,6 @@ const defaultProps: DefaultProps<CurveEdgeLayerProps<any>> = {
 const curveUniforms = {
   name: 'curve',
   vs: `\
-layout(std140) uniform curveUniforms {
-  float widthScale;
-  float widthMinPixels;
-  float widthMaxPixels;
-  highp int widthUnits;
-} curve;
-`,
-  fs: `\
 layout(std140) uniform curveUniforms {
   float widthScale;
   float widthMinPixels;
@@ -91,6 +83,7 @@ in vec4 instanceColors;
 in vec3 instancePickingColors;
 
 out vec4 vColor;
+out vec2 uv;
 
 void interpolateLine(float t, vec2 start, vec2 end, out vec2 point) {
   point = mix(start, end, t);
@@ -152,6 +145,7 @@ void main(void) {
   gl_Position = curr + vec4(project_pixel_size_to_clipspace(offset.xy), 0.0, 0.0);
 
   vColor = vec4(instanceColors.rgb, instanceColors.a * layer.opacity);
+  uv = positions.xy;
   DECKGL_FILTER_COLOR(vColor, geometry);
 }
 `;
@@ -162,9 +156,11 @@ const fs = `\
 precision highp float;
 
 in vec4 vColor;
+in vec2 uv;
 out vec4 fragColor;
 
 void main(void) {
+  geometry.uv = uv;
   fragColor = vColor;
   DECKGL_FILTER_COLOR(fragColor, geometry);
 }

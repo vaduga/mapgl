@@ -127,7 +127,7 @@ function getLastPoints(coords: number[][][]): { base: number[]; tip: number[] } 
   return { base, tip };
 }
 
-function getArrowAngleFromPoints(base: number[], tip: number[], isGeo: boolean): number {
+function getArrowAngle(base: number[], tip: number[], isGeo: boolean): number {
   const [bx, by] = base as Vec2;
   const [tx, ty] = tip as Vec2;
 
@@ -151,8 +151,8 @@ function getArrowAngles(coords: number[][][], isGeo: boolean, arrowTips?: ArrowT
     return null;
   }
   return {
-    start: getArrowAngleFromPoints(startPoints.base, arrowTips?.start ?? startPoints.tip, isGeo),
-    end: getArrowAngleFromPoints(endPoints.base, arrowTips?.end ?? endPoints.tip, isGeo),
+    start: getArrowAngle(startPoints.base, arrowTips?.start ?? startPoints.tip, isGeo),
+    end: getArrowAngle(endPoints.base, arrowTips?.end ?? endPoints.tip, isGeo),
   };
 }
 
@@ -342,12 +342,6 @@ function pushPath(props: PushPathProps) {
       // @ts-ignore
       edge = setEdgeA(edgeId, sourceId, targetId, graphB);
       if (!edge) {
-        // console.warn(
-        //   'edge from rxdb not found in your datasource. Mixed namespaces? (edgeId, sourceId, targetId)',
-        //   edgeId,
-        //   sourceId,
-        //   targetId
-        // );
         return;
       }
       edge?.setData(data);
@@ -366,7 +360,7 @@ function pushPath(props: PushPathProps) {
         setGeomEdgeArrowheads(edge, dataRecord, 'both');
       }
       const prevVerticeIds = graph.getEdgeVerticeIds[edge_id][0];
-      const newVerticeIds = wasmVerticeIds; //updateEdgeVertices(edge_id, wasmVerticeIds, prevVerticeIds);
+      const newVerticeIds = wasmVerticeIds;
       graph.getEdgeVerticeIds[edge_id][0] = Array.from(newVerticeIds);
     } else {
       //console.log('edge wasmid undefined', edge);
@@ -613,10 +607,10 @@ export {
   pushPath,
   getArrowAngles,
   getEdgeTerminals,
+  getSmoothPolyline,
   sortAnnotations,
   paraboloid,
   segregatePath,
   runLayout,
-  getSmoothPolyline,
   getMidpoint,
 };
