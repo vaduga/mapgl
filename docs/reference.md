@@ -52,6 +52,12 @@ This page is a compact behavior reference for Mapgl panel configuration and data
 - In the open-source panel, parallel edge offset rendering is available in abstract node graph mode
 - Parallel edge offset rendering on geomap is a Pro feature
 
+## Auto-layout edge routing
+
+- **Other -> Edge routing -> Splines** maps to `SugiyamaSplines`.
+- **Other -> Edge routing -> Rectilinear** maps to `Rectilinear`.
+- The setting applies in abstract node graph mode, where Mapgl runs auto-layout.
+
 ## Node style base
 
 **Node Styles** define the initial node appearance:

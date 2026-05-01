@@ -48,7 +48,7 @@ export const LocationModeEditor = ({
       value: ExtendFrameGeometrySourceMode.Geojson,
       label: 'GeoJson',
       ariaLabel: selectors.components.Transforms.SpatialOperations.location.autoOption,
-      description: "For GeoJson with type 'Point' only",
+      description: "For GeoJSON with type 'Point' only",
     },
     {
       value: ExtendFrameGeometrySourceMode.Geohash,

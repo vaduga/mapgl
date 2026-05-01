@@ -141,7 +141,7 @@ export function getLayerEditor(opts: LayerEditorOptions): NestedPanelOptions<Ext
         builder.addFieldNamePicker({
           path: 'locField',
           name: 'Vertex A',
-          description: 'unique node ID',
+          description: 'Unique node ID',
           settings: {
             filter: (f: Field) => f.type === FieldType.string,
             noFieldsMessage: 'No string fields found',
@@ -158,7 +158,7 @@ export function getLayerEditor(opts: LayerEditorOptions): NestedPanelOptions<Ext
         builder.addMultiSelect({
           path: 'displayProperties',
           name: 'Tooltip properties',
-          description: 'default: all',
+          description: 'Default: all',
           settings: {
             allowCustomValue: true,
             options: [],

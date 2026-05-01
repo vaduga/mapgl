@@ -33,7 +33,7 @@ export const fromJson: ExtendMapLayerRegistryItem<JsonConfig> = {
         .addTextInput({
           path: 'config.url',
           name: 'URL template',
-          description: 'Json file url',
+          description: 'JSON file URL',
           settings: {
             placeholder: defaultXYZConfig.url,
           },

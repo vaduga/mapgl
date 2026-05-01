@@ -44,6 +44,8 @@ import { ExtendMapLayerHandler, ExtendMapLayerOptions } from '../extension';
 import { libreSource } from 'mapLib/utils';
 import { Deck } from '@deck.gl/core';
 
+export type EdgeRoutingConfig = 'Splines' | 'Rectilinear';
+
 export interface Options {
   isEditable: any;
   basemap: ExtendMapLayerOptions; //ui.MapLayerOptions;
@@ -61,6 +63,8 @@ export interface Options {
     isShowEdgeLegend: boolean;
     isShowSwitcher: boolean;
     isAppAuth: boolean;
+    edgeRouting?: EdgeRoutingConfig;
+    isMeters?: boolean;
     svgTintMode?: SvgTintMode;
   };
   dataLayers: ExtendMapLayerOptions[];

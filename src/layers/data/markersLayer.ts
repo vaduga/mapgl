@@ -92,7 +92,7 @@ export const defaultMarkersConfig: ExtendMapLayerOptions<MarkersConfig> = {
 export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
   id: MARKERS_LAYER_ID,
   name: 'Markers and links',
-  description: 'nodes and edges from query',
+  description: 'Nodes and edges from query',
   isBaseMap: false,
   showLocation: true,
 
@@ -623,7 +623,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
           .addFieldNamePicker({
             path: 'parField',
             name: 'Vertex B',
-            description: 'unique node ID or path as Array<String | [lon, lat]>',
+            description: 'Unique node ID or path as Array<String | [lon, lat]>',
             settings: {
               filter: (f: Field) => {
                 return f.type === FieldType.string;
@@ -635,7 +635,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
           .addFieldNamePicker({
             path: 'edgeIdField',
             name: 'Edge ID',
-            description: 'optional. Use for parallel edges',
+            description: 'Optional. Use for parallel edges',
             settings: {
               filter: (f: Field) => {
                 return f.type === FieldType.string;
@@ -647,7 +647,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
           .addFieldNamePicker({
             path: 'config.vertexA_NS',
             name: 'Vertex A namespace',
-            description: 'optional. Use "." to separate layers',
+            description: 'Optional. Use "." to separate layers',
             settings: {
               filter: (f: Field) => {
                 return f.type === FieldType.string;
@@ -659,7 +659,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
           .addFieldNamePicker({
             path: 'config.vertexB_NS',
             name: 'Vertex B namespace',
-            description: 'optional',
+            description: 'Optional',
             settings: {
               filter: (f: Field) => {
                 return f.type === FieldType.string;
@@ -671,7 +671,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
           .addMultiSelect({
             path: 'searchProperties',
             name: 'Search by',
-            description: 'extra fields',
+            description: 'Extra fields',
             settings: {
               allowCustomValue: false,
               options: [],
@@ -716,7 +716,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
             category: ['Node Groups'],
             id: 'config.groups',
             path: 'config.groups',
-            name: 'legend label, SVG icon, circle color override',
+            name: 'Legend label, SVG icon, circle color override',
             editor: GroupsEditor,
           })
           .addRadio({
@@ -819,7 +819,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
             category: ['Arc Styles'],
             path: 'config.arcConfig.height',
             name: 'Height multiplier',
-            description: '0 - flat, 1 - max',
+            description: '0 - Flat, 1 - Max',
             defaultValue: defaultOptions.arcConfig.height,
             showIf: (opts) => opts.config.showStat2 && (!!opts.parField || useMockData),
             settings: {
@@ -832,7 +832,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
             category: ['Arc Styles'],
             path: 'config.arcConfig.capacity',
             name: 'Capacity',
-            description: 'max value field',
+            description: 'Max value field',
             editor: CapacityDimensionEditor,
             settings: {
               filteredFieldType: FieldType.number,

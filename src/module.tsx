@@ -107,7 +107,7 @@ export const plugin = new PanelPlugin<Options>(MapPanel)
         category: ['Other'],
         path: 'common.isShowEdgeLegend',
         name: 'Edge legend',
-        description: 'default thresholds',
+        description: 'Default thresholds',
         defaultValue: true,
       })
       .addBooleanSwitch({
@@ -122,6 +122,19 @@ export const plugin = new PanelPlugin<Options>(MapPanel)
         name: 'Meters for sizing',
         description: 'Use meters in Geo (scales with zoom).',
         defaultValue: false,
+      })
+      .addRadio({
+        category: ['Other'],
+        path: 'common.edgeRouting',
+        name: 'Edge routing',
+        description: 'Auto-layout routing mode.',
+        settings: {
+          options: [
+            { label: 'Splines', value: 'Splines' },
+            { label: 'Rectilinear', value: 'Rectilinear' },
+          ],
+        },
+        defaultValue: 'Splines',
       })
       .addTextInput({
         category: ['Other'],

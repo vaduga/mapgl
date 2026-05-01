@@ -519,13 +519,17 @@ function getSmoothPolyline(edge: any): Position[] {
 function runLayout(panel: any) {
   const graph = panel.graph as MSGraph;
   const rootGraph = GeomGraph.getGeom(graph);
+  const edgeRouting = panel.edgeRoutingOverride ?? panel.props?.options?.common?.edgeRouting ?? 'Splines';
+  const edgeRoutingMode =
+    edgeRouting === 'Rectilinear' ? EdgeRoutingMode.Rectilinear : EdgeRoutingMode.SugiyamaSplines;
+
   rootGraph.layoutSettings = new SugiyamaLayoutSettings();
   //@ts-ignore
   rootGraph.layoutSettings.layerDirection = LayerDirectionEnum.RL;
   //@ts-ignore
   rootGraph.layoutSettings.LayerSeparation = 60;
   rootGraph.layoutSettings.commonSettings.NodeSeparation = 40;
-  //geomGraph.layoutSettings.commonSettings.edgeRoutingSettings.EdgeRoutingMode = EdgeRoutingMode.Spline//.SugiyamaSplines//Spline //Rectilinear //.SugiyamaSplines
+  rootGraph.layoutSettings.commonSettings.edgeRoutingSettings.EdgeRoutingMode = edgeRoutingMode;
 
   //console.log('Clusters,', Array.from(rootGraph.Clusters), Array.from(graph.getClusteredConnectedComponents()))
 

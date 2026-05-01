@@ -35,7 +35,7 @@ export const defaultPolygonsConfig: ExtendMapLayerOptions<GeoJsonConfig> = {
 export const geojsonLayer: ExtendMapLayerRegistryItem<GeoJsonConfig> = {
   id: GEOJSON_LAYER_ID,
   name: 'GeoJson layer',
-  description: 'GeoJson features from file (url)',
+  description: 'GeoJSON features from file (URL)',
   isBaseMap: false,
   showLocation: true,
 
@@ -139,7 +139,7 @@ export const geojsonLayer: ExtendMapLayerRegistryItem<GeoJsonConfig> = {
         builder.addTextInput({
           path: 'geojsonurl',
           name: 'GeoJson Url',
-          description: 'Url to a file with valid GeoJSON FeatureCollection object',
+          description: 'URL to a file with valid GeoJSON FeatureCollection object',
           settings: {},
           showIf: (opts) => opts.type === colTypes.GeoJson,
         });

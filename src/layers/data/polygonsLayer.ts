@@ -39,7 +39,7 @@ export const defaultPolygonsConfig: ExtendMapLayerOptions<PolygonsConfig> = {
 export const polygonsLayer: ExtendMapLayerRegistryItem<PolygonsConfig> = {
   id: POLYGONS_LAYER_ID,
   name: 'Polygons layer',
-  description: 'GeoJson Polygons from query',
+  description: 'GeoJSON polygons from query',
   isBaseMap: false,
   showLocation: true,
 

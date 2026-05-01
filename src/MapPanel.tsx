@@ -49,6 +49,7 @@ export class MapPanel extends Component<Props, State> {
   hasAnnots = false;
   useMockData;
   groups: Rule[] = [];
+  edgeRoutingOverride?: Options['common']['edgeRouting'];
 
   features: BiColProps[] = [];
   positions: Float64Array = new Float64Array();
@@ -193,6 +194,13 @@ export class MapPanel extends Component<Props, State> {
         }
         this.setState({ viewState });
       }
+    }
+
+    if (options.common?.edgeRouting !== oldOptions.common?.edgeRouting && this.isLogic) {
+      this.edgeRoutingOverride = options.common?.edgeRouting;
+      this.dataChanged(this.props.data).finally(() => {
+        this.edgeRoutingOverride = undefined;
+      });
     }
   }
 

@@ -205,6 +205,7 @@ Outside the layer editor:
 - **Edge legend**: show legend for edge thresholds.
 - **Groups legend**: show legend for node groups.
 - **Meters for sizing**: scale sizes in Geo mode by map zoom.
+- **Edge routing**: choose the auto-layout edge routing mode. **Splines** for `SugiyamaSplines` or **Rectilinear**.
 - **VertexA name label in alert annotation**: field name used in alert annotation labels.
 
 ## Practical advice

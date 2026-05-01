@@ -39,7 +39,7 @@ export const defaultPathConfig: ExtendMapLayerOptions<PathConfig> = {
 export const pathLayer: ExtendMapLayerRegistryItem<PathConfig> = {
   id: PATH_LAYER_ID,
   name: 'Path layer',
-  description: 'GeoJson LineStrings from query',
+  description: 'GeoJSON LineStrings from query',
   isBaseMap: false,
   showLocation: true,
 
