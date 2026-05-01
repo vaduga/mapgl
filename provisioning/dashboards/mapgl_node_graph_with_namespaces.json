@@ -125,12 +125,11 @@
           "type": "blank"
         },
         "common": {
-          "isAppAuth": false,
+          "edgeRouting": "Rectilinear",
           "isMeters": false,
           "isShowEdgeLegend": true,
           "isShowLegend": true,
-          "isShowSwitcher": true,
-          "jitterPoints": false
+          "isShowSwitcher": true
         },
         "dataLayers": [
           {
