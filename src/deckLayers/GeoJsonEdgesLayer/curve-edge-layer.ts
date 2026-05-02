@@ -172,6 +172,7 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
 
   state!: {
     model?: Model;
+    featureByIndex: Map<number, CurveEdgeSegment<DataT>>;
   };
 
   getShaders() {
@@ -183,6 +184,8 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
   }
 
   initializeState() {
+    this._updateFeatureByIndex();
+
     this.getAttributeManager()!.addInstanced({
       instancePositions: {
         size: 8,
@@ -223,13 +226,17 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
       instancePickingColors: {
         size: 3,
         type: 'uint8',
-        accessor: (object, { index, target: value }) => this.encodePickingColor(index, value),
+        accessor: (object, { target: value }) => this.encodePickingColor(object.featureIndex, value),
       },
     });
   }
 
   updateState(params) {
     super.updateState(params);
+
+    if (params.changeFlags.dataChanged) {
+      this._updateFeatureByIndex();
+    }
 
     if (params.changeFlags.extensionsChanged) {
       this.state.model?.destroy();
@@ -240,7 +247,7 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
 
   getPickingInfo(params) {
     const info = super.getPickingInfo(params);
-    const segment = info.object as CurveEdgeSegment<DataT> | undefined;
+    const segment = this.state.featureByIndex.get(info.index);
 
     if (segment?.feature) {
       info.object = segment.feature;
@@ -248,6 +255,18 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
     }
 
     return info;
+  }
+
+  private _updateFeatureByIndex() {
+    const featureByIndex = new Map<number, CurveEdgeSegment<DataT>>();
+
+    for (const segment of this.props.data) {
+      if (!featureByIndex.has(segment.featureIndex)) {
+        featureByIndex.set(segment.featureIndex, segment);
+      }
+    }
+
+    this.setState({ featureByIndex });
   }
 
   draw() {

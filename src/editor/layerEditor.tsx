@@ -1,6 +1,13 @@
 import { get as lodashGet, isEqual } from 'lodash';
 
-import { Field, FieldType, FrameGeometrySourceMode, getFrameMatchers, StandardEditorContext } from '@grafana/data';
+import {
+  Field,
+  FieldType,
+  FrameGeometrySourceMode,
+  getFrameMatchers,
+  PanelOptionsEditorBuilder,
+  StandardEditorContext,
+} from '@grafana/data';
 
 import { defaultMarkersConfig } from '../layers/data/markersLayer';
 import {
@@ -13,13 +20,17 @@ import { MapLayerState } from '../types';
 
 import { FrameSelectionEditor } from './FrameSelectionEditor';
 import { setOptionImmutably } from '../grafana_core/app/dashboard/components/PanelEditor/utils';
-import { PanelOptionsSupplier } from '@grafana/data/dist/types/panel/PanelPlugin';
 
 import { ExtendMapLayerOptions } from '../extension';
 import { addLocationFields } from './MapView/locationEditor';
 import { colTypes } from 'mapLib/utils';
 import { getQueryFields } from './getQueryFields';
 import { getGeoJsonProps } from '../layers/data/geojsonLayer';
+
+type PanelOptionsSupplier<TOptions> = (
+  builder: PanelOptionsEditorBuilder<TOptions>,
+  context: StandardEditorContext<TOptions>
+) => void;
 
 export interface LayerEditorOptions {
   state: MapLayerState;
@@ -166,7 +177,7 @@ export function getLayerEditor(opts: LayerEditorOptions): NestedPanelOptions<Ext
             getOptions:
               options?.type === colTypes.GeoJson
                 ? async (context) => await getGeoJsonProps(context)
-                : (getQueryFields ?? []),
+                : getQueryFields ?? [],
           },
           showIf: (opts) => opts.isShowTooltip,
           //showIf: (opts) => typeof opts.query !== 'undefined',
