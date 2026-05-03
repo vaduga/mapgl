@@ -24,6 +24,16 @@ class PointStore {
   tooltipObject: Info = blankHoverInfo;
   private eventSub = new Subscription();
 
+  private getHyperedgeEdges(edge?: Edge): Edge[] {
+    if (!edge) {
+      return [];
+    }
+
+    const edgeId = edge.data?.edge_id;
+    const hyperedgeEdges = edgeId !== undefined ? this.root.graph.getWasmId2Edges?.[edgeId] : undefined;
+    return hyperedgeEdges?.length ? hyperedgeEdges : [edge];
+  }
+
   constructor(root: RootStore) {
     this.root = root;
     const { panel, graph, subs, eventBus, pId } = this.root;
@@ -74,7 +84,7 @@ class PointStore {
         }
 
         if (select || edge) {
-          this.setSelectedNode(node ? node : undefined, edge ? [edge] : []);
+          this.setSelectedNode(node ? node : undefined, this.getHyperedgeEdges(edge));
         }
         wasmId = node?.data?.wasmId;
       }
