@@ -100,23 +100,15 @@ export interface Feature<G extends Geometry | null = Geometry, P = BiColProps> {
 export interface DeckLine<G extends Geometry | null = Geometry, P = BiColProps> {
   //id: number;
   heIdx: number;
+  fragIdx: number;
   edgeId: string;
+  renderGeometryOnly?: boolean;
   type: 'Feature';
   rowIndex: number;
-  geometry: MultiLineString;
+  geometry: LineString;
   properties: Partial<P>;
 }
 
-export type ParName = string;
-export type ParentInfo = {
-  title: string;
-  lineId: number | null;
-  edgeId: string;
-  rxEdgeId: string;
-  edge: Edge;
-  parPath: CoordRef[];
-  rPath: CoordRef[];
-};
 
 export type PointFeatureProperties = GeoJsonProperties & {
   frameName: string;

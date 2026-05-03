@@ -1,6 +1,7 @@
 export type { PushPathProps } from './utils.graph';
 export {
   pushPath,
+  getArrowAngle,
   getArrowAngles,
   getEdgeArrowSize,
   getEdgeArrowLength,

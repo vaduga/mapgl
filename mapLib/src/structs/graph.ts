@@ -567,13 +567,13 @@ export class Graph extends Node {
       }
 
       const edge = edges[0];
-      const { source, data: edgeData } = edge;
-      const lastEdge = edges[edges.length - 1];
-      const { target } = lastEdge;
+      const { source, data } = edge;
+      const { target } = edges[edges.length - 1];
       const srcGraph = source.parent as Graph;
       const tarGraph = target.parent as Graph;
       const findNodeA = srcGraph.findNode;
       const findNodeB = tarGraph.findNode;
+      const edgeData = edge.data;
 
       const dataRecord = edgeData?.dataRecord as BiColProps;
       if (!dataRecord) {
@@ -586,74 +586,126 @@ export class Graph extends Node {
       let sourcePosition;
       let targetPosition;
 
-      const { parPath } = edgeData || {};
+      /// Edges
 
-      const locName = parPath[0];
-      let subPath = parPath;
+      edges.forEach((edge, fragIdx) => {
+        const edge_id = edgeData?.edge_id;
+        const len = edges.length - 1;
+        const isFirst = fragIdx === 0;
+        const isLast = fragIdx === len;
 
-      const wasmIds = this.wasm_edge_vertice_ids[heIdx][0];
-      const pathsCoords = CoordsConvert(subPath, wasmIds, positions, true);
+        const { parPath } = edgeData || {};
 
-      const [segrPath, segrCoords] = subPath.length
-        ? segregatePath(subPath, pathsCoords, findNodeA, findNodeB)
-        : [[], []];
+        const locName = parPath[0];
 
-      let coordinates: Position[][] = this.isLogic
-        ? edges.map(getSmoothPolyline).filter((line) => line?.length)
-        : segrCoords;
-      if (!coordinates?.length) {
-        return;
-      }
+        let subPath = parPath;
 
-      const geomEdge: GeomEdge = GeomEdge.getGeom(edge);
-      const lastEdgeGeom: GeomEdge = GeomEdge.getGeom(lastEdge);
+        const wasmIds = this.wasm_edge_vertice_ids[heIdx][0];
+        let pathsCoords = CoordsConvert(subPath, wasmIds, positions, true);
 
-      if (geomEdge?.source && !geomEdge?.curve?.start) {
-        console.warn('Invalid controlPoints or polyPoints', locName, edge.id);
-      }
+        const geomEdge: GeomEdge = GeomEdge.getGeom(edge);
 
-      if (!coordinates.length) {
-        return;
-      }
+        let targetTerminalShift: Position | undefined;
 
-      const edgeTerminals = getEdgeTerminals(coordinates, geomEdge, lastEdgeGeom);
-      if (!edgeTerminals) {
-        return;
-      }
-      coordinates = edgeTerminals.coordinates;
+        const [segrPath, segrCoords] = subPath.length
+          ? segregatePath(subPath, pathsCoords, findNodeA, findNodeB)
+          : [[], []];
 
-      const propsOverride = dataRecord; /// as from frame initially (including duplicate records)
-      const arrowTips = edgeTerminals.arrowTips;
-      const arrowAngles = getArrowAngles(coordinates, !this.isLogic, arrowTips);
+        const frCoords = segrCoords[fragIdx];
 
-      const newFeature: DeckLine = {
-        //id: counter,
-        heIdx,
-        edgeId: edge.id,
-        type: 'Feature',
-        geometry: {
-          type: 'MultiLineString',
-          coordinates,
-        },
-        rowIndex: dataRecord?.rowIndex, // can't pick original index without explicitely stating it
-        properties: {
-          ...(propsOverride ?? {}),
-          locName,
-          segrPath,
-          ...(arrowAngles ? { arrowAngles } : {}),
-          ...(Object.keys(arrowTips).length ? { arrowTips } : {}),
-        },
-      };
+        let coordinates = this.isLogic
+          ? getSmoothPolyline(edge)
+          : frCoords
 
-      srcFeatureProps = newFeature.properties;
-      sourcePosition = edgeTerminals.sourcePosition;
-      targetPosition = edgeTerminals.targetPosition;
+        if (!coordinates?.length) {
+          return;
+        }
 
-      if (!features[srcGraph.id]) {
-        features[srcGraph.id] = [];
-      }
-      features[srcGraph.id].push(newFeature);
-      edge.setLineId(features[srcGraph.id].length - 1);
+        if (this.isLogic && targetTerminalShift) {
+          coordinates = [...coordinates];
+
+          if (geomEdge?.targetArrowhead?.tipPosition) {
+            coordinates[coordinates.length - 1] = [
+              geomEdge.targetArrowhead.tipPosition.x + targetTerminalShift[0],
+              geomEdge.targetArrowhead.tipPosition.y + targetTerminalShift[1],
+            ];
+          }
+        }
+
+        if (geomEdge?.source) {
+          if (geomEdge?.curve?.start) {
+            /// Leave node boundary ports only.
+            if (coordinates.length > 3) {
+              //coordinates = coordinates.slice(1, -1);
+            }
+          } else {
+            console.warn('Invalid controlPoints or polyPoints', locName, edge.id);
+          }
+        }
+
+        if (!coordinates.length) {
+          return;
+        }
+
+        let arrowTips: { start?: Position; end?: Position } = {};
+        let sourceArrowTip: Position | undefined;
+        let targetArrowTip: Position | undefined;
+        if (isFirst || isLast) {
+          const edgeTerminals = getEdgeTerminals(
+            coordinates,
+            geomEdge,
+            targetTerminalShift,
+            isFirst,
+            isLast
+          );
+          if (!edgeTerminals) {
+            return;
+          }
+
+          coordinates = edgeTerminals.coordinates;
+          arrowTips = edgeTerminals.arrowTips;
+          sourceArrowTip = edgeTerminals.sourcePosition;
+          targetArrowTip = edgeTerminals.targetPosition;
+
+        }
+
+        const propsOverride = dataRecord; /// as from frame initially (including duplicate records)
+        const arrowAngles = getArrowAngles(coordinates, !this.isLogic, fragIdx, len, arrowTips);
+
+        const newFeature: DeckLine = {
+          //id: counter,
+          heIdx,
+          fragIdx,
+          edgeId: edge.id,
+          type: 'Feature',
+          geometry: {
+            type: 'LineString',
+            coordinates,
+          },
+          rowIndex: dataRecord?.rowIndex, // can't pick original index without explicitely stating it
+          properties: {
+            ...(propsOverride ?? {}),
+            locName,
+            segrPath,
+            ...(arrowAngles ? { arrowAngles } : {}),
+            ...(Object.keys(arrowTips).length ? { arrowTips } : {}),
+          },
+        };
+
+        if (isFirst) {
+          srcFeatureProps = newFeature.properties;
+          sourcePosition = sourceArrowTip;
+        }
+        if (isLast) {
+          targetPosition = targetArrowTip;
+        }
+
+        if (!features[srcGraph.id]) {
+          features[srcGraph.id] = [];
+        }
+        features[srcGraph.id].push(newFeature);
+        edge.setLineId(features[srcGraph.id].length - 1);
+      });
 
       /// Arcs
 

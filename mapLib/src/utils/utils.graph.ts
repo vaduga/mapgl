@@ -9,7 +9,6 @@ import {
   LayerDirectionEnum,
   layoutGeomGraph,
   SugiyamaLayoutSettings,
-  Point as MSPoint,
   CurveFactory,
   GeomEdge,
   Graph as MSGraph,
@@ -26,7 +25,7 @@ type ArrowAngles = { start: number | undefined; end: number | undefined };
 type ArrowTips = { start?: Position; end?: Position };
 
 type EdgeTerminals = {
-  coordinates: Position[][];
+  coordinates: Position[];
   arrowTips: ArrowTips;
   sourcePosition?: Position;
   targetPosition?: Position;
@@ -60,37 +59,6 @@ function setGeomEdgeArrowheads(edge: Edge, dataRecord: BiColProps, placement: 's
     : (undefined as any);
 }
 
-function getArrowPlacementForFragment(
-  arrow: number | undefined,
-  fragmentIndex: number,
-  fragmentCount: number
-): 'start' | 'end' | 'both' | 'none' {
-  const isFirst = fragmentIndex === 0;
-  const isLast = fragmentIndex === fragmentCount - 1;
-
-  if (arrow === 1) {
-    return isLast ? 'end' : 'none';
-  }
-
-  if (arrow === -1) {
-    return isFirst ? 'start' : 'none';
-  }
-
-  if (arrow === 2) {
-    if (isFirst && isLast) {
-      return 'both';
-    }
-    if (isFirst) {
-      return 'start';
-    }
-    if (isLast) {
-      return 'end';
-    }
-  }
-
-  return 'none';
-}
-
 function wrapDeltaLonDeg(dLon: number): number {
   if (dLon > 180) {
     return dLon - 360;
@@ -101,27 +69,19 @@ function wrapDeltaLonDeg(dLon: number): number {
   return dLon;
 }
 
-function getFirstPoints(coords: number[][][]): { base: number[]; tip: number[] } | null {
-  if (!coords?.length) {
-    return null;
-  }
-  const firstLine = coords[0];
-  if (!firstLine || firstLine.length < 2) {
-    return null;
-  }
+function getFirstPoints(coords: number[][]): { base: number[]; tip: number[] } | null {
+  if (!coords?.length) return null;
+  const firstLine = coords;
+  if (!firstLine || firstLine.length < 2) return null;
   const tip = firstLine[0];
   const base = firstLine[1];
   return { base, tip };
 }
 
-function getLastPoints(coords: number[][][]): { base: number[]; tip: number[] } | null {
-  if (!coords?.length) {
-    return null;
-  }
-  const lastLine = coords[coords.length - 1];
-  if (!lastLine || lastLine.length < 2) {
-    return null;
-  }
+function getLastPoints(coords: number[][]): { base: number[]; tip: number[] } | null {
+  if (!coords?.length) return null;
+  const lastLine = coords;
+  if (!lastLine || lastLine.length < 2) return null;
   const tip = lastLine[lastLine.length - 1];
   const base = lastLine[lastLine.length - 2];
   return { base, tip };
@@ -144,30 +104,66 @@ function getArrowAngle(base: number[], tip: number[], isGeo: boolean): number {
   return (Math.atan2(dy, dx) * 180) / Math.PI;
 }
 
-function getArrowAngles(coords: number[][][], isGeo: boolean, arrowTips?: ArrowTips): ArrowAngles | null {
+function getArrowAngles(
+  coords: number[][],
+  isGeo: boolean,
+  fragIdx: number,
+  len: number,
+  arrowTips?: ArrowTips
+): ArrowAngles | null {
+  if (fragIdx !== 0 && fragIdx !== len) {
+    return null;
+  }
   const startPoints = getFirstPoints(coords);
   const endPoints = getLastPoints(coords);
   if (!startPoints || !endPoints) {
     return null;
   }
   return {
-    start: getArrowAngle(startPoints.base, arrowTips?.start ?? startPoints.tip, isGeo),
-    end: getArrowAngle(endPoints.base, arrowTips?.end ?? endPoints.tip, isGeo),
+    start:
+      fragIdx === 0 ? getArrowAngle(startPoints.base, arrowTips?.start ?? startPoints.tip, isGeo) : undefined,
+    end: fragIdx === len ? getArrowAngle(endPoints.base, arrowTips?.end ?? endPoints.tip, isGeo) : undefined,
   };
 }
 
-function cloneCoordinates(coords: number[][][]): Position[][] {
-  return coords.map((line) => line.map((point) => [...point] as Position));
+function cloneCoordinates(coords: number[][]): Position[] {
+  return coords.map(point => [...point] as Position);
+}
+
+function shiftPointTowards(point: number[], target: number[], distance: number | undefined): Position {
+  if (!distance || distance <= 0) {
+    return [...point] as Position;
+  }
+
+  const dx = target[0] - point[0];
+  const dy = target[1] - point[1];
+  const length = Math.hypot(dx, dy);
+  if (!length) {
+    return [...point] as Position;
+  }
+
+  const ratio = Math.min(distance, length) / length;
+  return [point[0] + dx * ratio, point[1] + dy * ratio];
 }
 
 function toPosition(point?: Point | null): Position | undefined {
   return point ? ([point.x, point.y] as Position) : undefined;
 }
 
+function shiftPosition(position: Position | undefined, delta?: Position): Position | undefined {
+  if (!position || !delta) {
+    return position;
+  }
+
+  return [position[0] + delta[0], position[1] + delta[1]] as Position;
+}
+
 function getEdgeTerminals(
-  coords: number[][][],
-  sourceGeomEdge?: GeomEdge,
-  targetGeomEdge?: GeomEdge
+  coords: number[][],
+  geomEdge?: GeomEdge,
+  targetTerminalShift?: Position,
+  isFirst?: boolean,
+  isLast?: boolean
 ): EdgeTerminals | null {
   if (!coords?.length) {
     return null;
@@ -175,40 +171,45 @@ function getEdgeTerminals(
 
   const coordinates = cloneCoordinates(coords);
   const arrowTips: ArrowTips = {};
-  const sourceArrowhead = sourceGeomEdge?.sourceArrowhead;
-  const targetArrowhead = targetGeomEdge?.targetArrowhead;
-  const sourceCurveStart = toPosition(sourceGeomEdge?.curve?.start);
-  const targetCurveEnd = toPosition(targetGeomEdge?.curve?.end);
-  const sourceTip = toPosition(sourceArrowhead?.tipPosition);
-  const targetTip = toPosition(targetArrowhead?.tipPosition);
-
+  const sourceArrowhead = geomEdge?.sourceArrowhead;
+  const targetArrowhead = geomEdge?.targetArrowhead;
   const firstPoints = getFirstPoints(coords);
-  if (firstPoints) {
+  const lastPoints = getLastPoints(coords);
+  let sourceCurveStart = toPosition(geomEdge?.curve?.start);
+  let targetCurveEnd = targetTerminalShift ? undefined : toPosition(geomEdge?.curve?.end);
+  let sourceTip = toPosition(sourceArrowhead?.tipPosition);
+  let targetTip = shiftPosition(toPosition(targetArrowhead?.tipPosition), targetTerminalShift);
+
+  if (isFirst && firstPoints) {
     if (sourceTip) {
       arrowTips.start = sourceTip;
     }
-    coordinates[0][0] = sourceCurveStart ?? ([...firstPoints.tip] as Position);
+    coordinates[0] = !targetTerminalShift
+      ? sourceCurveStart ?? ([...firstPoints.tip] as Position)
+      : sourceCurveStart ??
+      (sourceArrowhead?.length
+        ? shiftPointTowards(firstPoints.tip, firstPoints.base, sourceArrowhead.length)
+        : ([...firstPoints.tip] as Position));
   }
 
-  const lastPoints = getLastPoints(coords);
-  if (lastPoints) {
+  if (isLast && lastPoints) {
     if (targetTip) {
       arrowTips.end = targetTip;
     }
-    const lastLineIndex = coordinates.length - 1;
-    const lastPointIndex = coordinates[lastLineIndex].length - 1;
-    coordinates[lastLineIndex][lastPointIndex] = targetCurveEnd ?? ([...lastPoints.tip] as Position);
-  }
 
-  const sourcePosition = (arrowTips.start ?? coordinates[0]?.[0]) as Position | undefined;
-  const lastLine = coordinates.at(-1);
-  const targetPosition = (arrowTips.end ?? lastLine?.at(-1)) as Position | undefined;
+    coordinates[coordinates.length - 1] = !targetTerminalShift
+      ? targetCurveEnd ?? ([...lastPoints.tip] as Position)
+      : targetCurveEnd ??
+        (targetArrowhead?.length
+          ? shiftPointTowards(lastPoints.tip, lastPoints.base, targetArrowhead.length)
+          : ([...lastPoints.tip] as Position));
+  }
 
   return {
     coordinates,
     arrowTips,
-    sourcePosition,
-    targetPosition,
+    sourcePosition: sourceTip,
+    targetPosition: targetTip,
   };
 }
 
@@ -319,7 +320,7 @@ function pushPath(props: PushPathProps) {
 
     const multiEdges: Edge[] = [];
 
-    if (isLogic && nodes.length > 2) {
+    if (nodes.length > 2) {
       const [segrPath, segrCoords] = parPath.length
         ? segregatePath(parPathSan, panel.positions, findNodeA, findNodeB)
         : [];
@@ -329,10 +330,12 @@ function pushPath(props: PushPathProps) {
         const start = frag[0].item.id;
         const end = frag.at(-1).item.id;
         const dummy = setEdgeA(extraId, start, end as string);
+
         if (dummy) {
           dummy.setData(data);
           if (panel.isLogic) {
-            const placement = getArrowPlacementForFragment(dataRecord?.edgeStyle?.arrow, i, segrPath.length);
+            const placement =
+              segrPath.length === 1 ? 'both' : i === 0 ? 'start' : i === segrPath.length - 1 ? 'end' : 'none';
             setGeomEdgeArrowheads(dummy, dataRecord, placement);
           }
           multiEdges.push(dummy);
@@ -359,7 +362,6 @@ function pushPath(props: PushPathProps) {
       if (panel.isLogic) {
         setGeomEdgeArrowheads(edge, dataRecord, 'both');
       }
-      const prevVerticeIds = graph.getEdgeVerticeIds[edge_id][0];
       const newVerticeIds = wasmVerticeIds;
       graph.getEdgeVerticeIds[edge_id][0] = Array.from(newVerticeIds);
     } else {
@@ -605,6 +607,7 @@ export type { PushPathProps };
 
 export {
   pushPath,
+  getArrowAngle,
   getArrowAngles,
   getEdgeTerminals,
   getSmoothPolyline,

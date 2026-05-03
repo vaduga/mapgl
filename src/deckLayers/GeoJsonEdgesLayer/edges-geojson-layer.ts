@@ -1,6 +1,6 @@
 import { toRGB4Array } from '../../utils';
 import { GeoJsonLayer } from '@deck.gl/layers';
-import { Geometry } from 'geojson';
+import { Geometry, Position } from 'geojson';
 import { type DeckLine, colTypes, PointFeatureProperties, RGBAColor, ALERTING_STATES } from 'mapLib/utils';
 import { DataFilterExtension } from '@deck.gl/extensions';
 import { BezierSeg, Curve, Ellipse, GeomEdge, LineSegment, Polyline } from '@msagl/core';
@@ -38,10 +38,50 @@ function pushSegment(
     segments.push({
       feature,
       featureIndex,
+      pickingIndex: feature.heIdx ?? featureIndex,
       type,
       controlPoints,
       segment: [range[0] + step * i, step],
     });
+  }
+}
+
+function normalizeLineCoordinates(geometry?: Geometry | null): Position[][] {
+  if (!geometry) {
+    return [];
+  }
+
+  if (geometry.type === 'LineString') {
+    return [geometry.coordinates];
+  }
+
+  if (geometry.type === 'MultiLineString') {
+    return geometry.coordinates;
+  }
+
+  return [];
+}
+
+function addCoordinateSegments(
+  segments: Array<CurveEdgeSegment<DeckLine>>,
+  feature: DeckLine,
+  featureIndex: number,
+  coordinates: Position[][]
+) {
+  for (const line of coordinates ?? []) {
+    for (let i = 0; i < line.length - 1; i++) {
+      const start = line[i];
+      const end = line[i + 1];
+
+      pushSegment(
+        segments,
+        feature,
+        featureIndex,
+        CurveType.Line,
+        [start[0], start[1], end[0], end[1], 0, 0, 0, 0],
+        1
+      );
+    }
   }
 }
 
@@ -93,42 +133,33 @@ function addCurveSegments(segments: Array<CurveEdgeSegment<DeckLine>>, feature: 
   }
 }
 
-function addCoordinateSegments(
-  segments: Array<CurveEdgeSegment<DeckLine>>,
-  feature: DeckLine,
-  featureIndex: number,
-  coordinates
-) {
-  for (const line of coordinates ?? []) {
-    for (let i = 0; i < line.length - 1; i++) {
-      const start = line[i];
-      const end = line[i + 1];
-
-      pushSegment(
-        segments,
-        feature,
-        featureIndex,
-        CurveType.Line,
-        [start[0], start[1], end[0], end[1], 0, 0, 0, 0],
-        1
-      );
-    }
+function getFeatureGeomEdges(feature: DeckLine, getWasmId2Edges) {
+  const edges = getWasmId2Edges?.[feature.heIdx] ?? [];
+  if (feature.geometry?.type === 'LineString' && Number.isInteger(feature.fragIdx)) {
+    const edge = edges[feature.fragIdx];
+    return edge ? [edge] : [];
   }
+
+  return edges;
 }
 
 function getCurveSegments(features: DeckLine[], getWasmId2Edges): Array<CurveEdgeSegment<DeckLine>> {
   const segments: Array<CurveEdgeSegment<DeckLine>> = [];
 
   features.forEach((feature, featureIndex) => {
-    const edges = getWasmId2Edges?.[feature.heIdx];
     const before = segments.length;
 
-    for (const edge of edges ?? []) {
+    if (feature.renderGeometryOnly) {
+      addCoordinateSegments(segments, feature, featureIndex, normalizeLineCoordinates(feature.geometry));
+      return;
+    }
+
+    for (const edge of getFeatureGeomEdges(feature, getWasmId2Edges)) {
       addCurveSegments(segments, feature, featureIndex, GeomEdge.getGeom(edge)?.curve);
     }
 
     if (segments.length === before) {
-      addCoordinateSegments(segments, feature, featureIndex, feature.geometry?.coordinates);
+      addCoordinateSegments(segments, feature, featureIndex, normalizeLineCoordinates(feature.geometry));
     }
   });
 
@@ -161,8 +192,8 @@ export const EdgesGeojsonLayer = (props) => {
   const lineFeatures = linesCollection?.features ?? [];
   const curveSegments = isLogic ? getCurveSegments(lineFeatures, getWasmId2Edges) : [];
 
-  const getLineWidth = (d, k) => {
-    const featureIndex = d.featureIndex ?? k.index;
+  const getLineWidth = (d, k?) => {
+    const featureIndex = d.featureIndex ?? k?.index;
     const { edgeStyle } = d.feature?.properties ?? d.properties;
     return selectedFeatureIndexes.includes(featureIndex) ? edgeStyle.size * 2 : edgeStyle.size;
   };
@@ -241,7 +272,7 @@ export const EdgesGeojsonLayer = (props) => {
     lineCapRounded: true,
     //lineMiterLimit: 4,
 
-    // Transactions
+    // Interactive props
     pickable,
     autoHighlight,
   });
