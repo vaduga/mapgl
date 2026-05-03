@@ -1,9 +1,12 @@
 {
-  "annotations": [
-    {
-      "kind": "AnnotationQuery",
-      "spec": {
-        "builtIn": true,
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
