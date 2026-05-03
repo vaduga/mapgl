@@ -2,7 +2,7 @@ import { getStyles } from './LayerSwitcher.styles';
 import React, { useEffect, useState, useRef } from 'react';
 import { colTypes } from 'mapLib/utils';
 import { MapPanel } from '../../MapPanel';
-import { useStyles2 } from '@grafana/ui';
+import { Tooltip, useStyles2 } from '@grafana/ui';
 import type { LayerTreeInfo } from '../../store/visLayer';
 
 const CSS_PREFIX = 'layer-switcher-';
@@ -42,9 +42,11 @@ const LayerSwitcher = (props) => {
   return (
     <div ref={elementRef} className={`${styles.root} ${hiddenClassName} ${panelVisible ? 'shown' : ''} ${className}`}>
       <div className={styles.toggleWrapper}>
-        <button title={panelVisible ? 'collapse' : label} onClick={togglePanel}>
-          <span className={`layer-switcher-toggle-icon ${panelVisible ? 'open' : 'closed'}`}>››</span>
-        </button>
+        <Tooltip content={label}>
+          <button aria-label={label} onClick={togglePanel}>
+            <span className={`layer-switcher-toggle-icon ${panelVisible ? 'open' : 'closed'}`}>››</span>
+          </button>
+        </Tooltip>
       </div>
       {panelVisible && <div ref={panelRef} className="panel"></div>}
     </div>

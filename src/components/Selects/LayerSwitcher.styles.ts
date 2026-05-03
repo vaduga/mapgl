@@ -26,7 +26,7 @@ export const getStyles = (theme: GrafanaTheme2) => {
       '&.layer-switcher': {
         zIndex: theme.zIndex.dropdown,
         position: 'absolute',
-        top: theme.spacing(9),
+        top: theme.spacing(8),
         left: theme.spacing(1),
         overflow: 'visible',
         pointerEvents: 'all',
