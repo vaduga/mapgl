@@ -415,7 +415,6 @@ const NodesGeojsonLayer = (props) => {
         sizeUnits: units,
         radiusUnits: units,
         visible: Circle,
-        opacity: biCol.opacity,
         highlightColor,
         extensions: [new CollisionFilterExtension(), new DataFilterExtension({ categorySize })],
         collisionGroup: 'nodes-circle',

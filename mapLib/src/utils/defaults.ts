@@ -95,6 +95,7 @@ export const emptyBiCol = {
     positions: { value: new Float64Array([]), size: 2 },
     featureIds: { value: new Uint32Array([]), size: 1 },
     globalFeatureIds: { value: new Uint32Array([]), size: 1 },
+    numericProps: {},
     properties: [],
   },
   polygons: {
@@ -104,6 +105,7 @@ export const emptyBiCol = {
     globalFeatureIds: { value: new Uint16Array(), size: 1 },
     polygonIndices: { value: new Uint16Array(), size: 1 },
     primitivePolygonIndices: { value: new Uint16Array(), size: 1 },
+    numericProps: {},
     properties: [],
   },
   lines: {
@@ -112,6 +114,7 @@ export const emptyBiCol = {
     featureIds: { value: new Uint16Array(), size: 1 },
     pathIndices: { value: new Uint16Array(), size: 1 },
     globalFeatureIds: { value: new Uint16Array(), size: 1 },
+    numericProps: {},
     properties: [],
   },
 };

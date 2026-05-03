@@ -1,9 +1,9 @@
 import { AttributeRegistry } from './attributeRegistry';
 import { Entity } from './entity';
 import { Graph } from './graph';
-import { Label } from './label';
 import { Node } from './node';
 import { BiColProps, CoordRef } from '../utils/interfaces';
+import { Label } from '@msagl/core';
 
 /** characterize edge if it connects an node and its ancestor */
 export enum ToAncestorEnum {

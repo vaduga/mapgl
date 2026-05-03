@@ -1,9 +1,8 @@
 import { Geometry, Position, GeoJsonProperties, LineString } from 'geojson';
-import { MultiLineString } from 'geojson';
 import { Edge } from '../structs/edge';
-import { Node } from '../structs/node';
 import { Entity } from '../structs/entity';
 import { Graph } from '../structs/graph';
+import { BinaryFeatureCollection } from '@loaders.gl/schema';
 
 export type ViewState = {
   longitude: number;
@@ -41,7 +40,7 @@ export enum colTypes {
   Markers = 'markers',
   Nodes = 'nodes',
   Edges = 'edges',
-  Hyperedges = 'routed', //"hyperedges",
+  Hyperedges = 'routed',
   Clusters = 'clusters',
   SVG = 'icon',
   Circle = 'circle',
@@ -52,8 +51,8 @@ export enum colTypes {
   Bboxes = 'bboxes',
 }
 
-export type LayerDragShift = {
-  [p: string]: [number, number];
+export type GraphBiFeatCol = BinaryFeatureCollection & {
+  graph: Graph;
 };
 
 export type BiColProps = {

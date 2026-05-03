@@ -265,15 +265,8 @@ export class Graph extends Node {
       return;
     }
     const newEdge = new Edge(id, s, t);
-    if (this.isLogic) {
-      //@ts-ignore
-      // const gbc: GeomEdge = new GeomEdge(newEdge);
-      // gbc.sourceArrowhead = new Arrowhead()
-      // gbc.targetArrowhead = new Arrowhead()
-    }
-    ///
     this.nodeCollection.addEdge(newEdge);
-    ///
+
     return newEdge;
   }
 

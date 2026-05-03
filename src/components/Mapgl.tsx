@@ -9,8 +9,6 @@ import { observer } from 'mobx-react-lite';
 import DeckGL from '@deck.gl/react';
 import MapLibre, { AttributionControl } from '@vis.gl/react-maplibre';
 
-import type { Graph } from 'mapLib';
-
 import Menu from '../components/Menu';
 import {
   useRootStore,
@@ -37,15 +35,18 @@ import {
   ViewState,
   sortAnnotations,
   CommentsData,
+  GraphBiFeatCol,
 } from 'mapLib/utils';
+import type { Graph } from 'mapLib';
 import { throttleTime } from 'rxjs';
 import { StateTime } from './Geocoder/StateTime';
 import { Layer, MapView, OrbitView } from 'deck.gl';
 import LayerSwitcher from './Selects/LayerSwitcher';
-import { BinaryFeatureCollection, BinaryPointFeature } from '@loaders.gl/schema';
+import { BinaryPointFeature } from '@loaders.gl/schema';
 
 import { ThresholdEdgeChangeEvent } from '../utils/bus.events';
 import { useFullscreenPortalBridge } from './hooks/useFullscreenPortalBridge';
+
 
 const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, replaceVariables, eventBus }) => {
   const { pointStore, viewStore } = useRootStore();
@@ -364,7 +365,6 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     let counter = 0;
     const commentFeatures: ComFeature[] = [];
     Object.entries(initComments)?.forEach(([edgeId, orderMap]) => {
-      // @ts-ignore
       orderMap?.forEach((comment) => {
         const { edge, text, iconColor, style, root, layerName, locName, coords, index } = comment;
         if (edge && text && iconColor && coords) {
@@ -380,7 +380,6 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
             properties: {
               text,
               layerName,
-              // @ts-ignore
               root: root as Graph,
               isComment: true,
               locName,
@@ -398,8 +397,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
     const { groupIndices, annots } = panel;
     const visNamespaces = visLayers.getCategories()[1];
-    // @ts-ignore
-    const biCols: BinaryFeatureCollection & Array<{ layerName: string }> = graphs
+    const biCols: GraphBiFeatCol[] = graphs
       .filter((g) => visNamespaces.includes(g.id))
       .sort((a, b) => {
         const lenA = a.id.split(NS_SEPARATOR).length;
@@ -448,7 +446,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
         const biColors = hasAnnots && !getGroupsLegend.at(-1)?.disabled ? cutAnnots : cutMuted;
         return {
           ...emptyBiCol,
-          opacity: 1,
+          shape: 'binary-feature-collection',
           graph: g,
           groupIndices,
           annots,
@@ -461,14 +459,15 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
             },
             featureIds,
             globalFeatureIds,
+            numericProps: {},
             properties: features,
             // numericProps: {  /// for points it can be derived from index, for lines - datarecord has other rowIndex, considering multiple edges
             // rowIndex: {value: featureIds, size: 1},
             // },
           } as unknown as BinaryPointFeature,
-        };
+        } as GraphBiFeatCol;
       })
-      .filter((el) => el);
+      .filter((el): el is GraphBiFeatCol => el !== null);
 
     const res = genPrimaryLayers({
       layerProps,
