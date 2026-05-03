@@ -551,10 +551,6 @@ export class Graph extends Node {
   }
 
   get getEdgesGeometry() {
-    const clusters = Array.from(this.root.graph.subgraphsBreadthFirst()) as Graph[];
-    const graphs: Graph[] = clusters.concat([this.root.graph as Graph]);
-
-
     const arcsFeatures: Record<string, any[]> = {};
     const features: Record<string, DeckLine[]> = {};
 
@@ -632,17 +628,6 @@ export class Graph extends Node {
           }
         }
 
-        if (geomEdge?.source) {
-          if (geomEdge?.curve?.start) {
-            /// Leave node boundary ports only.
-            if (coordinates.length > 3) {
-              //coordinates = coordinates.slice(1, -1);
-            }
-          } else {
-            console.warn('Invalid controlPoints or polyPoints', locName, edge.id);
-          }
-        }
-
         if (!coordinates.length) {
           return;
         }
@@ -673,7 +658,6 @@ export class Graph extends Node {
         const arrowAngles = getArrowAngles(coordinates, !this.isLogic, fragIdx, len, arrowTips);
 
         const newFeature: DeckLine = {
-          //id: counter,
           heIdx,
           fragIdx,
           edgeId: edge.id,
@@ -694,10 +678,10 @@ export class Graph extends Node {
 
         if (isFirst) {
           srcFeatureProps = newFeature.properties;
-          sourcePosition = sourceArrowTip;
+          sourcePosition = sourceArrowTip ? sourceArrowTip : coordinates[0];
         }
         if (isLast) {
-          targetPosition = targetArrowTip;
+          targetPosition = targetArrowTip ? targetArrowTip : coordinates.at(-1);
         }
 
         if (!features[srcGraph.id]) {

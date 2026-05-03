@@ -448,58 +448,6 @@ function isString(el: ParPathEl): el is string {
   return typeof el === 'string';
 }
 
-/**
- * Returns indices of all string sentinels in parPath
- */
-function getStringIndices(parPath: ParPathEl[]) {
-  return parPath.map((el, i) => (isString(el) ? i : -1)).filter((i) => i !== -1);
-}
-
-function replaceSegmentsWithPolylines(
-  parPath: ParPathEl[],
-  oldWasmIds: Array<number | undefined>,
-  polylines: Position[][]
-) {
-  const stringIdx = getStringIndices(parPath);
-
-  if (stringIdx.length < 2) {
-    return { parPath, wasmIds: oldWasmIds };
-  }
-
-  if (polylines.length !== getStringIndices(parPath).length - 1) {
-    //console.warn('Polyline / segment mismatch', { polylines, parPath });
-  }
-
-  const newParPath: ParPathEl[] = [];
-  const newWasmIds: Array<number | undefined> = [];
-
-  let polylineCursor = 0;
-
-  for (let s = 0; s < stringIdx.length - 1; s++) {
-    const start = stringIdx[s];
-    const end = stringIdx[s + 1];
-
-    // keep the string sentinel
-    newParPath.push(parPath[start]);
-    newWasmIds.push(oldWasmIds[start]);
-
-    const poly = polylines[polylineCursor++] ?? [];
-
-    for (const pt of poly) {
-      newParPath.push(pt);
-      newWasmIds.push(undefined as any);
-    }
-
-    // skip everything between start+1 .. end-1 (raw coords removed)
-  }
-
-  // keep last string
-  const lastIdx = stringIdx.at(-1)!;
-  newParPath.push(parPath[lastIdx]);
-  newWasmIds.push(oldWasmIds[lastIdx]);
-
-  return { parPath: newParPath, wasmIds: newWasmIds };
-}
 
 function getSmoothPolyline(edge: any): Position[] {
   const geom = GeomEdge.getGeom(edge);
@@ -527,38 +475,16 @@ function runLayout(panel: any) {
   rootGraph.layoutSettings.commonSettings.NodeSeparation = 40;
   rootGraph.layoutSettings.commonSettings.edgeRoutingSettings.EdgeRoutingMode = edgeRoutingMode;
 
-  //console.log('Clusters,', Array.from(rootGraph.Clusters), Array.from(graph.getClusteredConnectedComponents()))
-
   layoutGeomGraph(rootGraph);
 
-  //@ts-ignore
-  const { getEdgeVerticeIds, wasm2Edges } = graph as Graph;
-
-  wasm2Edges.forEach((edges) => {
-    const edge0 = edges[0];
-    const edgeId = edge0.data.edge_id;
-
-    const parPath = edge0.data.parPath;
-    const oldWasmIds = getEdgeVerticeIds[edgeId][0];
-
-    // collect one polyline per hyperedge segment
-    const polylines = edges.map(getSmoothPolyline);
-
-    const { parPath: newParPath, wasmIds } = replaceSegmentsWithPolylines(parPath, oldWasmIds, polylines);
-
-    edge0.data.parPath = newParPath;
-    getEdgeVerticeIds[edgeId][0] = wasmIds;
-  });
-
-  for (const e of rootGraph.deepEdges) {
-    if (e.source === e.target) {
-      //console.warn("⚠️ Self-loop detected:", e);
-    }
-    if (!e.curve) {
-      //@ts-ignore
-      //  g.remove(e.edge.source)
-    }
-  }
+  // for (const e of rootGraph.deepEdges) {
+  //   if (e.source === e.target) {
+  //     console.warn("⚠️ Self-loop detected:", e);
+  //   }
+  //   if (!e.curve) {
+  //     //  g.remove(e.edge.source)
+  //   }
+  // }
 
   for (const n of rootGraph.nodesBreadthFirst) {
     const node = n.node as unknown as Node;
