@@ -45,8 +45,7 @@ export type RuleOption = {
   color: string;
 };
 
-//@ts-ignore
-export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, context) => {
+export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps) => {
   const styles = useStyles2(getRuleStyles);
   const [oTracker, _setoTracker] = useState<OverrideTracker[]>([]);
 
@@ -311,7 +310,7 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps, contex
       <InlineField shrink label={'icon'} className={styles.iconField}>
         <ResourceDimensionEditor
           value={{ fixed: options.rule.iconName ?? '', mode: ResourceDimensionMode.Fixed }}
-          context={context}
+          context={options.context}
           onChange={(v) => {
             if (!v) {
               return;

@@ -14,8 +14,7 @@ export function getPublicOrAbsoluteUrl(v: string): string {
   }
 
   if (v.indexOf(':/') > 0) {
-    //@ts-ignore
-    return window.__grafana_public_path__;
+    return (window as Window & { __grafana_public_path__?: string }).__grafana_public_path__ ?? '';
   }
   return v.startsWith(ResourceFolderName.Custom) ? v : `public/plugins/${PLUGIN_ID}/img/icons/${v}.svg`;
 }

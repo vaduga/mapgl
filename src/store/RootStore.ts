@@ -1,9 +1,8 @@
 import PointStore from './PointStore';
 import ViewStore from './ViewStore';
 import { Graph } from 'mapLib';
-import { MapLayerState } from '../types';
+import { type DeckGLRefWithViewManager, MapLayerState } from '../types';
 import { EventBus, FieldConfig, PanelData } from '@grafana/data';
-import { Deck } from '@deck.gl/core';
 import { MapPanel } from '../MapPanel';
 import type { VisLayers } from './visLayers';
 
@@ -19,7 +18,7 @@ class RootStore {
   data: PanelData;
   options: any;
   graph: Graph;
-  map?: Deck<any>;
+  map?: DeckGLRefWithViewManager;
   svgIcons: Record<string, {}>;
 
   pointStore: PointStore;

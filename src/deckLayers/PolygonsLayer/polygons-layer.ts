@@ -51,7 +51,6 @@ const MyPolygonsLayer = (props) => {
     filled: true,
     lineWidthUnits: units,
     stroked: colType !== colTypes.Hull,
-    // @ts-ignore
     getFillColor: (d) => {
       if (colType === colTypes.Hull) {
         return toRGB4Array(theme2.isDark ? DARK_HULL_HIGHLIGHT : LIGHT_HULL_HIGHLIGHT, 1);

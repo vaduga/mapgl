@@ -30,14 +30,12 @@ const MyGeoJsonLayer = (props) => {
     pointType: 'circle',
     //lineWidthScale: 20,
     //lineWidthMinPixels: 2,
-    //@ts-ignore
     getFillColor: (d: any) => {
       const { style } = d.properties;
       const { color, group, opacity } = style;
       const thresholdColor = group?.color ?? color;
       return toRGB4Array(thresholdColor, opacity);
     },
-    //@ts-ignore
     getLineColor: (d: any) => {
       const { style } = d.properties;
       const { color, group, opacity } = style;

@@ -2,9 +2,9 @@ import { makeAutoObservable } from 'mobx';
 import RootStore from './RootStore';
 import { blankHoverInfo, colTypes, Info, ViewState } from 'mapLib/utils';
 import { Edge, Graph, Node } from 'mapLib';
-import { Deck } from '@deck.gl/core';
 import { SelectNodeEvent } from '../utils/bus.events';
 import { Subscription } from 'rxjs';
+import type { DeckGLRefWithViewManager } from '../types';
 
 class PointStore {
   root: RootStore;
@@ -101,8 +101,9 @@ class PointStore {
 
           const longitude = coord ? coord[0] : coordsFromValue[0];
           const latitude = coord ? coord[1] : coordsFromValue[1];
-          //@ts-ignore
-          const scene = (map as Deck)?.deck?.viewManager.viewState[isLogic ? '3d-scene' : 'geo-view'];
+          const scene = (map as DeckGLRefWithViewManager)?.deck?.viewManager?.viewState?.[
+            isLogic ? '3d-scene' : 'geo-view'
+          ];
           const mapZoom = zoomIn ? (isLogic ? 1.5 : 18) : scene?.zoom;
           const zoom = isNaN(mapZoom) ? 2 : (mapZoom ?? 18);
 

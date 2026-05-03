@@ -5,7 +5,7 @@ import { NumberInput } from '../../grafana_core/app/core/components/OptionsUI/Nu
 import { Trans, t } from '../../utils/i18n';
 import { StackCompat } from '../../components/Compat/StackCompat';
 
-import { type Options, type MapViewConfig, GeomapInstanceState } from '../../types';
+import { type Options, type MapViewConfig, GeomapInstanceState, type DeckGLRefWithViewManager } from '../../types';
 import { centerPointRegistry, MapCenterID } from '../../view';
 
 import { CoordinatesMapViewEditor } from './CoordinatesMapViewEditor';
@@ -24,8 +24,7 @@ export const MapViewEditor = ({
 
   const onSetCurrentView = () => {
     const { map, isLogic } = context.instanceState || {};
-    //@ts-ignore
-    const scene = (map as Deck)?.deck?.viewManager?.viewState?.[isLogic ? '3d-scene' : 'geo-view'];
+    const scene = (map as DeckGLRefWithViewManager)?.deck?.viewManager?.viewState?.[isLogic ? '3d-scene' : 'geo-view'];
 
     if (scene) {
       const { target, longitude, latitude } = scene;

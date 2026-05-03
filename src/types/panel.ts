@@ -19,7 +19,7 @@ export interface GeomapLayerActions {
 }
 
 export interface GeomapInstanceState {
-  map?: Deck;
+  map?: DeckGLRefWithViewManager;
   graph: Graph;
   isLogic: boolean;
   layers: MapLayerState[];
@@ -42,7 +42,7 @@ export interface MapLayerState<TConfig = unknown> extends LayerElement {
 import { ExtendMapLayerHandler, ExtendMapLayerOptions } from '../extension';
 
 import { libreSource } from 'mapLib/utils';
-import { Deck } from '@deck.gl/core';
+import type { DeckGLRefWithViewManager } from './deck';
 
 export type EdgeRoutingConfig = 'Splines' | 'Rectilinear';
 

@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs';
 import { GrafanaTheme2, PanelData, PanelProps } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { PanelContext, PanelContextProvider, PanelContextRoot } from '@grafana/ui';
-import { Options, MapLayerState, MapViewConfig } from './types';
+import { Options, MapLayerState, MapViewConfig, type DeckGLRefWithViewManager } from './types';
 import { runLayout, ViewState, defViewState, CMN_NAMESPACE, BiColProps } from 'mapLib/utils';
 import { notifyPanelEditor } from './utils/geomap_utils';
 import { getActions } from './utils/actions';
@@ -16,7 +16,6 @@ import { defaultMarkersConfig } from './layers/data/markersLayer';
 import { Graph, GeomGraph } from 'mapLib';
 
 import { initViewExtent } from './utils/utils.map';
-import { Deck } from '@deck.gl/core';
 
 type Props = PanelProps<Options>;
 
@@ -40,7 +39,7 @@ export class MapPanel extends Component<Props, State> {
   graph: Graph;
   vCount = 0;
   visLayers: VisLayers | undefined;
-  map?: Deck | undefined;
+  map?: DeckGLRefWithViewManager | undefined;
   layers: MapLayerState[] = [];
   locLabelName;
   annotations;

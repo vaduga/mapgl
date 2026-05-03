@@ -131,10 +131,8 @@ export const MyArcLayer = (props) => {
         //<BartSegment>
         ...layerProps,
         id: colTypes.Edges + '-arc-blobs' + srcGraphId,
-        //@ts-ignore
         getSourceArrow: (d: BartSegment) => d.properties.arcStyle?.sideA.arrow ?? 0,
         getTargetArrow: (d: BartSegment) => d.properties.arcStyle?.sideB.arrow ?? 0,
-        // @ts-ignore
         getFrequency: (d) => 10,
         animationSpeed: 5,
         tailLength: 0.1,

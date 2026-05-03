@@ -1,6 +1,16 @@
 import { ArcLayer } from '@deck.gl/layers';
+import type { Accessor } from '@deck.gl/core';
 import GradientArcLayer from './gradient-arc-layer';
 import { arcUniforms } from './arc-layer-uniforms';
+
+type AnimatedBlobsLayerProps<DataT = unknown> = {
+  getSourceArrow?: Accessor<DataT, number>;
+  getTargetArrow?: Accessor<DataT, number>;
+  getFrequency?: Accessor<DataT, number>;
+  animationSpeed?: number;
+  tailLength?: number;
+  coef?: number;
+};
 
 const defaultProps = {
   ...ArcLayer.defaultProps,
@@ -9,8 +19,9 @@ const defaultProps = {
   getTargetArrow: { type: 'accessor', value: 0 },
 };
 
-export default class AnimatedBlobsLayer extends GradientArcLayer {
+export default class AnimatedBlobsLayer<DataT = any> extends GradientArcLayer<DataT, AnimatedBlobsLayerProps<DataT>> {
   static layerName = 'AnimatedBlobsLayer';
+  static defaultProps = defaultProps;
 
   getShaders() {
     const shaders = super.getShaders();
@@ -127,9 +138,6 @@ export default class AnimatedBlobsLayer extends GradientArcLayer {
       },
     });
   }
-
-  defaultProps = defaultProps;
-
   draw({ uniforms }) {
     // Get the current timestamp in seconds
     const timestamp = performance.now() / 1000; // Time in seconds

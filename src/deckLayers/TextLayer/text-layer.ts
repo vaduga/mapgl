@@ -1,5 +1,4 @@
 import { TextLayer } from '@deck.gl/layers';
-// @ts-ignore
 import { DataFilterExtension } from '@deck.gl/extensions';
 import { isVisible, toRGB4Array } from '../../utils';
 import { colTypes, BBOX_OUTLINE_COLOR, DEFAULT_NUMS_COLOR } from 'mapLib/utils';

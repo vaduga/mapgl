@@ -1,6 +1,7 @@
 import { toRGB4Array } from '../../utils';
 import { GeoJsonLayer } from '@deck.gl/layers';
-import { Geometry, Position } from 'geojson';
+import type { Color } from '@deck.gl/core';
+import { Feature, Geometry, Position } from 'geojson';
 import { type DeckLine, colTypes, PointFeatureProperties, RGBAColor, ALERTING_STATES } from 'mapLib/utils';
 import { DataFilterExtension } from '@deck.gl/extensions';
 import { BezierSeg, Curve, Ellipse, GeomEdge, LineSegment, Polyline } from '@msagl/core';
@@ -169,7 +170,6 @@ function getCurveSegments(features: DeckLine[], getWasmId2Edges): Array<CurveEdg
 export const EdgesGeojsonLayer = (props) => {
   const {
     srcGraphId,
-    getSelectedIdxs,
     linesCollection,
     onHover,
     pickable,
@@ -182,6 +182,7 @@ export const EdgesGeojsonLayer = (props) => {
     getGroupsLegend,
     panel,
     getWasmId2Edges,
+    getSelectedIdxs,
   } = props;
 
   const isLogic = panel.isLogic;
@@ -198,7 +199,9 @@ export const EdgesGeojsonLayer = (props) => {
     return selectedFeatureIndexes.includes(featureIndex) ? edgeStyle.size * 2 : edgeStyle.size;
   };
 
-  const getLineColor = (d: CurveEdgeSegment<DeckLine> | DeckLine): RGBAColor => {
+  const getLineColor = (
+    d: CurveEdgeSegment<DeckLine> | DeckLine | Feature<Geometry, PointFeatureProperties>
+  ): Color => {
     const feature = 'feature' in d ? d.feature : d;
     const { edgeStyle, all_annots } = feature.properties as any;
     const { color, group, opacity } = edgeStyle;
@@ -256,12 +259,11 @@ export const EdgesGeojsonLayer = (props) => {
     });
   }
 
-  return new GeoJsonLayer({
+  return new GeoJsonLayer<PointFeatureProperties, {}>({
     ...commonLayerProps,
     data: linesCollection,
     getLineWidth,
-    //@ts-ignore
-    getLineColor: getLineColor as (d: DeckLine<Geometry, PointFeatureProperties>) => RGBAColor,
+    getLineColor,
 
     // Styles
     lineWidthUnits: units,

@@ -1,7 +1,7 @@
 import { AutoSizeInput, IconButton, InlineField, MultiSelect, Select, useStyles2, useTheme2 } from '@grafana/ui';
 import { OverField, Rule } from './rule-types';
 import React, { ReactNode, useEffect, useState } from 'react';
-import { FieldType, GrafanaTheme2 } from '@grafana/data';
+import { FieldType, GrafanaTheme2, SelectableValue } from '@grafana/data';
 import { css } from '@emotion/css';
 import { FieldSelectEditor } from './FieldSelectEditor';
 import { RuleOption } from './RuleItem';
@@ -98,14 +98,14 @@ export const OverrideField: React.FC<OverrideFieldProps> = (options: OverrideFie
     // const [selThresOpts, setSelThresOpts] = useState<ThresholdOption[]>()
     // const [thresOpts, setThresOpts] = useState<ThresholdOption[]>()
 
-    const renderOption = (option) =>
+    const renderOption = (option: SelectableValue<number>) =>
       (
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <div
             style={{
               width: 16,
               height: 16,
-              backgroundColor: option.color,
+              backgroundColor: 'color' in option ? option.color : undefined,
               borderRadius: '50%',
               marginRight: 8,
             }}
@@ -137,13 +137,11 @@ export const OverrideField: React.FC<OverrideFieldProps> = (options: OverrideFie
             <MultiSelect
               options={mergedOptions}
               value={storedOptions}
-              //@ts-ignore
               getOptionLabel={renderOption}
-              //@ts-ignore
-              onChange={(t: RuleOption[]) => {
+              onChange={(t: Array<SelectableValue<number>>) => {
                 options.valueSetter(
                   options.index,
-                  t.map((t) => t.label)
+                  t.map((t) => String(t.label))
                 );
                 //setSelThresOpts(t)
               }}

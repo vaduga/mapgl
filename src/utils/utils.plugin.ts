@@ -40,7 +40,7 @@ function parseObjFromString(str) {
   return obj;
 }
 
-function makeColorLighter(color: RGBAColor) {
+function makeColorLighter(color: RGBAColor): RGBAColor {
   if (!Array.isArray(color) || color.length !== 4) {
     return [145, 145, 45, 255]; // Default to a lighter opaque yellow
   }
@@ -49,7 +49,7 @@ function makeColorLighter(color: RGBAColor) {
   ) as RGBAColor;
 }
 
-function makeColorDarker(color: RGBAColor) {
+function makeColorDarker(color: RGBAColor): RGBAColor {
   if (!Array.isArray(color) || color.length !== 4) {
     return [55, 55, 0, 255]; // Default to a darker opaque yellow
   }

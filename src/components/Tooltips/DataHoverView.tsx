@@ -63,10 +63,9 @@ export function getDisplayValuesAndLinks(
 
   // Only include traceID if it's visible and put it in front.
   if (visibleFields.filter((field) => traceIDField === field).length > 0) {
-    // @ts-ignore
     orderedVisibleFields.push(traceIDField);
   }
-  // @ts-ignore
+
   orderedVisibleFields.push(...visibleFields.filter((field) => traceIDField !== field));
 
   if (orderedVisibleFields.length === 0) {

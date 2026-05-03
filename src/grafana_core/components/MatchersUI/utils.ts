@@ -183,7 +183,6 @@ export function useMatcherSelectOptions(
 
     const displayNameBuilder = optionFactory(
       (name) => name,
-      // @ts-ignore
       (name) => {
         const field = displayNames.fields.get(name);
         if (!field) {
