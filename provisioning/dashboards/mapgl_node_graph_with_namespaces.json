@@ -1,990 +1,1079 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": {
-          "type": "grafana",
-          "uid": "-- Grafana --"
-        },
+  "annotations": [
+    {
+      "kind": "AnnotationQuery",
+      "spec": {
+        "builtIn": true,
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
-        "type": "dashboard"
+        "query": {
+          "datasource": {
+            "name": "-- Grafana --"
+          },
+          "group": "grafana",
+          "kind": "DataQuery",
+          "spec": {},
+          "version": "v0"
+        }
       }
-    ]
-  },
-  "editable": true,
-  "fiscalYearStartMonth": 0,
-  "graphTooltip": 0,
-  "links": [],
-  "panels": [
-    {
-      "datasource": {
-        "type": "frser-sqlite-datasource",
-        "uid": "b6c1a5f4-6225-4788-8ed6-540fb078e8bc"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "percentage",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "#EAB839",
-                "value": 20
-              },
-              {
-                "color": "#6ED0E0",
-                "value": 30
-              },
-              {
-                "color": "#EF843C",
-                "value": 40
-              },
-              {
-                "color": "#E24D42",
-                "value": 50
-              },
-              {
-                "color": "#BA43A9",
-                "value": 75
-              },
-              {
-                "color": "dark-red",
-                "value": 100
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "metric"
-            },
-            "properties": [
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": 0
-                    },
-                    {
-                      "color": "red",
-                      "value": 0
-                    },
-                    {
-                      "color": "semi-dark-green",
-                      "value": 1
-                    },
-                    {
-                      "color": "light-blue",
-                      "value": 2
-                    },
-                    {
-                      "color": "semi-dark-orange",
-                      "value": 3
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 21,
-        "w": 13,
-        "x": 0,
-        "y": 0
-      },
-      "id": 2,
-      "options": {
-        "basemap": {
-          "config": {},
-          "name": "Layer 0",
-          "type": "blank"
-        },
-        "common": {
-          "edgeRouting": "Rectilinear",
-          "isMeters": false,
-          "isShowEdgeLegend": true,
-          "isShowLegend": true,
-          "isShowSwitcher": true
-        },
-        "dataLayers": [
-          {
-            "config": {
-              "arcConfig": {
-                "capacity": {
-                  "fixed": 1
-                },
-                "height": 0.5,
-                "tiltIncrement": 7
-              },
-              "arcStyle": {
-                "sideA": {
-                  "arrow": 1,
-                  "color": {
-                    "field": "metric",
-                    "fixed": "red"
-                  }
-                },
-                "sideB": {
-                  "arrow": -1,
-                  "color": {
-                    "field": "metric",
-                    "fixed": "dark-green"
-                  }
-                }
-              },
-              "edgeStyle": {
-                "arrow": -1,
-                "color": {
-                  "field": "metric",
-                  "fixed": "light-red"
-                },
-                "opacity": 0.4,
-                "size": {
-                  "fixed": 3,
-                  "max": 15,
-                  "min": 2
-                },
-                "textConfig": {
-                  "fontSize": 14
-                }
-              },
-              "groups": [
-                {
-                  "collapse": false,
-                  "color": "#3275d9b8",
-                  "iconName": "databases/knexjs",
-                  "offset": -5,
-                  "label": "unode",
-                  "overrides": [
-                    {
-                      "name": "thrColor",
-                      "type": "enum",
-                      "value": ["semi-dark-green"]
-                    },
-                    {
-                      "name": "namespaceA",
-                      "type": "string",
-                      "value": "nodes.aggr"
-                    }
-                  ]
-                },
-                {
-                  "collapse": false,
-                  "color": "#A352CC",
-                  "iconName": "databases/memsql",
-                  "offset": -5,
-                  "label": "conn",
-                  "overrides": [
-                    {
-                      "name": "thrColor",
-                      "type": "enum",
-                      "value": ["semi-dark-green"]
-                    },
-                    {
-                      "name": "namespaceA",
-                      "type": "string",
-                      "value": "nodes.aggr.conn, nodes.aggr.conn.mmm"
-                    }
-                  ]
-                },
-                {
-                  "collapse": false,
-                  "iconName": "networking/camera",
-                  "size": 85,
-                  "offset": -5,
-                  "label": "U5",
-                  "overrides": [
-                    {
-                      "name": "vertexA",
-                      "type": "string",
-                      "value": "U5"
-                    },
-                    {
-                      "name": "thrColor",
-                      "type": "enum",
-                      "value": ["semi-dark-green"]
-                    }
-                  ]
-                },
-                {
-                  "collapse": true,
-                  "color": "#C4162A",
-                  "iconName": "",
-                  "offset": -5,
-                  "label": "node-down",
-                  "overrides": [
-                    {
-                      "name": "thrColor",
-                      "type": "enum",
-                      "value": ["red"]
-                    }
-                  ]
-                }
-              ],
-              "showStat2": true,
-              "style": {
-                "arcs": [
-                  {
-                    "field": "",
-                    "fixed": "#B877D9"
-                  },
-                  {
-                    "field": "metric",
-                    "fixed": ""
-                  }
-                ],
-                "color": {
-                  "field": "metric",
-                  "fixed": "light-yellow"
-                },
-                "opacity": 0.3,
-                "size": {
-                  "field": "metric",
-                  "fixed": 5,
-                  "max": 40,
-                  "min": 20
-                },
-                "text": {
-                  "field": "vertexA",
-                  "fixed": "",
-                  "mode": "field"
-                },
-                "textConfig": {
-                  "fontSize": 12
-                },
-                "useGroups": true
-              },
-              "vertexA_NS": "namespaceA",
-              "vertexB_NS": "namespaceB"
-            },
-            "isShowTooltip": true,
-            "locField": "vertexA",
-            "location": {
-              "mode": "auto"
-            },
-            "name": "unodes",
-            "opacity": 0.4,
-            "parField": "vertexB_path",
-            "query": {
-              "id": "byRefId",
-              "options": "B"
-            },
-            "searchProperties": ["source", "target", "aggrType"],
-            "type": "markers"
-          },
-          {
-            "config": {
-              "arcConfig": {
-                "capacity": {
-                  "fixed": 1
-                },
-                "height": 0.2,
-                "tiltIncrement": 20
-              },
-              "arcStyle": {
-                "sideA": {
-                  "arrow": 1
-                },
-                "sideB": {
-                  "arrow": -1,
-                  "color": {
-                    "field": "bps",
-                    "fixed": "dark-green"
-                  }
-                }
-              },
-              "edgeStyle": {
-                "arrow": -1,
-                "color": {
-                  "field": "metric",
-                  "fixed": "light-blue"
-                },
-                "opacity": 0.6,
-                "size": {
-                  "fixed": 2.5,
-                  "max": 15,
-                  "min": 2
-                },
-                "text": {
-                  "field": "edge_id",
-                  "fixed": "",
-                  "mode": "field"
-                },
-                "textConfig": {
-                  "fontSize": 7
-                }
-              },
-              "groups": [
-                {
-                  "collapse": false,
-                  "color": "#C4162A",
-                  "iconName": "networking/bridge",
-                  "offset": -5,
-                  "label": "down",
-                  "overrides": [
-                    {
-                      "name": "thrColor",
-                      "type": "enum",
-                      "value": ["red"]
-                    }
-                  ]
-                },
-                {
-                  "collapse": false,
-                  "color": "#73BF69",
-                  "iconName": "networking/atm-switch",
-                  "size": 20,
-                  "offset": -5,
-                  "label": "up",
-                  "overrides": [
-                    {
-                      "name": "thrColor",
-                      "type": "enum",
-                      "value": ["semi-dark-green"]
-                    }
-                  ]
-                },
-                {
-                  "collapse": false,
-                  "color": "#8AB8FF",
-                  "iconName": "networking/cloud",
-                  "offset": -5,
-                  "label": "info",
-                  "overrides": [
-                    {
-                      "name": "thrColor",
-                      "type": "enum",
-                      "value": ["light-blue"]
-                    }
-                  ]
-                },
-                {
-                  "collapse": false,
-                  "color": "#FF780A",
-                  "iconName": "",
-                  "offset": -5,
-                  "label": "danger",
-                  "overrides": [
-                    {
-                      "name": "thrColor",
-                      "type": "enum",
-                      "value": ["semi-dark-orange"]
-                    }
-                  ]
-                }
-              ],
-              "showStat2": true,
-              "style": {
-                "arcs": [
-                  {
-                    "field": "metric",
-                    "fixed": "#FFEE52"
-                  },
-                  {
-                    "field": "bps",
-                    "fixed": ""
-                  }
-                ],
-                "color": {
-                  "field": "metric",
-                  "fixed": "dark-purple"
-                },
-                "opacity": 0.7,
-                "size": {
-                  "field": "metric",
-                  "fixed": 5,
-                  "max": 60,
-                  "min": 50
-                },
-                "text": {
-                  "field": "vertexA",
-                  "fixed": "",
-                  "mode": "field"
-                },
-                "textConfig": {
-                  "fontSize": 15
-                },
-                "useGroups": true
-              },
-              "vertexA_NS": "namespaceA",
-              "vertexB_NS": "namespaceB"
-            },
-            "displayProperties": ["metric", "bps", "model", "vertexA"],
-            "edgeIdField": "edge_id",
-            "isShowTooltip": true,
-            "locField": "vertexA",
-            "location": {
-              "mode": "auto"
-            },
-            "name": "switches",
-            "opacity": 0.4,
-            "parField": "vertexB_path",
-            "query": {
-              "id": "byRefId",
-              "options": "A"
-            },
-            "type": "markers"
-          }
-        ],
-        "isEditable": false,
-        "updatesLog": true,
-        "view": {
-          "allLayers": true,
-          "id": "coords",
-          "lat": 1527.085574,
-          "lon": 2494.912553,
-          "padding": 0,
-          "zoom": -2.26
-        }
-      },
-      "pluginVersion": "2.2.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "frser-sqlite-datasource",
-            "uid": "b6c1a5f4-6225-4788-8ed6-540fb078e8bc"
-          },
-          "queryText": "select * from switches;",
-          "queryType": "table",
-          "rawQueryText": "select * from switches;",
-          "refId": "A",
-          "timeColumns": ["time", "ts"]
-        },
-        {
-          "datasource": {
-            "type": "frser-sqlite-datasource",
-            "uid": "b6c1a5f4-6225-4788-8ed6-540fb078e8bc"
-          },
-          "queryText": "select * from uNodes;",
-          "queryType": "table",
-          "rawQueryText": "select * from uNodes;",
-          "refId": "B",
-          "timeColumns": ["time", "ts"]
-        }
-      ],
-      "title": "Nested namespaces",
-      "type": "vaduga-mapgl-panel"
-    },
-    {
-      "datasource": {
-        "type": "frser-sqlite-datasource",
-        "uid": "b6c1a5f4-6225-4788-8ed6-540fb078e8bc"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "percentage",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "#EAB839",
-                "value": 20
-              },
-              {
-                "color": "#6ED0E0",
-                "value": 30
-              },
-              {
-                "color": "#EF843C",
-                "value": 40
-              },
-              {
-                "color": "#E24D42",
-                "value": 50
-              },
-              {
-                "color": "#BA43A9",
-                "value": 75
-              },
-              {
-                "color": "dark-red",
-                "value": 100
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "metric"
-            },
-            "properties": [
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": 0
-                    },
-                    {
-                      "color": "red",
-                      "value": 0
-                    },
-                    {
-                      "color": "semi-dark-green",
-                      "value": 1
-                    },
-                    {
-                      "color": "light-blue",
-                      "value": 2
-                    },
-                    {
-                      "color": "semi-dark-orange",
-                      "value": 3
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 21,
-        "w": 10,
-        "x": 13,
-        "y": 0
-      },
-      "id": 1,
-      "options": {
-        "basemap": {
-          "config": {},
-          "name": "Layer 0",
-          "type": "blank"
-        },
-        "common": {
-          "isAppAuth": false,
-          "isMeters": false,
-          "isShowEdgeLegend": false,
-          "isShowLegend": false,
-          "isShowSwitcher": false,
-          "jitterPoints": false
-        },
-        "dataLayers": [
-          {
-            "config": {
-              "arcConfig": {
-                "capacity": {
-                  "fixed": 1
-                },
-                "height": 0.5,
-                "tiltIncrement": 7
-              },
-              "arcStyle": {
-                "sideA": {
-                  "arrow": 1,
-                  "color": {
-                    "field": "metric",
-                    "fixed": "red"
-                  }
-                },
-                "sideB": {
-                  "arrow": -1,
-                  "color": {
-                    "field": "metric",
-                    "fixed": "dark-green"
-                  }
-                }
-              },
-              "edgeStyle": {
-                "arrow": -1,
-                "color": {
-                  "field": "metric",
-                  "fixed": "light-red"
-                },
-                "opacity": 0.4,
-                "size": {
-                  "fixed": 3,
-                  "max": 15,
-                  "min": 2
-                },
-                "textConfig": {
-                  "fontSize": 14
-                }
-              },
-              "groups": [
-                {
-                  "collapse": false,
-                  "color": "#3275d9b8",
-                  "iconName": "databases/knexjs",
-                  "offset": -5,
-                  "label": "unode",
-                  "overrides": [
-                    {
-                      "name": "thrColor",
-                      "type": "enum",
-                      "value": ["semi-dark-green"]
-                    },
-                    {
-                      "name": "namespaceA",
-                      "type": "string",
-                      "value": "nodes.aggr"
-                    }
-                  ]
-                },
-                {
-                  "collapse": false,
-                  "color": "#A352CC",
-                  "iconName": "databases/memsql",
-                  "offset": -5,
-                  "label": "conn",
-                  "overrides": [
-                    {
-                      "name": "thrColor",
-                      "type": "enum",
-                      "value": ["semi-dark-green"]
-                    },
-                    {
-                      "name": "namespaceA",
-                      "type": "string",
-                      "value": "nodes.aggr.conn, nodes.aggr.conn.mmm"
-                    }
-                  ]
-                },
-                {
-                  "collapse": false,
-                  "iconName": "networking/camera",
-                  "size": 85,
-                  "offset": -5,
-                  "label": "U5",
-                  "overrides": [
-                    {
-                      "name": "vertexA",
-                      "type": "string",
-                      "value": "U5"
-                    },
-                    {
-                      "name": "thrColor",
-                      "type": "enum",
-                      "value": ["semi-dark-green"]
-                    }
-                  ]
-                },
-                {
-                  "collapse": true,
-                  "color": "#C4162A",
-                  "iconName": "",
-                  "offset": -5,
-                  "label": "node-down",
-                  "overrides": [
-                    {
-                      "name": "thrColor",
-                      "type": "enum",
-                      "value": ["red"]
-                    }
-                  ]
-                }
-              ],
-              "showStat2": true,
-              "style": {
-                "arcs": [
-                  {
-                    "field": "",
-                    "fixed": "#B877D9"
-                  },
-                  {
-                    "field": "metric",
-                    "fixed": ""
-                  }
-                ],
-                "color": {
-                  "field": "metric",
-                  "fixed": "light-yellow"
-                },
-                "opacity": 0.3,
-                "size": {
-                  "field": "metric",
-                  "fixed": 5,
-                  "max": 40,
-                  "min": 20
-                },
-                "text": {
-                  "field": "vertexA",
-                  "fixed": "",
-                  "mode": "field"
-                },
-                "textConfig": {
-                  "fontSize": 12
-                },
-                "useGroups": true
-              }
-            },
-            "isShowTooltip": true,
-            "locField": "vertexA",
-            "location": {
-              "mode": "auto"
-            },
-            "name": "unodes",
-            "opacity": 0.4,
-            "parField": "vertexB_path",
-            "query": {
-              "id": "byRefId",
-              "options": "B"
-            },
-            "searchProperties": ["source", "target", "aggrType"],
-            "type": "markers"
-          },
-          {
-            "config": {
-              "arcConfig": {
-                "capacity": {
-                  "fixed": 1
-                },
-                "height": 0.2,
-                "tiltIncrement": 20
-              },
-              "arcStyle": {
-                "sideA": {
-                  "arrow": 1
-                },
-                "sideB": {
-                  "arrow": -1,
-                  "color": {
-                    "field": "bps",
-                    "fixed": "dark-green"
-                  }
-                }
-              },
-              "edgeStyle": {
-                "arrow": -1,
-                "color": {
-                  "field": "metric",
-                  "fixed": "light-blue"
-                },
-                "opacity": 0.6,
-                "size": {
-                  "fixed": 2.5,
-                  "max": 15,
-                  "min": 2
-                },
-                "text": {
-                  "field": "edge_id",
-                  "fixed": "",
-                  "mode": "field"
-                },
-                "textConfig": {
-                  "fontSize": 7
-                }
-              },
-              "groups": [
-                {
-                  "collapse": false,
-                  "color": "#C4162A",
-                  "iconName": "networking/bridge",
-                  "offset": -5,
-                  "label": "down",
-                  "overrides": [
-                    {
-                      "name": "thrColor",
-                      "type": "enum",
-                      "value": ["red"]
-                    }
-                  ]
-                },
-                {
-                  "collapse": false,
-                  "color": "#73BF69",
-                  "iconName": "networking/atm-switch",
-                  "size": 20,
-                  "offset": -5,
-                  "label": "up",
-                  "overrides": [
-                    {
-                      "name": "thrColor",
-                      "type": "enum",
-                      "value": ["semi-dark-green"]
-                    }
-                  ]
-                },
-                {
-                  "collapse": false,
-                  "color": "#8AB8FF",
-                  "iconName": "networking/cloud",
-                  "offset": -5,
-                  "label": "info",
-                  "overrides": [
-                    {
-                      "name": "thrColor",
-                      "type": "enum",
-                      "value": ["light-blue"]
-                    }
-                  ]
-                },
-                {
-                  "collapse": false,
-                  "color": "#FF780A",
-                  "offset": -5,
-                  "label": "danger",
-                  "overrides": [
-                    {
-                      "name": "thrColor",
-                      "type": "enum",
-                      "value": ["semi-dark-orange"]
-                    }
-                  ]
-                }
-              ],
-              "showStat2": true,
-              "style": {
-                "arcs": [
-                  {
-                    "field": "metric",
-                    "fixed": "#FFEE52"
-                  },
-                  {
-                    "field": "bps",
-                    "fixed": ""
-                  }
-                ],
-                "color": {
-                  "field": "metric",
-                  "fixed": "dark-purple"
-                },
-                "opacity": 0.7,
-                "size": {
-                  "field": "metric",
-                  "fixed": 5,
-                  "max": 60,
-                  "min": 50
-                },
-                "text": {
-                  "field": "vertexA",
-                  "fixed": "",
-                  "mode": "field"
-                },
-                "textConfig": {
-                  "fontSize": 15
-                },
-                "useGroups": true
-              }
-            },
-            "displayProperties": ["metric", "bps", "model", "vertexA"],
-            "edgeIdField": "edge_id",
-            "isShowTooltip": true,
-            "locField": "vertexA",
-            "location": {
-              "mode": "auto"
-            },
-            "name": "switches",
-            "opacity": 0.4,
-            "parField": "vertexB_path",
-            "query": {
-              "id": "byRefId",
-              "options": "A"
-            },
-            "type": "markers"
-          }
-        ],
-        "isEditable": false,
-        "updatesLog": true,
-        "view": {
-          "allLayers": true,
-          "id": "coords",
-          "lat": 853.946655,
-          "lon": 823.19874,
-          "padding": 0,
-          "zoom": -1.26
-        }
-      },
-      "pluginVersion": "2.2.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "frser-sqlite-datasource",
-            "uid": "b6c1a5f4-6225-4788-8ed6-540fb078e8bc"
-          },
-          "queryText": "select * from switches;",
-          "queryType": "table",
-          "rawQueryText": "select * from switches;",
-          "refId": "A",
-          "timeColumns": ["time", "ts"]
-        },
-        {
-          "datasource": {
-            "type": "frser-sqlite-datasource",
-            "uid": "b6c1a5f4-6225-4788-8ed6-540fb078e8bc"
-          },
-          "queryText": "select * from uNodes;",
-          "queryType": "table",
-          "rawQueryText": "select * from uNodes;",
-          "refId": "B",
-          "timeColumns": ["time", "ts"]
-        }
-      ],
-      "title": "Common namespace (external)",
-      "type": "vaduga-mapgl-panel"
     }
   ],
+  "cursorSync": "Off",
+  "editable": true,
+  "elements": {
+    "panel-1": {
+      "kind": "Panel",
+      "spec": {
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "b6c1a5f4-6225-4788-8ed6-540fb078e8bc"
+                    },
+                    "group": "frser-sqlite-datasource",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "queryText": "select * from switches;",
+                      "queryType": "table",
+                      "rawQueryText": "select * from switches;",
+                      "timeColumns": ["time", "ts"]
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "A"
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "b6c1a5f4-6225-4788-8ed6-540fb078e8bc"
+                    },
+                    "group": "frser-sqlite-datasource",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "queryText": "select * from uNodes;",
+                      "queryType": "table",
+                      "rawQueryText": "select * from uNodes;",
+                      "timeColumns": ["time", "ts"]
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "B"
+                }
+              }
+            ],
+            "queryOptions": {},
+            "transformations": []
+          }
+        },
+        "description": "",
+        "id": 1,
+        "links": [],
+        "title": "Common namespace (external)",
+        "vizConfig": {
+          "group": "vaduga-mapgl-panel",
+          "kind": "VizConfig",
+          "spec": {
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "thresholds"
+                },
+                "custom": {
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  }
+                },
+                "thresholds": {
+                  "mode": "percentage",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 20
+                    },
+                    {
+                      "color": "#6ED0E0",
+                      "value": 30
+                    },
+                    {
+                      "color": "#EF843C",
+                      "value": 40
+                    },
+                    {
+                      "color": "#E24D42",
+                      "value": 50
+                    },
+                    {
+                      "color": "#BA43A9",
+                      "value": 75
+                    },
+                    {
+                      "color": "dark-red",
+                      "value": 100
+                    }
+                  ]
+                }
+              },
+              "overrides": [
+                {
+                  "matcher": {
+                    "id": "byName",
+                    "options": "metric"
+                  },
+                  "properties": [
+                    {
+                      "id": "thresholds",
+                      "value": {
+                        "mode": "absolute",
+                        "steps": [
+                          {
+                            "color": "green",
+                            "value": 0
+                          },
+                          {
+                            "color": "red",
+                            "value": 0
+                          },
+                          {
+                            "color": "semi-dark-green",
+                            "value": 1
+                          },
+                          {
+                            "color": "light-blue",
+                            "value": 2
+                          },
+                          {
+                            "color": "semi-dark-orange",
+                            "value": 3
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            "options": {
+              "basemap": {
+                "config": {},
+                "name": "Layer 0",
+                "type": "blank"
+              },
+              "common": {
+                "edgeRouting": "Splines",
+                "isAppAuth": false,
+                "isMeters": false,
+                "isShowEdgeLegend": false,
+                "isShowLegend": false,
+                "isShowSwitcher": false,
+                "jitterPoints": false
+              },
+              "dataLayers": [
+                {
+                  "config": {
+                    "arcConfig": {
+                      "capacity": {
+                        "fixed": 1
+                      },
+                      "height": 0.5,
+                      "tiltIncrement": 7
+                    },
+                    "arcStyle": {
+                      "sideA": {
+                        "arrow": 1,
+                        "color": {
+                          "field": "metric",
+                          "fixed": "red"
+                        }
+                      },
+                      "sideB": {
+                        "arrow": -1,
+                        "color": {
+                          "field": "metric",
+                          "fixed": "dark-green"
+                        }
+                      }
+                    },
+                    "edgeStyle": {
+                      "arrow": -1,
+                      "color": {
+                        "field": "metric",
+                        "fixed": "light-red"
+                      },
+                      "opacity": 0.4,
+                      "size": {
+                        "fixed": 3,
+                        "max": 15,
+                        "min": 2
+                      },
+                      "textConfig": {
+                        "fontSize": 14
+                      }
+                    },
+                    "groups": [
+                      {
+                        "collapse": false,
+                        "color": "#3275d9b8",
+                        "iconName": "databases/knexjs",
+                        "label": "unode",
+                        "offset": -5,
+                        "overrides": [
+                          {
+                            "name": "thrColor",
+                            "type": "enum",
+                            "value": ["semi-dark-green"]
+                          },
+                          {
+                            "name": "namespaceA",
+                            "type": "string",
+                            "value": "nodes.aggr"
+                          }
+                        ]
+                      },
+                      {
+                        "collapse": false,
+                        "color": "#A352CC",
+                        "iconName": "databases/memsql",
+                        "label": "conn",
+                        "offset": -5,
+                        "overrides": [
+                          {
+                            "name": "thrColor",
+                            "type": "enum",
+                            "value": ["semi-dark-green"]
+                          },
+                          {
+                            "name": "namespaceA",
+                            "type": "string",
+                            "value": "nodes.aggr.conn, nodes.aggr.conn.mmm"
+                          }
+                        ]
+                      },
+                      {
+                        "collapse": false,
+                        "iconName": "networking/camera",
+                        "label": "U5",
+                        "offset": -5,
+                        "overrides": [
+                          {
+                            "name": "vertexA",
+                            "type": "string",
+                            "value": "U5"
+                          },
+                          {
+                            "name": "thrColor",
+                            "type": "enum",
+                            "value": ["semi-dark-green"]
+                          }
+                        ],
+                        "size": 85
+                      },
+                      {
+                        "collapse": true,
+                        "color": "#C4162A",
+                        "iconName": "",
+                        "label": "node-down",
+                        "offset": -5,
+                        "overrides": [
+                          {
+                            "name": "thrColor",
+                            "type": "enum",
+                            "value": ["red"]
+                          }
+                        ]
+                      }
+                    ],
+                    "showStat2": true,
+                    "style": {
+                      "arcs": [
+                        {
+                          "field": "",
+                          "fixed": "#B877D9"
+                        },
+                        {
+                          "field": "metric",
+                          "fixed": ""
+                        }
+                      ],
+                      "color": {
+                        "field": "metric",
+                        "fixed": "light-yellow"
+                      },
+                      "opacity": 0.3,
+                      "size": {
+                        "field": "metric",
+                        "fixed": 5,
+                        "max": 40,
+                        "min": 20
+                      },
+                      "text": {
+                        "field": "vertexA",
+                        "fixed": "",
+                        "mode": "field"
+                      },
+                      "textConfig": {
+                        "fontSize": 12
+                      },
+                      "useGroups": true
+                    }
+                  },
+                  "isShowTooltip": true,
+                  "locField": "vertexA",
+                  "location": {
+                    "mode": "auto"
+                  },
+                  "name": "unodes",
+                  "opacity": 0.4,
+                  "parField": "vertexB_path",
+                  "query": {
+                    "id": "byRefId",
+                    "options": "B"
+                  },
+                  "searchProperties": ["source", "target", "aggrType"],
+                  "type": "markers"
+                },
+                {
+                  "config": {
+                    "arcConfig": {
+                      "capacity": {
+                        "fixed": 1
+                      },
+                      "height": 0.2,
+                      "tiltIncrement": 20
+                    },
+                    "arcStyle": {
+                      "sideA": {
+                        "arrow": 1
+                      },
+                      "sideB": {
+                        "arrow": -1,
+                        "color": {
+                          "field": "bps",
+                          "fixed": "dark-green"
+                        }
+                      }
+                    },
+                    "edgeStyle": {
+                      "arrow": -1,
+                      "color": {
+                        "field": "metric",
+                        "fixed": "light-blue"
+                      },
+                      "opacity": 0.6,
+                      "size": {
+                        "fixed": 2.5,
+                        "max": 15,
+                        "min": 2
+                      },
+                      "text": {
+                        "field": "edge_id",
+                        "fixed": "",
+                        "mode": "field"
+                      },
+                      "textConfig": {
+                        "fontSize": 7
+                      }
+                    },
+                    "groups": [
+                      {
+                        "color": "#C4162A",
+                        "iconName": "networking/bridge",
+                        "label": "down",
+                        "offset": -5,
+                        "overrides": [
+                          {
+                            "name": "thrColor",
+                            "type": "enum",
+                            "value": ["red"]
+                          }
+                        ],
+                        "svgTintMode": "canvasTint"
+                      },
+                      {
+                        "color": "#73BF69",
+                        "iconName": "networking/atm-switch",
+                        "label": "up",
+                        "offset": -5,
+                        "overrides": [
+                          {
+                            "name": "thrColor",
+                            "type": "enum",
+                            "value": ["semi-dark-green"]
+                          }
+                        ],
+                        "size": 20,
+                        "svgTintMode": "canvasTint"
+                      },
+                      {
+                        "color": "#8AB8FF",
+                        "iconName": "networking/cloud",
+                        "label": "info",
+                        "offset": -5,
+                        "overrides": [
+                          {
+                            "name": "thrColor",
+                            "type": "enum",
+                            "value": ["light-blue"]
+                          }
+                        ],
+                        "svgTintMode": "canvasTint"
+                      },
+                      {
+                        "color": "#FF780A",
+                        "label": "danger",
+                        "offset": -5,
+                        "overrides": [
+                          {
+                            "name": "thrColor",
+                            "type": "enum",
+                            "value": ["semi-dark-orange"]
+                          }
+                        ]
+                      }
+                    ],
+                    "showStat2": true,
+                    "style": {
+                      "arcs": [
+                        {
+                          "field": "metric",
+                          "fixed": "#FFEE52"
+                        },
+                        {
+                          "field": "bps",
+                          "fixed": ""
+                        }
+                      ],
+                      "color": {
+                        "field": "metric",
+                        "fixed": "dark-purple"
+                      },
+                      "opacity": 0.2,
+                      "size": {
+                        "field": "metric",
+                        "fixed": 5,
+                        "max": 60,
+                        "min": 50
+                      },
+                      "text": {
+                        "field": "vertexA",
+                        "fixed": "",
+                        "mode": "field"
+                      },
+                      "textConfig": {
+                        "fontSize": 15
+                      },
+                      "useGroups": true
+                    }
+                  },
+                  "displayProperties": ["metric", "bps", "model", "vertexA"],
+                  "edgeIdField": "edge_id",
+                  "isShowTooltip": true,
+                  "locField": "vertexA",
+                  "location": {
+                    "mode": "auto"
+                  },
+                  "name": "switches",
+                  "opacity": 0.4,
+                  "parField": "vertexB_path",
+                  "query": {
+                    "id": "byRefId",
+                    "options": "A"
+                  },
+                  "type": "markers"
+                }
+              ],
+              "isEditable": false,
+              "updatesLog": true,
+              "view": {
+                "allLayers": true,
+                "id": "coords",
+                "lat": 853.946655,
+                "lon": 823.19874,
+                "padding": 0,
+                "zoom": -1.26
+              }
+            }
+          },
+          "version": "2.4.0"
+        }
+      }
+    },
+    "panel-2": {
+      "kind": "Panel",
+      "spec": {
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "b6c1a5f4-6225-4788-8ed6-540fb078e8bc"
+                    },
+                    "group": "frser-sqlite-datasource",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "queryText": "select * from switches;",
+                      "queryType": "table",
+                      "rawQueryText": "select * from switches;",
+                      "timeColumns": ["time", "ts"]
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "A"
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "b6c1a5f4-6225-4788-8ed6-540fb078e8bc"
+                    },
+                    "group": "frser-sqlite-datasource",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "queryText": "select * from uNodes;",
+                      "queryType": "table",
+                      "rawQueryText": "select * from uNodes;",
+                      "timeColumns": ["time", "ts"]
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "B"
+                }
+              }
+            ],
+            "queryOptions": {},
+            "transformations": []
+          }
+        },
+        "description": "",
+        "id": 2,
+        "links": [],
+        "title": "Nested namespaces",
+        "vizConfig": {
+          "group": "vaduga-mapgl-panel",
+          "kind": "VizConfig",
+          "spec": {
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "thresholds"
+                },
+                "custom": {
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  }
+                },
+                "thresholds": {
+                  "mode": "percentage",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 20
+                    },
+                    {
+                      "color": "#6ED0E0",
+                      "value": 30
+                    },
+                    {
+                      "color": "#EF843C",
+                      "value": 40
+                    },
+                    {
+                      "color": "#E24D42",
+                      "value": 50
+                    },
+                    {
+                      "color": "#BA43A9",
+                      "value": 75
+                    },
+                    {
+                      "color": "dark-red",
+                      "value": 100
+                    }
+                  ]
+                }
+              },
+              "overrides": [
+                {
+                  "matcher": {
+                    "id": "byName",
+                    "options": "metric"
+                  },
+                  "properties": [
+                    {
+                      "id": "thresholds",
+                      "value": {
+                        "mode": "absolute",
+                        "steps": [
+                          {
+                            "color": "green",
+                            "value": 0
+                          },
+                          {
+                            "color": "red",
+                            "value": 0
+                          },
+                          {
+                            "color": "semi-dark-green",
+                            "value": 1
+                          },
+                          {
+                            "color": "light-blue",
+                            "value": 2
+                          },
+                          {
+                            "color": "semi-dark-orange",
+                            "value": 3
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            "options": {
+              "basemap": {
+                "config": {},
+                "name": "Layer 0",
+                "type": "blank"
+              },
+              "common": {
+                "edgeRouting": "Rectilinear",
+                "isMeters": false,
+                "isShowEdgeLegend": true,
+                "isShowLegend": true,
+                "isShowSwitcher": true
+              },
+              "dataLayers": [
+                {
+                  "config": {
+                    "arcConfig": {
+                      "capacity": {
+                        "fixed": 1
+                      },
+                      "height": 0.5,
+                      "tiltIncrement": 7
+                    },
+                    "arcStyle": {
+                      "sideA": {
+                        "arrow": 1,
+                        "color": {
+                          "field": "metric",
+                          "fixed": "red"
+                        }
+                      },
+                      "sideB": {
+                        "arrow": -1,
+                        "color": {
+                          "field": "metric",
+                          "fixed": "dark-green"
+                        }
+                      }
+                    },
+                    "edgeStyle": {
+                      "arrow": -1,
+                      "color": {
+                        "field": "metric",
+                        "fixed": "light-red"
+                      },
+                      "opacity": 0.4,
+                      "size": {
+                        "fixed": 3,
+                        "max": 15,
+                        "min": 2
+                      },
+                      "textConfig": {
+                        "fontSize": 14
+                      }
+                    },
+                    "groups": [
+                      {
+                        "color": "#3275d9b8",
+                        "iconName": "databases/knexjs",
+                        "label": "unode",
+                        "offset": -5,
+                        "overrides": [
+                          {
+                            "name": "thrColor",
+                            "type": "enum",
+                            "value": ["semi-dark-green"]
+                          },
+                          {
+                            "name": "namespaceA",
+                            "type": "string",
+                            "value": "nodes.aggr"
+                          }
+                        ],
+                        "svgTintMode": "markup"
+                      },
+                      {
+                        "color": "#A352CC",
+                        "iconName": "databases/memsql",
+                        "label": "conn",
+                        "offset": -5,
+                        "overrides": [
+                          {
+                            "name": "thrColor",
+                            "type": "enum",
+                            "value": ["semi-dark-green"]
+                          },
+                          {
+                            "name": "namespaceA",
+                            "type": "string",
+                            "value": "nodes.aggr.conn, nodes.aggr.conn.mmm"
+                          }
+                        ]
+                      },
+                      {
+                        "iconName": "networking/camera",
+                        "label": "U5",
+                        "offset": -5,
+                        "overrides": [
+                          {
+                            "name": "vertexA",
+                            "type": "string",
+                            "value": "U5"
+                          },
+                          {
+                            "name": "thrColor",
+                            "type": "enum",
+                            "value": ["semi-dark-green"]
+                          }
+                        ],
+                        "size": 85,
+                        "svgTintMode": "none"
+                      },
+                      {
+                        "color": "#C4162A",
+                        "iconName": "",
+                        "label": "node-down",
+                        "offset": -5,
+                        "overrides": [
+                          {
+                            "name": "thrColor",
+                            "type": "enum",
+                            "value": ["red"]
+                          }
+                        ]
+                      }
+                    ],
+                    "showStat2": true,
+                    "style": {
+                      "arcs": [
+                        {
+                          "field": "",
+                          "fixed": "#B877D9"
+                        },
+                        {
+                          "field": "metric",
+                          "fixed": ""
+                        }
+                      ],
+                      "color": {
+                        "field": "metric",
+                        "fixed": "light-yellow"
+                      },
+                      "opacity": 0.2,
+                      "size": {
+                        "field": "metric",
+                        "fixed": 5,
+                        "max": 40,
+                        "min": 20
+                      },
+                      "text": {
+                        "field": "vertexA",
+                        "fixed": "",
+                        "mode": "field"
+                      },
+                      "textConfig": {
+                        "fontSize": 12
+                      },
+                      "useGroups": true
+                    },
+                    "vertexA_NS": "namespaceA",
+                    "vertexB_NS": "namespaceB"
+                  },
+                  "isShowTooltip": true,
+                  "locField": "vertexA",
+                  "location": {
+                    "mode": "auto"
+                  },
+                  "name": "unodes",
+                  "opacity": 0.4,
+                  "parField": "vertexB_path",
+                  "query": {
+                    "id": "byRefId",
+                    "options": "B"
+                  },
+                  "searchProperties": ["source", "target", "aggrType"],
+                  "type": "markers"
+                },
+                {
+                  "config": {
+                    "arcConfig": {
+                      "capacity": {
+                        "fixed": 1
+                      },
+                      "height": 0.2,
+                      "tiltIncrement": 20
+                    },
+                    "arcStyle": {
+                      "sideA": {
+                        "arrow": 1
+                      },
+                      "sideB": {
+                        "arrow": -1,
+                        "color": {
+                          "field": "bps",
+                          "fixed": "dark-green"
+                        }
+                      }
+                    },
+                    "edgeStyle": {
+                      "arrow": -1,
+                      "color": {
+                        "field": "metric",
+                        "fixed": "light-blue"
+                      },
+                      "opacity": 0.6,
+                      "size": {
+                        "fixed": 2.5,
+                        "max": 15,
+                        "min": 2
+                      },
+                      "text": {
+                        "field": "edge_id",
+                        "fixed": "",
+                        "mode": "field"
+                      },
+                      "textConfig": {
+                        "fontSize": 7
+                      }
+                    },
+                    "groups": [
+                      {
+                        "color": "#C4162A",
+                        "iconName": "networking/bridge",
+                        "label": "down",
+                        "offset": -5,
+                        "overrides": [
+                          {
+                            "name": "thrColor",
+                            "type": "enum",
+                            "value": ["red"]
+                          }
+                        ],
+                        "svgTintMode": "canvasTint"
+                      },
+                      {
+                        "color": "#73BF69",
+                        "iconName": "networking/atm-switch",
+                        "label": "up",
+                        "offset": -5,
+                        "overrides": [
+                          {
+                            "name": "thrColor",
+                            "type": "enum",
+                            "value": ["semi-dark-green"]
+                          }
+                        ],
+                        "size": 20,
+                        "svgTintMode": "canvasTint"
+                      },
+                      {
+                        "color": "#8AB8FF",
+                        "iconName": "networking/cloud",
+                        "label": "info",
+                        "offset": -5,
+                        "overrides": [
+                          {
+                            "name": "thrColor",
+                            "type": "enum",
+                            "value": ["light-blue"]
+                          }
+                        ],
+                        "svgTintMode": "canvasTint"
+                      },
+                      {
+                        "color": "#FF780A",
+                        "iconName": "",
+                        "label": "danger",
+                        "offset": -5,
+                        "overrides": [
+                          {
+                            "name": "thrColor",
+                            "type": "enum",
+                            "value": ["semi-dark-orange"]
+                          }
+                        ]
+                      }
+                    ],
+                    "showStat2": true,
+                    "style": {
+                      "arcs": [
+                        {
+                          "field": "metric",
+                          "fixed": "#FFEE52"
+                        },
+                        {
+                          "field": "bps",
+                          "fixed": ""
+                        }
+                      ],
+                      "color": {
+                        "field": "metric",
+                        "fixed": "dark-purple"
+                      },
+                      "opacity": 0.2,
+                      "size": {
+                        "field": "metric",
+                        "fixed": 5,
+                        "max": 60,
+                        "min": 50
+                      },
+                      "text": {
+                        "field": "vertexA",
+                        "fixed": "",
+                        "mode": "field"
+                      },
+                      "textConfig": {
+                        "fontSize": 15
+                      },
+                      "useGroups": true
+                    },
+                    "vertexA_NS": "namespaceA",
+                    "vertexB_NS": "namespaceB"
+                  },
+                  "displayProperties": ["metric", "bps", "model", "vertexA"],
+                  "edgeIdField": "edge_id",
+                  "isShowTooltip": true,
+                  "locField": "vertexA",
+                  "location": {
+                    "mode": "auto"
+                  },
+                  "name": "switches",
+                  "opacity": 0.4,
+                  "parField": "vertexB_path",
+                  "query": {
+                    "id": "byRefId",
+                    "options": "A"
+                  },
+                  "type": "markers"
+                }
+              ],
+              "isEditable": false,
+              "updatesLog": true,
+              "view": {
+                "allLayers": true,
+                "id": "coords",
+                "lat": 1527.085574,
+                "lon": 2494.912553,
+                "padding": 0,
+                "zoom": -2.26
+              }
+            }
+          },
+          "version": "2.4.0"
+        }
+      }
+    }
+  },
+  "layout": {
+    "kind": "GridLayout",
+    "spec": {
+      "items": [
+        {
+          "kind": "GridLayoutItem",
+          "spec": {
+            "element": {
+              "kind": "ElementReference",
+              "name": "panel-2"
+            },
+            "height": 21,
+            "width": 13,
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "kind": "GridLayoutItem",
+          "spec": {
+            "element": {
+              "kind": "ElementReference",
+              "name": "panel-1"
+            },
+            "height": 21,
+            "width": 10,
+            "x": 13,
+            "y": 0
+          }
+        }
+      ]
+    }
+  },
+  "links": [],
+  "liveNow": false,
   "preload": false,
-  "refresh": "",
-  "schemaVersion": 42,
   "tags": [],
-  "templating": {
-    "list": [
-      {
+  "timeSettings": {
+    "autoRefresh": "",
+    "autoRefreshIntervals": ["5s", "10s", "30s", "1m", "5m", "15m", "30m", "1h", "2h", "1d"],
+    "fiscalYearStartMonth": 0,
+    "from": "now-6h",
+    "hideTimepicker": false,
+    "timezone": "browser",
+    "to": "now"
+  },
+  "title": "Node Graph with namespaces",
+  "variables": [
+    {
+      "kind": "CustomVariable",
+      "spec": {
+        "allowCustomValue": true,
         "current": {
           "text": "1",
           "value": "1"
         },
+        "hide": "dontHide",
         "includeAll": false,
+        "multi": false,
         "name": "routed",
         "options": [],
         "query": "0,1",
-        "type": "custom",
+        "skipUrlSync": false,
         "valuesFormat": "csv"
       }
-    ]
-  },
-  "time": {
-    "from": "now-6h",
-    "to": "now"
-  },
-  "timepicker": {},
-  "timezone": "browser",
-  "title": "Node Graph with namespaces",
-  "uid": "gdn8bn",
-  "version": 1,
-  "weekStart": ""
+    }
+  ]
 }
