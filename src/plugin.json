@@ -40,15 +40,15 @@
     ],
     "screenshots": [
       {
-        "name": "Geomap",
+        "name": "Nodegraph",
         "path": "img/screenshots/screenshot1.png"
       },
       {
-        "name": "Nodegraph",
+        "name": "Namespaces",
         "path": "img/screenshots/screenshot2.png"
       },
       {
-        "name": "Dataframe",
+        "name": "Geomap",
         "path": "img/screenshots/screenshot3.png"
       }
     ],
