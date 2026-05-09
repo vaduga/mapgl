@@ -212,6 +212,7 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
 
   state!: {
     model?: Model;
+    segmentByPickingIndex?: Map<number, CurveEdgeSegment<DataT>>;
   };
 
   getShaders() {
@@ -276,6 +277,10 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
   updateState(params) {
     super.updateState(params);
 
+    if (params.changeFlags.dataChanged) {
+      this.setState({ segmentByPickingIndex: getSegmentByPickingIndex(this.props.data) });
+    }
+
     if (params.changeFlags.extensionsChanged) {
       this.state.model?.destroy();
       this.state.model = this._getModel();
@@ -288,7 +293,7 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
     const segment =
       (info.object as CurveEdgeSegment<DataT> | undefined)?.pickingIndex === info.index
         ? (info.object as CurveEdgeSegment<DataT>)
-        : this.props.data.find((item) => item.pickingIndex === info.index);
+        : this.state.segmentByPickingIndex?.get(info.index);
 
     if (segment?.feature) {
       info.object = segment.feature;
@@ -338,4 +343,14 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
       isInstanced: true,
     });
   }
+}
+
+function getSegmentByPickingIndex<DataT>(segments: Array<CurveEdgeSegment<DataT>>) {
+  const segmentByPickingIndex = new Map<number, CurveEdgeSegment<DataT>>();
+  for (const segment of segments) {
+    if (!segmentByPickingIndex.has(segment.pickingIndex)) {
+      segmentByPickingIndex.set(segment.pickingIndex, segment);
+    }
+  }
+  return segmentByPickingIndex;
 }
