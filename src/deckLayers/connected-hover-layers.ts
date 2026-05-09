@@ -1,8 +1,7 @@
 import { GeoJsonLayer, IconLayer, ScatterplotLayer } from '@deck.gl/layers';
-import { DeckLine } from 'mapLib/utils';
+import { DeckLine, RGBAColor } from 'mapLib/utils';
 import type { Graph } from 'mapLib';
 import { toRGB4Array } from '../utils';
-import { DARK_AUTO_HIGHLIGHT, LIGHT_AUTO_HIGHLIGHT } from 'mapLib/utils';
 import { getCurveSegments } from './GeoJsonEdgesLayer/edges-geojson-layer';
 import { CurveEdgeLayer } from './GeoJsonEdgesLayer/curve-edge-layer';
 import {
@@ -22,13 +21,10 @@ type ConnectedHoverLayerOptions = {
   lineFeaturesByGraph: Record<string, DeckLine[]>;
   isLogic: boolean;
   isMeters?: boolean;
-  isDark: boolean;
 };
 
 export function getConnectedHoverLayers(opts: ConnectedHoverLayerOptions) {
-  const { graph, positions, connectedNodeIds, connectedEdgeIndexes, lineFeaturesByGraph, isLogic, isMeters, isDark } =
-    opts;
-  const color = toRGB4Array(isDark ? LIGHT_AUTO_HIGHLIGHT : DARK_AUTO_HIGHLIGHT, 1);
+  const { graph, positions, connectedNodeIds, connectedEdgeIndexes, lineFeaturesByGraph, isLogic, isMeters } = opts;
   const edgeFeatures = connectedEdgeIndexes
     .map(({ graphId, lineId }) => lineFeaturesByGraph?.[graphId]?.[lineId])
     .filter(Boolean) as DeckLine[];
@@ -39,27 +35,24 @@ export function getConnectedHoverLayers(opts: ConnectedHoverLayerOptions) {
       features: edgeFeatures,
       isLogic,
       isMeters,
-      color,
     }),
     getConnectedHoverArrowLayer({
       graph,
       features: edgeFeatures,
       isLogic,
       isMeters,
-      color,
     }),
     getConnectedHoverNodeLayer({
       graph,
       positions,
       connectedNodeIds,
       isLogic,
-      color,
     }),
   ];
 }
 
 function getConnectedHoverNodeLayer(opts) {
-  const { graph, positions, connectedNodeIds, isLogic, color } = opts;
+  const { graph, positions, connectedNodeIds, isLogic } = opts;
   const data = Array.from(connectedNodeIds)
     .map((nodeId) => {
       const node = graph.findNodeRecursive(nodeId);
@@ -75,10 +68,12 @@ function getConnectedHoverNodeLayer(opts) {
       }
 
       const size = node?.data?.feature?.style?.size ?? 10;
+      const style = node?.data?.feature?.style;
       return {
         nodeId,
         position: [x, y],
         radius: (size / 2) * 1.2,
+        color: getStyleColor(style),
       };
     })
     .filter(Boolean);
@@ -96,7 +91,7 @@ function getConnectedHoverNodeLayer(opts) {
     getPosition: (d: any) => d.position,
     getRadius: (d: any) => d.radius,
     getLineWidth: 8,
-    getLineColor: color,
+    getLineColor: (d: any) => d.color,
     parameters: {
       depthTest: false,
     },
@@ -104,7 +99,7 @@ function getConnectedHoverNodeLayer(opts) {
 }
 
 function getConnectedHoverEdgeLayer(opts) {
-  const { graph, features, isLogic, isMeters, color } = opts;
+  const { graph, features, isLogic, isMeters } = opts;
 
   if (isLogic) {
     const curveSegments = getCurveSegments(features, graph.getWasmId2Edges);
@@ -115,7 +110,7 @@ function getConnectedHoverEdgeLayer(opts) {
       visible: curveSegments.length > 0,
       pickable: false,
       getWidth: (d: any) => Math.max(3, (d.feature?.properties?.edgeStyle?.size ?? 1) * 2),
-      getColor: color,
+      getColor: (d: any) => getEdgeColor(d.feature),
       widthUnits: isMeters ? 'meters' : 'pixels',
       widthScale: 1,
       widthMinPixels: 2,
@@ -135,7 +130,7 @@ function getConnectedHoverEdgeLayer(opts) {
     lineWidthUnits: 'pixels',
     lineWidthMinPixels: 2,
     getLineWidth: (d: any) => Math.max(3, (d.properties?.edgeStyle?.size ?? 1) * 2),
-    getLineColor: color,
+    getLineColor: getEdgeColor,
     parameters: {
       depthTest: false,
     },
@@ -143,7 +138,7 @@ function getConnectedHoverEdgeLayer(opts) {
 }
 
 function getConnectedHoverArrowLayer(opts) {
-  const { graph, features, isLogic, isMeters, color } = opts;
+  const { graph, features, isLogic, isMeters } = opts;
   const arrowData = expandArrowItems(features, graph.getWasmId2Edges);
   const sizeUnits = isLogic ? 'common' : isMeters ? 'meters' : 'pixels';
 
@@ -155,8 +150,8 @@ function getConnectedHoverArrowLayer(opts) {
     billboard: false,
     getPosition: (d: any) => getArrowAnchorPosition(d.feature, d.placement) ?? [0, 0],
     getAngle: (d: any) => getFeatureArrowAngle(d.feature, d.placement, !isLogic),
-    getSize: (d: any) => getArrowSize(d.feature),
-    getColor: color,
+    getSize: (d: any) => getArrowSize(d.feature) * 1.2,
+    getColor: (d: any) => getEdgeColor(d.feature),
     iconAtlas: getIconAtlasImage() as any,
     iconMapping,
     getIcon: () => (isLogic && sizeUnits === 'pixels' ? 'triangle-n-ex' : 'triangle-n'),
@@ -169,4 +164,24 @@ function getConnectedHoverArrowLayer(opts) {
         }
       : {}),
   });
+}
+
+function getEdgeColor(feature): RGBAColor {
+  const edgeStyle = feature?.properties?.edgeStyle;
+  return getStyleColor(edgeStyle);
+}
+
+function getStyleColor(style, opacity?: number): RGBAColor {
+  const color = style?.group?.color ?? style?.color;
+  return normalizeColor(color, opacity);
+}
+
+function normalizeColor(color, opacity?: number): RGBAColor {
+  if (Array.isArray(color)) {
+    const rgba = [...color] as RGBAColor;
+    rgba[3] = 255;
+    return rgba;
+  }
+
+  return toRGB4Array(color, 1);
 }

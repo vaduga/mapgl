@@ -51,6 +51,7 @@ import { getConnectedHoverLayers } from '../deckLayers/connected-hover-layers';
 
 
 const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, replaceVariables, eventBus }) => {
+  const HOVER_HIGHLIGHT_DELAY_MS = 150;
   const { pointStore, viewStore } = useRootStore();
   const { setVisRefresh: setMobxLegendRefresh } = viewStore;
 
@@ -100,6 +101,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
   const lineFeaturesRef = useRef<Record<string, DeckLine[]>>({});
   const svgTintRefreshFrameRef = useRef<number | null>(null);
+  const hoverHighlightTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!time || !annots?.length) {
@@ -211,6 +213,9 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
       if (svgTintRefreshFrameRef.current !== null) {
         cancelAnimationFrame(svgTintRefreshFrameRef.current);
       }
+      if (hoverHighlightTimeoutRef.current !== null) {
+        clearTimeout(hoverHighlightTimeoutRef.current);
+      }
     };
   }, []);
 
@@ -251,7 +256,21 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
   const onDeckHover = useCallback(
     (info: any) => {
       setHoverInfo(info);
-      setHoveredNodeFromPickingInfo(info);
+
+      if (hoverHighlightTimeoutRef.current !== null) {
+        clearTimeout(hoverHighlightTimeoutRef.current);
+        hoverHighlightTimeoutRef.current = null;
+      }
+
+      if (!info?.picked) {
+        setHoveredNodeFromPickingInfo(info);
+        return;
+      }
+
+      hoverHighlightTimeoutRef.current = setTimeout(() => {
+        hoverHighlightTimeoutRef.current = null;
+        setHoveredNodeFromPickingInfo(info);
+      }, HOVER_HIGHLIGHT_DELAY_MS);
     },
     [setHoveredNodeFromPickingInfo]
   );
@@ -287,6 +306,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
   };
 
   const hoverRevision = pointStore.getHoverRevision;
+  const hasHoverHighlight = pointStore.getHasHoverHighlight;
 
   const connectedHoverLayers = useMemo(
     () =>
@@ -298,14 +318,14 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
         lineFeaturesByGraph: lineFeaturesRef.current,
         isLogic,
         isMeters: options.common?.isMeters,
-        isDark: theme2.isDark,
       }),
-    [hoverRevision, pointStore, graph, graph.getVersion, isLogic, options.common?.isMeters, panel.positions, theme2.isDark]
+    [hoverRevision, pointStore, graph, graph.getVersion, isLogic, options.common?.isMeters, panel.positions]
   );
 
   const renderedLayers = useMemo(() => {
-    return [...layers, ...connectedHoverLayers].filter(Boolean);
-  }, [layers, connectedHoverLayers]);
+    const baseLayers = hasHoverHighlight ? layers.map((layer) => layer.clone({ opacity: 0.18 })) : layers;
+    return [...baseLayers, ...connectedHoverLayers].filter(Boolean);
+  }, [layers, connectedHoverLayers, hasHoverHighlight]);
 
 
   useEffect(() => {

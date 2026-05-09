@@ -17,6 +17,7 @@ class PointStore {
   isShowCenter: ViewState | undefined;
   selEdges: Edge[] = [];
   hoveredNodeId: string | null = null;
+  hoveredEdgeId: string | null = null;
   hoverRevision = 0;
   hoverHighlighter = new GraphHighlighter();
   commentOpenIdx = -1;
@@ -161,6 +162,14 @@ class PointStore {
     return this.hoveredNodeId;
   }
 
+  get getHoveredEdgeId() {
+    return this.hoveredEdgeId;
+  }
+
+  get getHasHoverHighlight() {
+    return Boolean(this.hoveredNodeId || this.hoveredEdgeId);
+  }
+
   get getHoverRevision() {
     return this.hoverRevision;
   }
@@ -184,29 +193,60 @@ class PointStore {
   setHoveredNodeId = (nodeId: string | null) => {
     this.hoverHighlighter.setGraph(this.root.graph);
 
-    if (this.hoveredNodeId === nodeId) {
+    if (this.hoveredNodeId === nodeId && !this.hoveredEdgeId) {
       return;
     }
 
     this.hoveredNodeId = nodeId;
+    this.hoveredEdgeId = null;
     this.hoverHighlighter.update({ sourceId: nodeId, maxDepth: 1 });
+    this.hoverRevision += 1;
+  };
+
+  setHoveredEdgeId = (edgeId: string | null) => {
+    this.hoverHighlighter.setGraph(this.root.graph);
+
+    if (this.hoveredEdgeId === edgeId && !this.hoveredNodeId) {
+      return;
+    }
+
+    this.hoveredNodeId = null;
+    this.hoveredEdgeId = edgeId;
+    this.hoverHighlighter.updateEdge({ edgeId });
     this.hoverRevision += 1;
   };
 
   refreshHoverHighlighter = () => {
     this.hoverHighlighter.setGraph(this.root.graph, { force: true });
-    this.hoverHighlighter.update({ sourceId: this.hoveredNodeId, maxDepth: 1 });
+    if (this.hoveredEdgeId) {
+      this.hoverHighlighter.updateEdge({ edgeId: this.hoveredEdgeId });
+    } else {
+      this.hoverHighlighter.update({ sourceId: this.hoveredNodeId, maxDepth: 1 });
+    }
     this.hoverRevision += 1;
   };
 
   setHoveredNodeFromPickingInfo = (info: any) => {
     if (!info?.picked) {
-      this.setHoveredNodeId(null);
+      this.setHoveredElement(null, null);
       return;
     }
 
     const nodeId = this.getNodeIdFromPickingInfo(info);
-    this.setHoveredNodeId(nodeId);
+    if (nodeId) {
+      this.setHoveredNodeId(nodeId);
+      return;
+    }
+
+    this.setHoveredEdgeId(this.getEdgeIdFromPickingInfo(info));
+  };
+
+  setHoveredElement = (nodeId: string | null, edgeId: string | null) => {
+    if (nodeId) {
+      this.setHoveredNodeId(nodeId);
+    } else {
+      this.setHoveredEdgeId(edgeId);
+    }
   };
 
   setDrawerOpen = (flag) => {
@@ -304,6 +344,12 @@ class PointStore {
     const graph = props.root instanceof Graph ? props.root : this.root.graph;
     const node = graph.findNode(locName) ?? this.root.graph.findNodeRecursive(locName);
     return node?.id ?? null;
+  }
+
+  private getEdgeIdFromPickingInfo(info: any): string | null {
+    const object = info.object;
+    const edgeId = object?.edgeId ?? object?.properties?.edgeId;
+    return edgeId ?? null;
   }
 }
 

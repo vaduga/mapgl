@@ -11,13 +11,20 @@ type AdjacentItem = {
   edges: Edge[];
 };
 
+type EdgeHighlightItem = {
+  nodeIds: string[];
+  edgeIds: string[];
+};
+
 export class GraphHighlighter {
   private graph?: Graph;
   private graphVersion?: number;
   private nodeMap = new Map<string, Node>();
   private adjacency = new Map<string, AdjacentItem[]>();
   private edgeIndexes = new Map<string, ConnectedEdgeIndex>();
+  private edgeHighlights = new Map<string, EdgeHighlightItem>();
   private lastSourceId?: string | null;
+  private lastEdgeId?: string | null;
   private lastMaxDepth = 1;
   private connectedNodeIds = new Set<string>();
   private connectedEdgeIndexes: ConnectedEdgeIndex[] = [];
@@ -33,6 +40,7 @@ export class GraphHighlighter {
     this.nodeMap.clear();
     this.adjacency.clear();
     this.edgeIndexes.clear();
+    this.edgeHighlights.clear();
     this.connectedNodeIds.clear();
     this.connectedEdgeIndexes = [];
 
@@ -53,6 +61,8 @@ export class GraphHighlighter {
 
       const firstEdge = edges[0];
       const lastEdge = edges[edges.length - 1];
+      const edgeIds = edges.map((edge) => edge.id);
+      const nodeIds = [firstEdge.source.id, lastEdge.target.id];
 
       this.addAdjacent(firstEdge.source, lastEdge.target, edges);
       if (firstEdge.source !== lastEdge.target) {
@@ -61,6 +71,7 @@ export class GraphHighlighter {
 
       for (const edge of edges) {
         this.addEdgeIndex(edge);
+        this.edgeHighlights.set(edge.id, { nodeIds, edgeIds });
       }
     }
 
@@ -75,6 +86,10 @@ export class GraphHighlighter {
       }
 
       this.addEdgeIndex(edge);
+      this.edgeHighlights.set(edge.id, {
+        nodeIds: [edge.source.id, edge.target.id],
+        edgeIds: [edge.id],
+      });
     }
 
     this.update({ sourceId: null });
@@ -87,6 +102,7 @@ export class GraphHighlighter {
     }
 
     this.lastSourceId = sourceId;
+    this.lastEdgeId = null;
     this.lastMaxDepth = maxDepth;
     this.connectedNodeIds = new Set<string>();
     const connectedEdgeIds = new Set<string>();
@@ -122,6 +138,33 @@ export class GraphHighlighter {
     this.connectedEdgeIndexes = Array.from(connectedEdgeIds)
       .map((edgeId) => this.edgeIndexes.get(edgeId))
       .filter((item): item is ConnectedEdgeIndex => Boolean(item));
+  }
+
+  updateEdge(opts: { edgeId: string | null }) {
+    const { edgeId } = opts;
+    if (edgeId === this.lastEdgeId) {
+      return;
+    }
+
+    this.lastEdgeId = edgeId;
+    this.lastSourceId = null;
+    this.connectedNodeIds = new Set<string>();
+
+    if (!edgeId) {
+      this.connectedEdgeIndexes = [];
+      return;
+    }
+
+    const item = this.edgeHighlights.get(edgeId);
+    if (!item) {
+      this.connectedEdgeIndexes = [];
+      return;
+    }
+
+    this.connectedNodeIds = new Set(item.nodeIds);
+    this.connectedEdgeIndexes = item.edgeIds
+      .map((id) => this.edgeIndexes.get(id))
+      .filter((edgeIndex): edgeIndex is ConnectedEdgeIndex => Boolean(edgeIndex));
   }
 
   getConnectedNodeIds(): Set<string> {
