@@ -66,6 +66,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     getSelectedIdxs,
     getSelEdges,
     setHoveredNodeFromPickingInfo,
+    setHoveredElement,
     refreshHoverHighlighter,
     setTooltipObject,
     setDrawerOpen,
@@ -248,6 +249,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     setTooltipObject,
     setLocalViewState,
     setHoverInfo,
+    setHoveredElement,
     setDrawerOpen,
     getTooltipObject,
     //</editor-fold>
@@ -263,7 +265,6 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
       }
 
       if (!info?.picked) {
-        setHoveredNodeFromPickingInfo(info);
         return;
       }
 

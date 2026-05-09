@@ -9,7 +9,14 @@ export const expandTooltip = (
   dataClickProps: any,
   selectGotoHandler: any
 ) => {
-  const { setSelCoord, setIsShowCenter, setTooltipObject, setLocalViewState, pId } = dataClickProps;
+  const {
+    setSelCoord,
+    setIsShowCenter,
+    setTooltipObject,
+    setLocalViewState,
+    setHoveredElement,
+    pId
+  } = dataClickProps;
   const position = info.coordinate;
   if (position) {
     const [longitude, latitude] = position.map((e: number) => parseFloat(e.toFixed(6)));
@@ -116,6 +123,7 @@ export const expandTooltip = (
     }
   } else {
     // reset tooltip by clicking blank space
+    setHoveredElement?.(null, null);
     setIsShowCenter(null);
     selectGotoHandler({ pId, eventBus, select: true });
     setTooltipObject({});
