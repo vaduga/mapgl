@@ -16,7 +16,7 @@ import type { Edge } from 'mapLib';
 
 type ArrowFeature = DeckLine<Geometry, PointFeatureProperties>;
 type ArrowPlacement = 'start' | 'end';
-type ArrowItem = {
+export type ArrowItem = {
   feature: ArrowFeature;
   placement: ArrowPlacement;
   lineIndex: number;
@@ -47,7 +47,7 @@ function getArrowBaseAndTip(
   return { base: pts.tip, tip: arrowTip };
 }
 
-function getArrowAnchorPosition(d: ArrowFeature, placement: ArrowPlacement): [number, number] | null {
+export function getArrowAnchorPosition(d: ArrowFeature, placement: ArrowPlacement): [number, number] | null {
   const pts = getArrowBaseAndTip(d, placement);
   return pts ? pts.tip : null;
 }
@@ -85,12 +85,12 @@ function getFirstPoints(d: ArrowFeature): { base: [number, number]; tip: [number
   return { base, tip };
 }
 
-function getFeatureArrowAngle(d: ArrowFeature, placement: ArrowPlacement, isGeo: boolean): number {
+export function getFeatureArrowAngle(d: ArrowFeature, placement: ArrowPlacement, isGeo: boolean): number {
   const pts = getArrowBaseAndTip(d, placement);
   return pts ? getArrowAngle(pts.base, pts.tip, isGeo) : 0;
 }
 
-function getArrowSize(d: ArrowFeature): number {
+export function getArrowSize(d: ArrowFeature): number {
   return getEdgeArrowSize(d?.properties?.edgeStyle?.size);
 }
 
@@ -114,7 +114,7 @@ function getArrowColor(d: ArrowFeature, getGroupsLegend?: any): RGBAColor {
   return muted;
 }
 
-function expandArrowItems(data: ArrowFeature[] = [], getWasmId2Edges: Edge[][]): ArrowItem[] {
+export function expandArrowItems(data: ArrowFeature[] = [], getWasmId2Edges: Edge[][]): ArrowItem[] {
   const items: ArrowItem[] = [];
 
   const createItem = (

@@ -31,6 +31,7 @@ import {
   ANNOTS_LABEL,
   NS_SEPARATOR,
   ComFeature,
+  DeckLine,
   colTypes,
   ViewState,
   sortAnnotations,
@@ -46,6 +47,7 @@ import { BinaryPointFeature } from '@loaders.gl/schema';
 
 import { ThresholdEdgeChangeEvent } from '../utils/bus.events';
 import { useFullscreenPortalBridge } from './hooks/useFullscreenPortalBridge';
+import { getConnectedHoverLayers } from '../deckLayers/connected-hover-layers';
 
 
 const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, replaceVariables, eventBus }) => {
@@ -62,6 +64,8 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     getSelectedNode,
     getSelectedIdxs,
     getSelEdges,
+    setHoveredNodeFromPickingInfo,
+    refreshHoverHighlighter,
     setTooltipObject,
     setDrawerOpen,
     getSelCoord,
@@ -94,9 +98,8 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
   const hasAnnots = !!data.annotations?.length;
   const layerCount = panel.layers.length;
 
-  const layerCacheRef = useRef<any>(null);
+  const lineFeaturesRef = useRef<Record<string, DeckLine[]>>({});
   const svgTintRefreshFrameRef = useRef<number | null>(null);
-  const DEBUG_DISABLE_NODE_CACHE = true;
 
   useEffect(() => {
     if (!time || !annots?.length) {
@@ -245,6 +248,14 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     //</editor-fold>
   };
 
+  const onDeckHover = useCallback(
+    (info: any) => {
+      setHoverInfo(info);
+      setHoveredNodeFromPickingInfo(info);
+    },
+    [setHoveredNodeFromPickingInfo]
+  );
+
   const layerProps = {
     //<editor-fold desc="layerProps">
     ...dataClickProps,
@@ -254,7 +265,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     pickable: true,
     autoHighlight: true,
     highlightColor: toRGB4Array(theme2.isDark ? DARK_AUTO_HIGHLIGHT : LIGHT_AUTO_HIGHLIGHT, 1),
-    onHover: setHoverInfo, //!hoverInfo.objects &&
+    onHover: onDeckHover, //!hoverInfo.objects &&
     hasAnnots,
     setVisRefresh,
     getSelectedNode,
@@ -274,6 +285,27 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     isLogic,
     //</editor-fold>
   };
+
+  const hoverRevision = pointStore.getHoverRevision;
+
+  const connectedHoverLayers = useMemo(
+    () =>
+      getConnectedHoverLayers({
+        graph,
+        positions: panel.positions,
+        connectedNodeIds: pointStore.getHoveredConnectedNodeIds,
+        connectedEdgeIndexes: pointStore.getHoveredConnectedEdgeIndexes,
+        lineFeaturesByGraph: lineFeaturesRef.current,
+        isLogic,
+        isMeters: options.common?.isMeters,
+        isDark: theme2.isDark,
+      }),
+    [hoverRevision, pointStore, graph, graph.getVersion, isLogic, options.common?.isMeters, panel.positions, theme2.isDark]
+  );
+
+  const renderedLayers = useMemo(() => {
+    return [...layers, ...connectedHoverLayers].filter(Boolean);
+  }, [layers, connectedHoverLayers]);
 
 
   useEffect(() => {
@@ -352,6 +384,8 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     let initComments: CommentsData = {};
     const edgesGeometry = graph.getEdgesGeometry;
     const initLineFeatures: any = isHyper ? edgesGeometry[0] : edgesGeometry[1];
+    lineFeaturesRef.current = initLineFeatures ?? {};
+    refreshHoverHighlighter();
 
     if (!isLogic) {
       for (const subGraph of graphs) {
@@ -630,7 +664,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
         widgets={widgets}
         views={views}
         ref={deckRef}
-        layers={layers}
+        layers={renderedLayers}
         initialViewState={deckViewState}
         controller={{
           dragMode: 'pan',

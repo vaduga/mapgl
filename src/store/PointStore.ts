@@ -5,6 +5,7 @@ import { Edge, Graph, Node } from 'mapLib';
 import { SelectNodeEvent } from '../utils/bus.events';
 import { Subscription } from 'rxjs';
 import type { DeckGLRefWithViewManager } from '../types';
+import { GraphHighlighter } from '../deckLayers/graph-highlighter';
 
 class PointStore {
   root: RootStore;
@@ -15,6 +16,9 @@ class PointStore {
   selectedNode: Node | undefined | null;
   isShowCenter: ViewState | undefined;
   selEdges: Edge[] = [];
+  hoveredNodeId: string | null = null;
+  hoverRevision = 0;
+  hoverHighlighter = new GraphHighlighter();
   commentOpenIdx = -1;
   selCoord?: {
     coordinates: [number, number];
@@ -39,6 +43,7 @@ class PointStore {
     const { panel, graph, subs, eventBus, pId } = this.root;
     const isLogic = panel.isLogic;
     const replaceVariables = root.replaceVariables;
+    this.hoverHighlighter.setGraph(graph);
     const nodeId = replaceVariables('$nodeId');
     //const edgeId = replaceVariables('$edgeId');
     let node, edge;
@@ -152,12 +157,56 @@ class PointStore {
     return this.selEdges;
   }
 
+  get getHoveredNodeId() {
+    return this.hoveredNodeId;
+  }
+
+  get getHoverRevision() {
+    return this.hoverRevision;
+  }
+
+  get getHoveredConnectedNodeIds() {
+    return this.hoverHighlighter.getConnectedNodeIds();
+  }
+
+  get getHoveredConnectedEdgeIndexes() {
+    return this.hoverHighlighter.getConnectedEdgeIndexes();
+  }
+
   setSelCoord = (newSelCoord) => {
     this.selCoord = newSelCoord;
   };
 
   setSelEdges = (edges: Edge[]) => {
     this.selEdges = edges;
+  };
+
+  setHoveredNodeId = (nodeId: string | null) => {
+    this.hoverHighlighter.setGraph(this.root.graph);
+
+    if (this.hoveredNodeId === nodeId) {
+      return;
+    }
+
+    this.hoveredNodeId = nodeId;
+    this.hoverHighlighter.update({ sourceId: nodeId, maxDepth: 1 });
+    this.hoverRevision += 1;
+  };
+
+  refreshHoverHighlighter = () => {
+    this.hoverHighlighter.setGraph(this.root.graph, { force: true });
+    this.hoverHighlighter.update({ sourceId: this.hoveredNodeId, maxDepth: 1 });
+    this.hoverRevision += 1;
+  };
+
+  setHoveredNodeFromPickingInfo = (info: any) => {
+    if (!info?.picked) {
+      this.setHoveredNodeId(null);
+      return;
+    }
+
+    const nodeId = this.getNodeIdFromPickingInfo(info);
+    this.setHoveredNodeId(nodeId);
   };
 
   setDrawerOpen = (flag) => {
@@ -229,6 +278,33 @@ class PointStore {
   dispose = () => {
     this.eventSub.unsubscribe();
   };
+
+  private getNodeIdFromPickingInfo(info: any): string | null {
+    let props = info.object?.properties ?? info.object;
+    const points = info.sourceLayer?.props?.data?.points ?? info.layer?.props?.data?.points;
+    let isNodePick = false;
+
+    if (points && (info.featureType === 'points' || info.viewport?.id === '3d-scene') && info.index !== -1) {
+      const idx = points.featureIds?.value?.[info.index];
+      props = this.root.panel.features?.[idx];
+      isNodePick = true;
+    } else if (info.object?.pointIndex !== undefined) {
+      isNodePick = true;
+    }
+
+    if (!isNodePick) {
+      return null;
+    }
+
+    const locName = props?.locName;
+    if (!locName) {
+      return null;
+    }
+
+    const graph = props.root instanceof Graph ? props.root : this.root.graph;
+    const node = graph.findNode(locName) ?? this.root.graph.findNodeRecursive(locName);
+    return node?.id ?? null;
+  }
 }
 
 export default PointStore;

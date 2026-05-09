@@ -144,7 +144,7 @@ function getFeatureGeomEdges(feature: DeckLine, getWasmId2Edges) {
   return edges;
 }
 
-function getCurveSegments(features: DeckLine[], getWasmId2Edges): Array<CurveEdgeSegment<DeckLine>> {
+export function getCurveSegments(features: DeckLine[], getWasmId2Edges): Array<CurveEdgeSegment<DeckLine>> {
   const segments: Array<CurveEdgeSegment<DeckLine>> = [];
 
   features.forEach((feature, featureIndex) => {
