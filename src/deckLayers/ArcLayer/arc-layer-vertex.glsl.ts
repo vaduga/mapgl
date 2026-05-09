@@ -236,7 +236,7 @@ void main(void) {
 float easingFactor = 7.0; // Increase this value to tighten the blend more to the center
 float adjustedRatio = smoothstep(0.5 - 0.5 / easingFactor, 0.5 + 0.5 / easingFactor, segmentRatio);
 vec4 color = mix(instanceSourceColors, instanceTargetColors, adjustedRatio);
-  vColor = vec4(color.rgb, color.a); // * arc.opacity); 
+  vColor = vec4(color.rgb, color.a * layer.opacity);
   DECKGL_FILTER_COLOR(vColor, geometry);
 }
 `;

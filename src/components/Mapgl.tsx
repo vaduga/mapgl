@@ -47,11 +47,11 @@ import { BinaryPointFeature } from '@loaders.gl/schema';
 
 import { ThresholdEdgeChangeEvent } from '../utils/bus.events';
 import { useFullscreenPortalBridge } from './hooks/useFullscreenPortalBridge';
-import { getConnectedHoverLayers } from '../deckLayers/connected-hover-layers';
+import { getConnectedHoverLayers, getDimmedGraphLayers } from '../deckLayers/connected-hover-layers';
 
 
 const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, replaceVariables, eventBus }) => {
-  const HOVER_HIGHLIGHT_DELAY_MS = 150;
+  const HOVER_HIGHLIGHT_DELAY_MS = 100;
   const { pointStore, viewStore } = useRootStore();
   const { setVisRefresh: setMobxLegendRefresh } = viewStore;
 
@@ -312,20 +312,22 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     () =>
       getConnectedHoverLayers({
         graph,
-        positions: panel.positions,
+        graphLayers: layers,
         connectedNodeIds: pointStore.getHoveredConnectedNodeIds,
         connectedEdgeIndexes: pointStore.getHoveredConnectedEdgeIndexes,
         lineFeaturesByGraph: lineFeaturesRef.current,
         isLogic,
+        isHyper,
+        isDark: theme2.isDark,
         isMeters: options.common?.isMeters,
       }),
-    [hoverRevision, pointStore, graph, graph.getVersion, isLogic, options.common?.isMeters, panel.positions]
+    [hoverRevision, pointStore, graph, graph.getVersion, layers, isLogic, isHyper, theme2.isDark, options.common?.isMeters]
   );
 
   const renderedLayers = useMemo(() => {
-    const baseLayers = hasHoverHighlight ? layers.map((layer) => layer.clone({ opacity: 0.18 })) : layers;
+    const baseLayers = hasHoverHighlight ? getDimmedGraphLayers(layers, pointStore.getHoveredConnectedNodeIds) : layers;
     return [...baseLayers, ...connectedHoverLayers].filter(Boolean);
-  }, [layers, connectedHoverLayers, hasHoverHighlight]);
+  }, [layers, connectedHoverLayers, hasHoverHighlight, pointStore]);
 
 
   useEffect(() => {

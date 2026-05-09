@@ -2,7 +2,8 @@ import type { Edge, Graph, Node } from 'mapLib';
 
 export type ConnectedEdgeIndex = {
   graphId: string;
-  lineId: number;
+  lineId?: number;
+  arcId?: number;
   edge: Edge;
 };
 
@@ -112,6 +113,7 @@ export class GraphHighlighter {
       return;
     }
 
+    this.connectedNodeIds.add(sourceId);
     const visited = new Set<string>([sourceId]);
     const queue: Array<{ nodeId: string; depth: number }> = [{ nodeId: sourceId, depth: 0 }];
 
@@ -134,7 +136,6 @@ export class GraphHighlighter {
       }
     }
 
-    this.connectedNodeIds.delete(sourceId);
     this.connectedEdgeIndexes = Array.from(connectedEdgeIds)
       .map((edgeId) => this.edgeIndexes.get(edgeId))
       .filter((item): item is ConnectedEdgeIndex => Boolean(item));
@@ -187,11 +188,11 @@ export class GraphHighlighter {
   }
 
   private addEdgeIndex(edge: Edge) {
-    if (edge.lineId === undefined) {
+    if (edge.lineId === undefined && edge.arcId === undefined) {
       return;
     }
 
     const graphId = String((edge.source.parent as Graph)?.id ?? '');
-    this.edgeIndexes.set(edge.id, { graphId, lineId: edge.lineId, edge });
+    this.edgeIndexes.set(edge.id, { graphId, lineId: edge.lineId, arcId: edge.arcId, edge });
   }
 }

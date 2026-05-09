@@ -451,6 +451,7 @@ const LogicPlaceholderTextLayer = (props) => {
     onHover,
     autoHighlight,
     ignoreSelectionSizing = false,
+    idSuffix = '',
   } = props;
   const Labels = isVisible(getVisLayers, {
     index: null,
@@ -465,7 +466,7 @@ const LogicPlaceholderTextLayer = (props) => {
   const cache = syncLogicTextLayerCache(biCol, selectedNodeId);
 
   return new TextLayer({
-    id: `${biCol.graph.id}-view-placeholder-text`,
+    id: `${biCol.graph.id}-view-placeholder-text${idSuffix}`,
     data: cache.placeholderData,
     visible: visible && Labels,
     pickable,
@@ -518,6 +519,7 @@ const LogicMainLabelTextLayer = (props) => {
     onHover,
     autoHighlight,
     highlightColor,
+    idSuffix = '',
   } = props;
   const Labels = isVisible(getVisLayers, {
     index: null,
@@ -536,7 +538,7 @@ const LogicMainLabelTextLayer = (props) => {
   };
 
   return new TextLayer({
-    id: `${biCol.graph.id}-view-label-text`,
+    id: `${biCol.graph.id}-view-label-text${idSuffix}`,
     data: labelData,
     visible: visible && Labels,
     pickable,
