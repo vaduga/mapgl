@@ -74,11 +74,11 @@ function getConnectedHoverNodeLayer(opts) {
         return null;
       }
 
-      const size = node?.data?.feature?.properties?.style?.size ?? 10;
+      const size = node?.data?.feature?.style?.size ?? 10;
       return {
         nodeId,
         position: [x, y],
-        radius: Math.max(size * 0.65, size / 2 + 4),
+        radius: (size / 2) * 1.2,
       };
     })
     .filter(Boolean);
@@ -94,7 +94,7 @@ function getConnectedHoverNodeLayer(opts) {
     lineWidthUnits: 'pixels',
     lineWidthMinPixels: 1,
     getPosition: (d: any) => d.position,
-    getRadius: (d: any) => d.radius * 2,
+    getRadius: (d: any) => d.radius,
     getLineWidth: 8,
     getLineColor: color,
     parameters: {
