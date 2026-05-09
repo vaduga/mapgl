@@ -14,7 +14,6 @@ export const RootStoreProvider = ({ children, props }: RootStoreProviderProps) =
   return <StoreContext.Provider value={root}>{children}</StoreContext.Provider>;
 };
 
-// hook
 export const useRootStore = () => {
   const context = useContext(StoreContext);
   if (context === undefined) {

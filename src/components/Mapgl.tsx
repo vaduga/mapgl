@@ -66,7 +66,6 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     getSelectedIdxs,
     getSelEdges,
     setHoveredNodeFromPickingInfo,
-    setHoveredElement,
     refreshHoverHighlighter,
     setTooltipObject,
     setDrawerOpen,
@@ -249,7 +248,6 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     setTooltipObject,
     setLocalViewState,
     setHoverInfo,
-    setHoveredElement,
     setDrawerOpen,
     getTooltipObject,
     //</editor-fold>
@@ -310,8 +308,12 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
   const hasHoverHighlight = pointStore.getHasHoverHighlight;
 
   const connectedHoverLayers = useMemo(
-    () =>
-      getConnectedHoverLayers({
+    () => {
+      if (!isLogic) {
+        return [];
+      }
+
+      return getConnectedHoverLayers({
         graph,
         graphLayers: layers,
         connectedNodeIds: pointStore.getHoveredConnectedNodeIds,
@@ -321,14 +323,24 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
         isHyper,
         isDark: theme2.isDark,
         isMeters: options.common?.isMeters,
-      }),
-    [hoverRevision, pointStore, graph, graph.getVersion, layers, isLogic, isHyper, theme2.isDark, options.common?.isMeters]
+      });
+    },
+    [
+      hoverRevision,
+      pointStore,
+      graph,
+      graph.getVersion,
+      layers,
+      isLogic,
+      isHyper,
+      theme2.isDark,
+      options.common?.isMeters]
   );
-
   const renderedLayers = useMemo(() => {
-    const baseLayers = hasHoverHighlight ? getDimmedGraphLayers(layers, pointStore.getHoveredConnectedNodeIds) : layers;
+    const baseLayers =
+      isLogic && hasHoverHighlight ? getDimmedGraphLayers(layers, pointStore.getHoveredConnectedNodeIds) : layers;
     return [...baseLayers, ...connectedHoverLayers].filter(Boolean);
-  }, [layers, connectedHoverLayers, hasHoverHighlight, pointStore]);
+  }, [layers, connectedHoverLayers, isLogic, hasHoverHighlight, pointStore]);
 
 
   useEffect(() => {

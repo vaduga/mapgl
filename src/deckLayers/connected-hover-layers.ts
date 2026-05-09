@@ -40,40 +40,59 @@ export function getConnectedHoverLayers(opts: ConnectedHoverLayerOptions) {
     isDark,
     isMeters,
   } = opts;
-  const edgeFeatures = connectedEdgeIndexes
-    .map(({ graphId, lineId, arcId }) => {
+  const edgeFeaturesByGraph = connectedEdgeIndexes.reduce<Record<string, DeckLine[]>>(
+    (acc, { graphId, lineId, arcId }) => {
       const index = isHyper ? lineId : arcId;
-      return index === undefined ? undefined : lineFeaturesByGraph?.[graphId]?.[index];
-    })
-    .filter(Boolean) as DeckLine[];
+      const feature = index === undefined ? undefined : lineFeaturesByGraph?.[graphId]?.[index];
+      if (feature) {
+        (acc[graphId] ??= []).push(feature);
+      }
+      return acc;
+    },
+    {}
+  );
+  const connectedEdgeLayers: any[] = [];
 
-  return [
-    ...(isHyper
-      ? [
-          getConnectedHoverEdgeLayer({
-            graph,
-            features: edgeFeatures,
-            isLogic,
-            isMeters,
-          }),
-          getConnectedHoverArrowLayer({
-            graph,
-            features: edgeFeatures,
-            isLogic,
-            isMeters,
-          }),
-        ]
-      : getConnectedHoverArcLayers({
-            features: edgeFeatures,
-            isDark,
-            isMeters,
-        })),
-    ...getConnectedHoverNodeLayers(graphLayers, connectedNodeIds),
-  ];
+  for (const [graphId, edgeFeatures] of Object.entries(edgeFeaturesByGraph)) {
+    if (isHyper) {
+      connectedEdgeLayers.push(
+        getConnectedHoverEdgeLayer({
+          graph,
+          graphId,
+          features: edgeFeatures,
+          isLogic,
+          isMeters,
+        }),
+        getConnectedHoverArrowLayer({
+          graph,
+          graphId,
+          features: edgeFeatures,
+          isLogic,
+          isMeters,
+        })
+      );
+      continue;
+    }
+
+    connectedEdgeLayers.push(
+      ...getConnectedHoverArcLayers({
+        graphId,
+        features: edgeFeatures,
+        isDark,
+        isMeters,
+      })
+    );
+  }
+
+  return [...connectedEdgeLayers, ...getConnectedHoverNodeLayers(graphLayers, connectedNodeIds)];
 }
 
 export function getDimmedGraphLayers(layers: Layer[], connectedNodeIds: Set<string>) {
   return layers.map((layer) => {
+    if (layer?.id === 'icon-cluster') {
+      return layer;
+    }
+
     const data = layer?.props?.data as any;
     if (data?.points) {
       return layer.clone({
@@ -85,6 +104,7 @@ export function getDimmedGraphLayers(layers: Layer[], connectedNodeIds: Set<stri
 }
 
 function getConnectedHoverNodeLayers(layers: Layer[], connectedNodeIds: Set<string>) {
+
   return layers
     .map((layer) => {
       const data = layer?.props?.data as any;
@@ -314,13 +334,14 @@ function getDimmedColorArray(colors, featureIds, properties, connectedNodeIds: S
 }
 
 function getConnectedHoverEdgeLayer(opts) {
-  const { graph, features, isLogic, isMeters } = opts;
+  const { graph, graphId, features, layerShift, isLogic, isMeters } = opts;
+  const idSuffix = graphId ? `-${graphId}` : '';
 
   if (isLogic) {
     const curveSegments = getCurveSegments(features, graph.getWasmId2Edges);
 
     return new CurveEdgeLayer({
-      id: 'connected-hover-edges',
+      id: `connected-hover-edges${idSuffix}`,
       data: curveSegments,
       visible: curveSegments.length > 0,
       pickable: false,
@@ -333,7 +354,7 @@ function getConnectedHoverEdgeLayer(opts) {
   }
 
   return new GeoJsonLayer({
-    id: 'connected-hover-edges',
+    id: `connected-hover-edges${idSuffix}`,
     data: {
       type: 'FeatureCollection',
       features,
@@ -353,9 +374,10 @@ function getConnectedHoverEdgeLayer(opts) {
 }
 
 function getConnectedHoverArcLayers(opts) {
-  const { features, isDark, isMeters } = opts;
+  const { graphId, features, layerShift, isDark, isMeters } = opts;
 
   const widthUnits: 'meters' | 'pixels' = isMeters ? 'meters' : 'pixels';
+  const idSuffix = graphId ? `-${graphId}` : '';
   const props = {
     data: features,
     visible: features.length > 0,
@@ -374,11 +396,11 @@ function getConnectedHoverArcLayers(opts) {
   return [
     new GradientArcLayer({
       ...props,
-      id: 'connected-hover-arcs',
+      id: `connected-hover-arcs${idSuffix}`,
     }),
     new AnimatedBlobsLayer({
       ...props,
-      id: 'connected-hover-arc-blobs',
+      id: `connected-hover-arc-blobs${idSuffix}`,
       getSourceArrow: (d: any) => d.properties.arcStyle?.sideA.arrow ?? 0,
       getTargetArrow: (d: any) => d.properties.arcStyle?.sideB.arrow ?? 0,
       getSourceColor: (d: any) => getAlteredArcColor(d, 'sideA', isDark),
@@ -398,12 +420,13 @@ function getConnectedArcWidth(d: any): number {
 }
 
 function getConnectedHoverArrowLayer(opts) {
-  const { graph, features, isLogic, isMeters } = opts;
+  const { graph, graphId, features, layerShift, isLogic, isMeters } = opts;
   const arrowData = expandArrowItems(features, graph.getWasmId2Edges);
   const sizeUnits = isLogic ? 'common' : isMeters ? 'meters' : 'pixels';
+  const idSuffix = graphId ? `-${graphId}` : '';
 
   return new IconLayer({
-    id: 'connected-hover-arrows',
+    id: `connected-hover-arrows${idSuffix}`,
     data: arrowData,
     visible: arrowData.length > 0,
     pickable: false,

@@ -14,7 +14,6 @@ export const expandTooltip = (
     setIsShowCenter,
     setTooltipObject,
     setLocalViewState,
-    setHoveredElement,
     pId
   } = dataClickProps;
   const position = info.coordinate;
@@ -123,7 +122,6 @@ export const expandTooltip = (
     }
   } else {
     // reset tooltip by clicking blank space
-    setHoveredElement?.(null, null);
     setIsShowCenter(null);
     selectGotoHandler({ pId, eventBus, select: true });
     setTooltipObject({});

@@ -5,7 +5,7 @@ import { Edge, Graph, Node } from 'mapLib';
 import { SelectNodeEvent } from '../utils/bus.events';
 import { Subscription } from 'rxjs';
 import type { DeckGLRefWithViewManager } from '../types';
-import { GraphHighlighter } from '../deckLayers/graph-highlighter';
+import { GraphHighlighter, type ConnectedEdgeIndex } from '../deckLayers/graph-highlighter';
 
 class PointStore {
   root: RootStore;
@@ -18,6 +18,8 @@ class PointStore {
   selEdges: Edge[] = [];
   hoveredNodeId: string | null = null;
   hoveredEdgeId: string | null = null;
+  hoveredConnectedNodeIds = new Set<string>();
+  hoveredConnectedEdgeIndexes: ConnectedEdgeIndex[] = [];
   hoverRevision = 0;
   hoverHighlighter = new GraphHighlighter();
   commentOpenIdx = -1;
@@ -86,6 +88,16 @@ class PointStore {
                 break;
               }
             }
+          }
+        }
+
+        if (select) {
+          if (edge) {
+            this.setHoveredEdgeId(edge.id);
+          } else if (node) {
+            this.setHoveredNodeId(node.id);
+          } else {
+            this.setHoveredElement(null, null);
           }
         }
 
@@ -158,14 +170,6 @@ class PointStore {
     return this.selEdges;
   }
 
-  get getHoveredNodeId() {
-    return this.hoveredNodeId;
-  }
-
-  get getHoveredEdgeId() {
-    return this.hoveredEdgeId;
-  }
-
   get getHasHoverHighlight() {
     return Boolean(this.hoveredNodeId || this.hoveredEdgeId);
   }
@@ -175,11 +179,11 @@ class PointStore {
   }
 
   get getHoveredConnectedNodeIds() {
-    return this.hoverHighlighter.getConnectedNodeIds();
+    return this.hoveredConnectedNodeIds;
   }
 
   get getHoveredConnectedEdgeIndexes() {
-    return this.hoverHighlighter.getConnectedEdgeIndexes();
+    return this.hoveredConnectedEdgeIndexes;
   }
 
   setSelCoord = (newSelCoord) => {
@@ -200,6 +204,7 @@ class PointStore {
     this.hoveredNodeId = nodeId;
     this.hoveredEdgeId = null;
     this.hoverHighlighter.update({ sourceId: nodeId, maxDepth: 1 });
+    this.syncHoverHighlighterOutput();
     this.hoverRevision += 1;
   };
 
@@ -213,6 +218,7 @@ class PointStore {
     this.hoveredNodeId = null;
     this.hoveredEdgeId = edgeId;
     this.hoverHighlighter.updateEdge({ edgeId });
+    this.syncHoverHighlighterOutput();
     this.hoverRevision += 1;
   };
 
@@ -223,7 +229,13 @@ class PointStore {
     } else {
       this.hoverHighlighter.update({ sourceId: this.hoveredNodeId, maxDepth: 1 });
     }
+    this.syncHoverHighlighterOutput();
     this.hoverRevision += 1;
+  };
+
+  private syncHoverHighlighterOutput = () => {
+    this.hoveredConnectedNodeIds = new Set(this.hoverHighlighter.getConnectedNodeIds());
+    this.hoveredConnectedEdgeIndexes = [...this.hoverHighlighter.getConnectedEdgeIndexes()];
   };
 
   setHoveredNodeFromPickingInfo = (info: any) => {
