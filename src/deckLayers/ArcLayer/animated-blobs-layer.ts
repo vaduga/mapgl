@@ -1,4 +1,3 @@
-import { ArcLayer } from '@deck.gl/layers';
 import type { Accessor } from '@deck.gl/core';
 import GradientArcLayer from './gradient-arc-layer';
 import { arcUniforms } from './arc-layer-uniforms';
@@ -13,7 +12,7 @@ type AnimatedBlobsLayerProps<DataT = unknown> = {
 };
 
 const defaultProps = {
-  ...ArcLayer.defaultProps,
+  ...GradientArcLayer.defaultProps,
   coef: { type: 'number', value: 1.0, min: 0.0, max: 1.0 },
   getSourceArrow: { type: 'accessor', value: 0 },
   getTargetArrow: { type: 'accessor', value: 0 },
@@ -26,7 +25,9 @@ export default class AnimatedBlobsLayer<DataT = any> extends GradientArcLayer<Da
   getShaders() {
     const shaders = super.getShaders();
     shaders.inject = {
+      ...shaders.inject,
       'vs:#decl': `
+    ${shaders.inject?.['vs:#decl'] ?? ''}
 
     in float arrowDir;
     in float arrow2Dir;
@@ -34,6 +35,7 @@ export default class AnimatedBlobsLayer<DataT = any> extends GradientArcLayer<Da
     out float vArrow2Dir;
     `,
       'vs:#main-end': `
+     ${shaders.inject?.['vs:#main-end'] ?? ''}
      float adjustedCoef = arc.coef;
     // if (vArrowDir == -1.0) {
     //     adjustedCoef = 1.0 - arc.coef;  // Reverse the direction of the animation
@@ -47,12 +49,15 @@ export default class AnimatedBlobsLayer<DataT = any> extends GradientArcLayer<Da
     vArrow2Dir = arrow2Dir;
     `,
       'fs:#decl': `
+     ${shaders.inject?.['fs:#decl'] ?? ''}
 
      in float vArrowDir;
      in float vArrow2Dir;
     `,
+      'fs:#main-start': shaders.inject?.['fs:#main-start'] ?? '',
 
       'fs:DECKGL_FILTER_COLOR': `
+    ${shaders.inject?.['fs:DECKGL_FILTER_COLOR'] ?? ''}
     // Check if both directions are zero, skip processing entirely if true
     if (vArrowDir == 0.0 && vArrow2Dir == 0.0) {
         discard;

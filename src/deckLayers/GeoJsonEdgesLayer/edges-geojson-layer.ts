@@ -182,21 +182,18 @@ export const EdgesGeojsonLayer = (props) => {
     getGroupsLegend,
     panel,
     getWasmId2Edges,
-    getSelectedIdxs,
   } = props;
 
   const isLogic = panel.isLogic;
   const cats = getVisLayers.getCategories();
   const categories = cats.concat([cats[1]]);
   const categorySize = 3;
-  const selectedFeatureIndexes = getSelectedIdxs?.get(colTypes.Edges)?.[srcGraphId] ?? [];
   const lineFeatures = linesCollection?.features ?? [];
   const curveSegments = isLogic ? getCurveSegments(lineFeatures, getWasmId2Edges) : [];
 
-  const getLineWidth = (d, k?) => {
-    const featureIndex = d.featureIndex ?? k?.index;
+  const getLineWidth = (d) => {
     const { edgeStyle } = d.feature?.properties ?? d.properties;
-    return selectedFeatureIndexes.includes(featureIndex) ? edgeStyle.size * 2 : edgeStyle.size;
+    return edgeStyle.size;
   };
 
   const getLineColor = (
@@ -233,8 +230,6 @@ export const EdgesGeojsonLayer = (props) => {
       getLineColor: time,
       getTextColor: time,
       getFillColor: time,
-      getWidth: [selectedFeatureIndexes],
-      getLineWidth: [selectedFeatureIndexes],
     },
     getFilterCategory: (d) => {
       const feature = d.feature ?? d;

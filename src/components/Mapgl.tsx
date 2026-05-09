@@ -281,7 +281,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     graph: panel.graph,
     panel,
     pickable: true,
-    autoHighlight: true,
+    autoHighlight: false,
     highlightColor: toRGB4Array(theme2.isDark ? DARK_AUTO_HIGHLIGHT : LIGHT_AUTO_HIGHLIGHT, 1),
     onHover: onDeckHover, //!hoverInfo.objects &&
     hasAnnots,
@@ -314,15 +314,8 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
       }
 
       return getConnectedHoverLayers({
-        graph,
         graphLayers: layers,
         connectedNodeIds: pointStore.getHoveredConnectedNodeIds,
-        connectedEdgeIndexes: pointStore.getHoveredConnectedEdgeIndexes,
-        lineFeaturesByGraph: lineFeaturesRef.current,
-        isLogic,
-        isHyper,
-        isDark: theme2.isDark,
-        isMeters: options.common?.isMeters,
       });
     },
     [
@@ -338,9 +331,15 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
   );
   const renderedLayers = useMemo(() => {
     const baseLayers =
-      isLogic && hasHoverHighlight ? getDimmedGraphLayers(layers, pointStore.getHoveredConnectedNodeIds) : layers;
+      isLogic && hasHoverHighlight
+        ? getDimmedGraphLayers(layers, {
+            connectedNodeIds: pointStore.getHoveredConnectedNodeIds,
+            connectedEdgeIndexes: pointStore.getHoveredConnectedEdgeIndexes,
+            isHyper,
+          })
+        : layers;
     return [...baseLayers, ...connectedHoverLayers].filter(Boolean);
-  }, [layers, connectedHoverLayers, isLogic, hasHoverHighlight, pointStore]);
+  }, [layers, connectedHoverLayers, isLogic, hasHoverHighlight, pointStore, isHyper]);
 
 
   useEffect(() => {

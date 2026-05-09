@@ -1,6 +1,5 @@
 import { toRGB4Array, makeColorDarker, makeColorLighter } from '../../utils';
 import { Unit } from 'deck.gl';
-import { Edge } from 'mapLib';
 import { colTypes, RGBAColor, ALERTING_STATES } from 'mapLib/utils';
 import AnimatedBlobsLayer from './animated-blobs-layer';
 import GradientArcLayer from './gradient-arc-layer';
@@ -22,7 +21,6 @@ export const MyArcLayer = (props) => {
     getVisLayers,
     getGroupsLegend,
     isLogic,
-    getSelEdges,
     visible,
   } = props;
 
@@ -62,10 +60,6 @@ export const MyArcLayer = (props) => {
       return isDark ? makeColorLighter(color) : makeColorDarker(color);
     };
 
-    if (getSelEdges?.find((el) => el.lineId === d.id) && isBase) {
-      //d.edgeId
-      muted = alterColor(muted) as RGBAColor;
-    }
     return isBase ? muted : (alterColor(muted) as RGBAColor);
   };
   const units: Unit = options.common?.isMeters ? 'meters' : 'pixels';
@@ -79,7 +73,7 @@ export const MyArcLayer = (props) => {
     const lineWidthA = getLineWidth('sideA');
     const lineWidthB = getLineWidth('sideB');
     const size = Math.max(lineWidthA, lineWidthB);
-    return size * (getSelEdges?.find((el: Edge) => el.id === d.edgeId) ? 2.2 : 1);
+    return size;
   };
   const getHeight = (d: BartSegment) => {
     const arcStyle = d?.properties.arcStyle;
@@ -106,9 +100,8 @@ export const MyArcLayer = (props) => {
       getLineColor: time,
       getTextColor: time,
       getFillColor: time,
-      getWidth: [getSelEdges],
-      getSourceColor: [time, getSelEdges],
-      getTargetColor: [time, getSelEdges],
+      getSourceColor: time,
+      getTargetColor: time,
     },
     filterCategories: categories,
     extensions: [new DataFilterExtension({ categorySize })],

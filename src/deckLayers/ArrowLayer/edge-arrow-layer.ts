@@ -224,7 +224,7 @@ export const EdgeArrowLayer = (props) => {
       return pos ?? [0, 0];
     },
     getAngle: (d: ArrowItem) => getFeatureArrowAngle(d.feature, d.placement, !isLogic),
-    getSize: (d: ArrowItem) => getArrowSize(d.feature) * (selectedFeatureIndexes.includes(d.lineIndex) ? 1.2 : 1),
+    getSize: (d: ArrowItem) => getArrowSize(d.feature), // * (selectedFeatureIndexes.includes(d.lineIndex) ? 1.2 : 1),
     getColor: (d: ArrowItem) => getArrowColor(d.feature, getGroupsLegend),
 
     // Deck typings in this build are stricter than runtime support for HTMLImageElement.

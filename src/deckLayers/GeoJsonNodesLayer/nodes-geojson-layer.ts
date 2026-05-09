@@ -170,6 +170,7 @@ const NodesGeojsonLayer = (props) => {
     onSvgIconReady,
     getVisLayers,
     panel,
+    autoHighlight,
     visible,
     logicTextMode = 'single',
     pointTypeOverride,
@@ -433,7 +434,7 @@ const NodesGeojsonLayer = (props) => {
     // Interactive props
     pickable: isLabelTextMode ? false : pickable,
     pickingDepth: 0,
-    autoHighlight: !isLabelTextMode,
+    autoHighlight: autoHighlight && !isLabelTextMode,
   });
 };
 

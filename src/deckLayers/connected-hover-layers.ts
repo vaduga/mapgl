@@ -1,96 +1,41 @@
-import { GeoJsonLayer, IconLayer } from '@deck.gl/layers';
+import { IconLayer } from '@deck.gl/layers';
 import type { Layer } from '@deck.gl/core';
-import { DeckLine, RGBAColor } from 'mapLib/utils';
-import type { Graph } from 'mapLib';
-import { makeColorDarker, makeColorLighter, toRGB4Array } from '../utils';
-import { getCurveSegments } from './GeoJsonEdgesLayer/edges-geojson-layer';
+import { RGBAColor } from 'mapLib/utils';
+import { toRGB4Array } from '../utils';
 import { CurveEdgeLayer } from './GeoJsonEdgesLayer/curve-edge-layer';
-import {
-  expandArrowItems,
-  getArrowAnchorPosition,
-  getArrowSize,
-  getFeatureArrowAngle,
-} from './ArrowLayer/edge-arrow-layer';
-import { getIconAtlasImage, iconMapping } from './ArrowLayer/arrow-atlas';
 import type { ConnectedEdgeIndex } from './graph-highlighter';
 import GradientArcLayer from './ArcLayer/gradient-arc-layer';
 import AnimatedBlobsLayer from './ArcLayer/animated-blobs-layer';
 
 type ConnectedHoverLayerOptions = {
-  graph: Graph;
   graphLayers: Layer[];
   connectedNodeIds: Set<string>;
-  connectedEdgeIndexes: ConnectedEdgeIndex[];
-  lineFeaturesByGraph: Record<string, DeckLine[]>;
-  isLogic: boolean;
-  isHyper: boolean;
-  isDark: boolean;
-  isMeters?: boolean;
 };
 
 export function getConnectedHoverLayers(opts: ConnectedHoverLayerOptions) {
-  const {
-    graph,
-    graphLayers,
-    connectedNodeIds,
-    connectedEdgeIndexes,
-    lineFeaturesByGraph,
-    isLogic,
-    isHyper,
-    isDark,
-    isMeters,
-  } = opts;
-  const edgeFeaturesByGraph = connectedEdgeIndexes.reduce<Record<string, DeckLine[]>>(
-    (acc, { graphId, lineId, arcId }) => {
-      const index = isHyper ? lineId : arcId;
-      const feature = index === undefined ? undefined : lineFeaturesByGraph?.[graphId]?.[index];
-      if (feature) {
-        (acc[graphId] ??= []).push(feature);
-      }
-      return acc;
-    },
-    {}
-  );
-  const connectedEdgeLayers: any[] = [];
-
-  for (const [graphId, edgeFeatures] of Object.entries(edgeFeaturesByGraph)) {
-    if (isHyper) {
-      connectedEdgeLayers.push(
-        getConnectedHoverEdgeLayer({
-          graph,
-          graphId,
-          features: edgeFeatures,
-          isLogic,
-          isMeters,
-        }),
-        getConnectedHoverArrowLayer({
-          graph,
-          graphId,
-          features: edgeFeatures,
-          isLogic,
-          isMeters,
-        })
-      );
-      continue;
-    }
-
-    connectedEdgeLayers.push(
-      ...getConnectedHoverArcLayers({
-        graphId,
-        features: edgeFeatures,
-        isDark,
-        isMeters,
-      })
-    );
-  }
-
-  return [...connectedEdgeLayers, ...getConnectedHoverNodeLayers(graphLayers, connectedNodeIds)];
+  const { graphLayers, connectedNodeIds } = opts;
+  return getConnectedHoverNodeLayers(graphLayers, connectedNodeIds);
 }
 
-export function getDimmedGraphLayers(layers: Layer[], connectedNodeIds: Set<string>) {
+type DimmedGraphLayerOptions = {
+  connectedNodeIds: Set<string>;
+  connectedEdgeIndexes?: ConnectedEdgeIndex[];
+  isHyper?: boolean;
+};
+
+export function getDimmedGraphLayers(layers: Layer[], opts: DimmedGraphLayerOptions | Set<string>) {
+  const connectedNodeIds = opts instanceof Set ? opts : opts.connectedNodeIds;
+  const edgeDepthsByGraph =
+    opts instanceof Set ? {} : getEdgeDepthsByGraph(opts.connectedEdgeIndexes ?? [], Boolean(opts.isHyper));
+
   return layers.map((layer) => {
     if (layer?.id === 'icon-cluster') {
       return layer;
+    }
+
+    const dimmedEdgeLayer = getDimmedEdgeLayer(layer, edgeDepthsByGraph);
+    if (dimmedEdgeLayer) {
+      return dimmedEdgeLayer;
     }
 
     const data = layer?.props?.data as any;
@@ -101,6 +46,126 @@ export function getDimmedGraphLayers(layers: Layer[], connectedNodeIds: Set<stri
     }
     return layer.clone({ opacity: 0.18 });
   });
+}
+
+function getEdgeDepthsByGraph(connectedEdgeIndexes: ConnectedEdgeIndex[], isHyper: boolean) {
+  return connectedEdgeIndexes.reduce<Record<string, Map<number, number>>>((acc, { graphId, lineId, arcId, depth }) => {
+    const index = isHyper ? lineId : arcId;
+    if (index === undefined) {
+      return acc;
+    }
+
+    const depths = (acc[graphId] ??= new Map<number, number>());
+    const nextDepth = depth ?? 0;
+    const prevDepth = depths.get(index);
+    if (prevDepth === undefined || nextDepth < prevDepth) {
+      depths.set(index, nextDepth);
+    }
+    return acc;
+  }, {});
+}
+
+function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<number, number>>) {
+  const graphId = getGraphIdFromEdgeLayer(layer);
+  if (graphId === undefined) {
+    return null;
+  }
+
+  const connectedFeatureDepths = edgeDepthsByGraph[graphId];
+  if (!connectedFeatureDepths?.size) {
+    return layer.clone({ opacity: 0.18 });
+  }
+
+  const highlightDepthTrigger = Array.from(connectedFeatureDepths.entries());
+  if (layer instanceof CurveEdgeLayer) {
+    const curveLayer = layer as any;
+    return layer.clone({
+      highlightOnly: false,
+      highlightMaxDepth: getMaxMapValue(connectedFeatureDepths),
+      highlightDimOpacity: 0.18,
+      getHighlightDepth: (d: any) => connectedFeatureDepths.get(d.featureIndex) ?? Number.MAX_SAFE_INTEGER,
+      getWidth: (d: any, info: any) => {
+        const width = getAccessorValue(curveLayer.props.getWidth, d, info, 1);
+        return connectedFeatureDepths.has(d.featureIndex) ? Math.max(3, width * 2) : width;
+      },
+      updateTriggers: {
+        ...layer.props.updateTriggers,
+        getHighlightDepth: highlightDepthTrigger,
+        getWidth: [curveLayer.props.updateTriggers?.getWidth, highlightDepthTrigger],
+      },
+    });
+  }
+
+  if (isArcLayer(layer)) {
+    const arcLayer = layer as any;
+    return layer.clone({
+      getHighlightDepth: (_d: any, info: any) =>
+        connectedFeatureDepths.has(info.index) ? 0 : Number.MAX_SAFE_INTEGER,
+      getHighlightDimOpacity: 0.18,
+      getWidth: (d: any, info: any) => {
+        const width = getAccessorValue(arcLayer.props.getWidth, d, info, 1);
+        return connectedFeatureDepths.has(info.index) ? Math.max(3, width * 2.2) : width;
+      },
+      updateTriggers: {
+        ...layer.props.updateTriggers,
+        getHighlightDepth: highlightDepthTrigger,
+        getHighlightDimOpacity: highlightDepthTrigger,
+        getWidth: [arcLayer.props.updateTriggers?.getWidth, highlightDepthTrigger],
+      },
+    } as any);
+  }
+
+  if (isArrowLayer(layer)) {
+    const arrowLayer = layer as any;
+    return layer.clone({
+      getColor: (d: any, info: any) => {
+        const color = getAccessorResult(arrowLayer.props.getColor, d, info, [0, 0, 0, 255]);
+        return connectedFeatureDepths.has(d.lineIndex) ? color : getDimmedRgba(color, 0.18);
+      },
+      updateTriggers: {
+        ...layer.props.updateTriggers,
+        getColor: [arrowLayer.props.updateTriggers?.getColor, highlightDepthTrigger],
+      },
+    } as any);
+  }
+
+  return null;
+}
+
+function getGraphIdFromEdgeLayer(layer: Layer): string | undefined {
+  const id = layer?.id ?? '';
+  if (id.startsWith('edges-view')) {
+    return id.slice('edges-view'.length);
+  }
+  if (id.startsWith('edges-arc-base')) {
+    return id.slice('edges-arc-base'.length);
+  }
+  if (id.startsWith('edges-arc-blobs')) {
+    return id.slice('edges-arc-blobs'.length);
+  }
+  if (id.startsWith('edges-arrow-')) {
+    return id.slice('edges-arrow-'.length);
+  }
+  return undefined;
+}
+
+function isArcLayer(layer: Layer): boolean {
+  return layer instanceof GradientArcLayer || layer instanceof AnimatedBlobsLayer;
+}
+
+function isArrowLayer(layer: Layer): boolean {
+  return layer instanceof IconLayer && (layer?.id ?? '').startsWith('edges-arrow-');
+}
+
+function getAccessorResult(accessor: any, object: any, info: any, fallback: any) {
+  const value = typeof accessor === 'function' ? accessor(object, info) : accessor;
+  return value ?? fallback;
+}
+
+function getDimmedRgba(color: any, opacity: number): RGBAColor {
+  const rgba = Array.isArray(color) ? ([...color] as RGBAColor) : toRGB4Array(color, 1);
+  rgba[3] = Math.round((rgba[3] ?? 255) * opacity);
+  return rgba;
 }
 
 function getConnectedHoverNodeLayers(layers: Layer[], connectedNodeIds: Set<string>) {
@@ -333,147 +398,15 @@ function getDimmedColorArray(colors, featureIds, properties, connectedNodeIds: S
   return nextColors;
 }
 
-function getConnectedHoverEdgeLayer(opts) {
-  const { graph, graphId, features, layerShift, isLogic, isMeters } = opts;
-  const idSuffix = graphId ? `-${graphId}` : '';
+function getAccessorValue(accessor: any, object: any, info: any, fallback: number): number {
+  const value = typeof accessor === 'function' ? accessor(object, info) : accessor;
+  return Number.isFinite(value) ? value : fallback;
+}
 
-  if (isLogic) {
-    const curveSegments = getCurveSegments(features, graph.getWasmId2Edges);
-
-    return new CurveEdgeLayer({
-      id: `connected-hover-edges${idSuffix}`,
-      data: curveSegments,
-      visible: curveSegments.length > 0,
-      pickable: false,
-      getWidth: (d: any) => Math.max(3, (d.feature?.properties?.edgeStyle?.size ?? 1) * 2),
-      getColor: (d: any) => getEdgeColor(d.feature),
-      widthUnits: isMeters ? 'meters' : 'pixels',
-      widthScale: 1,
-      widthMinPixels: 2,
-    });
+function getMaxMapValue(map: Map<number, number>): number {
+  let max = 0;
+  for (const value of map.values()) {
+    max = Math.max(max, value);
   }
-
-  return new GeoJsonLayer({
-    id: `connected-hover-edges${idSuffix}`,
-    data: {
-      type: 'FeatureCollection',
-      features,
-    },
-    visible: features.length > 0,
-    pickable: false,
-    stroked: true,
-    filled: false,
-    lineWidthUnits: 'pixels',
-    lineWidthMinPixels: 2,
-    getLineWidth: (d: any) => Math.max(3, (d.properties?.edgeStyle?.size ?? 1) * 2),
-    getLineColor: getEdgeColor,
-    parameters: {
-      depthTest: false,
-    },
-  });
-}
-
-function getConnectedHoverArcLayers(opts) {
-  const { graphId, features, layerShift, isDark, isMeters } = opts;
-
-  const widthUnits: 'meters' | 'pixels' = isMeters ? 'meters' : 'pixels';
-  const idSuffix = graphId ? `-${graphId}` : '';
-  const props = {
-    data: features,
-    visible: features.length > 0,
-    pickable: false,
-    getWidth: getConnectedArcWidth,
-    getHeight: (d: any) => d?.properties?.arcStyle?.arcConfig?.height ?? 0.5,
-    getSourcePosition: (d: any) => d.sourcePosition,
-    getTargetPosition: (d: any) => d.targetPosition,
-    getSourceColor: (d: any) => getArcColor(d, 'sideA'),
-    getTargetColor: (d: any) => getArcColor(d, 'sideB'),
-    widthUnits,
-    widthScale: 1,
-    widthMinPixels: 2,
-  };
-
-  return [
-    new GradientArcLayer({
-      ...props,
-      id: `connected-hover-arcs${idSuffix}`,
-    }),
-    new AnimatedBlobsLayer({
-      ...props,
-      id: `connected-hover-arc-blobs${idSuffix}`,
-      getSourceArrow: (d: any) => d.properties.arcStyle?.sideA.arrow ?? 0,
-      getTargetArrow: (d: any) => d.properties.arcStyle?.sideB.arrow ?? 0,
-      getSourceColor: (d: any) => getAlteredArcColor(d, 'sideA', isDark),
-      getTargetColor: (d: any) => getAlteredArcColor(d, 'sideB', isDark),
-      getFrequency: () => 10,
-      animationSpeed: 5,
-      tailLength: 0.1,
-      coef: 0.8,
-    }),
-  ];
-}
-
-function getConnectedArcWidth(d: any): number {
-  const arcStyle = d?.properties?.arcStyle;
-  const size = Math.max(arcStyle?.sideA?.size ?? 1, arcStyle?.sideB?.size ?? 1);
-  return size * 2.2;
-}
-
-function getConnectedHoverArrowLayer(opts) {
-  const { graph, graphId, features, layerShift, isLogic, isMeters } = opts;
-  const arrowData = expandArrowItems(features, graph.getWasmId2Edges);
-  const sizeUnits = isLogic ? 'common' : isMeters ? 'meters' : 'pixels';
-  const idSuffix = graphId ? `-${graphId}` : '';
-
-  return new IconLayer({
-    id: `connected-hover-arrows${idSuffix}`,
-    data: arrowData,
-    visible: arrowData.length > 0,
-    pickable: false,
-    billboard: false,
-    getPosition: (d: any) => getArrowAnchorPosition(d.feature, d.placement) ?? [0, 0],
-    getAngle: (d: any) => getFeatureArrowAngle(d.feature, d.placement, !isLogic),
-    getSize: (d: any) => getArrowSize(d.feature) * 1.2,
-    getColor: (d: any) => getEdgeColor(d.feature),
-    iconAtlas: getIconAtlasImage() as any,
-    iconMapping,
-    getIcon: () => (isLogic && sizeUnits === 'pixels' ? 'triangle-n-ex' : 'triangle-n'),
-    sizeUnits: sizeUnits as any,
-    sizeScale: 1,
-    ...(sizeUnits === 'pixels'
-      ? {
-          sizeMinPixels: 1,
-          sizeMaxPixels: 36,
-        }
-      : {}),
-  });
-}
-
-function getEdgeColor(feature): RGBAColor {
-  const edgeStyle = feature?.properties?.edgeStyle;
-  return getStyleColor(edgeStyle);
-}
-
-function getArcColor(feature, side: 'sideA' | 'sideB'): RGBAColor {
-  return getStyleColor(feature?.properties?.arcStyle?.[side]);
-}
-
-function getAlteredArcColor(feature, side: 'sideA' | 'sideB', isDark: boolean): RGBAColor {
-  const color = getArcColor(feature, side);
-  return (isDark ? makeColorLighter(color) : makeColorDarker(color)) as RGBAColor;
-}
-
-function getStyleColor(style, opacity?: number): RGBAColor {
-  const color = style?.group?.color ?? style?.color;
-  return normalizeColor(color, opacity);
-}
-
-function normalizeColor(color, opacity?: number): RGBAColor {
-  if (Array.isArray(color)) {
-    const rgba = [...color] as RGBAColor;
-    rgba[3] = 255;
-    return rgba;
-  }
-
-  return toRGB4Array(color, 1);
+  return max;
 }

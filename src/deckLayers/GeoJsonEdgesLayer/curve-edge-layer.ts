@@ -23,11 +23,15 @@ type CurveEdgeLayerProps<DataT> = {
   widthScale?: number;
   widthMinPixels?: number;
   widthMaxPixels?: number;
+  highlightOnly?: boolean;
+  highlightMaxDepth?: number;
+  highlightDimOpacity?: number;
   getControlPoints?: Accessor<CurveEdgeSegment<DataT>, number[]>;
   getCurveType?: Accessor<CurveEdgeSegment<DataT>, CurveType>;
   getSegment?: Accessor<CurveEdgeSegment<DataT>, [number, number]>;
   getWidth?: Accessor<CurveEdgeSegment<DataT>, number>;
   getColor?: Accessor<CurveEdgeSegment<DataT>, Color>;
+  getHighlightDepth?: Accessor<CurveEdgeSegment<DataT>, number>;
 } & LayerProps;
 
 const DEFAULT_COLOR = [0, 0, 0, 255] as const;
@@ -37,11 +41,15 @@ const defaultProps: DefaultProps<CurveEdgeLayerProps<any>> = {
   widthScale: { type: 'number', min: 0, value: 1 },
   widthMinPixels: { type: 'number', min: 0, value: 0 },
   widthMaxPixels: { type: 'number', min: 0, value: Number.MAX_SAFE_INTEGER },
+  highlightOnly: false,
+  highlightMaxDepth: { type: 'number', min: 0, value: Number.MAX_SAFE_INTEGER },
+  highlightDimOpacity: { type: 'number', min: 0, max: 1, value: 1 },
   getControlPoints: { type: 'accessor', value: (d: CurveEdgeSegment) => d.controlPoints },
   getCurveType: { type: 'accessor', value: (d: CurveEdgeSegment) => d.type },
   getSegment: { type: 'accessor', value: (d: CurveEdgeSegment) => d.segment },
   getWidth: { type: 'accessor', value: 1 },
   getColor: { type: 'accessor', value: DEFAULT_COLOR },
+  getHighlightDepth: { type: 'accessor', value: 0 },
 };
 
 const curveUniforms = {
@@ -51,20 +59,40 @@ layout(std140) uniform curveUniforms {
   float widthScale;
   float widthMinPixels;
   float widthMaxPixels;
+  float highlightMaxDepth;
+  float highlightDimOpacity;
   highp int widthUnits;
+  highp int highlightOnly;
+} curve;
+`,
+  fs: `\
+layout(std140) uniform curveUniforms {
+  float widthScale;
+  float widthMinPixels;
+  float widthMaxPixels;
+  float highlightMaxDepth;
+  float highlightDimOpacity;
+  highp int widthUnits;
+  highp int highlightOnly;
 } curve;
 `,
   uniformTypes: {
     widthScale: 'f32',
     widthMinPixels: 'f32',
     widthMaxPixels: 'f32',
+    highlightMaxDepth: 'f32',
+    highlightDimOpacity: 'f32',
     widthUnits: 'i32',
+    highlightOnly: 'i32',
   },
 } as const satisfies ShaderModule<{
   widthScale: number;
   widthMinPixels: number;
   widthMaxPixels: number;
+  highlightMaxDepth: number;
+  highlightDimOpacity: number;
   widthUnits: number;
+  highlightOnly: number;
 }>;
 
 const vs = `\
@@ -82,9 +110,11 @@ in float instanceTypes;
 in float instanceWidths;
 in vec4 instanceColors;
 in vec3 instancePickingColors;
+in float instanceHighlightDepth;
 
 out vec4 vColor;
 out vec2 uv;
+out float vHighlightDepth;
 
 void interpolateLine(float t, vec2 start, vec2 end, out vec2 point) {
   point = mix(start, end, t);
@@ -147,6 +177,7 @@ void main(void) {
 
   vColor = vec4(instanceColors.rgb, instanceColors.a * layer.opacity);
   uv = positions.xy;
+  vHighlightDepth = instanceHighlightDepth;
   DECKGL_FILTER_COLOR(vColor, geometry);
 }
 `;
@@ -158,11 +189,19 @@ precision highp float;
 
 in vec4 vColor;
 in vec2 uv;
+in float vHighlightDepth;
 out vec4 fragColor;
 
 void main(void) {
+  if (curve.highlightOnly != 0 && vHighlightDepth > curve.highlightMaxDepth) {
+    discard;
+  }
+
   geometry.uv = uv;
   fragColor = vColor;
+  if (curve.highlightOnly == 0 && vHighlightDepth > curve.highlightMaxDepth) {
+    fragColor.a *= curve.highlightDimOpacity;
+  }
   DECKGL_FILTER_COLOR(fragColor, geometry);
 }
 `;
@@ -226,6 +265,11 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
         type: 'uint8',
         accessor: (object, { target: value }) => this.encodePickingColor(object.pickingIndex, value),
       },
+      instanceHighlightDepth: {
+        size: 1,
+        accessor: 'getHighlightDepth',
+        defaultValue: Number.MAX_SAFE_INTEGER,
+      },
     });
   }
 
@@ -255,7 +299,15 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
   }
 
   draw() {
-    const { widthUnits, widthScale, widthMinPixels, widthMaxPixels } = this.props;
+    const {
+      widthUnits,
+      widthScale,
+      widthMinPixels,
+      widthMaxPixels,
+      highlightOnly,
+      highlightMaxDepth,
+      highlightDimOpacity,
+    } = this.props;
     const model = this.state.model!;
 
     model.shaderInputs.setProps({
@@ -264,6 +316,9 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
         widthScale,
         widthMinPixels,
         widthMaxPixels,
+        highlightOnly: highlightOnly ? 1 : 0,
+        highlightMaxDepth,
+        highlightDimOpacity,
       },
     });
     model.draw(this.context.renderPass);
