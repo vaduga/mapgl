@@ -60,6 +60,9 @@ const LineTextLayer = ({
           return d.text;
           break;
         default: // arcLabels
+          if (d.skip) {
+            return '';
+          }
           return d.properties?.edgeStyle.text;
           break;
       }

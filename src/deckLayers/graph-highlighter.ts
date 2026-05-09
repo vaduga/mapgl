@@ -22,12 +22,14 @@ export class GraphHighlighter {
   private graph?: Graph;
   private graphVersion?: number;
   private nodeMap = new Map<string, Node>();
-  private adjacency = new Map<string, AdjacentItem[]>();
+  private outgoingAdjacency = new Map<string, AdjacentItem[]>();
+  private incomingAdjacency = new Map<string, AdjacentItem[]>();
   private edgeIndexes = new Map<string, ConnectedEdgeIndex>();
   private edgeHighlights = new Map<string, EdgeHighlightItem>();
   private lastSourceId?: string | null;
   private lastEdgeId?: string | null;
   private lastMaxDepth = 1;
+  private lastIsDefDir = true;
   private connectedNodeIds = new Set<string>();
   private connectedEdgeIndexes: ConnectedEdgeIndex[] = [];
   private connectedNodeDepths = new Map<string, number>();
@@ -41,7 +43,8 @@ export class GraphHighlighter {
     this.graphVersion = graph.getVersion;
     this.lastSourceId = undefined;
     this.nodeMap.clear();
-    this.adjacency.clear();
+    this.outgoingAdjacency.clear();
+    this.incomingAdjacency.clear();
     this.edgeIndexes.clear();
     this.edgeHighlights.clear();
     this.connectedNodeIds.clear();
@@ -50,7 +53,8 @@ export class GraphHighlighter {
 
     for (const node of graph.nodesBreadthFirst) {
       this.nodeMap.set(node.id, node);
-      this.adjacency.set(node.id, []);
+      this.outgoingAdjacency.set(node.id, []);
+      this.incomingAdjacency.set(node.id, []);
     }
 
     const hyperedgeFragmentIds = new Set<string>();
@@ -68,10 +72,7 @@ export class GraphHighlighter {
       const edgeIds = edges.map((edge) => edge.id);
       const nodeIds = [firstEdge.source.id, lastEdge.target.id];
 
-      this.addAdjacent(firstEdge.source, lastEdge.target, edges);
-      if (firstEdge.source !== lastEdge.target) {
-        this.addAdjacent(lastEdge.target, firstEdge.source, edges);
-      }
+      this.addDirectedAdjacent(firstEdge.source, lastEdge.target, edges);
 
       for (const edge of edges) {
         this.addEdgeIndex(edge, {
@@ -88,10 +89,7 @@ export class GraphHighlighter {
         continue;
       }
 
-      this.addAdjacent(edge.source, edge.target, [edge]);
-      if (edge.source !== edge.target) {
-        this.addAdjacent(edge.target, edge.source, [edge]);
-      }
+      this.addDirectedAdjacent(edge.source, edge.target, [edge]);
 
       this.addEdgeIndex(edge);
       this.edgeHighlights.set(edge.id, {
@@ -103,15 +101,16 @@ export class GraphHighlighter {
     this.update({ sourceId: null });
   }
 
-  update(opts: { sourceId: string | null; maxDepth?: number }) {
-    const { sourceId, maxDepth = 1 } = opts;
-    if (sourceId === this.lastSourceId && maxDepth === this.lastMaxDepth) {
+  update(opts: { sourceId: string | null; maxDepth?: number; isDefDir?: boolean }) {
+    const { sourceId, maxDepth = 1, isDefDir = true } = opts;
+    if (sourceId === this.lastSourceId && maxDepth === this.lastMaxDepth && isDefDir === this.lastIsDefDir) {
       return;
     }
 
     this.lastSourceId = sourceId;
     this.lastEdgeId = null;
     this.lastMaxDepth = maxDepth;
+    this.lastIsDefDir = isDefDir;
     this.connectedNodeIds = new Set<string>();
     this.connectedNodeDepths = new Map<string, number>();
     const connectedEdgeIds = new Set<string>();
@@ -133,7 +132,8 @@ export class GraphHighlighter {
         continue;
       }
 
-      for (const item of this.adjacency.get(current.nodeId) ?? []) {
+      const adjacency = isDefDir ? this.outgoingAdjacency : this.incomingAdjacency;
+      for (const item of adjacency.get(current.nodeId) ?? []) {
         const nextDepth = current.depth + 1;
         for (const edge of item.edges) {
           connectedEdgeIds.add(edge.id);
@@ -207,10 +207,19 @@ export class GraphHighlighter {
     return this.nodeMap.get(id);
   }
 
-  private addAdjacent(source: Node, target: Node, edges: Edge[]) {
-    const items = this.adjacency.get(source.id);
-    if (items) {
-      items.push({ nodeId: target.id, edges });
+  private addDirectedAdjacent(source: Node, target: Node, edges: Edge[]) {
+    const outgoingItems = this.outgoingAdjacency.get(source.id);
+    if (outgoingItems) {
+      outgoingItems.push({ nodeId: target.id, edges });
+    }
+
+    if (source === target) {
+      return;
+    }
+
+    const incomingItems = this.incomingAdjacency.get(target.id);
+    if (incomingItems) {
+      incomingItems.push({ nodeId: source.id, edges });
     }
   }
 

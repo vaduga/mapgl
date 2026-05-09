@@ -26,6 +26,7 @@ type CurveEdgeLayerProps<DataT> = {
   highlightOnly?: boolean;
   highlightMaxDepth?: number;
   highlightDimOpacity?: number;
+  skipVisibleMaxDepth?: number;
   getControlPoints?: Accessor<CurveEdgeSegment<DataT>, number[]>;
   getCurveType?: Accessor<CurveEdgeSegment<DataT>, CurveType>;
   getSegment?: Accessor<CurveEdgeSegment<DataT>, [number, number]>;

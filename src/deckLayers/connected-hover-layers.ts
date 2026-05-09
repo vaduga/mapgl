@@ -1,8 +1,9 @@
-import { IconLayer } from '@deck.gl/layers';
+import { IconLayer, TextLayer } from '@deck.gl/layers';
 import type { Layer } from '@deck.gl/core';
 import { RGBAColor } from 'mapLib/utils';
 import { toRGB4Array } from '../utils';
 import { CurveEdgeLayer } from './GeoJsonEdgesLayer/curve-edge-layer';
+import { getArrowColor } from './ArrowLayer/edge-arrow-layer';
 import type { ConnectedEdgeIndex } from './graph-highlighter';
 import GradientArcLayer from './ArcLayer/gradient-arc-layer';
 import AnimatedBlobsLayer from './ArcLayer/animated-blobs-layer';
@@ -83,6 +84,7 @@ function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<
       highlightOnly: false,
       highlightMaxDepth: getMaxMapValue(connectedFeatureDepths),
       highlightDimOpacity: 0.18,
+      skipVisibleMaxDepth: getMaxMapValue(connectedFeatureDepths),
       getHighlightDepth: (d: any) => connectedFeatureDepths.get(d.featureIndex) ?? Number.MAX_SAFE_INTEGER,
       getWidth: (d: any, info: any) => {
         const width = getAccessorValue(curveLayer.props.getWidth, d, info, 1);
@@ -115,12 +117,46 @@ function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<
     } as any);
   }
 
+  if (isEdgeTextLayer(layer)) {
+    const textLayer = layer as any;
+    return layer.clone({
+      getText: (d: any, info: any) => {
+        if (d?.skip) {
+          return connectedFeatureDepths.has(info.index) ? (d.properties?.edgeStyle?.text ?? '') : '';
+        }
+        return getAccessorResult(textLayer.props.getText, d, info, '');
+      },
+      getColor: (d: any, info: any) => {
+        const color = getAccessorResult(textLayer.props.getColor, d, info, [0, 0, 0, 200]);
+        return connectedFeatureDepths.has(info.index) ? color : getDimmedRgba(color, 0.18);
+      },
+      getBackgroundColor: (d: any, info: any) => {
+        const color = getAccessorResult(textLayer.props.getBackgroundColor, d, info, [255, 255, 255, 100]);
+        return connectedFeatureDepths.has(info.index) ? color : getDimmedRgba(color, 0.18);
+      },
+      updateTriggers: {
+        ...layer.props.updateTriggers,
+        getText: highlightDepthTrigger,
+        getColor: [textLayer.props.updateTriggers?.getColor, highlightDepthTrigger],
+        getBackgroundColor: [textLayer.props.updateTriggers?.getBackgroundColor, highlightDepthTrigger],
+      },
+    } as any);
+  }
+
   if (isArrowLayer(layer)) {
     const arrowLayer = layer as any;
     return layer.clone({
       getColor: (d: any, info: any) => {
+        if (connectedFeatureDepths.has(d.lineIndex)) {
+          return d.feature?.skip ? getArrowColor(d.feature) : getAccessorResult(arrowLayer.props.getColor, d, info, [0, 0, 0, 255]);
+        }
+
+        if (d.feature?.skip) {
+          return [0, 0, 0, 0];
+        }
+
         const color = getAccessorResult(arrowLayer.props.getColor, d, info, [0, 0, 0, 255]);
-        return connectedFeatureDepths.has(d.lineIndex) ? color : getDimmedRgba(color, 0.18);
+        return getDimmedRgba(color, 0.18);
       },
       updateTriggers: {
         ...layer.props.updateTriggers,
@@ -146,6 +182,9 @@ function getGraphIdFromEdgeLayer(layer: Layer): string | undefined {
   if (id.startsWith('edges-arrow-')) {
     return id.slice('edges-arrow-'.length);
   }
+  if (id.startsWith('text-arcLabels')) {
+    return id.slice('text-arcLabels'.length);
+  }
   return undefined;
 }
 
@@ -155,6 +194,10 @@ function isArcLayer(layer: Layer): boolean {
 
 function isArrowLayer(layer: Layer): boolean {
   return layer instanceof IconLayer && (layer?.id ?? '').startsWith('edges-arrow-');
+}
+
+function isEdgeTextLayer(layer: Layer): boolean {
+  return layer instanceof TextLayer && (layer?.id ?? '').startsWith('text-arcLabels');
 }
 
 function getAccessorResult(accessor: any, object: any, info: any, fallback: any) {

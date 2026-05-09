@@ -30,12 +30,12 @@ import {
   ALERTING_NUMS,
   ANNOTS_LABEL,
   NS_SEPARATOR,
-  ComFeature,
-  DeckLine,
+  type DeckLine,
   colTypes,
   ViewState,
   sortAnnotations,
   CommentsData,
+  ComFeature,
   GraphBiFeatCol,
 } from 'mapLib/utils';
 import type { Graph } from 'mapLib';
@@ -48,7 +48,6 @@ import { BinaryPointFeature } from '@loaders.gl/schema';
 import { ThresholdEdgeChangeEvent } from '../utils/bus.events';
 import { useFullscreenPortalBridge } from './hooks/useFullscreenPortalBridge';
 import { getConnectedHoverLayers, getDimmedGraphLayers } from '../deckLayers/connected-hover-layers';
-
 
 const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, replaceVariables, eventBus }) => {
   const HOVER_HIGHLIGHT_DELAY_MS = 100;
@@ -327,8 +326,10 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
       isLogic,
       isHyper,
       theme2.isDark,
-      options.common?.isMeters]
+      options.common?.isMeters
+    ]
   );
+
   const renderedLayers = useMemo(() => {
     const baseLayers =
       isLogic && hasHoverHighlight

@@ -94,7 +94,7 @@ export function getArrowSize(d: ArrowFeature): number {
   return getEdgeArrowSize(d?.properties?.edgeStyle?.size);
 }
 
-function getArrowColor(d: ArrowFeature, getGroupsLegend?: any): RGBAColor {
+export function getArrowColor(d: ArrowFeature, getGroupsLegend?: any): RGBAColor {
   const { edgeStyle, all_annots } = d.properties || {};
   const { color, group, opacity } = edgeStyle || {};
 
@@ -224,7 +224,7 @@ export const EdgeArrowLayer = (props) => {
       return pos ?? [0, 0];
     },
     getAngle: (d: ArrowItem) => getFeatureArrowAngle(d.feature, d.placement, !isLogic),
-    getSize: (d: ArrowItem) => getArrowSize(d.feature), // * (selectedFeatureIndexes.includes(d.lineIndex) ? 1.2 : 1),
+    getSize: (d: ArrowItem) => getArrowSize(d.feature),
     getColor: (d: ArrowItem) => getArrowColor(d.feature, getGroupsLegend),
 
     // Deck typings in this build are stricter than runtime support for HTMLImageElement.
