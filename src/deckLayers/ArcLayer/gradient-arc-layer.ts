@@ -1,19 +1,21 @@
 import vs from './arc-layer-vertex.glsl';
-import { ArcLayer } from '@deck.gl/layers';
 import type { Accessor } from '@deck.gl/core';
+import Float32ArcLayer from './float32-arc-layer';
 
 type HighlightMaskProps<DataT = any> = {
   getHighlightDepth?: Accessor<DataT, number>;
   getHighlightDimOpacity?: Accessor<DataT, number>;
+  getSkip?: Accessor<DataT, boolean | number>;
 };
 
 const defaultProps = {
-  ...ArcLayer.defaultProps,
+  ...Float32ArcLayer.defaultProps,
   getHighlightDepth: { type: 'accessor', value: 0 },
   getHighlightDimOpacity: { type: 'accessor', value: 1 },
+  getSkip: { type: 'accessor', value: (d: any) => Number(Boolean(d?.skip)) },
 };
 
-export default class GradientArcLayer<DataT = any, ExtraPropsT extends {} = {}> extends ArcLayer<
+export default class GradientArcLayer<DataT = any, ExtraPropsT extends {} = {}> extends Float32ArcLayer<
   DataT,
   ExtraPropsT & HighlightMaskProps<DataT>
 > {
@@ -29,18 +31,25 @@ export default class GradientArcLayer<DataT = any, ExtraPropsT extends {} = {}> 
         'vs:#decl': `
 in float instanceHighlightDepth;
 in float instanceHighlightDimOpacity;
+in float instanceSkip;
 out float vHighlightDepth;
 out float vHighlightDimOpacity;
+out float vSkip;
 `,
         'vs:#main-end': `
 vHighlightDepth = instanceHighlightDepth;
 vHighlightDimOpacity = instanceHighlightDimOpacity;
+vSkip = instanceSkip;
 `,
         'fs:#decl': `
 in float vHighlightDepth;
 in float vHighlightDimOpacity;
+in float vSkip;
 `,
         'fs:DECKGL_FILTER_COLOR': `
+if (vSkip > 0.5 && vHighlightDepth > 0.5) {
+  discard;
+}
 if (vHighlightDepth > 0.5) {
   if (vHighlightDimOpacity < 0.0) {
     discard;
@@ -65,6 +74,12 @@ if (vHighlightDepth > 0.5) {
         size: 1,
         accessor: 'getHighlightDimOpacity',
         defaultValue: 1,
+      },
+      instanceSkip: {
+        size: 1,
+        type: 'uint8',
+        accessor: 'getSkip',
+        defaultValue: 0,
       },
     });
   }

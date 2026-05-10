@@ -9,9 +9,7 @@ export default `\
 in vec4 instanceSourceColors;
 in vec4 instanceTargetColors;
 in vec3 instanceSourcePositions;
-in vec3 instanceSourcePositions64Low;
 in vec3 instanceTargetPositions;
-in vec3 instanceTargetPositions64Low;
 in vec3 instancePickingColors;
 in float instanceWidths;
 in float instanceHeights;
@@ -165,11 +163,8 @@ void main(void) {
       segmentRatio = mix(segmentRatio, nextSegmentRatio, t);
     }
 
-    vec3 currPos64Low = mix(instanceSourcePositions64Low, instanceTargetPositions64Low, segmentRatio);
-    vec3 nextPos64Low = mix(instanceSourcePositions64Low, instanceTargetPositions64Low, nextSegmentRatio);
-  
-    curr = project_position_to_clipspace(currPos, currPos64Low, vec3(0.0), geometry.position);
-    next = project_position_to_clipspace(nextPos, nextPos64Low, vec3(0.0));
+    curr = project_position_to_clipspace(currPos, vec3(0.0), vec3(0.0), geometry.position);
+    next = project_position_to_clipspace(nextPos, vec3(0.0), vec3(0.0));
   
   } else {
     vec3 source_world = instanceSourcePositions;
@@ -182,8 +177,8 @@ void main(void) {
       if (deltaLng > 180.) target_world.x -= 360.;
       if (deltaLng < -180.) source_world.x -= 360.;
     }
-    source = project_position(source_world, instanceSourcePositions64Low);
-    target = project_position(target_world, instanceTargetPositions64Low);
+    source = project_position(source_world, vec3(0.0));
+    target = project_position(target_world, vec3(0.0));
 
     // common x at longitude=-180
     float antiMeridianX = 0.0;

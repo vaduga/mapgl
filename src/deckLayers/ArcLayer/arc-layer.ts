@@ -130,6 +130,8 @@ export const MyArcLayer = (props) => {
         //<BartSegment>
         ...layerProps,
         id: colTypes.Edges + '-arc-blobs' + srcGraphId,
+        getSourceColor: (d: BartSegment) => getColor('sideA', d, { ignoreSkip: true }),
+        getTargetColor: (d: BartSegment) => getColor('sideB', d, { ignoreSkip: true }),
         getSourceArrow: (d: BartSegment) => d.properties.arcStyle?.sideA.arrow ?? 0,
         getTargetArrow: (d: BartSegment) => d.properties.arcStyle?.sideB.arrow ?? 0,
         getFrequency: (d) => 10,

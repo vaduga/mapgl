@@ -1,7 +1,7 @@
 import type { Accessor } from '@deck.gl/core';
-import { ArcLayer } from '@deck.gl/layers';
 import vs from './arc-layer-vertex.glsl';
 import { arcUniforms } from './arc-layer-uniforms';
+import GradientArcLayer from './gradient-arc-layer';
 
 type AnimatedBlobsLayerProps<DataT = unknown> = {
   getSourceArrow?: Accessor<DataT, number>;
@@ -13,13 +13,13 @@ type AnimatedBlobsLayerProps<DataT = unknown> = {
 };
 
 const defaultProps = {
-  ...ArcLayer.defaultProps,
+  ...GradientArcLayer.defaultProps,
   coef: { type: 'number', value: 1.0, min: 0.0, max: 1.0 },
   getSourceArrow: { type: 'accessor', value: 0 },
   getTargetArrow: { type: 'accessor', value: 0 },
 };
 
-export default class AnimatedBlobsLayer<DataT = any> extends ArcLayer<DataT, AnimatedBlobsLayerProps<DataT>> {
+export default class AnimatedBlobsLayer<DataT = any> extends GradientArcLayer<DataT, AnimatedBlobsLayerProps<DataT>> {
   static layerName = 'AnimatedBlobsLayer';
   static defaultProps = defaultProps;
 
@@ -120,6 +120,8 @@ export default class AnimatedBlobsLayer<DataT = any> extends ArcLayer<DataT, Ani
     if (color.a == 0.0) {
         discard;
     }
+
+    ${shaders.inject?.['fs:DECKGL_FILTER_COLOR'] ?? ''}
 `,
     };
     return {
