@@ -305,6 +305,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
   const hoverRevision = pointStore.getHoverRevision;
   const hasHoverHighlight = pointStore.getHasHoverHighlight;
+  const canDimGraph = hasHoverHighlight && (isLogic || (!isLogic && !isHyper));
 
   const connectedHoverLayers = useMemo(
     () => {
@@ -331,16 +332,15 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
   );
 
   const renderedLayers = useMemo(() => {
-    const baseLayers =
-      isLogic && hasHoverHighlight
-        ? getDimmedGraphLayers(layers, {
-            connectedNodeIds: pointStore.getHoveredConnectedNodeIds,
-            connectedEdgeIndexes: pointStore.getHoveredConnectedEdgeIndexes,
-            isHyper,
-          })
-        : layers;
+    const baseLayers = canDimGraph
+      ? getDimmedGraphLayers(layers, {
+          connectedNodeIds: pointStore.getHoveredConnectedNodeIds,
+          connectedEdgeIndexes: pointStore.getHoveredConnectedEdgeIndexes,
+          isHyper,
+        })
+      : layers;
     return [...baseLayers, ...connectedHoverLayers].filter(Boolean);
-  }, [layers, connectedHoverLayers, isLogic, hasHoverHighlight, pointStore, isHyper]);
+  }, [layers, connectedHoverLayers, canDimGraph, pointStore, isHyper]);
 
 
   useEffect(() => {
