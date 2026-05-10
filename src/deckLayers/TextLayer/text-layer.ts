@@ -49,6 +49,7 @@ const LineTextLayer = ({
   return new TextLayer({
     data,
     visible: ['nums', 'bbox'].includes(type) || Labels,
+    ...(type === 'arcLabels' ? { parameters: { depthTest: false } } : {}),
     pickable: false,
     id: colTypes.Text + '-' + type + id,
     getText: (d: any) => {
