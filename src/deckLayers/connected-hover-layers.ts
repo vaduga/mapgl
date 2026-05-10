@@ -4,7 +4,7 @@ import { RGBAColor } from 'mapLib/utils';
 import { toRGB4Array } from '../utils';
 import { CurveEdgeLayer } from './GeoJsonEdgesLayer/curve-edge-layer';
 import { getArrowColor } from './ArrowLayer/edge-arrow-layer';
-import type { ConnectedEdgeIndex } from './graph-highlighter';
+import { makeScopedKey, type ConnectedEdgeIndex } from './graph-highlighter';
 import GradientArcLayer from './ArcLayer/gradient-arc-layer';
 import AnimatedBlobsLayer from './ArcLayer/animated-blobs-layer';
 
@@ -293,7 +293,7 @@ function getConnectedNodeTextLayer(layer: Layer, connectedNodeIds: Set<string>) 
   }
 
   const textData = data as any[] & { attributes?: Record<string, any> };
-  const connectedData = textData.filter((d) => connectedNodeIds.has(d?.properties?.locName)) as any[] & {
+  const connectedData = textData.filter((d) => isConnectedNode(d?.properties, connectedNodeIds)) as any[] & {
     attributes?: Record<string, any>;
   };
   if (!connectedData.length) {
@@ -340,10 +340,10 @@ function getFilteredTextColorArray(colors, data: any[]) {
 }
 
 function getConnectedNodeBiCol(data, connectedNodeIds: Set<string>) {
-  return getFilteredNodeBiCol(data, (locName) => connectedNodeIds.has(locName));
+  return getFilteredNodeBiCol(data, (props) => isConnectedNode(props, connectedNodeIds));
 }
 
-function getFilteredNodeBiCol(data, predicate: (locName: string) => boolean) {
+function getFilteredNodeBiCol(data, predicate: (props: any) => boolean) {
   const points = data?.points;
   const featureIds = points?.featureIds?.value;
   const positions = points?.positions?.value;
@@ -358,8 +358,8 @@ function getFilteredNodeBiCol(data, predicate: (locName: string) => boolean) {
 
   const selectedIndexes: number[] = [];
   for (let i = 0; i < featureIds.length; i++) {
-    const locName = properties[featureIds[i]]?.locName;
-    if (predicate(locName)) {
+    const props = properties[featureIds[i]];
+    if (predicate(props)) {
       selectedIndexes.push(i);
     }
   }
@@ -475,8 +475,7 @@ function getDimmedColorArray(colors, featureIds, properties, connectedNodeIds: S
   nextColors.set(colors);
 
   for (let i = 0; i < featureIds.length; i++) {
-    const locName = properties[featureIds[i]]?.locName;
-    if (connectedNodeIds.has(locName)) {
+    if (isConnectedNode(properties[featureIds[i]], connectedNodeIds)) {
       continue;
     }
 
@@ -485,6 +484,16 @@ function getDimmedColorArray(colors, featureIds, properties, connectedNodeIds: S
   }
 
   return nextColors;
+}
+
+function isConnectedNode(props: any, connectedNodeIds: Set<string>): boolean {
+  const locName = props?.locName;
+  if (!locName) {
+    return false;
+  }
+
+  const graphId = props?.root?.id;
+  return connectedNodeIds.has(graphId ? makeScopedKey(String(graphId), locName) : locName);
 }
 
 function getAccessorValue(accessor: any, object: any, info: any, fallback: number): number {

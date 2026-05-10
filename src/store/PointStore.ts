@@ -5,7 +5,7 @@ import { Edge, Graph, Node } from 'mapLib';
 import { SelectNodeEvent } from '../utils/bus.events';
 import { Subscription } from 'rxjs';
 import type { DeckGLRefWithViewManager } from '../types';
-import { GraphHighlighter, type ConnectedEdgeIndex } from '../deckLayers/graph-highlighter';
+import { GraphHighlighter } from '../deckLayers/graph-highlighter';
 
 class PointStore {
   root: RootStore;
@@ -17,9 +17,9 @@ class PointStore {
   isShowCenter: ViewState | undefined;
   selEdges: Edge[] = [];
   hoveredNodeId: string | null = null;
+  hoveredNodeGraphId: string | null = null;
   hoveredEdgeId: string | null = null;
-  hoveredConnectedNodeIds = new Set<string>();
-  hoveredConnectedEdgeIndexes: ConnectedEdgeIndex[] = [];
+  hoveredEdgeGraphId: string | null = null;
   hoverRevision = 0;
   hoverHighlighter = new GraphHighlighter();
   commentOpenIdx = -1;
@@ -93,9 +93,9 @@ class PointStore {
 
         if (select) {
           if (edge) {
-            this.setHoveredEdgeId(edge.id);
+            this.setHoveredEdgeId(edge.id, String((edge.source.parent as Graph)?.id ?? graphId ?? ''));
           } else if (node) {
-            this.setHoveredNodeId(node.id);
+            this.setHoveredNodeId(node.id, String((node.parent as Graph)?.id ?? graphId ?? ''));
           } else {
             this.setHoveredElement(null, null);
           }
@@ -179,11 +179,11 @@ class PointStore {
   }
 
   get getHoveredConnectedNodeIds() {
-    return this.hoveredConnectedNodeIds;
+    return this.hoverHighlighter.getConnectedNodeIds();
   }
 
   get getHoveredConnectedEdgeIndexes() {
-    return this.hoveredConnectedEdgeIndexes;
+    return this.hoverHighlighter.getConnectedEdgeIndexes();
   }
 
   setSelCoord = (newSelCoord) => {
@@ -194,48 +194,51 @@ class PointStore {
     this.selEdges = edges;
   };
 
-  setHoveredNodeId = (nodeId: string | null) => {
+  setHoveredNodeId = (nodeId: string | null, graphId?: string | null) => {
     this.hoverHighlighter.setGraph(this.root.graph);
 
-    if (this.hoveredNodeId === nodeId && !this.hoveredEdgeId) {
+    const nextGraphId = graphId ?? null;
+    if (this.hoveredNodeId === nodeId && this.hoveredNodeGraphId === nextGraphId && !this.hoveredEdgeId) {
       return;
     }
 
     this.hoveredNodeId = nodeId;
+    this.hoveredNodeGraphId = nextGraphId;
     this.hoveredEdgeId = null;
-    this.hoverHighlighter.update({ sourceId: nodeId, maxDepth: 1 });
-    this.syncHoverHighlighterOutput();
+    this.hoveredEdgeGraphId = null;
+    this.hoverHighlighter.update({ sourceId: nodeId, graphId: nextGraphId, maxDepth: 1, isDefDir: true });
     this.hoverRevision += 1;
   };
 
-  setHoveredEdgeId = (edgeId: string | null) => {
+  setHoveredEdgeId = (edgeId: string | null, graphId?: string | null) => {
     this.hoverHighlighter.setGraph(this.root.graph);
 
-    if (this.hoveredEdgeId === edgeId && !this.hoveredNodeId) {
+    const nextGraphId = graphId ?? null;
+    if (this.hoveredEdgeId === edgeId && this.hoveredEdgeGraphId === nextGraphId && !this.hoveredNodeId) {
       return;
     }
 
     this.hoveredNodeId = null;
+    this.hoveredNodeGraphId = null;
     this.hoveredEdgeId = edgeId;
-    this.hoverHighlighter.updateEdge({ edgeId });
-    this.syncHoverHighlighterOutput();
+    this.hoveredEdgeGraphId = nextGraphId;
+    this.hoverHighlighter.updateEdge({ edgeId, graphId: nextGraphId });
     this.hoverRevision += 1;
   };
 
   refreshHoverHighlighter = () => {
     this.hoverHighlighter.setGraph(this.root.graph, { force: true });
     if (this.hoveredEdgeId) {
-      this.hoverHighlighter.updateEdge({ edgeId: this.hoveredEdgeId });
+      this.hoverHighlighter.updateEdge({ edgeId: this.hoveredEdgeId, graphId: this.hoveredEdgeGraphId });
     } else {
-      this.hoverHighlighter.update({ sourceId: this.hoveredNodeId, maxDepth: 1 });
+      this.hoverHighlighter.update({
+        sourceId: this.hoveredNodeId,
+        graphId: this.hoveredNodeGraphId,
+        maxDepth: 1,
+        isDefDir: true,
+      });
     }
-    this.syncHoverHighlighterOutput();
     this.hoverRevision += 1;
-  };
-
-  private syncHoverHighlighterOutput = () => {
-    this.hoveredConnectedNodeIds = new Set(this.hoverHighlighter.getConnectedNodeIds());
-    this.hoveredConnectedEdgeIndexes = [...this.hoverHighlighter.getConnectedEdgeIndexes()];
   };
 
   setHoveredNodeFromPickingInfo = (info: any) => {
@@ -244,13 +247,14 @@ class PointStore {
       return;
     }
 
-    const nodeId = this.getNodeIdFromPickingInfo(info);
-    if (nodeId) {
-      this.setHoveredNodeId(nodeId);
+    const nodeRef = this.getNodeRefFromPickingInfo(info);
+    if (nodeRef) {
+      this.setHoveredNodeId(nodeRef.nodeId, nodeRef.graphId);
       return;
     }
 
-    this.setHoveredEdgeId(this.getEdgeIdFromPickingInfo(info));
+    const edgeRef = this.getEdgeRefFromPickingInfo(info);
+    this.setHoveredEdgeId(edgeRef?.edgeId ?? null, edgeRef?.graphId);
   };
 
   setHoveredElement = (nodeId: string | null, edgeId: string | null) => {
@@ -331,7 +335,7 @@ class PointStore {
     this.eventSub.unsubscribe();
   };
 
-  private getNodeIdFromPickingInfo(info: any): string | null {
+  private getNodeRefFromPickingInfo(info: any): { nodeId: string; graphId: string | null } | null {
     let props = info.object?.properties ?? info.object;
     const points = info.sourceLayer?.props?.data?.points ?? info.layer?.props?.data?.points;
     let isNodePick = false;
@@ -355,13 +359,27 @@ class PointStore {
 
     const graph = props.root instanceof Graph ? props.root : this.root.graph;
     const node = graph.findNode(locName) ?? this.root.graph.findNodeRecursive(locName);
-    return node?.id ?? null;
+    return node ? { nodeId: node.id, graphId: String((node.parent as Graph)?.id ?? graph.id ?? '') } : null;
   }
 
-  private getEdgeIdFromPickingInfo(info: any): string | null {
+  private getEdgeRefFromPickingInfo(info: any): { edgeId: string; graphId: string | null } | null {
     const object = info.object;
     const edgeId = object?.edgeId ?? object?.properties?.edgeId;
-    return edgeId ?? null;
+    if (!edgeId) {
+      return null;
+    }
+
+    const root = object?.properties?.root ?? object?.feature?.properties?.root;
+    const graphId = root instanceof Graph ? root.id : (root?.id ?? null);
+    return { edgeId, graphId: graphId ? String(graphId) : null };
+  }
+
+  private isClusterPickingInfo(info: any): boolean {
+    const layerId = info.layer?.id ?? '';
+    const sourceLayerId = info.sourceLayer?.id ?? '';
+    const props = info.object?.properties ?? info.object;
+
+    return layerId === 'icon-cluster' || sourceLayerId.startsWith('icon-cluster-') || Boolean(props?.cluster);
   }
 }
 
