@@ -37,7 +37,11 @@ export const MyArcLayer = (props) => {
   const isAuto = !lTheme || lTheme === 'auto';
   const isDark = isAuto ? theme.isDark : lTheme === 'dark';
 
-  const getColor = (dir: 'sideA' | 'sideB', d): RGBAColor => {
+  const getColor = (dir: 'sideA' | 'sideB', d, opts?: { ignoreSkip?: boolean }): RGBAColor => {
+    if (!opts?.ignoreSkip && !isBase && d.skip) {
+      return [0, 0, 0, 0];
+    }
+
     const { edgeStyle, arcStyle } = d.properties;
     const all_annots = d.properties.all_annots;
     const { group, color } = arcStyle[dir];
@@ -90,6 +94,8 @@ export const MyArcLayer = (props) => {
     getHeight,
     getSourceColor: (d: BartSegment) => getColor('sideA', d),
     getTargetColor: (d: BartSegment) => getColor('sideB', d),
+    getSkip: (d) => Number(Boolean(d.skip)),
+    getHighlightDepth: (d) => (d.skip ? 1 : 0),
     getFilterCategory: (d) => {
       const { style, layerName, root } = d.properties;
       const groupIdx = style?.group?.groupIdx;

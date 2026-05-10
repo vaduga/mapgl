@@ -1,5 +1,6 @@
 import type { Accessor } from '@deck.gl/core';
-import GradientArcLayer from './gradient-arc-layer';
+import { ArcLayer } from '@deck.gl/layers';
+import vs from './arc-layer-vertex.glsl';
 import { arcUniforms } from './arc-layer-uniforms';
 
 type AnimatedBlobsLayerProps<DataT = unknown> = {
@@ -12,13 +13,13 @@ type AnimatedBlobsLayerProps<DataT = unknown> = {
 };
 
 const defaultProps = {
-  ...GradientArcLayer.defaultProps,
+  ...ArcLayer.defaultProps,
   coef: { type: 'number', value: 1.0, min: 0.0, max: 1.0 },
   getSourceArrow: { type: 'accessor', value: 0 },
   getTargetArrow: { type: 'accessor', value: 0 },
 };
 
-export default class AnimatedBlobsLayer<DataT = any> extends GradientArcLayer<DataT, AnimatedBlobsLayerProps<DataT>> {
+export default class AnimatedBlobsLayer<DataT = any> extends ArcLayer<DataT, AnimatedBlobsLayerProps<DataT>> {
   static layerName = 'AnimatedBlobsLayer';
   static defaultProps = defaultProps;
 
@@ -57,7 +58,6 @@ export default class AnimatedBlobsLayer<DataT = any> extends GradientArcLayer<Da
       'fs:#main-start': shaders.inject?.['fs:#main-start'] ?? '',
 
       'fs:DECKGL_FILTER_COLOR': `
-    ${shaders.inject?.['fs:DECKGL_FILTER_COLOR'] ?? ''}
     // Check if both directions are zero, skip processing entirely if true
     if (vArrowDir == 0.0 && vArrow2Dir == 0.0) {
         discard;
@@ -124,6 +124,7 @@ export default class AnimatedBlobsLayer<DataT = any> extends GradientArcLayer<Da
     };
     return {
       ...shaders,
+      vs,
       modules: [...shaders.modules.filter((m) => m.name !== 'arc'), arcUniforms],
     };
   }

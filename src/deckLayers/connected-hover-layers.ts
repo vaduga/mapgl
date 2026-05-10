@@ -98,11 +98,29 @@ function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<
     });
   }
 
+  if (layer instanceof AnimatedBlobsLayer) {
+    const blobLayer = layer as any;
+    return layer.clone({
+      getSourceColor: (d: any, info: any) => getDimmedBlobColor(blobLayer, d, info, connectedFeatureDepths, 'sideA'),
+      getTargetColor: (d: any, info: any) => getDimmedBlobColor(blobLayer, d, info, connectedFeatureDepths, 'sideB'),
+      getWidth: (d: any, info: any) => {
+        const width = getAccessorValue(blobLayer.props.getWidth, d, info, 1);
+        return connectedFeatureDepths.has(info.index) ? Math.max(3, width * 2.2) : width;
+      },
+      updateTriggers: {
+        ...layer.props.updateTriggers,
+        getSourceColor: [blobLayer.props.updateTriggers?.getSourceColor, highlightDepthTrigger],
+        getTargetColor: [blobLayer.props.updateTriggers?.getTargetColor, highlightDepthTrigger],
+        getWidth: [blobLayer.props.updateTriggers?.getWidth, highlightDepthTrigger],
+      },
+    } as any);
+  }
+
   if (isArcLayer(layer)) {
     const arcLayer = layer as any;
     return layer.clone({
       getHighlightDepth: (_d: any, info: any) =>
-        connectedFeatureDepths.has(info.index) ? 0 : Number.MAX_SAFE_INTEGER,
+        connectedFeatureDepths.has(info.index) ? 0 : 1,
       getHighlightDimOpacity: 0.18,
       getWidth: (d: any, info: any) => {
         const width = getAccessorValue(arcLayer.props.getWidth, d, info, 1);
@@ -208,6 +226,34 @@ function getAccessorResult(accessor: any, object: any, info: any, fallback: any)
 function getDimmedRgba(color: any, opacity: number): RGBAColor {
   const rgba = Array.isArray(color) ? ([...color] as RGBAColor) : toRGB4Array(color, 1);
   rgba[3] = Math.round((rgba[3] ?? 255) * opacity);
+  return rgba;
+}
+
+function getDimmedBlobColor(
+  layer: any,
+  d: any,
+  info: any,
+  connectedFeatureDepths: Map<number, number>,
+  side: 'sideA' | 'sideB'
+): RGBAColor {
+  const connected = connectedFeatureDepths.has(info.index);
+  if (d?.skip) {
+    return connected ? getArcSideColor(d, side) : [0, 0, 0, 0];
+  }
+
+  const accessor = side === 'sideA' ? layer.props.getSourceColor : layer.props.getTargetColor;
+  const color = getAccessorResult(accessor, d, info, [0, 0, 0, 255]);
+  return connected ? color : getDimmedRgba(color, 0.18);
+}
+
+function getArcSideColor(feature: any, side: 'sideA' | 'sideB'): RGBAColor {
+  const edgeStyle = feature?.properties?.edgeStyle;
+  const arcStyle = feature?.properties?.arcStyle?.[side];
+  const color = arcStyle?.group?.color ?? arcStyle?.color ?? [0, 0, 0, 255];
+  const rgba = Array.isArray(color) ? ([...color] as RGBAColor) : toRGB4Array(color, 1);
+  if (edgeStyle?.opacity !== undefined) {
+    rgba[3] = Math.round(edgeStyle.opacity * 255);
+  }
   return rgba;
 }
 
