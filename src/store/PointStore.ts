@@ -73,6 +73,7 @@ class PointStore {
       } //  && !isLogic  . logic layer crosshair selection
 
       const { nodeId, edgeId, graphId, fly, coord, select, zoomIn } = evt.payload;
+      console.log('evt.payload', evt.payload);
 
       let wasmId;
       if (nodeId || edgeId || select) {
@@ -144,9 +145,7 @@ class PointStore {
           }
           if (fly) {
             this.root.viewStore.setViewState(viewState);
-            this.setIsShowCenter({ ...viewState });
           }
-          this.setIsShowCenter({ ...viewState });
         }
       }
     });
@@ -159,14 +158,6 @@ class PointStore {
   get isDefDir() {
     return !this.isReversed;
   }
-
-  get getIsShowCenter() {
-    return this.isShowCenter;
-  }
-
-  setIsShowCenter = (viewState: ViewState) => {
-    this.isShowCenter = viewState;
-  };
 
   setIsDefDir = (isDefDir: boolean) => {
     if (this.isDefDir === isDefDir) {
@@ -196,10 +187,13 @@ class PointStore {
   }
 
   get getHoveredConnectedNodeIds() {
+    void this.hoverRevision;
     return this.hoverHighlighter.getConnectedNodeIds();
   }
 
   get getHoveredConnectedEdgeIndexes() {
+    void this.hoverRevision;
+    console.log('rr getHoveredConnectedEdgeIndexes');
     return this.hoverHighlighter.getConnectedEdgeIndexes();
   }
 
@@ -298,10 +292,6 @@ class PointStore {
     }
   };
 
-  setDrawerOpen = (flag) => {
-    this.isDrawerOpen = flag;
-  };
-
   setEdgeListed = (flag) => {
     if (this.isEdgeListed === flag) {
       return;
@@ -312,10 +302,6 @@ class PointStore {
       this.refreshHoverHighlighter();
     }
   };
-
-  get getisDrawerOpen() {
-    return this.isDrawerOpen;
-  }
 
   get getisEdgeListed() {
     return this.isEdgeListed;
@@ -407,7 +393,6 @@ class PointStore {
     const edges = selNode && edgeGroups.map((edges) => edges[0]).filter((edge) => edge !== undefined);
 
     const selEdges = pickedEdges?.length ? pickedEdges : node && Array.isArray(edges) && edges.length ? edges : [];
-
     this.setSelEdges(selEdges);
   };
 
@@ -454,13 +439,6 @@ class PointStore {
     return { edgeId, graphId: graphId ? String(graphId) : null };
   }
 
-  private isClusterPickingInfo(info: any): boolean {
-    const layerId = info.layer?.id ?? '';
-    const sourceLayerId = info.sourceLayer?.id ?? '';
-    const props = info.object?.properties ?? info.object;
-
-    return layerId === 'icon-cluster' || sourceLayerId.startsWith('icon-cluster-') || Boolean(props?.cluster);
-  }
 }
 
 export default PointStore;

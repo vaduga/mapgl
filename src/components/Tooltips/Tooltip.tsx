@@ -41,7 +41,6 @@ const Tooltip = ({
   const { pointStore, pId } = useRootStore();
   const theme = useTheme2();
   const [selIdx, setSelIdx] = useState(-1);
-  const [trespassDir, setTrespassDir] = useState<boolean | undefined>();
 
   if (!info || !Object.entries(info).length) {
     return null;
@@ -299,7 +298,7 @@ const Tooltip = ({
       if (!lines?.length) {
         return null;
       }
-      const isListed = getisEdgeListed && (isTrespass ? trespassDir === listIsDefDir : isDefDir === listIsDefDir);
+      const isListed = getisEdgeListed && (isDefDir === listIsDefDir);
       return (
         isListed && (
           <ul>

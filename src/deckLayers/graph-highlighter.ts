@@ -210,6 +210,7 @@ export class GraphHighlighter {
       .map((key) => this.edgeIndexes.get(key))
       .filter((edgeIndex): edgeIndex is ConnectedEdgeIndex => Boolean(edgeIndex))
       .map((edgeIndex) => ({ ...edgeIndex, depth: 0 }));
+
   }
 
   updateEdges(edges: Edge[]) {

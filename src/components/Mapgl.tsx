@@ -67,11 +67,8 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     setHoveredNodeFromPickingInfo,
     refreshHoverHighlighter,
     setTooltipObject,
-    setDrawerOpen,
     getSelCoord,
     isDefDir,
-    getIsShowCenter,
-    setIsShowCenter,
     //</editor-fold>
   } = pointStore;
 
@@ -245,11 +242,9 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     pId: panel.pId,
     setSelCoord,
     isDefDir,
-    setIsShowCenter,
     setTooltipObject,
     setLocalViewState,
     setHoverInfo,
-    setDrawerOpen,
     getTooltipObject,
     //</editor-fold>
   };
@@ -339,7 +334,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
         })
       : layers;
     return [...baseLayers, ...connectedHoverLayers].filter(Boolean);
-  }, [layers, connectedHoverLayers, canDimGraph, pointStore, isHyper]);
+  }, [layers, connectedHoverLayers, canDimGraph, pointStore, hoverRevision, isHyper]);
 
   useEffect(() => {
     flushSync(() => {
@@ -349,7 +344,6 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
       const { longitude, latitude } = getViewState;
       setLocalViewState(getViewState);
       setSelCoord({ type: 'Point', coordinates: [longitude, latitude] });
-      setIsShowCenter(getViewState);
     });
   }, [getViewState]);
 
@@ -360,7 +354,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
     const secDataLayers = panel.layers
       .slice(1)
-      .filter((el) => el.layer.colType !== colTypes.Markers && el.layer.features?.length);
+      .filter(el => el.layer.colType !== colTypes.Markers && el.layer.features?.length);
     let poly = 0,
       path = 0,
       geojson = 0;
@@ -763,7 +757,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
       {isShowSwitcher && memoLayerSwitcher}
     </div>
   );
-};;
+};
 
 export default observer(Mapgl);
 

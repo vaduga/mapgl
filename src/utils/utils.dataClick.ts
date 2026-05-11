@@ -11,7 +11,6 @@ export const expandTooltip = (
 ) => {
   const {
     setSelCoord,
-    setIsShowCenter,
     setTooltipObject,
     setLocalViewState,
     pId
@@ -75,20 +74,6 @@ export const expandTooltip = (
     if (locName) {
       const nodeMap = subGraph?.nodeCollection?.getNodeMap;
       const node = nodeMap?.get(locName) ?? subGraph;
-      const feature = subGraph?.data?.feature ?? node?.data?.feature;
-      const geom = feature?.geometry;
-      const OSM = map?.getZoom && map?.getZoom();
-      if (geom) {
-        const [longitude, latitude] = geom?.center ?? geom?.coordinates;
-        setIsShowCenter({
-          longitude,
-          latitude,
-          zoom: OSM ? OSM : 18,
-          bearing: 0,
-          pitch: 0,
-        });
-      }
-
       setTooltipObject({ ...info, object }); // this pins tooltip
 
       if (node) {
@@ -122,7 +107,6 @@ export const expandTooltip = (
     }
   } else {
     // reset tooltip by clicking blank space
-    setIsShowCenter(null);
     selectGotoHandler({ pId, eventBus, select: true });
     setTooltipObject({});
   }
