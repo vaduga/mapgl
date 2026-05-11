@@ -1,5 +1,9 @@
 # Changelog Mapgl
 
+## 2.4.1
+- Fix cross-namespace edges with > 1 segment
+- graph highlighter pre-release. Dimm using GPU shader mask.
+
 ## 2.4.0
 - edge routing modes: SugiyamaSplines/Rectilinear
 - edge curve interpolation on GPU shaders
