@@ -193,7 +193,6 @@ class PointStore {
 
   get getHoveredConnectedEdgeIndexes() {
     void this.hoverRevision;
-    console.log('rr getHoveredConnectedEdgeIndexes');
     return this.hoverHighlighter.getConnectedEdgeIndexes();
   }
 
