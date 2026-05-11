@@ -9,13 +9,13 @@ import {
   mockEdgeGraphData,
   mockTextConfig,
   parseRoute,
+  resolveFeatureGroup,
   toRGB4Array,
 } from '../../utils';
 import { ExtendMapLayerRegistryItem, ExtendFrameGeometrySourceMode, ExtendMapLayerOptions } from '../../extension';
 import { StyleEditor } from '../../editor/StyleEditor';
 import { defaultStyleConfig, StyleConfig } from '../../style/types';
 import { getStyleConfigState } from '../../style/utils';
-import { getGroupRules } from '../../editor/Groups/data/rules_processor';
 
 import { Options } from '../../types';
 import { MapPanel } from '../../MapPanel';
@@ -253,7 +253,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
           const colorField = style.dims.color?.field;
           const colorThresholds = isFixed
             ? undefined
-            : (style.config?.color?.thresholds ?? colorField?.config?.thresholds);
+            : style.config?.color?.thresholds ?? colorField?.config?.thresholds;
           featSource.setThresholds(colorThresholds);
 
           const fieldValues = new Map(frame.fields.map((f) => [f.name, f.values]));
@@ -272,7 +272,9 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
 
           const ruleFieldNames = Array.from(
             new Set(
-              panel.groups.flatMap((group) => (group.overrides as OverField[])?.map((override) => override.name) ?? [])
+              featSource.getGroups.flatMap((group) =>
+                Array.isArray(group.overrides) ? group.overrides.map((override) => override.name) : []
+              )
             )
           );
           const makeRulePoint = (rowIndex: number, thrColor?: string) => {
@@ -351,88 +353,17 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               const rgba = toRGB4Array(hexColor);
               stValues.color = rgba;
 
-              const matchedRules = getGroupRules(point, featSource.getGroups, theme, isFixed, locField, locName);
-              const fixedFallbackGroup =
-                isFixed &&
-                featSource.getGroups.find(
-                  (rule) =>
-                    rule.isEph &&
-                    rule.color === hexColor &&
-                    rule.overrides?.some(
-                      (override) =>
-                        override.name === 'thrColor' &&
-                        Array.isArray(override.value) &&
-                        override.value.includes(FIXED_COLOR_LABEL)
-                    )
-                );
-              const tintModeRule =
-                matchedRules.find((rule) => !rule.isEph && rule.svgTintMode !== undefined) ??
-                matchedRules.find((rule) => rule.svgTintMode !== undefined);
-              const baseGroup =
-                matchedRules.find(
-                  (rule) =>
-                    !rule.isEph &&
-                    (rule.color !== undefined ||
-                      rule.width !== undefined ||
-                      rule.size !== undefined ||
-                      rule.iconName !== undefined ||
-                      rule.svgTintMode !== undefined ||
-                      rule.offset !== undefined)
-                ) ??
-                matchedRules.find((rule) => !rule.isEph) ??
-                matchedRules[0];
-              /// original threshold. May contain no color
-              group = baseGroup ? { ...baseGroup } : undefined;
-              /// Prefer explicit group rule colors over ephemeral threshold/fixed fallbacks.
-              const nextThr =
-                matchedRules.find((r) => !r.isEph && r.color !== undefined) ??
-                matchedRules.find((r) => r.color !== undefined);
-
-              if (nextThr?.color) {
-                if (group) {
-                  group.color = nextThr.color && toRGB4Array(nextThr.color);
-                  group.groupIdx = nextThr.groupIdx;
-                } else {
-                  group = { ...nextThr, color: toRGB4Array(nextThr.color) };
-                }
-              } else if (isFixed) {
-                const fallbackGroup = fixedFallbackGroup ? { ...fixedFallbackGroup, color: rgba } : undefined;
-                if (group) {
-                  group.color = rgba;
-                  group.groupIdx = fallbackGroup?.groupIdx ?? group.groupIdx;
-                } else {
-                  group = fallbackGroup;
-                }
-              } else {
-                const groupIdx = panel.groups.length;
-                const newGroup: Rule = {
-                  label: hexColor,
-                  color: hexColor,
-                  isEph: true,
-                  groupIdx,
-                  overrides: [
-                    {
-                      name: 'thrColor',
-                      type: FieldType.enum,
-                      value: [thrColor ?? hexColor],
-                    },
-                  ],
-                };
-
-                featSource.addGroup(newGroup);
-                panel.groups.push(newGroup);
-
-                if (group) {
-                  group.color = rgba;
-                } else {
-                  group = { ...newGroup, color: toRGB4Array(newGroup.color!) };
-                }
-                group.groupIdx = newGroup.groupIdx;
-              }
-
-              if (group) {
-                group.svgTintMode = tintModeRule?.svgTintMode ?? group.svgTintMode ?? baseGroup?.svgTintMode ?? 'none';
-              }
+              ({ group } = resolveFeatureGroup({
+                feature: point,
+                featSource,
+                allGroups: panel.groups,
+                theme,
+                isFixed,
+                locField,
+                locName,
+                hexColor,
+                rgba,
+              }));
 
               stValues.group = group;
               if (dims?.size) {

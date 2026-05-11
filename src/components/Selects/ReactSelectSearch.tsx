@@ -66,7 +66,7 @@ const ReactSelectSearch: FC<MapRefProps> = ({
         dataLayers?.length && dataLayers.find((el) => el.type === colTypes.Markers && el.name === layerName);
       const searchProperties = layer?.searchProperties;
       const frame: DataFrame | undefined = frameRefId
-        ? (data.series.find((el) => el.refId === frameRefId || el.name === frameRefId) ?? data.series[0])
+        ? data.series.find((el) => el.refId === frameRefId || el.name === frameRefId) ?? data.series[0]
         : data.series[0];
 
       const paneProps = searchProperties?.length ? searchProperties : [];

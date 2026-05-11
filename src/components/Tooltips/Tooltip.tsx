@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { selectGotoHandler, toRgbaString, useRootStore } from '../../utils';
 import { css } from '@emotion/css';
-import { IconButton, SeriesIcon, useStyles2, VizTooltipContainer } from '@grafana/ui';
+import { IconButton, SeriesIcon, useStyles2, useTheme2, VizTooltipContainer } from '@grafana/ui';
 import { DataFrame, Field, FieldType, GrafanaTheme2 } from '@grafana/data';
 import { BiColProps, colTypes } from 'mapLib/utils';
 import { DataHoverView } from './DataHoverView';
@@ -12,14 +12,79 @@ import { Node, Edge } from 'mapLib';
 const includes = ['ack', 'msg', 'all_annots', 'liveUpd']; //liveStat
 const TOOLTIP_OFFSET = 10;
 
-const Tooltip = ({ data, panel, info, eventBus, setHoverInfo, time, isClosed = false, dataLayers }) => {
+function dedupeHyperedgeList(edges: Edge[]): Edge[] {
+  const seen = new Set<string>();
+
+  return edges.filter((edge) => {
+    const key = edge.data?.edge_id ?? edge.data?.edgeId ?? edge.id;
+    if (seen.has(String(key))) {
+      return false;
+    }
+
+    seen.add(String(key));
+    return true;
+  });
+}
+
+const Tooltip = ({
+  data,
+  panel,
+  info,
+  eventBus,
+  setHoverInfo,
+  time,
+  isClosed = false,
+  isHyper,
+  dataLayers,
+}) => {
   const s = useStyles2(getStyles);
   const { pointStore, pId } = useRootStore();
+  const theme = useTheme2();
+  const [selIdx, setSelIdx] = useState(-1);
+  const [trespassDir, setTrespassDir] = useState<boolean | undefined>();
 
   if (!info || !Object.entries(info).length) {
     return null;
   }
-  const { getTooltipObject, setTooltipObject } = pointStore;
+
+  const {
+    getTooltipObject,
+    setTooltipObject,
+    isDefDir,
+    setIsDefDir,
+    setEdgeListed,
+    getisEdgeListed,
+  } = pointStore;
+
+  const handleEdgeListed = (nextIsDefDir?: boolean) => {
+    if (nextIsDefDir === undefined) {
+      setEdgeListed(!getisEdgeListed);
+      return;
+    }
+
+    if (getisEdgeListed && isDefDir === nextIsDefDir) {
+      setEdgeListed(false);
+      return;
+    }
+
+    setIsDefDir(nextIsDefDir);
+    setEdgeListed(true);
+  };
+  const handleEdgeCountClick = (nextIsDefDir: boolean) => {
+    setIsDefDir(nextIsDefDir);
+    setSelIdx(-1);
+    selectGotoHandler({
+      pId,
+      value: props.locName,
+      graphId: graph.id,
+      eventBus,
+      select: true,
+    });
+  };
+  const handleEdgeTriggerClick = (nextIsDefDir: boolean) => {
+    handleEdgeListed(nextIsDefDir);
+    handleEdgeCountClick(nextIsDefDir);
+  };
 
   let { x, y, object, coordinate, featureType, index, layer: deckLayer } = info;
 
@@ -58,9 +123,10 @@ const Tooltip = ({ data, panel, info, eventBus, setHoverInfo, time, isClosed = f
   rowIndex = rowIndex ?? object?.rowIndex ?? object?.properties?.rowIndex; //?? featureIds?.value?.[index];  // pinned && lines && other collections ?? binary nodes row index
 
   const layerProps = info.layer?.props;
-  const { frameRefId, locName, layerName, root: graph } = props || {};
-  const edge: Edge = graph?.nodeCollection?.getEdgesMap[edgeId];
-  const eNode = edge?.['source'];
+  const { frameRefId, locName, layerName, layerIdx, root: graph } = props || {};
+  const edge: Edge = edgeId !== undefined && graph?.nodeCollection?.getEdgesMap[edgeId];
+  const edge_id = edge?.data?.edge_id;
+  const eNode = edge?.[isDefDir ? 'source' : 'target'];
   const findNode = graph?.findNode;
   const pickedNode: Node = eNode ?? findNode?.(locName);
   const pickedFeature = pickedNode?.data.feature;
@@ -80,7 +146,23 @@ const Tooltip = ({ data, panel, info, eventBus, setHoverInfo, time, isClosed = f
     displayProps = [...displayProps, 'text'];
   }
 
-  props.parents = edge ? [edge] : [];
+  const segrPath = props.segrPath;
+  const hasTrespassAnchor = Boolean(edge && segrPath);
+  const isTrespass = hasTrespassAnchor || Boolean(props.isTrespass);
+
+  if (!edge) {
+    pointStore.hoverHighlighter.setGraph(panel.graph);
+
+    const inEdges = dedupeHyperedgeList(pointStore.hoverHighlighter.getInEdges(pickedNode));
+    const outEdges = dedupeHyperedgeList(pointStore.hoverHighlighter.getOutEdges(pickedNode));
+
+    if (inEdges.length) {
+      props.inEdges = inEdges;
+    }
+    if (outEdges.length) {
+      props.outEdges = outEdges;
+    }
+  }
 
   /// geojson static or comment icon entries
   const entries = isComment ? Object.entries(props) : props['geoJsonProps'] && Object.entries(props['geoJsonProps']);
@@ -93,7 +175,7 @@ const Tooltip = ({ data, panel, info, eventBus, setHoverInfo, time, isClosed = f
   };
 
   const frame: DataFrame | undefined = frameRefId
-    ? (data.series.find((el) => el.refId === frameRefId || el.name === frameRefId) ?? data.series[0])
+    ? data.series.find((el) => el.refId === frameRefId || el.name === frameRefId) ?? data.series[0]
     : data.series[0];
 
   if (frame) {
@@ -153,9 +235,17 @@ const Tooltip = ({ data, panel, info, eventBus, setHoverInfo, time, isClosed = f
       //&& parent === getSelectedNode --- would need pinned tooltip rerender
       return (
         <li key={edgeId}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              backgroundColor: i === selIdx ? theme.colors.secondary.shade : undefined,
+            }}
+          >
+            {/*{pinned && <SetVarsIcon {...{nodeId: node?.id, edgeId, isDefDir}}/>}*/}
             <a
               onClick={() => {
+                setSelIdx(i);
                 selectGotoHandler({
                   pId,
                   value: node?.id,
@@ -168,10 +258,12 @@ const Tooltip = ({ data, panel, info, eventBus, setHoverInfo, time, isClosed = f
                 setTooltipObject({
                   ...getTooltipObject,
                   object: {
-                    edgeId: object.edgeId,
+                    edgeId: object?.edgeId,
                     properties: {
                       ...dataRecord,
+                      edgeId,
                       locName: props.locName,
+                      ...(isTrespass && { isTrespass: true }),
                       inEdges: props.inEdges,
                       outEdges: props.outEdges,
                     },
@@ -194,9 +286,83 @@ const Tooltip = ({ data, panel, info, eventBus, setHoverInfo, time, isClosed = f
         </li>
       );
     };
+    const { inEdges, outEdges, parents } = props;
+    const inLen = inEdges?.length ?? 0;
+    const outLen = outEdges?.length ?? 0;
+    const toLines = inEdges?.map((e: Edge, i) => genLi(e.source, e, i));
+    const revLines = outEdges?.map((e: Edge, i) => genLi(e.target, e, i + inLen));
+    const adjacentEdges = (edge ? [edge] : parents)?.map((e, i) => genLi(pickedNode, e, parents?.length > 1 && i)) ?? [];
+    const inEdgesLabel = isTrespass ? 'trespassing edges right' : 'incoming';
+    const outEdgesLabel = isTrespass ? 'trespassing edges left' : 'outgoing';
 
-    const { parents } = props;
-    const adjacentEdges = parents?.map((e, i) => genLi(pickedNode, e, parents?.length > 1 && i));
+    const renderLines = (lines, listIsDefDir?: boolean) => {
+      if (!lines?.length) {
+        return null;
+      }
+      const isListed = getisEdgeListed && (isTrespass ? trespassDir === listIsDefDir : isDefDir === listIsDefDir);
+      return (
+        isListed && (
+          <ul>
+            {lines.map((line, index) => (
+              <li key={index}>{line}</li>
+            ))}
+          </ul>
+        )
+      );
+    };
+
+    const EdgeListTrigger = ({ label, listIsDefDir, isListed, lineCount }) => (
+      <span className={s.edgeListHeader}>
+        <IconButton
+          className={`${s.edgeListTrigger} ${isListed ? s.edgeListTriggerActive : ''}`}
+          size="sm"
+          aria-label={`${isListed ? 'hide' : 'show'} ${label} edges`}
+          aria-pressed={isListed}
+          variant="secondary"
+          name={listIsDefDir ? 'arrow-up' : 'arrow-down'}
+          onClick={() => handleEdgeTriggerClick(listIsDefDir)}
+          {...(!isListed && { tooltip: `${label} edges` })}
+        />
+        <button
+          type="button"
+          className={s.edgeListCountText}
+          aria-label="highlight all"
+          onClick={() => (isListed ? handleEdgeCountClick(listIsDefDir) : handleEdgeTriggerClick(listIsDefDir))}
+          title="highlight all"
+        >
+          {`(${lineCount})`}
+        </button>
+      </span>
+    );
+
+    const renderAdjacentHeader = () => {
+      if (isTrespass || (!toLines?.length && !revLines?.length)) {
+        return null;
+      }
+
+      const inListed = getisEdgeListed && !isDefDir;
+      const outListed = getisEdgeListed && isDefDir;
+      return (
+        <span className={s.edgeListHeaderRow}>
+          {toLines?.length && (
+            <EdgeListTrigger
+              label={inEdgesLabel}
+              listIsDefDir={false}
+              isListed={inListed}
+              lineCount={toLines.length}
+            />
+          )}
+          {revLines?.length && (
+            <EdgeListTrigger
+              label={outEdgesLabel}
+              listIsDefDir={true}
+              isListed={outListed}
+              lineCount={revLines.length}
+            />
+          )}
+        </span>
+      );
+    };
 
     return (
       <>
@@ -221,11 +387,30 @@ const Tooltip = ({ data, panel, info, eventBus, setHoverInfo, time, isClosed = f
               )}
 
               {/*{'name: '}*/}
-              {props.locName}
+              <span>{props.locName}</span>
             </li>
           )}
 
-          {adjacentEdges.length === 1 && adjacentEdges}
+          {adjacentEdges.length > 1 && (
+            <span>
+              {`(${adjacentEdges.length})`}
+              <IconButton
+                className={s.fab}
+                size="sm"
+                aria-label={'show nested edges'}
+                key="nestedEdgesWrap"
+                onClick={() => handleEdgeListed()}
+                variant="primary"
+                name={getisEdgeListed ? 'angle-up' : 'angle-down'}
+                {...(!getisEdgeListed && { tooltip: `${isDefDir ? 'outgoing' : 'incoming'} edges` })}
+              />
+            </span>
+          )}
+
+          {(adjacentEdges.length === 1 || getisEdgeListed) && adjacentEdges}
+          {renderAdjacentHeader()}
+          {renderLines(toLines, false)}
+          {renderLines(revLines, true)}
         </ul>
       </>
     );
@@ -268,5 +453,42 @@ const getStyles = (theme: GrafanaTheme2) => ({
     //left: 0;
     //right: 0;
     //margin: 0 auto;
+  `,
+  edgeListHeader: css`
+    display: inline-flex;
+    align-items: center;
+    gap: ${theme.spacing(0.5)};
+  `,
+  edgeListHeaderRow: css`
+    display: flex;
+    align-items: center;
+    gap: ${theme.spacing(1)};
+    margin-top: ${theme.spacing(0.25)};
+  `,
+  edgeListCountText: css`
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: ${theme.colors.text.secondary};
+    cursor: pointer;
+
+    &:hover {
+      color: ${theme.colors.text.primary};
+      text-decoration: underline;
+    }
+  `,
+  edgeListTrigger: css`
+    margin-left: 0;
+  `,
+  edgeListTriggerActive: css`
+    border-color: ${theme.colors.primary.border};
+    background: ${theme.colors.primary.main};
+    color: ${theme.colors.primary.contrastText};
+
+    &:hover {
+      border-color: ${theme.colors.primary.border};
+      background: ${theme.colors.primary.shade};
+      color: ${theme.colors.primary.contrastText};
+    }
   `,
 });

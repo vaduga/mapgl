@@ -69,6 +69,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     setTooltipObject,
     setDrawerOpen,
     getSelCoord,
+    isDefDir,
     getIsShowCenter,
     setIsShowCenter,
     //</editor-fold>
@@ -243,6 +244,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     //<editor-fold desc="dataClickProps">
     pId: panel.pId,
     setSelCoord,
+    isDefDir,
     setIsShowCenter,
     setTooltipObject,
     setLocalViewState,
@@ -307,29 +309,26 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
   const hasHoverHighlight = pointStore.getHasHoverHighlight;
   const canDimGraph = hasHoverHighlight && (isLogic || (!isLogic && !isHyper));
 
-  const connectedHoverLayers = useMemo(
-    () => {
-      if (!isLogic) {
-        return [];
-      }
+  const connectedHoverLayers = useMemo(() => {
+    if (!isLogic) {
+      return [];
+    }
 
-      return getConnectedHoverLayers({
-        graphLayers: layers,
-        connectedNodeIds: pointStore.getHoveredConnectedNodeIds,
-      });
-    },
-    [
-      hoverRevision,
-      pointStore,
-      graph,
-      graph.getVersion,
-      layers,
-      isLogic,
-      isHyper,
-      theme2.isDark,
-      options.common?.isMeters
-    ]
-  );
+    return getConnectedHoverLayers({
+      graphLayers: layers,
+      connectedNodeIds: pointStore.getHoveredConnectedNodeIds,
+    });
+  }, [
+    hoverRevision,
+    pointStore,
+    graph,
+    graph.getVersion,
+    layers,
+    isLogic,
+    isHyper,
+    theme2.isDark,
+    options.common?.isMeters,
+  ]);
 
   const renderedLayers = useMemo(() => {
     const baseLayers = canDimGraph
@@ -341,7 +340,6 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
       : layers;
     return [...baseLayers, ...connectedHoverLayers].filter(Boolean);
   }, [layers, connectedHoverLayers, canDimGraph, pointStore, isHyper]);
-
 
   useEffect(() => {
     flushSync(() => {
@@ -362,7 +360,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
     const secDataLayers = panel.layers
       .slice(1)
-      .filter(el => el.layer.colType !== colTypes.Markers && el.layer.features?.length);
+      .filter((el) => el.layer.colType !== colTypes.Markers && el.layer.features?.length);
     let poly = 0,
       path = 0,
       geojson = 0;
@@ -562,13 +560,24 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     });
   };
 
+  /// refresh selIds for edges
+  useEffect(() => {
+    selectGotoHandler({
+      pId: panel.pId,
+      value: getSelectedNode?.id,
+      graphId: (getSelectedNode?.parent as Graph)?.id,
+      eventBus,
+      select: true,
+      fly: false,
+    });
+  }, [isDefDir]);
+
   useEffect(() => {
     if (layerCount < 2) {
       return;
     }
     getLayers();
   }, [graph.getVersion, getTooltipObject, time, getViewState, visRefresh]);
-
 
   const memoLayerSwitcher = useMemo(() => {
     return (
@@ -736,6 +745,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
         panel={panel}
         time={time}
         eventBus={eventBus}
+        isHyper={isHyper}
         info={hoverInfo}
         setHoverInfo={setHoverInfo}
         dataLayers={options.dataLayers}
@@ -753,7 +763,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
       {isShowSwitcher && memoLayerSwitcher}
     </div>
   );
-};
+};;
 
 export default observer(Mapgl);
 

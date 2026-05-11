@@ -107,7 +107,15 @@ function getPackedSvgIcon(svgIcon, sourceBoxSize: number) {
 
 // SVG donut chart for nodeGraph icons and clusters
 
-function createDonutChart({ colorCounts = {}, stripeCounts, allTotal, radius = 45, bkColor, isDark = false, svgIcon }) {
+function createDonutChart({
+  colorCounts = {},
+  stripeCounts,
+  allTotal,
+  radius = 45,
+  bkColor,
+  isDark = false,
+  svgIcon,
+}) {
   void isDark;
   const userSvgUrl = svgIcon?.svgDataUrl;
   const userSvgWidth = svgIcon?.width;
@@ -253,7 +261,7 @@ function getStripeData({
   const stripeTotal = getTotalCount(Object.values(normalizedCounts) as CountEntry[]);
   const unknownCount = Math.max(0, total - stripeTotal);
 
-  if (unknownCount > 0) {
+  if ( unknownCount > 0 ) {
     normalizedCounts[bkColor] = {
       count: unknownCount,
       label: 'Unknown',

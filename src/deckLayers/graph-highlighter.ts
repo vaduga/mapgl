@@ -31,7 +31,7 @@ export class GraphHighlighter {
   private lastSourceKey?: string | null;
   private lastEdgeKey?: string | null;
   private lastMaxDepth = 1;
-  private lastIsDefDir = true;
+  private lastIsDefDir: boolean | null = true;
   private connectedNodeIds = new Set<string>();
   private connectedEdgeIndexes: ConnectedEdgeIndex[] = [];
   private connectedNodeDepths = new Map<string, number>();
@@ -112,7 +112,7 @@ export class GraphHighlighter {
     this.update({ sourceId: null });
   }
 
-  update(opts: { sourceId: string | null; graphId?: string | null; maxDepth?: number; isDefDir?: boolean }) {
+  update(opts: { sourceId: string | null; graphId?: string | null; maxDepth?: number; isDefDir?: boolean | null }) {
     const { sourceId, graphId, maxDepth = 1, isDefDir = true } = opts;
     const sourceKey = sourceId ? this.resolveNodeKey(sourceId, graphId) : null;
     if (sourceKey === this.lastSourceKey && maxDepth === this.lastMaxDepth && isDefDir === this.lastIsDefDir) {
@@ -144,25 +144,30 @@ export class GraphHighlighter {
         continue;
       }
 
-      const adjacency = isDefDir ? this.outgoingAdjacency : this.incomingAdjacency;
-      for (const item of adjacency.get(current.nodeKey) ?? []) {
-        const nextDepth = current.depth + 1;
-        for (const edgeKey of item.edgeKeys) {
-          connectedEdgeIds.add(edgeKey);
-          const prevDepth = connectedEdgeDepths.get(edgeKey);
-          if (prevDepth === undefined || nextDepth < prevDepth) {
-            connectedEdgeDepths.set(edgeKey, nextDepth);
+      const adjacencyMaps =
+        isDefDir === null
+          ? [this.outgoingAdjacency, this.incomingAdjacency]
+          : [isDefDir ? this.outgoingAdjacency : this.incomingAdjacency];
+      for (const adjacency of adjacencyMaps) {
+        for (const item of adjacency.get(current.nodeKey) ?? []) {
+          const nextDepth = current.depth + 1;
+          for (const edgeKey of item.edgeKeys) {
+            connectedEdgeIds.add(edgeKey);
+            const prevDepth = connectedEdgeDepths.get(edgeKey);
+            if (prevDepth === undefined || nextDepth < prevDepth) {
+              connectedEdgeDepths.set(edgeKey, nextDepth);
+            }
           }
-        }
-        this.connectedNodeIds.add(item.nodeKey);
-        const prevNodeDepth = this.connectedNodeDepths.get(item.nodeKey);
-        if (prevNodeDepth === undefined || nextDepth < prevNodeDepth) {
-          this.connectedNodeDepths.set(item.nodeKey, nextDepth);
-        }
+          this.connectedNodeIds.add(item.nodeKey);
+          const prevNodeDepth = this.connectedNodeDepths.get(item.nodeKey);
+          if (prevNodeDepth === undefined || nextDepth < prevNodeDepth) {
+            this.connectedNodeDepths.set(item.nodeKey, nextDepth);
+          }
 
-        if (!visited.has(item.nodeKey)) {
-          visited.add(item.nodeKey);
-          queue.push({ nodeKey: item.nodeKey, depth: nextDepth });
+          if (!visited.has(item.nodeKey)) {
+            visited.add(item.nodeKey);
+            queue.push({ nodeKey: item.nodeKey, depth: nextDepth });
+          }
         }
       }
     }
@@ -207,12 +212,59 @@ export class GraphHighlighter {
       .map((edgeIndex) => ({ ...edgeIndex, depth: 0 }));
   }
 
+  updateEdges(edges: Edge[]) {
+    this.lastEdgeKey = null;
+    this.lastSourceKey = null;
+    this.connectedNodeIds = new Set<string>();
+    this.connectedNodeDepths = new Map<string, number>();
+
+    if (!edges.length) {
+      this.connectedEdgeIndexes = [];
+      return;
+    }
+
+    const connectedEdgeKeys = new Set<string>();
+    for (const edge of edges) {
+      const item = this.edgeHighlights.get(getEdgeKey(edge));
+      if (!item) {
+        continue;
+      }
+
+      item.nodeKeys.forEach((nodeKey) => {
+        this.connectedNodeIds.add(nodeKey);
+        this.connectedNodeDepths.set(nodeKey, 0);
+      });
+      item.edgeKeys.forEach((edgeKey) => connectedEdgeKeys.add(edgeKey));
+    }
+
+    this.connectedEdgeIndexes = Array.from(connectedEdgeKeys)
+      .map((key) => this.edgeIndexes.get(key))
+      .filter((edgeIndex): edgeIndex is ConnectedEdgeIndex => Boolean(edgeIndex))
+      .map((edgeIndex) => ({ ...edgeIndex, depth: 0 }));
+  }
+
   getConnectedNodeIds(): Set<string> {
     return this.connectedNodeIds;
   }
 
   getConnectedEdgeIndexes(): ConnectedEdgeIndex[] {
     return this.connectedEdgeIndexes;
+  }
+
+  getInEdges(node: Node | undefined | null): Edge[] {
+    return this.getInEdgeGroups(node).flat();
+  }
+
+  getOutEdges(node: Node | undefined | null): Edge[] {
+    return this.getOutEdgeGroups(node).flat();
+  }
+
+  getInEdgeGroups(node: Node | undefined | null): Edge[][] {
+    return this.getAdjacentEdgeGroups(node, this.incomingAdjacency);
+  }
+
+  getOutEdgeGroups(node: Node | undefined | null): Edge[][] {
+    return this.getAdjacentEdgeGroups(node, this.outgoingAdjacency);
   }
 
   private addDirectedAdjacent(source: Node, target: Node, edges: Edge[], edgeKeys = edges.map((edge) => getEdgeKey(edge))) {
@@ -252,6 +304,14 @@ export class GraphHighlighter {
     } else {
       map.set(id, [key]);
     }
+  }
+
+  private getAdjacentEdgeGroups(node: Node | undefined | null, adjacency: Map<string, AdjacentItem[]>): Edge[][] {
+    if (!node) {
+      return [];
+    }
+
+    return adjacency.get(getNodeKey(node))?.map((item) => item.edges) ?? [];
   }
 
   private resolveNodeKey(id: string, graphId?: string | null): string {

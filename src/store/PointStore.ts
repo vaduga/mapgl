@@ -13,6 +13,7 @@ class PointStore {
   editable = false;
   isDrawerOpen = false;
   isEdgeListed = false;
+  isReversed = false; /// node->edges paths direction reversed
   selectedNode: Node | undefined | null;
   isShowCenter: ViewState | undefined;
   selEdges: Edge[] = [];
@@ -20,6 +21,7 @@ class PointStore {
   hoveredNodeGraphId: string | null = null;
   hoveredEdgeId: string | null = null;
   hoveredEdgeGraphId: string | null = null;
+  hoveredEdges: Edge[] = [];
   hoverRevision = 0;
   hoverHighlighter = new GraphHighlighter();
   commentOpenIdx = -1;
@@ -46,9 +48,9 @@ class PointStore {
     const { panel, graph, subs, eventBus, pId } = this.root;
     const isLogic = panel.isLogic;
     const replaceVariables = root.replaceVariables;
-    this.hoverHighlighter.setGraph(graph);
     const nodeId = replaceVariables('$nodeId');
     //const edgeId = replaceVariables('$edgeId');
+    this.hoverHighlighter.setGraph(graph);
     let node, edge;
     if (nodeId !== '$nodeId') {
       node = this.root.graph.findNodeRecursive(nodeId);
@@ -154,12 +156,27 @@ class PointStore {
     makeAutoObservable(this);
   }
 
+  get isDefDir() {
+    return !this.isReversed;
+  }
+
   get getIsShowCenter() {
     return this.isShowCenter;
   }
 
   setIsShowCenter = (viewState: ViewState) => {
     this.isShowCenter = viewState;
+  };
+
+  setIsDefDir = (isDefDir: boolean) => {
+    if (this.isDefDir === isDefDir) {
+      return;
+    }
+
+    this.isReversed = !isDefDir;
+    if (this.hoveredNodeId || this.hoveredEdgeId) {
+      this.refreshHoverHighlighter();
+    }
   };
 
   get getSelCoord() {
@@ -171,7 +188,7 @@ class PointStore {
   }
 
   get getHasHoverHighlight() {
-    return Boolean(this.hoveredNodeId || this.hoveredEdgeId);
+    return Boolean(this.hoveredNodeId || this.hoveredEdgeId || this.hoveredEdges.length);
   }
 
   get getHoverRevision() {
@@ -206,7 +223,8 @@ class PointStore {
     this.hoveredNodeGraphId = nextGraphId;
     this.hoveredEdgeId = null;
     this.hoveredEdgeGraphId = null;
-    this.hoverHighlighter.update({ sourceId: nodeId, graphId: nextGraphId, maxDepth: 1, isDefDir: true });
+    this.hoveredEdges = [];
+    this.hoverHighlighter.update({ sourceId: nodeId, graphId: nextGraphId, maxDepth: 1, isDefDir: this.hoverIsDefDir });
     this.hoverRevision += 1;
   };
 
@@ -222,20 +240,35 @@ class PointStore {
     this.hoveredNodeGraphId = null;
     this.hoveredEdgeId = edgeId;
     this.hoveredEdgeGraphId = nextGraphId;
+    this.hoveredEdges = [];
     this.hoverHighlighter.updateEdge({ edgeId, graphId: nextGraphId });
+    this.hoverRevision += 1;
+  };
+
+  setHoveredEdges = (edges: Edge[]) => {
+    this.hoverHighlighter.setGraph(this.root.graph);
+
+    this.hoveredNodeId = null;
+    this.hoveredNodeGraphId = null;
+    this.hoveredEdgeId = null;
+    this.hoveredEdgeGraphId = null;
+    this.hoveredEdges = edges;
+    this.hoverHighlighter.updateEdges(edges);
     this.hoverRevision += 1;
   };
 
   refreshHoverHighlighter = () => {
     this.hoverHighlighter.setGraph(this.root.graph, { force: true });
-    if (this.hoveredEdgeId) {
+    if (this.hoveredEdges.length) {
+      this.hoverHighlighter.updateEdges(this.hoveredEdges);
+    } else if (this.hoveredEdgeId) {
       this.hoverHighlighter.updateEdge({ edgeId: this.hoveredEdgeId, graphId: this.hoveredEdgeGraphId });
     } else {
       this.hoverHighlighter.update({
         sourceId: this.hoveredNodeId,
         graphId: this.hoveredNodeGraphId,
         maxDepth: 1,
-        isDefDir: true,
+        isDefDir: this.hoverIsDefDir,
       });
     }
     this.hoverRevision += 1;
@@ -269,6 +302,29 @@ class PointStore {
     this.isDrawerOpen = flag;
   };
 
+  setEdgeListed = (flag) => {
+    if (this.isEdgeListed === flag) {
+      return;
+    }
+
+    this.isEdgeListed = flag;
+    if (this.hoveredNodeId) {
+      this.refreshHoverHighlighter();
+    }
+  };
+
+  get getisDrawerOpen() {
+    return this.isDrawerOpen;
+  }
+
+  get getisEdgeListed() {
+    return this.isEdgeListed;
+  }
+
+  private get hoverIsDefDir(): boolean | null {
+    return this.isEdgeListed ? this.isDefDir : null;
+  }
+
   get getTooltipObject() {
     return this.tooltipObject;
   }
@@ -290,15 +346,29 @@ class PointStore {
     if (index !== undefined) {
       const prevNodes = selectedIds.get(colTypes.Nodes);
 
-      selectedIds.set(colTypes.Nodes, { ...prevNodes, [selFeatLayerName]: [index] });
+      if (dataRecord.feature.type === 'Polygon') {
+        selectedIds.set(colTypes.Bboxes, [index]);
+      } else {
+        selectedIds.set(colTypes.Nodes, {
+          ...prevNodes,
+          [selFeatLayerName]: [index],
+        });
+      }
 
       if (selEdges?.length) {
         const edgesByLayer = selEdges.reduce<Record<string, number[]>>((acc, e) => {
-          if (e.id == null || e.lineId == null) {
+          if (e.id == null) {
             return acc;
           }
           const layerId = String((e.source.parent as Graph).id);
-          (acc[layerId] ??= []).push(e.lineId);
+          const edge_id = e.data.edge_id;
+          const edges = this.root.graph.getWasmId2Edges[edge_id] ?? [];
+
+          const lineIds = edges.map((x: any) => x?.lineId).filter((id: any): id is number => typeof id === 'number');
+
+          if (lineIds.length) {
+            (acc[layerId] ??= []).push(...lineIds);
+          }
           return acc;
         }, {});
         selectedIds.set(colTypes.Edges, edgesByLayer);
@@ -323,12 +393,22 @@ class PointStore {
       }
     }
 
-    if (!pickedEdges?.length) {
+    const selNode = this.selectedNode;
+
+    this.hoverHighlighter.setGraph(this.root.graph);
+    const edgeGroups = this.isDefDir
+      ? this.hoverHighlighter.getOutEdgeGroups(selNode)
+      : this.hoverHighlighter.getInEdgeGroups(selNode);
+    if (!edgeGroups.length && !pickedEdges?.length) {
       this.setSelEdges([]);
       return;
     }
 
-    this.setSelEdges(pickedEdges);
+    const edges = selNode && edgeGroups.map((edges) => edges[0]).filter((edge) => edge !== undefined);
+
+    const selEdges = pickedEdges?.length ? pickedEdges : node && Array.isArray(edges) && edges.length ? edges : [];
+
+    this.setSelEdges(selEdges);
   };
 
   dispose = () => {
