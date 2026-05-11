@@ -329,7 +329,7 @@ function pushPath(props: PushPathProps) {
         const extraId = edgeId + idx;
         const start = frag[0].item.id;
         const end = frag.at(-1).item.id;
-        const dummy = setEdgeA(extraId, start, end as string);
+        const dummy = setEdgeA(extraId, start, end as string, i === segrPath.length-1 ? graphB : undefined);
 
         if (dummy) {
           dummy.setData(data);
