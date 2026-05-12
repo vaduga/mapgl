@@ -9,7 +9,6 @@ import {
   mockEdgeGraphData,
   mockTextConfig,
   parseRoute,
-  resolveFeatureGroup,
   toRGB4Array,
 } from '../../utils';
 import { ExtendMapLayerRegistryItem, ExtendFrameGeometrySourceMode, ExtendMapLayerOptions } from '../../extension';
@@ -22,6 +21,7 @@ import { MapPanel } from '../../MapPanel';
 import { getQueryFields } from '../../editor/getQueryFields';
 import { GroupsEditor } from '../../editor/Groups/GroupsEditor';
 import { OverField, Rule } from '../../editor/Groups/rule-types';
+import { resolveFeatureGroup } from 'editor/Groups/data/group_resolve';
 import { CapacityDimensionEditor } from '../../editor/Other/CapacityEditor';
 import { ArcOptionsEditor } from '../../editor/ArcOptionsEditor';
 import { CurveFactory, Graph, FeatSource, AttributeRegistry, GeomNode, Point as MSPoint } from 'mapLib';
@@ -651,7 +651,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
             category: ['Node Groups'],
             id: 'config.groups',
             path: 'config.groups',
-            name: 'Legend label, SVG icon, circle color override',
+            name: 'Legend label, SVG icon, color override',
             editor: GroupsEditor,
           })
           .addRadio({
