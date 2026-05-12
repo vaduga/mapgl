@@ -163,7 +163,7 @@
                   "field": "metric",
                   "fixed": "light-red"
                 },
-                "opacity": 0.4,
+                "opacity": 0.3,
                 "size": {
                   "fixed": 3,
                   "max": 15,
@@ -175,11 +175,10 @@
               },
               "groups": [
                 {
-                  "collapse": false,
                   "color": "#3275d9b8",
                   "iconName": "databases/knexjs",
-                  "offset": -5,
                   "label": "unode",
+                  "offset": -5,
                   "overrides": [
                     {
                       "name": "thrColor",
@@ -192,14 +191,13 @@
                       "value": "nodes.aggr"
                     }
                   ],
-                  "svgTintMode": "canvasTint"
+                  "svgTintMode": "markup"
                 },
                 {
-                  "collapse": false,
                   "color": "#A352CC",
                   "iconName": "databases/memsql",
-                  "offset": -5,
                   "label": "conn",
+                  "offset": -5,
                   "overrides": [
                     {
                       "name": "thrColor",
@@ -214,11 +212,9 @@
                   ]
                 },
                 {
-                  "collapse": false,
                   "iconName": "networking/camera",
-                  "size": 85,
-                  "offset": -5,
                   "label": "U5",
+                  "offset": -5,
                   "overrides": [
                     {
                       "name": "vertexA",
@@ -230,14 +226,15 @@
                       "type": "enum",
                       "value": ["semi-dark-green"]
                     }
-                  ]
+                  ],
+                  "size": 85,
+                  "svgTintMode": "none"
                 },
                 {
-                  "collapse": true,
                   "color": "#C4162A",
                   "iconName": "",
-                  "offset": -5,
                   "label": "node-down",
+                  "offset": -5,
                   "overrides": [
                     {
                       "name": "thrColor",
@@ -264,7 +261,7 @@
                   "field": "metric",
                   "fixed": "light-yellow"
                 },
-                "opacity": 0.3,
+                "opacity": 0.2,
                 "size": {
                   "field": "metric",
                   "fixed": 5,
@@ -343,26 +340,24 @@
               },
               "groups": [
                 {
-                  "collapse": false,
                   "color": "#C4162A",
                   "iconName": "networking/bridge",
-                  "offset": -5,
                   "label": "down",
+                  "offset": -5,
                   "overrides": [
                     {
                       "name": "thrColor",
                       "type": "enum",
                       "value": ["red"]
                     }
-                  ]
+                  ],
+                  "svgTintMode": "canvasTint"
                 },
                 {
-                  "collapse": false,
                   "color": "#73BF69",
                   "iconName": "networking/atm-switch",
-                  "size": 20,
-                  "offset": -5,
                   "label": "up",
+                  "offset": -5,
                   "overrides": [
                     {
                       "name": "thrColor",
@@ -370,14 +365,14 @@
                       "value": ["semi-dark-green"]
                     }
                   ],
+                  "size": 20,
                   "svgTintMode": "canvasTint"
                 },
                 {
-                  "collapse": false,
                   "color": "#8AB8FF",
                   "iconName": "networking/cloud",
-                  "offset": -5,
                   "label": "info",
+                  "offset": -5,
                   "overrides": [
                     {
                       "name": "thrColor",
@@ -387,11 +382,10 @@
                   ]
                 },
                 {
-                  "collapse": false,
                   "color": "#FF780A",
                   "iconName": "",
-                  "offset": -5,
                   "label": "danger",
+                  "offset": -5,
                   "overrides": [
                     {
                       "name": "thrColor",
@@ -417,7 +411,7 @@
                   "field": "metric",
                   "fixed": "dark-purple"
                 },
-                "opacity": 0.7,
+                "opacity": 0.2,
                 "size": {
                   "field": "metric",
                   "fixed": 5,
@@ -465,7 +459,7 @@
           "zoom": -2.26
         }
       },
-      "pluginVersion": "2.2.0",
+      "pluginVersion": "2.4.1",
       "targets": [
         {
           "datasource": {
@@ -586,7 +580,7 @@
       },
       "gridPos": {
         "h": 21,
-        "w": 10,
+        "w": 11,
         "x": 13,
         "y": 0
       },
@@ -598,6 +592,7 @@
           "type": "blank"
         },
         "common": {
+          "edgeRouting": "Splines",
           "isAppAuth": false,
           "isMeters": false,
           "isShowEdgeLegend": false,
@@ -652,8 +647,8 @@
                   "collapse": false,
                   "color": "#3275d9b8",
                   "iconName": "databases/knexjs",
-                  "offset": -5,
                   "label": "unode",
+                  "offset": -5,
                   "overrides": [
                     {
                       "name": "thrColor",
@@ -671,8 +666,8 @@
                   "collapse": false,
                   "color": "#A352CC",
                   "iconName": "databases/memsql",
-                  "offset": -5,
                   "label": "conn",
+                  "offset": -5,
                   "overrides": [
                     {
                       "name": "thrColor",
@@ -689,9 +684,8 @@
                 {
                   "collapse": false,
                   "iconName": "networking/camera",
-                  "size": 85,
-                  "offset": -5,
                   "label": "U5",
+                  "offset": -5,
                   "overrides": [
                     {
                       "name": "vertexA",
@@ -703,14 +697,15 @@
                       "type": "enum",
                       "value": ["semi-dark-green"]
                     }
-                  ]
+                  ],
+                  "size": 85
                 },
                 {
                   "collapse": true,
                   "color": "#C4162A",
                   "iconName": "",
-                  "offset": -5,
                   "label": "node-down",
+                  "offset": -5,
                   "overrides": [
                     {
                       "name": "thrColor",
@@ -816,8 +811,8 @@
                   "collapse": false,
                   "color": "#C4162A",
                   "iconName": "networking/bridge",
-                  "offset": -5,
                   "label": "down",
+                  "offset": -5,
                   "overrides": [
                     {
                       "name": "thrColor",
@@ -830,23 +825,23 @@
                   "collapse": false,
                   "color": "#73BF69",
                   "iconName": "networking/atm-switch",
-                  "size": 20,
-                  "offset": -5,
                   "label": "up",
+                  "offset": -5,
                   "overrides": [
                     {
                       "name": "thrColor",
                       "type": "enum",
                       "value": ["semi-dark-green"]
                     }
-                  ]
+                  ],
+                  "size": 20
                 },
                 {
                   "collapse": false,
                   "color": "#8AB8FF",
                   "iconName": "networking/cloud",
-                  "offset": -5,
                   "label": "info",
+                  "offset": -5,
                   "overrides": [
                     {
                       "name": "thrColor",
@@ -858,8 +853,8 @@
                 {
                   "collapse": false,
                   "color": "#FF780A",
-                  "offset": -5,
                   "label": "danger",
+                  "offset": -5,
                   "overrides": [
                     {
                       "name": "thrColor",
@@ -931,7 +926,7 @@
           "zoom": -1.26
         }
       },
-      "pluginVersion": "2.2.0",
+      "pluginVersion": "2.4.1",
       "targets": [
         {
           "datasource": {

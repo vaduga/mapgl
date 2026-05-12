@@ -18,7 +18,6 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 2,
   "links": [],
   "panels": [
     {
@@ -50,7 +49,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "dark-green",
@@ -89,7 +88,7 @@
                   "steps": [
                     {
                       "color": "green",
-                      "value": null
+                      "value": 0
                     },
                     {
                       "color": "red",
@@ -132,6 +131,7 @@
           "type": "default"
         },
         "common": {
+          "edgeRouting": "Splines",
           "isAppAuth": false,
           "isMeters": false,
           "isShowEdgeLegend": true,
@@ -297,12 +297,11 @@
               },
               "groups": [
                 {
-                  "collapse": true,
                   "color": "#1F60C4",
                   "groupIdx": 0,
                   "iconName": "databases/knexjs",
-                  "offset": -5,
                   "label": "unode",
+                  "offset": 0,
                   "overrides": [
                     {
                       "name": "namespaceA",
@@ -314,17 +313,17 @@
                       "type": "enum",
                       "value": ["dark-green"]
                     }
-                  ]
+                  ],
+                  "svgTintMode": "markup"
                 },
                 {
-                  "collapse": true,
                   "color": "#A352CC",
                   "groupIdx": 1,
                   "iconName": "databases/memsql",
-                  "offset": -5,
                   "label": "conn",
                   "lineWidth": 10,
                   "nodeSize": 20.1,
+                  "offset": 0,
                   "overrides": [
                     {
                       "name": "namespaceA",
@@ -339,11 +338,10 @@
                   ]
                 },
                 {
-                  "collapse": true,
                   "color": "#C4162A",
                   "iconName": "databases/couchbase",
-                  "offset": -5,
                   "label": "d2",
+                  "offset": 0,
                   "overrides": [
                     {
                       "name": "thrColor",
@@ -360,7 +358,7 @@
                   "field": "metric",
                   "fixed": "light-yellow"
                 },
-                "opacity": 0.3,
+                "opacity": 0,
                 "size": {
                   "field": "metric",
                   "fixed": 5,
@@ -420,8 +418,7 @@
                 "sideB": {
                   "arrow": -1,
                   "color": {
-                    "field": "bps",
-                    "fixed": "dark-green"
+                    "fixed": "#375d31ba"
                   },
                   "size": {
                     "field": "bps",
@@ -453,27 +450,26 @@
               },
               "groups": [
                 {
-                  "collapse": false,
                   "color": "#E02F44",
                   "groupIdx": 2,
-                  "iconName": "networking/bridge",
-                  "offset": -5,
-                  "label": "new rule 1",
+                  "iconName": "databases/couchbase",
+                  "label": "down",
+                  "offset": 0,
                   "overrides": [
                     {
                       "name": "thrColor",
                       "type": "enum",
                       "value": ["red"]
                     }
-                  ]
+                  ],
+                  "svgTintMode": "markup"
                 },
                 {
-                  "collapse": false,
-                  "color": "#9acd32",
+                  "color": "#8eb53e",
                   "groupIdx": 3,
                   "iconName": "networking/atm-switch",
-                  "offset": -5,
                   "label": "up",
+                  "offset": 0,
                   "overrides": [
                     {
                       "name": "thrColor",
@@ -484,12 +480,11 @@
                   "svgTintMode": "canvasTint"
                 },
                 {
-                  "collapse": false,
                   "color": "#8AB8FF",
                   "groupIdx": 4,
                   "iconName": "networking/cloud",
-                  "offset": -5,
                   "label": "info",
+                  "offset": 0,
                   "overrides": [
                     {
                       "name": "thrColor",
@@ -516,7 +511,7 @@
                   "field": "metric",
                   "fixed": "dark-purple"
                 },
-                "opacity": 0.7,
+                "opacity": 0.1,
                 "size": {
                   "field": "metric",
                   "fixed": 5,
@@ -529,7 +524,7 @@
                   "mode": "field"
                 },
                 "textConfig": {
-                  "fontSize": 15
+                  "fontSize": 9
                 },
                 "useGroups": true
               }
@@ -563,14 +558,13 @@
           "zoom": 16
         }
       },
-      "pluginVersion": "2.0.2",
+      "pluginVersion": "2.4.1",
       "targets": [
         {
           "datasource": {
             "type": "frser-sqlite-datasource",
             "uid": "b6c1a5f4-6225-4788-8ed6-540fb078e8bc"
           },
-          "hide": false,
           "queryText": "select * from switches;",
           "queryType": "table",
           "rawQueryText": "select * from switches;",
@@ -582,7 +576,6 @@
             "type": "frser-sqlite-datasource",
             "uid": "b6c1a5f4-6225-4788-8ed6-540fb078e8bc"
           },
-          "hide": false,
           "queryText": "select * from uNodes;",
           "queryType": "table",
           "rawQueryText": "select * from uNodes;",
@@ -594,7 +587,6 @@
             "type": "frser-sqlite-datasource",
             "uid": "b6c1a5f4-6225-4788-8ed6-540fb078e8bc"
           },
-          "hide": false,
           "queryText": "select * from polygons;",
           "queryType": "table",
           "rawQueryText": "select * from polygons;",
@@ -606,7 +598,6 @@
             "type": "frser-sqlite-datasource",
             "uid": "b6c1a5f4-6225-4788-8ed6-540fb078e8bc"
           },
-          "hide": false,
           "queryText": "select * from lineStrings;",
           "queryType": "table",
           "rawQueryText": "select * from lineStrings;",
@@ -620,7 +611,7 @@
   ],
   "preload": false,
   "refresh": "",
-  "schemaVersion": 40,
+  "schemaVersion": 42,
   "tags": [],
   "templating": {
     "list": [
@@ -644,7 +635,8 @@
           }
         ],
         "query": "0,1",
-        "type": "custom"
+        "type": "custom",
+        "valuesFormat": "csv"
       },
       {
         "current": {
@@ -655,7 +647,8 @@
         "name": "nodeId",
         "options": [],
         "query": "",
-        "type": "custom"
+        "type": "custom",
+        "valuesFormat": "csv"
       }
     ]
   },
@@ -664,9 +657,9 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "browser",
   "title": "Geo",
   "uid": "bc41f708-0b15-456b-ba0e-d2e16bbaef33",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }
