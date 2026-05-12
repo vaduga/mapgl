@@ -1,8 +1,9 @@
 # Changelog Mapgl
 
-## 2.4.1
-- Fix cross-namespace edges with > 1 segment
-- graph highlighter pre-release. Dimm using GPU shader mask.
+## 2.5.0
+- adjacent edges list in tooltip.
+- graph highlighter via shader mask for instant nodes/edges picking.
+- FIX: cross-namespace edges with > 1 segment
 
 ## 2.4.0
 - edge routing modes: SugiyamaSplines/Rectilinear

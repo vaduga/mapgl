@@ -13,18 +13,15 @@ Start a new panel with a mock node graph to test styles and modes.
 
 ---
 
-### Features
-
 - **Node graph** with layered auto-layout or **Geomap view**
-- Namespace subgraphs for a distributed graph.
-- Webgl GPU-acceleration for rendering large data volumes
+- Spline / Rectilinear edge routing. Self-loops.
+- Multi-segment, parallel routes
+- Namespace-based subgraphs.
 - Arc sections on nodes for multiple metrics.
-- Multi-segment routes
-- Support for parallel routes
 - Network interface TX/RX load visualization using bi-metric arcs
+- Webgl GPU-acceleration for rendering large data volumes
 - Ad-hoc filtering by layers, node groups in the legend
 - Dynamic drill-down data links to external panels
-
 
 ---
 
@@ -33,8 +30,6 @@ Start a new panel with a mock node graph to test styles and modes.
 [Playground](https://play.mapgl.org) with open configuration
 
 ---
-
-### Screenshots
 
 <img
 src="https://mapgl.org/img/drilldown.png"
