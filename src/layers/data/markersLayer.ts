@@ -559,6 +559,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               filter: (f: Field) => {
                 return f.type === FieldType.string;
               },
+              isClearable: true,
               noFieldsMessage: 'No string fields found',
             },
             showIf: (opts) => opts.type === colTypes.Markers,
@@ -571,6 +572,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               filter: (f: Field) => {
                 return f.type === FieldType.string;
               },
+              isClearable: true,
               noFieldsMessage: 'No string fields found',
             },
             showIf: (opts) => !!opts.parField,
@@ -583,6 +585,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               filter: (f: Field) => {
                 return f.type === FieldType.string;
               },
+              isClearable: true,
               noFieldsMessage: 'No string fields found',
             },
             showIf: (opts) => panel.isLogic && !!opts.locField,
@@ -595,6 +598,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               filter: (f: Field) => {
                 return f.type === FieldType.string;
               },
+              isClearable: true,
               noFieldsMessage: 'No string fields found',
             },
             showIf: (opts) => panel.isLogic && !!opts.parField,
