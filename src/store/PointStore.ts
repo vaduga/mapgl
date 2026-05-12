@@ -17,13 +17,13 @@ class PointStore {
   selectedNode: Node | undefined | null;
   isShowCenter: ViewState | undefined;
   selEdges: Edge[] = [];
-  hoveredNodeId: string | null = null;
-  hoveredNodeGraphId: string | null = null;
-  hoveredEdgeId: string | null = null;
-  hoveredEdgeGraphId: string | null = null;
-  hoveredEdges: Edge[] = [];
-  hoverRevision = 0;
-  hoverHighlighter = new GraphHighlighter();
+  focusedNodeId: string | null = null;
+  focusedNodeGraphId: string | null = null;
+  focusedEdgeId: string | null = null;
+  focusedEdgeGraphId: string | null = null;
+  focusedEdges: Edge[] = [];
+  focusRevision = 0;
+  graphHighlighter = new GraphHighlighter();
   commentOpenIdx = -1;
   selCoord?: {
     coordinates: [number, number];
@@ -33,16 +33,6 @@ class PointStore {
   tooltipObject: Info = blankHoverInfo;
   private eventSub = new Subscription();
 
-  private getHyperedgeEdges(edge?: Edge): Edge[] {
-    if (!edge) {
-      return [];
-    }
-
-    const edgeId = edge.data?.edge_id;
-    const hyperedgeEdges = edgeId !== undefined ? this.root.graph.getWasmId2Edges?.[edgeId] : undefined;
-    return hyperedgeEdges?.length ? hyperedgeEdges : [edge];
-  }
-
   constructor(root: RootStore) {
     this.root = root;
     const { panel, graph, subs, eventBus, pId } = this.root;
@@ -50,7 +40,7 @@ class PointStore {
     const replaceVariables = root.replaceVariables;
     const nodeId = replaceVariables('$nodeId');
     //const edgeId = replaceVariables('$edgeId');
-    this.hoverHighlighter.setGraph(graph);
+    this.graphHighlighter.setGraph(graph);
     let node, edge;
     if (nodeId !== '$nodeId') {
       node = this.root.graph.findNodeRecursive(nodeId);
@@ -73,7 +63,6 @@ class PointStore {
       } //  && !isLogic  . logic layer crosshair selection
 
       const { nodeId, edgeId, graphId, fly, coord, select, zoomIn } = evt.payload;
-      console.log('evt.payload', evt.payload);
 
       let wasmId;
       if (nodeId || edgeId || select) {
@@ -94,18 +83,8 @@ class PointStore {
           }
         }
 
-        if (select) {
-          if (edge) {
-            this.setHoveredEdgeId(edge.id, String((edge.source.parent as Graph)?.id ?? graphId ?? ''));
-          } else if (node) {
-            this.setHoveredNodeId(node.id, String((node.parent as Graph)?.id ?? graphId ?? ''));
-          } else {
-            this.setHoveredElement(null, null);
-          }
-        }
-
         if (select || edge) {
-          this.setSelectedNode(node ? node : undefined, this.getHyperedgeEdges(edge));
+          this.setSelectedNode(node ? node : undefined, edge ? [edge] : []);
         }
         wasmId = node?.data?.wasmId;
       }
@@ -165,8 +144,8 @@ class PointStore {
     }
 
     this.isReversed = !isDefDir;
-    if (this.hoveredNodeId || this.hoveredEdgeId) {
-      this.refreshHoverHighlighter();
+    if (this.focusedNodeId || this.focusedEdgeId) {
+      this.refreshGraphHighlighter();
     }
   };
 
@@ -178,22 +157,22 @@ class PointStore {
     return this.selEdges;
   }
 
-  get getHasHoverHighlight() {
-    return Boolean(this.hoveredNodeId || this.hoveredEdgeId || this.hoveredEdges.length);
+  get getHasFocusHighlight() {
+    return Boolean(this.focusedNodeId || this.focusedEdgeId || this.focusedEdges.length);
   }
 
-  get getHoverRevision() {
-    return this.hoverRevision;
+  get getFocusRevision() {
+    return this.focusRevision;
   }
 
-  get getHoveredConnectedNodeIds() {
-    void this.hoverRevision;
-    return this.hoverHighlighter.getConnectedNodeIds();
+  get getFocusedConnectedNodeIds() {
+    void this.focusRevision;
+    return this.graphHighlighter.getConnectedNodeIds();
   }
 
-  get getHoveredConnectedEdgeIndexes() {
-    void this.hoverRevision;
-    return this.hoverHighlighter.getConnectedEdgeIndexes();
+  get getFocusedConnectedEdgeIndexes() {
+    void this.focusRevision;
+    return this.graphHighlighter.getConnectedEdgeIndexes();
   }
 
   setSelCoord = (newSelCoord) => {
@@ -204,90 +183,90 @@ class PointStore {
     this.selEdges = edges;
   };
 
-  setHoveredNodeId = (nodeId: string | null, graphId?: string | null) => {
-    this.hoverHighlighter.setGraph(this.root.graph);
+  setFocusedNodeId = (nodeId: string | null, graphId?: string | null) => {
+    this.graphHighlighter.setGraph(this.root.graph);
 
     const nextGraphId = graphId ?? null;
-    if (this.hoveredNodeId === nodeId && this.hoveredNodeGraphId === nextGraphId && !this.hoveredEdgeId) {
+    if (this.focusedNodeId === nodeId && this.focusedNodeGraphId === nextGraphId && !this.focusedEdgeId) {
       return;
     }
 
-    this.hoveredNodeId = nodeId;
-    this.hoveredNodeGraphId = nextGraphId;
-    this.hoveredEdgeId = null;
-    this.hoveredEdgeGraphId = null;
-    this.hoveredEdges = [];
-    this.hoverHighlighter.update({ sourceId: nodeId, graphId: nextGraphId, maxDepth: 1, isDefDir: this.hoverIsDefDir });
-    this.hoverRevision += 1;
+    this.focusedNodeId = nodeId;
+    this.focusedNodeGraphId = nextGraphId;
+    this.focusedEdgeId = null;
+    this.focusedEdgeGraphId = null;
+    this.focusedEdges = [];
+    this.graphHighlighter.update({ sourceId: nodeId, graphId: nextGraphId, maxDepth: 1, isDefDir: this.focusIsDefDir });
+    this.focusRevision += 1;
   };
 
-  setHoveredEdgeId = (edgeId: string | null, graphId?: string | null) => {
-    this.hoverHighlighter.setGraph(this.root.graph);
+  setFocusedEdgeId = (edgeId: string | null, graphId?: string | null) => {
+    this.graphHighlighter.setGraph(this.root.graph);
 
     const nextGraphId = graphId ?? null;
-    if (this.hoveredEdgeId === edgeId && this.hoveredEdgeGraphId === nextGraphId && !this.hoveredNodeId) {
+    if (this.focusedEdgeId === edgeId && this.focusedEdgeGraphId === nextGraphId && !this.focusedNodeId) {
       return;
     }
 
-    this.hoveredNodeId = null;
-    this.hoveredNodeGraphId = null;
-    this.hoveredEdgeId = edgeId;
-    this.hoveredEdgeGraphId = nextGraphId;
-    this.hoveredEdges = [];
-    this.hoverHighlighter.updateEdge({ edgeId, graphId: nextGraphId });
-    this.hoverRevision += 1;
+    this.focusedNodeId = null;
+    this.focusedNodeGraphId = null;
+    this.focusedEdgeId = edgeId;
+    this.focusedEdgeGraphId = nextGraphId;
+    this.focusedEdges = [];
+    this.graphHighlighter.updateEdge({ edgeId, graphId: nextGraphId });
+    this.focusRevision += 1;
   };
 
-  setHoveredEdges = (edges: Edge[]) => {
-    this.hoverHighlighter.setGraph(this.root.graph);
+  setFocusedEdges = (edges: Edge[]) => {
+    this.graphHighlighter.setGraph(this.root.graph);
 
-    this.hoveredNodeId = null;
-    this.hoveredNodeGraphId = null;
-    this.hoveredEdgeId = null;
-    this.hoveredEdgeGraphId = null;
-    this.hoveredEdges = edges;
-    this.hoverHighlighter.updateEdges(edges);
-    this.hoverRevision += 1;
+    this.focusedNodeId = null;
+    this.focusedNodeGraphId = null;
+    this.focusedEdgeId = null;
+    this.focusedEdgeGraphId = null;
+    this.focusedEdges = edges;
+    this.graphHighlighter.updateEdges(edges);
+    this.focusRevision += 1;
   };
 
-  refreshHoverHighlighter = () => {
-    this.hoverHighlighter.setGraph(this.root.graph, { force: true });
-    if (this.hoveredEdges.length) {
-      this.hoverHighlighter.updateEdges(this.hoveredEdges);
-    } else if (this.hoveredEdgeId) {
-      this.hoverHighlighter.updateEdge({ edgeId: this.hoveredEdgeId, graphId: this.hoveredEdgeGraphId });
+  refreshGraphHighlighter = () => {
+    this.graphHighlighter.setGraph(this.root.graph, { force: true });
+    if (this.focusedEdges.length) {
+      this.graphHighlighter.updateEdges(this.focusedEdges);
+    } else if (this.focusedEdgeId) {
+      this.graphHighlighter.updateEdge({ edgeId: this.focusedEdgeId, graphId: this.focusedEdgeGraphId });
     } else {
-      this.hoverHighlighter.update({
-        sourceId: this.hoveredNodeId,
-        graphId: this.hoveredNodeGraphId,
+      this.graphHighlighter.update({
+        sourceId: this.focusedNodeId,
+        graphId: this.focusedNodeGraphId,
         maxDepth: 1,
-        isDefDir: this.hoverIsDefDir,
+        isDefDir: this.focusIsDefDir,
       });
     }
-    this.hoverRevision += 1;
+    this.focusRevision += 1;
   };
 
-  setHoveredNodeFromPickingInfo = (info: any) => {
+  setFocusedNodeFromPickingInfo = (info: any) => {
     if (!info?.picked) {
-      this.setHoveredElement(null, null);
+      this.setFocusedElement(null, null);
       return;
     }
 
     const nodeRef = this.getNodeRefFromPickingInfo(info);
     if (nodeRef) {
-      this.setHoveredNodeId(nodeRef.nodeId, nodeRef.graphId);
+      this.setFocusedNodeId(nodeRef.nodeId, nodeRef.graphId);
       return;
     }
 
     const edgeRef = this.getEdgeRefFromPickingInfo(info);
-    this.setHoveredEdgeId(edgeRef?.edgeId ?? null, edgeRef?.graphId);
+    this.setFocusedEdgeId(edgeRef?.edgeId ?? null, edgeRef?.graphId);
   };
 
-  setHoveredElement = (nodeId: string | null, edgeId: string | null) => {
+  setFocusedElement = (nodeId: string | null, edgeId: string | null) => {
     if (nodeId) {
-      this.setHoveredNodeId(nodeId);
+      this.setFocusedNodeId(nodeId);
     } else {
-      this.setHoveredEdgeId(edgeId);
+      this.setFocusedEdgeId(edgeId);
     }
   };
 
@@ -297,8 +276,8 @@ class PointStore {
     }
 
     this.isEdgeListed = flag;
-    if (this.hoveredNodeId) {
-      this.refreshHoverHighlighter();
+    if (this.focusedNodeId) {
+      this.refreshGraphHighlighter();
     }
   };
 
@@ -306,7 +285,7 @@ class PointStore {
     return this.isEdgeListed;
   }
 
-  private get hoverIsDefDir(): boolean | null {
+  private get focusIsDefDir(): boolean | null {
     return this.isEdgeListed ? this.isDefDir : null;
   }
 
@@ -372,6 +351,19 @@ class PointStore {
     }
     if (node) {
       this.selectedNode = node;
+    }
+
+    if (pickedEdges.length > 1) {
+      this.setFocusedEdges(pickedEdges);
+    } else if (pickedEdges[0]) {
+      this.setFocusedEdgeId(pickedEdges[0].id, String((pickedEdges[0].source.parent as Graph)?.id ?? ''));
+    } else if (node) {
+      this.setFocusedNodeId(node.id, String((node.parent as Graph)?.id ?? ''));
+    } else {
+      this.setFocusedElement(null, null);
+    }
+
+    if (node) {
       const feature = node?.data?.feature;
       if (!feature) {
         return;
@@ -380,10 +372,10 @@ class PointStore {
 
     const selNode = this.selectedNode;
 
-    this.hoverHighlighter.setGraph(this.root.graph);
+    this.graphHighlighter.setGraph(this.root.graph);
     const edgeGroups = this.isDefDir
-      ? this.hoverHighlighter.getOutEdgeGroups(selNode)
-      : this.hoverHighlighter.getInEdgeGroups(selNode);
+      ? this.graphHighlighter.getOutEdgeGroups(selNode)
+      : this.graphHighlighter.getInEdgeGroups(selNode);
     if (!edgeGroups.length && !pickedEdges?.length) {
       this.setSelEdges([]);
       return;

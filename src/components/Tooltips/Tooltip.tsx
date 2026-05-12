@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { observer } from 'mobx-react-lite';
 import { selectGotoHandler, toRgbaString, useRootStore } from '../../utils';
 import { css } from '@emotion/css';
 import { IconButton, SeriesIcon, useStyles2, useTheme2, VizTooltipContainer } from '@grafana/ui';
@@ -7,7 +8,7 @@ import { BiColProps, colTypes } from 'mapLib/utils';
 import { DataHoverView } from './DataHoverView';
 import { SortOrder, TooltipDisplayMode } from '@grafana/schema';
 
-import { Node, Edge } from 'mapLib';
+import { Node, Edge, Graph } from 'mapLib';
 
 const includes = ['ack', 'msg', 'all_annots', 'liveUpd']; //liveStat
 const TOOLTIP_OFFSET = 10;
@@ -52,6 +53,8 @@ const Tooltip = ({
     isDefDir,
     setIsDefDir,
     setEdgeListed,
+    setFocusedEdgeId,
+    setFocusedEdges,
     getisEdgeListed,
   } = pointStore;
 
@@ -83,6 +86,18 @@ const Tooltip = ({
   const handleEdgeTriggerClick = (nextIsDefDir: boolean) => {
     handleEdgeListed(nextIsDefDir);
     handleEdgeCountClick(nextIsDefDir);
+  };
+  const handleEdgeCountExpand = (nextIsDefDir: boolean) => {
+    if (!getisEdgeListed || isDefDir !== nextIsDefDir) {
+      setEdgeListed(true);
+    }
+
+    handleEdgeCountClick(nextIsDefDir);
+  };
+
+  const handleEdgeListFocus = (edges: Edge[]) => {
+    setSelIdx(-1);
+    setFocusedEdges(edges);
   };
 
   let { x, y, object, coordinate, featureType, index, layer: deckLayer } = info;
@@ -150,10 +165,10 @@ const Tooltip = ({
   const isTrespass = hasTrespassAnchor || Boolean(props.isTrespass);
 
   if (!edge) {
-    pointStore.hoverHighlighter.setGraph(panel.graph);
+    pointStore.graphHighlighter.setGraph(panel.graph);
 
-    const inEdges = dedupeHyperedgeList(pointStore.hoverHighlighter.getInEdges(pickedNode));
-    const outEdges = dedupeHyperedgeList(pointStore.hoverHighlighter.getOutEdges(pickedNode));
+    const inEdges = dedupeHyperedgeList(pointStore.graphHighlighter.getInEdges(pickedNode));
+    const outEdges = dedupeHyperedgeList(pointStore.graphHighlighter.getOutEdges(pickedNode));
 
     if (inEdges.length) {
       props.inEdges = inEdges;
@@ -233,7 +248,10 @@ const Tooltip = ({
 
       //&& parent === getSelectedNode --- would need pinned tooltip rerender
       return (
-        <li key={edgeId}>
+        <li
+          key={edgeId}
+          onMouseEnter={() => setFocusedEdgeId(edge.id, String((edge.source.parent as Graph)?.id ?? graph.id ?? ''))}
+        >
           <div
             style={{
               display: 'flex',
@@ -241,7 +259,6 @@ const Tooltip = ({
               backgroundColor: i === selIdx ? theme.colors.secondary.shade : undefined,
             }}
           >
-            {/*{pinned && <SetVarsIcon {...{nodeId: node?.id, edgeId, isDefDir}}/>}*/}
             <a
               onClick={() => {
                 setSelIdx(i);
@@ -287,12 +304,11 @@ const Tooltip = ({
     };
     const { inEdges, outEdges, parents } = props;
     const inLen = inEdges?.length ?? 0;
-    const outLen = outEdges?.length ?? 0;
     const toLines = inEdges?.map((e: Edge, i) => genLi(e.source, e, i));
     const revLines = outEdges?.map((e: Edge, i) => genLi(e.target, e, i + inLen));
     const adjacentEdges = (edge ? [edge] : parents)?.map((e, i) => genLi(pickedNode, e, parents?.length > 1 && i)) ?? [];
-    const inEdgesLabel = isTrespass ? 'trespassing edges right' : 'incoming';
-    const outEdgesLabel = isTrespass ? 'trespassing edges left' : 'outgoing';
+    const inEdgesLabel = isTrespass ? 'trespassing edges >' : 'incoming';
+    const outEdgesLabel = isTrespass ? 'trespassing edges <' : 'outgoing';
 
     const renderLines = (lines, listIsDefDir?: boolean) => {
       if (!lines?.length) {
@@ -310,7 +326,7 @@ const Tooltip = ({
       );
     };
 
-    const EdgeListTrigger = ({ label, listIsDefDir, isListed, lineCount }) => (
+    const EdgeListTrigger = ({ label, listIsDefDir, isListed, lineCount, edgeList }) => (
       <span className={s.edgeListHeader}>
         <IconButton
           className={`${s.edgeListTrigger} ${isListed ? s.edgeListTriggerActive : ''}`}
@@ -320,14 +336,14 @@ const Tooltip = ({
           variant="secondary"
           name={listIsDefDir ? 'arrow-up' : 'arrow-down'}
           onClick={() => handleEdgeTriggerClick(listIsDefDir)}
-          {...(!isListed && { tooltip: `${label} edges` })}
+          tooltip={`${label} edges`}
         />
         <button
           type="button"
           className={s.edgeListCountText}
-          aria-label="highlight all"
-          onClick={() => (isListed ? handleEdgeCountClick(listIsDefDir) : handleEdgeTriggerClick(listIsDefDir))}
-          title="highlight all"
+          aria-label={`${label} edges count`}
+          onMouseEnter={() => handleEdgeListFocus(edgeList)}
+          onClick={() => handleEdgeCountExpand(listIsDefDir)}
         >
           {`(${lineCount})`}
         </button>
@@ -349,6 +365,7 @@ const Tooltip = ({
               listIsDefDir={false}
               isListed={inListed}
               lineCount={toLines.length}
+              edgeList={inEdges}
             />
           )}
           {revLines?.length && (
@@ -357,6 +374,7 @@ const Tooltip = ({
               listIsDefDir={true}
               isListed={outListed}
               lineCount={revLines.length}
+              edgeList={outEdges}
             />
           )}
         </span>
@@ -428,7 +446,8 @@ const Tooltip = ({
     </VizTooltipContainer>
   );
 };
-export { Tooltip };
+const ObservedTooltip = observer(Tooltip);
+export { ObservedTooltip as Tooltip };
 
 const getStyles = (theme: GrafanaTheme2) => ({
   viz: css`

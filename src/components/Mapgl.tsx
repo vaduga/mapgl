@@ -38,7 +38,7 @@ import {
   ComFeature,
   GraphBiFeatCol,
 } from 'mapLib/utils';
-import type { Graph } from 'mapLib';
+import { type Graph } from 'mapLib';
 import { throttleTime } from 'rxjs';
 import { StateTime } from './Geocoder/StateTime';
 import { Layer, MapView, OrbitView } from 'deck.gl';
@@ -47,7 +47,7 @@ import { BinaryPointFeature } from '@loaders.gl/schema';
 
 import { ThresholdEdgeChangeEvent } from '../utils/bus.events';
 import { useFullscreenPortalBridge } from './hooks/useFullscreenPortalBridge';
-import { getConnectedHoverLayers, getDimmedGraphLayers } from '../deckLayers/connected-hover-layers';
+import { getConnectedFocusLayers, getDimmedGraphLayers } from '../deckLayers/focus-layers';
 
 const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, replaceVariables, eventBus }) => {
   const HOVER_HIGHLIGHT_DELAY_MS = 100;
@@ -64,8 +64,8 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     getSelectedNode,
     getSelectedIdxs,
     getSelEdges,
-    setHoveredNodeFromPickingInfo,
-    refreshHoverHighlighter,
+    setFocusedNodeFromPickingInfo,
+    refreshGraphHighlighter,
     setTooltipObject,
     getSelCoord,
     isDefDir,
@@ -264,10 +264,10 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
       hoverHighlightTimeoutRef.current = setTimeout(() => {
         hoverHighlightTimeoutRef.current = null;
-        setHoveredNodeFromPickingInfo(info);
+        setFocusedNodeFromPickingInfo(info);
       }, HOVER_HIGHLIGHT_DELAY_MS);
     },
-    [setHoveredNodeFromPickingInfo]
+    [setFocusedNodeFromPickingInfo]
   );
 
   const layerProps = {
@@ -300,41 +300,44 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     //</editor-fold>
   };
 
-  const hoverRevision = pointStore.getHoverRevision;
-  const hasHoverHighlight = pointStore.getHasHoverHighlight;
-  const canDimGraph = hasHoverHighlight && (isLogic || (!isLogic && !isHyper));
+  const focusRevision = pointStore.getFocusRevision;
+  const hasFocusHighlight = pointStore.getHasFocusHighlight;
+  const canDimGraph = hasFocusHighlight && (isLogic || (!isLogic && !isHyper));
 
-  const connectedHoverLayers = useMemo(() => {
-    if (!isLogic) {
-      return [];
-    }
+  const connectedFocusLayers = useMemo(
+    () => {
+      if (!isLogic) {
+        return [];
+      }
 
-    return getConnectedHoverLayers({
-      graphLayers: layers,
-      connectedNodeIds: pointStore.getHoveredConnectedNodeIds,
-    });
-  }, [
-    hoverRevision,
-    pointStore,
-    graph,
-    graph.getVersion,
-    layers,
-    isLogic,
-    isHyper,
-    theme2.isDark,
-    options.common?.isMeters,
-  ]);
+      return getConnectedFocusLayers({
+        graphLayers: layers,
+        connectedNodeIds: pointStore.getFocusedConnectedNodeIds,
+      });
+    },
+    [
+      focusRevision,
+      pointStore,
+      graph,
+      graph.getVersion,
+      layers,
+      isLogic,
+      isHyper,
+      theme2.isDark,
+      options.common?.isMeters,
+    ]
+  );
 
   const renderedLayers = useMemo(() => {
     const baseLayers = canDimGraph
       ? getDimmedGraphLayers(layers, {
-          connectedNodeIds: pointStore.getHoveredConnectedNodeIds,
-          connectedEdgeIndexes: pointStore.getHoveredConnectedEdgeIndexes,
+          connectedNodeIds: pointStore.getFocusedConnectedNodeIds,
+          connectedEdgeIndexes: pointStore.getFocusedConnectedEdgeIndexes,
           isHyper,
         })
       : layers;
-    return [...baseLayers, ...connectedHoverLayers].filter(Boolean);
-  }, [layers, connectedHoverLayers, canDimGraph, pointStore, hoverRevision, isHyper]);
+    return [...baseLayers, ...connectedFocusLayers].filter(Boolean);
+  }, [layers, connectedFocusLayers, canDimGraph, pointStore, focusRevision, isHyper]);
 
   useEffect(() => {
     flushSync(() => {
@@ -412,7 +415,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     const edgesGeometry = graph.getEdgesGeometry;
     const initLineFeatures: any = isHyper ? edgesGeometry[0] : edgesGeometry[1];
     lineFeaturesRef.current = initLineFeatures ?? {};
-    refreshHoverHighlighter();
+    refreshGraphHighlighter();
 
     if (!isLogic) {
       for (const subGraph of graphs) {

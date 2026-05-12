@@ -8,14 +8,14 @@ import { makeScopedKey, type ConnectedEdgeIndex } from './graph-highlighter';
 import GradientArcLayer from './ArcLayer/gradient-arc-layer';
 import AnimatedBlobsLayer from './ArcLayer/animated-blobs-layer';
 
-type ConnectedHoverLayerOptions = {
+type ConnectedFocusLayerOptions = {
   graphLayers: Layer[];
   connectedNodeIds: Set<string>;
 };
 
-export function getConnectedHoverLayers(opts: ConnectedHoverLayerOptions) {
+export function getConnectedFocusLayers(opts: ConnectedFocusLayerOptions) {
   const { graphLayers, connectedNodeIds } = opts;
-  return getConnectedHoverNodeLayers(graphLayers, connectedNodeIds);
+  return getConnectedFocusNodeLayers(graphLayers, connectedNodeIds);
 }
 
 type DimmedGraphLayerOptions = {
@@ -230,7 +230,7 @@ function getDimmedRgba(color: any, opacity: number): RGBAColor {
   return rgba;
 }
 
-function getConnectedHoverNodeLayers(layers: Layer[], connectedNodeIds: Set<string>) {
+function getConnectedFocusNodeLayers(layers: Layer[], connectedNodeIds: Set<string>) {
 
   return layers
     .map((layer) => {
@@ -245,7 +245,7 @@ function getConnectedHoverNodeLayers(layers: Layer[], connectedNodeIds: Set<stri
       }
 
       return layer.clone({
-        id: `${layer.id}-connected-hover`,
+        id: `${layer.id}-connected-focus`,
         data: connectedData,
         opacity: 1,
         pickable: false,
@@ -287,7 +287,7 @@ function getConnectedNodeTextLayer(layer: Layer, connectedNodeIds: Set<string>) 
   }
 
   return layer.clone({
-    id: `${layer.id}-connected-hover`,
+    id: `${layer.id}-connected-focus`,
     data: connectedData,
     opacity: 1,
     pickable: false,
