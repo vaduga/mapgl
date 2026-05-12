@@ -115,6 +115,8 @@
     "react-window": "1.8.11"
   },
   "overrides": {
+    "fast-uri": "3.1.2",
+    "fast-xml-builder": "1.1.7",
     "fast-xml-parser": "5.5.6",
     "flatted": "3.4.2"
   },
