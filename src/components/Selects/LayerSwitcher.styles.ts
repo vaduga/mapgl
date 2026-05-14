@@ -85,7 +85,10 @@ export const getStyles = (theme: GrafanaTheme2) => {
         fontWeight: 100,
         letterSpacing: '-0.125em',
         transformOrigin: 'center',
-        color: theme.colors.getContrastText(theme.colors.background.primary),
+        color: `var(--button-icon-idle, ${theme.colors.text.secondary})`,
+      },
+      '& button:hover .layer-switcher-toggle-icon, & button:focus .layer-switcher-toggle-icon': {
+        color: `var(--button-icon-hover, ${theme.colors.text.primary})`,
       },
       '& .layer-switcher-toggle-icon.closed': {
         transform: 'rotate(90deg)',
@@ -109,7 +112,10 @@ export const getStyles = (theme: GrafanaTheme2) => {
         color: theme.colors.getContrastText(theme.colors.background.secondary),
       },
       '&.shown > div > button .layer-switcher-toggle-icon': {
-        color: theme.colors.getContrastText(theme.colors.background.secondary),
+        color: `var(--button-icon-idle, ${theme.colors.text.secondary})`,
+      },
+      '&.shown > div > button:hover .layer-switcher-toggle-icon, &.shown > div > button:focus .layer-switcher-toggle-icon': {
+        color: `var(--button-icon-hover, ${theme.colors.text.primary})`,
       },
       '&.shown button:hover, &.shown button:focus': {
         backgroundColor: theme.colors.background.secondary,
