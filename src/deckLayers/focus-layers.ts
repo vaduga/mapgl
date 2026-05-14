@@ -7,16 +7,7 @@ import { getArrowColor } from './ArrowLayer/edge-arrow-layer';
 import { makeScopedKey, type ConnectedEdgeIndex } from './graph-highlighter';
 import GradientArcLayer from './ArcLayer/gradient-arc-layer';
 import AnimatedBlobsLayer from './ArcLayer/animated-blobs-layer';
-
-type ConnectedFocusLayerOptions = {
-  graphLayers: Layer[];
-  connectedNodeIds: Set<string>;
-};
-
-export function getConnectedFocusLayers(opts: ConnectedFocusLayerOptions) {
-  const { graphLayers, connectedNodeIds } = opts;
-  return getConnectedFocusNodeLayers(graphLayers, connectedNodeIds);
-}
+import { ICON_CACHE_SOURCE_KEY } from './GeoJsonNodesLayer/nodes-geojson-layer';
 
 type DimmedGraphLayerOptions = {
   connectedNodeIds: Set<string>;
@@ -37,6 +28,11 @@ export function getDimmedGraphLayers(layers: Layer[], opts: DimmedGraphLayerOpti
     const dimmedEdgeLayer = getDimmedEdgeLayer(layer, edgeDepthsByGraph);
     if (dimmedEdgeLayer) {
       return dimmedEdgeLayer;
+    }
+
+    const dimmedNodeTextLayer = getDimmedNodeTextLayer(layer, connectedNodeIds);
+    if (dimmedNodeTextLayer) {
+      return dimmedNodeTextLayer;
     }
 
     const data = layer?.props?.data as any;
@@ -230,32 +226,7 @@ function getDimmedRgba(color: any, opacity: number): RGBAColor {
   return rgba;
 }
 
-function getConnectedFocusNodeLayers(layers: Layer[], connectedNodeIds: Set<string>) {
-
-  return layers
-    .map((layer) => {
-      const data = layer?.props?.data as any;
-      if (!data?.points) {
-        return getConnectedNodeTextLayer(layer, connectedNodeIds);
-      }
-
-      const connectedData = getConnectedNodeBiCol(data, connectedNodeIds);
-      if (!connectedData) {
-        return null;
-      }
-
-      return layer.clone({
-        id: `${layer.id}-connected-focus`,
-        data: connectedData,
-        opacity: 1,
-        pickable: false,
-        autoHighlight: false,
-      });
-    })
-    .filter(Boolean);
-}
-
-function getConnectedNodeTextLayer(layer: Layer, connectedNodeIds: Set<string>) {
+function getDimmedNodeTextLayer(layer: Layer, connectedNodeIds: Set<string>) {
   if (!isNodeTextLayer(layer)) {
     return null;
   }
@@ -265,34 +236,33 @@ function getConnectedNodeTextLayer(layer: Layer, connectedNodeIds: Set<string>) 
     return null;
   }
 
+  const textLayer = layer as any;
   const textData = data as any[] & { attributes?: Record<string, any> };
-  const connectedData = textData.filter((d) => isConnectedNode(d?.properties, connectedNodeIds)) as any[] & {
-    attributes?: Record<string, any>;
-  };
-  if (!connectedData.length) {
-    return null;
-  }
+  const getColorAttribute = textData.attributes?.getColor;
+  let nextData = textData;
 
-  const getColor = textData.attributes?.getColor;
-  if (getColor?.value) {
-    connectedData.attributes = {
+  if (getColorAttribute?.value) {
+    nextData = [...textData] as any[] & { attributes?: Record<string, any> };
+    nextData.attributes = {
       ...textData.attributes,
       getColor: {
-        ...getColor,
-        value: getFilteredTextColorArray(getColor.value, connectedData),
+        ...getColorAttribute,
+        value: getDimmedTextColorArray(getColorAttribute.value, textData, connectedNodeIds),
       },
     };
-  } else if (textData.attributes) {
-    connectedData.attributes = textData.attributes;
   }
 
   return layer.clone({
-    id: `${layer.id}-connected-focus`,
-    data: connectedData,
-    opacity: 1,
-    pickable: false,
-    autoHighlight: false,
-  });
+    data: nextData,
+    getColor: (d: any, info: any) => {
+      const color = getAccessorResult(textLayer.props.getColor, d, info, [0, 0, 0, 200]);
+      return isConnectedNode(d?.properties, connectedNodeIds) ? color : getDimmedRgba(color, 0.18);
+    },
+    updateTriggers: {
+      ...layer.props.updateTriggers,
+      getColor: [textLayer.props.updateTriggers?.getColor, Array.from(connectedNodeIds)],
+    },
+  } as any);
 }
 
 function isNodeTextLayer(layer: Layer): boolean {
@@ -300,108 +270,22 @@ function isNodeTextLayer(layer: Layer): boolean {
   return id.includes('-view-placeholder-text') || id.includes('-view-label-text');
 }
 
-function getFilteredTextColorArray(colors, data: any[]) {
-  const nextColors = new colors.constructor(data.length * 4);
+function getDimmedTextColorArray(colors, data: any[], connectedNodeIds: Set<string>) {
+  const nextColors = new colors.constructor(colors.length);
+  nextColors.set(colors);
+
   data.forEach((d, index) => {
-    const sourceIndex = d?.pointIndex;
-    if (sourceIndex === undefined) {
-      return;
+    if (!isConnectedNode(d?.properties, connectedNodeIds)) {
+      const alphaIndex = index * 4 + 3;
+      nextColors[alphaIndex] = Math.round((nextColors[alphaIndex] ?? 255) * 0.18);
     }
-    nextColors.set(colors.subarray(sourceIndex * 4, sourceIndex * 4 + 4), index * 4);
   });
   return nextColors;
 }
 
-function getConnectedNodeBiCol(data, connectedNodeIds: Set<string>) {
-  return getFilteredNodeBiCol(data, (props) => isConnectedNode(props, connectedNodeIds));
-}
-
-function getFilteredNodeBiCol(data, predicate: (props: any) => boolean) {
-  const points = data?.points;
-  const featureIds = points?.featureIds?.value;
-  const positions = points?.positions?.value;
-  const properties = points?.properties;
-  const attributes = points?.attributes;
-  const fillColors = attributes?.getFillColor?.value;
-  const textColors = attributes?.getColor?.value;
-
-  if (!featureIds?.length || !positions || !properties) {
-    return null;
-  }
-
-  const selectedIndexes: number[] = [];
-  for (let i = 0; i < featureIds.length; i++) {
-    const props = properties[featureIds[i]];
-    if (predicate(props)) {
-      selectedIndexes.push(i);
-    }
-  }
-
-  if (!selectedIndexes.length) {
-    return null;
-  }
-
-  const PositionArray = positions.constructor as any;
-  const FeatureIdArray = featureIds.constructor as any;
-  const FillColorArray = fillColors?.constructor as any;
-  const TextColorArray = textColors?.constructor as any;
-
-  const nextPositions = new PositionArray(selectedIndexes.length * 2);
-  const nextFeatureIds = new FeatureIdArray(selectedIndexes.length);
-  const nextGlobalFeatureIds = new Uint32Array(selectedIndexes.length);
-  const nextFillColors = fillColors ? new FillColorArray(selectedIndexes.length * 4) : undefined;
-  const nextTextColors = textColors ? new TextColorArray(selectedIndexes.length * 4) : undefined;
-
-  selectedIndexes.forEach((sourceIndex, targetIndex) => {
-    nextPositions.set(positions.subarray(sourceIndex * 2, sourceIndex * 2 + 2), targetIndex * 2);
-    nextFeatureIds[targetIndex] = featureIds[sourceIndex];
-    nextGlobalFeatureIds[targetIndex] = targetIndex;
-
-    if (nextFillColors && fillColors) {
-      nextFillColors.set(fillColors.subarray(sourceIndex * 4, sourceIndex * 4 + 4), targetIndex * 4);
-    }
-    if (nextTextColors && textColors) {
-      nextTextColors.set(textColors.subarray(sourceIndex * 4, sourceIndex * 4 + 4), targetIndex * 4);
-    }
-  });
-
-  return {
-    ...data,
-    points: {
-      ...points,
-      positions: {
-        ...points.positions,
-        value: nextPositions,
-      },
-      attributes: {
-        ...attributes,
-        ...(nextFillColors
-          ? {
-              getFillColor: {
-                ...attributes.getFillColor,
-                value: nextFillColors,
-              },
-            }
-          : {}),
-        ...(nextTextColors
-          ? {
-              getColor: {
-                ...attributes.getColor,
-                value: nextTextColors,
-              },
-            }
-          : {}),
-      },
-      featureIds: {
-        ...points.featureIds,
-        value: nextFeatureIds,
-      },
-      globalFeatureIds: {
-        ...points.globalFeatureIds,
-        value: nextGlobalFeatureIds,
-      },
-    },
-  };
+function getAccessorValue(accessor: any, object: any, info: any, fallback: number): number {
+  const value = typeof accessor === 'function' ? accessor(object, info) : accessor;
+  return Number.isFinite(value) ? value : fallback;
 }
 
 function getDimmedNodeBiCol(data, connectedNodeIds: Set<string>) {
@@ -418,6 +302,7 @@ function getDimmedNodeBiCol(data, connectedNodeIds: Set<string>) {
 
   return {
     ...data,
+    [ICON_CACHE_SOURCE_KEY]: data[ICON_CACHE_SOURCE_KEY] ?? data,
     points: {
       ...points,
       attributes: {
@@ -467,11 +352,6 @@ function isConnectedNode(props: any, connectedNodeIds: Set<string>): boolean {
 
   const graphId = props?.root?.id;
   return connectedNodeIds.has(graphId ? makeScopedKey(String(graphId), locName) : locName);
-}
-
-function getAccessorValue(accessor: any, object: any, info: any, fallback: number): number {
-  const value = typeof accessor === 'function' ? accessor(object, info) : accessor;
-  return Number.isFinite(value) ? value : fallback;
 }
 
 function getMaxMapValue(map: Map<number, number>): number {

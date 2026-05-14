@@ -20,14 +20,6 @@ type SvgIconRecord = SvgIconVariant & {
   colorVariantPromises?: Record<string, Promise<SvgIconVariant | undefined>>;
 };
 
-type ResolvedFeatureGroup = Omit<Rule, 'color'> & {
-  color?: RGBAColor;
-};
-
-type ResolvedFeatureGroupInput = Omit<Partial<Rule>, 'color'> & {
-  color?: Rule['color'] | RGBAColor;
-};
-
 function parseObjFromString(str) {
   // Regular expression to extract key-value pairs
   const regex = /(\w+)\s*=\s*(\w+)/g;
@@ -197,14 +189,31 @@ function loadImageElement(src: string): Promise<HTMLImageElement> {
   });
 }
 
-async function renderCanvasTintedSvgIcon(svgIcon: SvgIconRecord, color: string): Promise<SvgIconVariant | undefined> {
+function getCanvasTintSize(width: number, height: number, renderSize?: number) {
+  if (!renderSize || !width || !height) {
+    return { width, height };
+  }
+
+  const scale = renderSize / Math.max(width, height);
+  return {
+    width: Math.max(1, Math.round(width * scale)),
+    height: Math.max(1, Math.round(height * scale)),
+  };
+}
+
+async function renderCanvasTintedSvgIcon(
+  svgIcon: SvgIconRecord,
+  color: string,
+  renderSize?: number
+): Promise<SvgIconVariant | undefined> {
   if (!svgIcon.svgDataUrl) {
     return undefined;
   }
 
   const image = await loadImageElement(svgIcon.svgDataUrl);
-  const width = svgIcon.width ?? image.naturalWidth ?? image.width;
-  const height = svgIcon.height ?? image.naturalHeight ?? image.height;
+  const sourceWidth = svgIcon.width ?? image.naturalWidth ?? image.width;
+  const sourceHeight = svgIcon.height ?? image.naturalHeight ?? image.height;
+  const { width, height } = getCanvasTintSize(sourceWidth, sourceHeight, renderSize);
 
   if (!width || !height) {
     return undefined;
@@ -238,7 +247,7 @@ async function renderCanvasTintedSvgIcon(svgIcon: SvgIconRecord, color: string):
 function getTintedSvgIcon(
   svgIcon: SvgIconRecord | undefined,
   color?: string,
-  opts?: { mode?: SvgTintMode; onReady?: () => void }
+  opts?: { mode?: SvgTintMode; onReady?: () => void; renderSize?: number }
 ): SvgIconVariant | undefined {
   if (!svgIcon || !color || color === FIXED_COLOR_LABEL) {
     return svgIcon;
@@ -248,7 +257,7 @@ function getTintedSvgIcon(
   if (mode === 'none') {
     return svgIcon;
   }
-  const cacheKey = `${mode}:${color}`;
+  const cacheKey = `${mode}:${color}${mode === 'canvasTint' && opts?.renderSize ? `:${opts.renderSize}` : ''}`;
 
   svgIcon.colorVariants ??= {};
   const cached = svgIcon.colorVariants[cacheKey];
@@ -259,7 +268,7 @@ function getTintedSvgIcon(
   if (mode === 'canvasTint') {
     svgIcon.colorVariantPromises ??= {};
     if (!svgIcon.colorVariantPromises[cacheKey]) {
-      svgIcon.colorVariantPromises[cacheKey] = renderCanvasTintedSvgIcon(svgIcon, color)
+      svgIcon.colorVariantPromises[cacheKey] = renderCanvasTintedSvgIcon(svgIcon, color, opts?.renderSize)
         .then((variant) => {
           if (variant) {
             svgIcon.colorVariants![cacheKey] = variant;

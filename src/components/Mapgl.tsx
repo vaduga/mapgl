@@ -47,7 +47,7 @@ import { BinaryPointFeature } from '@loaders.gl/schema';
 
 import { ThresholdEdgeChangeEvent } from '../utils/bus.events';
 import { useFullscreenPortalBridge } from './hooks/useFullscreenPortalBridge';
-import { getConnectedFocusLayers, getDimmedGraphLayers } from '../deckLayers/focus-layers';
+import { getDimmedGraphLayers } from '../deckLayers/focus-layers';
 
 const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, replaceVariables, eventBus }) => {
   const HOVER_HIGHLIGHT_DELAY_MS = 100;
@@ -304,40 +304,16 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
   const hasFocusHighlight = pointStore.getHasFocusHighlight;
   const canDimGraph = hasFocusHighlight && (isLogic || (!isLogic && !isHyper));
 
-  const connectedFocusLayers = useMemo(
-    () => {
-      if (!isLogic) {
-        return [];
-      }
-
-      return getConnectedFocusLayers({
-        graphLayers: layers,
-        connectedNodeIds: pointStore.getFocusedConnectedNodeIds,
-      });
-    },
-    [
-      focusRevision,
-      pointStore,
-      graph,
-      graph.getVersion,
-      layers,
-      isLogic,
-      isHyper,
-      theme2.isDark,
-      options.common?.isMeters,
-    ]
-  );
-
   const renderedLayers = useMemo(() => {
-    const baseLayers = canDimGraph
+    return (canDimGraph
       ? getDimmedGraphLayers(layers, {
           connectedNodeIds: pointStore.getFocusedConnectedNodeIds,
           connectedEdgeIndexes: pointStore.getFocusedConnectedEdgeIndexes,
           isHyper,
         })
-      : layers;
-    return [...baseLayers, ...connectedFocusLayers].filter(Boolean);
-  }, [layers, connectedFocusLayers, canDimGraph, pointStore, focusRevision, isHyper]);
+      : layers
+    ).filter(Boolean);
+  }, [layers, focusRevision, canDimGraph, pointStore, isHyper]);
 
   useEffect(() => {
     flushSync(() => {

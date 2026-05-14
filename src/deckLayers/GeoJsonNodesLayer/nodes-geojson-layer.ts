@@ -33,6 +33,7 @@ type LogicTextLayerCache = {
 const logicTextLayerCache = new WeakMap<object, LogicTextLayerCache>();
 const nodeIconCache = new WeakMap<object, Map<string, any>>();
 const DEBUG_DISABLE_NODE_CACHE = false;
+const ICON_CACHE_SOURCE_KEY = '__mapglIconCacheSource';
 
 const getFeatureWrapper = (properties: any) => ({ properties });
 
@@ -147,12 +148,26 @@ const getNodeIconCache = (biCol: any) => {
     return new Map();
   }
 
-  let cache = nodeIconCache.get(biCol);
+  const cacheSource = biCol?.[ICON_CACHE_SOURCE_KEY] ?? biCol;
+  let cache = nodeIconCache.get(cacheSource);
   if (!cache) {
     cache = new Map();
-    nodeIconCache.set(biCol, cache);
+    nodeIconCache.set(cacheSource, cache);
   }
   return cache;
+};
+
+const isCanvasTintPending = (
+  svgIcon: any,
+  tintColor: string | undefined,
+  resolvedTintMode: string,
+  renderSize: number
+) => {
+  if (resolvedTintMode !== 'canvasTint' || !svgIcon || !tintColor) {
+    return false;
+  }
+
+  return !svgIcon.colorVariants?.[`canvasTint:${tintColor}:${renderSize}`];
 };
 
 const NodesGeojsonLayer = (props) => {
@@ -277,19 +292,20 @@ const NodesGeojsonLayer = (props) => {
       const tintColor = group?.color ? toRgbaString(group.color) : d.properties?.thrColor;
       const requestedTintMode = group?.svgTintMode ?? 'none';
       const resolvedTintMode = resolveSvgTintMode(svgIcon, requestedTintMode);
+      const maxIconSize = getMaxResolvedIconSize(d);
+      const packedIconSize = getDonutIconSrcSize(maxIconSize);
       const tintedSvgIcon = getTintedSvgIcon(svgIcon, tintColor, {
         mode: resolvedTintMode,
         onReady: onSvgIconReady,
+        renderSize: resolvedTintMode === 'canvasTint' ? packedIconSize : undefined,
       });
+      const canvasTintPending = isCanvasTintPending(svgIcon, tintColor, resolvedTintMode, packedIconSize);
 
       if (isLogic && arcs?.length) {
-        const maxIconSize = getMaxResolvedIconSize(d);
-        const packedIconSize = getDonutIconSrcSize(maxIconSize);
-
         const donutCacheKey = `donut:${iconName ?? 'none'}:${resolvedTintMode}:${tintColor ?? 'base'}:${packedIconSize}:${(
           arcs as string[]
         ).join('|')}`;
-        const cachedDonut = iconCache.get(donutCacheKey);
+        const cachedDonut = canvasTintPending ? undefined : iconCache.get(donutCacheKey);
         if (cachedDonut) {
           return cachedDonut;
         }
@@ -315,27 +331,33 @@ const NodesGeojsonLayer = (props) => {
           width: packedIconSize,
           height: packedIconSize,
         };
-        iconCache.set(donutCacheKey, icon);
+        if (!canvasTintPending) {
+          iconCache.set(donutCacheKey, icon);
+        }
         return icon;
       } else if (tintedSvgIcon) {
-        const maxIconSize = getMaxResolvedIconSize(d);
-        const packedIconSize = getDonutIconSrcSize(maxIconSize);
         const iconWidth = tintedSvgIcon.width;
         const iconHeight = tintedSvgIcon.height;
-        const cacheKey = `svg:${iconName ?? 'none'}:${resolvedTintMode}:${tintColor ?? 'base'}:${packedIconSize}:${iconWidth ?? 'auto'}x${iconHeight ?? 'auto'}`;
-        const cachedSvg = iconCache.get(cacheKey);
+        const cacheState = canvasTintPending ? 'pending' : 'ready';
+        const cacheKey = `svg:${iconName ?? 'none'}:${resolvedTintMode}:${cacheState}:${tintColor ?? 'base'}:${packedIconSize}:${iconWidth ?? 'auto'}x${iconHeight ?? 'auto'}`;
+        const cachedSvg = canvasTintPending ? undefined : iconCache.get(cacheKey);
         if (cachedSvg) {
           return cachedSvg;
         }
 
-        const packedSvgIcon = getPackedSvgIcon(tintedSvgIcon, packedIconSize) ?? tintedSvgIcon;
+        const packedSvgIcon =
+          resolvedTintMode === 'canvasTint' && !canvasTintPending
+            ? tintedSvgIcon
+            : getPackedSvgIcon(tintedSvgIcon, packedIconSize) ?? tintedSvgIcon;
         const icon = {
           url: packedSvgIcon.svgDataUrl,
           width: packedSvgIcon.width,
           height: packedSvgIcon.height,
-          id: `${iconName}:${resolvedTintMode}:${tintColor ?? 'base'}:${packedIconSize}:${packedSvgIcon.width ?? 'auto'}x${packedSvgIcon.height ?? 'auto'}`,
+          id: `${iconName}:${resolvedTintMode}:${cacheState}:${tintColor ?? 'base'}:${packedIconSize}:${packedSvgIcon.width ?? 'auto'}x${packedSvgIcon.height ?? 'auto'}`,
         };
-        iconCache.set(cacheKey, icon);
+        if (!canvasTintPending) {
+          iconCache.set(cacheKey, icon);
+        }
         return icon;
       }
       // no custom svg icon loaded
@@ -439,6 +461,7 @@ const NodesGeojsonLayer = (props) => {
 };
 
 export { NodesGeojsonLayer };
+export { ICON_CACHE_SOURCE_KEY };
 
 const LogicPlaceholderTextLayer = (props) => {
   const {

@@ -32,10 +32,6 @@
       {
         "name": "Documentation",
         "url": "https://mapgl.org/documentation"
-      },
-      {
-        "name": "License",
-        "url": "https://github.com/vaduga/mapgl/blob/main/LICENSE"
       }
     ],
     "screenshots": [
