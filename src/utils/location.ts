@@ -9,7 +9,7 @@ import {
   FieldConfig,
 } from '@grafana/data';
 import { getGazetteer, Gazetteer } from '../grafana_core/app/features/geo/gazetteer/gazetteer';
-import { decodeGeohash } from './geohash';
+import { decodeGeohash } from '../grafana_core/app/features/geo/format/geohash';
 import { ExtendFrameGeometrySource, ExtendFrameGeometrySourceMode } from '../extension';
 import { Geometry, Point } from 'geojson';
 import { findField } from '../grafana_core/app/features/dimensions';

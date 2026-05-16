@@ -136,6 +136,7 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
       };
       const polygonsLayer = new GeoJsonLayer({
         ...props,
+        pickable: false,
         data: bboxFeatCollection,
         filled: false,
       });
