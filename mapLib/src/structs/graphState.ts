@@ -1,4 +1,4 @@
-import { observable } from 'mobx';
+import { action, observable } from 'mobx';
 import { CommentsData } from '../utils/interfaces';
 
 export type GraphState = {
@@ -40,42 +40,48 @@ export function getNodeGroupCounts(graph: object): Map<number, number> {
   return getGraphState(graph).groupCounts;
 }
 
-export function addNodeGroup(graph: object, idx: number): void {
+export const addNodeGroup = action('addNodeGroup', (graph: object, idx: number): void => {
   const groupCounts = getNodeGroupCounts(graph);
   const count = groupCounts.get(idx);
   groupCounts.set(idx, count ? count + 1 : 1);
-}
+});
 
-export function rmNodeGroup(graph: object, idx: number): void {
+export const rmNodeGroup = action('rmNodeGroup', (graph: object, idx: number): void => {
   const groupCounts = getNodeGroupCounts(graph);
   const count = groupCounts.get(idx);
   if (count) {
     groupCounts.set(idx, count - 1);
   }
-}
+});
 
 export function getGraphPositionRanges(graph: object): Array<[number, number]> {
   return getGraphState(graph).positionRanges;
 }
 
-export function setGraphPositionRanges(graph: object, positionRanges: Array<[number, number]>): void {
-  getGraphState(graph).positionRanges = positionRanges;
-}
+export const setGraphPositionRanges = action(
+  'setGraphPositionRanges',
+  (graph: object, positionRanges: Array<[number, number]>): void => {
+    getGraphState(graph).positionRanges = positionRanges;
+  }
+);
 
-export function pushGraphPositionRange(graph: object, positionRange: [number, number]): void {
-  getGraphPositionRanges(graph).push(positionRange);
-}
+export const pushGraphPositionRange = action(
+  'pushGraphPositionRange',
+  (graph: object, positionRange: [number, number]): void => {
+    getGraphPositionRanges(graph).push(positionRange);
+  }
+);
 
 export function getGraphVersion(graph: object): number {
   return getGraphState(graph).version;
 }
 
-export function bumpGraphVersion(graph: object): void {
+export const bumpGraphVersion = action('bumpGraphVersion', (graph: object): void => {
   getGraphState(graph).version += 1;
-}
+});
 
-export function resetGraphState(graph: object): void {
+export const resetGraphState = action('resetGraphState', (graph: object): void => {
   const state = getGraphState(graph);
   state.groupCounts.clear();
   state.positionRanges = [];
-}
+});
