@@ -4,7 +4,11 @@ import { MyIconLayer } from '../deckLayers/IconLayer/icon-layer';
 import { MyArcLayer } from '../deckLayers/ArcLayer/arc-layer';
 import { GeoJsonLayer, PathLayer, TextLayer } from '@deck.gl/layers';
 import { Layer } from '@deck.gl/core';
-import { GeomGraph, Graph } from 'mapLib';
+import {
+  GeomGraph,
+  Graph,
+  getGraphComments,
+} from 'mapLib';
 import {
   BBOX_OUTLINE_COLOR,
   BBOX_OUTLINE_WIDTH,
@@ -105,7 +109,7 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
         properties: {
           id: col.graph.id,
           locName: col.graph.id,
-          root: col.graph,
+          graph: col.graph,
         },
         geometry: {
           type: 'Polygon',
@@ -230,7 +234,7 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
           ...layerProps,
           srcGraphId,
           linesCollection,
-          getWasmId2Edges: graph.getWasmId2Edges,
+          getWasmId2Edges: panel.graphEdgeIndex.wasm2Edges,
           visible,
         };
 
@@ -276,12 +280,14 @@ function findSubgraphById(graph: Graph, id: string): Graph | undefined {
   if (graph.id === id) {
     return graph;
   }
+
   for (const sub of graph.graphs()) {
     const found = findSubgraphById(sub, id);
     if (found) {
       return found;
     }
   }
+
   return undefined;
 }
 
@@ -325,7 +331,7 @@ function genVisLayers(panel: MapPanel, props) {
 
 function createDerivedLayers(visLayers: VisLayers, graph: Graph, isLogic, replaceVariables, useMockData = false) {
   const graphs: Graph[] = [graph as Graph].concat(Array.from((graph as Graph).subgraphsBreadthFirst()));
-  const hasComments = graph ? !isLogic && graphs.some((g) => Object.keys(g.getComments).length) : false;
+  const hasComments = graph ? !isLogic && graphs.some((g) => Object.keys(getGraphComments(g)).length) : false;
 
   // Map from graph ID to visLayers index
   const idToLayerIdx = new Map<string, number>();

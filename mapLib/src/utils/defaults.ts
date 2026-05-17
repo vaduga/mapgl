@@ -6,6 +6,13 @@ export const DEFAULT_LINE_WIDTH = 1.5;
 
 export const DEFAULT_COLOR_LABEL = 'default';
 
+import {
+  BinaryFeatureCollection,
+  BinaryLineFeature,
+  BinaryPointFeature,
+  BinaryPolygonFeature,
+} from '@loaders.gl/schema';
+
 /**
  * Color to use when rendering without any thresholds/overrides
  */
@@ -60,7 +67,11 @@ export const LINES_SNAP_SOURCE_COLOR = '#dfff7bcc'; // 'rgb(223,523,123, 0.8)'
 export const LINES_SNAP_TARGET_COLOR = '#2fa1deb3'; //'rgb(47, 161, 222, 0.7)'
 export const DEFAULT_CLUSTER_BK_COLOR = '#f0f0f0'; //'rgb(240,240,240)'
 export const ANNOT_CLUSTER_BK_COLOR = '#e0be8b'; // 'rgb(224, 190, 139)'
-export const ALERTING_STATES = { Alerting: '#e0226e', Pending: '#ff9900', Normal: '#1b855e' };
+export const ALERTING_STATES = {
+  Alerting: '#e0226e',
+  Pending: '#ff9900',
+  Normal: '#1b855e',
+};
 //export const ALERTING_STATES = {Alerting: 'rgb(224, 34, 110)', Pending: 'rgba(255, 153, 0)', Normal: 'rgb(27, 133, 94)'}
 
 export const BBOX_OUTLINE_COLOR = '#cfe3d4';
@@ -72,7 +83,11 @@ export const ALERT_MAP = {
   '111': [ALERTING_STATES.Normal, 'Normal', [27, 133, 94, 254]],
 };
 
-export const ALERTING_NUMS = { Alerting: ALERT_MAP['255'], Pending: ALERT_MAP['222'], Normal: ALERT_MAP['111'] };
+export const ALERTING_NUMS = {
+  Alerting: ALERT_MAP['255'],
+  Pending: ALERT_MAP['222'],
+  Normal: ALERT_MAP['111'],
+};
 
 export const DEFAULT_ICON_SIZE = 20;
 
@@ -88,6 +103,18 @@ export const SEL_LINE_WIDTH_MULTIPLIER = 2;
 
 export const blankHoverInfo: Info = {};
 
+export const defDeckViewPort = (c: { viewState: { zoom: number; bearing: number; pitch: number } }) => ({
+  transitionDuration: 1,
+  //transitionInterpolator: new FlyToInterpolator(),
+  //
+  yZoom: c.viewState.zoom + 1,
+  maxPitch: 45 * 0.95,
+  camera: {
+    azimuth: (-c.viewState.bearing * Math.PI) / 180,
+    tilt: ((c.viewState.pitch * Math.PI) / 180) * 1.05, // sph-> ellipse correction*/
+  },
+});
+
 export const emptyBiCol = {
   shape: 'binary-feature-collection',
   points: {
@@ -97,7 +124,7 @@ export const emptyBiCol = {
     globalFeatureIds: { value: new Uint32Array([]), size: 1 },
     numericProps: {},
     properties: [],
-  },
+  } as unknown as BinaryPointFeature,
   polygons: {
     type: 'Polygon',
     positions: { value: new Float32Array(), size: 2 },
@@ -107,7 +134,7 @@ export const emptyBiCol = {
     primitivePolygonIndices: { value: new Uint16Array(), size: 1 },
     numericProps: {},
     properties: [],
-  },
+  } as unknown as BinaryPolygonFeature,
   lines: {
     type: 'LineString',
     positions: { value: new Float32Array(), size: 2 },
@@ -116,8 +143,8 @@ export const emptyBiCol = {
     globalFeatureIds: { value: new Uint16Array(), size: 1 },
     numericProps: {},
     properties: [],
-  },
-};
+  } as unknown as BinaryLineFeature,
+} as BinaryFeatureCollection;
 
 export const GLOBAL_OVERRIDE_COLORS = [DEFAULT_WARNING_COLOR, DEFAULT_CRITICAL_COLOR, DEFAULT_NO_THRESHOLD_COLOR];
 

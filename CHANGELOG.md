@@ -1,5 +1,8 @@
 # Changelog Mapgl
 
+## 2.5.1
+- refactor to reuse native MSAGLJS structs more, externalize graph state and helpers
+
 ## 2.5.0
 - adjacent edges list in tooltip.
 - graph highlighter via shader mask for instant nodes/edges picking.

@@ -2,6 +2,7 @@ import { Geometry, Position, GeoJsonProperties, LineString } from 'geojson';
 import { Edge } from '../structs/edge';
 import { Entity } from '../structs/entity';
 import { Graph } from '../structs/graph';
+import { FeatSource } from '../FeatSource';
 import { BinaryFeatureCollection } from '@loaders.gl/schema';
 
 export type ViewState = {
@@ -51,6 +52,10 @@ export enum colTypes {
   Bboxes = 'bboxes',
 }
 
+export type LayerDragShift = {
+  [p: string]: [number, number];
+};
+
 export type GraphBiFeatCol = BinaryFeatureCollection & {
   graph: Graph;
 };
@@ -63,7 +68,8 @@ export type BiColProps = {
   entity?: Entity;
   frameRefId: string | undefined;
   rowIndex: number;
-  root: Graph;
+  featSource: FeatSource;
+  graph?: Graph;
   thrColor?: string; /// injected to get style group from props
   style: any; // StyleConfig
   edgeStyle: any; // StyleConfig
@@ -101,6 +107,7 @@ export interface DeckLine<G extends Geometry | null = Geometry, P = BiColProps> 
   heIdx: number;
   fragIdx: number;
   edgeId: string;
+  skip?: boolean;
   renderGeometryOnly?: boolean;
   type: 'Feature';
   rowIndex: number;
@@ -180,7 +187,7 @@ export type ComFeature = {
 export type Comment = {
   text: string;
   layerName: string;
-  root: Graph;
+  graph: Graph;
   isComment?: boolean;
   iconColor: string;
   locName: string;

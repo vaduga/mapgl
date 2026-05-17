@@ -37,8 +37,9 @@ import {
   CommentsData,
   ComFeature,
   GraphBiFeatCol,
+  getEdgesGeometry,
 } from 'mapLib/utils';
-import { type Graph } from 'mapLib';
+import { getGraphComments, getGraphNodeMap, getGraphPositionRanges, getGraphVersion, type Graph } from 'mapLib';
 import { throttleTime } from 'rxjs';
 import { StateTime } from './Geocoder/StateTime';
 import { Layer, MapView, OrbitView } from 'deck.gl';
@@ -74,6 +75,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
   const { getViewState, getTime, getGroupsLegend } = viewStore;
   const { isLogic, visLayers, graph } = panel;
+  const graphVersion = getGraphVersion(graph);
   const clusters = Array.from(graph.subgraphsBreadthFirst()) as Graph[];
   const graphs: Graph[] = [graph as Graph].concat(clusters);
 
@@ -123,7 +125,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
       graphs.forEach((s: any) => {
         newAnnots.forEach(({ alertName, instance, data, newState, timeEnd }) => {
-          const nodeMap = s.nodeCollection.getNodeMap;
+          const nodeMap = getGraphNodeMap(s);
           const feature = nodeMap?.get(instance)?.data.feature;
           if (!feature) {
             return;
@@ -388,16 +390,16 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
       });
 
     let initComments: CommentsData = {};
-    const edgesGeometry = graph.getEdgesGeometry;
+    const edgesGeometry = getEdgesGeometry(graph, panel);
     const initLineFeatures: any = isHyper ? edgesGeometry[0] : edgesGeometry[1];
     lineFeaturesRef.current = initLineFeatures ?? {};
     refreshGraphHighlighter();
 
     if (!isLogic) {
       for (const subGraph of graphs) {
-        const getComments = subGraph.getComments;
-        if (Object.keys(getComments).length) {
-          initComments = { ...initComments, ...getComments };
+        const comments = getGraphComments(subGraph);
+        if (Object.keys(comments).length) {
+          initComments = { ...initComments, ...comments };
         }
       }
     }
@@ -406,7 +408,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     const commentFeatures: ComFeature[] = [];
     Object.entries(initComments)?.forEach(([edgeId, orderMap]) => {
       orderMap?.forEach((comment) => {
-        const { edge, text, iconColor, style, root, layerName, locName, coords, index } = comment;
+        const { edge, text, iconColor, style, graph, layerName, locName, coords, index } = comment;
         if (edge && text && iconColor && coords) {
           commentFeatures.push({
             type: 'Feature',
@@ -420,7 +422,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
             properties: {
               text,
               layerName,
-              root: root as Graph,
+              graph,
               isComment: true,
               locName,
               index,
@@ -447,7 +449,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
       .map((g, i) => {
         const { colors, muted, annots } = panel;
 
-        const { positionRanges } = g;
+        const positionRanges = getGraphPositionRanges(g);
         const { features } = panel;
 
         if (!features?.length) {
@@ -550,7 +552,13 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
       return;
     }
     getLayers();
-  }, [graph.getVersion, getTooltipObject, time, getViewState, visRefresh]);
+  }, [
+    graphVersion,
+    getTooltipObject,
+    time,
+    getViewState,
+    visRefresh
+  ]);
 
   const memoLayerSwitcher = useMemo(() => {
     return (
@@ -568,7 +576,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
   const memoMenu = useMemo(() => {
     return <Menu eventBus={eventBus} {...{ options, time, timeZone, data, panel }} />;
-  }, [options, panel.layers, graph.getVersion, data]);
+  }, [options, panel.layers, graphVersion, data]);
 
   const memoPositionTracker = useMemo(() => {
     return (

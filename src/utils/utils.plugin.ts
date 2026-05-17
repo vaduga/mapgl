@@ -5,7 +5,6 @@ import { FieldType, SelectableValue } from '@grafana/data';
 import { svgToDataURL } from '../deckLayers/GeoJsonNodesLayer/donutChart';
 import { MarkersConfig } from '../layers/data/markersLayer';
 import { Rule } from '../editor/Groups/rule-types';
-import { getGroupRules } from '../editor/Groups/data/rules_processor';
 import { MapLayerState, PLUGIN_ID, SvgTintMode } from '../types';
 
 type SvgIconVariant = {

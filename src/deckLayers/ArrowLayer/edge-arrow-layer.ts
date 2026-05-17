@@ -237,8 +237,8 @@ export const EdgeArrowLayer = (props) => {
     ...sizeConstraintProps,
     depthTest: false,
     getFilterCategory: (d: ArrowItem) => {
-      const { style, layerName, root } = d.feature?.properties || {};
-      return [style?.group.groupIdx, layerName, root.id];
+      const { style, layerName, graph } = d.feature?.properties || {};
+      return [style?.group.groupIdx, layerName, graph?.id];
     },
     filterCategories: categories,
     extensions: [new DataFilterExtension({ categorySize })],

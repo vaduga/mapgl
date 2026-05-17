@@ -1,7 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import RootStore from './RootStore';
 import { blankHoverInfo, colTypes, Info, ViewState } from 'mapLib/utils';
-import { Edge, Graph, Node } from 'mapLib';
+import { Edge, findEdge, getGraphData, Graph, Node } from 'mapLib';
 import { SelectNodeEvent } from '../utils/bus.events';
 import { Subscription } from 'rxjs';
 import type { DeckGLRefWithViewManager } from '../types';
@@ -40,7 +40,7 @@ class PointStore {
     const replaceVariables = root.replaceVariables;
     const nodeId = replaceVariables('$nodeId');
     //const edgeId = replaceVariables('$edgeId');
-    this.graphHighlighter.setGraph(graph);
+    this.graphHighlighter.setGraph(graph, { edgeIndex: panel.graphEdgeIndex });
     let node, edge;
     if (nodeId !== '$nodeId') {
       node = this.root.graph.findNodeRecursive(nodeId);
@@ -62,18 +62,19 @@ class PointStore {
         return;
       } //  && !isLogic  . logic layer crosshair selection
 
-      const { nodeId, edgeId, graphId, fly, coord, select, zoomIn } = evt.payload;
+      const { nodeId, edge: payloadEdge, edgeId, graphId, fly, coord, select, zoomIn } = evt.payload;
 
       let wasmId;
-      if (nodeId || edgeId || select) {
-        let node, edge;
+      if (nodeId || payloadEdge || edgeId || select) {
+        let node;
+        let edge = payloadEdge;
         let subGraph = graphId && Array.from(graph.graphs()).find((el) => el.id === graphId);
         if (subGraph) {
           node = (nodeId && subGraph.findNode(nodeId)) ?? subGraph;
-          edge = edgeId && subGraph.nodeCollection.getEdgesMap[edgeId];
+          edge = edge ?? (edgeId ? findEdge(subGraph, edgeId) : undefined);
         } else {
           node = nodeId && graph.findNodeRecursive(nodeId);
-          if (edgeId) {
+          if (!edge && edgeId) {
             for (const el of graph.deepEdges) {
               if (el.id === edgeId) {
                 edge = el;
@@ -184,7 +185,7 @@ class PointStore {
   };
 
   setFocusedNodeId = (nodeId: string | null, graphId?: string | null) => {
-    this.graphHighlighter.setGraph(this.root.graph);
+    this.graphHighlighter.setGraph(this.root.graph, { edgeIndex: this.root.panel.graphEdgeIndex });
 
     const nextGraphId = graphId ?? null;
     if (this.focusedNodeId === nodeId && this.focusedNodeGraphId === nextGraphId && !this.focusedEdgeId) {
@@ -201,7 +202,7 @@ class PointStore {
   };
 
   setFocusedEdgeId = (edgeId: string | null, graphId?: string | null) => {
-    this.graphHighlighter.setGraph(this.root.graph);
+    this.graphHighlighter.setGraph(this.root.graph, { edgeIndex: this.root.panel.graphEdgeIndex });
 
     const nextGraphId = graphId ?? null;
     if (this.focusedEdgeId === edgeId && this.focusedEdgeGraphId === nextGraphId && !this.focusedNodeId) {
@@ -218,7 +219,7 @@ class PointStore {
   };
 
   setFocusedEdges = (edges: Edge[]) => {
-    this.graphHighlighter.setGraph(this.root.graph);
+    this.graphHighlighter.setGraph(this.root.graph, { edgeIndex: this.root.panel.graphEdgeIndex });
 
     this.focusedNodeId = null;
     this.focusedNodeGraphId = null;
@@ -230,7 +231,7 @@ class PointStore {
   };
 
   refreshGraphHighlighter = () => {
-    this.graphHighlighter.setGraph(this.root.graph, { force: true });
+    this.graphHighlighter.setGraph(this.root.graph, { force: true, edgeIndex: this.root.panel.graphEdgeIndex });
     if (this.focusedEdges.length) {
       this.graphHighlighter.updateEdges(this.focusedEdges);
     } else if (this.focusedEdgeId) {
@@ -299,11 +300,12 @@ class PointStore {
 
   get getSelectedIdxs(): Map<string, Record<string, number[]>> | [] {
     const selectedIds = new Map();
-    const dataRecord = this.getSelectedNode?.data;
+    const selectedNode = this.getSelectedNode;
+    const dataRecord = selectedNode instanceof Graph ? getGraphData(selectedNode) : selectedNode?.data;
     if (!dataRecord) {
       return selectedIds;
     }
-    const selFeatLayerName = (this.getSelectedNode.parent as Graph).id;
+    const selFeatLayerName = (selectedNode?.parent as Graph).id;
     const index = dataRecord.idx;
     const selEdges = this.selEdges;
 
@@ -326,7 +328,7 @@ class PointStore {
           }
           const layerId = String((e.source.parent as Graph).id);
           const edge_id = e.data.edge_id;
-          const edges = this.root.graph.getWasmId2Edges[edge_id] ?? [];
+          const edges = this.root.panel.graphEdgeIndex.wasm2Edges[edge_id] ?? [];
 
           const lineIds = edges.map((x: any) => x?.lineId).filter((id: any): id is number => typeof id === 'number');
 
@@ -364,7 +366,8 @@ class PointStore {
     }
 
     if (node) {
-      const feature = node?.data?.feature;
+      const dataRecord = node instanceof Graph ? getGraphData(node) : node?.data;
+      const feature = dataRecord?.feature;
       if (!feature) {
         return;
       }
@@ -372,7 +375,7 @@ class PointStore {
 
     const selNode = this.selectedNode;
 
-    this.graphHighlighter.setGraph(this.root.graph);
+    this.graphHighlighter.setGraph(this.root.graph, { edgeIndex: this.root.panel.graphEdgeIndex });
     const edgeGroups = this.isDefDir
       ? this.graphHighlighter.getOutEdgeGroups(selNode)
       : this.graphHighlighter.getInEdgeGroups(selNode);
@@ -413,7 +416,7 @@ class PointStore {
       return null;
     }
 
-    const graph = props.root instanceof Graph ? props.root : this.root.graph;
+    const graph = props.graph instanceof Graph ? props.graph : this.root.graph;
     const node = graph.findNode(locName) ?? this.root.graph.findNodeRecursive(locName);
     return node ? { nodeId: node.id, graphId: String((node.parent as Graph)?.id ?? graph.id ?? '') } : null;
   }
@@ -425,8 +428,8 @@ class PointStore {
       return null;
     }
 
-    const root = object?.properties?.root ?? object?.feature?.properties?.root;
-    const graphId = root instanceof Graph ? root.id : (root?.id ?? null);
+    const graph = object?.properties?.graph ?? object?.feature?.properties?.graph;
+    const graphId = graph instanceof Graph ? graph.id : (graph?.id ?? null);
     return { edgeId, graphId: graphId ? String(graphId) : null };
   }
 

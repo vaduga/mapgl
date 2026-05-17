@@ -350,7 +350,7 @@ function isConnectedNode(props: any, connectedNodeIds: Set<string>): boolean {
     return false;
   }
 
-  const graphId = props?.root?.id;
+  const graphId = props?.graph?.id;
   return connectedNodeIds.has(graphId ? makeScopedKey(String(graphId), locName) : locName);
 }
 

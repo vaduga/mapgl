@@ -2,12 +2,9 @@ import { Entity } from './entity';
 import { Edge } from './edge';
 import { AttributeRegistry } from '../structs/attributeRegistry';
 import { Feature } from '../utils/interfaces';
-import { FeatSource } from '../FeatSource';
-import { Graph } from './graph';
 
 export type NodeData = {
   wasmId: number;
-  root: FeatSource;
   idx?: number;
   feature?: Feature;
 };

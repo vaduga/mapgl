@@ -233,8 +233,8 @@ export const EdgesGeojsonLayer = (props) => {
     },
     getFilterCategory: (d) => {
       const feature = d.feature ?? d;
-      const { style, layerName, root } = feature.properties || {};
-      return [style?.group.groupIdx, layerName, root?.id];
+      const { style, layerName, graph } = feature.properties || {};
+      return [style?.group.groupIdx, layerName, graph?.id];
     },
     filterCategories: categories,
     extensions: [new DataFilterExtension({ categorySize })],

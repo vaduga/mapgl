@@ -9,7 +9,6 @@ import {
   LayerDirectionEnum,
   layoutGeomGraph,
   SugiyamaLayoutSettings,
-  CurveFactory,
   GeomEdge,
   Graph as MSGraph,
   Point,
@@ -19,6 +18,7 @@ import { EdgeRoutingMode } from '@msagl/core';
 import { Position } from 'geojson';
 
 import midpoint from '@turf/midpoint';
+import { findEdge, setEdge } from '../structs/graphOps';
 
 type Vec2 = [number, number];
 type ArrowAngles = { start: number | undefined; end: number | undefined };
@@ -243,6 +243,7 @@ interface PushPathProps {
   dataRecord: BiColProps;
   commentsData: CommentsData;
   theme: any;
+  isEdit?: boolean;
 }
 
 function pushPath(props: PushPathProps) {
@@ -256,12 +257,13 @@ function pushPath(props: PushPathProps) {
     dataRecord,
     commentsData,
     theme,
+    isEdit = false,
   } = props;
-  const { isLogic, graph } = panel;
+  const { graphEdgeIndex } = panel;
 
-  const { setEdge: setEdgeA, findNode: findNodeA } = graphA;
-  const { setEdge: setEdgeB, findNode: findNodeB } = graphB;
-  const findEdgeA = graphA.nodeCollection.findEdge;
+  const findNodeA = (id: string) => graphA.findNode(id);
+  const findNodeB = (id: string) => graphB.findNode(id);
+  const findEdgeA = (edgeId: string | number) => findEdge(graphA, edgeId);
 
   const sourceId = parPath[0];
   const targetId = parPath.at(-1);
@@ -305,11 +307,11 @@ function pushPath(props: PushPathProps) {
   const edgeId = assignedEdgeId ?? sourceId + '-' + targetId;
   let edge = findEdgeA(edgeId);
   let edge_id;
-  if (!edge) {
+  if (!edge && !isEdit) {
     const newVerticeIds = wasmVerticeIds;
-    graph.getEdgeVerticeIds.push([newVerticeIds, layerIdx]);
+    graphEdgeIndex.edgeVerticeIds.push([newVerticeIds, layerIdx]);
 
-    edge_id = graph.getEdgeVerticeIds.length - 1;
+    edge_id = graphEdgeIndex.edgeVerticeIds.length - 1;
 
     const data = {
       dataRecord,
@@ -329,7 +331,7 @@ function pushPath(props: PushPathProps) {
         const extraId = edgeId + idx;
         const start = frag[0].item.id;
         const end = frag.at(-1).item.id;
-        const dummy = setEdgeA(extraId, start, end as string, i === segrPath.length-1 ? graphB : undefined);
+        const dummy = setEdge(graphA, extraId, start, end as string, i === segrPath.length - 1 ? graphB : undefined);
 
         if (dummy) {
           dummy.setData(data);
@@ -343,7 +345,7 @@ function pushPath(props: PushPathProps) {
       });
     } else {
       // @ts-ignore
-      edge = setEdgeA(edgeId, sourceId, targetId, graphB);
+      edge = setEdge(graphA, edgeId, sourceId, targetId, graphB);
       if (!edge) {
         return;
       }
@@ -353,7 +355,7 @@ function pushPath(props: PushPathProps) {
       }
       multiEdges.push(edge);
     }
-    graph.getWasmId2Edges[edge_id] = multiEdges;
+    graphEdgeIndex.wasm2Edges[edge_id] = multiEdges;
   } else if (edge) {
     edge_id = edge.data.edge_id;
     if (edge_id !== undefined) {
@@ -363,7 +365,7 @@ function pushPath(props: PushPathProps) {
         setGeomEdgeArrowheads(edge, dataRecord, 'both');
       }
       const newVerticeIds = wasmVerticeIds;
-      graph.getEdgeVerticeIds[edge_id][0] = Array.from(newVerticeIds);
+      graphEdgeIndex.edgeVerticeIds[edge_id][0] = Array.from(newVerticeIds);
     } else {
       //console.log('edge wasmid undefined', edge);
     }
@@ -383,7 +385,7 @@ function pushPath(props: PushPathProps) {
           text,
           iconColor: hexColor ?? '#4ec2fc',
           style,
-          root: graphA,
+          graph: graphA,
           layerName,
           locName: parPath[0] as string,
           index,
@@ -441,13 +443,6 @@ function segregatePath(path: any[], pathCoords: Position[], findNodeA: any, find
 
   return [subarrays, coordsSubarrays];
 }
-
-type ParPathEl = string | Position;
-
-function isString(el: ParPathEl): el is string {
-  return typeof el === 'string';
-}
-
 
 function getSmoothPolyline(edge: any): Position[] {
   const geom = GeomEdge.getGeom(edge);

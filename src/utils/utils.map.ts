@@ -3,8 +3,8 @@ import { MapLayerState, MapViewConfig } from '../types';
 import { centerPointRegistry, MapCenterID } from '../view';
 import { Position } from 'geojson';
 import { WebMercatorViewport } from '@deck.gl/core';
-import { FeatSource, AttributeRegistry } from 'mapLib';
-import { colTypes, DEFAULT_CLUSTER_SCALE, ViewState } from 'mapLib/utils';
+import { FeatSource} from 'mapLib';
+import { ViewState } from 'mapLib/utils';
 import { handlerProps } from '../components/Selects/ReactSelectSearch';
 import { AppEvents } from '@grafana/data';
 
@@ -43,7 +43,10 @@ function initViewExtent(view: ViewState, config: MapViewConfig, width, height, l
               longitude: lon,
               latitude: lat,
               zoom,
-            } = viewport.fitBounds(bounds, { maxZoom: denormalizedZoom, padding }));
+            } = viewport.fitBounds(bounds, {
+              maxZoom: denormalizedZoom,
+              padding,
+            }));
           } catch (e) {
             // console.log(`fit bounds for maxZoom ${maxZoom} and padding ${padding} error: `, e)
             const appEvents = getAppEvents();
@@ -157,13 +160,14 @@ const selectGotoHandler = async ({
   select,
   fly,
   edge,
+  edgeId,
   zoomIn,
 }: Partial<handlerProps>) => {
   const payload: SelectNodeEvent['payload'] = {
     ...(graphId !== undefined && { graphId }),
     ...(value !== undefined && { nodeId: value }),
     ...(select !== undefined && { select }),
-    ...(edge !== undefined && { edgeId: edge.id }),
+    ...(edge !== undefined ? { edge } : edgeId !== undefined ? { edgeId } : {}),
     ...(coord !== undefined && { coord }),
     ...(fly !== undefined && { fly }),
     ...(zoomIn !== undefined && { zoomIn }),

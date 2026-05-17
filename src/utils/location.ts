@@ -13,7 +13,7 @@ import { decodeGeohash } from '../grafana_core/app/features/geo/format/geohash';
 import { ExtendFrameGeometrySource, ExtendFrameGeometrySourceMode } from '../extension';
 import { Geometry, Point } from 'geojson';
 import { findField } from '../grafana_core/app/features/dimensions';
-import { GeomGraph, Graph, Node, FeatSource } from 'mapLib';
+import { FeatSource, GeomGraph, Graph, Node, pushGraphPositionRange } from 'mapLib';
 import { CMN_NAMESPACE, NS_SEPARATOR } from 'mapLib/utils';
 import { MapPanel } from '../MapPanel';
 
@@ -250,11 +250,11 @@ export function getGeometryField(
       };
 
     case ExtendFrameGeometrySourceMode.Coords:
-      if (fields.latitude && fields.longitude) {
+      if (fields.longitude && fields.latitude) {
         return {
           field: pointFieldFromLonLat(fields.longitude, fields.latitude, fields, panel, root, graph),
           derived: true,
-          description: `${fields.mode}: ${fields.latitude.name}, ${fields.longitude.name}`,
+          description: `${fields.mode}: ${fields.longitude.name}, ${fields.latitude.name}`,
         };
       }
       return {
@@ -550,7 +550,7 @@ function createNode(fields, nodes, ranges, i, len, root, panel, graph, coords, s
     const endExclusive = state.index / 2 + vCount;
     if (endExclusive > state.startIdx) {
       ranges.push([state.graph.id, NS_SEPARATOR, [state.startIdx, endExclusive]]);
-      state.graph.positionRanges.push([state.startIdx, endExclusive]);
+      pushGraphPositionRange(state.graph, [state.startIdx, endExclusive]);
     }
   }
 

@@ -120,14 +120,14 @@ export const plugin = new PanelPlugin<Options>(MapPanel)
         category: ['Other'],
         path: 'common.isMeters',
         name: 'Meters for sizing',
-        description: 'Use meters in Geo (scales with zoom).',
+        description: 'Use meters in Geo (scales with zoom)',
         defaultValue: false,
       })
       .addRadio({
         category: ['Other'],
         path: 'common.edgeRouting',
         name: 'Edge routing',
-        description: 'Auto-layout routing mode.',
+        description: 'Auto-layout routing mode',
         settings: {
           options: [
             { label: 'Splines', value: 'Splines' },

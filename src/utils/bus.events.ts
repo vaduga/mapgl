@@ -1,8 +1,10 @@
 import { BusEventWithPayload } from '@grafana/data';
+import type { Edge } from 'mapLib';
 
 export class SelectNodeEvent extends BusEventWithPayload<{
   pId: number;
   nodeId?: string;
+  edge?: Edge;
   edgeId?: string;
   graphId?: string;
   fly?: boolean;

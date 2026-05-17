@@ -1,4 +1,4 @@
-import { Graph } from 'mapLib';
+import { findEdge, getGraphData, getGraphNodeMap, Graph } from 'mapLib';
 import { ViewState, BiColProps } from 'mapLib/utils';
 
 export const expandTooltip = (
@@ -54,8 +54,9 @@ export const expandTooltip = (
     }
     const { locName } = props || {};
 
-    const subGraph: Graph | undefined = props.root ?? info.object?.properties?.root; // ?? for comments features
-    const edge = subGraph?.nodeCollection?.getEdgesMap[edgeId];
+    const subGraph: Graph | undefined =
+      props.graph ?? info.object?.properties?.graph;
+    const edge = subGraph ? findEdge(subGraph, edgeId) : undefined;
 
     if (comId !== undefined && edge) {
       const { index } = props;
@@ -72,7 +73,7 @@ export const expandTooltip = (
     }
 
     if (locName) {
-      const nodeMap = subGraph?.nodeCollection?.getNodeMap;
+      const nodeMap = subGraph ? getGraphNodeMap(subGraph) : undefined;
       const node = nodeMap?.get(locName) ?? subGraph;
       setTooltipObject({ ...info, object }); // this pins tooltip
 
@@ -85,6 +86,7 @@ export const expandTooltip = (
           select: true,
           fly: false,
           edge,
+          edgeId,
         });
       }
     } else if (!props?.isHull) {

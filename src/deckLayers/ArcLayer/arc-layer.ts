@@ -97,9 +97,9 @@ export const MyArcLayer = (props) => {
     getSkip: (d) => Number(Boolean(d.skip)),
     getHighlightDepth: (d) => (d.skip ? 1 : 0),
     getFilterCategory: (d) => {
-      const { style, layerName, root } = d.properties;
+      const { style, layerName, graph } = d.properties;
       const groupIdx = style?.group?.groupIdx;
-      return [groupIdx, layerName, root.id];
+      return [groupIdx, layerName, graph.id];
     },
 
     updateTriggers: {

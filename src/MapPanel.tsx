@@ -13,7 +13,7 @@ import { RootStoreProvider, fillAnnots, initGroups, genVisLayers, initBinaryProp
 import { applyLayerFilter, initLayer } from './utils/layers';
 import { ORTHO_BASEMAP_CONFIG } from './layers/registry';
 import { defaultMarkersConfig } from './layers/data/markersLayer';
-import { Graph, GeomGraph } from 'mapLib';
+import { Graph, GeomGraph, GraphEdgeIndex, bumpGraphVersion, resetGraph, resetGraphNodes } from 'mapLib';
 
 import { initViewExtent } from './utils/utils.map';
 
@@ -37,6 +37,7 @@ export class MapPanel extends Component<Props, State> {
 
   pId: number | undefined;
   graph: Graph;
+  graphEdgeIndex = new GraphEdgeIndex();
   vCount = 0;
   visLayers: VisLayers | undefined;
   map?: DeckGLRefWithViewManager | undefined;
@@ -72,7 +73,7 @@ export class MapPanel extends Component<Props, State> {
     const firstRun = !this.props.options.dataLayers?.length;
     this.useMockData = this.isLogic && (firstRun || this.props.options.dataLayers?.every((el) => !el.locField));
 
-    const rootGraph = new Graph(CMN_NAMESPACE, true, this.isLogic);
+    const rootGraph = new Graph(CMN_NAMESPACE);
     // @ts-ignore
     new GeomGraph(rootGraph);
     this.graph = rootGraph;
@@ -120,13 +121,11 @@ export class MapPanel extends Component<Props, State> {
   }
 
   componentWillUnmount() {
-    //console.log('willUnmount')
-    this.graph?.disposeAutorun();
-    this.graph.reset();
+    resetGraph(this.graph);
+    this.graphEdgeIndex.reset();
     this.vCount = 0;
     for (const g of this.graph.graphs()) {
-      this.graph?.disposeAutorun();
-      g.reset();
+      resetGraph(g);
     }
     this.map = undefined;
     this.layers = [];
@@ -153,7 +152,6 @@ export class MapPanel extends Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    //console.log('did update')
 
     // Check for a difference between previous data and component data
     if (this.map && this.props.data !== prevProps.data) {
@@ -209,7 +207,7 @@ export class MapPanel extends Component<Props, State> {
   dataChanged = async (data: PanelData) => {
     // Only update if panel data matches component data
     if (data === this.props.data) {
-      //console.log('dataChanged');
+
       this.svgLoadController?.abort();
       this.svgLoadController = new AbortController();
 
@@ -227,10 +225,11 @@ export class MapPanel extends Component<Props, State> {
         return;
       }
       for (const g of this.graph.graphs()) {
-        g.resetNodes();
+        resetGraphNodes(g);
       }
 
-      this.graph.reset();
+      resetGraph(this.graph);
+      this.graphEdgeIndex.reset();
       this.vCount = 0;
       initBinaryProps(this);
 
@@ -267,9 +266,10 @@ export class MapPanel extends Component<Props, State> {
     this.byName.clear();
     const layers: MapLayerState[] = [];
     for (const g of this.graph.graphs()) {
-      g.resetNodes();
+      resetGraphNodes(g);
     }
-    this.graph.reset();
+    resetGraph(this.graph);
+    this.graphEdgeIndex.reset();
     this.vCount = 0;
     initBinaryProps(this);
 

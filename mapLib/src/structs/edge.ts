@@ -34,12 +34,20 @@ export class Edge extends Entity {
 
   private _lineId: number | undefined;
   private _arcId: number | undefined;
+  private _tiltDist?: number | undefined;
+  private _isOutgoing?: boolean | undefined;
 
   public get lineId(): number | undefined {
     return this._lineId;
   }
   public get arcId(): number | undefined {
     return this._arcId;
+  }
+  public get tiltDist(): number | undefined {
+    return this._tiltDist;
+  }
+  public get isOutgoing(): boolean | undefined {
+    return this._isOutgoing;
   }
 
   label: Label | undefined;
@@ -63,6 +71,11 @@ export class Edge extends Entity {
   }
   setArcId(arcId: number) {
     this._arcId = arcId;
+  }
+
+  setTiltDist(dist: number, isOutgoing: boolean) {
+    this._tiltDist = dist;
+    this._isOutgoing = isOutgoing;
   }
 
   get data() {

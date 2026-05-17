@@ -113,7 +113,7 @@ export const pathLayer: ExtendMapLayerRegistryItem<PathConfig> = {
                 geometry,
                 rowIndex: i,
                 properties: {
-                  root: featSource,
+                  featSource,
                   locName,
                   style: stValues,
                 },

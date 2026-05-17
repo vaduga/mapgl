@@ -4,7 +4,7 @@ import { selectGotoHandler, useRootStore } from '../../utils';
 import { DataFrame, EventBus, GrafanaTheme2, SelectableValue } from '@grafana/data';
 import { css } from '@emotion/css';
 import { useStyles2 } from '@grafana/ui';
-import { Graph, Edge } from 'mapLib';
+import { Graph, Edge, getGraphNodes } from 'mapLib';
 import { colTypes } from 'mapLib/utils';
 import { ComboboxCompat } from '../Compat/ComboboxCompat';
 
@@ -14,6 +14,7 @@ export type handlerProps = {
   graphId: string;
   eventBus?: EventBus;
   edge?: Edge;
+  edgeId?: string;
   coord?: any;
   select: boolean;
   fly: boolean;
@@ -53,7 +54,7 @@ const ReactSelectSearch: FC<MapRefProps> = ({
   const selectOptions: SearchOption[] = [];
 
   const fillOptions = (currentGraph: Graph) => {
-    for (const node of currentGraph.getNodes) {
+    for (const node of getGraphNodes(currentGraph)) {
       const point = node.data?.feature; // skip Graph nodes
       if (!point) {
         continue;

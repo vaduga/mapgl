@@ -8,6 +8,7 @@ export {
   sortAnnotations,
   runLayout,
 } from './utils.graph';
+export { getEdgesGeometry } from './utils.graph-geom';
 export { CoordsConvert, SingleCoordsConvert } from './utils.turf';
 
 export * from './defaults';

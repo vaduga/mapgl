@@ -46,10 +46,6 @@ class RootStore {
 
     this.viewStore = new ViewStore(this, props.viewState);
     this.pointStore = new PointStore(this);
-    this.graph.setRoot(this);
-    for (const g of this.graph.graphs()) {
-      g.setRoot(this);
-    }
   }
 }
 

@@ -1,4 +1,4 @@
-import type { Edge, Graph, Node } from 'mapLib';
+import { getGraphVersion, type Edge, type Graph, type GraphEdgeIndex, type Node } from 'mapLib';
 
 export type ConnectedEdgeIndex = {
   graphId: string;
@@ -20,6 +20,7 @@ type EdgeHighlightItem = {
 
 export class GraphHighlighter {
   private graph?: Graph;
+  private edgeIndex?: GraphEdgeIndex;
   private graphVersion?: number;
   private nodeMap = new Map<string, Node>();
   private outgoingAdjacency = new Map<string, AdjacentItem[]>();
@@ -36,13 +37,16 @@ export class GraphHighlighter {
   private connectedEdgeIndexes: ConnectedEdgeIndex[] = [];
   private connectedNodeDepths = new Map<string, number>();
 
-  setGraph(graph: Graph, opts?: { force?: boolean }) {
-    if (!opts?.force && this.graph === graph && this.graphVersion === graph.getVersion) {
+  setGraph(graph: Graph, opts?: { force?: boolean; edgeIndex?: GraphEdgeIndex }) {
+    const edgeIndex = opts?.edgeIndex ?? this.edgeIndex;
+    const graphVersion = getGraphVersion(graph);
+    if (!opts?.force && this.graph === graph && this.edgeIndex === edgeIndex && this.graphVersion === graphVersion) {
       return;
     }
 
     this.graph = graph;
-    this.graphVersion = graph.getVersion;
+    this.edgeIndex = edgeIndex;
+    this.graphVersion = graphVersion;
     this.lastSourceKey = undefined;
     this.nodeMap.clear();
     this.outgoingAdjacency.clear();
@@ -64,7 +68,7 @@ export class GraphHighlighter {
     }
 
     const hyperedgeFragments = new Set<Edge>();
-    for (const edges of graph.getWasmId2Edges ?? []) {
+    for (const edges of edgeIndex?.wasm2Edges ?? []) {
       if (!edges?.length) {
         continue;
       }
@@ -210,7 +214,6 @@ export class GraphHighlighter {
       .map((key) => this.edgeIndexes.get(key))
       .filter((edgeIndex): edgeIndex is ConnectedEdgeIndex => Boolean(edgeIndex))
       .map((edgeIndex) => ({ ...edgeIndex, depth: 0 }));
-
   }
 
   updateEdges(edges: Edge[]) {

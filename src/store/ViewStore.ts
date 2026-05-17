@@ -3,6 +3,8 @@ import RootStore from './RootStore';
 import { DEFAULT_CLUSTER_MAX_ZOOM, ViewState, ANNOTS_LABEL, ALERTING_STATES } from 'mapLib/utils';
 import { VizLegendItem } from '@grafana/ui';
 
+import { getNodeGroupCounts } from 'mapLib';
+
 class ViewStore {
   root: RootStore;
   time: number = Date.now();
@@ -55,7 +57,7 @@ class ViewStore {
       const { groups, graph } = this.root.panel;
       groups.forEach((g, i) => {
         if (g.color) {
-          const count = graph.getGroupCounts.get(i) ?? 0;
+          const count = getNodeGroupCounts(graph).get(i) ?? 0;
           nodeThres.push({
             color: g.color,
             label: (g.label ?? g.color) + (count ? ' ' + count : ''),

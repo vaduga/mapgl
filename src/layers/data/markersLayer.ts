@@ -24,7 +24,16 @@ import { OverField, Rule } from '../../editor/Groups/rule-types';
 import { resolveFeatureGroup } from 'editor/Groups/data/group_resolve';
 import { CapacityDimensionEditor } from '../../editor/Other/CapacityEditor';
 import { ArcOptionsEditor } from '../../editor/ArcOptionsEditor';
-import { CurveFactory, Graph, FeatSource, AttributeRegistry, GeomNode, Point as MSPoint } from 'mapLib';
+import {
+  CurveFactory,
+  Graph,
+  FeatSource,
+  AttributeRegistry,
+  GeomNode,
+  Point as MSPoint,
+  addNodeGroup,
+  getGraphComments,
+} from 'mapLib';
 import {
   CMN_NAMESPACE,
   MOC_LOC_FIELD,
@@ -186,11 +195,11 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
           const values = field.values;
           const ranges = field.ranges;
           panel.positions.set(values as Float64Array, startIdx * 2);
-
-          const lastIdx = values.length / 2;
-          if (lastIdx !== undefined) {
-            featSource.setPositionRanges([[startIdx, lastIdx + 1]]);
-            panel.vCount = panel.vCount + lastIdx;
+          const pointCount = values.length / 2;
+          if (pointCount > 0) {
+            const endIdxExclusive = startIdx + pointCount;
+            featSource.setPositionRanges([[startIdx, endIdxExclusive]]);
+            panel.vCount = endIdxExclusive;
           }
           break;
         }
@@ -457,7 +466,8 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               ...(layerIdx !== undefined && { layerIdx }),
               frameRefId,
               rowIndex: i,
-              root: graphA,
+              featSource,
+              graph: graphA,
               locName,
               style: stValues,
               edgeStyle: edgeStValues,
@@ -475,7 +485,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                 gb.boundaryCurve = CurveFactory.mkCircle(stValues.size / 2, new MSPoint(0, 0));
               }
               const wasmId = node.data.wasmId as number;
-              graph.addToGroup(group.groupIdx, wasmId);
+              addNodeGroup(graph, group.groupIdx);
 
               const muted = [...group.color];
               muted[3] = stValues.opacity !== undefined ? Math.round(muted[3] * stValues.opacity) : muted[3];
@@ -497,7 +507,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               const edgeIdValue = panel.useMockData ? mock?.edgeId?.[i] : getValue(edgeIdField, i);
               const edgeId = edgeIdValue?.length ? edgeIdValue : undefined;
 
-              const commentsData = graphA.comments;
+              const commentsData = getGraphComments(graphA);
 
               const vB_NS = vertexB_NS ? findField(frame, vertexB_NS) : undefined;
 

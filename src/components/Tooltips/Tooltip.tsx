@@ -8,7 +8,7 @@ import { BiColProps, colTypes } from 'mapLib/utils';
 import { DataHoverView } from './DataHoverView';
 import { SortOrder, TooltipDisplayMode } from '@grafana/schema';
 
-import { Node, Edge, Graph } from 'mapLib';
+import { Node, Edge, findEdge, Graph } from 'mapLib';
 
 const includes = ['ack', 'msg', 'all_annots', 'liveUpd']; //liveStat
 const TOOLTIP_OFFSET = 10;
@@ -137,13 +137,13 @@ const Tooltip = ({
   rowIndex = rowIndex ?? object?.rowIndex ?? object?.properties?.rowIndex; //?? featureIds?.value?.[index];  // pinned && lines && other collections ?? binary nodes row index
 
   const layerProps = info.layer?.props;
-  const { frameRefId, locName, layerName, layerIdx, root: graph } = props || {};
-  const edge: Edge = edgeId !== undefined && graph?.nodeCollection?.getEdgesMap[edgeId];
+  const { frameRefId, locName, layerName, layerIdx, graph } = props || {};
+  const edge: Edge | undefined = edgeId !== undefined && graph ? findEdge(graph, edgeId) : undefined;
   const edge_id = edge?.data?.edge_id;
   const eNode = edge?.[isDefDir ? 'source' : 'target'];
-  const findNode = graph?.findNode;
+  const findNode = graph ? (id: string) => graph.findNode(id) : undefined;
   const pickedNode: Node = eNode ?? findNode?.(locName);
-  const pickedFeature = pickedNode?.data.feature;
+  const pickedFeature = pickedNode?.data.feature ?? props;
 
   const layer: any = dataLayers.length && layerName && dataLayers.find((l) => l.name === layerName);
   const isShowTooltip = layer?.isShowTooltip ?? layerProps?.isShowTooltip ?? true;
@@ -201,7 +201,7 @@ const Tooltip = ({
         : v.name === layer?.locField
     );
     const all_annots = props?.all_annots ?? pickedFeature?.all_annots;
-    hoverPayload.all_annots = all_annots; //root ? filteredProps.all_annots : all_annots // point vs line
+    hoverPayload.all_annots = all_annots;
   }
   /// geojson static entries & comments
   if (Array.isArray(entries)) {

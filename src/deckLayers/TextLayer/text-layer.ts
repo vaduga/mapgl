@@ -82,9 +82,9 @@ const LineTextLayer = ({
       }
     },
     getFilterCategory: (d) => {
-      const { style, layerName, root } = d.properties || {};
+      const { style, layerName, graph, featSource } = d.properties || {};
       const groupIdx = style?.group?.groupIdx;
-      return [groupIdx, layerName, root.id];
+      return [groupIdx, layerName, graph?.id ?? featSource?.layerName];
     },
     filterCategories: categories,
     ...(extensions.length && { extensions }),

@@ -1,4 +1,5 @@
 import { colTypes, Feature, BiColProps } from './utils/interfaces';
+import type { ThresholdsConfig } from '@grafana/data';
 
 export class FeatSource {
   colType: colTypes;
@@ -7,7 +8,7 @@ export class FeatSource {
   frameRefId?: string;
   features: BiColProps[] | Feature[] = [];
   positionRanges: number[][] = [];
-  colorThresholds?: any;
+  colorThresholds?: ThresholdsConfig;
   useMockData = false;
 
   groups: any[] = [];

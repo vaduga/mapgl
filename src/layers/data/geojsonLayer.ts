@@ -110,7 +110,7 @@ export const geojsonLayer: ExtendMapLayerRegistryItem<GeoJsonConfig> = {
                   geometry,
                   rowIndex: i,
                   properties: {
-                    root: featSource,
+                    featSource,
                     locName: locName ? props[locName] : undefined,
                     geoJsonProps: props,
                     style: stValues,
