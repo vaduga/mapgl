@@ -6,6 +6,7 @@ export class FeatSource {
   layerName: string;
   __state: any = {};
   frameRefId?: string;
+  frameIdx?: number;
   features: BiColProps[] | Feature[] = [];
   positionRanges: number[][] = [];
   colorThresholds?: ThresholdsConfig;

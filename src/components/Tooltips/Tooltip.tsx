@@ -8,7 +8,7 @@ import { BiColProps, colTypes } from 'mapLib/utils';
 import { DataHoverView } from './DataHoverView';
 import { SortOrder, TooltipDisplayMode } from '@grafana/schema';
 
-import { Node, Edge, findEdge, Graph } from 'mapLib';
+import { Node, Edge, findEdge, getNodeData, Graph } from 'mapLib';
 
 const includes = ['ack', 'msg', 'all_annots', 'liveUpd']; //liveStat
 const TOOLTIP_OFFSET = 10;
@@ -143,7 +143,7 @@ const Tooltip = ({
   const eNode = edge?.[isDefDir ? 'source' : 'target'];
   const findNode = graph ? (id: string) => graph.findNode(id) : undefined;
   const pickedNode: Node = eNode ?? findNode?.(locName);
-  const pickedFeature = pickedNode?.data.feature ?? props;
+  const pickedFeature = pickedNode ? getNodeData(pickedNode)?.feature : props;
 
   const layer: any = dataLayers.length && layerName && dataLayers.find((l) => l.name === layerName);
   const isShowTooltip = layer?.isShowTooltip ?? layerProps?.isShowTooltip ?? true;

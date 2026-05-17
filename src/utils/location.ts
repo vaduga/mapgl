@@ -13,7 +13,7 @@ import { decodeGeohash } from '../grafana_core/app/features/geo/format/geohash';
 import { ExtendFrameGeometrySource, ExtendFrameGeometrySourceMode } from '../extension';
 import { Geometry, Point } from 'geojson';
 import { findField } from '../grafana_core/app/features/dimensions';
-import { FeatSource, GeomGraph, Graph, Node, pushGraphPositionRange } from 'mapLib';
+import { FeatSource, GeomGraph, Graph, Node, pushGraphPositionRange, setNodeData } from 'mapLib';
 import { CMN_NAMESPACE, NS_SEPARATOR } from 'mapLib/utils';
 import { MapPanel } from '../MapPanel';
 
@@ -205,7 +205,7 @@ export function getGeometryField(
   vertexA_NS?: string,
   vertexB_NS?: string,
   panel?: MapPanel,
-  root?: FeatSource,
+  featSource?: FeatSource,
   graph?: Graph
 ): FrameGeometryField {
   const fields = getLocationFields(frame, location);
@@ -214,7 +214,7 @@ export function getGeometryField(
   fields.vertexB_NS = vertexB_NS ? findField(frame, vertexB_NS) : undefined;
 
   const isLogic = panel?.isLogic;
-  if (isLogic && root && graph) {
+  if (isLogic && featSource && graph) {
     const len = fields.locName?.values?.length;
     const frameLen = frame.length ?? len ?? 0; // rndField for len
     if (!frameLen) {
@@ -224,7 +224,7 @@ export function getGeometryField(
     }
 
     return {
-      field: pointFieldFromAutolayout(frameLen, fields, panel, root, graph),
+      field: pointFieldFromAutolayout(frameLen, fields, panel, featSource, graph),
     };
   }
 
@@ -242,7 +242,7 @@ export function getGeometryField(
     case ExtendFrameGeometrySourceMode.Geojson:
       if (fields.geojson) {
         return {
-          field: pointFieldFromGeoJSON(fields.geojson, fields, panel, root, graph),
+          field: pointFieldFromGeoJSON(fields.geojson, fields, panel, featSource, graph),
         };
       }
       return {
@@ -252,7 +252,7 @@ export function getGeometryField(
     case ExtendFrameGeometrySourceMode.Coords:
       if (fields.longitude && fields.latitude) {
         return {
-          field: pointFieldFromLonLat(fields.longitude, fields.latitude, fields, panel, root, graph),
+          field: pointFieldFromLonLat(fields.longitude, fields.latitude, fields, panel, featSource, graph),
           derived: true,
           description: `${fields.mode}: ${fields.longitude.name}, ${fields.latitude.name}`,
         };
@@ -264,7 +264,7 @@ export function getGeometryField(
     case ExtendFrameGeometrySourceMode.Geohash:
       if (fields.geohash) {
         return {
-          field: pointFieldFromGeohash(fields.geohash, fields, panel, root, graph),
+          field: pointFieldFromGeohash(fields.geohash, fields, panel, featSource, graph),
           derived: true,
           description: `${fields.mode}`,
         };
@@ -277,7 +277,7 @@ export function getGeometryField(
       if (fields.lookup) {
         if (location.gazetteer) {
           return {
-            field: getGeoFieldFromGazetteer(location.gazetteer, fields.lookup, fields, panel, root, graph),
+            field: getGeoFieldFromGazetteer(location.gazetteer, fields.lookup, fields, panel, featSource, graph),
             derived: true,
             description: `${fields.mode}: ${location.gazetteer.path}`, // TODO get better name for this
           };
@@ -298,7 +298,7 @@ function pointFieldFromAutolayout(
   len: number,
   fields: LocationFields,
   panel: MapPanel,
-  root: FeatSource,
+  featSource: FeatSource,
   graph: Graph
 ): ExtendedField<Geometry | Float64Array> {
   const buffer = new Float64Array(len * 2);
@@ -308,7 +308,7 @@ function pointFieldFromAutolayout(
   const ranges = [];
 
   for (let i = 0; i < len; i++) {
-      createNode(fields, nodes, ranges, i, len, root, panel, graph, buffer, state, undefined);
+      createNode(fields, nodes, ranges, i, len, featSource, panel, graph, buffer, state, undefined);
   }
 
   const values = new Float64Array((buffer as Float64Array).slice(0, state.index));
@@ -327,7 +327,7 @@ function pointFieldFromGeoJSON(
   geojson: Field<string>,
   fields?: LocationFields,
   panel?: MapPanel,
-  root?: FeatSource,
+  featSource?: FeatSource,
   graph?: Graph
 ): ExtendedField<Geometry | Float64Array> {
   const len = geojson?.values?.length ?? 0;
@@ -348,7 +348,7 @@ function pointFieldFromGeoJSON(
     }
 
     if (graph) {
-      createNode(fields, nodes, ranges, i, len, root, panel, graph, buffer, state, feature?.coordinates);
+      createNode(fields, nodes, ranges, i, len, featSource, panel, graph, buffer, state, feature?.coordinates);
       continue;
     }
     buffer[state.index++] = {
@@ -376,7 +376,7 @@ function pointFieldFromLonLat(
   lat: Field<number>,
   fields?: LocationFields,
   panel?: MapPanel,
-  root?: FeatSource,
+  featSource?: FeatSource,
   graph?: Graph
 ): ExtendedField<Geometry | Float64Array> {
   const len = lon.values.length;
@@ -398,7 +398,7 @@ function pointFieldFromLonLat(
       coordinates: [longitude, latitude],
     };
     if (graph) {
-      createNode(fields, nodes, ranges, i, len, root, panel, graph, buffer, state, feature?.coordinates);
+      createNode(fields, nodes, ranges, i, len, featSource, panel, graph, buffer, state, feature?.coordinates);
       continue;
     }
     buffer[state.index++] = feature;
@@ -421,7 +421,7 @@ function pointFieldFromGeohash(
   geohash: Field<string>,
   fields?: LocationFields,
   panel?: MapPanel,
-  root?: FeatSource,
+  featSource?: FeatSource,
   graph?: Graph
 ): ExtendedField<Geometry | Float64Array> {
   const len = geohash.values.length;
@@ -439,7 +439,7 @@ function pointFieldFromGeohash(
       }
       const feature: Point = { type: 'Point', coordinates };
       if (graph) {
-        createNode(fields, nodes, ranges, i, len, root, panel, graph, buffer, state, feature?.coordinates);
+        createNode(fields, nodes, ranges, i, len, featSource, panel, graph, buffer, state, feature?.coordinates);
         continue;
       }
       buffer[state.index++] = feature;
@@ -464,7 +464,7 @@ function getGeoFieldFromGazetteer(
   field: Field<string>,
   fields?: LocationFields,
   panel?: MapPanel,
-  root?: FeatSource,
+  featSource?: FeatSource,
   graph?: Graph
 ): ExtendedField<Geometry | Float64Array> {
   const len = field.values.length;
@@ -481,7 +481,7 @@ function getGeoFieldFromGazetteer(
     } // info?.geometry ?
     const feature: Point = { type: 'Point', coordinates: info.coords };
     if (graph) {
-      createNode(fields, nodes, ranges, i, len, root, panel, graph, buffer, state, feature?.coordinates);
+      createNode(fields, nodes, ranges, i, len, featSource, panel, graph, buffer, state, feature?.coordinates);
       continue;
     }
     buffer[state.index++] = feature;
@@ -507,7 +507,7 @@ const hiddenTooltipField: FieldConfig = Object.freeze({
   },
 });
 
-function createNode(fields, nodes, ranges, i, len, root, panel, graph, coords, state, coordinates) {
+function createNode(fields, nodes, ranges, i, len, featSource, panel, graph, coords, state, coordinates) {
   const { locName, vertexA_NS } = fields || {};
   if (!locName) {
     return;
@@ -539,8 +539,8 @@ function createNode(fields, nodes, ranges, i, len, root, panel, graph, coords, s
       coords[state.index++] = isLogic ? 7 : coordinates[0];
       coords[state.index++] = isLogic ? 7 : coordinates[1];
       const idx = state.graph.shallowNodeCount;
-      const data = { wasmId, root, idx };
-      node.setData(data);
+      const data = { wasmId, idx };
+      setNodeData(node, data);
       state.graph.addNode(node);
     }
     nodes[i] = node;
@@ -572,8 +572,8 @@ function createNode(fields, nodes, ranges, i, len, root, panel, graph, coords, s
   }
 }
 
-function ensureNestedSubgraph(root: Graph, namespacePath: string): Graph {
-  let currentGraph = root;
+function ensureNestedSubgraph(rootGraph: Graph, namespacePath: string): Graph {
+  let currentGraph = rootGraph;
 
   if (!namespacePath) {
     return currentGraph;
@@ -587,7 +587,7 @@ function ensureNestedSubgraph(root: Graph, namespacePath: string): Graph {
       pathSegments.push(part);
       const fullId = pathSegments.join(NS_SEPARATOR);
 
-      let childGraph = Array.from(root.subgraphsBreadthFirst()).find((el: Graph) => el.id === fullId);
+      let childGraph = Array.from(rootGraph.subgraphsBreadthFirst()).find((el: Graph) => el.id === fullId);
 
       if (fullId) {
         if (!childGraph) {

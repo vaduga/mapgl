@@ -1,6 +1,7 @@
 import { Edge } from './edge';
 import { Graph } from './graph';
-import { Node } from './node';
+import type { Node } from '@msagl/core';
+import type { NodeData } from '../utils/interfaces';
 import { resetGraphState } from './graphState';
 import { AttributeRegistry } from './attributeRegistry';
 
@@ -38,6 +39,21 @@ export function getGraphData(graph: Graph): any {
 
 export function setGraphData(graph: Graph, data: any): void {
   graph.setAttr(AttributeRegistry.NodeDataIndex, data);
+}
+
+export function getNodeData(node: Node): NodeData | undefined {
+  return node.getAttr(AttributeRegistry.NodeDataIndex);
+}
+
+export function setNodeData(node: Node, data: NodeData): void {
+  node.setAttr(AttributeRegistry.NodeDataIndex, data);
+}
+
+export function setEntityAttrProp(entity: { getAttr(position: number): any }, position: number, key: string, val: any): void {
+  const attributes = entity.getAttr(position);
+  if (attributes) {
+    attributes[key] = val;
+  }
 }
 
 export function findEdge(graph: Graph, edgeId: string | number): Edge | undefined {

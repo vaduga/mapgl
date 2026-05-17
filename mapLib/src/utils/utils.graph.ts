@@ -1,6 +1,6 @@
 import { BiColProps, Comment, CommentsData, CoordRef } from './interfaces';
 import { Graph } from '../structs/graph';
-import { Node } from '../structs/node';
+import type { Node } from '@msagl/core';
 import { Edge } from '../structs/edge';
 import { AttributeRegistry } from '../structs/attributeRegistry';
 import {
@@ -18,7 +18,7 @@ import { EdgeRoutingMode } from '@msagl/core';
 import { Position } from 'geojson';
 
 import midpoint from '@turf/midpoint';
-import { findEdge, setEdge } from '../structs/graphOps';
+import { findEdge, getNodeData, setEdge, setEntityAttrProp } from '../structs/graphOps';
 
 type Vec2 = [number, number];
 type ArrowAngles = { start: number | undefined; end: number | undefined };
@@ -280,7 +280,7 @@ function pushPath(props: PushPathProps) {
     return;
   }
 
-  const wasmVerticeIds: number | undefined[] = [];
+  const wasmVerticeIds: Array<number | undefined> = [];
   const nodes: string[] = [];
   const parPathSan: CoordRef[] = [];
   parPath.forEach((coordRef: CoordRef, i: number) => {
@@ -288,7 +288,7 @@ function pushPath(props: PushPathProps) {
     if (is_node) {
       const node = i === parPath.length - 1 ? findNodeB(coordRef) : findNodeA(coordRef);
       if (node) {
-        const wasmId = node.data.wasmId;
+        const wasmId = getNodeData(node)!.wasmId;
         wasmVerticeIds.push(wasmId);
         nodes.push(coordRef);
         parPathSan.push(coordRef);
@@ -360,7 +360,7 @@ function pushPath(props: PushPathProps) {
     edge_id = edge.data.edge_id;
     if (edge_id !== undefined) {
       //console.log('edge_id', edge_id, edge.data.edgeId)
-      edge.setAttrProp(AttributeRegistry.EdgeDataIndex, 'parPath', parPathSan);
+      setEntityAttrProp(edge, AttributeRegistry.EdgeDataIndex, 'parPath', parPathSan);
       if (panel.isLogic) {
         setGeomEdgeArrowheads(edge, dataRecord, 'both');
       }
@@ -483,10 +483,11 @@ function runLayout(panel: any) {
 
   for (const n of rootGraph.nodesBreadthFirst) {
     const node = n.node as unknown as Node;
-    if (!node.data) {
+    const nodeData = getNodeData(node);
+    if (!nodeData) {
       continue;
     }
-    const { feature, wasmId: id } = node.data;
+    const { feature, wasmId: id } = nodeData;
     panel.positions[id * 2] = n.center.x;
     panel.positions[id * 2 + 1] = n.center.y;
   }

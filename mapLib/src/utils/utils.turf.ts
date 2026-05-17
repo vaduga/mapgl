@@ -1,7 +1,9 @@
+import { getNodeData } from '../structs/graphOps';
+
 function SingleCoordsConvert(pathItem: any, panel: any, mode2D = true) {
   if (pathItem.id) {
     // node
-    const wasmId = pathItem.data.wasmId;
+    const wasmId = getNodeData(pathItem)!.wasmId;
     const lng = panel.positions[wasmId * 2];
     const lat = panel.positions[wasmId * 2 + 1];
     if (lng !== undefined && !lat !== undefined) {

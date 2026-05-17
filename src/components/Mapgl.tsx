@@ -39,7 +39,13 @@ import {
   GraphBiFeatCol,
   getEdgesGeometry,
 } from 'mapLib/utils';
-import { getGraphComments, getGraphNodeMap, getGraphPositionRanges, getGraphVersion, type Graph } from 'mapLib';
+import {
+  getGraphComments,
+  getGraphNodeMap,
+  getGraphPositionRanges,
+  getGraphVersion,
+  getNodeData,
+  type Graph } from 'mapLib';
 import { throttleTime } from 'rxjs';
 import { StateTime } from './Geocoder/StateTime';
 import { Layer, MapView, OrbitView } from 'deck.gl';
@@ -126,7 +132,8 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
       graphs.forEach((s: any) => {
         newAnnots.forEach(({ alertName, instance, data, newState, timeEnd }) => {
           const nodeMap = getGraphNodeMap(s);
-          const feature = nodeMap?.get(instance)?.data.feature;
+          const node = nodeMap?.get(instance);
+          const feature = node ? getNodeData(node)?.feature : undefined;
           if (!feature) {
             return;
           }
@@ -137,7 +144,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
           } else if (all_annots) {
             feature.all_annots = [...all_annots, newAnnot];
           }
-          feature.all_annots = sortAnnotations(feature.all_annots);
+          feature.all_annots = sortAnnotations(feature.all_annots ?? []);
           const annotState = feature.all_annots?.[0]?.newState;
           const stateKey = Object.keys(ALERTING_STATES).find((st) => annotState?.startsWith(st));
 

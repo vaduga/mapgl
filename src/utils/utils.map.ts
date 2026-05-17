@@ -101,24 +101,6 @@ function getLayersExtent(
   lastOnly = false,
   layer: string | undefined
 ): any {
-  /// WAY TO OPTIMIZE THE GRAPH, but we have other layers (polygons, geojson, etc)
-  // /// ALL LAYERS
-  // if (allLayers) {
-  //     return panel.positions
-  //     // Return everything from all layers
-  //     //return (l as FeatSource).features //?? [];
-  // }
-  // const positionRanges = (l as FeatSource).positionRanges
-  // //// LASTONLY
-  // const lastIdx = positionRanges[positionRanges.length-1].at(-1)
-  // if (lastIdx !== undefined) {
-  //     return [lastIdx]
-  // }
-  // /// ONE LAYER
-  // const layerPositions = positionRanges.flatMap(([min, max]) =>
-  //     Array.from({ length: max - min + 1 }, (_, i) => min + i)
-  // );
-  // return layerPositions
 
   const res = layers
     .filter((l) => !l.isBasemap)

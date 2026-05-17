@@ -1,4 +1,4 @@
-import { Node } from './node';
+import type { Node } from '@msagl/core';
 import { Edge } from './edge';
 import { Graph } from './graph';
 import { action, autorun, computed, makeAutoObservable, makeObservable, observable, toJS } from 'mobx';
@@ -83,10 +83,10 @@ export class NodeCollection {
     // if we go over node.inEdges too then not self edges will be reported twice
     for (const node of this.nodeMap.values()) {
       for (const e of node.outEdges) {
-        yield e;
+        yield e as unknown as Edge;
       }
       for (const e of node.selfEdges) {
-        yield e;
+        yield e as unknown as Edge;
       }
     }
   }

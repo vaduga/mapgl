@@ -4,7 +4,7 @@ import { selectGotoHandler, useRootStore } from '../../utils';
 import { DataFrame, EventBus, GrafanaTheme2, SelectableValue } from '@grafana/data';
 import { css } from '@emotion/css';
 import { useStyles2 } from '@grafana/ui';
-import { Graph, Edge, getGraphNodes } from 'mapLib';
+import { Graph, Edge, getGraphNodes, getNodeData } from 'mapLib';
 import { colTypes } from 'mapLib/utils';
 import { ComboboxCompat } from '../Compat/ComboboxCompat';
 
@@ -55,7 +55,7 @@ const ReactSelectSearch: FC<MapRefProps> = ({
 
   const fillOptions = (currentGraph: Graph) => {
     for (const node of getGraphNodes(currentGraph)) {
-      const point = node.data?.feature; // skip Graph nodes
+      const point = getNodeData(node)?.feature; // skip Graph nodes
       if (!point) {
         continue;
       }

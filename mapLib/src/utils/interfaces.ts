@@ -1,6 +1,6 @@
 import { Geometry, Position, GeoJsonProperties, LineString } from 'geojson';
 import { Edge } from '../structs/edge';
-import { Entity } from '../structs/entity';
+import { Entity } from '@msagl/core';
 import { Graph } from '../structs/graph';
 import { FeatSource } from '../FeatSource';
 import { BinaryFeatureCollection } from '@loaders.gl/schema';
@@ -70,6 +70,15 @@ export type BiColProps = {
   rowIndex: number;
   featSource: FeatSource;
   graph?: Graph;
+  rxPtId?: string;
+  restoreCoords?: Position;
+  all_annots?: Array<{
+    alertName: string;
+    newState: string;
+    instance: string;
+    timeEnd: number;
+    data: unknown;
+  }>;
   thrColor?: string; /// injected to get style group from props
   style: any; // StyleConfig
   edgeStyle: any; // StyleConfig
@@ -87,6 +96,14 @@ export type BiColProps = {
     start?: Position;
     end?: Position;
   };
+};
+
+export type NodeData = {
+  wasmId: number;
+  idx?: number;
+  feature?: BiColProps;
+  rxPtId?: string;
+  relLineIds?: Array<[lineIdx: number, isOutgoing: number]> | null;
 };
 
 export type CoordsGuided = { item: CoordRef; gIdx: number; coords: Position };
@@ -115,6 +132,18 @@ export interface DeckLine<G extends Geometry | null = Geometry, P = BiColProps> 
   properties: Partial<P>;
 }
 
+// used for insta-render of parentPath line onEditing lines/icons
+export type PathCoordsAndStyle = [Position[], RGBAColor, number, number?, boolean?]; //pos[], color, lineWidth, lineId, skip?
+
+export type ParentInfo = {
+  title: string;
+  lineId: number | null;
+  edgeId: string;
+  rxEdgeId: string;
+  edge: Edge;
+  parPath: CoordRef[];
+  rPath: CoordRef[];
+};
 
 export type PointFeatureProperties = GeoJsonProperties & {
   frameName: string;
@@ -143,12 +172,6 @@ export interface Info {
     isHull: boolean;
     [key: string]: unknown;
   };
-}
-
-export interface DeckInstaFeature<G extends Geometry | null = Geometry, P = PointFeatureProperties> {
-  id: number;
-  coordinates: Position;
-  properties: P;
 }
 
 export type RGBAColor = [number, number, number] | [number, number, number, number];

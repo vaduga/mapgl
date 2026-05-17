@@ -1,7 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import RootStore from './RootStore';
 import { blankHoverInfo, colTypes, Info, ViewState } from 'mapLib/utils';
-import { Edge, findEdge, getGraphData, Graph, Node } from 'mapLib';
+import { Edge, findEdge, getGraphData, getNodeData, Graph, Node } from 'mapLib';
 import { SelectNodeEvent } from '../utils/bus.events';
 import { Subscription } from 'rxjs';
 import type { DeckGLRefWithViewManager } from '../types';
@@ -87,7 +87,7 @@ class PointStore {
         if (select || edge) {
           this.setSelectedNode(node ? node : undefined, edge ? [edge] : []);
         }
-        wasmId = node?.data?.wasmId;
+        wasmId = node && !(node instanceof Graph) ? getNodeData(node)?.wasmId : undefined;
       }
 
       if (wasmId !== undefined || coord) {
@@ -301,7 +301,7 @@ class PointStore {
   get getSelectedIdxs(): Map<string, Record<string, number[]>> | [] {
     const selectedIds = new Map();
     const selectedNode = this.getSelectedNode;
-    const dataRecord = selectedNode instanceof Graph ? getGraphData(selectedNode) : selectedNode?.data;
+    const dataRecord = selectedNode instanceof Graph ? getGraphData(selectedNode) : selectedNode ? getNodeData(selectedNode) : undefined;
     if (!dataRecord) {
       return selectedIds;
     }
@@ -366,7 +366,7 @@ class PointStore {
     }
 
     if (node) {
-      const dataRecord = node instanceof Graph ? getGraphData(node) : node?.data;
+      const dataRecord = node instanceof Graph ? getGraphData(node) : getNodeData(node);
       const feature = dataRecord?.feature;
       if (!feature) {
         return;

@@ -33,6 +33,8 @@ import {
   Point as MSPoint,
   addNodeGroup,
   getGraphComments,
+  getNodeData,
+  setEntityAttrProp,
 } from 'mapLib';
 import {
   CMN_NAMESPACE,
@@ -178,7 +180,6 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
         }
         featSource.useMockData = panel.useMockData;
 
-        const startIdx = panel.vCount;
         for (const frame of data.series) {
           info = getGeometryField(frame, matchers, locField, vertexA_NS, vertexB_NS, panel, featSource, graph);
           if (info.warning) {
@@ -193,7 +194,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
           }
 
           const values = field.values;
-          const ranges = field.ranges;
+          const startIdx = panel.vCount;
           panel.positions.set(values as Float64Array, startIdx * 2);
           const pointCount = values.length / 2;
           if (pointCount > 0) {
@@ -458,7 +459,8 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
             });
 
             const graphA = node.parent as Graph;
-            const { wasmId } = node.data;
+            const nodeData = getNodeData(node)!;
+            const { wasmId } = nodeData;
             const dataRecord: BiColProps = {
               id: wasmId, // doesn't matter, not used elsewhere
               // geometry, - stored as Float64Array in featSource
@@ -474,17 +476,17 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               arcStyle: arcStValues,
             };
 
-            const feature = node?.data.feature;
+            const feature = nodeData.feature;
 
             if (node && !feature) {
-              node.setAttrProp(AttributeRegistry.NodeDataIndex, 'feature', dataRecord);
+              setEntityAttrProp(node, AttributeRegistry.NodeDataIndex, 'feature', dataRecord);
 
               panel.features.push(dataRecord);
               const gb = new GeomNode(node);
               if (stValues.size !== undefined) {
                 gb.boundaryCurve = CurveFactory.mkCircle(stValues.size / 2, new MSPoint(0, 0));
               }
-              const wasmId = node.data.wasmId as number;
+              const wasmId = getNodeData(node)!.wasmId as number;
               addNodeGroup(graph, group.groupIdx);
 
               const muted = [...group.color];

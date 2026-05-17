@@ -1,6 +1,6 @@
 import { Graph as MSGraph } from '@msagl/core';
+import type { Node } from '@msagl/core';
 import type { Edge } from './edge';
-import type { Node } from './node';
 
 export type Graph = Node & {
   id: string;

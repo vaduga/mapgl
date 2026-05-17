@@ -1,4 +1,4 @@
-import { findEdge, getGraphData, getGraphNodeMap, Graph } from 'mapLib';
+import { findEdge, getGraphData, getGraphNodeMap, getNodeData, Graph } from 'mapLib';
 import { ViewState, BiColProps } from 'mapLib/utils';
 
 export const expandTooltip = (

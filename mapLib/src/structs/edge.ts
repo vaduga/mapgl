@@ -1,9 +1,7 @@
 import { AttributeRegistry } from './attributeRegistry';
-import { Entity } from './entity';
 import { Graph } from './graph';
-import { Node } from './node';
+import { Entity, Label, type Node } from '@msagl/core';
 import { BiColProps, CoordRef } from '../utils/interfaces';
-import { Label } from '@msagl/core';
 
 /** characterize edge if it connects an node and its ancestor */
 export enum ToAncestorEnum {
@@ -59,10 +57,10 @@ export class Edge extends Entity {
     this.source = s;
     this.target = t;
     if (s !== t) {
-      s.outEdges.add(this);
-      t.inEdges.add(this);
+      (s.outEdges as Set<any>).add(this);
+      (t.inEdges as Set<any>).add(this);
     } else {
-      s.selfEdges.add(this);
+      (s.selfEdges as Set<any>).add(this);
     }
   }
 
@@ -88,18 +86,18 @@ export class Edge extends Entity {
 
   add() {
     if (this.source !== this.target) {
-      this.source.outEdges.add(this);
-      this.target.inEdges.add(this);
+      (this.source.outEdges as Set<any>).add(this);
+      (this.target.inEdges as Set<any>).add(this);
     } else {
-      this.source.selfEdges.add(this);
+      (this.source.selfEdges as Set<any>).add(this);
     }
   }
   remove() {
     if (this.source !== this.target) {
-      this.source.outEdges.delete(this);
-      this.target.inEdges.delete(this);
+      (this.source.outEdges as Set<any>).delete(this);
+      (this.target.inEdges as Set<any>).delete(this);
     } else {
-      this.source.selfEdges.delete(this);
+      (this.source.selfEdges as Set<any>).delete(this);
     }
   }
   toString(): string {
