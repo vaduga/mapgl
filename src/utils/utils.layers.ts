@@ -7,7 +7,7 @@ import { Layer } from '@deck.gl/core';
 import {
   GeomGraph,
   Graph,
-  getGraphComments,
+  getGraphComments
 } from 'mapLib';
 import {
   BBOX_OUTLINE_COLOR,

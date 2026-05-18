@@ -8,7 +8,7 @@ import { BiColProps, colTypes } from 'mapLib/utils';
 import { DataHoverView } from './DataHoverView';
 import { SortOrder, TooltipDisplayMode } from '@grafana/schema';
 
-import { Node, Edge, findEdge, getNodeData, Graph } from 'mapLib';
+import { Node, Edge, findEdge, getEdgeData, getEdgeId, getNodeData, Graph } from 'mapLib';
 
 const includes = ['ack', 'msg', 'all_annots', 'liveUpd']; //liveStat
 const TOOLTIP_OFFSET = 10;
@@ -17,7 +17,8 @@ function dedupeHyperedgeList(edges: Edge[]): Edge[] {
   const seen = new Set<string>();
 
   return edges.filter((edge) => {
-    const key = edge.data?.edge_id ?? edge.data?.edgeId ?? edge.id;
+    const edgeData = getEdgeData(edge);
+    const key = edgeData?.edge_id ?? edgeData?.edgeId ?? getEdgeId(edge);
     if (seen.has(String(key))) {
       return false;
     }
@@ -139,7 +140,7 @@ const Tooltip = ({
   const layerProps = info.layer?.props;
   const { frameRefId, locName, layerName, layerIdx, graph } = props || {};
   const edge: Edge | undefined = edgeId !== undefined && graph ? findEdge(graph, edgeId) : undefined;
-  const edge_id = edge?.data?.edge_id;
+  const edge_id = edge ? getEdgeData(edge)?.edge_id : undefined;
   const eNode = edge?.[isDefDir ? 'source' : 'target'];
   const findNode = graph ? (id: string) => graph.findNode(id) : undefined;
   const pickedNode: Node = eNode ?? findNode?.(locName);
@@ -239,18 +240,19 @@ const Tooltip = ({
 
   const ConnectedEdges = () => {
     const genLi = (node, edge: Edge, i?) => {
-      const dataRecord = edge.data?.dataRecord;
+      const edgeData = getEdgeData(edge);
+      const dataRecord = edgeData?.dataRecord;
       const arcStyle = dataRecord?.arcStyle;
       const { sideB, sideA } = arcStyle || {};
       const aField = sideA?.colorField;
       const bField = sideB?.colorField;
-      const edgeId = edge.data?.edgeId;
+      const edgeId = edgeData?.edgeId;
 
       //&& parent === getSelectedNode --- would need pinned tooltip rerender
       return (
         <li
           key={edgeId}
-          onMouseEnter={() => setFocusedEdgeId(edge.id, String((edge.source.parent as Graph)?.id ?? graph.id ?? ''))}
+          onMouseEnter={() => setFocusedEdgeId(getEdgeId(edge), String((edge.source.parent as Graph)?.id ?? graph.id ?? ''))}
         >
           <div
             style={{

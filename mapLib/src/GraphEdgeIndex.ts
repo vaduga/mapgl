@@ -1,4 +1,4 @@
-import { Edge } from './structs/edge';
+import { Edge } from '@msagl/core';
 
 export type EdgeTuple = [Array<number | undefined>, number, number, number, number?, number?];
 

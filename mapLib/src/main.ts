@@ -1,7 +1,5 @@
 // main.ts
-export { Graph } from './structs/graph';
-export { Node } from '@msagl/core';
-export { Edge } from './structs/edge';
+export { Graph, Node, Edge } from '@msagl/core';
 export { GraphEdgeIndex, type EdgeTuple } from './GraphEdgeIndex';
 export {
   addNodeGroup,
@@ -17,8 +15,13 @@ export {
 } from './structs/graphState';
 export {
   findEdge,
+  getEdgeArcId,
+  getEdgeData,
   getGraphData,
   getGraphEdges,
+  getEdgeId,
+  getEdgeLineId,
+  getEdgeTilt,
   getGraphNodeCollection,
   getGraphNodeMap,
   getGraphNodes,
@@ -26,6 +29,9 @@ export {
   resetGraph,
   resetGraphNodes,
   setEntityAttrProp,
+  setEdgeArcId,
+  setEdgeLineId,
+  setEdgeTilt,
   setGraphData,
   setNodeData,
   setEdge,

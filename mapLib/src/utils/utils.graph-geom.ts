@@ -1,10 +1,10 @@
 import distance from '@turf/distance';
 import { Units } from '@turf/helpers';
-import { GeomEdge } from '@msagl/core';
+import { GeomEdge, Graph } from '@msagl/core';
 import { Position } from 'geojson';
-import { Graph } from '../structs/graph';
 import { BiColProps, CoordRef, DeckLine } from './interfaces';
 import { CoordsConvert, distance2D } from './utils.turf';
+import { getEdgeData, getEdgeId, getEdgeTilt, setEdgeArcId, setEdgeLineId, setEdgeTilt } from '../structs/graphOps';
 import {
   getArrowAngles,
   getEdgeTerminals,
@@ -42,11 +42,11 @@ export function getEdgesGeometry(graph: Graph, panel: any) {
     const tarGraph = target.parent as Graph;
     const findNodeA = (id: string) => srcGraph.findNode(id);
     const findNodeB = (id: string) => tarGraph.findNode(id);
-    const edgeData = edge.data;
+    const edgeData = getEdgeData(edge);
     const dataRecord = edgeData?.dataRecord as BiColProps;
 
-    if (!dataRecord) {
-      console.log('!!edgeData.dataRecord', edges[0]);
+    if (!edgeData?.parPath || !dataRecord) {
+      return;
     }
 
     let srcFeatureProps: Partial<BiColProps> = {
@@ -59,7 +59,7 @@ export function getEdgesGeometry(graph: Graph, panel: any) {
       const len = edges.length - 1;
       const isFirst = fragIdx === 0;
       const isLast = fragIdx === len;
-      const { parPath } = edgeData || {};
+      const { parPath } = edgeData;
       const locName = parPath[0];
 
       let isSrcContracted;
@@ -149,7 +149,7 @@ export function getEdgesGeometry(graph: Graph, panel: any) {
       const newFeature: DeckLine = {
         heIdx,
         fragIdx,
-        edgeId: edge.id,
+        edgeId: getEdgeId(edge),
         skip,
         renderGeometryOnly: Boolean(targetTerminalShift || isContracted),
         type: 'Feature',
@@ -160,7 +160,7 @@ export function getEdgesGeometry(graph: Graph, panel: any) {
         rowIndex: dataRecord?.rowIndex,
         properties: {
           ...(dataRecord ?? {}),
-          locName,
+          locName: String(locName),
           segrPath,
           ...(arrowAngles ? { arrowAngles } : {}),
           ...(Object.keys(arrowTips).length ? { arrowTips } : {}),
@@ -181,14 +181,14 @@ export function getEdgesGeometry(graph: Graph, panel: any) {
       }
 
       features[srcGraph.id].push(newFeature);
-      edge.setLineId(features[srcGraph.id].length - 1);
+      setEdgeLineId(edge, features[srcGraph.id].length - 1);
     });
 
     if (!sourcePosition || !targetPosition) {
       return;
     }
 
-    const { isOutgoing, tiltDist } = edge;
+    const { isOutgoing, tiltDist } = getEdgeTilt(edge) ?? {};
     const { arcStyle } = srcFeatureProps;
     const heightCoef = arcStyle?.arcConfig?.height;
     const options = { units: 'meters' as Units };
@@ -202,7 +202,7 @@ export function getEdgesGeometry(graph: Graph, panel: any) {
       targetPosition,
       midPoint,
       properties: srcFeatureProps,
-      edgeId: edge.id,
+      edgeId: getEdgeId(edge),
       skip: false,
     };
 
@@ -234,7 +234,7 @@ export function getEdgesGeometry(graph: Graph, panel: any) {
     }
 
     arcsFeatures[srcGraph.id].push(arcData);
-    edge.setArcId(arcsFeatures[srcGraph.id].length - 1);
+    setEdgeArcId(edge, arcsFeatures[srcGraph.id].length - 1);
   });
 
   return [features, arcsFeatures];

@@ -1,4 +1,13 @@
-import { getGraphVersion, type Edge, type Graph, type GraphEdgeIndex, type Node } from 'mapLib';
+import {
+  getEdgeArcId,
+  getEdgeId,
+  getEdgeLineId,
+  getGraphVersion,
+  type Edge,
+  type Graph,
+  type GraphEdgeIndex,
+  type Node,
+} from 'mapLib';
 
 export type ConnectedEdgeIndex = {
   graphId: string;
@@ -76,7 +85,7 @@ export class GraphHighlighter {
       const firstEdge = edges[0];
       const lastEdge = edges[edges.length - 1];
       const graphId = String((firstEdge.source.parent as Graph)?.id ?? '');
-      const edgeKeys = edges.map((edge) => makeScopedKey(graphId, edge.id));
+      const edgeKeys = edges.map((edge) => makeScopedKey(graphId, getEdgeId(edge)));
       const nodeKeys = [getNodeKey(firstEdge.source), getNodeKey(lastEdge.target)];
 
       for (const edge of edges) {
@@ -86,14 +95,14 @@ export class GraphHighlighter {
       this.addDirectedAdjacent(firstEdge.source, lastEdge.target, edges, edgeKeys);
 
       for (const edge of edges) {
-        const edgeKey = makeScopedKey(graphId, edge.id);
+        const edgeKey = makeScopedKey(graphId, getEdgeId(edge));
         this.addEdgeIndex(edge, {
           graphId,
-          lineId: edge.lineId,
-          arcId: firstEdge.arcId,
+          lineId: getEdgeLineId(edge),
+          arcId: getEdgeArcId(firstEdge),
         });
         this.edgeHighlights.set(edgeKey, { nodeKeys, edgeKeys });
-        this.addLookupKey(this.edgeKeysById, edge.id, edgeKey);
+        this.addLookupKey(this.edgeKeysById, getEdgeId(edge), edgeKey);
       }
     }
 
@@ -110,7 +119,7 @@ export class GraphHighlighter {
         nodeKeys: [getNodeKey(edge.source), getNodeKey(edge.target)],
         edgeKeys: [edgeKey],
       });
-      this.addLookupKey(this.edgeKeysById, edge.id, edgeKey);
+      this.addLookupKey(this.edgeKeysById, getEdgeId(edge), edgeKey);
     }
 
     this.update({ sourceId: null });
@@ -290,15 +299,15 @@ export class GraphHighlighter {
   }
 
   private addEdgeIndex(edge: Edge, opts?: { graphId?: string; lineId?: number; arcId?: number }) {
-    const lineId = opts?.lineId ?? edge.lineId;
-    const arcId = opts?.arcId ?? edge.arcId;
+    const lineId = opts?.lineId ?? getEdgeLineId(edge);
+    const arcId = opts?.arcId ?? getEdgeArcId(edge);
 
     if (lineId === undefined && arcId === undefined) {
       return;
     }
 
     const graphId = opts?.graphId ?? getEdgeGraphId(edge);
-    this.edgeIndexes.set(makeScopedKey(graphId, edge.id), { graphId, lineId, arcId });
+    this.edgeIndexes.set(makeScopedKey(graphId, getEdgeId(edge)), { graphId, lineId, arcId });
   }
 
   private addLookupKey(map: Map<string, string[]>, id: string, key: string) {
@@ -352,5 +361,5 @@ function getNodeKey(node: Node): string {
 }
 
 function getEdgeKey(edge: Edge): string {
-  return makeScopedKey(getEdgeGraphId(edge), edge.id);
+  return makeScopedKey(getEdgeGraphId(edge), getEdgeId(edge));
 }

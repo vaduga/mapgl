@@ -12,7 +12,7 @@ import {
   getEdgeArrowSize,
   getArrowAngle,
 } from 'mapLib/utils';
-import type { Edge } from 'mapLib';
+import { getEdgeId, type Edge } from 'mapLib';
 
 type ArrowFeature = DeckLine<Geometry, PointFeatureProperties>;
 type ArrowPlacement = 'start' | 'end';
@@ -137,8 +137,9 @@ export function expandArrowItems(data: ArrowFeature[] = [], getWasmId2Edges: Edg
     const edgeId = feature?.edgeId;
     const heIdx = feature?.heIdx;
     const hyperEdge = getWasmId2Edges[heIdx];
-    const firstEdgeId = hyperEdge?.[0]?.id;
-    const lastEdgeId = hyperEdge?.at(-1)?.id;
+    const firstEdgeId = hyperEdge?.[0] ? getEdgeId(hyperEdge[0]) : undefined;
+    const lastEdge = hyperEdge?.at(-1);
+    const lastEdgeId = lastEdge ? getEdgeId(lastEdge) : undefined;
 
     if (arrow === 1 && lastEdgeId === edgeId) {
       items.push(createItem(feature, 'end', lineIndex, angles?.end));

@@ -1,7 +1,17 @@
 import { makeAutoObservable } from 'mobx';
 import RootStore from './RootStore';
 import { blankHoverInfo, colTypes, Info, ViewState } from 'mapLib/utils';
-import { Edge, findEdge, getGraphData, getNodeData, Graph, Node } from 'mapLib';
+import {
+  Edge,
+  findEdge,
+  getEdgeData,
+  getEdgeId,
+  getEdgeLineId,
+  getGraphData,
+  getNodeData,
+  Graph,
+  Node
+} from 'mapLib';
 import { SelectNodeEvent } from '../utils/bus.events';
 import { Subscription } from 'rxjs';
 import type { DeckGLRefWithViewManager } from '../types';
@@ -76,7 +86,7 @@ class PointStore {
           node = nodeId && graph.findNodeRecursive(nodeId);
           if (!edge && edgeId) {
             for (const el of graph.deepEdges) {
-              if (el.id === edgeId) {
+              if (getEdgeId(el) === edgeId) {
                 edge = el;
                 break;
               }
@@ -323,14 +333,17 @@ class PointStore {
 
       if (selEdges?.length) {
         const edgesByLayer = selEdges.reduce<Record<string, number[]>>((acc, e) => {
-          if (e.id == null) {
+          if (getEdgeId(e) == null) {
             return acc;
           }
           const layerId = String((e.source.parent as Graph).id);
-          const edge_id = e.data.edge_id;
+          const edge_id = getEdgeData(e)?.edge_id;
+          if (edge_id === undefined) {
+            return acc;
+          }
           const edges = this.root.panel.graphEdgeIndex.wasm2Edges[edge_id] ?? [];
 
-          const lineIds = edges.map((x: any) => x?.lineId).filter((id: any): id is number => typeof id === 'number');
+          const lineIds = edges.map((x: Edge) => getEdgeLineId(x)).filter((id: any): id is number => typeof id === 'number');
 
           if (lineIds.length) {
             (acc[layerId] ??= []).push(...lineIds);
@@ -358,7 +371,7 @@ class PointStore {
     if (pickedEdges.length > 1) {
       this.setFocusedEdges(pickedEdges);
     } else if (pickedEdges[0]) {
-      this.setFocusedEdgeId(pickedEdges[0].id, String((pickedEdges[0].source.parent as Graph)?.id ?? ''));
+      this.setFocusedEdgeId(getEdgeId(pickedEdges[0]), String((pickedEdges[0].source.parent as Graph)?.id ?? ''));
     } else if (node) {
       this.setFocusedNodeId(node.id, String((node.parent as Graph)?.id ?? ''));
     } else {
