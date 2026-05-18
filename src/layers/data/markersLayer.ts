@@ -566,7 +566,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
           .addFieldNamePicker({
             path: 'parField',
             name: 'Vertex B',
-            description: 'Unique node ID or path as Array<String | [lon, lat]>',
+            description: 'Node ID or path array of node IDs and [lon, lat]',
             settings: {
               filter: (f: Field) => {
                 return f.type === FieldType.string;
@@ -579,7 +579,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
           .addFieldNamePicker({
             path: 'edgeIdField',
             name: 'Edge ID',
-            description: 'Optional. Use for parallel edges',
+            description: 'Optional. Used for parallel edges',
             settings: {
               filter: (f: Field) => {
                 return f.type === FieldType.string;

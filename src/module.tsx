@@ -120,7 +120,7 @@ export const plugin = new PanelPlugin<Options>(MapPanel)
         category: ['Other'],
         path: 'common.isMeters',
         name: 'Meters for sizing',
-        description: 'Use meters in Geo (scales with zoom)',
+        description: 'Use meters in Geo view (scales with zoom)',
         defaultValue: false,
       })
       .addRadio({
