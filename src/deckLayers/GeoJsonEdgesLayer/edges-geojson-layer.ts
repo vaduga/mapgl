@@ -171,6 +171,7 @@ export const EdgesGeojsonLayer = (props) => {
   const {
     srcGraphId,
     linesCollection,
+    getSelectedIdxs,
     onHover,
     pickable,
     autoHighlight,
@@ -185,6 +186,7 @@ export const EdgesGeojsonLayer = (props) => {
   } = props;
 
   const isLogic = panel.isLogic;
+  const selectedFeatureIndexes = getSelectedIdxs?.get(colTypes.Edges)?.[srcGraphId] ?? [];
   const cats = getVisLayers.getCategories();
   const categories = cats.concat([cats[1]]);
   const categorySize = 3;
@@ -192,8 +194,10 @@ export const EdgesGeojsonLayer = (props) => {
   const curveSegments = isLogic ? getCurveSegments(lineFeatures, getWasmId2Edges) : [];
 
   const getLineWidth = (d) => {
-    const { edgeStyle } = d.feature?.properties ?? d.properties;
-    return edgeStyle.size;
+    const feature = d.feature ?? d;
+    const { edgeStyle } = feature.properties;
+    const isSelected = selectedFeatureIndexes.includes(feature.rowIndex);
+    return edgeStyle.size * (isSelected ? 2 : 1);
   };
 
   const getLineColor = (
@@ -228,8 +232,11 @@ export const EdgesGeojsonLayer = (props) => {
     id: colTypes.Edges + '-view' + srcGraphId,
     updateTriggers: {
       getLineColor: time,
+      getColor: time,
       getTextColor: time,
       getFillColor: time,
+      getLineWidth: selectedFeatureIndexes,
+      getWidth: selectedFeatureIndexes,
     },
     getFilterCategory: (d) => {
       const feature = d.feature ?? d;

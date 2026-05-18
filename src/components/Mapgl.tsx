@@ -286,7 +286,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     graph: panel.graph,
     panel,
     pickable: true,
-    autoHighlight: false,
+    autoHighlight: !isLogic,
     highlightColor: toRGB4Array(theme2.isDark ? DARK_AUTO_HIGHLIGHT : LIGHT_AUTO_HIGHLIGHT, 1),
     onHover: onDeckHover, //!hoverInfo.objects &&
     hasAnnots,
