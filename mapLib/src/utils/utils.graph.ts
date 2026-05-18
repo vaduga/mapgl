@@ -1,5 +1,7 @@
 import { BiColProps, Comment, CommentsData, CoordRef } from './interfaces';
-import type { Edge, Node } from '@msagl/core';
+import { Graph } from '../structs/graph';
+import type { Node } from '@msagl/core';
+import { Edge } from '../structs/edge';
 import { AttributeRegistry } from '../structs/attributeRegistry';
 import {
   Arrowhead,
@@ -8,7 +10,7 @@ import {
   layoutGeomGraph,
   SugiyamaLayoutSettings,
   GeomEdge,
-  Graph,
+  Graph as MSGraph,
   Point,
 } from '@msagl/core';
 
@@ -16,16 +18,7 @@ import { EdgeRoutingMode } from '@msagl/core';
 import { Position } from 'geojson';
 
 import midpoint from '@turf/midpoint';
-import {
-  findEdge,
-  getEdgeArcId,
-  getEdgeData,
-  getEdgeLineId,
-  getNodeData,
-  setEdge,
-  setEdgeLineId,
-  setEntityAttrProp,
-} from '../structs/graphOps';
+import { findEdge, getNodeData, setEdge, setEntityAttrProp } from '../structs/graphOps';
 
 type Vec2 = [number, number];
 type ArrowAngles = { start: number | undefined; end: number | undefined };
@@ -338,16 +331,10 @@ function pushPath(props: PushPathProps) {
         const extraId = edgeId + idx;
         const start = frag[0].item.id;
         const end = frag.at(-1).item.id;
-        const dummy = setEdge(
-          graphA,
-          extraId,
-          start,
-          end as string,
-          data,
-          i === segrPath.length - 1 ? graphB : undefined
-        );
+        const dummy = setEdge(graphA, extraId, start, end as string, i === segrPath.length - 1 ? graphB : undefined);
 
         if (dummy) {
+          dummy.setData(data);
           if (panel.isLogic) {
             const placement =
               segrPath.length === 1 ? 'both' : i === 0 ? 'start' : i === segrPath.length - 1 ? 'end' : 'none';
@@ -358,10 +345,11 @@ function pushPath(props: PushPathProps) {
       });
     } else {
       // @ts-ignore
-      edge = setEdge(graphA, edgeId, sourceId, targetId, data, graphB);
+      edge = setEdge(graphA, edgeId, sourceId, targetId, graphB);
       if (!edge) {
         return;
       }
+      edge?.setData(data);
       if (panel.isLogic) {
         setGeomEdgeArrowheads(edge, dataRecord, 'both');
       }
@@ -369,7 +357,7 @@ function pushPath(props: PushPathProps) {
     }
     graphEdgeIndex.wasm2Edges[edge_id] = multiEdges;
   } else if (edge) {
-    edge_id = getEdgeData(edge)?.edge_id;
+    edge_id = edge.data.edge_id;
     if (edge_id !== undefined) {
       //console.log('edge_id', edge_id, edge.data.edgeId)
       setEntityAttrProp(edge, AttributeRegistry.EdgeDataIndex, 'parPath', parPathSan);
@@ -468,7 +456,7 @@ function getSmoothPolyline(edge: any): Position[] {
 }
 
 function runLayout(panel: any) {
-  const graph = panel.graph;
+  const graph = panel.graph as MSGraph;
   const rootGraph = GeomGraph.getGeom(graph);
   const edgeRouting = panel.edgeRoutingOverride ?? panel.props?.options?.common?.edgeRouting ?? 'Splines';
   const edgeRoutingMode =

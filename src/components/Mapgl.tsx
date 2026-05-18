@@ -45,9 +45,7 @@ import {
   getGraphPositionRanges,
   getGraphVersion,
   getNodeData,
-  getEdgeId,
-  type Graph,
-} from 'mapLib';
+  type Graph } from 'mapLib';
 import { throttleTime } from 'rxjs';
 import { StateTime } from './Geocoder/StateTime';
 import { Layer, MapView, OrbitView } from 'deck.gl';
@@ -58,17 +56,7 @@ import { ThresholdEdgeChangeEvent } from '../utils/bus.events';
 import { useFullscreenPortalBridge } from './hooks/useFullscreenPortalBridge';
 import { getDimmedGraphLayers } from '../deckLayers/focus-layers';
 
-const Mapgl = ({
-  panel,
-  annots,
-  initMapRef,
-  fieldConfig,
-  source,
-  options,
-  data,
-  replaceVariables,
-  eventBus,
-}) => {
+const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, replaceVariables, eventBus }) => {
   const HOVER_HIGHLIGHT_DELAY_MS = 100;
   const { pointStore, viewStore } = useRootStore();
   const { setVisRefresh: setMobxLegendRefresh } = viewStore;
@@ -432,7 +420,7 @@ const Mapgl = ({
           commentFeatures.push({
             type: 'Feature',
             id: counter,
-            edgeId: getEdgeId(edge),
+            edgeId: edge.id,
             comId: [edgeId, index].join('|'),
             geometry: {
               type: 'Point',

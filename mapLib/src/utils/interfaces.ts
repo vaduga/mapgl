@@ -1,5 +1,7 @@
 import { Geometry, Position, GeoJsonProperties, LineString } from 'geojson';
-import { Edge, Entity, Graph } from '@msagl/core';
+import { Edge } from '../structs/edge';
+import { Entity } from '@msagl/core';
+import { Graph } from '../structs/graph';
 import { FeatSource } from '../FeatSource';
 import { BinaryFeatureCollection } from '@loaders.gl/schema';
 
@@ -102,17 +104,6 @@ export type NodeData = {
   feature?: BiColProps;
   rxPtId?: string;
   relLineIds?: Array<[lineIdx: number, isOutgoing: number]> | null;
-};
-
-export type EdgeData = {
-  id?: string;
-  edgeId: string;
-  edge_id: number; // wasm
-  parPath: CoordRef[];
-  dataRecord: BiColProps;
-  rxEdgeId?: string;
-  rPath?: CoordRef[];
-  rWasmNodeIds?: number[];
 };
 
 export type CoordsGuided = { item: CoordRef; gIdx: number; coords: Position };
