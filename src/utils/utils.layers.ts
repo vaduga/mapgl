@@ -74,7 +74,14 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
     for (const c of clusters) {
       const gId = c.id;
       if (gId && !bboxCols[gId]) {
-        const bbox = panel.layoutGraphBounds.get(gId);
+        //@ts-ignore
+        const rawBbox = GeomGraph.getGeom(c).getPumpedGraphWithMarginsBox();
+        const bbox = rawBbox && {
+          minX: rawBbox.left_,
+          minY: rawBbox.bottom_,
+          maxX: rawBbox.right_,
+          maxY: rawBbox.top_,
+        };
 
         const graph = Array.from(clusters).find((el) => el.id === gId);
         if (bbox) {
