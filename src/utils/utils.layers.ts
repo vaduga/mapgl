@@ -5,7 +5,6 @@ import { MyArcLayer } from '../deckLayers/ArcLayer/arc-layer';
 import { GeoJsonLayer, PathLayer, TextLayer } from '@deck.gl/layers';
 import { Layer } from '@deck.gl/core';
 import {
-  GeomGraph,
   Graph,
   getGraphComments,
 } from 'mapLib';
@@ -13,9 +12,8 @@ import {
   BBOX_OUTLINE_COLOR,
   BBOX_OUTLINE_WIDTH,
   NS_SEPARATOR,
-  NS_PADDING,
-  DeckLine, colTypes
-} from 'mapLib/utils';
+} from 'mapLib/defaults';
+import { type DeckLine, colTypes } from 'mapLib/types';
 import { Rule } from 'editor/Groups/rule-types';
 import {
   LogicMainLabelTextLayer,

@@ -30,9 +30,16 @@ import {
   ALERTING_NUMS,
   ANNOTS_LABEL,
   NS_SEPARATOR,
+} from 'mapLib/defaults';
+import {
   type DeckLine,
   colTypes,
-  ViewState,
+  type ViewState,
+  type CommentsData,
+  type ComFeature,
+  type GraphBiFeatCol,
+} from 'mapLib/types';
+import {
   sortAnnotations,
   CommentsData,
   ComFeature,

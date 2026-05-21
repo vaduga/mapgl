@@ -12,6 +12,8 @@
     "paths": {
       "mapLib": ["../mapLib/src/main.ts"],
       "mapLib/utils": ["../mapLib/src/utils/index.ts"],
+      "mapLib/types": ["../mapLib/src/types/index.ts"],
+      "mapLib/defaults": ["../mapLib/src/types/defaults.ts"],
       "~/*": ["../mapLib/src/*"]
     }
   },

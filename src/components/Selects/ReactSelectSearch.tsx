@@ -5,7 +5,7 @@ import { DataFrame, EventBus, GrafanaTheme2, SelectableValue } from '@grafana/da
 import { css } from '@emotion/css';
 import { useStyles2 } from '@grafana/ui';
 import { Graph, Edge, getGraphNodes, getNodeData } from 'mapLib';
-import { colTypes } from 'mapLib/utils';
+import { colTypes } from 'mapLib/types';
 import { ComboboxCompat } from '../Compat/ComboboxCompat';
 
 export type handlerProps = {

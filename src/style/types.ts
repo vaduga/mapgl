@@ -11,7 +11,7 @@ import {
   BaseDimensionConfig,
 } from '@grafana/schema';
 import { DimensionSupplier } from '../grafana_core/app/features/dimensions';
-import { RGBAColor } from 'mapLib/utils';
+import type { RGBAColor } from 'mapLib/types';
 
 export interface ColorDimensionConfigWithThresholds extends ColorDimensionConfig {
   thresholds?: unknown;

@@ -1,4 +1,4 @@
-import { BiColProps, Comment, CommentsData, CoordRef } from './interfaces';
+import { BiColProps, Comment, CommentsData, CoordRef, PushPathProps } from '../types';
 import { Graph } from '../structs/graph';
 import type { Node } from '@msagl/core';
 import { Edge } from '../structs/edge';

@@ -1,7 +1,7 @@
 import { Edge } from './edge';
 import { Graph } from './graph';
 import type { Node } from '@msagl/core';
-import type { NodeData } from '../utils/interfaces';
+import type { NodeData } from '../types';
 import { resetGraphState } from './graphState';
 import { AttributeRegistry } from './attributeRegistry';
 

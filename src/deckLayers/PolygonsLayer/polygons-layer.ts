@@ -1,6 +1,7 @@
 import { isVisible, toRGB4Array } from '../../utils';
 import { PolygonLayer } from '@deck.gl/layers';
-import { colTypes, DARK_HULL_HIGHLIGHT, LIGHT_HULL_HIGHLIGHT } from 'mapLib/utils';
+import { DARK_HULL_HIGHLIGHT, LIGHT_HULL_HIGHLIGHT } from 'mapLib/defaults';
+import { colTypes } from 'mapLib/types';
 
 const ICON_MAPPING = {
   marker: { x: 0, y: 0, width: 128, height: 128, mask: true },

@@ -1,6 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import RootStore from './RootStore';
-import { DEFAULT_CLUSTER_MAX_ZOOM, ViewState, ANNOTS_LABEL, ALERTING_STATES } from 'mapLib/utils';
+import { DEFAULT_CLUSTER_MAX_ZOOM, ANNOTS_LABEL, ALERTING_STATES } from 'mapLib/defaults';
+import type { ViewState } from 'mapLib/types';
 import { VizLegendItem } from '@grafana/ui';
 
 import { getNodeGroupCounts } from 'mapLib';

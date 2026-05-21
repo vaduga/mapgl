@@ -14,7 +14,7 @@ import { ExtendFrameGeometrySource, ExtendFrameGeometrySourceMode } from '../ext
 import { Geometry, Point } from 'geojson';
 import { findField } from '../grafana_core/app/features/dimensions';
 import { FeatSource, GeomGraph, Graph, Node, pushGraphPositionRange, setNodeData } from 'mapLib';
-import { CMN_NAMESPACE, NS_SEPARATOR } from 'mapLib/utils';
+import { CMN_NAMESPACE, NS_SEPARATOR } from 'mapLib/defaults';
 import { MapPanel } from '../MapPanel';
 
 export type NamespaceRange = [

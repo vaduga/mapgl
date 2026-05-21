@@ -1,6 +1,6 @@
 import { IconLayer, TextLayer } from '@deck.gl/layers';
 import type { Layer } from '@deck.gl/core';
-import { RGBAColor } from 'mapLib/utils';
+import type { RGBAColor } from 'mapLib/types';
 import { toRGB4Array } from '../utils';
 import { CurveEdgeLayer } from './GeoJsonEdgesLayer/curve-edge-layer';
 import { getArrowColor } from './ArrowLayer/edge-arrow-layer';

@@ -1,6 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import RootStore from './RootStore';
-import { blankHoverInfo, colTypes, Info, ViewState } from 'mapLib/utils';
+import { blankHoverInfo } from 'mapLib/defaults';
+import { colTypes, type Info, type ViewState } from 'mapLib/types';
 import { Edge, findEdge, getGraphData, getNodeData, Graph, Node } from 'mapLib';
 import { SelectNodeEvent } from '../utils/bus.events';
 import { Subscription } from 'rxjs';

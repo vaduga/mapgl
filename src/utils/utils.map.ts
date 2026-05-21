@@ -4,7 +4,7 @@ import { centerPointRegistry, MapCenterID } from '../view';
 import { Position } from 'geojson';
 import { WebMercatorViewport } from '@deck.gl/core';
 import { FeatSource} from 'mapLib';
-import { ViewState } from 'mapLib/utils';
+import type { ViewState } from 'mapLib/types';
 import { handlerProps } from '../components/Selects/ReactSelectSearch';
 import { AppEvents } from '@grafana/data';
 

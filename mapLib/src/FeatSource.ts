@@ -1,4 +1,4 @@
-import { colTypes, Feature, BiColProps } from './utils/interfaces';
+import { colTypes, Feature, BiColProps } from './types';
 import type { ThresholdsConfig } from '@grafana/data';
 
 export class FeatSource {

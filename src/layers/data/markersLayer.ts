@@ -40,11 +40,15 @@ import {
   CMN_NAMESPACE,
   MOC_LOC_FIELD,
   FIXED_COLOR_LABEL,
+} from 'mapLib/defaults';
+import {
   pushPath,
-  PushPathProps,
-  colTypes,
-  BiColProps,
 } from 'mapLib/utils';
+import {
+  colTypes,
+  type BiColProps,
+  type PushPathProps,
+} from 'mapLib/types';
 import { findField } from '../../grafana_core/app/features/dimensions';
 
 export interface MarkersConfig {

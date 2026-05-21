@@ -16,7 +16,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { css } from '@emotion/css';
 import { OverrideField } from './OverrideField';
 import { OverField, OverrideTracker, Rule, SvgTintModeOptions } from './rule-types';
-import { DEFAULT_COLOR_PICKER } from 'mapLib/utils';
+import { DEFAULT_COLOR_PICKER } from 'mapLib/defaults';
 import { ResourceDimensionEditor } from '../../grafana_core/app/features/dimensions/editors';
 import { MediaType, ResourceFolderName } from '../../grafana_core/app/features/dimensions';
 import { ResourceDimensionMode } from '@grafana/schema';

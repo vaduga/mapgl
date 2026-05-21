@@ -8,7 +8,7 @@ module.exports = [
   ...grafanaConfig,
   {
     name: 'mapgl/defaults',
-    files: ['src/**/*.{ts,tsx,js,jsx}'],
+    files: ['src/**/*.{ts,tsx,js,jsx}', 'mapLib/src/**/*.{ts,tsx,js,jsx}'],
     rules: {
       'react/prop-types': 'off',
       'react-hooks/exhaustive-deps': 'off',
@@ -17,7 +17,7 @@ module.exports = [
   },
   {
     name: 'mapgl/typescript',
-    files: ['src/**/*.{ts,tsx}'],
+    files: ['src/**/*.{ts,tsx}', 'mapLib/src/**/*.{ts,tsx}'],
     languageOptions: {
       parserOptions: {
         project: './tsconfig.json',
@@ -25,6 +25,7 @@ module.exports = [
     },
     rules: {
       '@typescript-eslint/no-deprecated': 'warn',
+      'no-duplicate-imports': ['error', { allowSeparateTypeImports: true }],
     },
   },
   {

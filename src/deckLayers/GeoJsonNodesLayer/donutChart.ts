@@ -1,4 +1,4 @@
-import { ALERTING_STATES } from 'mapLib/utils';
+import { ALERTING_STATES } from 'mapLib/defaults';
 import { getFittedDimensions } from '../nodeGeometry';
 
 const MAX_ICON_SOURCE_SIZE = 1020; ///384;

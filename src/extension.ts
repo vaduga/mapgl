@@ -10,7 +10,7 @@ import {
   PanelProps,
   Field,
 } from '@grafana/data';
-import { libreSource } from 'mapLib/utils';
+import type { libreSource } from 'mapLib/types';
 import { ReactNode } from 'react';
 import { MapPanel } from './MapPanel';
 import { FeatSource } from 'mapLib';

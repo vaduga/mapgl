@@ -3,7 +3,7 @@ import { Units } from '@turf/helpers';
 import { GeomEdge } from '@msagl/core';
 import { Position } from 'geojson';
 import { Graph } from '../structs/graph';
-import { BiColProps, CoordRef, DeckLine } from './interfaces';
+import { BiColProps, CoordRef, DeckLine } from '../types';
 import { CoordsConvert, distance2D } from './utils.turf';
 import {
   getArrowAngles,

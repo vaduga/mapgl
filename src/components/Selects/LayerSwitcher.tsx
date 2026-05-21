@@ -1,6 +1,6 @@
 import { getStyles } from './LayerSwitcher.styles';
 import React, { useEffect, useState, useRef } from 'react';
-import { colTypes } from 'mapLib/utils';
+import { colTypes } from 'mapLib/types';
 import { MapPanel } from '../../MapPanel';
 import { Tooltip, useStyles2 } from '@grafana/ui';
 import type { LayerTreeInfo } from '../../store/visLayer';

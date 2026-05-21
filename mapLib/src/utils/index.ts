@@ -11,6 +11,6 @@ export {
 export { getEdgesGeometry } from './utils.graph-geom';
 export { CoordsConvert, SingleCoordsConvert } from './utils.turf';
 
-export * from './defaults';
-export type * from './interfaces';
-export { colTypes, defViewState } from './interfaces';
+export * from '../types/defaults';
+export type * from '../types';
+export { colTypes } from '../types';

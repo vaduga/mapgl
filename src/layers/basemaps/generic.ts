@@ -1,7 +1,7 @@
 import { GrafanaTheme2 } from '@grafana/data';
 import { ExtendMapLayerOptions, ExtendMapLayerRegistryItem } from '../../extension';
 import { MapPanel } from '../../MapPanel';
-import { libreSource } from 'mapLib/utils';
+import type { libreSource } from 'mapLib/types';
 
 export interface XYZConfig {
   url: string;

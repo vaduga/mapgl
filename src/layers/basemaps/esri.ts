@@ -2,7 +2,7 @@ import { GrafanaTheme2, RegistryItem, Registry } from '@grafana/data';
 import { xyzTiles, defaultXYZConfig, XYZConfig } from './generic';
 import { ExtendMapLayerHandler, ExtendMapLayerOptions, ExtendMapLayerRegistryItem } from '../../extension';
 import { MapPanel } from '../../MapPanel';
-import { libreSource } from 'mapLib/utils';
+import type { libreSource } from 'mapLib/types';
 
 interface PublicServiceItem extends RegistryItem {
   slug: string;

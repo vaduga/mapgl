@@ -6,6 +6,8 @@ import { config } from '@grafana/runtime';
 import { PanelContext, PanelContextProvider, PanelContextRoot } from '@grafana/ui';
 import { Options, MapLayerState, MapViewConfig, type DeckGLRefWithViewManager } from './types';
 import { runLayout, ViewState, defViewState, CMN_NAMESPACE, BiColProps } from 'mapLib/utils';
+import { defViewState, CMN_NAMESPACE } from 'mapLib/defaults';
+import type { ViewState, BiColProps, LayoutArrowTips, LayoutCache, LayoutCurveGroup, LayoutGraphResult } from 'mapLib/types';
 import { notifyPanelEditor } from './utils/geomap_utils';
 import { getActions } from './utils/actions';
 import Mapgl from './components/Mapgl';

@@ -4,7 +4,7 @@ import { selectGotoHandler, toRgbaString, useRootStore } from '../../utils';
 import { css } from '@emotion/css';
 import { IconButton, SeriesIcon, useStyles2, useTheme2, VizTooltipContainer } from '@grafana/ui';
 import { DataFrame, Field, FieldType, GrafanaTheme2 } from '@grafana/data';
-import { BiColProps, colTypes } from 'mapLib/utils';
+import { colTypes, type BiColProps } from 'mapLib/types';
 import { DataHoverView } from './DataHoverView';
 import { SortOrder, TooltipDisplayMode } from '@grafana/schema';
 

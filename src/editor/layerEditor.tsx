@@ -23,7 +23,7 @@ import { setOptionImmutably } from '../grafana_core/app/dashboard/components/Pan
 
 import { ExtendMapLayerOptions } from '../extension';
 import { addLocationFields } from './MapView/locationEditor';
-import { colTypes } from 'mapLib/utils';
+import { colTypes } from 'mapLib/types';
 import { getQueryFields } from './getQueryFields';
 import { getGeoJsonProps } from '../layers/data/geojsonLayer';
 

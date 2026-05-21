@@ -4,7 +4,7 @@ import { getGeometryField, getLocationMatchers } from '../../utils/location';
 import { ExtendMapLayerRegistryItem, ExtendFrameGeometrySourceMode, ExtendMapLayerOptions } from '../../extension';
 
 import { FeatSource } from 'mapLib';
-import { type Feature, colTypes } from 'mapLib/utils';
+import { type Feature, colTypes } from 'mapLib/types';
 import { toJS } from 'mobx';
 import { StyleEditor } from '../../editor/StyleEditor';
 import { defaultStyleConfig, StyleConfig } from '../../style/types';

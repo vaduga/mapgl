@@ -1,7 +1,8 @@
 import { TextLayer } from '@deck.gl/layers';
 import { DataFilterExtension } from '@deck.gl/extensions';
 import { isVisible, toRGB4Array } from '../../utils';
-import { colTypes, BBOX_OUTLINE_COLOR, DEFAULT_NUMS_COLOR } from 'mapLib/utils';
+import { BBOX_OUTLINE_COLOR, DEFAULT_NUMS_COLOR } from 'mapLib/defaults';
+import { colTypes } from 'mapLib/types';
 
 const LineTextLayer = ({
   id = '',

@@ -5,7 +5,7 @@ import {
   DEFAULT_ICON_NAME,
   DEFAULT_ICON_RULE_IS_COLLAPSED,
   DEFAULT_SVG_ICON_V_OFFSET,
-} from 'mapLib/utils';
+} from 'mapLib/defaults';
 
 export interface Rule {
   width?: number;

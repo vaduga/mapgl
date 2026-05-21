@@ -1,6 +1,7 @@
 import { toRGB4Array, makeColorDarker, makeColorLighter } from '../../utils';
 import { Unit } from 'deck.gl';
-import { colTypes, RGBAColor, ALERTING_STATES } from 'mapLib/utils';
+import { ALERTING_STATES } from 'mapLib/defaults';
+import { colTypes, type RGBAColor } from 'mapLib/types';
 import AnimatedBlobsLayer from './animated-blobs-layer';
 import GradientArcLayer from './gradient-arc-layer';
 import { DataFilterExtension } from '@deck.gl/extensions';

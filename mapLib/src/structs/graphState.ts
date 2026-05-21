@@ -1,5 +1,5 @@
 import { action, observable } from 'mobx';
-import { CommentsData } from '../utils/interfaces';
+import { CommentsData } from '../types';
 
 export type GraphState = {
   comments: CommentsData;

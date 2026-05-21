@@ -1,6 +1,6 @@
 import { isVisible, toRGB4Array } from '../../utils';
 import { IconLayer } from '@deck.gl/layers';
-import { colTypes } from 'mapLib/utils';
+import { colTypes } from 'mapLib/types';
 import { svgToDataURL } from '../GeoJsonNodesLayer/donutChart';
 import { DataFilterExtension } from '@deck.gl/extensions';
 

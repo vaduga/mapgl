@@ -1,7 +1,7 @@
 import { EventBus, GrafanaTheme2, MapLayerOptions } from '@grafana/data';
 import { ExtendMapLayerOptions, ExtendMapLayerRegistryItem } from '../../extension';
 import { MapPanel } from '../../MapPanel';
-import { libreSource } from 'mapLib/utils';
+import type { libreSource } from 'mapLib/types';
 
 // https://carto.com/help/building-maps/basemap-list/
 

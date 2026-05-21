@@ -1,6 +1,7 @@
 import turfbbox from '@turf/bbox';
 import { FeatSource } from 'mapLib';
-import { colTypes, RGBAColor, FIXED_COLOR_LABEL } from 'mapLib/utils';
+import { FIXED_COLOR_LABEL } from 'mapLib/defaults';
+import { colTypes, type RGBAColor } from 'mapLib/types';
 import { FieldType, SelectableValue } from '@grafana/data';
 import { svgToDataURL } from '../deckLayers/GeoJsonNodesLayer/donutChart';
 import { MarkersConfig } from '../layers/data/markersLayer';

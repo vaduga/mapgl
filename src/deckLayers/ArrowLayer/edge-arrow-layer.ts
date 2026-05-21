@@ -3,12 +3,14 @@ import { DataFilterExtension } from '@deck.gl/extensions';
 import { Geometry } from 'geojson';
 import { getIconAtlasImage, iconMapping } from './arrow-atlas';
 import { toRGB4Array } from '../../utils';
+import { ALERTING_STATES } from 'mapLib/defaults';
 import {
   colTypes,
-  DeckLine,
-  PointFeatureProperties,
-  RGBAColor,
-  ALERTING_STATES,
+  type DeckLine,
+  type PointFeatureProperties,
+  type RGBAColor,
+} from 'mapLib/types';
+import {
   getEdgeArrowSize,
   getArrowAngle,
 } from 'mapLib/utils';

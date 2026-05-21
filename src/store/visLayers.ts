@@ -1,5 +1,5 @@
 import { type LayerInfo, type LayerTreeInfo, type VisLayerEntry, VisLayer } from './visLayer';
-import { colTypes } from 'mapLib/utils';
+import { colTypes } from 'mapLib/types';
 
 export class VisLayers {
   visLayers: VisLayer[] = [];

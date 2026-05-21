@@ -43,7 +43,7 @@ export interface MapLayerState<TConfig = unknown> extends LayerElement {
 
 import { ExtendMapLayerHandler, ExtendMapLayerOptions } from '../extension';
 
-import { libreSource } from 'mapLib/utils';
+import type { libreSource } from 'mapLib/types';
 
 export type EdgeRoutingConfig = 'Splines' | 'Rectilinear';
 

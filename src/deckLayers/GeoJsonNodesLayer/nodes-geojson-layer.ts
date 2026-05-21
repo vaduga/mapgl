@@ -10,7 +10,7 @@ import {
   getResolvedPointRadius,
   getResolvedTextPixelOffset,
 } from '../nodeGeometry';
-import { colTypes } from 'mapLib/utils';
+import { colTypes } from 'mapLib/types';
 
 type LogicTextDatum = {
   coordinates: [number, number];

@@ -1,17 +1,23 @@
-import { Info } from './interfaces';
-
-export const DEFAULT_COMMENT_COLOR = '#4ec2fc'; //'rgb(78, 194, 252)'
-
-export const DEFAULT_LINE_WIDTH = 1.5;
-
-export const DEFAULT_COLOR_LABEL = 'default';
-
+import type { Info } from './index';
 import {
   BinaryFeatureCollection,
   BinaryLineFeature,
   BinaryPointFeature,
   BinaryPolygonFeature,
 } from '@loaders.gl/schema';
+
+export const defViewState = {
+  longitude: 0,
+  latitude: 0,
+  zoom: 1,
+  yZoom: 1 + 1,
+};
+
+export const DEFAULT_COMMENT_COLOR = '#4ec2fc'; //'rgb(78, 194, 252)'
+
+export const DEFAULT_LINE_WIDTH = 1.5;
+
+export const DEFAULT_COLOR_LABEL = 'default';
 
 /**
  * Color to use when rendering without any thresholds/overrides

@@ -1,6 +1,6 @@
 import { isVisible, toRGB4Array } from '../../utils';
 import { GeoJsonLayer } from '@deck.gl/layers';
-import { colTypes } from 'mapLib/utils';
+import { colTypes } from 'mapLib/types';
 
 const MyGeoJsonLayer = (props) => {
   const { data, onHover, highlightColor, index, name, pickable, getVisLayers, options } = props;

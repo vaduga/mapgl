@@ -1,8 +1,9 @@
 import { toRGB4Array } from '../../utils';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import type { Color } from '@deck.gl/core';
-import { Feature, Geometry, Position } from 'geojson';
-import { type DeckLine, colTypes, PointFeatureProperties, RGBAColor, ALERTING_STATES } from 'mapLib/utils';
+import type { Feature, Geometry, Position } from 'geojson';
+import { ALERTING_STATES } from 'mapLib/defaults';
+import { type DeckLine, colTypes, type PointFeatureProperties, type RGBAColor } from 'mapLib/types';
 import { DataFilterExtension } from '@deck.gl/extensions';
 import { BezierSeg, Curve, Ellipse, GeomEdge, LineSegment, Polyline } from '@msagl/core';
 import { CurveEdgeLayer, CurveEdgeSegment, CurveType } from './curve-edge-layer';
