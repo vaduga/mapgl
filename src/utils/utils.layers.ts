@@ -68,7 +68,7 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
   const graphs: Graph[] = clusters.concat([graph as Graph]);
 
   /// Bboxes polygons
-  if (isLogic && panel.layoutReady) {
+  if ( isLogic ) {
     const features: any[] = [];
     const bboxCols: any = {};
     for (const c of clusters) {
