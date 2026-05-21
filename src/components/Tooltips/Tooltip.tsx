@@ -11,7 +11,7 @@ import { SortOrder, TooltipDisplayMode } from '@grafana/schema';
 import { Node, Edge, findEdge, getNodeData, Graph } from 'mapLib';
 
 const includes = ['ack', 'msg', 'all_annots', 'liveUpd']; //liveStat
-const TOOLTIP_OFFSET = 10;
+const TOOLTIP_OFFSET_SCALE = 1.25;
 
 function dedupeHyperedgeList(edges: Edge[]): Edge[] {
   const seen = new Set<string>();
@@ -41,6 +41,7 @@ const Tooltip = ({
   const s = useStyles2(getStyles);
   const { pointStore, pId } = useRootStore();
   const theme = useTheme2();
+  const tooltipOffset = Number.parseFloat(theme.spacing(TOOLTIP_OFFSET_SCALE));
   const [selIdx, setSelIdx] = useState(-1);
 
   if (!info || !Object.entries(info).length) {
@@ -439,7 +440,7 @@ const Tooltip = ({
       className={s.viz}
       allowPointerEvents={pinned}
       position={{ x, y }}
-      offset={{ x: TOOLTIP_OFFSET, y: TOOLTIP_OFFSET }}
+      offset={{ x: tooltipOffset, y: tooltipOffset }}
     >
       {<ConnectedEdges />}
       <DataHoverView {...hoverPayload} />
@@ -461,6 +462,8 @@ const getStyles = (theme: GrafanaTheme2) => ({
   seriesIcons: css`
     margin-left: ${theme.spacing(0.5)};
     display: flex;
+    align-items: center;
+    gap: ${theme.spacing(0.5)};
   `,
   fab: css`
     margin-left: ${theme.spacing(0.625)};

@@ -238,7 +238,7 @@ export const DataHoverView = ({
 const getStyles = (theme: GrafanaTheme2, padding = 0) => {
   return {
     wrapper: css({
-      padding: `${padding}px`,
+      padding: theme.spacing(padding),
       background: theme.components.tooltip.background,
       borderRadius: theme.shape.radius.default,
     }),
@@ -267,7 +267,7 @@ const getStyles = (theme: GrafanaTheme2, padding = 0) => {
       },
 
       tr: {
-        borderBottom: `1px solid ${theme.colors.border.weak}`,
+        borderBottom: `${theme.spacing(0.125)} solid ${theme.colors.border.weak}`,
         '&:last-child': {
           borderBottom: 'none',
         },
