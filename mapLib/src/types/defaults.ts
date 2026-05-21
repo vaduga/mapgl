@@ -15,47 +15,9 @@ export const defViewState = {
 
 export const DEFAULT_COMMENT_COLOR = '#4ec2fc'; //'rgb(78, 194, 252)'
 
-export const DEFAULT_LINE_WIDTH = 1.5;
-
-export const DEFAULT_COLOR_LABEL = 'default';
-
-/**
- * Color to use when rendering without any thresholds/overrides
- */
-
-export const GLOBAL_FILL_COLOR = '#0a55a1';
-export const GLOBAL_BORDER_COLOR = '#000000';
-/**
- * Color for threshold OK state
- */
-export const DEFAULT_OK_COLOR = '#299c46'; // #299c46
 export const DEFAULT_COLOR_PICKER = '#9acd32';
 
-export const DEFAULT_OK_COLOR_SELECTED = '#299C46';
-
-/**
- * Color for threshold Warning state
- */
-export const DEFAULT_WARNING_COLOR = '#ed8128'; // alternates // #FFC837 // '#e5ac0e'
-
-/**
- * Color for threshold Critical state
- */
-
-export const DEFAULT_CRITICAL_COLOR = '#f53636';
-
 export const DEFAULT_NUMS_COLOR = '#ed473b';
-
-export const DEFAULT_NO_THRESHOLD_COLOR = GLOBAL_FILL_COLOR;
-
-export const DEFAULT_NO_DATA_COLOR_RGBA = 'rgba(154, 205, 50)';
-export const DEFAULT_NO_DATA_COLOR = '#9acd32';
-
-export const defaultThreshold = {
-  color: DEFAULT_NO_DATA_COLOR,
-  lineWidth: DEFAULT_LINE_WIDTH,
-  label: DEFAULT_COLOR_LABEL,
-};
 
 export const FEATURE_EDIT_HANDLE_COLOR = '#f0fc'; // 'rgb(255, 0, 255, 0.8)'
 export const DEFAULT_EDIT_HANDLE_COLOR = '#e034b8cc';
@@ -78,7 +40,6 @@ export const ALERTING_STATES = {
   Pending: '#ff9900',
   Normal: '#1b855e',
 };
-//export const ALERTING_STATES = {Alerting: 'rgb(224, 34, 110)', Pending: 'rgba(255, 153, 0)', Normal: 'rgb(27, 133, 94)'}
 
 export const BBOX_OUTLINE_COLOR = '#cfe3d4';
 export const BBOX_OUTLINE_WIDTH = 0.5;
@@ -95,12 +56,9 @@ export const ALERTING_NUMS = {
   Normal: ALERT_MAP['111'],
 };
 
-export const DEFAULT_ICON_SIZE = 20;
 
-export const DEFAULT_ICON_RULE_LABEL = 'new rule';
 export const DEFAULT_ICON_RULE_IS_COLLAPSED = true;
 export const DEFAULT_ICON_NAME = '';
-export const DEFAULT_ICON_NAME2 = 'cisco/atm-switch';
 export const DEFAULT_SVG_ICON_V_OFFSET = 0;
 export const DEFAULT_CLUSTER_SCALE = 40;
 export const DEFAULT_CLUSTER_ICON_SIZE = 45;
@@ -151,8 +109,6 @@ export const emptyBiCol = {
     properties: [],
   } as unknown as BinaryLineFeature,
 } as BinaryFeatureCollection;
-
-export const GLOBAL_OVERRIDE_COLORS = [DEFAULT_WARNING_COLOR, DEFAULT_CRITICAL_COLOR, DEFAULT_NO_THRESHOLD_COLOR];
 
 export const FIXED_COLOR_LABEL = 'fixed';
 

@@ -16,9 +16,9 @@ import {
 import { type DeckLine, colTypes } from 'mapLib/types';
 import { Rule } from 'editor/Groups/rule-types';
 import {
+  NodesGeojsonLayer,
   LogicMainLabelTextLayer,
   LogicPlaceholderTextLayer,
-  NodesGeojsonLayer,
 } from '../deckLayers/GeoJsonNodesLayer/nodes-geojson-layer';
 import { EdgesGeojsonLayer } from '../deckLayers/GeoJsonEdgesLayer/edges-geojson-layer';
 import { EdgeArrowLayer } from '../deckLayers/ArrowLayer/edge-arrow-layer';
@@ -68,20 +68,13 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
   const graphs: Graph[] = clusters.concat([graph as Graph]);
 
   /// Bboxes polygons
-  if (isLogic) {
+  if (isLogic && panel.layoutReady) {
     const features: any[] = [];
     const bboxCols: any = {};
     for (const c of clusters) {
       const gId = c.id;
       if (gId && !bboxCols[gId]) {
-        //@ts-ignore
-        const rawBbox = GeomGraph.getGeom(c).getPumpedGraphWithMarginsBox();
-        const bbox = rawBbox && {
-          minX: rawBbox.left_,
-          minY: rawBbox.bottom_,
-          maxX: rawBbox.right_,
-          maxY: rawBbox.top_,
-        };
+        const bbox = panel.layoutGraphBounds.get(gId);
 
         const graph = Array.from(clusters).find((el) => el.id === gId);
         if (bbox) {

@@ -3,13 +3,14 @@ import { MapLayerState, MapViewConfig } from '../types';
 import { centerPointRegistry, MapCenterID } from '../view';
 import { Position } from 'geojson';
 import { WebMercatorViewport } from '@deck.gl/core';
+import { getBounds } from './utils.plugin';
 import { FeatSource} from 'mapLib';
 import type { ViewState } from 'mapLib/types';
 import { handlerProps } from '../components/Selects/ReactSelectSearch';
 import { AppEvents } from '@grafana/data';
 
 import { SelectNodeEvent } from './bus.events';
-import { getBounds } from './utils.plugin';
+
 
 function initViewExtent(view: ViewState, config: MapViewConfig, width, height, layers, visLayers, panel) {
   const v: any = centerPointRegistry.getIfExists(config.id);

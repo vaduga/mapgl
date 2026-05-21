@@ -23,7 +23,7 @@ export interface Rule {
 
 export function defaultGroup(label): Rule {
   return {
-    label, //: DEFAULT_ICON_RULE_LABEL,
+    label,
     collapse: DEFAULT_ICON_RULE_IS_COLLAPSED,
     offset: DEFAULT_SVG_ICON_V_OFFSET,
     iconName: DEFAULT_ICON_NAME,
