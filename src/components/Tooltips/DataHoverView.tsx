@@ -17,7 +17,7 @@ import { TextLink, useStyles2 } from '@grafana/ui';
 import { Trans } from '../../utils/i18n';
 
 import { renderValue } from '../../grafana_core/app/features/geo/utils/uiUtils';
-import { sortAnnotations } from 'mapLib/utils';
+import { sortAnnotations } from '../../utils/utils.plugin';
 import { getDataLinks } from '../../grafana_core/app/plugins/panel/status-history/utils';
 
 export interface Props {
