@@ -5,6 +5,7 @@ import { MyArcLayer } from '../deckLayers/ArcLayer/arc-layer';
 import { GeoJsonLayer, PathLayer, TextLayer } from '@deck.gl/layers';
 import { Layer } from '@deck.gl/core';
 import {
+  GeomGraph,
   Graph,
   getGraphComments,
 } from 'mapLib';
