@@ -463,7 +463,6 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
             const { wasmId } = nodeData;
             const dataRecord: BiColProps = {
               id: wasmId, // doesn't matter, not used elsewhere
-              // geometry, - stored as Float64Array in featSource
               layerName,
               ...(layerIdx !== undefined && { layerIdx }),
               frameRefId,

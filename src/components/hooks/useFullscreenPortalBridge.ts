@@ -8,7 +8,39 @@ type RestorableNode = {
   originalParent: HTMLElement | null;
 };
 
-const moveNode = (node: HTMLElement, target: HTMLElement, restoreRef: { current: RestorableNode | null }) => {
+type PortalNodes = {
+  floatingBoundary: HTMLElement | null;
+  globalPortal: HTMLElement | null;
+};
+
+const findElementById = (root: HTMLElement, id: string) => {
+  if (root.id === id) {
+    return root;
+  }
+
+  return root.querySelector<HTMLElement>(`#${id}`);
+};
+
+const getPortalSearchRoot = (container: HTMLElement) => {
+  for (let element = container.parentElement; element; element = element.parentElement) {
+    if (findElementById(element, GRAFANA_PORTAL_CONTAINER_ID) || findElementById(element, FLOATING_BOUNDARY_ELEMENT_ID)) {
+      return element;
+    }
+  }
+
+  return container.ownerDocument.body;
+};
+
+const getPortalNodes = (root: HTMLElement): PortalNodes => ({
+  floatingBoundary: findElementById(root, FLOATING_BOUNDARY_ELEMENT_ID),
+  globalPortal: findElementById(root, GRAFANA_PORTAL_CONTAINER_ID),
+});
+
+const moveNode = (node: HTMLElement | null, target: HTMLElement, restoreRef: { current: RestorableNode | null }) => {
+  if (!node || node === target || node.contains(target)) {
+    return;
+  }
+
   if (node.parentElement === target) {
     return;
   }
@@ -24,15 +56,22 @@ const moveNode = (node: HTMLElement, target: HTMLElement, restoreRef: { current:
 };
 
 const restoreNode = (node: HTMLElement | null, restoreRef: { current: RestorableNode | null }) => {
-  if (!node || !restoreRef.current?.originalParent || node.parentElement === restoreRef.current.originalParent) {
+  if (!node || !restoreRef.current?.originalParent) {
     return;
   }
 
-  restoreRef.current.originalParent.insertBefore(node, restoreRef.current.nextSibling);
+  const { nextSibling, originalParent } = restoreRef.current;
+
+  if (node.parentElement !== originalParent) {
+    originalParent.insertBefore(node, nextSibling?.parentElement === originalParent ? nextSibling : null);
+  }
+
+  restoreRef.current = null;
 };
 
 export const useFullscreenPortalBridge = (fullscreenRef: RefObject<HTMLDivElement | null>) => {
   const [fullscreenContainer, setFullscreenContainer] = useState<HTMLElement | undefined>(undefined);
+  const portalNodesRef = useRef<PortalNodes>({ floatingBoundary: null, globalPortal: null });
   const portalRestoreRef = useRef<RestorableNode | null>(null);
   const boundaryRestoreRef = useRef<RestorableNode | null>(null);
 
@@ -48,22 +87,19 @@ export const useFullscreenPortalBridge = (fullscreenRef: RefObject<HTMLDivElemen
     }
 
     const doc = fullscreenContainer.ownerDocument;
+    const portalSearchRoot = getPortalSearchRoot(fullscreenContainer);
 
     const syncFullscreenPortals = () => {
+      portalNodesRef.current = getPortalNodes(portalSearchRoot);
+
       const isMapFullscreen =
         doc.fullscreenElement === fullscreenContainer ||
         fullscreenContainer.classList.contains('deck-pseudo-fullscreen');
-      const globalPortal = doc.getElementById(GRAFANA_PORTAL_CONTAINER_ID);
-      const floatingBoundary = doc.getElementById(FLOATING_BOUNDARY_ELEMENT_ID);
+      const { globalPortal, floatingBoundary } = portalNodesRef.current;
 
       if (isMapFullscreen) {
-        if (globalPortal) {
-          moveNode(globalPortal, fullscreenContainer, portalRestoreRef);
-        }
-
-        if (floatingBoundary) {
-          moveNode(floatingBoundary, fullscreenContainer, boundaryRestoreRef);
-        }
+        moveNode(globalPortal, fullscreenContainer, portalRestoreRef);
+        moveNode(floatingBoundary, fullscreenContainer, boundaryRestoreRef);
 
         return;
       }
@@ -74,6 +110,7 @@ export const useFullscreenPortalBridge = (fullscreenRef: RefObject<HTMLDivElemen
 
     const observer = new MutationObserver(syncFullscreenPortals);
     observer.observe(fullscreenContainer, { attributeFilter: ['class'], attributes: true });
+    observer.observe(portalSearchRoot, { childList: true, subtree: true });
 
     syncFullscreenPortals();
     // Fullscreen API changes are emitted at the document level.
@@ -83,8 +120,8 @@ export const useFullscreenPortalBridge = (fullscreenRef: RefObject<HTMLDivElemen
     return () => {
       observer.disconnect();
       abortController.abort();
-      restoreNode(doc.getElementById(GRAFANA_PORTAL_CONTAINER_ID), portalRestoreRef);
-      restoreNode(doc.getElementById(FLOATING_BOUNDARY_ELEMENT_ID), boundaryRestoreRef);
+      restoreNode(portalNodesRef.current.globalPortal, portalRestoreRef);
+      restoreNode(portalNodesRef.current.floatingBoundary, boundaryRestoreRef);
     };
   }, [fullscreenContainer]);
 
