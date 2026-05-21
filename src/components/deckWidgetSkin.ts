@@ -7,7 +7,6 @@ const fullscreenExit =
   "url(\"data:image/svg+xml,%3Csvg%20viewBox%3D'0%200%2028%2028'%20xmlns%3D'http://www.w3.org/2000/svg'%3E%3Cpath%20fill%3D'black'%20d%3D'M10%2018H6v-2h4a1%201%200%200%201%201%201v4h-2v-3zm8%200v3h-2v-4a1%201%200%200%201%201-1h4v2h-3zM10%2010V7h2v4a1%201%200%200%201-1%201H6v-2h4zm8%200h3v2h-4a1%201%200%200%201-1-1V7h2v3z'/%3E%3C/svg%3E\")";
 
 export const getDeckWidgetSkin = (theme: GrafanaTheme2) => {
-  const widgetMargin = theme.spacing(1.5);
   const buttonSize = theme.spacing(3.5);
   const buttonRadius = theme.shape.radius.default;
   const innerBorderWidth = theme.spacing(0.125);
@@ -15,7 +14,7 @@ export const getDeckWidgetSkin = (theme: GrafanaTheme2) => {
   const innerButtonRadius = `calc(var(--button-corner-radius, ${buttonRadius}) - ${innerBorderWidth})`;
 
   return `
-  margin: var(--widget-margin, ${widgetMargin});
+  margin: 0;
 
   /* Button containers */
   .deck-widget-button,

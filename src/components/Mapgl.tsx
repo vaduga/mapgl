@@ -1,4 +1,4 @@
-import { FullscreenWidget, CompassWidget } from '@deck.gl/widgets';
+import { FullscreenWidget, CompassWidget, LoadingWidget } from '@deck.gl/widgets';
 import { getDeckWidgetSkin } from './deckWidgetSkin';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
@@ -41,9 +41,6 @@ import {
 } from 'mapLib/types';
 import {
   sortAnnotations,
-  CommentsData,
-  ComFeature,
-  GraphBiFeatCol,
   getEdgesGeometry,
 } from 'mapLib/utils';
 import {
@@ -52,7 +49,8 @@ import {
   getGraphPositionRanges,
   getGraphVersion,
   getNodeData,
-  type Graph } from 'mapLib';
+  type Graph
+} from 'mapLib';
 import { throttleTime } from 'rxjs';
 import { StateTime } from './Geocoder/StateTime';
 import { Layer, MapView, OrbitView } from 'deck.gl';
@@ -62,6 +60,10 @@ import { BinaryPointFeature } from '@loaders.gl/schema';
 import { ThresholdEdgeChangeEvent } from '../utils/bus.events';
 import { useFullscreenPortalBridge } from './hooks/useFullscreenPortalBridge';
 import { getDimmedGraphLayers } from '../deckLayers/focus-layers';
+
+class AutolayoutLoadingWidget extends LoadingWidget {
+  onRedraw(): void {}
+}
 
 const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, replaceVariables, eventBus }) => {
   const HOVER_HIGHLIGHT_DELAY_MS = 100;
@@ -695,6 +697,16 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
       })
     );
   }
+  if (panel.layoutInProgress) {
+    widgets.push(
+      new AutolayoutLoadingWidget({
+        id: 'autolayout-loading',
+        placement: 'top-left',
+        className: s.layoutLoading,
+        label: 'Calculating graph layout',
+      })
+    );
+  }
 
   ///// return
   return (
@@ -727,8 +739,8 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
               style={{
                 zIndex: theme2.zIndex.dropdown,
                 position: 'absolute',
-                top: 5,
-                right: theme2.spacing(1.5),
+                right: theme2.spacing(0.5),
+                bottom: theme2.spacing(0.5),
               }}
             />
           </MapLibre>
@@ -778,16 +790,39 @@ const getStyles = (theme: GrafanaTheme2) => ({
   fullscreen: css`
     z-index: ${theme.zIndex.dropdown};
     position: absolute;
-    top: ${theme.spacing(5)};
-    right: 0;
+    top: ${theme.spacing(1)};
+    right: ${theme.spacing(1)};
     ${getDeckWidgetSkin(theme)}
   `,
   compass: css`
     z-index: ${theme.zIndex.dropdown};
     position: absolute;
-    top: ${theme.spacing(10)};
-    right: 0;
+    top: calc(${theme.spacing(1)} + var(--button-size, ${theme.spacing(3.5)}) + ${theme.spacing(1.5)});
+    right: ${theme.spacing(1)};
     ${getDeckWidgetSkin(theme)}
+  `,
+  layoutLoading: css`
+    z-index: ${theme.zIndex.dropdown};
+    position: absolute;
+    top: ${theme.spacing(1)};
+    left: ${theme.spacing(1)};
+    ${getDeckWidgetSkin(theme)}
+
+    @keyframes mapgl-layout-loading-spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    button.deck-widget-spinner {
+      cursor: default;
+    }
+
+    button.deck-widget-spinner .deck-widget-icon {
+      animation: mapgl-layout-loading-spin 1s linear infinite;
+      mask: url("data:image/svg+xml,%3Csvg%20viewBox%3D'0%200%2024%2024'%20xmlns%3D'http://www.w3.org/2000/svg'%20fill%3D'none'%20stroke%3D'black'%20stroke-width%3D'2'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Cpath%20d%3D'M21%2012a9%209%200%201%201-6.219-8.56'%2F%3E%3C%2Fsvg%3E") center / 70% 70% no-repeat;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg%20viewBox%3D'0%200%2024%2024'%20xmlns%3D'http://www.w3.org/2000/svg'%20fill%3D'none'%20stroke%3D'black'%20stroke-width%3D'2'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Cpath%20d%3D'M21%2012a9%209%200%201%201-6.219-8.56'%2F%3E%3C%2Fsvg%3E") center / 70% 70% no-repeat;
+    }
   `,
   layerSwitcher: css`
     z-index: ${theme.zIndex.dropdown};
@@ -847,8 +882,14 @@ const getStyles = (theme: GrafanaTheme2) => ({
   timeNcoords: css`
     position: absolute;
     z-index: ${theme.zIndex.dropdown};
+    display: flex;
+    align-items: center;
+    gap: ${theme.spacing(1)};
     font-size: calc(${theme.typography.bodySmall.fontSize} * 0.85);
-    bottom: ${theme.spacing(0.5)};
-    right: ${theme.spacing(0.5)};
+    line-height: 1;
+    top: ${theme.spacing(1)};
+    right: calc(${theme.spacing(1)} + var(--button-size, ${theme.spacing(3.5)}) + ${theme.spacing(1)});
+    white-space: nowrap;
+    pointer-events: all;
   `,
 });

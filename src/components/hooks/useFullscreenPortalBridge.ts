@@ -21,16 +21,6 @@ const findElementById = (root: HTMLElement, id: string) => {
   return root.querySelector<HTMLElement>(`#${id}`);
 };
 
-const getPortalSearchRoot = (container: HTMLElement) => {
-  for (let element = container.parentElement; element; element = element.parentElement) {
-    if (findElementById(element, GRAFANA_PORTAL_CONTAINER_ID) || findElementById(element, FLOATING_BOUNDARY_ELEMENT_ID)) {
-      return element;
-    }
-  }
-
-  return container.ownerDocument.body;
-};
-
 const getPortalNodes = (root: HTMLElement): PortalNodes => ({
   floatingBoundary: findElementById(root, FLOATING_BOUNDARY_ELEMENT_ID),
   globalPortal: findElementById(root, GRAFANA_PORTAL_CONTAINER_ID),
@@ -87,7 +77,7 @@ export const useFullscreenPortalBridge = (fullscreenRef: RefObject<HTMLDivElemen
     }
 
     const doc = fullscreenContainer.ownerDocument;
-    const portalSearchRoot = getPortalSearchRoot(fullscreenContainer);
+    const portalSearchRoot = doc.body;
 
     const syncFullscreenPortals = () => {
       portalNodesRef.current = getPortalNodes(portalSearchRoot);

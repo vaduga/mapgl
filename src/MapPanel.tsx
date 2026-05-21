@@ -52,6 +52,7 @@ export class MapPanel extends Component<Props, State> {
   useMockData;
   groups: Rule[] = [];
   edgeRoutingOverride?: Options['common']['edgeRouting'];
+  layoutInProgress = false;
 
   features: BiColProps[] = [];
   positions: Float64Array = new Float64Array();
