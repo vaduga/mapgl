@@ -213,39 +213,6 @@ function getEdgeTerminals(
   };
 }
 
-function sortAnnotations(annotations: any[]) {
-  return annotations.sort((a, b) => {
-    const stateOrder = { Alerting: 1, Pending: 2, Normal: 3 };
-
-    const stateA = a.newState.startsWith('Alerting')
-      ? 'Alerting'
-      : a.newState.startsWith('Pending')
-        ? 'Pending'
-        : 'Normal';
-
-    const stateB = b.newState.startsWith('Alerting')
-      ? 'Alerting'
-      : b.newState.startsWith('Pending')
-        ? 'Pending'
-        : 'Normal';
-
-    return stateOrder[stateA] - stateOrder[stateB];
-  });
-}
-
-interface PushPathProps {
-  graphA: Graph;
-  graphB: Graph;
-  panel: any;
-  parPath: CoordRef[];
-  layerIdx?: number;
-  edgeId?: string;
-  dataRecord: BiColProps;
-  commentsData: CommentsData;
-  theme: any;
-  isEdit?: boolean;
-}
-
 function pushPath(props: PushPathProps) {
   let {
     graphA,
@@ -533,7 +500,6 @@ export {
   getArrowAngles,
   getEdgeTerminals,
   getSmoothPolyline,
-  sortAnnotations,
   paraboloid,
   segregatePath,
   runLayout,

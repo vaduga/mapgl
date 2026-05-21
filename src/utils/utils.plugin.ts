@@ -639,6 +639,26 @@ function getBounds(panel, features) {
   return turfbbox(featureCollection as any);
 }
 
+function sortAnnotations(annotations: any[]) {
+  return annotations.sort((a, b) => {
+    const stateOrder = { Alerting: 1, Pending: 2, Normal: 3 };
+
+    const stateA = a.newState.startsWith('Alerting')
+      ? 'Alerting'
+      : a.newState.startsWith('Pending')
+        ? 'Pending'
+        : 'Normal';
+
+    const stateB = b.newState.startsWith('Alerting')
+      ? 'Alerting'
+      : b.newState.startsWith('Pending')
+        ? 'Pending'
+        : 'Normal';
+
+    return stateOrder[stateA] - stateOrder[stateB];
+  });
+}
+
 export {
   toRGB4Array,
   genRndNums,
@@ -661,4 +681,5 @@ export {
   getBounds,
   getTintedSvgIcon,
   resolveSvgTintMode,
+  sortAnnotations,
 };

@@ -5,7 +5,6 @@ export {
   getArrowAngles,
   getEdgeArrowSize,
   getEdgeArrowLength,
-  sortAnnotations,
   runLayout,
 } from './utils.graph';
 export { getEdgesGeometry } from './utils.graph-geom';

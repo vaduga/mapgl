@@ -40,7 +40,6 @@ import {
   type GraphBiFeatCol,
 } from 'mapLib/types';
 import {
-  sortAnnotations,
   getEdgesGeometry,
 } from 'mapLib/utils';
 import {
@@ -51,6 +50,7 @@ import {
   getNodeData,
   type Graph
 } from 'mapLib';
+import { sortAnnotations } from '../utils/utils.plugin'
 import { throttleTime } from 'rxjs';
 import { StateTime } from './Geocoder/StateTime';
 import { Layer, MapView, OrbitView } from 'deck.gl';
