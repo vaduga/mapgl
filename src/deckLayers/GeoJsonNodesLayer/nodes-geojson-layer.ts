@@ -178,7 +178,8 @@ const NodesGeojsonLayer = (props) => {
     onHover,
     highlightColor,
     options,
-    svgIcons,
+    svgIconState,
+    visRefresh,
     theme,
     isLogic,
     isHyper,
@@ -215,6 +216,8 @@ const NodesGeojsonLayer = (props) => {
   const isPlaceholderTextMode = logicTextMode === 'placeholder';
   const isLabelTextMode = logicTextMode === 'label';
   const selectedNodeId = getSelectedNode?.id;
+  const svgIcons = svgIconState?.icons ?? {};
+  const svgIconRevision = svgIconState?.revision ?? 0;
 
   const iconCache = getNodeIconCache(biCol);
 
@@ -386,6 +389,7 @@ const NodesGeojsonLayer = (props) => {
     },
     updateTriggers: {
       getPointRadius: [selectedNodeId],
+      getIcon: [svgIconRevision, visRefresh],
       getIconSize: [selectedNodeId],
       getTextPixelOffset: [selectedNodeId],
       getTextSize: [selectedNodeId],
@@ -431,6 +435,7 @@ const NodesGeojsonLayer = (props) => {
         alphaCutoff: -1,
         autoHighlight: false,
         updateTriggers: {
+          getIcon: [svgIconRevision, visRefresh],
           getSize: [selectedNodeId],
         },
       },
