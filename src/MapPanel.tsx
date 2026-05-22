@@ -11,7 +11,15 @@ import type { ViewState, BiColProps, LayoutArrowTips, LayoutCache, LayoutCurveGr
 import { notifyPanelEditor } from './utils/geomap_utils';
 import { getActions } from './utils/actions';
 import Mapgl from './components/Mapgl';
-import { RootStoreProvider, fillAnnots, initGroups, genVisLayers, initBinaryProps, cutBinaryProps } from './utils';
+import {
+  RootStoreProvider,
+  fillAnnots,
+  initGroups,
+  genVisLayers,
+  initBinaryProps,
+  cutBinaryProps,
+  SvgIconManager,
+} from './utils';
 import { applyLayerFilter, initLayer } from './utils/layers';
 import { ORTHO_BASEMAP_CONFIG } from './layers/registry';
 import { defaultMarkersConfig } from './layers/data/markersLayer';
@@ -24,14 +32,12 @@ type Props = PanelProps<Options>;
 interface State {
   viewState: ViewState;
   source: string | {} | undefined;
-  svgIcons?;
 }
 
 import { Rule } from './editor/Groups/rule-types';
 import { VisLayers } from './store/visLayers';
 
 export class MapPanel extends Component<Props, State> {
-  private svgLoadController: AbortController | null = null;
   declare context: React.ContextType<typeof PanelContextRoot>;
   static contextType = PanelContextRoot;
   panelContext: PanelContext | undefined;
@@ -46,7 +52,7 @@ export class MapPanel extends Component<Props, State> {
   layers: MapLayerState[] = [];
   locLabelName;
   annotations;
-  svgIcons = {};
+  readonly svgIconManager = new SvgIconManager();
   isLogic = true;
   hasAnnots = false;
   useMockData;
@@ -63,6 +69,10 @@ export class MapPanel extends Component<Props, State> {
 
   theme2: GrafanaTheme2 = config.theme2;
   readonly byName = new Map<string, MapLayerState>();
+
+  get svgIconState() {
+    return this.svgIconManager.state;
+  }
 
   constructor(props: Props) {
     super(props);
@@ -124,6 +134,7 @@ export class MapPanel extends Component<Props, State> {
   }
 
   componentWillUnmount() {
+    this.svgIconManager.abort();
     resetGraph(this.graph);
     this.graphEdgeIndex.reset();
     this.vCount = 0;
@@ -211,12 +222,22 @@ export class MapPanel extends Component<Props, State> {
     // Only update if panel data matches component data
     if (data === this.props.data) {
 
-      this.svgLoadController?.abort();
-      this.svgLoadController = new AbortController();
-
       this.groups = [];
       this.features = [];
-      await initGroups(this.groups, this.layers, this.svgIcons, this.theme2, this.svgLoadController, true);
+      let svgIconState;
+      try {
+        const svgGroups = initGroups(this.groups, this.layers, this.theme2, true);
+        svgIconState = await this.svgIconManager.resolve({
+          requiredIconNames: svgGroups.requiredIconNames,
+          signature: svgGroups.svgSignature,
+        });
+      } catch (ex: any) {
+        console.error('error loading SVG icons', ex);
+        return;
+      }
+      if (!svgIconState) {
+        return;
+      }
 
       if (this.locLabelName) {
         await (async () => {
@@ -293,9 +314,14 @@ export class MapPanel extends Component<Props, State> {
 
       this.groups = [];
       this.features = [];
-      this.svgLoadController?.abort();
-      this.svgLoadController = new AbortController();
-      await initGroups(this.groups, layers, this.svgIcons, this.theme2, this.svgLoadController);
+      const svgGroups = initGroups(this.groups, layers, this.theme2);
+      const svgIconState = await this.svgIconManager.resolve({
+        requiredIconNames: svgGroups.requiredIconNames,
+        signature: svgGroups.svgSignature,
+      });
+      if (!svgIconState) {
+        return;
+      }
 
       layers.forEach((state) => applyLayerFilter(state.handler, state.options, d, false));
 
@@ -318,6 +344,9 @@ export class MapPanel extends Component<Props, State> {
 
       notifyPanelEditor(this, layers, layers.length - 1);
     } catch (ex) {
+      if ((ex as any)?.name === 'AbortError') {
+        return;
+      }
       console.error('error loading layers', ex);
     }
   };

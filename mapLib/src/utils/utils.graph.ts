@@ -70,18 +70,26 @@ function wrapDeltaLonDeg(dLon: number): number {
 }
 
 function getFirstPoints(coords: number[][]): { base: number[]; tip: number[] } | null {
-  if (!coords?.length) return null;
+  if (!coords?.length) {
+    return null;
+  }
   const firstLine = coords;
-  if (!firstLine || firstLine.length < 2) return null;
+  if (!firstLine || firstLine.length < 2) {
+    return null;
+  }
   const tip = firstLine[0];
   const base = firstLine[1];
   return { base, tip };
 }
 
 function getLastPoints(coords: number[][]): { base: number[]; tip: number[] } | null {
-  if (!coords?.length) return null;
+  if (!coords?.length) {
+    return null;
+  }
   const lastLine = coords;
-  if (!lastLine || lastLine.length < 2) return null;
+  if (!lastLine || lastLine.length < 2) {
+    return null;
+  }
   const tip = lastLine[lastLine.length - 1];
   const base = lastLine[lastLine.length - 2];
   return { base, tip };

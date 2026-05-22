@@ -19,7 +19,6 @@ class RootStore {
   options: any;
   graph: Graph;
   map?: DeckGLRefWithViewManager;
-  svgIcons: Record<string, {}>;
 
   pointStore: PointStore;
   viewStore: ViewStore;
@@ -27,7 +26,7 @@ class RootStore {
   theme2: any;
 
   constructor(props) {
-    const { pId, auth, layers, subs, graph, map, svgIcons, visLayers, theme2 } = props.panel;
+    const { pId, auth, layers, subs, graph, map, visLayers, theme2 } = props.panel;
     this.panel = props.panel;
     this.pId = pId;
     this.auth = auth;
@@ -40,7 +39,6 @@ class RootStore {
     this.options = props.options;
     this.graph = graph;
     this.map = map;
-    this.svgIcons = svgIcons;
     this.visLayers = visLayers;
     this.theme2 = theme2;
 

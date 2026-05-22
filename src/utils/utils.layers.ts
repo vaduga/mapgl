@@ -1,4 +1,4 @@
-import { collectGroups, getGraphLayers, loadSvgIcons, newUniqueIconNames, toRGB4Array } from './utils.plugin';
+import { collectGroups, getGraphLayers, toRGB4Array } from './utils.plugin';
 import { LineTextLayer } from '../deckLayers/TextLayer/text-layer';
 import { MyIconLayer } from '../deckLayers/IconLayer/icon-layer';
 import { MyArcLayer } from '../deckLayers/ArcLayer/arc-layer';
@@ -254,17 +254,40 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
   return [bboxes, icons, arcsBase, lines, comments, edgeLabels];
 }
 
-async function initGroups(groups: Rule[], layers, svgIcons, theme, loadController: AbortController, reload = false) {
+type InitGroupsResult = {
+  requiredIconNames: Set<string>;
+  svgSignature: string;
+};
+
+function initGroups(
+  groups: Rule[],
+  layers,
+  theme,
+  reload = false
+): InitGroupsResult {
   const nsLayers = layers?.slice(1); //reload ? 1 : 0)
 
   const iconNames = new Set<string>();
 
   collectGroups(groups, iconNames, nsLayers, theme);
+  const svgSignature = getSvgGroupsSignature(groups);
 
-  const newNames = newUniqueIconNames(svgIcons, iconNames);
-  if (newNames.length) {
-    await loadSvgIcons(newNames, svgIcons, loadController);
-  }
+  return {
+    requiredIconNames: iconNames,
+    svgSignature,
+  };
+}
+
+function getSvgGroupsSignature(groups: Rule[]): string {
+  return JSON.stringify(
+    groups.map((group) => ({
+      groupIdx: group.groupIdx,
+      iconName: group.iconName,
+      svgTintMode: group.svgTintMode,
+      offset: group.offset,
+      overrides: group.overrides,
+    }))
+  );
 }
 
 function isVisible(getVisLayers, args: { index: number | null; name: string | null; group: string | null }) {

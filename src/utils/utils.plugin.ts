@@ -480,8 +480,8 @@ async function loadSvgIcons(
     return svgIcons;
   } catch (err: any) {
     if (err?.name === 'AbortError') {
-      return svgIcons;
-    } // silent abort
+      throw err;
+    }
     throw err;
   }
 }
