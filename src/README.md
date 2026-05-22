@@ -15,7 +15,7 @@ Start a new panel with a mock node graph to test styles and modes.
 
 - **Node graph** with layered auto-layout or **Geomap view**
 - Spline / Rectilinear edge routing. Self-loops.
-- Multi-segment, parallel routes
+- Multi-hop and parallel routes
 - Namespace-based subgraphs.
 - Arc sections on nodes for multiple metrics.
 - Network interface TX/RX load visualization using bi-metric arcs
