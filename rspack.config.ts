@@ -23,7 +23,6 @@ const config = async (env: Record<string, unknown>): Promise<Configuration> => {
         'mapLib/utils': path.resolve(process.cwd(), 'mapLib/src/utils/index.ts'),
         'mapLib/types': path.resolve(process.cwd(), 'mapLib/src/types/index.ts'),
         'mapLib/defaults': path.resolve(process.cwd(), 'mapLib/src/types/defaults.ts'),
-        '~': path.resolve(process.cwd(), 'mapLib/src'),
       },
     },
   };

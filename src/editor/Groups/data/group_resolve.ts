@@ -1,6 +1,7 @@
 import { FeatSource } from 'mapLib';
 import { Rule } from 'editor/Groups/rule-types';
-import { FIXED_COLOR_LABEL, RGBAColor } from '~/utils';
+import { FIXED_COLOR_LABEL } from 'mapLib/defaults';
+import { RGBAColor } from 'mapLib/types';
 import { getGroupRules } from 'editor/Groups/data/rules_processor';
 import { FieldType } from '@grafana/data';
 import { toRGB4Array } from 'utils';
