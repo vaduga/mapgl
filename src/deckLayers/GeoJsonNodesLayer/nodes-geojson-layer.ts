@@ -18,22 +18,72 @@ type LogicTextDatum = {
   pointIndex: number;
 };
 
-type LogicTextLayerCache = {
-  featureIdsRef: any;
-  positionsRef: any;
-  propertiesRef: any;
-  selectedNodeId?: string;
-  indexByLocName: Map<string, number>;
+type LogicTextLayerData = {
   labelData: LogicTextDatum[];
   placeholderData: LogicTextDatum[];
   labelYOffset: Float32Array;
   placeholderBoxSide: Float32Array;
 };
 
-const logicTextLayerCache = new WeakMap<object, LogicTextLayerCache>();
+type NodeCacheProfile = {
+  reset(): void;
+  iconCalls: number;
+  iconTotalMs: number;
+  donutHits: number;
+  donutMisses: number;
+  donutCreateMs: number;
+  svgHits: number;
+  svgMisses: number;
+  svgPackMs: number;
+  blankIcons: number;
+};
+
+type NodeIconCache = {
+  get(key: string): any;
+  set(key: string, value: any): unknown;
+};
+
 const nodeIconCache = new WeakMap<object, Map<string, any>>();
-const DEBUG_DISABLE_NODE_CACHE = false;
+const DEBUG_DISABLE_NODE_ICON_CACHE = false;
+const DEBUG_PROFILE_NODE_CACHE = false;
 const ICON_CACHE_SOURCE_KEY = '__mapglIconCacheSource';
+const disabledNodeIconCache: NodeIconCache = {
+  get: () => undefined,
+  set: () => disabledNodeIconCache,
+};
+
+const createNodeCacheProfile = (): NodeCacheProfile => {
+  const profile = {
+    reset: () => {
+      for (const key of Object.keys(profile) as Array<keyof NodeCacheProfile>) {
+        if (key !== 'reset') {
+          profile[key] = 0 as never;
+        }
+      }
+    },
+    iconCalls: 0,
+    iconTotalMs: 0,
+    donutHits: 0,
+    donutMisses: 0,
+    donutCreateMs: 0,
+    svgHits: 0,
+    svgMisses: 0,
+    svgPackMs: 0,
+    blankIcons: 0,
+  };
+
+  return profile;
+};
+
+const getNodeCacheProfile = (): NodeCacheProfile | undefined => {
+  if (!DEBUG_PROFILE_NODE_CACHE) {
+    return undefined;
+  }
+
+  const global = globalThis as typeof globalThis & { __mapglNodeCacheProfile?: NodeCacheProfile };
+  global.__mapglNodeCacheProfile ??= createNodeCacheProfile();
+  return global.__mapglNodeCacheProfile;
+};
 
 const getFeatureWrapper = (properties: any) => ({ properties });
 
@@ -45,12 +95,11 @@ const getPlaceholderBoxSide = (properties: any, selectedNodeId?: string) => {
   return (getResolvedPointRadius(getFeatureWrapper(properties), selectedNodeId) * 2) / Math.SQRT2;
 };
 
-const buildLogicTextLayerCache = (biCol: any, selectedNodeId?: string): LogicTextLayerCache => {
+const buildLogicTextLayerData = (biCol: any, selectedNodeId?: string): LogicTextLayerData => {
   const featureIds = biCol?.points?.featureIds?.value;
   const positions = biCol?.points?.positions?.value;
   const properties = biCol?.points?.properties;
   const count = featureIds?.length ?? 0;
-  const indexByLocName = new Map<string, number>();
   const labelData: LogicTextDatum[] = [];
   const placeholderData: LogicTextDatum[] = [];
   const labelYOffset = new Float32Array(count);
@@ -59,10 +108,6 @@ const buildLogicTextLayerCache = (biCol: any, selectedNodeId?: string): LogicTex
   if (featureIds && positions && properties) {
     for (let i = 0; i < count; i++) {
       const featureProps = properties[featureIds[i]];
-      const locName = featureProps?.locName;
-      if (locName) {
-        indexByLocName.set(locName, i);
-      }
 
       labelYOffset[i] = getLabelYOffset(featureProps, selectedNodeId);
       placeholderBoxSide[i] = getPlaceholderBoxSide(featureProps, selectedNodeId);
@@ -82,11 +127,6 @@ const buildLogicTextLayerCache = (biCol: any, selectedNodeId?: string): LogicTex
   }
 
   return {
-    featureIdsRef: featureIds,
-    positionsRef: positions,
-    propertiesRef: properties,
-    selectedNodeId,
-    indexByLocName,
     labelData,
     placeholderData,
     labelYOffset,
@@ -94,58 +134,9 @@ const buildLogicTextLayerCache = (biCol: any, selectedNodeId?: string): LogicTex
   };
 };
 
-const syncLogicTextLayerCache = (biCol: any, selectedNodeId?: string) => {
-  if (DEBUG_DISABLE_NODE_CACHE) {
-    return buildLogicTextLayerCache(biCol, selectedNodeId);
-  }
-
-  const featureIds = biCol?.points?.featureIds?.value;
-  const positions = biCol?.points?.positions?.value;
-  const properties = biCol?.points?.properties;
-  const cached = logicTextLayerCache.get(biCol);
-
-  const needsRebuild =
-    !cached ||
-    cached.featureIdsRef !== featureIds ||
-    cached.positionsRef !== positions ||
-    cached.propertiesRef !== properties ||
-    cached.labelYOffset.length !== (featureIds?.length ?? 0);
-
-  if (needsRebuild) {
-    const rebuilt = buildLogicTextLayerCache(biCol, selectedNodeId);
-    logicTextLayerCache.set(biCol, rebuilt);
-    return rebuilt;
-  }
-
-  if (cached.selectedNodeId === selectedNodeId) {
-    return cached;
-  }
-
-  const idsToUpdate = new Set<string>();
-  if (cached.selectedNodeId) {
-    idsToUpdate.add(cached.selectedNodeId);
-  }
-  if (selectedNodeId) {
-    idsToUpdate.add(selectedNodeId);
-  }
-
-  for (const locName of idsToUpdate) {
-    const pointIndex = cached.indexByLocName.get(locName);
-    if (pointIndex === undefined) {
-      continue;
-    }
-    const featureProps = properties?.[featureIds[pointIndex]];
-    cached.labelYOffset[pointIndex] = getLabelYOffset(featureProps, selectedNodeId);
-    cached.placeholderBoxSide[pointIndex] = getPlaceholderBoxSide(featureProps, selectedNodeId);
-  }
-
-  cached.selectedNodeId = selectedNodeId;
-  return cached;
-};
-
-const getNodeIconCache = (biCol: any) => {
-  if (DEBUG_DISABLE_NODE_CACHE) {
-    return new Map();
+const getNodeIconCache = (biCol: any): NodeIconCache => {
+  if (DEBUG_DISABLE_NODE_ICON_CACHE) {
+    return disabledNodeIconCache;
   }
 
   const cacheSource = biCol?.[ICON_CACHE_SOURCE_KEY] ?? biCol;
@@ -289,88 +280,123 @@ const NodesGeojsonLayer = (props) => {
       return getResolvedPointRadius(d, selectedNodeId);
     },
     getIcon: (d) => {
-      const { group, arcs } = d.properties.style || {};
-      const iconName = group?.iconName;
-      const svgIcon = iconName && svgIcons[iconName];
-      const tintColor = group?.color ? toRgbaString(group.color) : d.properties?.thrColor;
-      const requestedTintMode = group?.svgTintMode ?? 'none';
-      const resolvedTintMode = resolveSvgTintMode(svgIcon, requestedTintMode);
-      const maxIconSize = getMaxResolvedIconSize(d);
-      const packedIconSize = getDonutIconSrcSize(maxIconSize);
-      const tintedSvgIcon = getTintedSvgIcon(svgIcon, tintColor, {
-        mode: resolvedTintMode,
-        onReady: onSvgIconReady,
-        renderSize: resolvedTintMode === 'canvasTint' ? packedIconSize : undefined,
-      });
-      const canvasTintPending = isCanvasTintPending(svgIcon, tintColor, resolvedTintMode, packedIconSize);
-
-      if (isLogic && arcs?.length) {
-        const donutCacheKey = `donut:${iconName ?? 'none'}:${resolvedTintMode}:${tintColor ?? 'base'}:${packedIconSize}:${(
-          arcs as string[]
-        ).join('|')}`;
-        const cachedDonut = canvasTintPending ? undefined : iconCache.get(donutCacheKey);
-        if (cachedDonut) {
-          return cachedDonut;
-        }
-
-        const colorCounts = {};
-        arcs.forEach((color) => {
-          colorCounts[color] = {
-            count: 1,
-          };
-        });
-        const icon = {
-          url: svgToDataURL(
-            createDonutChart({
-              colorCounts,
-              stripeCounts: undefined,
-              allTotal: arcs.length,
-              bkColor: undefined,
-              radius: maxIconSize / 2,
-              isDark: theme.isDark,
-              svgIcon: tintedSvgIcon,
-            })
-          ),
-          width: packedIconSize,
-          height: packedIconSize,
-        };
-        if (!canvasTintPending) {
-          iconCache.set(donutCacheKey, icon);
-        }
-        return icon;
-      } else if (tintedSvgIcon) {
-        const iconWidth = tintedSvgIcon.width;
-        const iconHeight = tintedSvgIcon.height;
-        const cacheState = canvasTintPending ? 'pending' : 'ready';
-        const cacheKey = `svg:${iconName ?? 'none'}:${resolvedTintMode}:${cacheState}:${tintColor ?? 'base'}:${packedIconSize}:${iconWidth ?? 'auto'}x${iconHeight ?? 'auto'}`;
-        const cachedSvg = canvasTintPending ? undefined : iconCache.get(cacheKey);
-        if (cachedSvg) {
-          return cachedSvg;
-        }
-
-        const packedSvgIcon =
-          resolvedTintMode === 'canvasTint' && !canvasTintPending
-            ? tintedSvgIcon
-            : getPackedSvgIcon(tintedSvgIcon, packedIconSize) ?? tintedSvgIcon;
-        const icon = {
-          url: packedSvgIcon.svgDataUrl,
-          width: packedSvgIcon.width,
-          height: packedSvgIcon.height,
-          id: `${iconName}:${resolvedTintMode}:${cacheState}:${tintColor ?? 'base'}:${packedIconSize}:${packedSvgIcon.width ?? 'auto'}x${packedSvgIcon.height ?? 'auto'}`,
-        };
-        if (!canvasTintPending) {
-          iconCache.set(cacheKey, icon);
-        }
-        return icon;
+      const profile = getNodeCacheProfile();
+      const profileStartedAt = profile ? performance.now() : 0;
+      if (profile) {
+        profile.iconCalls++;
       }
-      // no custom svg icon loaded
-      return {
-        url: svgToDataURL(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">  
+
+      try {
+        const { group, arcs } = d.properties.style || {};
+        const iconName = group?.iconName;
+        const svgIcon = iconName && svgIcons[iconName];
+        const tintColor = group?.color ? toRgbaString(group.color) : d.properties?.thrColor;
+        const requestedTintMode = group?.svgTintMode ?? 'none';
+        const resolvedTintMode = resolveSvgTintMode(svgIcon, requestedTintMode);
+        const maxIconSize = getMaxResolvedIconSize(d);
+        const packedIconSize = getDonutIconSrcSize(maxIconSize);
+        const tintedSvgIcon = getTintedSvgIcon(svgIcon, tintColor, {
+          mode: resolvedTintMode,
+          onReady: onSvgIconReady,
+          renderSize: resolvedTintMode === 'canvasTint' ? packedIconSize : undefined,
+        });
+        const canvasTintPending = isCanvasTintPending(svgIcon, tintColor, resolvedTintMode, packedIconSize);
+
+        if (isLogic && arcs?.length) {
+          const donutCacheKey = `donut:${iconName ?? 'none'}:${resolvedTintMode}:${tintColor ?? 'base'}:${packedIconSize}:${(
+            arcs as string[]
+          ).join('|')}`;
+          const cachedDonut = canvasTintPending ? undefined : iconCache.get(donutCacheKey);
+          if (cachedDonut) {
+            if (profile) {
+              profile.donutHits++;
+            }
+            return cachedDonut;
+          }
+
+          if (profile) {
+            profile.donutMisses++;
+          }
+          const colorCounts = {};
+          arcs.forEach((color) => {
+            colorCounts[color] = {
+              count: 1,
+            };
+          });
+          const donutStartedAt = profile ? performance.now() : 0;
+          const donutSvg = createDonutChart({
+            colorCounts,
+            stripeCounts: undefined,
+            allTotal: arcs.length,
+            bkColor: undefined,
+            radius: maxIconSize / 2,
+            isDark: theme.isDark,
+            svgIcon: tintedSvgIcon,
+          });
+          if (profile) {
+            profile.donutCreateMs += performance.now() - donutStartedAt;
+          }
+          const icon = {
+            id: donutCacheKey,
+            url: svgToDataURL(donutSvg),
+            width: packedIconSize,
+            height: packedIconSize,
+          };
+          if (!canvasTintPending) {
+            iconCache.set(donutCacheKey, icon);
+          }
+          return icon;
+        } else if (tintedSvgIcon) {
+          const iconWidth = tintedSvgIcon.width;
+          const iconHeight = tintedSvgIcon.height;
+          const cacheState = canvasTintPending ? 'pending' : 'ready';
+          const cacheKey = `svg:${iconName ?? 'none'}:${resolvedTintMode}:${cacheState}:${tintColor ?? 'base'}:${packedIconSize}:${iconWidth ?? 'auto'}x${iconHeight ?? 'auto'}`;
+          const cachedSvg = canvasTintPending ? undefined : iconCache.get(cacheKey);
+          if (cachedSvg) {
+            if (profile) {
+              profile.svgHits++;
+            }
+            return cachedSvg;
+          }
+
+          if (profile) {
+            profile.svgMisses++;
+          }
+          const svgPackStartedAt = profile ? performance.now() : 0;
+          const packedSvgIcon =
+            resolvedTintMode === 'canvasTint' && !canvasTintPending
+              ? tintedSvgIcon
+              : getPackedSvgIcon(tintedSvgIcon, packedIconSize) ?? tintedSvgIcon;
+          if (profile) {
+            profile.svgPackMs += performance.now() - svgPackStartedAt;
+          }
+          const icon = {
+            url: packedSvgIcon.svgDataUrl,
+            width: packedSvgIcon.width,
+            height: packedSvgIcon.height,
+            id: `${iconName}:${resolvedTintMode}:${cacheState}:${tintColor ?? 'base'}:${packedIconSize}:${packedSvgIcon.width ?? 'auto'}x${packedSvgIcon.height ?? 'auto'}`,
+          };
+          if (!canvasTintPending) {
+            iconCache.set(cacheKey, icon);
+          }
+          return icon;
+        }
+        if (profile) {
+          profile.blankIcons++;
+        }
+        // no custom svg icon loaded
+        return {
+          url: svgToDataURL(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">  
 </svg>`),
-        width: 1,
-        height: 1,
-        id: 'blank',
-      };
+          width: 1,
+          height: 1,
+          id: 'blank',
+        };
+      } finally {
+        if (profile) {
+          profile.iconTotalMs += performance.now() - profileStartedAt;
+        }
+      }
     },
     iconSizeScale: 1,
     getIconPixelOffset: (d) => {
@@ -492,11 +518,11 @@ const LogicPlaceholderTextLayer = (props) => {
   const units = isLogic ? 'common' : options.common?.isMeters ? 'meters' : 'pixels';
 
   const selectedNodeId = getSelectedNode?.id;
-  const cache = syncLogicTextLayerCache(biCol, selectedNodeId);
+  const logicTextData = buildLogicTextLayerData(biCol, selectedNodeId);
 
   return new TextLayer({
     id: `${biCol.graph.id}-view-placeholder-text${idSuffix}`,
-    data: cache.placeholderData,
+    data: logicTextData.placeholderData,
     visible: visible && Labels,
     pickable,
     onHover,
@@ -510,7 +536,7 @@ const LogicPlaceholderTextLayer = (props) => {
       return [0, offset ?? 0];
     },
     getContentBox: (d: any) => {
-      const side = cache.placeholderBoxSide[d.pointIndex] ?? 0;
+      const side = logicTextData.placeholderBoxSide[d.pointIndex] ?? 0;
       return [-side / 2, -side / 2, side, side];
     },
     contentCutoffPixels: [1, 1],
@@ -560,8 +586,8 @@ const LogicMainLabelTextLayer = (props) => {
   const units = isLogic ? 'common' : options.common?.isMeters ? 'meters' : 'pixels';
 
   const selectedNodeId = getSelectedNode?.id;
-  const cache = syncLogicTextLayerCache(biCol, selectedNodeId);
-  const labelData = cache.labelData as LogicTextDatum[] & { attributes?: Record<string, any> };
+  const logicTextData = buildLogicTextLayerData(biCol, selectedNodeId);
+  const labelData = logicTextData.labelData as LogicTextDatum[] & { attributes?: Record<string, any> };
   labelData.attributes = {
     getColor: biCol?.points?.attributes?.getColor,
   };
@@ -577,7 +603,7 @@ const LogicMainLabelTextLayer = (props) => {
     sizeUnits: units,
     getText: (d: any) => d.properties?.style?.text ?? ' ',
     getPosition: (d: any) => {
-      const yOffset = cache.labelYOffset[d.pointIndex] ?? 0;
+      const yOffset = logicTextData.labelYOffset[d.pointIndex] ?? 0;
       return [d.coordinates[0], d.coordinates[1] + yOffset];
     },
     getSize: (d: any) => {
