@@ -28,8 +28,15 @@ function initViewExtent(view: ViewState, config: MapViewConfig, width, height, l
         const configZoom = config.zoom ?? config.maxZoom;
         const maxZoom = configZoom && configZoom > 0 ? configZoom : 18;
 
-        const extent = getLayersExtent(layers, config.allLayers, config.lastOnly, config.layer);
-        [minLng, minLat, maxLng, maxLat] = getBounds(panel, extent) || [];
+        const visNamespaces = visLayers.getVisibleNamespaces();
+        const logicBounds = panel.isLogic ? getLogicFitBounds(panel, visNamespaces) : undefined;
+
+        if (logicBounds) {
+          [minLng, minLat, maxLng, maxLat] = logicBounds;
+        } else {
+          const extent = getLayersExtent(layers, config.allLayers, config.lastOnly, config.layer);
+          [minLng, minLat, maxLng, maxLat] = getBounds(panel, extent) || [];
+        }
 
         if ([minLng, minLat, maxLng, maxLat].every((el) => el !== undefined)) {
           const bounds = [
@@ -132,6 +139,26 @@ function getLayersExtent(
     });
   //.reduce(extend, []);
   return res;
+}
+
+function getLogicFitBounds(panel, visNamespaces: string[]): [number, number, number, number] | undefined {
+
+  const visibleBounds = visNamespaces
+    .map((graphId) => panel.layoutGraphBounds?.get(graphId))
+    .filter(Boolean);
+  if (visibleBounds.length) {
+    return visibleBounds.reduce(
+      (acc, bbox) => [
+        Math.min(acc[0], bbox.minX),
+        Math.min(acc[1], bbox.minY),
+        Math.max(acc[2], bbox.maxX),
+        Math.max(acc[3], bbox.maxY),
+      ],
+      [Infinity, Infinity, -Infinity, -Infinity] as [number, number, number, number]
+    );
+  }
+
+  return undefined;
 }
 
 const selectGotoHandler = async ({

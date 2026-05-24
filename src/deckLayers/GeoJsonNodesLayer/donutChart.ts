@@ -1,5 +1,5 @@
 import { ALERTING_STATES } from 'mapLib/defaults';
-import { getFittedDimensions } from '../nodeGeometry';
+import { getFittedDimensions } from './nodeGeometry';
 
 const MAX_ICON_SOURCE_SIZE = 1020; ///384;
 const DONUT_SOURCE_SCALE = 4;

@@ -4,7 +4,7 @@ import type { RGBAColor } from 'mapLib/types';
 import { toRGB4Array } from '../utils';
 import { CurveEdgeLayer } from './GeoJsonEdgesLayer/curve-edge-layer';
 import { getArrowColor } from './ArrowLayer/edge-arrow-layer';
-import { makeScopedKey, type ConnectedEdgeIndex } from './graph-highlighter';
+import { makeScopedKey, type ConnectedEdgeIndex } from './graphHighlighter';
 import GradientArcLayer from './ArcLayer/gradient-arc-layer';
 import AnimatedBlobsLayer from './ArcLayer/animated-blobs-layer';
 import { ICON_CACHE_SOURCE_KEY } from './GeoJsonNodesLayer/nodes-geojson-layer';

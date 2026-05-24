@@ -6,7 +6,7 @@ import { Edge, findEdge, getGraphData, getNodeData, Graph, Node } from 'mapLib';
 import { SelectNodeEvent } from '../utils/bus.events';
 import { Subscription } from 'rxjs';
 import type { DeckGLRefWithViewManager } from '../types';
-import { GraphHighlighter } from '../deckLayers/graph-highlighter';
+import { GraphHighlighter } from '../deckLayers/graphHighlighter';
 
 class PointStore {
   root: RootStore;

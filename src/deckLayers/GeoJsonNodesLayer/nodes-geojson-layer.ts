@@ -9,7 +9,7 @@ import {
   getResolvedIconSize,
   getResolvedPointRadius,
   getResolvedTextPixelOffset,
-} from '../nodeGeometry';
+} from './nodeGeometry';
 import { colTypes } from 'mapLib/types';
 
 type LogicTextDatum = {
@@ -362,14 +362,6 @@ const NodesGeojsonLayer = (props) => {
       'points-icon': {
         visible: SVG,
         highlightColor,
-        // loadOptions: {
-        //   imagebitmap: {
-        //     resizeWidth: 128,
-        //     resizeHeight: 128
-        //   }
-        // },
-        // updateTriggers: {
-        //   getIcon: [svgIcons, updHost]},
         extensions: [new CollisionFilterExtension(), new DataFilterExtension({ categorySize })],
         collisionGroup: 'nodes-icon',
         sizeUnits: units,
@@ -424,7 +416,6 @@ const LogicPlaceholderTextLayer = (props) => {
     pickable,
     onHover,
     autoHighlight,
-    ignoreSelectionSizing = false,
     idSuffix = '',
   } = props;
   const Labels = isVisible(getVisLayers, {
