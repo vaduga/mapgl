@@ -1,3 +1,5 @@
+import { locationService } from '@grafana/runtime';
+
 import { Graph } from '../structs/graph';
 import { getNodeData } from '../structs/graphOps';
 import type { Edge } from '../structs/edge';
@@ -192,7 +194,7 @@ function getWorker(): Worker | undefined {
     return undefined;
   }
   if (!worker) {
-    const publicPath = new URL(__webpack_public_path__, window.location.href);
+    const publicPath = new URL(__webpack_public_path__, locationService.getLocation().href);
     const workerUrl = new URL('layoutWorker.js', publicPath);
     workerObjectUrl = URL.createObjectURL(
       new Blob(

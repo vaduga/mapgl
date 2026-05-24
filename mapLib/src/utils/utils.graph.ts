@@ -278,7 +278,6 @@ function pushPath(props: PushPathProps) {
         }
       });
     } else {
-      // @ts-ignore
       edge = setEdge(graphA, edgeId, sourceId, targetId, graphB);
       if (!edge) {
         return;

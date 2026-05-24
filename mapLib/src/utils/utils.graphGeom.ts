@@ -49,7 +49,7 @@ export function getEdgesGeometry(graph: Graph, panel: any) {
     const dataRecord = edgeData?.dataRecord as BiColProps;
 
     if (!dataRecord) {
-      console.log('!!edgeData.dataRecord', edges[0]);
+//      console.log('!!edgeData.dataRecord', edges[0]);
     }
 
     let srcFeatureProps: Partial<BiColProps> = {
