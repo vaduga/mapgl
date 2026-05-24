@@ -1,20 +1,6 @@
 import { BiColProps, Comment, CommentsData, CoordRef, PushPathProps } from '../types';
-import { Graph } from '../structs/graph';
-import type { Node } from '@msagl/core';
 import { Edge } from '../structs/edge';
 import { AttributeRegistry } from '../structs/attributeRegistry';
-import {
-  Arrowhead,
-  GeomGraph,
-  LayerDirectionEnum,
-  layoutGeomGraph,
-  SugiyamaLayoutSettings,
-  GeomEdge,
-  Graph as MSGraph,
-  Point,
-} from '@msagl/core';
-
-import { EdgeRoutingMode } from '@msagl/core';
 import { Position } from 'geojson';
 
 import midpoint from '@turf/midpoint';
@@ -23,6 +9,7 @@ import { findEdge, getNodeData, setEdge, setEntityAttrProp } from '../structs/gr
 type Vec2 = [number, number];
 type ArrowAngles = { start: number | undefined; end: number | undefined };
 type ArrowTips = { start?: Position; end?: Position };
+type ArrowLengths = { start?: number; end?: number };
 
 type EdgeTerminals = {
   coordinates: Position[];
@@ -41,22 +28,6 @@ export function getEdgeArrowSize(edgeSize: number | undefined): number {
 
 export function getEdgeArrowLength(edgeSize: number | undefined): number {
   return getEdgeArrowSize(edgeSize);
-}
-
-function setGeomEdgeArrowheads(edge: Edge, dataRecord: BiColProps, placement: 'start' | 'end' | 'both' | 'none') {
-  //@ts-ignore
-  const geomEdge = GeomEdge.getGeom(edge) ?? new GeomEdge(edge);
-  const arrow = dataRecord?.edgeStyle?.arrow ?? 0;
-  const arrowLength = getEdgeArrowLength(dataRecord?.edgeStyle?.size);
-  const enableSource = (arrow === -1 || arrow === 2) && (placement === 'start' || placement === 'both');
-  const enableTarget = (arrow === 1 || arrow === 2) && (placement === 'end' || placement === 'both');
-
-  geomEdge.sourceArrowhead = enableSource
-    ? Object.assign(new Arrowhead(), { length: arrowLength })
-    : (undefined as any);
-  geomEdge.targetArrowhead = enableTarget
-    ? Object.assign(new Arrowhead(), { length: arrowLength })
-    : (undefined as any);
 }
 
 function wrapDeltaLonDeg(dLon: number): number {
@@ -154,10 +125,6 @@ function shiftPointTowards(point: number[], target: number[], distance: number |
   return [point[0] + dx * ratio, point[1] + dy * ratio];
 }
 
-function toPosition(point?: Point | null): Position | undefined {
-  return point ? ([point.x, point.y] as Position) : undefined;
-}
-
 function shiftPosition(position: Position | undefined, delta?: Position): Position | undefined {
   if (!position || !delta) {
     return position;
@@ -168,10 +135,11 @@ function shiftPosition(position: Position | undefined, delta?: Position): Positi
 
 function getEdgeTerminals(
   coords: number[][],
-  geomEdge?: GeomEdge,
   targetTerminalShift?: Position,
   isFirst?: boolean,
-  isLast?: boolean
+  isLast?: boolean,
+  preservedArrowTips?: ArrowTips,
+  arrowLengths?: ArrowLengths
 ): EdgeTerminals | null {
   if (!coords?.length) {
     return null;
@@ -179,25 +147,20 @@ function getEdgeTerminals(
 
   const coordinates = cloneCoordinates(coords);
   const arrowTips: ArrowTips = {};
-  const sourceArrowhead = geomEdge?.sourceArrowhead;
-  const targetArrowhead = geomEdge?.targetArrowhead;
   const firstPoints = getFirstPoints(coords);
   const lastPoints = getLastPoints(coords);
-  let sourceCurveStart = toPosition(geomEdge?.curve?.start);
-  let targetCurveEnd = targetTerminalShift ? undefined : toPosition(geomEdge?.curve?.end);
-  let sourceTip = toPosition(sourceArrowhead?.tipPosition);
-  let targetTip = shiftPosition(toPosition(targetArrowhead?.tipPosition), targetTerminalShift);
+  const sourceTip = preservedArrowTips?.start;
+  const targetTip = shiftPosition(preservedArrowTips?.end, targetTerminalShift);
 
   if (isFirst && firstPoints) {
     if (sourceTip) {
       arrowTips.start = sourceTip;
     }
     coordinates[0] = !targetTerminalShift
-      ? sourceCurveStart ?? ([...firstPoints.tip] as Position)
-      : sourceCurveStart ??
-      (sourceArrowhead?.length
-        ? shiftPointTowards(firstPoints.tip, firstPoints.base, sourceArrowhead.length)
-        : ([...firstPoints.tip] as Position));
+      ? ([...firstPoints.tip] as Position)
+      : arrowLengths?.start
+        ? shiftPointTowards(firstPoints.tip, firstPoints.base, arrowLengths.start)
+        : ([...firstPoints.tip] as Position);
   }
 
   if (isLast && lastPoints) {
@@ -206,11 +169,10 @@ function getEdgeTerminals(
     }
 
     coordinates[coordinates.length - 1] = !targetTerminalShift
-      ? targetCurveEnd ?? ([...lastPoints.tip] as Position)
-      : targetCurveEnd ??
-        (targetArrowhead?.length
-          ? shiftPointTowards(lastPoints.tip, lastPoints.base, targetArrowhead.length)
-          : ([...lastPoints.tip] as Position));
+      ? ([...lastPoints.tip] as Position)
+      : arrowLengths?.end
+        ? shiftPointTowards(lastPoints.tip, lastPoints.base, arrowLengths.end)
+        : ([...lastPoints.tip] as Position);
   }
 
   return {
@@ -309,12 +271,9 @@ function pushPath(props: PushPathProps) {
         const dummy = setEdge(graphA, extraId, start, end as string, i === segrPath.length - 1 ? graphB : undefined);
 
         if (dummy) {
-          dummy.setData(data);
-          if (panel.isLogic) {
-            const placement =
-              segrPath.length === 1 ? 'both' : i === 0 ? 'start' : i === segrPath.length - 1 ? 'end' : 'none';
-            setGeomEdgeArrowheads(dummy, dataRecord, placement);
-          }
+          const placement =
+            segrPath.length === 1 ? 'both' : i === 0 ? 'start' : i === segrPath.length - 1 ? 'end' : 'none';
+          dummy.setData({ ...data, arrowPlacement: placement });
           multiEdges.push(dummy);
         }
       });
@@ -324,10 +283,7 @@ function pushPath(props: PushPathProps) {
       if (!edge) {
         return;
       }
-      edge?.setData(data);
-      if (panel.isLogic) {
-        setGeomEdgeArrowheads(edge, dataRecord, 'both');
-      }
+      edge?.setData({ ...data, arrowPlacement: 'both' });
       multiEdges.push(edge);
     }
     graphEdgeIndex.wasm2Edges[edge_id] = multiEdges;
@@ -336,9 +292,7 @@ function pushPath(props: PushPathProps) {
     if (edge_id !== undefined) {
       //console.log('edge_id', edge_id, edge.data.edgeId)
       setEntityAttrProp(edge, AttributeRegistry.EdgeDataIndex, 'parPath', parPathSan);
-      if (panel.isLogic) {
-        setGeomEdgeArrowheads(edge, dataRecord, 'both');
-      }
+      setEntityAttrProp(edge, AttributeRegistry.EdgeDataIndex, 'arrowPlacement', 'both');
       const newVerticeIds = wasmVerticeIds;
       graphEdgeIndex.edgeVerticeIds[edge_id][0] = Array.from(newVerticeIds);
     } else {
@@ -419,55 +373,6 @@ function segregatePath(path: any[], pathCoords: Position[], findNodeA: any, find
   return [subarrays, coordsSubarrays];
 }
 
-function getSmoothPolyline(edge: any): Position[] {
-  const geom = GeomEdge.getGeom(edge);
-  if (!geom?.source) {
-    return [];
-  }
-
-  return Array.from(geom.getSmoothPolyPoints())
-    .slice(1, -1)
-    .map((p: any) => [p.x, p.y]);
-}
-
-function runLayout(panel: any) {
-  const graph = panel.graph as MSGraph;
-  const rootGraph = GeomGraph.getGeom(graph);
-  const edgeRouting = panel.edgeRoutingOverride ?? panel.props?.options?.common?.edgeRouting ?? 'Splines';
-  const edgeRoutingMode =
-    edgeRouting === 'Rectilinear' ? EdgeRoutingMode.Rectilinear : EdgeRoutingMode.SugiyamaSplines;
-
-  rootGraph.layoutSettings = new SugiyamaLayoutSettings();
-  //@ts-ignore
-  rootGraph.layoutSettings.layerDirection = LayerDirectionEnum.RL;
-  //@ts-ignore
-  rootGraph.layoutSettings.LayerSeparation = 60;
-  rootGraph.layoutSettings.commonSettings.NodeSeparation = 40;
-  rootGraph.layoutSettings.commonSettings.edgeRoutingSettings.EdgeRoutingMode = edgeRoutingMode;
-
-  layoutGeomGraph(rootGraph);
-
-  // for (const e of rootGraph.deepEdges) {
-  //   if (e.source === e.target) {
-  //     console.warn("⚠️ Self-loop detected:", e);
-  //   }
-  //   if (!e.curve) {
-  //     //  g.remove(e.edge.source)
-  //   }
-  // }
-
-  for (const n of rootGraph.nodesBreadthFirst) {
-    const node = n.node as unknown as Node;
-    const nodeData = getNodeData(node);
-    if (!nodeData) {
-      continue;
-    }
-    const { feature, wasmId: id } = nodeData;
-    panel.positions[id * 2] = n.center.x;
-    panel.positions[id * 2 + 1] = n.center.y;
-  }
-}
-
 function paraboloid(distance: number, sourceZ: number, targetZ: number, ratio: number, instanceHeights: number) {
   const deltaZ = targetZ - sourceZ;
   const dh = distance * instanceHeights;
@@ -500,16 +405,23 @@ function getMidpoint(sourcePosition: Position, targetPosition: Position, isLogic
   }
 }
 
-export type { PushPathProps };
+function inheritedShift(id: string, layerShift: any) {
+  return id.split('.').reduce<[number, number]>(
+    ([x, y], _, i, arr) => {
+      const shift = layerShift[arr.slice(0, i + 1).join('.')];
+      return shift ? [x + shift[0], y + shift[1]] : [x, y];
+    },
+    [0, 0]
+  );
+}
 
 export {
   pushPath,
   getArrowAngle,
   getArrowAngles,
   getEdgeTerminals,
-  getSmoothPolyline,
   paraboloid,
   segregatePath,
-  runLayout,
   getMidpoint,
+  inheritedShift,
 };

@@ -13,12 +13,26 @@ export type CurveEdgeSegment<DataT = any> = {
   featureIndex: number;
   pickingIndex: number;
   type: CurveType;
-  controlPoints: number[];
-  segment: [number, number];
+  controlPoints: ArrayLike<number>;
+  segment: ArrayLike<number>;
 };
 
+export type CurveEdgeBinaryData<DataT = any> = {
+  length: number;
+  attributes: {
+    getControlPoints: { value: Float32Array; size: 8 };
+    getSegment: { value: Float32Array; size: 2 };
+    getCurveType: { value: Uint8Array; size: 1 };
+  };
+  features: DataT[];
+  segmentFeatureIndexes: Int32Array;
+  [Symbol.iterator](): IterableIterator<CurveEdgeSegment<DataT>>;
+};
+
+export type CurveEdgeLayerData<DataT = any> = Array<CurveEdgeSegment<DataT>> | CurveEdgeBinaryData<DataT>;
+
 type CurveEdgeLayerProps<DataT> = {
-  data: Array<CurveEdgeSegment<DataT>>;
+  data: CurveEdgeLayerData<DataT>;
   widthUnits?: Unit;
   widthScale?: number;
   widthMinPixels?: number;
@@ -27,9 +41,9 @@ type CurveEdgeLayerProps<DataT> = {
   highlightMaxDepth?: number;
   highlightDimOpacity?: number;
   skipVisibleMaxDepth?: number;
-  getControlPoints?: Accessor<CurveEdgeSegment<DataT>, number[]>;
+  getControlPoints?: Accessor<CurveEdgeSegment<DataT>, ArrayLike<number>>;
   getCurveType?: Accessor<CurveEdgeSegment<DataT>, CurveType>;
-  getSegment?: Accessor<CurveEdgeSegment<DataT>, [number, number]>;
+  getSegment?: Accessor<CurveEdgeSegment<DataT>, ArrayLike<number>>;
   getWidth?: Accessor<CurveEdgeSegment<DataT>, number>;
   getColor?: Accessor<CurveEdgeSegment<DataT>, Color>;
   getHighlightDepth?: Accessor<CurveEdgeSegment<DataT>, number>;
@@ -265,7 +279,7 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
       instancePickingColors: {
         size: 3,
         type: 'uint8',
-        accessor: (object, { target: value }) => this.encodePickingColor(object.pickingIndex, value),
+        accessor: (object, { index, target: value }) => this.encodePickingColor(object?.pickingIndex ?? index, value),
       },
       instanceHighlightDepth: {
         size: 1,
@@ -295,6 +309,16 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
       (info.object as CurveEdgeSegment<DataT> | undefined)?.pickingIndex === info.index
         ? (info.object as CurveEdgeSegment<DataT>)
         : this.state.segmentByPickingIndex?.get(info.index);
+
+    if (!segment && isCurveEdgeBinaryData(this.props.data)) {
+      const featureIndex = this.props.data.segmentFeatureIndexes[info.index];
+      const feature = this.props.data.features[featureIndex];
+      if (feature) {
+        info.object = feature;
+        info.index = featureIndex;
+      }
+      return info;
+    }
 
     if (segment?.feature) {
       info.object = segment.feature;
@@ -346,12 +370,20 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
   }
 }
 
-function getSegmentByPickingIndex<DataT>(segments: Array<CurveEdgeSegment<DataT>>) {
+function getSegmentByPickingIndex<DataT>(data: CurveEdgeLayerData<DataT>) {
+  if (isCurveEdgeBinaryData(data)) {
+    return undefined;
+  }
+
   const segmentByPickingIndex = new Map<number, CurveEdgeSegment<DataT>>();
-  for (const segment of segments) {
+  for (const segment of data) {
     if (!segmentByPickingIndex.has(segment.pickingIndex)) {
       segmentByPickingIndex.set(segment.pickingIndex, segment);
     }
   }
   return segmentByPickingIndex;
+}
+
+function isCurveEdgeBinaryData<DataT>(data: CurveEdgeLayerData<DataT>): data is CurveEdgeBinaryData<DataT> {
+  return !Array.isArray(data) && typeof data?.length === 'number' && !!data?.attributes;
 }

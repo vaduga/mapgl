@@ -1,6 +1,8 @@
 import { AttributeRegistry } from './attributeRegistry';
 import { Graph } from './graph';
-import { Entity, Label, type Node } from '@msagl/core';
+import { Entity } from '@msagl/core/dist/structs/entity';
+import { Label } from '@msagl/core/dist/structs/label';
+import type { Node } from '@msagl/core';
 import { BiColProps, CoordRef } from '../types';
 
 /** characterize edge if it connects an node and its ancestor */
@@ -18,6 +20,7 @@ export type EdgeData = {
   edge_id: number; // wasm
   parPath: CoordRef[];
   dataRecord: BiColProps;
+  arrowPlacement?: 'start' | 'end' | 'both' | 'none';
   rxEdgeId?: string;
   rPath?: CoordRef[];
   rWasmNodeIds?: number[];

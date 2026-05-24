@@ -7,6 +7,9 @@ const config = async (env: Record<string, unknown>): Promise<Configuration> => {
   const baseConfig = await grafanaConfig(env);
 
   const extension: Configuration = {
+    entry: {
+      layoutWorker: './workers/layoutWorker.ts',
+    },
     module: {
       rules: [
         {

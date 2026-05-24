@@ -1,7 +1,8 @@
 # Changelog Mapgl
 
-## 2.5.1
-- refactor to reuse native MSAGLJS structs more, externalize graph state and helpers
+## 2.6.0
+- Auto-layout via Web Worker with shared memory for a non-blocking UX and no JSON-passthrough overhead
+- Refactor: types relocated, graph imports moved to the Web Worker, leaving only a thin shim in the main bundle  
 
 ## 2.5.0
 - adjacent edges list in tooltip.

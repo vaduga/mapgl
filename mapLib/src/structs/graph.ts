@@ -1,8 +1,8 @@
-import { Graph as MSGraph } from '@msagl/core';
+import { Graph as MSGraph } from '@msagl/core/dist/structs/graph';
 import type { Node } from '@msagl/core';
 import type { Edge } from './edge';
 
-export type Graph = Node & {
+export interface Graph extends Node {
   id: string;
   addNode(n: Node | Graph): Node | Graph;
   deepEdges: IterableIterator<Edge>;
@@ -20,7 +20,9 @@ export type Graph = Node & {
   getNodes: IterableIterator<Node | Graph>;
 };
 
-export const Graph = MSGraph as unknown as {
+const GraphCtor = MSGraph as unknown as {
   new (id?: string): Graph;
   prototype: Graph;
 };
+
+export { GraphCtor as Graph };

@@ -1,6 +1,6 @@
 // main.ts
 export { Graph } from './structs/graph';
-export { Node } from '@msagl/core';
+export { Node } from '@msagl/core/dist/structs/node';
 export { Edge } from './structs/edge';
 export { GraphEdgeIndex, type EdgeTuple } from './GraphEdgeIndex';
 export {
@@ -31,16 +31,5 @@ export {
   setEdge,
 } from './structs/graphOps';
 
-export {
-  CurveFactory,
-  GeomNode,
-  Point,
-  TileMap,
-  GeomGraph,
-  layoutGeomGraph,
-  LayerDirectionEnum,
-  EdgeRoutingMode,
-  SugiyamaLayoutSettings,
-} from '@msagl/core';
 export { FeatSource } from './FeatSource';
 export { AttributeRegistry } from './structs/attributeRegistry';

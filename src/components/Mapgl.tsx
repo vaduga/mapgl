@@ -90,6 +90,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
   const { getViewState, getTime, getGroupsLegend } = viewStore;
   const { isLogic, visLayers, graph } = panel;
+  const hidePendingLogicLayout = isLogic && !panel.layoutReady && !panel.layoutDisplayReady;
   const graphVersion = getGraphVersion(graph);
   const clusters = Array.from(graph.subgraphsBreadthFirst()) as Graph[];
   const graphs: Graph[] = [graph as Graph].concat(clusters);
@@ -407,7 +408,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
       });
 
     let initComments: CommentsData = {};
-    const edgesGeometry = getEdgesGeometry(graph, panel);
+    const edgesGeometry = hidePendingLogicLayout ? [{}, {}] : getEdgesGeometry(graph, panel);
     const initLineFeatures: any = isHyper ? edgesGeometry[0] : edgesGeometry[1];
     lineFeaturesRef.current = initLineFeatures ?? {};
     refreshGraphHighlighter();
@@ -456,7 +457,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
     const { groupIndices, annots } = panel;
     const visNamespaces = visLayers.getCategories()[1];
-    const biCols: GraphBiFeatCol[] = graphs
+    const biCols: GraphBiFeatCol[] = hidePendingLogicLayout ? [] : graphs
       .filter((g) => visNamespaces.includes(g.id))
       .sort((a, b) => {
         const lenA = a.id.split(NS_SEPARATOR).length;
@@ -766,7 +767,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
         </div>
       )}
 
-      {memoMenu}
+      {!panel.layoutInProgress && memoMenu}
       {memoPositionTracker}
       {isShowSwitcher && memoLayerSwitcher}
     </div>

@@ -25,12 +25,9 @@ import { resolveFeatureGroup } from 'editor/Groups/data/group_resolve';
 import { CapacityDimensionEditor } from '../../editor/Other/CapacityEditor';
 import { ArcOptionsEditor } from '../../editor/ArcOptionsEditor';
 import {
-  CurveFactory,
   Graph,
   FeatSource,
   AttributeRegistry,
-  GeomNode,
-  Point as MSPoint,
   addNodeGroup,
   getGraphComments,
   getNodeData,
@@ -485,10 +482,6 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               setEntityAttrProp(node, AttributeRegistry.NodeDataIndex, 'feature', dataRecord);
 
               panel.features.push(dataRecord);
-              const gb = new GeomNode(node);
-              if (stValues.size !== undefined) {
-                gb.boundaryCurve = CurveFactory.mkCircle(stValues.size / 2, new MSPoint(0, 0));
-              }
               const wasmId = getNodeData(node)!.wasmId as number;
               addNodeGroup(graph, group.groupIdx);
 

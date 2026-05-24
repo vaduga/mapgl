@@ -1,138 +1,43 @@
 import { toRGB4Array } from '../../utils';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import type { Color } from '@deck.gl/core';
-import type { Feature, Geometry, Position } from 'geojson';
+import type { Feature, Geometry } from 'geojson';
 import { ALERTING_STATES } from 'mapLib/defaults';
 import { type DeckLine, colTypes, type PointFeatureProperties, type RGBAColor } from 'mapLib/types';
 import { DataFilterExtension } from '@deck.gl/extensions';
-import { BezierSeg, Curve, Ellipse, GeomEdge, LineSegment, Polyline } from '@msagl/core';
-import { CurveEdgeLayer, CurveEdgeSegment, CurveType } from './curve-edge-layer';
+import { CurveEdgeBinaryData, CurveEdgeLayer, type CurveEdgeSegment } from './curve-edge-layer';
 
-const MAX_CURVE_RESOLUTION = 64;
-const MIN_CURVE_RESOLUTION = 12;
-
-function pointToArray(point): [number, number] {
-  return [point.x, point.y];
+function createEmptyCurveData(features: DeckLine[] = []): CurveEdgeBinaryData<DeckLine> {
+  return createCurveBinaryData({
+    length: 0,
+    attributes: {
+      getControlPoints: { value: new Float32Array(), size: 8 },
+      getSegment: { value: new Float32Array(), size: 2 },
+      getCurveType: { value: new Uint8Array(), size: 1 },
+    },
+    features,
+    segmentFeatureIndexes: new Int32Array(),
+  });
 }
 
-function curveResolution(curve): number {
-  if (curve instanceof LineSegment) {
-    return 1;
-  }
-
-  const length = typeof curve.length === 'number' && Number.isFinite(curve.length) ? curve.length : 0;
-  return Math.max(MIN_CURVE_RESOLUTION, Math.min(MAX_CURVE_RESOLUTION, Math.ceil(length / 20)));
-}
-
-function pushSegment(
-  segments: Array<CurveEdgeSegment<DeckLine>>,
-  feature: DeckLine,
-  featureIndex: number,
-  type: CurveType,
-  controlPoints: number[],
-  resolution: number,
-  range: [number, number] = [0, 1]
-) {
-  const res = Math.max(1, Math.ceil(resolution));
-  const step = (range[1] - range[0]) / res;
-
-  for (let i = 0; i < res; i++) {
-    segments.push({
-      feature,
-      featureIndex,
-      pickingIndex: feature.heIdx ?? featureIndex,
-      type,
-      controlPoints,
-      segment: [range[0] + step * i, step],
-    });
-  }
-}
-
-function normalizeLineCoordinates(geometry?: Geometry | null): Position[][] {
-  if (!geometry) {
-    return [];
-  }
-
-  if (geometry.type === 'LineString') {
-    return [geometry.coordinates];
-  }
-
-  if (geometry.type === 'MultiLineString') {
-    return geometry.coordinates;
-  }
-
-  return [];
-}
-
-function addCoordinateSegments(
-  segments: Array<CurveEdgeSegment<DeckLine>>,
-  feature: DeckLine,
-  featureIndex: number,
-  coordinates: Position[][]
-) {
-  for (const line of coordinates ?? []) {
-    for (let i = 0; i < line.length - 1; i++) {
-      const start = line[i];
-      const end = line[i + 1];
-
-      pushSegment(
-        segments,
-        feature,
-        featureIndex,
-        CurveType.Line,
-        [start[0], start[1], end[0], end[1], 0, 0, 0, 0],
-        1
-      );
-    }
-  }
-}
-
-function addCurveSegments(segments: Array<CurveEdgeSegment<DeckLine>>, feature: DeckLine, featureIndex: number, curve) {
-  if (!curve) {
-    return;
-  }
-
-  if (curve instanceof Curve) {
-    for (const seg of curve.segs) {
-      addCurveSegments(segments, feature, featureIndex, seg);
-    }
-    return;
-  }
-
-  if (curve instanceof LineSegment) {
-    pushSegment(
-      segments,
-      feature,
-      featureIndex,
-      CurveType.Line,
-      [...pointToArray(curve.start), ...pointToArray(curve.end), 0, 0, 0, 0],
-      1
-    );
-    return;
-  }
-
-  if (curve instanceof BezierSeg) {
-    const controlPoints = [0, 1, 2, 3].flatMap((i) => pointToArray(curve.B(i)));
-    pushSegment(segments, feature, featureIndex, CurveType.Bezier, controlPoints, curveResolution(curve));
-    return;
-  }
-
-  if (curve instanceof Ellipse) {
-    pushSegment(
-      segments,
-      feature,
-      featureIndex,
-      CurveType.Arc,
-      [...pointToArray(curve.center), ...pointToArray(curve.aAxis), ...pointToArray(curve.bAxis), 0, 0],
-      curveResolution(curve),
-      [curve.parStart, curve.parEnd]
-    );
-    return;
-  }
-
-  if (curve instanceof Polyline) {
-    addCoordinateSegments(segments, feature, featureIndex, [Array.from(curve).map(pointToArray)]);
-  }
+function createCurveBinaryData(
+  data: Omit<CurveEdgeBinaryData<DeckLine>, typeof Symbol.iterator>
+): CurveEdgeBinaryData<DeckLine> {
+  return Object.assign(data, {
+    *[Symbol.iterator](): IterableIterator<CurveEdgeSegment<DeckLine>> {
+      for (let segmentIndex = 0; segmentIndex < data.length; segmentIndex++) {
+        const featureIndex = data.segmentFeatureIndexes[segmentIndex];
+        yield {
+          feature: data.features[featureIndex],
+          featureIndex,
+          pickingIndex: segmentIndex,
+          type: 0,
+          controlPoints: [],
+          segment: [],
+        };
+      }
+    },
+  });
 }
 
 function getFeatureGeomEdges(feature: DeckLine, getWasmId2Edges) {
@@ -145,27 +50,58 @@ function getFeatureGeomEdges(feature: DeckLine, getWasmId2Edges) {
   return edges;
 }
 
-export function getCurveSegments(features: DeckLine[], getWasmId2Edges): Array<CurveEdgeSegment<DeckLine>> {
-  const segments: Array<CurveEdgeSegment<DeckLine>> = [];
+function getLayoutCurveSegments(
+  srcGraphId: string,
+  features: DeckLine[],
+  getWasmId2Edges,
+  panel
+): CurveEdgeBinaryData<DeckLine> | undefined {
+  const group = panel.layoutCurveGroups?.get(srcGraphId);
+  const edgeKeys = panel.layoutEdgeKeys;
+  if (!group || !edgeKeys?.length) {
+    return undefined;
+  }
+
+  const lineIdsByEdgeIndex = new Int32Array(edgeKeys.length);
+  lineIdsByEdgeIndex.fill(-1);
+  const hiddenFeature = { skip: true, properties: {} } as DeckLine;
+  const featuresByLineId: DeckLine[] = [hiddenFeature];
 
   features.forEach((feature, featureIndex) => {
-    const before = segments.length;
-
-    if (feature.renderGeometryOnly) {
-      addCoordinateSegments(segments, feature, featureIndex, normalizeLineCoordinates(feature.geometry));
-      return;
-    }
-
     for (const edge of getFeatureGeomEdges(feature, getWasmId2Edges)) {
-      addCurveSegments(segments, feature, featureIndex, GeomEdge.getGeom(edge)?.curve);
-    }
-
-    if (segments.length === before) {
-      addCoordinateSegments(segments, feature, featureIndex, normalizeLineCoordinates(feature.geometry));
+      const edgeIndex = panel.layoutEdgeIndexes?.get(`${edge.source?.parent?.id ?? ''}:${edge.id}`);
+      if (edgeIndex !== undefined) {
+        const lineId = typeof edge.lineId === 'number' ? edge.lineId : featureIndex;
+        lineIdsByEdgeIndex[edgeIndex] = lineId;
+        featuresByLineId[lineId] = feature.renderGeometryOnly ? { ...feature, skip: true } : feature;
+      }
     }
   });
 
-  return segments;
+  const segmentCount = group.types.length;
+  const segmentFeatureIndexes = new Int32Array(segmentCount);
+  segmentFeatureIndexes.fill(-1);
+
+  group.edgeIndexes.forEach((edgeIndex, localEdgeIndex) => {
+    const featureIndex = lineIdsByEdgeIndex[edgeIndex] < 0 ? 0 : lineIdsByEdgeIndex[edgeIndex];
+    const start = group.edgeSegmentOffsets[localEdgeIndex];
+    const end = group.edgeSegmentOffsets[localEdgeIndex + 1];
+
+    for (let segmentIndex = start; segmentIndex < end; segmentIndex++) {
+      segmentFeatureIndexes[segmentIndex] = featureIndex;
+    }
+  });
+
+  return createCurveBinaryData({
+    length: segmentCount,
+    attributes: {
+      getControlPoints: { value: group.controlPoints, size: 8 },
+      getSegment: { value: group.segments, size: 2 },
+      getCurveType: { value: group.types, size: 1 },
+    },
+    features: featuresByLineId,
+    segmentFeatureIndexes,
+  });
 }
 
 export const EdgesGeojsonLayer = (props) => {
@@ -188,16 +124,22 @@ export const EdgesGeojsonLayer = (props) => {
 
   const isLogic = panel.isLogic;
   const selectedFeatureIndexes = getSelectedIdxs?.get(colTypes.Edges)?.[srcGraphId] ?? [];
+  const lineFeatures = linesCollection?.features ?? [];
+  const curveSegments = isLogic ? getLayoutCurveSegments(srcGraphId, lineFeatures, getWasmId2Edges, panel) : undefined;
   const cats = getVisLayers.getCategories();
   const categories = cats.concat([cats[1]]);
   const categorySize = 3;
-  const lineFeatures = linesCollection?.features ?? [];
-  const curveSegments = isLogic ? getCurveSegments(lineFeatures, getWasmId2Edges) : [];
 
-  const getLineWidth = (d) => {
+  const getLineWidth = (d, info?) => {
     const feature = d.feature ?? d;
+    if (!feature?.properties) {
+      return 1;
+    }
     const { edgeStyle } = feature.properties;
-    const isSelected = selectedFeatureIndexes.includes(feature.rowIndex);
+    if (!edgeStyle) {
+      return 1;
+    }
+    const isSelected = !isLogic && selectedFeatureIndexes.includes(info?.index);
     return edgeStyle.size * (isSelected ? 2 : 1);
   };
 
@@ -205,7 +147,13 @@ export const EdgesGeojsonLayer = (props) => {
     d: CurveEdgeSegment<DeckLine> | DeckLine | Feature<Geometry, PointFeatureProperties>
   ): Color => {
     const feature = 'feature' in d ? d.feature : d;
+    if (!feature?.properties) {
+      return [0, 0, 0, 0];
+    }
     const { edgeStyle, all_annots } = feature.properties as any;
+    if (!edgeStyle) {
+      return [0, 0, 0, 0];
+    }
     const { color, group, opacity } = edgeStyle;
 
     if (all_annots && !getGroupsLegend?.at(-1)?.disabled) {
@@ -248,8 +196,30 @@ export const EdgesGeojsonLayer = (props) => {
     extensions: [new DataFilterExtension({ categorySize })],
   };
 
-  if (curveSegments.length) {
-    return new CurveEdgeLayer({
+  const createGeoJsonLineLayer = (data, idSuffix = '') =>
+    new GeoJsonLayer<PointFeatureProperties, {}>({
+      ...commonLayerProps,
+      id: commonLayerProps.id + idSuffix,
+      data,
+      getLineWidth,
+      getLineColor,
+
+      // Styles
+      lineWidthUnits: units,
+      lineWidthScale: 1,
+      lineWidthMinPixels: 0.1,
+      //lineWidthMaxPixels: 15,
+      lineJointRounded: false,
+      lineCapRounded: true,
+      //lineMiterLimit: 4,
+
+      // Interactive props
+      pickable,
+      autoHighlight,
+    });
+
+  if (curveSegments?.length) {
+    const curveLayer = new CurveEdgeLayer({
       ...commonLayerProps,
       data: curveSegments,
       getWidth: getLineWidth,
@@ -260,25 +230,9 @@ export const EdgesGeojsonLayer = (props) => {
       pickable,
       autoHighlight,
     });
+
+    return curveLayer;
   }
 
-  return new GeoJsonLayer<PointFeatureProperties, {}>({
-    ...commonLayerProps,
-    data: linesCollection,
-    getLineWidth,
-    getLineColor,
-
-    // Styles
-    lineWidthUnits: units,
-    lineWidthScale: 1,
-    lineWidthMinPixels: 0.1,
-    //lineWidthMaxPixels: 15,
-    lineJointRounded: false,
-    lineCapRounded: true,
-    //lineMiterLimit: 4,
-
-    // Interactive props
-    pickable,
-    autoHighlight,
-  });
+  return createGeoJsonLineLayer(linesCollection);
 };

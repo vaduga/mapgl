@@ -1,20 +1,23 @@
 import distance from '@turf/distance';
 import { Units } from '@turf/helpers';
-import { GeomEdge } from '@msagl/core';
 import { Position } from 'geojson';
 import { Graph } from '../structs/graph';
 import { BiColProps, CoordRef, DeckLine } from '../types';
 import { CoordsConvert, distance2D } from './utils.turf';
 import {
   getArrowAngles,
+  getEdgeArrowLength,
   getEdgeTerminals,
   getMidpoint,
-  getSmoothPolyline,
   paraboloid,
   segregatePath,
 } from './utils.graph';
+import { getProGeometry } from './utils.pro';
 
 type FragKey = `${string}:${number}`;
+const CURVE_TYPE_LINE = 0;
+const CURVE_TYPE_BEZIER = 1;
+const CURVE_TYPE_ARC = 2;
 
 const fragKey = (lineId: string | number, startIdx: number) => `${lineId}:${startIdx}` as const;
 
@@ -61,6 +64,8 @@ export function getEdgesGeometry(graph: Graph, panel: any) {
       const isLast = fragIdx === len;
       const { parPath } = edgeData || {};
       const locName = parPath[0];
+      let layoutArrowTips = panel.layoutArrowTips?.get(`${srcGraph.id ?? ''}:${edge.id}`);
+      const layoutGeometry = panel.isLogic ? getLayoutTerminalGeometry(edge, panel) : undefined;
 
       let isSrcContracted;
       let isContracted;
@@ -79,7 +84,6 @@ export function getEdgesGeometry(graph: Graph, panel: any) {
       let subPath = parPath;
       const wasmIds = graphEdgeIndex.edgeVerticeIds[heIdx][0];
       let pathsCoords = CoordsConvert(subPath, wasmIds, positions, true);
-      const geomEdge: GeomEdge = GeomEdge.getGeom(edge);
 
       if (isContracted) {
         subPath = [subPath[0], subPath.at(-1) as CoordRef];
@@ -87,6 +91,29 @@ export function getEdgesGeometry(graph: Graph, panel: any) {
       }
 
       let targetTerminalShift: Position | undefined;
+
+      const proGeometry = getProGeometry({
+        edge,
+        panel,
+        layerShift,
+        srcGraph,
+        tarGraph,
+        subPath,
+        pathsCoords,
+        layoutArrowTips,
+        layoutGeometry,
+        isSrcContracted,
+        isContracted,
+        isTarContracted,
+      });
+
+      if (proGeometry === null) {
+        return;
+      }
+
+      if (proGeometry) {
+        ({ subPath, pathsCoords, targetTerminalShift, layoutArrowTips } = proGeometry);
+      }
 
       const [segrPath, segrCoords] = subPath.length
         ? segregatePath(subPath, pathsCoords, findNodeA, findNodeB)
@@ -99,21 +126,13 @@ export function getEdgesGeometry(graph: Graph, panel: any) {
       let coordinates = panel.isLogic
         ? targetTerminalShift || isContracted
           ? ([...pathsCoords] as Position[])
-          : getSmoothPolyline(edge)
+          : layoutGeometry ?? ([...pathsCoords] as Position[])
         : override && frCoords?.length === 2
           ? [frCoords[0], ...override, frCoords[frCoords.length - 1]]
           : frCoords;
 
       if (!coordinates?.length) {
         return;
-      }
-
-      if (panel.isLogic && !isContracted && targetTerminalShift && geomEdge?.targetArrowhead?.tipPosition) {
-        coordinates = [...coordinates];
-        coordinates[coordinates.length - 1] = [
-          geomEdge.targetArrowhead.tipPosition.x + targetTerminalShift[0],
-          geomEdge.targetArrowhead.tipPosition.y + targetTerminalShift[1],
-        ];
       }
 
       if (isContracted) {
@@ -129,7 +148,14 @@ export function getEdgesGeometry(graph: Graph, panel: any) {
       let targetArrowTip: Position | undefined;
 
       if (isFirst || isLast) {
-        const edgeTerminals = getEdgeTerminals(coordinates, geomEdge, targetTerminalShift, isFirst, isLast);
+        const edgeTerminals = getEdgeTerminals(
+          coordinates,
+          targetTerminalShift,
+          isFirst,
+          isLast,
+          layoutArrowTips,
+          getLayoutArrowLengths(edge)
+        );
 
         if (!edgeTerminals) {
           return;
@@ -238,4 +264,87 @@ export function getEdgesGeometry(graph: Graph, panel: any) {
   });
 
   return [features, arcsFeatures];
+}
+
+function getLayoutArrowLengths(edge: any): { start?: number; end?: number } {
+  const edgeData = edge.data;
+  const arrow = edgeData?.dataRecord?.edgeStyle?.arrow ?? 0;
+  const placement = edgeData?.arrowPlacement ?? 'both';
+  const arrowLength = getEdgeArrowLength(edgeData?.dataRecord?.edgeStyle?.size);
+  return {
+    start: (arrow === -1 || arrow === 2) && (placement === 'start' || placement === 'both') ? arrowLength : undefined,
+    end: (arrow === 1 || arrow === 2) && (placement === 'end' || placement === 'both') ? arrowLength : undefined,
+  };
+}
+
+function getLayoutTerminalGeometry(edge: any, panel: any): Position[] | undefined {
+  if (!panel.layoutReady && !panel.layoutDisplayReady) {
+    return undefined;
+  }
+
+  const sourceGraphId = (edge.source?.parent as Graph | undefined)?.id;
+  const edgeIndex = panel.layoutEdgeIndexes?.get(`${sourceGraphId ?? ''}:${edge.id}`);
+  const group = sourceGraphId ? panel.layoutCurveGroups?.get(sourceGraphId) : undefined;
+  if (edgeIndex === undefined || !group) {
+    return undefined;
+  }
+
+  const localEdgeIndex = group.edgeIndexes.indexOf(edgeIndex);
+  if (localEdgeIndex < 0) {
+    return undefined;
+  }
+
+  const start = group.edgeSegmentOffsets[localEdgeIndex];
+  const end = group.edgeSegmentOffsets[localEdgeIndex + 1];
+  if (start === end) {
+    return undefined;
+  }
+
+  const first = getLayoutSegmentEndpoints(group, start);
+  if (end === start + 1) {
+    return first;
+  }
+
+  const last = getLayoutSegmentEndpoints(group, end - 1);
+  return [first[0], first[1], last[0], last[1]];
+}
+
+function getLayoutSegmentEndpoints(group: any, segmentIndex: number): [Position, Position] {
+  const rangeOffset = segmentIndex * 2;
+  const t0 = group.segments[rangeOffset];
+  const t1 = t0 + group.segments[rangeOffset + 1];
+  return [
+    evalCurvePoint(group.types[segmentIndex], group.controlPoints, segmentIndex, t0),
+    evalCurvePoint(group.types[segmentIndex], group.controlPoints, segmentIndex, t1),
+  ];
+}
+
+function evalCurvePoint(type: number, controlPoints: Float32Array, segmentIndex: number, t: number): Position {
+  const offset = segmentIndex * 8;
+  const x0 = controlPoints[offset];
+  const y0 = controlPoints[offset + 1];
+  const x1 = controlPoints[offset + 2];
+  const y1 = controlPoints[offset + 3];
+  const x2 = controlPoints[offset + 4];
+  const y2 = controlPoints[offset + 5];
+  const x3 = controlPoints[offset + 6];
+  const y3 = controlPoints[offset + 7];
+
+  if (type === CURVE_TYPE_BEZIER) {
+    const t2 = t * t;
+    const t3 = t2 * t;
+    const cx = (x1 - x0) * 3;
+    const cy = (y1 - y0) * 3;
+    const ex = (x2 - x1) * 3 - cx;
+    const ey = (y2 - y1) * 3 - cy;
+    const lx = x3 - x0 - cx - ex;
+    const ly = y3 - y0 - cy - ey;
+    return [lx * t3 + ex * t2 + cx * t + x0, ly * t3 + ey * t2 + cy * t + y0];
+  }
+
+  if (type === CURVE_TYPE_ARC) {
+    return [x0 + Math.cos(t) * x1 + Math.sin(t) * x2, y0 + Math.cos(t) * y1 + Math.sin(t) * y2];
+  }
+
+  return [x0 + (x1 - x0) * t, y0 + (y1 - y0) * t];
 }

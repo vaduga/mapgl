@@ -13,7 +13,7 @@ import { decodeGeohash } from '../grafana_core/app/features/geo/format/geohash';
 import { ExtendFrameGeometrySource, ExtendFrameGeometrySourceMode } from '../extension';
 import { Geometry, Point } from 'geojson';
 import { findField } from '../grafana_core/app/features/dimensions';
-import { FeatSource, GeomGraph, Graph, Node, pushGraphPositionRange, setNodeData } from 'mapLib';
+import { FeatSource, Graph, Node, pushGraphPositionRange, setNodeData } from 'mapLib';
 import { CMN_NAMESPACE, NS_SEPARATOR } from 'mapLib/defaults';
 import { MapPanel } from '../MapPanel';
 
@@ -605,8 +605,7 @@ function createAndAddSubgraph(parent: Graph, id: string): Graph {
   const subgraph = new Graph(id);
   //console.log('add gr', id);
 
-  //@ts-ignore
-  GeomGraph.getGeom(parent).addNode(new GeomGraph(subgraph));
+  parent.addNode(subgraph);
 
   return subgraph;
 }

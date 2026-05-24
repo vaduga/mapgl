@@ -1,13 +1,14 @@
-export type { PushPathProps } from './utils.graph';
 export {
   pushPath,
   getArrowAngle,
   getArrowAngles,
   getEdgeArrowSize,
   getEdgeArrowLength,
-  runLayout,
+  inheritedShift,
 } from './utils.graph';
-export { getEdgesGeometry } from './utils.graph-geom';
+export { captureLayoutCache, restoreLayoutCache, scheduleLayout } from './layoutWorkerClient';
+export type { LayoutArrowTips, LayoutCache } from './layoutWorkerClient';
+export type { LayoutCurveGroup, LayoutGraphResult } from './layoutWorkerTypes';
 export { getEdgesGeometry } from './utils.graphGeom';
 export { CoordsConvert, SingleCoordsConvert } from './utils.turf';
 

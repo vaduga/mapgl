@@ -5,9 +5,17 @@ import { GrafanaTheme2, PanelData, PanelProps } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { PanelContext, PanelContextProvider, PanelContextRoot } from '@grafana/ui';
 import { Options, MapLayerState, MapViewConfig, type DeckGLRefWithViewManager } from './types';
-import { runLayout, ViewState, defViewState, CMN_NAMESPACE, BiColProps } from 'mapLib/utils';
 import { defViewState, CMN_NAMESPACE } from 'mapLib/defaults';
-import type { ViewState, BiColProps, LayoutArrowTips, LayoutCache, LayoutCurveGroup, LayoutGraphResult } from 'mapLib/types';
+import { captureLayoutCache, restoreLayoutCache, scheduleLayout } from 'mapLib/utils';
+import type {
+  ViewState,
+  BiColProps,
+  LayoutArrowTips,
+  LayoutCache,
+  LayoutCurveGroup,
+  LayoutGraphResult,
+  LayerDragShift,
+} from 'mapLib/types';
 import { notifyPanelEditor } from './utils/geomap_utils';
 import { getActions } from './utils/actions';
 import Mapgl from './components/Mapgl';
@@ -23,7 +31,7 @@ import {
 import { applyLayerFilter, initLayer } from './utils/layers';
 import { ORTHO_BASEMAP_CONFIG } from './layers/registry';
 import { defaultMarkersConfig } from './layers/data/markersLayer';
-import { Graph, GeomGraph, GraphEdgeIndex, bumpGraphVersion, resetGraph, resetGraphNodes } from 'mapLib';
+import { Graph, GraphEdgeIndex, bumpGraphVersion, resetGraph, resetGraphNodes } from 'mapLib';
 
 import { initViewExtent } from './utils/utils.map';
 
@@ -58,10 +66,18 @@ export class MapPanel extends Component<Props, State> {
   useMockData;
   groups: Rule[] = [];
   edgeRoutingOverride?: Options['common']['edgeRouting'];
+  layoutReady = false;
+  layoutGraphBounds = new Map<string, LayoutGraphResult>();
+  layoutCurveGroups = new Map<string, LayoutCurveGroup>();
+  layoutEdgeIndexes = new Map<string, number>();
+  layoutEdgeKeys: string[] = [];
+  layoutArrowTips = new Map<string, LayoutArrowTips>();
+  layoutDisplayReady = false;
   layoutInProgress = false;
 
   features: BiColProps[] = [];
   positions: Float64Array = new Float64Array();
+  layerShift: LayerDragShift = {};
   muted = new Uint8Array();
   colors = new Uint8Array();
   annots = new Uint8Array();
@@ -87,8 +103,6 @@ export class MapPanel extends Component<Props, State> {
     this.useMockData = this.isLogic && (firstRun || this.props.options.dataLayers?.every((el) => !el.locField));
 
     const rootGraph = new Graph(CMN_NAMESPACE);
-    // @ts-ignore
-    new GeomGraph(rootGraph);
     this.graph = rootGraph;
     this.visLayers = new VisLayers();
 
@@ -166,7 +180,6 @@ export class MapPanel extends Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-
     // Check for a difference between previous data and component data
     if (this.map && this.props.data !== prevProps.data) {
       this.dataChanged(this.props.data);
@@ -221,7 +234,6 @@ export class MapPanel extends Component<Props, State> {
   dataChanged = async (data: PanelData) => {
     // Only update if panel data matches component data
     if (data === this.props.data) {
-
       this.groups = [];
       this.features = [];
       let svgIconState;
@@ -248,6 +260,8 @@ export class MapPanel extends Component<Props, State> {
       if (!this.layers.length) {
         return;
       }
+      const layoutCache: LayoutCache | undefined =
+        this.isLogic && this.layoutDisplayReady ? captureLayoutCache(this) : undefined;
       for (const g of this.graph.graphs()) {
         resetGraphNodes(g);
       }
@@ -263,10 +277,23 @@ export class MapPanel extends Component<Props, State> {
 
       this.layers.forEach((state) => applyLayerFilter(state.handler, state.options, d, false));
 
+      if (this.isLogic) {
+        this.layoutReady = false;
+        this.layoutDisplayReady = restoreLayoutCache(layoutCache, this);
+        if (!this.layoutDisplayReady) {
+          this.layoutGraphBounds.clear();
+          this.layoutCurveGroups.clear();
+          this.layoutEdgeIndexes.clear();
+          this.layoutEdgeKeys = [];
+          this.layoutArrowTips.clear();
+        }
+      }
+
       this.visLayers = genVisLayers(this, this.props);
 
       if (this.isLogic) {
-        runLayout(this);
+        bumpGraphVersion(this.graph);
+        this.layoutInProgress = scheduleLayout(this, this.onLayoutApplied);
       }
     }
 
@@ -289,6 +316,8 @@ export class MapPanel extends Component<Props, State> {
     const { options } = this.props;
     this.byName.clear();
     const layers: MapLayerState[] = [];
+    const layoutCache: LayoutCache | undefined =
+      this.isLogic && this.layoutDisplayReady ? captureLayoutCache(this) : undefined;
     for (const g of this.graph.graphs()) {
       resetGraphNodes(g);
     }
@@ -328,10 +357,23 @@ export class MapPanel extends Component<Props, State> {
       this.layers = layers;
 
       if (this.isLogic) {
-        runLayout(this);
+        this.layoutReady = false;
+        this.layoutDisplayReady = restoreLayoutCache(layoutCache, this);
+        if (!this.layoutDisplayReady) {
+          this.layoutGraphBounds.clear();
+          this.layoutCurveGroups.clear();
+          this.layoutEdgeIndexes.clear();
+          this.layoutEdgeKeys = [];
+          this.layoutArrowTips.clear();
+        }
       }
 
       this.visLayers = genVisLayers(this, this.props);
+
+      if (this.isLogic) {
+        bumpGraphVersion(this.graph);
+        this.layoutInProgress = scheduleLayout(this, this.onLayoutApplied);
+      }
 
       const viewState = this.initMapView(options.view);
       if (viewState) {
@@ -348,6 +390,22 @@ export class MapPanel extends Component<Props, State> {
         return;
       }
       console.error('error loading layers', ex);
+    }
+  };
+
+  onLayoutApplied = (applied = true) => {
+    this.layoutInProgress = false;
+    if (!applied) {
+      bumpGraphVersion(this.graph);
+      return;
+    }
+    this.layoutReady = true;
+    this.layoutDisplayReady = true;
+    bumpGraphVersion(this.graph);
+    const viewState = this.initMapView(this.props.options.view);
+    if (viewState) {
+      viewState.rotationX = -90;
+      this.setState({ viewState });
     }
   };
 
