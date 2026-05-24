@@ -25,19 +25,6 @@ type LogicTextLayerData = {
   placeholderBoxSide: Float32Array;
 };
 
-type NodeCacheProfile = {
-  reset(): void;
-  iconCalls: number;
-  iconTotalMs: number;
-  donutHits: number;
-  donutMisses: number;
-  donutCreateMs: number;
-  svgHits: number;
-  svgMisses: number;
-  svgPackMs: number;
-  blankIcons: number;
-};
-
 type NodeIconCache = {
   get(key: string): any;
   set(key: string, value: any): unknown;
@@ -45,44 +32,10 @@ type NodeIconCache = {
 
 const nodeIconCache = new WeakMap<object, Map<string, any>>();
 const DEBUG_DISABLE_NODE_ICON_CACHE = false;
-const DEBUG_PROFILE_NODE_CACHE = false;
 const ICON_CACHE_SOURCE_KEY = '__mapglIconCacheSource';
 const disabledNodeIconCache: NodeIconCache = {
   get: () => undefined,
   set: () => disabledNodeIconCache,
-};
-
-const createNodeCacheProfile = (): NodeCacheProfile => {
-  const profile = {
-    reset: () => {
-      for (const key of Object.keys(profile) as Array<keyof NodeCacheProfile>) {
-        if (key !== 'reset') {
-          profile[key] = 0 as never;
-        }
-      }
-    },
-    iconCalls: 0,
-    iconTotalMs: 0,
-    donutHits: 0,
-    donutMisses: 0,
-    donutCreateMs: 0,
-    svgHits: 0,
-    svgMisses: 0,
-    svgPackMs: 0,
-    blankIcons: 0,
-  };
-
-  return profile;
-};
-
-const getNodeCacheProfile = (): NodeCacheProfile | undefined => {
-  if (!DEBUG_PROFILE_NODE_CACHE) {
-    return undefined;
-  }
-
-  const global = globalThis as typeof globalThis & { __mapglNodeCacheProfile?: NodeCacheProfile };
-  global.__mapglNodeCacheProfile ??= createNodeCacheProfile();
-  return global.__mapglNodeCacheProfile;
 };
 
 const getFeatureWrapper = (properties: any) => ({ properties });
@@ -280,123 +233,89 @@ const NodesGeojsonLayer = (props) => {
       return getResolvedPointRadius(d, selectedNodeId);
     },
     getIcon: (d) => {
-      const profile = getNodeCacheProfile();
-      const profileStartedAt = profile ? performance.now() : 0;
-      if (profile) {
-        profile.iconCalls++;
-      }
+      const { group, arcs } = d.properties.style || {};
+      const iconName = group?.iconName;
+      const svgIcon = iconName && svgIcons[iconName];
+      const tintColor = group?.color ? toRgbaString(group.color) : d.properties?.thrColor;
+      const requestedTintMode = group?.svgTintMode ?? 'none';
+      const resolvedTintMode = resolveSvgTintMode(svgIcon, requestedTintMode);
+      const maxIconSize = getMaxResolvedIconSize(d);
+      const packedIconSize = getDonutIconSrcSize(maxIconSize);
+      const tintedSvgIcon = getTintedSvgIcon(svgIcon, tintColor, {
+        mode: resolvedTintMode,
+        onReady: onSvgIconReady,
+        renderSize: resolvedTintMode === 'canvasTint' ? packedIconSize : undefined,
+      });
+      const canvasTintPending = isCanvasTintPending(svgIcon, tintColor, resolvedTintMode, packedIconSize);
 
-      try {
-        const { group, arcs } = d.properties.style || {};
-        const iconName = group?.iconName;
-        const svgIcon = iconName && svgIcons[iconName];
-        const tintColor = group?.color ? toRgbaString(group.color) : d.properties?.thrColor;
-        const requestedTintMode = group?.svgTintMode ?? 'none';
-        const resolvedTintMode = resolveSvgTintMode(svgIcon, requestedTintMode);
-        const maxIconSize = getMaxResolvedIconSize(d);
-        const packedIconSize = getDonutIconSrcSize(maxIconSize);
-        const tintedSvgIcon = getTintedSvgIcon(svgIcon, tintColor, {
-          mode: resolvedTintMode,
-          onReady: onSvgIconReady,
-          renderSize: resolvedTintMode === 'canvasTint' ? packedIconSize : undefined,
+      if (isLogic && arcs?.length) {
+        const donutCacheKey = `donut:${iconName ?? 'none'}:${resolvedTintMode}:${tintColor ?? 'base'}:${packedIconSize}:${(
+          arcs as string[]
+        ).join('|')}`;
+        const cachedDonut = canvasTintPending ? undefined : iconCache.get(donutCacheKey);
+        if (cachedDonut) {
+          return cachedDonut;
+        }
+
+        const colorCounts = {};
+        arcs.forEach((color) => {
+          colorCounts[color] = {
+            count: 1,
+          };
         });
-        const canvasTintPending = isCanvasTintPending(svgIcon, tintColor, resolvedTintMode, packedIconSize);
-
-        if (isLogic && arcs?.length) {
-          const donutCacheKey = `donut:${iconName ?? 'none'}:${resolvedTintMode}:${tintColor ?? 'base'}:${packedIconSize}:${(
-            arcs as string[]
-          ).join('|')}`;
-          const cachedDonut = canvasTintPending ? undefined : iconCache.get(donutCacheKey);
-          if (cachedDonut) {
-            if (profile) {
-              profile.donutHits++;
-            }
-            return cachedDonut;
-          }
-
-          if (profile) {
-            profile.donutMisses++;
-          }
-          const colorCounts = {};
-          arcs.forEach((color) => {
-            colorCounts[color] = {
-              count: 1,
-            };
-          });
-          const donutStartedAt = profile ? performance.now() : 0;
-          const donutSvg = createDonutChart({
-            colorCounts,
-            stripeCounts: undefined,
-            allTotal: arcs.length,
+        const icon = {
+          id: donutCacheKey,
+          url: svgToDataURL(
+            createDonutChart({
+              colorCounts,
+              stripeCounts: undefined,
+              allTotal: arcs.length,
             bkColor: undefined,
             radius: maxIconSize / 2,
-            isDark: theme.isDark,
-            svgIcon: tintedSvgIcon,
-          });
-          if (profile) {
-            profile.donutCreateMs += performance.now() - donutStartedAt;
-          }
-          const icon = {
-            id: donutCacheKey,
-            url: svgToDataURL(donutSvg),
-            width: packedIconSize,
-            height: packedIconSize,
-          };
-          if (!canvasTintPending) {
-            iconCache.set(donutCacheKey, icon);
-          }
-          return icon;
-        } else if (tintedSvgIcon) {
-          const iconWidth = tintedSvgIcon.width;
-          const iconHeight = tintedSvgIcon.height;
-          const cacheState = canvasTintPending ? 'pending' : 'ready';
-          const cacheKey = `svg:${iconName ?? 'none'}:${resolvedTintMode}:${cacheState}:${tintColor ?? 'base'}:${packedIconSize}:${iconWidth ?? 'auto'}x${iconHeight ?? 'auto'}`;
-          const cachedSvg = canvasTintPending ? undefined : iconCache.get(cacheKey);
-          if (cachedSvg) {
-            if (profile) {
-              profile.svgHits++;
-            }
-            return cachedSvg;
-          }
-
-          if (profile) {
-            profile.svgMisses++;
-          }
-          const svgPackStartedAt = profile ? performance.now() : 0;
-          const packedSvgIcon =
-            resolvedTintMode === 'canvasTint' && !canvasTintPending
-              ? tintedSvgIcon
-              : getPackedSvgIcon(tintedSvgIcon, packedIconSize) ?? tintedSvgIcon;
-          if (profile) {
-            profile.svgPackMs += performance.now() - svgPackStartedAt;
-          }
-          const icon = {
-            url: packedSvgIcon.svgDataUrl,
-            width: packedSvgIcon.width,
-            height: packedSvgIcon.height,
-            id: `${iconName}:${resolvedTintMode}:${cacheState}:${tintColor ?? 'base'}:${packedIconSize}:${packedSvgIcon.width ?? 'auto'}x${packedSvgIcon.height ?? 'auto'}`,
-          };
-          if (!canvasTintPending) {
-            iconCache.set(cacheKey, icon);
-          }
-          return icon;
-        }
-        if (profile) {
-          profile.blankIcons++;
-        }
-        // no custom svg icon loaded
-        return {
-          url: svgToDataURL(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">  
-</svg>`),
-          width: 1,
-          height: 1,
-          id: 'blank',
+              isDark: theme.isDark,
+              svgIcon: tintedSvgIcon,
+            })
+          ),
+          width: packedIconSize,
+          height: packedIconSize,
         };
-      } finally {
-        if (profile) {
-          profile.iconTotalMs += performance.now() - profileStartedAt;
+        if (!canvasTintPending) {
+          iconCache.set(donutCacheKey, icon);
         }
+        return icon;
+      } else if (tintedSvgIcon) {
+        const iconWidth = tintedSvgIcon.width;
+        const iconHeight = tintedSvgIcon.height;
+        const cacheState = canvasTintPending ? 'pending' : 'ready';
+        const cacheKey = `svg:${iconName ?? 'none'}:${resolvedTintMode}:${cacheState}:${tintColor ?? 'base'}:${packedIconSize}:${iconWidth ?? 'auto'}x${iconHeight ?? 'auto'}`;
+        const cachedSvg = canvasTintPending ? undefined : iconCache.get(cacheKey);
+        if (cachedSvg) {
+          return cachedSvg;
+        }
+
+        const packedSvgIcon =
+          resolvedTintMode === 'canvasTint' && !canvasTintPending
+            ? tintedSvgIcon
+            : getPackedSvgIcon(tintedSvgIcon, packedIconSize) ?? tintedSvgIcon;
+        const icon = {
+          url: packedSvgIcon.svgDataUrl,
+          width: packedSvgIcon.width,
+          height: packedSvgIcon.height,
+          id: `${iconName}:${resolvedTintMode}:${cacheState}:${tintColor ?? 'base'}:${packedIconSize}:${packedSvgIcon.width ?? 'auto'}x${packedSvgIcon.height ?? 'auto'}`,
+        };
+        if (!canvasTintPending) {
+          iconCache.set(cacheKey, icon);
+        }
+        return icon;
       }
+      // no custom svg icon loaded
+      return {
+        url: svgToDataURL(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">  
+</svg>`),
+        width: 1,
+        height: 1,
+        id: 'blank',
+      };
     },
     iconSizeScale: 1,
     getIconPixelOffset: (d) => {
