@@ -20,12 +20,12 @@ export interface DimensionSupplier<T = any> {
   /**
    * A single value -- typically last
    */
-  value: () => T;
+  value(): T;
 
   /**
    * Supplier for the dimension value
    */
-  get: (index: number) => T;
+  get(index: number): T;
 }
 
 /** Places that use the value */
@@ -86,4 +86,3 @@ export enum ResourcePickerSize {
   SMALL = 'small',
   NORMAL = 'normal',
 }
-

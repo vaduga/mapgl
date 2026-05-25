@@ -11,11 +11,11 @@ export interface ControlsOptions extends ControlsOptionsBase {
 }
 
 export interface GeomapLayerActions {
-  selectLayer: (uid: string) => void;
-  deleteLayer: (uid: string) => void;
-  addlayer: (type: string) => void;
-  reorder: (src: number, dst: number) => void;
-  canRename: (v: string) => boolean;
+  selectLayer(uid: string): void;
+  deleteLayer(uid: string): void;
+  addlayer(type: string): void;
+  reorder(src: number, dst: number): void;
+  canRename(v: string): boolean;
 }
 
 import type { DeckGLRefWithViewManager } from './deck';
@@ -37,7 +37,7 @@ export interface MapLayerState<TConfig = unknown> extends LayerElement {
   options: ExtendMapLayerOptions<TConfig>;
   handler: ExtendMapLayerHandler;
   layer: FeatSource | libreSource | string; // the openlayers instance
-  onChange: (cfg: ExtendMapLayerOptions<TConfig>) => void;
+  onChange(cfg: ExtendMapLayerOptions<TConfig>): void;
   isBasemap?: boolean;
 }
 

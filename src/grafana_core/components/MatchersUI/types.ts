@@ -7,7 +7,7 @@ export interface FieldMatcherUIRegistryItem<TOptions> extends RegistryItem {
   component: React.ComponentType<MatcherUIProps<TOptions>>;
   matcher: FieldMatcherInfo<TOptions>;
   /* Maps matcher options to human-readable label */
-  optionsToLabel: (options: TOptions) => string;
+  optionsToLabel(options: TOptions): string;
 }
 
 export interface MatcherUIProps<T> {
@@ -15,7 +15,7 @@ export interface MatcherUIProps<T> {
   id?: string;
   data: DataFrame[];
   options: T;
-  onChange: (options: T) => void;
+  onChange(options: T): void;
 }
 
 /**

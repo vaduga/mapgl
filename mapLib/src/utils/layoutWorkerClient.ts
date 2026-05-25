@@ -27,6 +27,10 @@ type PanelLike = {
   edgeRoutingOverride?: 'Splines' | 'Rectilinear';
 };
 
+interface LayoutAppliedCallback {
+  (applied: boolean): void;
+}
+
 export type LayoutArrowTips = {
   start?: [number, number];
   end?: [number, number];
@@ -51,10 +55,10 @@ let nextRequestId = 0;
 const latestRequestByPanel = new WeakMap<PanelLike, number>();
 const pendingRequests = new Map<
   number,
-  { panel: PanelLike; edgeIndexes: Map<string, number>; edgeKeys: string[]; onApplied?: (applied: boolean) => void }
+  { panel: PanelLike; edgeIndexes: Map<string, number>; edgeKeys: string[]; onApplied?: LayoutAppliedCallback }
 >();
 
-export function scheduleLayout(panel: PanelLike, onApplied?: (applied: boolean) => void): boolean {
+export function scheduleLayout(panel: PanelLike, onApplied?: LayoutAppliedCallback): boolean {
   const request = createLayoutRequest(panel);
   latestRequestByPanel.set(panel, request.requestId);
 
@@ -152,7 +156,7 @@ function applyLayoutIfCurrent(
   result: LayoutResult,
   edgeIndexes: Map<string, number>,
   edgeKeys: string[],
-  onApplied?: (applied: boolean) => void
+  onApplied?: LayoutAppliedCallback
 ): void {
   if (latestRequestByPanel.get(panel) !== result.requestId) {
     return;
