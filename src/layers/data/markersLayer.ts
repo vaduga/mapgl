@@ -21,7 +21,7 @@ import { MapPanel } from '../../MapPanel';
 import { getQueryFields } from '../../editor/getQueryFields';
 import { GroupsEditor } from '../../editor/Groups/GroupsEditor';
 import { OverField, Rule } from '../../editor/Groups/ruleTypes';
-import { resolveFeatureGroup } from '../../editor/Groups/data/groupResolve';
+import { resolveFeatureGroup } from '../../editor/Groups/data/group-resolve';
 import { CapacityDimensionEditor } from '../../editor/Other/CapacityEditor';
 import { ArcOptionsEditor } from '../../editor/ArcOptionsEditor';
 import {

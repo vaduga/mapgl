@@ -27,7 +27,7 @@ import {
   LayoutResult,
   edgeKey,
   nodeKey,
-} from './layoutWorkerTypes';
+} from './layout-worker-types';
 
 const CURVE_TYPE_LINE = 0;
 const CURVE_TYPE_BEZIER = 1;

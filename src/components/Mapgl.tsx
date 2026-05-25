@@ -1,5 +1,5 @@
 import { FullscreenWidget, CompassWidget, LoadingWidget } from '@deck.gl/widgets';
-import { getDeckWidgetSkin } from './deckWidgetSkin';
+import { getDeckWidgetSkin } from './deck-widget-skin';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { css } from '@emotion/css';

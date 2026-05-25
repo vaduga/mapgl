@@ -27,10 +27,9 @@ import { colTypes } from 'mapLib/types';
 import { getQueryFields } from './getQueryFields';
 import { getGeoJsonProps } from '../layers/data/geojsonLayer';
 
-type PanelOptionsSupplier<TOptions> = (
-  builder: PanelOptionsEditorBuilder<TOptions>,
-  context: StandardEditorContext<TOptions>
-) => void;
+interface PanelOptionsSupplier<TOptions> {
+  (builder: PanelOptionsEditorBuilder<TOptions>, context: StandardEditorContext<TOptions>): void;
+}
 
 export interface LayerEditorOptions {
   state: MapLayerState;
@@ -40,16 +39,16 @@ export interface LayerEditorOptions {
 }
 
 export interface NestedValueAccess {
-  getValue: (path: string) => any;
-  onChange: (path: string, value: any) => void;
-  getContext?: (parent: StandardEditorContext<any, any>) => StandardEditorContext<any, any>;
+  getValue(path: string): any;
+  onChange(path: string, value: any): void;
+  getContext?(parent: StandardEditorContext<any, any>): StandardEditorContext<any, any>;
 }
 export interface NestedPanelOptions<TSub = any> {
   path: string;
   category?: string[];
   defaultValue?: TSub;
   build: PanelOptionsSupplier<TSub>;
-  values?: (parent: NestedValueAccess) => NestedValueAccess;
+  values?(parent: NestedValueAccess): NestedValueAccess;
 }
 
 export function getLayerEditor(opts: LayerEditorOptions): NestedPanelOptions<ExtendMapLayerOptions> {

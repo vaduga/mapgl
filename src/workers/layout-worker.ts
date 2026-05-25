@@ -1,5 +1,5 @@
-import type { LayoutRequest, LayoutResult } from '../../mapLib/src/utils/layoutWorkerTypes';
-import { getLayoutResult } from '../../mapLib/src/utils/layoutWorkerRunner';
+import type { LayoutRequest, LayoutResult } from '../../mapLib/src/utils/layout-worker-types';
+import { getLayoutResult } from '../../mapLib/src/utils/layout-worker-runner';
 
 interface LayoutWorkerOnMessage {
   (event: MessageEvent<LayoutRequest>): void;

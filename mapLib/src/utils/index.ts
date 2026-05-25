@@ -6,10 +6,10 @@ export {
   getEdgeArrowLength,
   inheritedShift,
 } from './utils.graph';
-export { captureLayoutCache, restoreLayoutCache, scheduleLayout } from './layoutWorkerClient';
-export type { LayoutArrowTips, LayoutCache } from './layoutWorkerClient';
-export type { LayoutCurveGroup, LayoutGraphResult } from './layoutWorkerTypes';
-export { getEdgesGeometry } from './utils.graphGeom';
+export { captureLayoutCache, restoreLayoutCache, scheduleLayout } from './layout-worker-client';
+export type { LayoutArrowTips, LayoutCache } from './layout-worker-client';
+export type { LayoutCurveGroup, LayoutGraphResult } from './layout-worker-types';
+export { getEdgesGeometry } from './utils.graph-geom';
 export { CoordsConvert, SingleCoordsConvert } from './utils.turf';
 
 export * from '../types/defaults';

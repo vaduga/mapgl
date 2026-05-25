@@ -3,7 +3,7 @@ import { locationService } from '@grafana/runtime';
 import { Graph } from '../structs/graph';
 import { getNodeData } from '../structs/graphOps';
 import type { Edge } from '../structs/edge';
-import { SOURCE_ARROW_FLAG, TARGET_ARROW_FLAG } from './layoutWorkerTypes';
+import { SOURCE_ARROW_FLAG, TARGET_ARROW_FLAG } from './layout-worker-types';
 import type {
   LayoutEdgeSnapshot,
   LayoutCurveGroup,
@@ -12,7 +12,7 @@ import type {
   LayoutNodeSnapshot,
   LayoutRequest,
   LayoutResult,
-} from './layoutWorkerTypes';
+} from './layout-worker-types';
 
 type PanelLike = {
   graph: Graph;

@@ -239,5 +239,5 @@ export interface QueryHost extends Partial<Feature> {
   updatedAt: string;
 }
 
-export type { LayoutArrowTips, LayoutCache } from '../utils/layoutWorkerClient';
-export type { LayoutCurveGroup, LayoutGraphResult } from '../utils/layoutWorkerTypes';
+export type { LayoutArrowTips, LayoutCache } from '../utils/layout-worker-client';
+export type { LayoutCurveGroup, LayoutGraphResult } from '../utils/layout-worker-types';
