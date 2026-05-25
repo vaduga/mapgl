@@ -53,7 +53,6 @@ export interface OverrideTracker {
 export const DEFAULT_LINE_WIDTH = 1;
 export const NodeSizeStates: SelectableValue[] = genValuesWithIncrement(5, 50, 5, false);
 export const LineWidthStates: SelectableValue[] = genValuesWithIncrement(0.1, 50, 1, true);
-export const IconVOffsetValues: SelectableValue[] = genValuesWithIncrement(-20, 20, 5, false);
 export const SvgTintModeOptions: Array<SelectableValue<SvgTintMode>> = [
   { label: 'None', value: 'none' },
   { label: 'Markup recolor', value: 'markup' },

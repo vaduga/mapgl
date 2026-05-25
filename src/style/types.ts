@@ -1,4 +1,4 @@
-import { Rule } from '../editor/Groups/rule-types';
+import { Rule } from '../editor/Groups/ruleTypes';
 
 type Style = {};
 

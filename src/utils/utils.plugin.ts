@@ -5,7 +5,7 @@ import { colTypes, type RGBAColor } from 'mapLib/types';
 import { FieldType, SelectableValue } from '@grafana/data';
 import { svgToDataURL } from '../deckLayers/GeoJsonNodesLayer/donutChart';
 import { MarkersConfig } from '../layers/data/markersLayer';
-import { Rule } from '../editor/Groups/rule-types';
+import { Rule } from '../editor/Groups/ruleTypes';
 import { MapLayerState, PLUGIN_ID, SvgTintMode } from '../types';
 
 type SvgIconVariant = {

@@ -20,8 +20,8 @@ import { Options } from '../../types';
 import { MapPanel } from '../../MapPanel';
 import { getQueryFields } from '../../editor/getQueryFields';
 import { GroupsEditor } from '../../editor/Groups/GroupsEditor';
-import { OverField, Rule } from '../../editor/Groups/rule-types';
-import { resolveFeatureGroup } from 'editor/Groups/data/group_resolve';
+import { OverField, Rule } from '../../editor/Groups/ruleTypes';
+import { resolveFeatureGroup } from '../../editor/Groups/data/groupResolve';
 import { CapacityDimensionEditor } from '../../editor/Other/CapacityEditor';
 import { ArcOptionsEditor } from '../../editor/ArcOptionsEditor';
 import {

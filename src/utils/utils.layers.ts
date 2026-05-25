@@ -14,7 +14,7 @@ import {
   NS_SEPARATOR,
 } from 'mapLib/defaults';
 import { type DeckLine, colTypes } from 'mapLib/types';
-import { Rule } from 'editor/Groups/rule-types';
+import { Rule } from '../editor/Groups/ruleTypes';
 import {
   NodesGeojsonLayer,
   LogicMainLabelTextLayer,

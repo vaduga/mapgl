@@ -1,5 +1,5 @@
 import { AutoSizeInput, IconButton, InlineField, MultiSelect, Select, useStyles2, useTheme2 } from '@grafana/ui';
-import { OverField, Rule } from './rule-types';
+import { OverField, Rule } from './ruleTypes';
 import React, { ReactNode, useEffect, useState } from 'react';
 import { FieldType, GrafanaTheme2, SelectableValue } from '@grafana/data';
 import { css } from '@emotion/css';

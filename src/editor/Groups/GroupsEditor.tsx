@@ -5,7 +5,7 @@ import { GrafanaTheme2, StandardEditorProps } from '@grafana/data';
 import { Button, Icon, IconButton, useStyles2 } from '@grafana/ui';
 import { isEqual } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-import { defaultGroup, OverrideTracker, Rule, RuleTracker } from './rule-types';
+import { defaultGroup, OverrideTracker, Rule, RuleTracker } from './ruleTypes';
 import { RuleItem } from './RuleItem';
 import { LayerName } from '../../grafana_core/app/core/components/Layers/LayerName';
 import { getNextGroupName } from '../../utils/geomap_utils';

@@ -42,7 +42,7 @@ interface State {
   source: string | {} | undefined;
 }
 
-import { Rule } from './editor/Groups/rule-types';
+import { Rule } from './editor/Groups/ruleTypes';
 import { VisLayers } from './store/visLayers';
 
 export class MapPanel extends Component<Props, State> {

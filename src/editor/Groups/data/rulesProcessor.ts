@@ -1,4 +1,4 @@
-import { OverField, Rule } from '../rule-types';
+import { OverField, Rule } from '../ruleTypes';
 import { FieldType } from '@grafana/data';
 import { SvgTintMode } from '../../../types';
 
