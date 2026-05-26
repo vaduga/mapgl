@@ -1,5 +1,5 @@
 export * from '../mock.data';
-export * from './utils.dataClick';
+export * from './utils.data-click';
 export * from './utils.layers';
 export * from './utils.map';
 export * from './utils.plugin';
