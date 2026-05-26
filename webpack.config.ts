@@ -8,7 +8,7 @@ const config = async (env: Env): Promise<Configuration> => {
 
   const extension: Configuration = {
     entry: {
-      layoutWorker: './workers/layoutWorker.ts',
+      layoutWorker: './workers/layout-worker.ts',
     },
     module: {
       rules: [
