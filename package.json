@@ -1,6 +1,6 @@
 {
   "name": "vaduga-mapgl-panel",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "description": "Mapgl panel",
   "scripts": {
     "build": "webpack -c ./webpack.config.ts --env production",

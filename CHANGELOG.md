@@ -1,44 +1,40 @@
 # Changelog Mapgl
 
+## 2.6.1
+- fix: same-query layers and no-refId queries no longer panic due to positions buffer under-allocation
+ 
 ## 2.6.0
-
 - auto-layout via Web Worker with shared memory for a non-blocking UX and no JSON-passthrough overhead
 - refactor: types relocated, graph imports moved to the Web Worker, leaving only a thin shim in the main bundle  
 
 ## 2.5.0
-
 - adjacent edges list in tooltip.
 - graph highlighter via shader mask for instant nodes/edges picking.
 - FIX: cross-namespace edges with > 1 segment
 
 ## 2.4.0
-
 - edge routing modes: SugiyamaSplines/Rectilinear
 - edge curve interpolation on GPU shaders
 
 ## 2.3.0
-
 - icon color tint config for Node Groups [#8](https://github.com/vaduga/mapgl/issues/8)
 - adhoc node group filter in the legend. GPU-fast
 - SVGs (raw/donut) resampled for highres, boxed into circle boundaries. Simplify group rules (rm icon size)
 - text labels offset from circle boundary (not from center point).
 
 ## 2.2.0
-
 - namespace subgraphs support. Make your graph more branchy.
 - revamped Group rules section [#6](https://github.com/vaduga/mapgl/issues/6)
 - fix: group rules threshold options sync with node metric field [#5](https://github.com/vaduga/mapgl/issues/5)
 - fix: scale on zoom for arrows and arc labels. Better arrow tips positioning.
 
 ## 2.1.0
-
 - align styles with Grafana theme tokens. Theme support for widget buttons.
 - hot patch for upstream FolderPickerTab **Grafana 12.4.0.** (No portal popups [#119187](https://github.com/grafana/grafana/issues/119187))
 - robust svg loading for edge arrows under stricter Grafana environments (**v11.2.0**)
 - update field pickers and matchers from Grafana core
 
 ## 2.0.1
-
 - arrows config for edges in 'routed' view mode
 - parallel edges support for arcs/hyperedges in nodegraph view
 - cut edges at node boundary ports to prevent overlapping with semi-transparent nodes.
@@ -46,7 +42,6 @@
 - enlarge picked arc, edge
 
 ## 2.0.0
-
 - Node Graph with autolayout and spline edge routing that respects node boundary curves. In addition to Geo mode.
 - Arc sections on nodes for any metrics.
 - Style config extends Grafana Geomap styles-from-dimensions concept with overrides for user-defined node groups

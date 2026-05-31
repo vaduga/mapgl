@@ -2,7 +2,7 @@ import turfbbox from '@turf/bbox';
 import { FeatSource } from 'mapLib';
 import { FIXED_COLOR_LABEL } from 'mapLib/defaults';
 import { colTypes, type RGBAColor } from 'mapLib/types';
-import { FieldType, SelectableValue } from '@grafana/data';
+import { FieldType, getFrameMatchers, SelectableValue } from '@grafana/data';
 import { svgToDataURL } from '../deckLayers/GeoJsonNodesLayer/donutChart';
 import { MarkersConfig } from '../layers/data/markersLayer';
 import { Rule } from '../editor/Groups/ruleTypes';
@@ -580,8 +580,16 @@ function initBinaryProps(panel) {
 
   let newLen =
     ptLayers?.reduce((sum, el) => {
-      const refId = el.options?.query?.options ?? el.query?.options;
-      return sum + (refId ? panel.props.data.series.find((s) => s.refId === refId)?.length || 0 : 0);
+      const query = el.options?.query ?? el.query;
+
+      if (query) {
+        const matcherFunc = getFrameMatchers(query);
+        return sum + panel.props.data.series.reduce((seriesSum, frame) => {
+          return seriesSum + (matcherFunc(frame) ? frame.length || 0 : 0);
+        }, 0);
+      }
+
+      return sum + panel.props.data.series.reduce((seriesSum, frame) => seriesSum + (frame.length || 0), 0);
     }, 0) ?? 0;
 
   const customQuery = panel.props.data?.request?.targets[0];
