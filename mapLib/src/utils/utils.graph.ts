@@ -19,11 +19,7 @@ type EdgeTerminals = {
 };
 
 export function getEdgeArrowSize(edgeSize: number | undefined): number {
-  if (typeof edgeSize === 'number') {
-    const scaled = edgeSize * 6;
-    return Math.max(8, Math.min(24, scaled));
-  }
-  return 12;
+  return typeof edgeSize === 'number' ? Math.max(8, edgeSize * 6) : 12;
 }
 
 export function getEdgeArrowLength(edgeSize: number | undefined): number {

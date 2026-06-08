@@ -2,7 +2,7 @@ import { FullscreenWidget, CompassWidget, LoadingWidget } from '@deck.gl/widgets
 import { getDeckWidgetSkin } from './deck-widget-skin';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { css } from '@emotion/css';
+import { css, keyframes } from '@emotion/css';
 import { DataHoverEvent, GrafanaTheme2 } from '@grafana/data';
 import { LegendDisplayMode, VizLegend, useStyles2, useTheme2, VizLegendItem } from '@grafana/ui';
 import { observer } from 'mobx-react-lite';
@@ -776,6 +776,12 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
 export default observer(Mapgl);
 
+const layoutLoadingSpin = keyframes`
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
 const getStyles = (theme: GrafanaTheme2) => ({
   page: css`
     padding: ${theme.spacing(3)};
@@ -810,18 +816,12 @@ const getStyles = (theme: GrafanaTheme2) => ({
     left: ${theme.spacing(1)};
     ${getDeckWidgetSkin(theme)}
 
-    @keyframes mapgl-layout-loading-spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
     button.deck-widget-spinner {
       cursor: default;
     }
 
     button.deck-widget-spinner .deck-widget-icon {
-      animation: mapgl-layout-loading-spin 1s linear infinite;
+      animation: ${layoutLoadingSpin} 1s linear infinite;
       mask: url("data:image/svg+xml,%3Csvg%20viewBox%3D'0%200%2024%2024'%20xmlns%3D'http://www.w3.org/2000/svg'%20fill%3D'none'%20stroke%3D'black'%20stroke-width%3D'2'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Cpath%20d%3D'M21%2012a9%209%200%201%201-6.219-8.56'%2F%3E%3C%2Fsvg%3E") center / 70% 70% no-repeat;
       -webkit-mask: url("data:image/svg+xml,%3Csvg%20viewBox%3D'0%200%2024%2024'%20xmlns%3D'http://www.w3.org/2000/svg'%20fill%3D'none'%20stroke%3D'black'%20stroke-width%3D'2'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Cpath%20d%3D'M21%2012a9%209%200%201%201-6.219-8.56'%2F%3E%3C%2Fsvg%3E") center / 70% 70% no-repeat;
     }
