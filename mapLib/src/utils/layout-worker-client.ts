@@ -321,7 +321,7 @@ function collectEdges(root: Graph): LayoutEdgeSnapshot[] {
 }
 
 function getEdgeArrowLength(edgeSize: number | undefined): number {
-  return typeof edgeSize === 'number' ? Math.max(8, edgeSize * 6) : 12;
+  return typeof edgeSize === 'number' ? Math.max(2, edgeSize * 4) : 12;
 }
 
 function nodeKey(graphId: string | undefined, nodeId: string): string {

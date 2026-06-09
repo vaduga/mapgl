@@ -86,6 +86,18 @@ const defaultOptions: MarkersConfig = {
   showStat2: false,
 };
 
+const cloneResolvedGroup = (group: any) => {
+  if (!group) {
+    return group;
+  }
+
+  return {
+    ...group,
+    color: Array.isArray(group.color) ? [...group.color] : group.color,
+    offset: Array.isArray(group.offset) ? [...group.offset] : group.offset,
+  };
+};
+
 export const MARKERS_LAYER_ID = colTypes.Markers;
 
 // Used by default when nothing is configured
@@ -376,7 +388,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                 rgba,
               }));
 
-              stValues.group = group;
+              stValues.group = cloneResolvedGroup(group);
               if (dims?.size) {
                 stValues.size = dims.size.get(i);
               }
@@ -405,7 +417,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               edgeStValues.color = rgba;
 
               if (edgeMetricField && edgeMetricField === nodeMetricField) {
-                edgeStValues.group = stValues.group;
+                edgeStValues.group = cloneResolvedGroup(stValues.group);
               }
 
               if (edgeDims?.size) {
@@ -454,7 +466,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
                 }
 
                 if (arcMetricField === edgeMetricField) {
-                  arcStValues[side].group = edgeStValues.group;
+                  arcStValues[side].group = cloneResolvedGroup(edgeStValues.group);
                 }
               }
             });
@@ -476,9 +488,9 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
               arcStyle: arcStValues,
             };
 
-            const feature = nodeData.feature;
+            const isFirstNodeRecord = node && !nodeData.feature;
 
-            if (node && !feature) {
+            if (isFirstNodeRecord) {
               setEntityAttrProp(node, AttributeRegistry.NodeDataIndex, 'feature', dataRecord);
 
               panel.features.push(dataRecord);
@@ -487,7 +499,7 @@ export const markersLayer: ExtendMapLayerRegistryItem<MarkersConfig> = {
 
               const muted = [...group.color];
               muted[3] = stValues.opacity !== undefined ? Math.round(muted[3] * stValues.opacity) : muted[3];
-              const color = group.color; //[...group.color];
+              const color = [...group.color];
               //color[3] = 255
               panel.colors.set(color, wasmId * 4);
               panel.muted.set(muted, wasmId * 4);
