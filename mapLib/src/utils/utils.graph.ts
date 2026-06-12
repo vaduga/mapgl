@@ -335,7 +335,7 @@ function pushPath(props: PushPathProps) {
   } else if (edge) {
     edge_id = edge.data.edge_id;
     if (edge_id !== undefined) {
-      if (panel.isLogic && !isEdit) {
+      if (panel.isLogic && assignedEdgeId && !isEdit) {
         const multiEdges = graphEdgeIndex.wasm2Edges[edge_id] ?? [];
         const data = { ...edgeDataBase, edge_id };
 
@@ -370,7 +370,6 @@ function pushPath(props: PushPathProps) {
 
         return;
       }
-
     } else {
       //console.log('edge wasmid undefined', edge);
     }
