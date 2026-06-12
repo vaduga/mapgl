@@ -17,7 +17,7 @@ export function addLocationFields<TOptions>(
     path: `${prefix}mode`,
     name: t('geo.location-editor.name-location-mode', 'Location Mode'),
     editor: LocationModeEditor,
-    settings: { data, source },
+    settings: { data, source, isLogic },
     showIf: (opts) => !isLogic,
   });
 

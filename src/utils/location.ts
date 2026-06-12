@@ -36,7 +36,9 @@ export interface FrameGeometryField {
   description?: string;
 }
 
-export type FieldFinder = (frame: DataFrame) => Field | undefined;
+export interface FieldFinder {
+  (frame: DataFrame): Field | undefined;
+}
 
 function getFieldFinder(matcher: FieldMatcher): FieldFinder {
   return (frame: DataFrame) => {

@@ -1,26 +1,19 @@
 import { cloneDeep } from 'lodash';
 
 import { FrameGeometrySourceMode } from '@grafana/schema';
-import { MapPanel } from '../MapPanel';
+import type { MapPanel } from '../MapPanel';
 import { geomapLayerRegistry } from '../layers/registry';
 import { defaultStyleConfig } from '../style/types';
-import { GeomapLayerActions, MapLayerState } from '../types';
+import type { GeomapLayerActions, MapLayerState } from '../types';
 
 import { initLayer } from './layers';
-import { getNextLayerName } from './geomap_utils';
+import { getNextLayerName, notifyPanelEditor } from './geomap_utils';
 
 export const getActions = (panel: MapPanel) => {
   const actions: GeomapLayerActions = {
     selectLayer: (uid: string) => {
       const selected = panel.layers.findIndex((v) => v.options.name === uid);
-      if (panel.panelContext && panel.panelContext.onInstanceStateChange) {
-        panel.panelContext.onInstanceStateChange({
-          map: panel.map,
-          layers: panel.layers,
-          selected,
-          actions: panel.actions,
-        });
-      }
+      notifyPanelEditor(panel, panel.layers, selected);
     },
     canRename: (v: string) => {
       return !panel.byName.has(v);

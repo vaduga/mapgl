@@ -159,7 +159,9 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": ["dark-green"]
+                      "value": [
+                        "dark-green"
+                      ]
                     }
                   ],
                   "svgTintMode": "none"
@@ -173,7 +175,9 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": ["red"]
+                      "value": [
+                        "red"
+                      ]
                     }
                   ],
                   "svgTintMode": "markup"
@@ -187,7 +191,9 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": ["#EF843C"]
+                      "value": [
+                        "#EF843C"
+                      ]
                     }
                   ],
                   "svgTintMode": "markup"
@@ -201,7 +207,9 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": ["green"]
+                      "value": [
+                        "green"
+                      ]
                     }
                   ],
                   "svgTintMode": "markup"
@@ -215,7 +223,9 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": ["#6ED0E0"]
+                      "value": [
+                        "#6ED0E0"
+                      ]
                     }
                   ],
                   "svgTintMode": "markup"
@@ -229,7 +239,9 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": ["#EAB839"]
+                      "value": [
+                        "#EAB839"
+                      ]
                     }
                   ],
                   "svgTintMode": "markup"
@@ -267,7 +279,12 @@
                 "useGroups": true
               }
             },
-            "displayProperties": ["type", "spanCount", "errorCount", "errorRate"],
+            "displayProperties": [
+              "type",
+              "spanCount",
+              "errorCount",
+              "errorRate"
+            ],
             "isShowTooltip": true,
             "locField": "source",
             "location": {
@@ -321,6 +338,7 @@
                 }
               },
               "edgeStyle": {
+                "arrow": 1,
                 "color": {
                   "fixed": "#5680c0"
                 },
@@ -352,7 +370,10 @@
                 "useGroups": true
               }
             },
-            "displayProperties": ["type", "avgBranchLinkCost"],
+            "displayProperties": [
+              "type",
+              "avgBranchLinkCost"
+            ],
             "isShowTooltip": true,
             "locField": "source",
             "location": {
@@ -451,7 +472,15 @@
                 "useGroups": true
               }
             },
-            "displayProperties": ["type", "traceId", "spanIds", "linkKey", "branchIndex", "linkIndex", "linkCost"],
+            "displayProperties": [
+              "type",
+              "traceId",
+              "spanIds",
+              "linkKey",
+              "branchIndex",
+              "linkIndex",
+              "linkCost"
+            ],
             "edgeIdField": "hyperedgeId",
             "isShowTooltip": true,
             "locField": "source",
@@ -546,6 +575,6 @@
   "timezone": "browser",
   "title": "Mapgl Service graph",
   "uid": "33f9075c-015b-4498-a6f4-c02a469b2093",
-  "version": 10,
+  "version": 1,
   "weekStart": ""
 }

@@ -12,6 +12,7 @@ import { FrameGeometryField, getGeometryField, getLocationMatchers } from '../..
 interface ModeEditorSettings {
   data?: DataFrame[];
   source?: ExtendFrameGeometrySource;
+  isLogic?: boolean;
 }
 
 const helpUrl = 'https://grafana.com/docs/grafana/latest/panels-visualizations/visualizations/geomap/#location';
@@ -65,12 +66,19 @@ export const LocationModeEditor = ({
   ];
 
   useEffect(() => {
+    if (item.settings?.isLogic) {
+      setInfo(undefined);
+      return;
+    }
+
     if (item.settings?.source && item.settings?.data?.length && item.settings.data[0]) {
       getLocationMatchers(item.settings.source).then((location) => {
         if (item.settings && item.settings.data) {
           setInfo(getGeometryField(item.settings.data[0], location));
         }
       });
+    } else {
+      setInfo(undefined);
     }
   }, [item.settings]);
 

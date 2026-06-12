@@ -2,8 +2,8 @@ import { DataFrame, GrafanaTheme2 } from '@grafana/data';
 
 import { defaultStyleConfig, StyleConfig, StyleConfigState, StyleDimensions } from '../style/types';
 import { getColorDimension, getScaledDimension, getTextDimension } from '../grafana_core/app/features/dimensions';
-import { MapPanel } from '../MapPanel';
-import { MapLayerState, Options } from '../types';
+import type { MapPanel } from '../MapPanel';
+import type { MapLayerState } from '../types';
 
 export function getStyleDimension(
   frame: DataFrame | undefined,
