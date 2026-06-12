@@ -116,7 +116,7 @@ export function getArrowColor(d: ArrowFeature, getGroupsLegend?: any): RGBAColor
   return muted;
 }
 
-export function expandArrowItems(data: ArrowFeature[] = [], getWasmId2Edges: Edge[][]): ArrowItem[] {
+export function expandArrowItems(data: ArrowFeature[] = []): ArrowItem[] {
   const items: ArrowItem[] = [];
 
   const createItem = (
@@ -156,7 +156,6 @@ export const EdgeArrowLayer = (props) => {
     panel,
     getVisLayers,
     getGroupsLegend,
-    getWasmId2Edges,
     autoHighlight,
     highlightColor,
     onHover,
@@ -171,7 +170,7 @@ export const EdgeArrowLayer = (props) => {
   const categorySize = 3;
 
   const baseData = Array.isArray(linesCollection) ? linesCollection : (linesCollection?.features ?? []);
-  const arrowData = expandArrowItems(baseData, getWasmId2Edges);
+  const arrowData = expandArrowItems(baseData);
   const units = options.common?.isMeters ? 'meters' : 'pixels';
   const sizeUnits = isLogic ? 'common' : units;
   const sizeConstraintProps = sizeUnits === 'pixels'

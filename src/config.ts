@@ -1,23 +1,17 @@
-//@ts-nocheck
+import { config as c, GrafanaBootConfig } from '@grafana/runtime';
+import { ExtendMapLayerOptions } from './extension';
 
-import { config as c, GrafanaBootConfig as gb } from '@grafana/runtime';
-import { PluginState } from '@grafana/data';
+type MapglBootConfig = GrafanaBootConfig & {
+  geomapDefaultBaseLayerConfig?: ExtendMapLayerOptions;
+};
 
-interface config extends c {}
-
-//my augments
-//
-class GrafanaBootConfig extends gb {
-  geomapDefaultBaseLayerConfig: ExtendMapLayerOptions;
-}
-const config: GrafanaBootConfig = c;
-//
+const config = c as MapglBootConfig;
 
 // Legacy binding paths
 
 export { config, GrafanaBootConfig as Settings };
 
-let grafanaConfig: GrafanaBootConfig = config;
+let grafanaConfig: MapglBootConfig = config;
 
 export default grafanaConfig;
 
@@ -27,5 +21,3 @@ export const getConfig = () => {
 
 // The `enable_alpha` flag is no exposed directly, this is equivolant
 export const hasAlphaPanels = true;
-
-import { ExtendMapLayerOptions } from './extension';

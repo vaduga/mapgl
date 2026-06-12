@@ -409,7 +409,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
       });
 
     let initComments: CommentsData = {};
-    const edgesGeometry = hidePendingLogicLayout ? [{}, {}] : getEdgesGeometry(graph, panel);
+    const edgesGeometry = hidePendingLogicLayout ? [{}, {}] : getEdgesGeometry(panel);
     const initLineFeatures: any = isRouted ? edgesGeometry[0] : edgesGeometry[1];
     lineFeaturesRef.current = initLineFeatures ?? {};
     refreshGraphHighlighter();

@@ -15,13 +15,16 @@ import {
 import { getProGeometry } from './utils.pro';
 
 type FragKey = `${string}:${number}`;
+type MapPanel = {
+  isLogic: boolean;
+};
 const CURVE_TYPE_LINE = 0;
 const CURVE_TYPE_BEZIER = 1;
 const CURVE_TYPE_ARC = 2;
 
 const fragKey = (lineId: string | number, startIdx: number) => `${lineId}:${startIdx}` as const;
 
-export function getEdgesGeometry(graph: Graph, panel: any) {
+export function getEdgesGeometry(panel: any) {
   const skipFrags = new Set<string>();
   const geomOverride: Map<FragKey, Position[]> = new Map();
   const { graphEdgeIndex } = panel;

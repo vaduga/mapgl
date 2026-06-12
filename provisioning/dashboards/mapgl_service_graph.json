@@ -185,7 +185,7 @@
                 {
                   "color": "#FF780A",
                   "iconName": "",
-                  "label": "> 45% -",
+                  "label": "> 45%",
                   "offset": 0,
                   "overrides": [
                     {
@@ -217,7 +217,7 @@
                 {
                   "color": "#31c0cc",
                   "iconName": "",
-                  "label": ">60% -",
+                  "label": "> 60%",
                   "offset": 0,
                   "overrides": [
                     {
@@ -233,7 +233,7 @@
                 {
                   "color": "#F2CC0C",
                   "iconName": "",
-                  "label": ">75% -",
+                  "label": "> 75%",
                   "offset": 0,
                   "overrides": [
                     {
