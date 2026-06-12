@@ -16,7 +16,7 @@ For workflow-oriented setup guidance, see [Panel configuration](documentation.md
 - **Data**: optional frame/query filter for a layer.
 - **Vertex A**: source node ID field. This is the main node identity field.
 - **Vertex B**: target node ID or path definition. If set, Mapgl can generate links.
-- **Edge ID**: optional edge key. Use unique values for separate parallel links.
+- **Edge ID**: optional edge key. Use unique values for separate parallel links or distributed trace spans that must keep their own row properties.
 - **Vertex A namespace**: optional source namespace for graph mode.
 - **Vertex B namespace**: optional target namespace for graph mode.
 - **Search by**: extra fields exposed to panel search.
@@ -46,6 +46,8 @@ For workflow-oriented setup guidance, see [Panel configuration](documentation.md
 
 Practical implication: use one stable edge key per logical link, and use unique **Edge ID** values when repeated **Vertex A -> Vertex B** rows should remain separate.
 
+For trace or service dependency data, the same rule applies to span-level details: use a distinct **Edge ID** for each trace branch, hyperedge, span, or occurrence that should preserve its own fields such as duration, status, span IDs, or cost.
+
 ## Deduplication rules
 
 - Duplicate node IDs do not create additional nodes.
@@ -61,7 +63,7 @@ Practical implication: use one stable edge key per logical link, and use unique 
 | Case | Edge key | Result |
 | --- | --- | --- |
 | No **Edge ID** configured | `Vertex A + "-" + final target` | repeated source-target rows become one logical link |
-| **Edge ID** configured with unique values | **Edge ID** value | each unique value creates a separate link |
+| **Edge ID** configured with unique values | **Edge ID** value | each unique value creates a separate link or routed multi-hop edge with its own row properties |
 | **Edge ID** configured but repeated | repeated **Edge ID** value | rows are treated as the same logical link |
 | **Edge ID** configured but empty | `Vertex A + "-" + final target` | same as no **Edge ID** for that row |
 
@@ -102,6 +104,19 @@ Path behavior:
 - Per-link metrics, labels, widths, and colors may differ across parallel links.
 - In the open-source panel, parallel edge offset rendering is available in abstract node graph mode.
 - Parallel edge offset rendering on geomap is a Pro feature.
+
+## Multi-hop trace edge rules
+
+Multi-hop trace edges use the same identity rules as other edges, but **Vertex B** usually contains a path array instead of a single target.
+
+- **Vertex A** is the source service for the row.
+- **Vertex B** is the service path or dependency path.
+- **Edge ID** should identify the trace branch, hyperedge, span, or occurrence that needs its own edge details.
+- Each unique **Edge ID** keeps the row properties from the record that created it.
+- In abstract node graph mode, a multi-hop path is expanded into routed fragments.
+- Routed fragments keep the row properties from their source record, so fields such as duration, cost, status, span IDs, method, or operation name can be shown for that edge occurrence.
+
+If multiple trace rows share the same **Edge ID**, Mapgl treats them as the same logical edge key. Use unique **Edge ID** values when those rows should remain distinguishable in tooltips, adjacent edge lists, styling, or highlighting.
 
 ## Auto-layout edge routing
 

@@ -32,8 +32,9 @@ Most panel-specific topology work happens inside the **Markers and links** layer
 5. For Geo mode, make sure the layer has usable location fields.
    Coordinates are not required in graph mode.
 6. Set **Vertex B** when rows should create links.
-7. Set **Edge ID** when repeated **Vertex A -> Vertex B** links should remain separate.
-8. Configure **Node Styles**, **Edge Styles**, and **Node Groups**.
+7. Set **Edge ID** when repeated **Vertex A -> Vertex B** links should be rendered in parallel.
+8. Set **Edge ID** when you render traces and want each span to keep properties from its own row. Link order should be preserved by the datasource.
+9. Configure **Node Styles**, **Edge Styles**, and **Node Groups**.
 
 New graph-mode panels start with a small mock topology until a real **Vertex A** field is configured. This lets you test styles and rendering before a datasource is ready.
 
@@ -73,7 +74,7 @@ These fields define how Mapgl builds the topology:
 
 - **Vertex A**: unique node ID.
 - **Vertex B**: target node ID or path array. If set, Mapgl draws links.
-- **Edge ID**: optional edge key. Use a unique value for each parallel link.
+- **Edge ID**: optional edge key. Use a unique value for each parallel link, trace span, or edge occurrence that should keep its own properties.
 - **Vertex A namespace**: optional namespace for source nodes in graph mode.
 - **Vertex B namespace**: optional namespace for target nodes in graph mode.
 - **Search by**: extra fields included in the panel search text.
@@ -93,6 +94,19 @@ Use **Edge ID** when the same **Vertex A -> Vertex B** pair can appear more than
 Each parallel link needs its own **Edge ID** value. If repeated rows use the same edge key, Mapgl treats them as the same logical link.
 
 In the open-source panel, parallel edge offset rendering is available in **abstract node graph** mode.
+
+### Trace and service graph edges
+
+For service dependency graphs and trace-like data, use **Vertex B** as the service path and **Edge ID** as the trace, hyperedge, span, or occurrence key that should keep its own edge details.
+
+For example, a trace layer can use:
+
+- **Vertex A**: source service
+- **Vertex B**: service path, such as `["api-gateway", "order-service", "payment-service"]`
+- **Edge ID**: unique trace, branch, span, or hyperedge ID
+- extra fields: duration, status, span IDs, method, cost, or other per-span properties
+
+In graph mode, Mapgl expands a multi-hop path into routed edge fragments. Since each fragment keeps the row properties from the record that created it, span fields such as duration or cost can appear in edge tooltips and adjacent edge details.
 
 ## Node styles
 

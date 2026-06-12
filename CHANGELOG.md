@@ -1,7 +1,7 @@
 # Changelog Mapgl
 
 ## 2.6.2
-- traces on service dependency graph: multi-hop edges collect per span props from records (duration, etc).
+- traces on service dependency graph: multi-hop edges with per-span props from separate rows (duration, etc).
 - config: 'routed' edge mode by default
 
 ## 2.6.1
