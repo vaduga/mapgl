@@ -61,7 +61,7 @@ class ViewStore {
           const count = getNodeGroupCounts(graph).get(i) ?? 0;
           nodeThres.push({
             color: g.color,
-            label: (g.label ?? g.color) + (count ? ' ' + count : ''),
+            label: (g.label ?? g.color),// + (count ? ' ' + count : ''),
             yAxis: 1,
             disabled: !active_indexes[i], //getGroupsLegend?.find(el => el.data?.rawLabel === g.label)?.disabled ??
             data: { rawLabel: g.label ?? g.color, groupIdx: g.groupIdx, count },

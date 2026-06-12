@@ -21,14 +21,6 @@ export const plugin = new PanelPlugin<Options>(MapPanel)
     },
     disableStandardOptions: [
       //FieldConfigProperty.Thresholds,
-      //FieldConfigProperty.Color,
-      //FieldConfigProperty.Decimals,
-      //FieldConfigProperty.DisplayName,
-      //FieldConfigProperty.Max,
-      //FieldConfigProperty.Min,
-      //FieldConfigProperty.Links,
-      //FieldConfigProperty.NoValue,
-      //FieldConfigProperty.Unit,
     ],
     standardOptions: {
       [FieldConfigProperty.Mappings]: {},

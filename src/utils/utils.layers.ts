@@ -30,7 +30,7 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
   const lines: any[] = [];
   const arcsBase: any[] = [];
   const edgeLabels: any[] = [];
-  const { theme, baseLayer, options, getVisLayers, isHyper, panel, isLogic } = layerProps;
+  const { theme, baseLayer, options, getVisLayers, isRouted, panel, isLogic } = layerProps;
 
   const icons: Layer[] = [];
 
@@ -191,7 +191,7 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
         continue;
       }
 
-      if (!isHyper) {
+      if (!isRouted) {
         const props = {
           ...layerProps,
           srcGraphId,
@@ -235,7 +235,7 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
     }
   }
 
-  if (commentFeatures?.length && isHyper) {
+  if (commentFeatures?.length && isRouted) {
     comments = MyIconLayer({
       ...layerProps,
       showGraph,
@@ -372,9 +372,9 @@ function createDerivedLayers(visLayers: VisLayers, graph: Graph, isLogic, replac
     idToLayerIdx.set(id, layerIdx);
   }
 
-  const hyperVar = useMockData ? '1' : replaceVariables(`$routed`); //(`$hyperedges`)
+  const hyperVar = useMockData ? '1' : replaceVariables(`$routed`);
   const parsed = parseInt(hyperVar, 10);
-  const isHyper = !isNaN(parsed) && parsed > 0;
+  const isRouted = !isNaN(parsed) ? parsed > 0 : true;
 
   const parentIdx = null;
   visLayers.addLayer(colTypes.Circle, colTypes.Circle, colTypes.Circle, false, true, false, parentIdx, false);
@@ -383,16 +383,7 @@ function createDerivedLayers(visLayers: VisLayers, graph: Graph, isLogic, replac
   hasComments &&
     visLayers.addLayer(colTypes.Comments, colTypes.Comments, colTypes.Comments, false, true, false, parentIdx, false);
   visLayers.addLayer(colTypes.Edges, colTypes.Edges, colTypes.Edges, false, true, false, parentIdx, false);
-  visLayers.addLayer(
-    colTypes.Hyperedges,
-    colTypes.Hyperedges,
-    colTypes.Hyperedges,
-    false,
-    isHyper,
-    false,
-    parentIdx,
-    false
-  );
+  visLayers.addLayer(colTypes.Routed, colTypes.Routed, colTypes.Routed, false, isRouted, false, parentIdx, false);
 }
 
 export {

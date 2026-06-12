@@ -1,4 +1,4 @@
-import { BiColProps, Comment, CommentsData, CoordRef, PushPathProps } from '../types';
+import { BiColProps, Comment, CommentsData, CoordRef, PushDummyEdgesProps, PushPathProps } from '../types';
 import { Edge } from '../structs/edge';
 import { AttributeRegistry } from '../structs/attributeRegistry';
 import { Position } from 'geojson';
@@ -17,6 +17,50 @@ type EdgeTerminals = {
   sourcePosition?: Position;
   targetPosition?: Position;
 };
+
+function getSegmentArrowPlacement(i: number, len: number) {
+  return len === 1 ? 'both' : i === 0 ? 'start' : i === len - 1 ? 'end' : 'none';
+}
+
+function pushDummyEdges({
+  graphA,
+  graphB,
+  edgeId,
+  data,
+  multiEdges,
+  parPath,
+  positions,
+  findNodeA,
+  findNodeB,
+  duplicateIdx,
+}: PushDummyEdgesProps) {
+  const [segrPath] = parPath.length ? segregatePath(parPath, positions, findNodeA, findNodeB) : [];
+  segrPath?.forEach((frag: any, i: number) => {
+    const idx = i ? '--' + i : '';
+    const extraId = duplicateIdx === undefined ? edgeId + idx : `${edgeId}--dup-${duplicateIdx}${idx}`;
+    const start = frag[0].item.id;
+    const end = frag.at(-1).item.id;
+    const dummy = setEdge(graphA, extraId, start, end as string, i === segrPath.length - 1 ? graphB : undefined);
+
+    if (dummy) {
+      const placement = getSegmentArrowPlacement(i, segrPath.length);
+      dummy.setData({ ...data, arrowPlacement: placement, pathSegmentIdx: i, pathSegmentCount: segrPath.length });
+      multiEdges.push(dummy);
+    }
+  });
+}
+
+function appendVerticeIds(prevVerticeIds: Array<number | undefined>, nextVerticeIds: Array<number | undefined>) {
+  if (!prevVerticeIds.length) {
+    return Array.from(nextVerticeIds);
+  }
+  if (!nextVerticeIds.length) {
+    return Array.from(prevVerticeIds);
+  }
+
+  const shouldDropJoin = prevVerticeIds.at(-1) !== undefined && prevVerticeIds.at(-1) === nextVerticeIds[0];
+  return [...prevVerticeIds, ...(shouldDropJoin ? nextVerticeIds.slice(1) : nextVerticeIds)];
+}
 
 export function getEdgeArrowSize(edgeSize: number | undefined): number {
   return typeof edgeSize === 'number' ? Math.max(2, edgeSize * 4) : 12;
@@ -82,11 +126,11 @@ function getArrowAngle(base: number[], tip: number[], isGeo: boolean): number {
 function getArrowAngles(
   coords: number[][],
   isGeo: boolean,
-  fragIdx: number,
-  len: number,
+  hasStart: boolean,
+  hasEnd: boolean,
   arrowTips?: ArrowTips
 ): ArrowAngles | null {
-  if (fragIdx !== 0 && fragIdx !== len) {
+  if (!hasStart && !hasEnd) {
     return null;
   }
   const startPoints = getFirstPoints(coords);
@@ -95,9 +139,8 @@ function getArrowAngles(
     return null;
   }
   return {
-    start:
-      fragIdx === 0 ? getArrowAngle(startPoints.base, arrowTips?.start ?? startPoints.tip, isGeo) : undefined,
-    end: fragIdx === len ? getArrowAngle(endPoints.base, arrowTips?.end ?? endPoints.tip, isGeo) : undefined,
+    start: hasStart ? getArrowAngle(startPoints.base, arrowTips?.start ?? startPoints.tip, isGeo) : undefined,
+    end: hasEnd ? getArrowAngle(endPoints.base, arrowTips?.end ?? endPoints.tip, isGeo) : undefined,
   };
 }
 
@@ -190,6 +233,7 @@ function pushPath(props: PushPathProps) {
     dataRecord,
     commentsData,
     theme,
+    rxEdgeId = false,
     isEdit = false,
   } = props;
   const { graphEdgeIndex } = panel;
@@ -238,6 +282,12 @@ function pushPath(props: PushPathProps) {
   }
 
   const edgeId = assignedEdgeId ?? sourceId + '-' + targetId;
+  const edgeDataBase = {
+    dataRecord,
+    ...(rxEdgeId ? { rxEdgeId } : {}), // assigned either from DS [edgeId] field or RXDB
+    parPath: parPathSan,
+    edgeId,
+  };
   let edge = findEdgeA(edgeId);
   let edge_id;
   if (!edge && !isEdit) {
@@ -246,36 +296,36 @@ function pushPath(props: PushPathProps) {
 
     edge_id = graphEdgeIndex.edgeVerticeIds.length - 1;
 
-    const data = {
-      dataRecord,
-      parPath: parPathSan,
-      edge_id,
-      edgeId,
-    };
+    const data = { ...edgeDataBase, edge_id };
+
+    if (!dataRecord) {
+      /// create new edge from rxdb?
+    }
 
     const multiEdges: Edge[] = [];
 
     if (nodes.length > 2) {
-      const [segrPath, segrCoords] = parPath.length
-        ? segregatePath(parPathSan, panel.positions, findNodeA, findNodeB)
-        : [];
-      segrPath?.forEach((frag: any, i: number) => {
-        const idx = i ? '--' + i : '';
-        const extraId = edgeId + idx;
-        const start = frag[0].item.id;
-        const end = frag.at(-1).item.id;
-        const dummy = setEdge(graphA, extraId, start, end as string, i === segrPath.length - 1 ? graphB : undefined);
-
-        if (dummy) {
-          const placement =
-            segrPath.length === 1 ? 'both' : i === 0 ? 'start' : i === segrPath.length - 1 ? 'end' : 'none';
-          dummy.setData({ ...data, arrowPlacement: placement });
-          multiEdges.push(dummy);
-        }
+      pushDummyEdges({
+        graphA,
+        graphB,
+        edgeId,
+        data,
+        multiEdges,
+        parPath: parPathSan,
+        positions: panel.positions,
+        findNodeA,
+        findNodeB,
       });
     } else {
+      // @ts-ignore
       edge = setEdge(graphA, edgeId, sourceId, targetId, graphB);
       if (!edge) {
+        console.warn(
+          'edge from rxdb not found in your datasource. Mixed namespaces? (edgeId, sourceId, targetId)',
+          edgeId,
+          sourceId,
+          targetId
+        );
         return;
       }
       edge?.setData({ ...data, arrowPlacement: 'both' });
@@ -285,11 +335,42 @@ function pushPath(props: PushPathProps) {
   } else if (edge) {
     edge_id = edge.data.edge_id;
     if (edge_id !== undefined) {
-      //console.log('edge_id', edge_id, edge.data.edgeId)
-      setEntityAttrProp(edge, AttributeRegistry.EdgeDataIndex, 'parPath', parPathSan);
-      setEntityAttrProp(edge, AttributeRegistry.EdgeDataIndex, 'arrowPlacement', 'both');
-      const newVerticeIds = wasmVerticeIds;
-      graphEdgeIndex.edgeVerticeIds[edge_id][0] = Array.from(newVerticeIds);
+      if (panel.isLogic && !isEdit) {
+        const multiEdges = graphEdgeIndex.wasm2Edges[edge_id] ?? [];
+        const data = { ...edgeDataBase, edge_id };
+
+        if (nodes.length > 2) {
+          pushDummyEdges({
+            graphA,
+            graphB,
+            edgeId,
+            data,
+            multiEdges,
+            parPath: parPathSan,
+            positions: panel.positions,
+            findNodeA,
+            findNodeB,
+            duplicateIdx: multiEdges.length,
+          });
+        } else {
+          const extraId = `${edgeId}--dup-${multiEdges.length}`;
+          const dummy = setEdge(graphA, extraId, sourceId, targetId, graphB);
+
+          if (dummy) {
+            dummy.setData({ ...data, arrowPlacement: 'both', pathSegmentIdx: 0, pathSegmentCount: 1 });
+            multiEdges.push(dummy);
+          }
+        }
+
+        graphEdgeIndex.wasm2Edges[edge_id] = multiEdges;
+
+        const prevVerticeIds = graphEdgeIndex.edgeVerticeIds[edge_id][0];
+        const appendedVerticeIds = appendVerticeIds(prevVerticeIds, wasmVerticeIds);
+        graphEdgeIndex.edgeVerticeIds[edge_id][0] = appendedVerticeIds;
+
+        return;
+      }
+
     } else {
       //console.log('edge wasmid undefined', edge);
     }
@@ -341,7 +422,7 @@ function segregatePath(path: any[], pathCoords: Position[], findNodeA: any, find
     const item = pathConverted[i];
     const coords = pathCoords[i];
     if (!coords) {
-      //console.log('no coords', item, coords);
+      //console.log('no coords', item, coords, i, pathCoords[i], pathCoords);
       continue;
     }
     const isNode = item.id;

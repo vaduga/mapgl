@@ -27,17 +27,7 @@ function dedupeHyperedgeList(edges: Edge[]): Edge[] {
   });
 }
 
-const Tooltip = ({
-  data,
-  panel,
-  info,
-  eventBus,
-  setHoverInfo,
-  time,
-  isClosed = false,
-  isHyper,
-  dataLayers,
-}) => {
+const Tooltip = ({ data, panel, info, eventBus, setHoverInfo, time, isClosed = false, isRouted, dataLayers }) => {
   const s = useStyles2(getStyles);
   const { pointStore, pId } = useRootStore();
   const theme = useTheme2();
@@ -190,7 +180,7 @@ const Tooltip = ({
   };
 
   const frame: DataFrame | undefined = frameRefId
-    ? data.series.find((el) => el.refId === frameRefId || el.name === frameRefId) ?? data.series[0]
+    ? (data.series.find((el) => el.refId === frameRefId || el.name === frameRefId) ?? data.series[0])
     : data.series[0];
 
   if (frame) {
@@ -307,7 +297,8 @@ const Tooltip = ({
     const inLen = inEdges?.length ?? 0;
     const toLines = inEdges?.map((e: Edge, i) => genLi(e.source, e, i));
     const revLines = outEdges?.map((e: Edge, i) => genLi(e.target, e, i + inLen));
-    const adjacentEdges = (edge ? [edge] : parents)?.map((e, i) => genLi(pickedNode, e, parents?.length > 1 && i)) ?? [];
+    const adjacentEdges =
+      (edge ? [edge] : parents)?.map((e, i) => genLi(pickedNode, e, parents?.length > 1 && i)) ?? [];
     const inEdgesLabel = isTrespass ? 'trespassing edges >' : 'incoming';
     const outEdgesLabel = isTrespass ? 'trespassing edges <' : 'outgoing';
 
@@ -315,7 +306,7 @@ const Tooltip = ({
       if (!lines?.length) {
         return null;
       }
-      const isListed = getisEdgeListed && (isDefDir === listIsDefDir);
+      const isListed = getisEdgeListed && isDefDir === listIsDefDir;
       return (
         isListed && (
           <ul>

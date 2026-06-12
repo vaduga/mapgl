@@ -126,7 +126,7 @@ const NodesGeojsonLayer = (props) => {
     visRefresh,
     theme,
     isLogic,
-    isHyper,
+    isRouted,
     onSvgIconReady,
     getVisLayers,
     panel,

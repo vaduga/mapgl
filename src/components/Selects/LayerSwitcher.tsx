@@ -105,7 +105,7 @@ LayerSwitcher.renderLayer_ = (geomap, setVisRefresh, lyr: LayerTreeInfo, idx, op
     colTypes.Label,
     colTypes.Comments,
     colTypes.Edges,
-    colTypes.Hyperedges,
+    colTypes.Routed,
   ];
 
   if (lyr.group && hasChildren && !lyr.combine) {

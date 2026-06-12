@@ -1,5 +1,9 @@
 # Changelog Mapgl
 
+## 2.6.2
+- traces on service dependency graph: multi-hop edges collect per span props from records (duration, etc).
+- config: 'routed' edge mode by default
+
 ## 2.6.1
 - fix: same-query layers and no-refId queries no longer panic due to positions buffer under-allocation
  
@@ -36,7 +40,7 @@
 
 ## 2.0.1
 - arrows config for edges in 'routed' view mode
-- parallel edges support for arcs/hyperedges in nodegraph view
+- parallel edges support for arcs/multi-hop edges in nodegraph view
 - cut edges at node boundary ports to prevent overlapping with semi-transparent nodes.
 - show head node id in edge tooltip
 - enlarge picked arc, edge

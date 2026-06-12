@@ -134,33 +134,12 @@ export function expandArrowItems(data: ArrowFeature[] = [], getWasmId2Edges: Edg
   });
 
   data.forEach((feature, lineIndex) => {
-    const arrow = feature?.properties?.edgeStyle?.arrow;
     const angles = feature?.properties?.arrowAngles;
-    const edgeId = feature?.edgeId;
-    const heIdx = feature?.heIdx;
-    const hyperEdge = getWasmId2Edges[heIdx];
-    const firstEdgeId = hyperEdge?.[0]?.id;
-    const lastEdgeId = hyperEdge?.at(-1)?.id;
-
-    if (arrow === 1 && lastEdgeId === edgeId) {
+    if (angles?.start !== undefined) {
+      items.push(createItem(feature, 'start', lineIndex, angles.start));
+    }
+    if (angles?.end !== undefined) {
       items.push(createItem(feature, 'end', lineIndex, angles?.end));
-      return;
-    }
-
-    if (arrow === -1 && firstEdgeId === edgeId) {
-      items.push(createItem(feature, 'start', lineIndex, angles?.start));
-      return;
-    }
-
-    if (arrow === 2) {
-      if (firstEdgeId === edgeId) {
-        items.push(createItem(feature, 'start', lineIndex, angles?.start));
-      }
-      if (lastEdgeId === edgeId) {
-        items.push(createItem(feature, 'end', lineIndex, angles?.end));
-      }
-
-      return;
     }
   });
 

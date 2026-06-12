@@ -24,6 +24,8 @@ export type EdgeData = {
   rxEdgeId?: string;
   rPath?: CoordRef[];
   rWasmNodeIds?: number[];
+  pathSegmentIdx?: number;
+  pathSegmentCount?: number;
 };
 
 export class Edge extends Entity {

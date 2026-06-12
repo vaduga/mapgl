@@ -45,11 +45,9 @@ export function getEdgesGeometry(graph: Graph, panel: any) {
     const tarGraph = target.parent as Graph;
     const findNodeA = (id: string) => srcGraph.findNode(id);
     const findNodeB = (id: string) => tarGraph.findNode(id);
-    const edgeData = edge.data;
-    const dataRecord = edgeData?.dataRecord as BiColProps;
 
-    if (!dataRecord) {
-//      console.log('!!edgeData.dataRecord', edges[0]);
+    if (!edge.data?.dataRecord) {
+     // console.log('!!edgeData.dataRecord', edges[0]);
     }
 
     let srcFeatureProps: Partial<BiColProps> = {
@@ -59,10 +57,15 @@ export function getEdgesGeometry(graph: Graph, panel: any) {
     let targetPosition: Position | undefined;
 
     edges.forEach((edge, fragIdx) => {
-      const len = edges.length - 1;
+      const edgeData = edge.data;
+      const dataRecord = edgeData?.dataRecord as BiColProps;
+      const pathFragIdx = edgeData?.pathSegmentIdx ?? fragIdx;
       const isFirst = fragIdx === 0;
-      const isLast = fragIdx === len;
+      const isLast = fragIdx === edges.length - 1;
       const { parPath } = edgeData || {};
+      if (!parPath) {
+        return;
+      }
       const locName = parPath[0];
       let layoutArrowTips = panel.layoutArrowTips?.get(`${srcGraph.id ?? ''}:${edge.id}`);
       const layoutGeometry = panel.isLogic ? getLayoutTerminalGeometry(edge, panel) : undefined;
@@ -121,7 +124,7 @@ export function getEdgesGeometry(graph: Graph, panel: any) {
 
       const key = fragKey(heIdx, fragIdx);
       const override = geomOverride.get(key);
-      const frCoords = segrCoords[fragIdx];
+      const frCoords = segrCoords[pathFragIdx];
 
       let coordinates = panel.isLogic
         ? targetTerminalShift || isContracted
@@ -146,15 +149,18 @@ export function getEdgesGeometry(graph: Graph, panel: any) {
       let arrowTips: { start?: Position; end?: Position } = {};
       let sourceArrowTip: Position | undefined;
       let targetArrowTip: Position | undefined;
+      const arrowLengths = getLayoutArrowLengths(edge);
+      const hasStartArrow = arrowLengths.start !== undefined;
+      const hasEndArrow = arrowLengths.end !== undefined;
 
-      if (isFirst || isLast) {
+      if (hasStartArrow || hasEndArrow || isFirst || isLast) {
         const edgeTerminals = getEdgeTerminals(
           coordinates,
           targetTerminalShift,
-          isFirst,
-          isLast,
+          hasStartArrow,
+          hasEndArrow,
           layoutArrowTips,
-          getLayoutArrowLengths(edge)
+          arrowLengths
         );
 
         if (!edgeTerminals) {
@@ -169,7 +175,7 @@ export function getEdgesGeometry(graph: Graph, panel: any) {
         }
       }
 
-      const arrowAngles = getArrowAngles(coordinates, !panel.isLogic, fragIdx, len, arrowTips);
+      const arrowAngles = getArrowAngles(coordinates, !panel.isLogic, hasStartArrow, hasEndArrow, arrowTips);
       const skip = skipFrags.has(`${heIdx}:${fragIdx}`);
 
       const newFeature: DeckLine = {
@@ -193,6 +199,13 @@ export function getEdgesGeometry(graph: Graph, panel: any) {
         },
       };
 
+      if (!features[srcGraph.id]) {
+        features[srcGraph.id] = [];
+      }
+
+      features[srcGraph.id].push(newFeature);
+      edge.setLineId(features[srcGraph.id].length - 1);
+
       if (isFirst) {
         srcFeatureProps = newFeature.properties;
         sourcePosition = sourceArrowTip && !isContracted ? sourceArrowTip : coordinates[0];
@@ -201,70 +214,77 @@ export function getEdgesGeometry(graph: Graph, panel: any) {
       if (isLast) {
         targetPosition = targetArrowTip && !isTarContracted ? targetArrowTip : coordinates.at(-1);
       }
-
-      if (!features[srcGraph.id]) {
-        features[srcGraph.id] = [];
-      }
-
-      features[srcGraph.id].push(newFeature);
-      edge.setLineId(features[srcGraph.id].length - 1);
     });
 
-    if (!sourcePosition || !targetPosition) {
-      return;
-    }
-
-    const { isOutgoing, tiltDist } = edge;
-    const { arcStyle } = srcFeatureProps;
-    const heightCoef = arcStyle?.arcConfig?.height;
-    const options = { units: 'meters' as Units };
-    const d = panel.isLogic ? distance2D(sourcePosition, targetPosition) : distance(sourcePosition, targetPosition, options);
-    const peakHeight = paraboloid(d, 0, 0, 0.5, heightCoef !== undefined ? heightCoef : 0.5);
-    const mid = getMidpoint(sourcePosition, targetPosition, panel.isLogic);
-    const midPoint = [...mid, peakHeight];
-
-    const arcData = {
-      sourcePosition,
-      targetPosition,
-      midPoint,
-      properties: srcFeatureProps,
-      edgeId: edge.id,
-      skip: false,
-    };
-
-    if (tiltDist !== undefined) {
-      if (tiltDist === 0) {
-        arcData.skip = true;
-      } else if (!panel.isLogic) {
-        const dist = tiltDist / 1;
-        const tiltIncrement = arcStyle?.arcConfig.tiltIncrement;
-        const tilt = dist * tiltIncrement * (isOutgoing ? 1 : -1);
-        arcData.properties.tilt = tilt;
-
-        const tiltAngle = (tilt * Math.PI) / 180;
-        const tiltFactor = panel.isLogic ? 1 : 0.00002;
-        const tiltDirection = [targetPosition[0] - sourcePosition[0], targetPosition[1] - sourcePosition[1]];
-        const norm = Math.sqrt(tiltDirection[0] * tiltDirection[0] + tiltDirection[1] * tiltDirection[1]);
-        const unitTiltDirection = [tiltDirection[0] / norm, tiltDirection[1] / norm];
-        const peakHeight = midPoint[2];
-        const tiltX = -unitTiltDirection[1] * peakHeight * Math.sin(tiltAngle) * tiltFactor;
-        const tiltY = unitTiltDirection[0] * peakHeight * Math.sin(tiltAngle) * tiltFactor;
-
-        midPoint[0] += tiltX;
-        midPoint[1] += tiltY;
-      }
-    }
-
-    if (!arcsFeatures[srcGraph.id]) {
-      arcsFeatures[srcGraph.id] = [];
-    }
-
-    arcsFeatures[srcGraph.id].push(arcData);
-    edge.setArcId(arcsFeatures[srcGraph.id].length - 1);
+    pushArcFeature(panel, arcsFeatures,edge, srcGraph, sourcePosition, targetPosition, srcFeatureProps);
   });
 
   return [features, arcsFeatures];
 }
+
+const pushArcFeature = (
+  panel: MapPanel,
+  arcsFeatures,
+  edge: any,
+  srcGraph: Graph,
+  sourcePosition: Position | undefined,
+  targetPosition: Position | undefined,
+  properties: Partial<BiColProps>
+) => {
+  if (!sourcePosition || !targetPosition) {
+    return;
+  }
+
+  const { isOutgoing, tiltDist } = edge;
+  const { arcStyle } = properties;
+  const heightCoef = arcStyle?.arcConfig?.height;
+  const options = { units: 'meters' as Units };
+  const d = panel.isLogic
+    ? distance2D(sourcePosition, targetPosition)
+    : distance(sourcePosition, targetPosition, options);
+  const peakHeight = paraboloid(d, 0, 0, 0.5, heightCoef !== undefined ? heightCoef : 0.5);
+  const mid = getMidpoint(sourcePosition, targetPosition, panel.isLogic);
+  const midPoint = [...mid, peakHeight];
+
+  const arcData = {
+    sourcePosition,
+    targetPosition,
+    midPoint,
+    properties,
+    edgeId: edge.id,
+    skip: false,
+  };
+
+  if (tiltDist !== undefined) {
+    if (tiltDist === 0) {
+      arcData.skip = true;
+    } else if (!panel.isLogic) {
+      const dist = tiltDist / 1;
+      const tiltIncrement = arcStyle?.arcConfig.tiltIncrement;
+      const tilt = dist * tiltIncrement * (isOutgoing ? 1 : -1);
+      arcData.properties.tilt = tilt;
+
+      const tiltAngle = (tilt * Math.PI) / 180;
+      const tiltFactor = panel.isLogic ? 1 : 0.00002;
+      const tiltDirection = [targetPosition[0] - sourcePosition[0], targetPosition[1] - sourcePosition[1]];
+      const norm = Math.sqrt(tiltDirection[0] * tiltDirection[0] + tiltDirection[1] * tiltDirection[1]);
+      const unitTiltDirection = [tiltDirection[0] / norm, tiltDirection[1] / norm];
+      const peakHeight = midPoint[2];
+      const tiltX = -unitTiltDirection[1] * peakHeight * Math.sin(tiltAngle) * tiltFactor;
+      const tiltY = unitTiltDirection[0] * peakHeight * Math.sin(tiltAngle) * tiltFactor;
+
+      midPoint[0] += tiltX;
+      midPoint[1] += tiltY;
+    }
+  }
+
+  if (!arcsFeatures[srcGraph.id]) {
+    arcsFeatures[srcGraph.id] = [];
+  }
+
+  arcsFeatures[srcGraph.id].push(arcData);
+  edge.setArcId(arcsFeatures[srcGraph.id].length - 1);
+};
 
 function getLayoutArrowLengths(edge: any): { start?: number; end?: number } {
   const edgeData = edge.data;

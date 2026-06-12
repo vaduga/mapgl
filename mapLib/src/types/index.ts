@@ -34,7 +34,7 @@ export enum colTypes {
   Markers = 'markers',
   Nodes = 'nodes',
   Edges = 'edges',
-  Hyperedges = 'routed',
+  Routed = 'routed',
   Clusters = 'clusters',
   SVG = 'icon',
   Circle = 'circle',
@@ -227,8 +227,22 @@ export interface PushPathProps {
   dataRecord: BiColProps;
   commentsData: CommentsData;
   theme: any;
+  rxEdgeId?: string;
   isEdit?: boolean;
 }
+
+export type PushDummyEdgesProps = {
+  graphA: any;
+  graphB: any;
+  edgeId: string;
+  data: any;
+  multiEdges: Edge[];
+  parPath: CoordRef[];
+  positions: any;
+  findNodeA: (id: string) => any;
+  findNodeB: (id: string) => any;
+  duplicateIdx?: number;
+};
 
 export interface QueryHost extends Partial<Feature> {
   _data?: any;

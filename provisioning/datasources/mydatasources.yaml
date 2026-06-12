@@ -19,3 +19,10 @@ datasources:
     editable: true
     jsonData:
       codeEditorEnabled: true
+
+
+  - name: TestData
+    type: testdata
+    access: proxy
+    isDefault: true
+    uid: 'f8b9d80c-0d2f-46c6-8b94-d996a6cfc327'

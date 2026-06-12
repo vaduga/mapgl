@@ -12,18 +12,17 @@ import { ICON_CACHE_SOURCE_KEY } from './GeoJsonNodesLayer/nodes-geojson-layer';
 type DimmedGraphLayerOptions = {
   connectedNodeIds: Set<string>;
   connectedEdgeIndexes?: ConnectedEdgeIndex[];
-  isHyper?: boolean;
+  isRouted?: boolean;
 };
+
+const widthMultiplier = 1.3;
 
 export function getDimmedGraphLayers(layers: Layer[], opts: DimmedGraphLayerOptions | Set<string>) {
   const connectedNodeIds = opts instanceof Set ? opts : opts.connectedNodeIds;
   const edgeDepthsByGraph =
-    opts instanceof Set ? {} : getEdgeDepthsByGraph(opts.connectedEdgeIndexes ?? [], Boolean(opts.isHyper));
+    opts instanceof Set ? {} : getEdgeDepthsByGraph(opts.connectedEdgeIndexes ?? [], Boolean(opts.isRouted));
 
   return layers.map((layer) => {
-    if (layer?.id === 'icon-cluster') {
-      return layer;
-    }
 
     const dimmedEdgeLayer = getDimmedEdgeLayer(layer, edgeDepthsByGraph);
     if (dimmedEdgeLayer) {
@@ -45,9 +44,9 @@ export function getDimmedGraphLayers(layers: Layer[], opts: DimmedGraphLayerOpti
   });
 }
 
-function getEdgeDepthsByGraph(connectedEdgeIndexes: ConnectedEdgeIndex[], isHyper: boolean) {
+function getEdgeDepthsByGraph(connectedEdgeIndexes: ConnectedEdgeIndex[], isRouted: boolean) {
   return connectedEdgeIndexes.reduce<Record<string, Map<number, number>>>((acc, { graphId, lineId, arcId, depth }) => {
-    const index = isHyper ? lineId : arcId;
+    const index = isRouted ? lineId : arcId;
     if (index === undefined) {
       return acc;
     }
@@ -84,7 +83,7 @@ function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<
       getHighlightDepth: (d: any) => connectedFeatureDepths.get(d.featureIndex) ?? Number.MAX_SAFE_INTEGER,
       getWidth: (d: any, info: any) => {
         const width = getAccessorValue(curveLayer.props.getWidth, d, info, 1);
-        return connectedFeatureDepths.has(d.featureIndex) ? Math.max(3, width * 2) : width;
+        return connectedFeatureDepths.has(d.featureIndex) ? Math.max(3, width * widthMultiplier) : width;
       },
       updateTriggers: {
         ...layer.props.updateTriggers,
@@ -102,7 +101,7 @@ function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<
       getHighlightDimOpacity: 0.18,
       getWidth: (d: any, info: any) => {
         const width = getAccessorValue(blobLayer.props.getWidth, d, info, 1);
-        return connectedFeatureDepths.has(info.index) ? Math.max(3, width * 2.2) : width;
+        return connectedFeatureDepths.has(info.index) ? Math.max(3, width * widthMultiplier) : width;
       },
       updateTriggers: {
         ...layer.props.updateTriggers,
@@ -121,7 +120,7 @@ function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<
       getHighlightDimOpacity: 0.18,
       getWidth: (d: any, info: any) => {
         const width = getAccessorValue(arcLayer.props.getWidth, d, info, 1);
-        return connectedFeatureDepths.has(info.index) ? Math.max(3, width * 2.2) : width;
+        return connectedFeatureDepths.has(info.index) ? Math.max(3, width * widthMultiplier) : width;
       },
       updateTriggers: {
         ...layer.props.updateTriggers,

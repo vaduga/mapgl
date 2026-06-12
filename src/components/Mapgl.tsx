@@ -95,8 +95,8 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
   const clusters = Array.from(graph.subgraphsBreadthFirst()) as Graph[];
   const graphs: Graph[] = [graph as Graph].concat(clusters);
 
-  // isHyper is the only 'layer' that is active even in indeterminate state
-  const [isHyper = false] = visLayers.getVisState(null, colTypes.Hyperedges, colTypes.Hyperedges) ?? [];
+  // isRouted is the only 'layer' that is active even in indeterminate state
+  const [isRouted = false] = visLayers.getVisState(null, colTypes.Routed, colTypes.Routed) ?? [];
 
   const mapLibreRef: any = useRef(null);
 
@@ -311,7 +311,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     setHoverInfo,
     hoverInfo,
     onSvgIconReady,
-    isHyper,
+    isRouted,
     getVisLayers: visLayers,
     getGroupsLegend,
     theme: theme2,
@@ -322,18 +322,19 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
   const focusRevision = pointStore.getFocusRevision;
   const hasFocusHighlight = pointStore.getHasFocusHighlight;
-  const canDimGraph = hasFocusHighlight && (isLogic || (!isLogic && !isHyper));
+  const canDimGraph = hasFocusHighlight && (isLogic || (!isLogic && !isRouted));
 
   const renderedLayers = useMemo(() => {
-    return (canDimGraph
-      ? getDimmedGraphLayers(layers, {
-          connectedNodeIds: pointStore.getFocusedConnectedNodeIds,
-          connectedEdgeIndexes: pointStore.getFocusedConnectedEdgeIndexes,
-          isHyper,
-        })
-      : layers
+    return (
+      canDimGraph
+        ? getDimmedGraphLayers(layers, {
+            connectedNodeIds: pointStore.getFocusedConnectedNodeIds,
+            connectedEdgeIndexes: pointStore.getFocusedConnectedEdgeIndexes,
+            isRouted,
+          })
+        : layers
     ).filter(Boolean);
-  }, [layers, focusRevision, canDimGraph, pointStore, isHyper]);
+  }, [layers, focusRevision, canDimGraph, pointStore, isRouted]);
 
   useEffect(() => {
     flushSync(() => {
@@ -353,7 +354,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
     const secDataLayers = panel.layers
       .slice(1)
-      .filter(el => el.layer.colType !== colTypes.Markers && el.layer.features?.length);
+      .filter((el) => el.layer.colType !== colTypes.Markers && el.layer.features?.length);
     let poly = 0,
       path = 0,
       geojson = 0;
@@ -409,7 +410,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
     let initComments: CommentsData = {};
     const edgesGeometry = hidePendingLogicLayout ? [{}, {}] : getEdgesGeometry(graph, panel);
-    const initLineFeatures: any = isHyper ? edgesGeometry[0] : edgesGeometry[1];
+    const initLineFeatures: any = isRouted ? edgesGeometry[0] : edgesGeometry[1];
     lineFeaturesRef.current = initLineFeatures ?? {};
     refreshGraphHighlighter();
 
@@ -457,77 +458,79 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
     const { groupIndices, annots } = panel;
     const visNamespaces = visLayers.getCategories()[1];
-    const biCols: GraphBiFeatCol[] = hidePendingLogicLayout ? [] : graphs
-      .filter((g) => visNamespaces.includes(g.id))
-      .sort((a, b) => {
-        const lenA = a.id.split(NS_SEPARATOR).length;
-        const lenB = b.id.split(NS_SEPARATOR).length;
-        return lenA - lenB;
-      })
-      .map((g, i) => {
-        const { colors, muted, annots } = panel;
+    const biCols: GraphBiFeatCol[] = hidePendingLogicLayout
+      ? []
+      : graphs
+          .filter((g) => visNamespaces.includes(g.id))
+          .sort((a, b) => {
+            const lenA = a.id.split(NS_SEPARATOR).length;
+            const lenB = b.id.split(NS_SEPARATOR).length;
+            return lenA - lenB;
+          })
+          .map((g, i) => {
+            const { colors, muted, annots } = panel;
 
-        const positionRanges = getGraphPositionRanges(g);
-        const { features } = panel;
+            const positionRanges = getGraphPositionRanges(g);
+            const { features } = panel;
 
-        if (!features?.length) {
-          return null;
-        }
+            if (!features?.length) {
+              return null;
+            }
 
-        // Concatenate all the sliced chunks into one new Float64Array
-        const totalCount = positionRanges.reduce((sum, [start, endExclusive]) => sum + (endExclusive - start), 0);
+            // Concatenate all the sliced chunks into one new Float64Array
+            const totalCount = positionRanges.reduce((sum, [start, endExclusive]) => sum + (endExclusive - start), 0);
 
-        const cutPositions = new Float64Array(totalCount * 2);
-        const cutColors: Uint8Array = new Uint8Array(totalCount * 4);
-        const cutMuted: Uint8Array = new Uint8Array(totalCount * 4);
-        const cutAnnots: Uint8Array = new Uint8Array(totalCount * 4);
-        const cutGroupIndices: Uint8Array = new Uint8Array(totalCount);
-        let offset = 0;
+            const cutPositions = new Float64Array(totalCount * 2);
+            const cutColors: Uint8Array = new Uint8Array(totalCount * 4);
+            const cutMuted: Uint8Array = new Uint8Array(totalCount * 4);
+            const cutAnnots: Uint8Array = new Uint8Array(totalCount * 4);
+            const cutGroupIndices: Uint8Array = new Uint8Array(totalCount);
+            let offset = 0;
 
-        const featureIds = { value: new Uint16Array(totalCount), size: 1 };
-        const globalFeatureIds = { value: new Uint32Array(totalCount), size: 1 };
+            const featureIds = { value: new Uint16Array(totalCount), size: 1 };
+            const globalFeatureIds = { value: new Uint32Array(totalCount), size: 1 };
 
-        for (let [start, end] of positionRanges) {
-          if (!end) {
-            end = start;
-          }
-          cutPositions.set(panel.positions.subarray(start * 2, end * 2), offset * 2);
-          cutColors.set(colors.subarray(start * 4, end * 4), offset * 4);
-          cutMuted.set(muted.subarray(start * 4, end * 4), offset * 4);
-          cutAnnots.set(annots.subarray(start * 4, end * 4), offset * 4);
-          cutGroupIndices.set(groupIndices.subarray(start, end), offset);
+            for (let [start, end] of positionRanges) {
+              if (!end) {
+                end = start;
+              }
+              cutPositions.set(panel.positions.subarray(start * 2, end * 2), offset * 2);
+              cutColors.set(colors.subarray(start * 4, end * 4), offset * 4);
+              cutMuted.set(muted.subarray(start * 4, end * 4), offset * 4);
+              cutAnnots.set(annots.subarray(start * 4, end * 4), offset * 4);
+              cutGroupIndices.set(groupIndices.subarray(start, end), offset);
 
-          for (let i = start; i < end; i++) {
-            globalFeatureIds.value[offset] = offset;
-            featureIds.value[offset++] = i; // `i` is your global index
-          }
-        }
+              for (let i = start; i < end; i++) {
+                globalFeatureIds.value[offset] = offset;
+                featureIds.value[offset++] = i; // `i` is your global index
+              }
+            }
 
-        const biColors = hasAnnots && !getGroupsLegend.at(-1)?.disabled ? cutAnnots : cutMuted;
-        return {
-          ...emptyBiCol,
-          shape: 'binary-feature-collection',
-          graph: g,
-          groupIndices,
-          annots,
-          points: {
-            type: 'Point',
-            positions: { value: cutPositions, size: 2 },
-            attributes: {
-              getFillColor: { value: biColors, size: 4, normalized: true },
-              getColor: { value: cutColors, size: 4, normalized: true }, /// label use no opacity
-            },
-            featureIds,
-            globalFeatureIds,
-            numericProps: {},
-            properties: features,
-            // numericProps: {  /// for points it can be derived from index, for lines - datarecord has other rowIndex, considering multiple edges
-            // rowIndex: {value: featureIds, size: 1},
-            // },
-          } as unknown as BinaryPointFeature,
-        } as GraphBiFeatCol;
-      })
-      .filter((el): el is GraphBiFeatCol => el !== null);
+            const biColors = hasAnnots && !getGroupsLegend.at(-1)?.disabled ? cutAnnots : cutMuted;
+            return {
+              ...emptyBiCol,
+              shape: 'binary-feature-collection',
+              graph: g,
+              groupIndices,
+              annots,
+              points: {
+                type: 'Point',
+                positions: { value: cutPositions, size: 2 },
+                attributes: {
+                  getFillColor: { value: biColors, size: 4, normalized: true },
+                  getColor: { value: cutColors, size: 4, normalized: true }, /// label use no opacity
+                },
+                featureIds,
+                globalFeatureIds,
+                numericProps: {},
+                properties: features,
+                // numericProps: {  /// for points it can be derived from index, for lines - datarecord has other rowIndex, considering multiple edges
+                // rowIndex: {value: featureIds, size: 1},
+                // },
+              } as unknown as BinaryPointFeature,
+            } as GraphBiFeatCol;
+          })
+          .filter((el): el is GraphBiFeatCol => el !== null);
 
     const res = genPrimaryLayers({
       layerProps,
@@ -570,13 +573,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
       return;
     }
     getLayers();
-  }, [
-    graphVersion,
-    getTooltipObject,
-    time,
-    getViewState,
-    visRefresh
-  ]);
+  }, [graphVersion, getTooltipObject, time, getViewState, visRefresh]);
 
   const memoLayerSwitcher = useMemo(() => {
     return (
@@ -754,7 +751,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
         panel={panel}
         time={time}
         eventBus={eventBus}
-        isHyper={isHyper}
+        isRouted={isRouted}
         info={hoverInfo}
         setHoverInfo={setHoverInfo}
         dataLayers={options.dataLayers}
@@ -762,7 +759,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
 
       {(isShowEdgeLegend || isShowLegend) && (
         <div className={s.legendStack}>
-          {isShowEdgeLegend && !isHyper && memoEdgeLegend}
+          {isShowEdgeLegend && !isRouted && memoEdgeLegend}
           {isShowLegend && memoLegend}
         </div>
       )}
