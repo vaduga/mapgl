@@ -2,6 +2,7 @@
 
 ## 2.6.2
 - traces on service dependency graph: multi-hop edges with per-span props from separate rows (duration, etc).
+- new provisioned dashboard: traces+service graph
 - config: 'routed' edge mode by default
 
 ## 2.6.1
