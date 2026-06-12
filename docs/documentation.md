@@ -97,13 +97,13 @@ In the open-source panel, parallel edge offset rendering is available in **abstr
 
 ### Trace and service graph edges
 
-For service dependency graphs and trace-like data, use **Vertex B** as the service path and **Edge ID** as the trace, hyperedge, span, or occurrence key that should keep its own edge details.
+For service dependency graphs and trace-like data, use **Vertex B** as the service path and **Edge ID** as the trace branch whose spans should keep their own edge details from separate rows.
 
 For example, a trace layer can use:
 
 - **Vertex A**: source service
 - **Vertex B**: service path, such as `["api-gateway", "order-service", "payment-service"]`
-- **Edge ID**: unique trace, branch, span, or hyperedge ID
+- **Edge ID**: unique trace branch ID
 - extra fields: duration, status, span IDs, method, cost, or other per-span properties
 
 In graph mode, Mapgl expands a multi-hop path into routed edge fragments. Since each fragment keeps the row properties from the record that created it, span fields such as duration or cost can appear in edge tooltips and adjacent edge details.

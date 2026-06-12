@@ -46,7 +46,7 @@ For workflow-oriented setup guidance, see [Panel configuration](documentation.md
 
 Practical implication: use one stable edge key per logical link, and use unique **Edge ID** values when repeated **Vertex A -> Vertex B** rows should remain separate.
 
-For trace or service dependency data, the same rule applies to span-level details: use a distinct **Edge ID** for each trace branch, hyperedge, span, or occurrence that should preserve its own fields such as duration, status, span IDs, or cost.
+For trace or service dependency data, the same rule applies to span-level details: use a distinct **Edge ID** for each trace branch whose spans should preserve their own fields, such as duration, span IDs, and related values.
 
 ## Deduplication rules
 
@@ -111,7 +111,7 @@ Multi-hop trace edges use the same identity rules as other edges, but **Vertex B
 
 - **Vertex A** is the source service for the row.
 - **Vertex B** is the service path or dependency path.
-- **Edge ID** should identify the trace branch, hyperedge, span, or occurrence that needs its own edge details.
+- **Edge ID** should identify the trace branch whose spans need their own edge details from separate rows.
 - Each unique **Edge ID** keeps the row properties from the record that created it.
 - In abstract node graph mode, a multi-hop path is expanded into routed fragments.
 - Routed fragments keep the row properties from their source record, so fields such as duration, cost, status, span IDs, method, or operation name can be shown for that edge occurrence.
