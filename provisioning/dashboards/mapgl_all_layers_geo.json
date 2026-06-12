@@ -658,7 +658,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Geo",
+  "title": "Mapgl Geo view",
   "uid": "bc41f708-0b15-456b-ba0e-d2e16bbaef33",
   "version": 1,
   "weekStart": ""
