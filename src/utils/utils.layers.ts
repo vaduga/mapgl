@@ -372,8 +372,8 @@ function createDerivedLayers(visLayers: VisLayers, graph: Graph, isLogic, replac
     idToLayerIdx.set(id, layerIdx);
   }
 
-  const hyperVar = useMockData ? '1' : replaceVariables(`$routed`);
-  const parsed = parseInt(hyperVar, 10);
+  const rVar = useMockData ? '1' : replaceVariables(`$routed`);
+  const parsed = parseInt(rVar, 10);
   const isRouted = !isNaN(parsed) ? parsed > 0 : true;
 
   const parentIdx = null;

@@ -13,7 +13,7 @@ import { Node, Edge, findEdge, getNodeData, Graph } from 'mapLib';
 const includes = ['ack', 'msg', 'all_annots', 'liveUpd']; //liveStat
 const TOOLTIP_OFFSET_SCALE = 1.25;
 
-function dedupeHyperedgeList(edges: Edge[]): Edge[] {
+function dedupeHEdgeList(edges: Edge[]): Edge[] {
   const seen = new Set<string>();
 
   return edges.filter((edge) => {
@@ -158,8 +158,8 @@ const Tooltip = ({ data, panel, info, eventBus, setHoverInfo, time, isClosed = f
   if (!edge) {
     pointStore.graphHighlighter.setGraph(panel.graph);
 
-    const inEdges = dedupeHyperedgeList(pointStore.graphHighlighter.getInEdges(pickedNode));
-    const outEdges = dedupeHyperedgeList(pointStore.graphHighlighter.getOutEdges(pickedNode));
+    const inEdges = dedupeHEdgeList(pointStore.graphHighlighter.getInEdges(pickedNode));
+    const outEdges = dedupeHEdgeList(pointStore.graphHighlighter.getOutEdges(pickedNode));
 
     if (inEdges.length) {
       props.inEdges = inEdges;
