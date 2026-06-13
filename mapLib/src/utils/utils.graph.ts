@@ -317,7 +317,6 @@ function pushPath(props: PushPathProps) {
         findNodeB,
       });
     } else {
-      // @ts-ignore
       edge = setEdge(graphA, edgeId, sourceId, targetId, graphB);
       if (!edge) {
         console.warn(
