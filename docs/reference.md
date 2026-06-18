@@ -16,7 +16,7 @@ For workflow-oriented setup guidance, see [Panel configuration](documentation.md
 - **Data**: optional frame/query filter for a layer.
 - **Vertex A**: source node ID field. This is the main node identity field.
 - **Vertex B**: target node ID or path definition. If set, Mapgl can generate links.
-- **Edge ID**: optional edge key. Use unique values for separate parallel links or distributed trace spans that must keep their own row properties.
+- **Edge ID**: optional edge key. Use unique values for separate parallel links. For distributed traces, use it to bind consecutive span rows into one multi-hop edge while each span keeps properties from its own row.
 - **Vertex A namespace**: optional source namespace for graph mode.
 - **Vertex B namespace**: optional target namespace for graph mode.
 - **Search by**: extra fields exposed to panel search.
@@ -46,7 +46,7 @@ For workflow-oriented setup guidance, see [Panel configuration](documentation.md
 
 Practical implication: use one stable edge key per logical link, and use unique **Edge ID** values when repeated **Vertex A -> Vertex B** rows should remain separate.
 
-For trace or service dependency data, the same rule applies to span-level details: use a distinct **Edge ID** for each trace branch whose spans should preserve their own fields, such as duration, span IDs, and related values.
+For trace or service dependency data, use **Edge ID** as the trace or branch key. Consecutive rows with that key are bound into one multi-hop edge, while the span edge created from each row preserves that row's fields, such as duration, span IDs, and related values.
 
 ## Deduplication rules
 
@@ -64,7 +64,8 @@ For trace or service dependency data, the same rule applies to span-level detail
 | --- | --- | --- |
 | No **Edge ID** configured | `Vertex A + "-" + final target` | repeated source-target rows become one logical link |
 | **Edge ID** configured with unique values | **Edge ID** value | each unique value creates a separate link or routed multi-hop edge with its own row properties |
-| **Edge ID** configured but repeated | repeated **Edge ID** value | rows are treated as the same logical link |
+| **Edge ID** configured but repeated for a simple link | repeated **Edge ID** value | rows are treated as the same logical link |
+| **Edge ID** repeated across consecutive trace rows | repeated **Edge ID** value | rows are bound into one multi-hop edge; each span edge keeps properties from the row that provided that span |
 | **Edge ID** configured but empty | `Vertex A + "-" + final target` | same as no **Edge ID** for that row |
 
 ## Vertex B path rules
@@ -111,12 +112,12 @@ Multi-hop trace edges use the same identity rules as other edges, but **Vertex B
 
 - **Vertex A** is the source service for the row.
 - **Vertex B** is the service path or dependency path.
-- **Edge ID** should identify the trace branch whose spans need their own edge details from separate rows.
-- Each unique **Edge ID** keeps the row properties from the record that created it.
+- **Edge ID** should identify the trace or branch that binds consecutive span rows into one multi-hop edge.
+- Each span edge keeps row properties from the record that provided that span's path, styling, metrics, and tooltip fields.
 - In abstract node graph mode, a multi-hop path is expanded into routed fragments.
-- Routed fragments keep the row properties from their source record, so fields such as duration, cost, status, span IDs, method, or operation name can be shown for that edge occurrence.
+- Routed fragments keep the row properties from their source record, so fields such as duration, cost, status, span IDs, method, or operation name can be shown for that span edge.
 
-If multiple trace rows share the same **Edge ID**, Mapgl treats them as the same logical edge key. Use unique **Edge ID** values when those rows should remain distinguishable in tooltips, adjacent edge lists, styling, or highlighting.
+If multiple consecutive trace rows share the same **Edge ID**, Mapgl appends their paths into one multi-hop edge. The edge is grouped by the shared key, but its individual span edges remain distinguishable because they keep properties from their source rows for tooltips, adjacent edge lists, styling, and highlighting.
 
 ## Auto-layout edge routing
 

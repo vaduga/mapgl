@@ -10,6 +10,9 @@ node_modules/
 # Secrets
 *.env
 
+# Webpack cache
+.cache
+
 
 # Runtime data
 pids

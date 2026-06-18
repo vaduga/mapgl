@@ -74,7 +74,7 @@ These fields define how Mapgl builds the topology:
 
 - **Vertex A**: unique node ID.
 - **Vertex B**: target node ID or path array. If set, Mapgl draws links.
-- **Edge ID**: optional edge key. Use a unique value for each parallel link, trace span, or edge occurrence that should keep its own properties.
+- **Edge ID**: optional edge key. Use a unique value for each parallel link that should stay separate. For traces, use it to bind consecutive span rows into one multi-hop edge while each span keeps properties from its own row.
 - **Vertex A namespace**: optional namespace for source nodes in graph mode.
 - **Vertex B namespace**: optional namespace for target nodes in graph mode.
 - **Search by**: extra fields included in the panel search text.
@@ -97,16 +97,16 @@ In the open-source panel, parallel edge offset rendering is available in **abstr
 
 ### Trace and service graph edges
 
-For service dependency graphs and trace-like data, use **Vertex B** as the service path and **Edge ID** as the trace branch whose spans should keep their own edge details from separate rows.
+For service dependency graphs and trace-like data, use **Vertex B** as the service path and **Edge ID** as the trace or branch key. Consecutive rows with the same **Edge ID** are bound into one multi-hop edge, and each span keeps styling and tooltip properties from the row that provided that span.
 
 For example, a trace layer can use:
 
 - **Vertex A**: source service
 - **Vertex B**: service path, such as `["api-gateway", "order-service", "payment-service"]`
-- **Edge ID**: unique trace branch ID
+- **Edge ID**: trace branch ID shared by the consecutive span rows for that branch
 - extra fields: duration, status, span IDs, method, cost, or other per-span properties
 
-In graph mode, Mapgl expands a multi-hop path into routed edge fragments. Since each fragment keeps the row properties from the record that created it, span fields such as duration or cost can appear in edge tooltips and adjacent edge details.
+In graph mode, Mapgl expands trace rows into routed edge fragments. The shared **Edge ID** keeps the trace branch together as one multi-hop edge, while each span keeps the row properties from the record that created that span. Fields such as duration or cost can appear in edge tooltip.
 
 ## Node styles
 
