@@ -442,7 +442,7 @@ export function createMarkersLayer({
               edgeStValues.color = rgba;
 
               if (edgeMetricField && edgeMetricField === nodeMetricField) {
-                edgeStValues.group = stValues.group; //cloneResolvedGroup(stValues.group);
+                edgeStValues.group = stValues.group;
               }
 
               if (edgeDims?.size) {
@@ -495,7 +495,7 @@ export function createMarkersLayer({
                 }
 
                 if (arcMetricField === edgeMetricField) {
-                  arcStValues[side].group = cloneResolvedGroup(edgeStValues.group);
+                  arcStValues[side].group = edgeStValues.group;
                 }
               }
             });
