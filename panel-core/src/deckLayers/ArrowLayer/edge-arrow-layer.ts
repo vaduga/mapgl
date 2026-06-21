@@ -1,0 +1,254 @@
+import { IconLayer } from '@deck.gl/layers';
+import { DataFilterExtension } from '@deck.gl/extensions';
+import { Geometry } from 'geojson';
+import { getIconAtlasImage, iconMapping } from './arrow-atlas';
+import { toRGB4Array } from '../utils/color';
+import { ALERTING_STATES } from '../../types/defaults';
+import {
+  colTypes,
+  type DeckLine,
+  type PointFeatureProperties,
+  type RGBAColor,
+} from '@mapgl/panel-core/types';
+import {
+  getEdgeArrowSize,
+  getArrowAngle,
+} from '@mapgl/panel-core/graph/utils';
+import { Matrix4 } from '@math.gl/core';
+
+type ArrowFeature = DeckLine<Geometry, PointFeatureProperties>;
+type ArrowPlacement = 'start' | 'end';
+export type ArrowItem = {
+  feature: ArrowFeature;
+  placement: ArrowPlacement;
+  lineIndex: number;
+  angle?: number;
+  edgeId: string;
+  properties: ArrowFeature['properties'];
+};
+
+function getArrowTip(d: ArrowFeature, placement: ArrowPlacement): [number, number] | null {
+  const tip = d?.properties?.arrowTips?.[placement];
+  return Array.isArray(tip) && tip.length >= 2 ? [tip[0] as number, tip[1] as number] : null;
+}
+
+function getArrowBaseAndTip(
+  d: ArrowFeature,
+  placement: ArrowPlacement
+): { base: [number, number]; tip: [number, number] } | null {
+  const pts = placement === 'start' ? getFirstPoints(d) : getLastPoints(d);
+  if (!pts) {
+    return null;
+  }
+
+  const arrowTip = getArrowTip(d, placement);
+  if (!arrowTip) {
+    return pts;
+  }
+
+  return { base: pts.tip, tip: arrowTip };
+}
+
+export function getArrowAnchorPosition(d: ArrowFeature, placement: ArrowPlacement): [number, number] | null {
+  const pts = getArrowBaseAndTip(d, placement);
+  return pts ? pts.tip : null;
+}
+
+function getLastPoints(d: ArrowFeature): { base: [number, number]; tip: [number, number] } | null {
+  const coords = d?.geometry?.coordinates;
+  if (!coords || !coords.length) {
+    return null;
+  }
+
+  const lastLine = coords;
+  if (!lastLine || lastLine.length < 2) {
+    return null;
+  }
+
+  const tip = lastLine[lastLine.length - 1] as [number, number];
+  const base = lastLine[lastLine.length - 2] as [number, number];
+  return { base, tip };
+}
+
+function getFirstPoints(d: ArrowFeature): { base: [number, number]; tip: [number, number] } | null {
+  const coords = d?.geometry?.coordinates;
+  if (!coords || !coords.length) {
+    return null;
+  }
+
+  const firstLine = coords;
+  if (!firstLine || firstLine.length < 2) {
+    return null;
+  }
+
+  // Reverse direction so the arrow points toward the start
+  const tip = firstLine[0] as [number, number];
+  const base = firstLine[1] as [number, number];
+  return { base, tip };
+}
+
+export function getFeatureArrowAngle(d: ArrowFeature, placement: ArrowPlacement, isGeo: boolean): number {
+  const pts = getArrowBaseAndTip(d, placement);
+  return pts ? getArrowAngle(pts.base, pts.tip, isGeo) : 0;
+}
+
+export function getArrowSize(d: ArrowFeature): number {
+  return getEdgeArrowSize(d?.properties?.edgeStyle?.size);
+}
+
+export function getArrowColor(d: ArrowFeature, getGroupsLegend?: any): RGBAColor {
+  const { edgeStyle, all_annots } = d.properties || {};
+  const { color, group, opacity } = edgeStyle || {};
+
+  if (all_annots && !getGroupsLegend?.at(-1)?.disabled) {
+    const annotState = all_annots?.[0]?.newState;
+    const aColor = annotState?.startsWith('Normal')
+      ? ALERTING_STATES.Normal
+      : annotState === 'Alerting'
+        ? ALERTING_STATES.Alerting
+        : ALERTING_STATES.Pending;
+    return toRGB4Array(aColor, 1);
+  }
+
+  const c = group?.color ?? color ?? [0, 0, 0, 255];
+  const muted = [...c] as RGBAColor;
+  muted[3] = opacity !== undefined ? Math.round(opacity * 255) : muted[3];
+  return muted;
+}
+
+export function expandArrowItems(data: ArrowFeature[] = []): ArrowItem[] {
+  const items: ArrowItem[] = [];
+
+  const createItem = (
+    feature: ArrowFeature,
+    placement: ArrowPlacement,
+    lineIndex: number,
+    angle?: number
+  ): ArrowItem => ({
+    feature,
+    placement,
+    lineIndex,
+    angle,
+    edgeId: feature.edgeId,
+    properties: feature.properties,
+  });
+
+  data.forEach((feature, lineIndex) => {
+    if (feature?.hideArrowheads) {
+      return;
+    }
+
+    const angles = feature?.properties?.arrowAngles;
+    if (angles?.start !== undefined) {
+      items.push(createItem(feature, 'start', lineIndex, angles.start));
+    }
+    if (angles?.end !== undefined) {
+      items.push(createItem(feature, 'end', lineIndex, angles?.end));
+    }
+  });
+
+  return items;
+}
+
+export const EdgeArrowLayer = (props) => {
+  const {
+    srcGraphId,
+    layerShift = {},
+    getSelectedIdxs,
+    linesCollection,
+    options,
+    visible,
+    panel,
+    getVisLayers,
+    getGroupsLegend,
+    autoHighlight,
+    highlightColor,
+    onHover,
+    time,
+  } = props;
+
+  const selectedFeatureIndexes = getSelectedIdxs?.get(colTypes.Edges)?.[srcGraphId] ?? [];
+
+  const isLogic = panel.isLogic;
+  const usesRendererNamespaceFiltering = panel.namespaceProjection?.rendererFiltering !== 'none';
+  const cats = getVisLayers.getCategories();
+  const categories = cats.concat([cats[1]]);
+  const categorySize = 3;
+
+  const baseData = Array.isArray(linesCollection) ? linesCollection : (linesCollection?.features ?? []);
+  const arrowData = expandArrowItems(baseData);
+  const units = options.common?.isMeters ? 'meters' : 'pixels';
+  const sizeUnits = isLogic ? 'common' : units;
+  const sizeConstraintProps = sizeUnits === 'pixels'
+      ? {
+        sizeMinPixels: 1,
+        sizeMaxPixels: 30,
+      }
+      : {};
+
+  const modelMatrix = new Matrix4();
+  const parts = srcGraphId.split('.');
+  let path = '';
+  for (let i = 0; i < parts.length; i++) {
+    path = path ? `${path}.${parts[i]}` : parts[i];
+
+    const shift = layerShift[path];
+    if (shift) {
+      modelMatrix.translate([shift[0], shift[1], 0]);
+    }
+  }
+
+  return new IconLayer({
+    id: colTypes.Edges + '-arrow-' + srcGraphId,
+    data: arrowData,
+    modelMatrix,
+    visible,
+    pickable: true,
+    autoHighlight,
+    highlightColor,
+    onHover: (info, event) => {
+      const arrow = info.object as ArrowItem | undefined;
+      onHover?.(
+        {
+          ...info,
+          object: arrow?.feature ?? info.object,
+          index: arrow?.lineIndex ?? info.index,
+        },
+        event
+      );
+    },
+    billboard: false,
+    getPosition: (d: ArrowItem) => {
+      const pos = getArrowAnchorPosition(d.feature, d.placement);
+      return pos ?? [0, 0];
+    },
+    getAngle: (d: ArrowItem) => getFeatureArrowAngle(d.feature, d.placement, !isLogic),
+    getSize: (d: ArrowItem) => getArrowSize(d.feature),
+    getColor: (d: ArrowItem) => (d.feature.skip ? [0, 0, 0, 0] : getArrowColor(d.feature, getGroupsLegend)),
+
+    // Deck typings in this build are stricter than runtime support for HTMLImageElement.
+    iconAtlas: getIconAtlasImage() as any,
+    iconMapping,
+    getIcon: () => (isLogic && sizeUnits === 'pixels' ? 'triangle-n-ex' : 'triangle-n'),
+
+    sizeUnits: sizeUnits as any,
+    sizeScale: 1,
+    ...sizeConstraintProps,
+    depthTest: false,
+    getFilterCategory: (d: ArrowItem) => {
+      const { style, layerName, graph } = d.feature?.properties || {};
+      if (isLogic && !usesRendererNamespaceFiltering) {
+        return [style?.group.groupIdx, layerName, cats[1]?.[0]];
+      }
+      return [style?.group.groupIdx, layerName, graph?.id];
+    },
+    filterCategories: categories,
+    extensions: [new DataFilterExtension({ categorySize })],
+
+    updateTriggers: {
+      getColor: time,
+      getSize: [time, selectedFeatureIndexes],
+      getAngle: time,
+    },
+  });
+};

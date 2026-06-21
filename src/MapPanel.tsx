@@ -4,9 +4,9 @@ import { Subscription } from 'rxjs';
 import { GrafanaTheme2, PanelData, PanelProps } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { PanelContext, PanelContextProvider, PanelContextRoot } from '@grafana/ui';
-import { Options, MapLayerState, MapViewConfig, type DeckGLRefWithViewManager } from './types';
-import { defViewState, CMN_NAMESPACE } from 'mapLib/defaults';
-import { captureLayoutCache, restoreLayoutCache, scheduleLayout } from 'mapLib/utils';
+import { Options, MapLayerState, MapViewConfig, type DeckGLRefWithViewManager } from '@mapgl/panel-core/types';
+import { defViewState, CMN_NAMESPACE } from '@mapgl/panel-core/types/defaults';
+import { captureLayoutCache, restoreLayoutCache, scheduleLayout } from '@mapgl/panel-core/graph/utils';
 import type {
   ViewState,
   BiColProps,
@@ -15,9 +15,10 @@ import type {
   LayoutCurveGroup,
   LayoutGraphResult,
   LayerDragShift,
-} from 'mapLib/types';
-import { notifyPanelEditor } from './utils/geomap_utils';
-import { getActions } from './utils/actions';
+} from '@mapgl/panel-core/types';
+import { notifyPanelEditor } from '@mapgl/panel-core/utils/geomap_utils';
+import { getActions } from '@mapgl/panel-core/utils';
+import RootStore from './store/RootStore';
 import Mapgl from './components/Mapgl';
 import {
   RootStoreProvider,
@@ -28,10 +29,16 @@ import {
   cutBinaryProps,
   SvgIconManager,
 } from './utils';
-import { applyLayerFilter, initLayer } from './utils/layers';
-import { ORTHO_BASEMAP_CONFIG } from './layers/registry';
-import { defaultMarkersConfig } from './layers/data/markersLayer';
-import { Graph, GraphEdgeIndex, bumpGraphVersion, resetGraph, resetGraphNodes } from 'mapLib';
+import { applyLayerFilter, initLayer } from '@mapgl/panel-core/utils';
+import { geomapLayerRegistry, ORTHO_BASEMAP_CONFIG } from './layers/registry';
+import { defaultMarkersConfig } from '@mapgl/panel-core/layers/data';
+import { Graph, GraphEdgeIndex, bumpGraphVersion, resetGraph, resetGraphNodes } from '@mapgl/panel-core/graph';
+import {
+  getMapglFeatureServices,
+  RuntimeSubscriptionController,
+  type RuntimeSubscriptionContext,
+  type RuntimeUpdateEvent,
+} from '@mapgl/panel-core/featureContracts';
 
 import { initViewExtent } from './utils/utils.map';
 
@@ -42,14 +49,17 @@ interface State {
   source: string | {} | undefined;
 }
 
-import { Rule } from './editor/Groups/ruleTypes';
-import { VisLayers } from './store/visLayers';
+import { Rule } from '@mapgl/panel-core/editor';
+import { VisLayers } from '@mapgl/panel-core/store';
 
 export class MapPanel extends Component<Props, State> {
   declare context: React.ContextType<typeof PanelContextRoot>;
   static contextType = PanelContextRoot;
   panelContext: PanelContext | undefined;
   private subs = new Subscription();
+  private runtimeSubscriptions = new RuntimeSubscriptionController(
+    getMapglFeatureServices().runtimeSubscriptionProviders
+  );
 
   pId: number | undefined;
   graph: Graph;
@@ -85,6 +95,8 @@ export class MapPanel extends Component<Props, State> {
 
   theme2: GrafanaTheme2 = config.theme2;
   readonly byName = new Map<string, MapLayerState>();
+  readonly geomapLayerRegistry = geomapLayerRegistry;
+  readonly orthoBasemapConfig = ORTHO_BASEMAP_CONFIG;
 
   get svgIconState() {
     return this.svgIconManager.state;
@@ -157,6 +169,7 @@ export class MapPanel extends Component<Props, State> {
     }
     this.map = undefined;
     this.layers = [];
+    this.runtimeSubscriptions.dispose();
     this.subs.unsubscribe();
   }
 
@@ -304,6 +317,7 @@ export class MapPanel extends Component<Props, State> {
       }
       this.setState({ viewState });
     }
+    this.runtimeSubscriptions.onDataChange(this.getRuntimeSubscriptionContext(data));
   };
 
   initMapRef = async (deckRef) => {
@@ -385,6 +399,7 @@ export class MapPanel extends Component<Props, State> {
       }
 
       notifyPanelEditor(this, layers, layers.length - 1);
+      void this.runtimeSubscriptions.start(this.getRuntimeSubscriptionContext());
     } catch (ex) {
       if ((ex as any)?.name === 'AbortError') {
         return;
@@ -423,6 +438,29 @@ export class MapPanel extends Component<Props, State> {
     return view;
   };
 
+  private getRuntimeSubscriptionContext(data = this.props.data): RuntimeSubscriptionContext {
+    return {
+      graph: this.graph,
+      edgeIndex: this.graphEdgeIndex,
+      data,
+      options: this.props.options,
+      eventBus: this.props.eventBus,
+      panel: this,
+      publish: this.publishRuntimeUpdate,
+    };
+  }
+
+  private publishRuntimeUpdate = (event: RuntimeUpdateEvent) => {
+    this.props.eventBus?.publish({ type: 'mapgl-runtime-update', payload: event } as any);
+  };
+
+  refreshRuntimeSubscriptions(context: Partial<RuntimeSubscriptionContext>) {
+    this.runtimeSubscriptions.onDataChange({
+      ...this.getRuntimeSubscriptionContext(),
+      ...context,
+    });
+  }
+
   render() {
     const { data, options, replaceVariables, fieldConfig, eventBus } = this.props;
 
@@ -431,6 +469,7 @@ export class MapPanel extends Component<Props, State> {
         {this.panelContext && (
           <PanelContextProvider value={this.panelContext}>
             <RootStoreProvider
+              createRootStore={(props) => new RootStore(props)}
               props={{
                 panel: this,
                 viewState: this.state.viewState,

@@ -1,29 +1,28 @@
-import { collectGroups, getGraphLayers, toRGB4Array } from './utils.plugin';
-import { LineTextLayer } from '../deckLayers/TextLayer/text-layer';
-import { MyIconLayer } from '../deckLayers/IconLayer/icon-layer';
-import { MyArcLayer } from '../deckLayers/ArcLayer/arc-layer';
+import { collectGroups, getGraphLayers, toRGB4Array } from '@mapgl/panel-core/utils';
+import { LineTextLayer, MyArcLayer, MyIconLayer } from '@mapgl/panel-core/deckLayers';
 import { GeoJsonLayer, PathLayer, TextLayer } from '@deck.gl/layers';
 import { Layer } from '@deck.gl/core';
 import {
   Graph,
   getGraphComments,
-} from 'mapLib';
+} from '@mapgl/panel-core/graph';
+import { getMapglFeatureServices, getNamespaceBoundaries } from '@mapgl/panel-core';
 import {
   BBOX_OUTLINE_COLOR,
   BBOX_OUTLINE_WIDTH,
   NS_SEPARATOR,
-} from 'mapLib/defaults';
-import { type DeckLine, colTypes } from 'mapLib/types';
-import { Rule } from '../editor/Groups/ruleTypes';
+} from '@mapgl/panel-core/types/defaults';
+import { type DeckLine, colTypes } from '@mapgl/panel-core/types';
+import { Rule } from '@mapgl/panel-core/editor';
 import {
+  EdgesGeojsonLayer,
+  EdgeArrowLayer,
   NodesGeojsonLayer,
   LogicMainLabelTextLayer,
   LogicPlaceholderTextLayer,
-} from '../deckLayers/GeoJsonNodesLayer/nodes-geojson-layer';
-import { EdgesGeojsonLayer } from '../deckLayers/GeoJsonEdgesLayer/edges-geojson-layer';
-import { EdgeArrowLayer } from '../deckLayers/ArrowLayer/edge-arrow-layer';
+} from '@mapgl/panel-core/deckLayers';
 import { MapPanel } from '../MapPanel';
-import { VisLayers } from '../store/visLayers';
+import { VisLayers } from '@mapgl/panel-core/store';
 
 function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps }) {
   let comments;
@@ -69,23 +68,20 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
 
   /// Bboxes polygons
   if ( isLogic && panel.layoutReady ) {
-    const features: any[] = [];
-    const bboxCols: any = {};
-    for (const c of clusters) {
-      const gId = c.id;
-      if (gId && !bboxCols[gId]) {
-        const bbox = panel.layoutGraphBounds.get(gId);
-
-        const graph = Array.from(clusters).find((el) => el.id === gId);
-        if (bbox) {
-          bboxCols[gId] = { graph, bbox };
-        }
+    const boundaries = getNamespaceBoundaries(getMapglFeatureServices().namespaceBoundaryProviders, {
+      graph,
+      visibleNamespaces: new Set(visLayers.getCategories()[1]),
+      positions: panel.positions,
+      layoutGraphBounds: panel.layoutGraphBounds,
+      layerShift: panel.layerShift,
+    });
+    const graphById = new Map(clusters.map((cluster) => [cluster.id, cluster]));
+    const features = boundaries.flatMap((boundary) => {
+      const [minX, minY, maxX, maxY] = boundary.bounds;
+      const boundaryGraph = graphById.get(boundary.namespace);
+      if (!boundaryGraph) {
+        return [];
       }
-    }
-
-    Object.values(bboxCols).forEach((col: any, i) => {
-      let minX, minY, maxX, maxY;
-      ({ minX, minY, maxX, maxY } = col.bbox);
 
       const polygonCoords: any = [
         [minX, minY],
@@ -95,20 +91,19 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
         [minX, minY],
       ];
 
-      const polyFeature = {
+      return [{
         type: 'Polygon',
         properties: {
-          id: col.graph.id,
-          locName: col.graph.id,
-          graph: col.graph,
+          id: boundaryGraph.id,
+          locName: boundaryGraph.id,
+          graph: boundaryGraph,
         },
         geometry: {
           type: 'Polygon',
           coordinates: [polygonCoords],
           center: [minX + (maxX - minX) / 2, minY + (maxY - minY) / 2],
         },
-      };
-      features.push(polyFeature);
+      }];
     });
 
     let bboxFeatCollection = {

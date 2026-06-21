@@ -1,5 +1,5 @@
 import { DataFrame, FieldType } from '@grafana/data';
-import { MOC_LOC_FIELD } from 'mapLib/defaults';
+import { MOC_LOC_FIELD } from '@mapgl/panel-core/types/defaults';
 import { TextDimensionMode } from '@grafana/schema';
 
 export const mockTextConfig = {

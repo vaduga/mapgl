@@ -1,9 +1,11 @@
 import { getStyles } from './LayerSwitcher.styles';
 import React, { useEffect, useState, useRef } from 'react';
-import { colTypes } from 'mapLib/types';
+import { applyNamespaceProjectionStrategies, getMapglFeatureServices } from '@mapgl/panel-core';
+import { Graph } from '@mapgl/panel-core/graph';
+import { colTypes } from '@mapgl/panel-core/types';
 import { MapPanel } from '../../MapPanel';
 import { Tooltip, useStyles2 } from '@grafana/ui';
-import type { LayerTreeInfo } from '../../store/visLayer';
+import type { LayerTreeInfo } from '@mapgl/panel-core/store';
 
 const CSS_PREFIX = 'layer-switcher-';
 
@@ -195,13 +197,34 @@ LayerSwitcher.renderLayers_ = (layers: LayerTreeInfo[], geomap, setVisRefresh, e
 };
 
 LayerSwitcher.setVisible_ = (geomap, lyr, index, visible, groupSelectStyle) => {
-  const { visLayers } = geomap as MapPanel;
+  const { visLayers, graph } = geomap as MapPanel;
 
   visLayers!.setVisible(lyr.index, lyr.name, lyr.group, visible); /// lyr.name, lyr.group,
 
   if (lyr.group && !lyr.combine && groupSelectStyle === 'children') {
     lyr.children.forEach((l, i) => {
       LayerSwitcher.setVisible_(geomap, l, i, visible, groupSelectStyle);
+    });
+  }
+
+  if (!graph) {
+    return;
+  }
+
+  const subgraphs = Array.from(graph.subgraphsBreadthFirst()) as Graph[];
+  const graphs: Graph[] = subgraphs.concat([graph as Graph]);
+  const allNamespaces = new Set(graphs.map((item) => item.id));
+  const visibleNamespaces = new Set(visLayers!.getCategories()[1]);
+
+  if ((geomap.isLogic && lyr.group === 'graph') || allNamespaces.has(lyr.name)) {
+    applyNamespaceProjectionStrategies(getMapglFeatureServices().namespaceProjectionStrategies, {
+      graph,
+      edgeIndex: geomap.graphEdgeIndex,
+      visibleNamespaces,
+      allNamespaces,
+      positions: geomap.positions,
+      layerShift: geomap.layerShift,
+      panel: geomap,
     });
   }
 };

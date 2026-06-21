@@ -1,5 +1,5 @@
 import { FullscreenWidget, CompassWidget, LoadingWidget } from '@deck.gl/widgets';
-import { getDeckWidgetSkin } from './deck-widget-skin';
+import { PositionTracker, StateTime, useFullscreenPortalBridge, getDeckWidgetSkin } from '@mapgl/panel-core/components';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { css, keyframes } from '@emotion/css';
@@ -14,23 +14,17 @@ import {
   useRootStore,
   toRGB4Array,
   genPrimaryLayers,
-  selectGotoHandler,
   expandTooltip,
 } from '../utils';
 import { Tooltip } from './Tooltips/Tooltip';
-import { MyPolygonsLayer } from '../deckLayers/PolygonsLayer/polygons-layer';
-import { MyGeoJsonLayer } from '../deckLayers/GeoJsonStaticLayer/static-geojson-layer';
-import { MyPathLayer } from '../deckLayers/PathLayer/path-layer';
-import { PositionTracker } from './Geocoder/PositionTracker';
+import { MyGeoJsonLayer, MyPathLayer, MyPolygonsLayer, getDimmedGraphLayers } from '@mapgl/panel-core/deckLayers';
 import {
   DARK_AUTO_HIGHLIGHT,
   LIGHT_AUTO_HIGHLIGHT,
-  ALERTING_STATES,
   emptyBiCol,
-  ALERTING_NUMS,
   ANNOTS_LABEL,
   NS_SEPARATOR,
-} from 'mapLib/defaults';
+} from '@mapgl/panel-core/types/defaults';
 import {
   type DeckLine,
   colTypes,
@@ -38,28 +32,21 @@ import {
   type CommentsData,
   type ComFeature,
   type GraphBiFeatCol,
-} from 'mapLib/types';
+} from '@mapgl/panel-core/types';
 import {
   getEdgesGeometry,
-} from 'mapLib/utils';
+} from '@mapgl/panel-core/graph/utils';
 import {
   getGraphComments,
-  getGraphNodeMap,
   getGraphPositionRanges,
   getGraphVersion,
-  getNodeData,
   type Graph
-} from 'mapLib';
-import { sortAnnotations } from '../utils/utils.plugin'
+} from '@mapgl/panel-core/graph';
 import { throttleTime } from 'rxjs';
-import { StateTime } from './Geocoder/StateTime';
 import { Layer, MapView, OrbitView } from 'deck.gl';
 import LayerSwitcher from './Selects/LayerSwitcher';
 import { BinaryPointFeature } from '@loaders.gl/schema';
-
-import { ThresholdEdgeChangeEvent } from '../utils/bus.events';
-import { useFullscreenPortalBridge } from './hooks/useFullscreenPortalBridge';
-import { getDimmedGraphLayers } from '../deckLayers/focus-layers';
+import { selectGotoHandler, ThresholdEdgeChangeEvent } from '@mapgl/panel-core/utils';
 
 class AutolayoutLoadingWidget extends LoadingWidget {
   onRedraw(): void {}
@@ -119,54 +106,12 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
   const hoverHighlightTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (!time || !annots?.length) {
-      return;
-    }
-    async function loadAnnots() {
-      let newAnnots: any = [];
-      const { op, escape } = await import('arquero');
-      annots.forEach(([annotTable, annotByInstance]) => {
-        const filteredTable = annotByInstance.filter(escape((row) => row.timeEnd <= time));
-        const summary = filteredTable.rollup({
-          timeEnd: op.max('timeEnd'),
-          //rows: op.array_agg('index') // <-- aggregate row indices
-        });
-        const annots = annotTable
-          .semijoin(summary) //.filter(escape((row,data) => row.timeEnd === op.max('timeEnd'))))
-          .objects();
-        if (annots.length) {
-          newAnnots = newAnnots.concat(annots);
-        }
-      });
-
-      graphs.forEach((s: any) => {
-        newAnnots.forEach(({ alertName, instance, data, newState, timeEnd }) => {
-          const nodeMap = getGraphNodeMap(s);
-          const node = nodeMap?.get(instance);
-          const feature = node ? getNodeData(node)?.feature : undefined;
-          if (!feature) {
-            return;
-          }
-          const newAnnot = { alertName, newState, instance, timeEnd, data };
-          const all_annots = feature.all_annots;
-          if ((all_annots?.length && all_annots?.length === annots.length) || !all_annots) {
-            feature.all_annots = [newAnnot];
-          } else if (all_annots) {
-            feature.all_annots = [...all_annots, newAnnot];
-          }
-          feature.all_annots = sortAnnotations(feature.all_annots ?? []);
-          const annotState = feature.all_annots?.[0]?.newState;
-          const stateKey = Object.keys(ALERTING_STATES).find((st) => annotState?.startsWith(st));
-
-          if (stateKey) {
-            const [, , stateRGBArray] = ALERTING_NUMS[stateKey];
-            const id = feature.id;
-            panel.annots.set(stateRGBArray, id * 4);
-          }
-        });
-      });
-    }
-    loadAnnots();
+    panel.refreshRuntimeSubscriptions({
+      time,
+      annotationTables: annots,
+      annotationGraphs: graphs,
+      annotationBuffer: panel.annots,
+    });
   }, [time, annots]);
 
   useEffect(() => {
@@ -597,7 +542,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
     return (
       <div className={s.timeNcoords}>
         {!!getGroupsLegend?.find((el) => el.label === ANNOTS_LABEL) && <StateTime time={time} />}
-        {!isLogic && <PositionTracker isLogic={panel.isLogic} />}
+        {!isLogic && <PositionTracker isLogic={panel.isLogic} selectedCoord={getSelCoord} />}
       </div>
     );
   }, [getSelCoord, time, getGroupsLegend]);

@@ -1,6 +1,6 @@
 {
   "name": "vaduga-mapgl-panel",
-  "version": "2.6.2",
+  "version": "2.7.0",
   "description": "Mapgl panel",
   "scripts": {
     "build": "webpack -c ./webpack.config.ts --env production",
@@ -10,7 +10,8 @@
     "test": "jest --watch --onlyChanged",
     "test:ci": "jest --passWithNoTests --maxWorkers 4",
     "typecheck": "tsc --noEmit",
-    "typecheck:native": "tsgo --noEmit",
+    "typecheck:native": "tsgo --noEmit -p tsconfig.native.json",
+    "check:private-imports": "node scripts/check-private-imports.mjs",
     "lint": "eslint --cache .",
     "lint:fix": "npm run lint -- --fix && prettier --write --list-different .",
     "e2e": "playwright test",

@@ -1,9 +1,11 @@
 # Changelog Mapgl
 
-## 2.6.2
-- traces on service dependency graph: multi-hop edges with per-span props from separate rows (duration, etc).
-- new provisioned dashboard: traces+service graph
-- config: 'routed' edge mode by default
+## 2.7.0
+- traces on service dependency graph: multi-hop edge with per-fragment spans info from separate data-rows
+- new provisioned dashboard: traces + service graph
+- config: 'routed' edge mode by default; rm node group icon offset
+- fix tooltip adjacent edges list bugs: header icons flicker, edge target node selection 
+- refactor: externalize panel-core package. Panel acts as core consumer.
 
 ## 2.6.1
 - fix: same-query layers and no-refId queries no longer panic due to positions buffer under-allocation

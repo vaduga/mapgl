@@ -1,142 +1,23 @@
-import { FieldConfigProperty, PanelPlugin } from '@grafana/data';
-import { initPluginTranslations } from './utils/i18n';
-import { config } from '@grafana/runtime';
-import { commonOptionsBuilder } from '@grafana/ui';
-import React from 'react';
+import { createMapglPanelPlugin } from '@mapgl/panel-core';
 
+import { PLUGIN_ID } from './constants/plugin';
+import { createGetLayerEditor, createLayersEditor, MapViewEditor } from '@mapgl/panel-core/editor';
 import { MapPanel } from './MapPanel';
+import { defaultMapViewConfig, type GeomapInstanceState, type MapLayerState, type Options } from '@mapgl/panel-core/types';
+import { initPluginTranslations } from '@mapgl/panel-core/utils/i18n';
+import { geomapLayerRegistry, getLayersOptions } from './layers/registry';
 
-import { LayersEditor } from './editor/LayersEditor';
-import { MapViewEditor } from './editor/MapView/MapViewEditor';
-import { getLayerEditor } from './editor/layerEditor';
-import { defaultMapViewConfig, Options, GeomapInstanceState } from './types';
+const LayersEditor = createLayersEditor({ getLayersOptions });
+const getLayerEditor = createGetLayerEditor({ geomapLayerRegistry, getLayersOptions });
 
-void initPluginTranslations('vaduga-mapgl-panel');
-
-export const plugin = new PanelPlugin<Options>(MapPanel)
-  .setNoPadding()
-  .useFieldConfig({
-    useCustomConfig: (builder) => {
-      commonOptionsBuilder.addHideFrom(builder);
-    },
-    disableStandardOptions: [
-      //FieldConfigProperty.Thresholds,
-    ],
-    standardOptions: {
-      [FieldConfigProperty.Mappings]: {},
-    },
-  })
-  .setPanelOptions((builder, context) => {
-    let category = ['Map view'];
-    builder.addCustomEditor({
-      category,
-      id: 'view',
-      path: 'view',
-      name: 'Initial view',
-      //description: 'Position on load',
-      editor: MapViewEditor,
-      defaultValue: defaultMapViewConfig,
-    });
-
-    //console.log('mdule.tsx ctx', context)
-
-    const state = context.instanceState as GeomapInstanceState;
-    //console.log('state?.layers', state?.layers, state, context)
-    if (!state?.layers) {
-      // TODO? show spinner?
-    } else {
-      const layersCategory = ['Data layers'];
-      const basemapCategory = ['Basemap layer'];
-      builder.addCustomEditor({
-        category: layersCategory,
-        id: 'layers',
-        path: '',
-        name: '',
-        editor: LayersEditor,
-      });
-
-      const selected = state.layers[state.selected];
-      if (state.selected && selected) {
-        builder.addNestedOptions(
-          getLayerEditor({
-            state: selected,
-            category: layersCategory,
-            isLogic: state.isLogic,
-            basemaps: false,
-          })
-        );
-      }
-
-      const baselayer = state.layers[0];
-      if (config.geomapDisableCustomBaseLayer) {
-        builder.addCustomEditor({
-          category: basemapCategory,
-          id: 'layers',
-          path: '',
-          name: '',
-
-          editor: () => <div>The basemap layer is configured by the server admin.</div>,
-        });
-      } else if (baselayer) {
-        builder.addNestedOptions(
-          getLayerEditor({
-            state: baselayer,
-            category: basemapCategory,
-            isLogic: state.isLogic,
-            basemaps: true,
-          })
-        );
-      }
-    }
-    builder
-      .addBooleanSwitch({
-        category: ['Other'],
-        path: 'common.isShowSwitcher',
-        name: 'Layer switcher',
-        defaultValue: true,
-      })
-      .addBooleanSwitch({
-        category: ['Other'],
-        path: 'common.isShowEdgeLegend',
-        name: 'Edge legend',
-        description: 'Default thresholds',
-        defaultValue: true,
-      })
-      .addBooleanSwitch({
-        category: ['Other'],
-        path: 'common.isShowLegend',
-        name: 'Groups legend',
-        defaultValue: true,
-      })
-      .addBooleanSwitch({
-        category: ['Other'],
-        path: 'common.isMeters',
-        name: 'Meters for sizing',
-        description: 'Use meters in Geo view (scales with zoom)',
-        defaultValue: false,
-      })
-      .addRadio({
-        category: ['Other'],
-        path: 'common.edgeRouting',
-        name: 'Edge routing',
-        description: 'Auto-layout routing mode',
-        settings: {
-          options: [
-            { label: 'Splines', value: 'Splines' },
-            { label: 'Rectilinear', value: 'Rectilinear' },
-          ],
-        },
-        defaultValue: 'Splines',
-      })
-      .addTextInput({
-        category: ['Other'],
-        path: 'common.locLabelName',
-        name: 'VertexA name label in alert annotation',
-        //description: '',
-        settings: {},
-      });
-  })
-  .setDataSupport({
-    annotations: true,
-    alertStates: true,
-  });
+export const plugin = createMapglPanelPlugin<Options, MapLayerState, GeomapInstanceState>({
+  edition: 'oss',
+  features: [],
+  pluginId: PLUGIN_ID,
+  panelComponent: MapPanel,
+  mapViewEditor: MapViewEditor,
+  layersEditor: LayersEditor,
+  getLayerEditor,
+  defaultMapViewConfig,
+  initPluginTranslations,
+});

@@ -1,12 +1,12 @@
 import { makeAutoObservable } from 'mobx';
 import RootStore from './RootStore';
-import { blankHoverInfo } from 'mapLib/defaults';
-import { colTypes, type Info, type ViewState } from 'mapLib/types';
-import { Edge, findEdge, getGraphData, getNodeData, Graph, Node } from 'mapLib';
-import { SelectNodeEvent } from '../utils/bus.events';
+import { blankHoverInfo } from '@mapgl/panel-core/types/defaults';
+import { colTypes, type Info, type ViewState } from '@mapgl/panel-core/types';
+import { Edge, findEdge, getGraphData, getNodeData, Graph, Node } from '@mapgl/panel-core/graph';
+import { SelectNodeEvent } from '@mapgl/panel-core/utils';
 import { Subscription } from 'rxjs';
-import type { DeckGLRefWithViewManager } from '../types';
-import { GraphHighlighter } from '../deckLayers/graphHighlighter';
+import type { DeckGLRefWithViewManager } from '@mapgl/panel-core/types';
+import { GraphHighlighter } from '@mapgl/panel-core/deckLayers';
 
 class PointStore {
   root: RootStore;

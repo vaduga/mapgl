@@ -1,0 +1,50 @@
+{
+  "extends": "@grafana/tsconfig",
+  "compilerOptions": {
+    "alwaysStrict": true,
+    "declaration": false,
+    "rootDir": ".",
+    "ignoreDeprecations": "6.0",
+    "removeComments": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitAny": false,
+    "strictNullChecks": true,
+    "typeRoots": ["./node_modules/@types"],
+    "resolveJsonModule": true,
+    "paths": {
+      "*": ["./src/*"],
+      "@mapgl/panel-core": ["./panel-core/src/index.ts"],
+      "@mapgl/panel-core/featureContracts": [
+        "./panel-core/src/extension-points/featureContracts.ts"
+      ],
+      "@mapgl/panel-core/graph": ["./panel-core/src/graph/main.ts"],
+      "@mapgl/panel-core/graph/utils": ["./panel-core/src/graph/utils/index.ts"],
+      "@mapgl/panel-core/types/defaults": ["./panel-core/src/types/defaults.ts"],
+      "@mapgl/panel-core/components": ["./panel-core/src/components/index.ts"],
+      "@mapgl/panel-core/editor": ["./panel-core/src/editor/index.ts"],
+      "@mapgl/panel-core/store": ["./panel-core/src/store/index.ts"],
+      "@mapgl/panel-core/deckLayers": ["./panel-core/src/deckLayers/index.ts"],
+      "@mapgl/panel-core/extension": ["./panel-core/src/extension.ts"],
+      "@mapgl/panel-core/layers": ["./panel-core/src/layers/index.ts"],
+      "@mapgl/panel-core/layers/basemaps": ["./panel-core/src/layers/basemaps/index.ts"],
+      "@mapgl/panel-core/layers/data": ["./panel-core/src/layers/data/index.ts"],
+      "@mapgl/panel-core/types": ["./panel-core/src/types/index.ts"],
+      "@mapgl/panel-core/types/deck": ["./panel-core/src/types/deck.ts"],
+      "@mapgl/panel-core/types/panel": ["./panel-core/src/types/panel.ts"],
+      "@mapgl/panel-core/view": ["./panel-core/src/view.ts"],
+      "@mapgl/panel-core/style/types": ["./panel-core/src/style/types.ts"],
+      "@mapgl/panel-core/style/utils": ["./panel-core/src/style/utils.ts"],
+      "@mapgl/panel-core/utils/location": ["./panel-core/src/utils/location.ts"],
+      "@mapgl/panel-core/utils": ["./panel-core/src/utils/index.ts"],
+      "@mapgl/panel-core/utils/geomap_utils": ["./panel-core/src/utils/geomap_utils.ts"],
+      "@mapgl/panel-core/utils/i18n": ["./panel-core/src/utils/i18n.tsx"],
+      "@mapgl/panel-core/grafana_core/*": ["./panel-core/src/grafana_core/*"],
+      "@mapgl/panel-core/grafana_data/*": ["./panel-core/src/grafana_data/*"],
+      "@mapgl/panel-core/workers/layout-worker": [
+        "./panel-core/src/workers/layout-worker.ts"
+      ]
+    }
+  },
+  "include": ["src", "panel-core/src", ".config/types"]
+}

@@ -104,7 +104,6 @@ Path behavior:
 - Properties for parallel links are taken from each data record individually.
 - Per-link metrics, labels, widths, and colors may differ across parallel links.
 - In the open-source panel, parallel edge offset rendering is available in abstract node graph mode.
-- Parallel edge offset rendering on geomap is a Pro feature.
 
 ## Multi-hop trace edge rules
 
@@ -156,11 +155,11 @@ A matching user-created group becomes the **non-ephemeral color source** only wh
 
 An **ephemeral `thrColor` match** means Mapgl created an internal threshold or fixed-color group for the node's resolved color. These groups are not stored in panel configuration and are not edited in **Node Groups**. They exist so threshold/fixed colors can still participate in fallback coloring, group indexing, legends, and filtering when no user-created group provides an explicit override.
 
-If a user-created group matches but does not set a group color, the node can still take non-color properties from that group, such as icon, size, width, offset, or tint mode. Its color falls back to the resolved ephemeral threshold color. In that case, the user-created group label does not appear in the groups legend because Mapgl does not have a stable defined color to show for that group.
+If a user-created group matches but does not set a group color, the node can still take non-color properties from that group, such as icon, size, width, or tint mode. Its color falls back to the resolved ephemeral threshold color. In that case, the user-created group label does not appear in the groups legend because Mapgl does not have a stable defined color to show for that group.
 
 Priority rule of thumb:
 
-- user-created groups are preferred for icons, sizes, widths, offsets, and tint behavior
+- user-created groups are preferred for icons, sizes, widths, and tint behavior
 - a matching user-created group with an explicit color is preferred over internal threshold groups for color
 - internal threshold groups preserve Grafana threshold color as the fallback
 
@@ -187,7 +186,7 @@ Node groups can define:
 - fixed size
 - fixed width
 - icon render mode
-- icon offset
+- icon offset is currently fixed at `0`; saved group offset values are ignored
 
 ## Node group priority
 

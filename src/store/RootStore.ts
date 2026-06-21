@@ -1,10 +1,10 @@
 import PointStore from './PointStore';
 import ViewStore from './ViewStore';
-import { Graph } from 'mapLib';
-import { type DeckGLRefWithViewManager, MapLayerState } from '../types';
+import { Graph } from '@mapgl/panel-core/graph';
+import { type DeckGLRefWithViewManager, MapLayerState } from '@mapgl/panel-core/types';
 import { EventBus, FieldConfig, PanelData } from '@grafana/data';
 import { MapPanel } from '../MapPanel';
-import type { VisLayers } from './visLayers';
+import type { VisLayers } from '@mapgl/panel-core/store';
 
 class RootStore {
   panel: MapPanel;

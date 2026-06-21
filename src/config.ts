@@ -1,5 +1,5 @@
 import { config as c, GrafanaBootConfig } from '@grafana/runtime';
-import { ExtendMapLayerOptions } from './extension';
+import { ExtendMapLayerOptions } from '@mapgl/panel-core/extension';
 
 type MapglBootConfig = GrafanaBootConfig & {
   geomapDefaultBaseLayerConfig?: ExtendMapLayerOptions;

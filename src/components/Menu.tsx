@@ -3,12 +3,14 @@ import React, { useState } from 'react';
 import { css } from '@emotion/css';
 import { useStyles2, InlineFieldRow, InlineField, Tooltip } from '@grafana/ui';
 import { GrafanaTheme2 } from '@grafana/data';
+import { selectGotoHandler } from '@mapgl/panel-core/utils';
 
-import ReactSelectSearch from './Selects/ReactSelectSearch';
+import { ReactSelectSearch } from '@mapgl/panel-core/components';
 import { useRootStore } from '../utils';
 
 const Menu = ({ eventBus, options, data, panel }) => {
-  const { pointStore } = useRootStore();
+  const rootStore = useRootStore();
+  const { pointStore } = rootStore;
   const { getSelectedNode } = pointStore;
 
   const s = useStyles2(getStyles);
@@ -40,6 +42,8 @@ const Menu = ({ eventBus, options, data, panel }) => {
                 eventBus={eventBus}
                 data={data}
                 options={options}
+                rootStore={rootStore}
+                selectGotoHandler={selectGotoHandler}
               />
             )}
           </div>

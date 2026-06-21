@@ -1,5 +1,5 @@
-import { findEdge, getGraphData, getGraphNodeMap, getNodeData, Graph } from 'mapLib';
-import type { ViewState, BiColProps } from 'mapLib/types';
+import { findEdge, getGraphData, getGraphNodeMap, getNodeData, Graph } from '@mapgl/panel-core/graph';
+import type { ViewState, BiColProps } from '@mapgl/panel-core/types';
 
 export const expandTooltip = (
   info: any,

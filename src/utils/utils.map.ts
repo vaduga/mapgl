@@ -1,16 +1,11 @@
 import { getAppEvents } from '@grafana/runtime';
-import { MapLayerState, MapViewConfig } from '../types';
-import { centerPointRegistry, MapCenterID } from '../view';
+import { MapViewConfig } from '@mapgl/panel-core/types';
+import { centerPointRegistry, MapCenterID } from '@mapgl/panel-core/view';
 import { Position } from 'geojson';
 import { WebMercatorViewport } from '@deck.gl/core';
-import { getBounds } from './utils.plugin';
-import { FeatSource} from 'mapLib';
-import type { ViewState } from 'mapLib/types';
-import { handlerProps } from '../components/Selects/ReactSelectSearch';
+import { denormalizeZoom, getLayerFitBounds, getLogicFitBounds } from '@mapgl/panel-core/utils';
+import type { ViewState } from '@mapgl/panel-core/types';
 import { AppEvents } from '@grafana/data';
-
-import { SelectNodeEvent } from './bus.events';
-
 
 function initViewExtent(view: ViewState, config: MapViewConfig, width, height, layers, visLayers, panel) {
   const v: any = centerPointRegistry.getIfExists(config.id);
@@ -29,14 +24,10 @@ function initViewExtent(view: ViewState, config: MapViewConfig, width, height, l
         const maxZoom = configZoom && configZoom > 0 ? configZoom : 18;
 
         const visNamespaces = visLayers.getVisibleNamespaces();
-        const logicBounds = panel.isLogic ? getLogicFitBounds(panel, visNamespaces) : undefined;
-
-        if (logicBounds) {
-          [minLng, minLat, maxLng, maxLat] = logicBounds;
-        } else {
-          const extent = getLayersExtent(layers, config.allLayers, config.lastOnly, config.layer);
-          [minLng, minLat, maxLng, maxLat] = getBounds(panel, extent) || [];
-        }
+        [minLng, minLat, maxLng, maxLat] =
+          (panel.isLogic
+            ? getLogicFitBounds(panel, visNamespaces, width, height)
+            : getLayerFitBounds(panel, layers, config, visNamespaces, width, height)) || [];
 
         if ([minLng, minLat, maxLng, maxLat].every((el) => el !== undefined)) {
           const bounds = [
@@ -103,99 +94,4 @@ function initViewExtent(view: ViewState, config: MapViewConfig, width, height, l
   }
 }
 
-function getLayersExtent(
-  layers: MapLayerState[] = [],
-  allLayers = false,
-  lastOnly = false,
-  layer: string | undefined
-): any {
-
-  const res = layers
-    .filter((l) => !l.isBasemap)
-    .flatMap((ll) => {
-      const l = ll.layer;
-      if (l) {
-        ///instanceof VectorLayer
-        if (allLayers) {
-          // Return everything from all layers
-          return (l as FeatSource).features; //?? [];
-        } else if (lastOnly && layer === ll.options.name) {
-          // Return last only for selected layer
-          const feat = (l as FeatSource).features;
-          const featOfInterest = feat[feat.length - 1];
-          const geo = featOfInterest; //?.getGeometry();
-          if (geo) {
-            return [geo]; //?? [];
-          }
-          return [];
-        } else if (!lastOnly && layer === ll.options.name) {
-          // Return all points for selected layer
-          return (l as FeatSource).features; //?? [];
-        }
-        return [];
-      } else {
-        return [];
-      }
-    });
-  //.reduce(extend, []);
-  return res;
-}
-
-function getLogicFitBounds(panel, visNamespaces: string[]): [number, number, number, number] | undefined {
-
-  const visibleBounds = visNamespaces
-    .map((graphId) => panel.layoutGraphBounds?.get(graphId))
-    .filter(Boolean);
-  if (visibleBounds.length) {
-    return visibleBounds.reduce(
-      (acc, bbox) => [
-        Math.min(acc[0], bbox.minX),
-        Math.min(acc[1], bbox.minY),
-        Math.max(acc[2], bbox.maxX),
-        Math.max(acc[3], bbox.maxY),
-      ],
-      [Infinity, Infinity, -Infinity, -Infinity] as [number, number, number, number]
-    );
-  }
-
-  return undefined;
-}
-
-const selectGotoHandler = async ({
-  pId,
-  value,
-  graphId,
-  eventBus,
-  coord,
-  select,
-  fly,
-  edge,
-  edgeId,
-  zoomIn,
-}: Partial<handlerProps>) => {
-  const payload: SelectNodeEvent['payload'] = {
-    ...(graphId !== undefined && { graphId }),
-    ...(value !== undefined && { nodeId: value }),
-    ...(select !== undefined && { select }),
-    ...(edge !== undefined ? { edge } : edgeId !== undefined ? { edgeId } : {}),
-    ...(coord !== undefined && { coord }),
-    ...(fly !== undefined && { fly }),
-    ...(zoomIn !== undefined && { zoomIn }),
-    pId: pId as number,
-  };
-  eventBus?.publish({
-    type: 'selectNode',
-    payload,
-  });
-};
-
-function denormalizeZoom(isWebmercator, normalizedZoom) {
-  if (isWebmercator) {
-    return normalizedZoom;
-  } else {
-    // Transform [0, 17] to [-5, 5]
-    return (normalizedZoom / 17) * 10 - 5;
-  }
-}
-
-export { initViewExtent, getLayersExtent, selectGotoHandler };
+export { initViewExtent };

@@ -45,4 +45,4 @@ docker_data/grafana_data
 /.vscode/launch.json
 
 /vaduga-mapgl-panel/
-
+/scripts/check-private-imports.mjs

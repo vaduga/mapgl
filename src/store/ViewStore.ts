@@ -1,10 +1,10 @@
 import { makeAutoObservable } from 'mobx';
 import RootStore from './RootStore';
-import { DEFAULT_CLUSTER_MAX_ZOOM, ANNOTS_LABEL, ALERTING_STATES } from 'mapLib/defaults';
-import type { ViewState } from 'mapLib/types';
+import { DEFAULT_CLUSTER_MAX_ZOOM, ANNOTS_LABEL, ALERTING_STATES } from '@mapgl/panel-core/types/defaults';
+import type { ViewState } from '@mapgl/panel-core/types';
 import { VizLegendItem } from '@grafana/ui';
 
-import { getNodeGroupCounts } from 'mapLib';
+import { getNodeGroupCounts } from '@mapgl/panel-core/graph';
 
 class ViewStore {
   root: RootStore;

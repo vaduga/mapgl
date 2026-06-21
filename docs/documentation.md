@@ -130,7 +130,6 @@ Node groups are the most specific styling system in Mapgl. A group can define:
 - fixed node size
 - fixed line width
 - icon render mode
-- icon vertical offset
 - matching rules
 
 Turn on **Node Groups -> Apply** to use configured group rules.
@@ -149,7 +148,7 @@ It is derived from the current node color result, usually from the node metric f
 Group resolution is cascading. In short:
 
 - **Node Styles** establish the base color, size, and label behavior
-- matching groups can provide icons, fixed sizes, fixed widths, offsets, and color overrides
+- matching groups can provide icons, fixed sizes, fixed widths, and color overrides
 - color can come from a different matching group than the icon
 - if no matching group provides a color override, Grafana threshold color remains in effect
 
