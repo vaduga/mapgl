@@ -57,7 +57,7 @@ export const applyLayerFilter = (
   }
 };
 
-// panel: GeomapPanel
+// panel: MapPanel
 export async function updateLayer(
   panel: any,
   uid: string,
@@ -181,33 +181,6 @@ export async function initLayer(
   }
 
   return state;
-}
-
-export const getMapLayerState = (l: any): MapLayerState => {
-  return l?.state;
-};
-
-export function substituteLayers<TLayer extends { id?: string } | null | undefined>(
-  prev: TLayer[],
-  nameList: TLayer[]
-): TLayer[] {
-  const newLayers = prev;
-  const centerplotIdx = newLayers.findIndex((el) => el?.id === 'centerplot-layer');
-  if (centerplotIdx > -1) {
-    newLayers.splice(centerplotIdx, 1);
-  }
-
-  nameList.forEach((layer) => {
-    if (!layer) {
-      return;
-    }
-    const inLayersIdx = newLayers.findIndex((el) => el?.id === layer.id);
-    if (inLayersIdx > -1) {
-      newLayers[inLayersIdx] = layer;
-    }
-  });
-
-  return newLayers.filter((el): el is NonNullable<TLayer> => Boolean(el));
 }
 
 export function genVisLayers(panel: GenVisLayersPanel, props: GenVisLayersProps): VisLayers {
