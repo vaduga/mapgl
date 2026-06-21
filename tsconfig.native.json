@@ -35,6 +35,7 @@
       "@mapgl/panel-core/view": ["./panel-core/src/view.ts"],
       "@mapgl/panel-core/style/types": ["./panel-core/src/style/types.ts"],
       "@mapgl/panel-core/style/utils": ["./panel-core/src/style/utils.ts"],
+      "@mapgl/panel-core/deckLayers/utils": ["./panel-core/src/deckLayers/utils/index.ts"],
       "@mapgl/panel-core/utils/location": ["./panel-core/src/utils/location.ts"],
       "@mapgl/panel-core/utils": ["./panel-core/src/utils/index.ts"],
       "@mapgl/panel-core/utils/geomap_utils": ["./panel-core/src/utils/geomap_utils.ts"],

@@ -1,6 +1,6 @@
-export * from './tooltipEdgeSections';
-export * from './DataHoverView';
-export * from './Tooltip';
+export * from './Tooltips/tooltipEdgeSections';
+export * from './Tooltips/DataHoverView';
+export * from './Tooltips/Tooltip';
 export { default as Checkbox } from './Checkboxes/Checkbox';
 export { ComboboxCompat } from './Compat/ComboboxCompat';
 export type { ComboboxCompatOption } from './Compat/ComboboxCompat';

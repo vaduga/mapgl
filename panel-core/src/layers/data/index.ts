@@ -18,3 +18,4 @@ export * from './markersLayer';
 export * from './pathLayer';
 export * from './polygonsLayer';
 export * from './types';
+export * from './utils';

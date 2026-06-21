@@ -15,16 +15,6 @@ export const SanitizedSVG = (props: SanitizedSVGProps) => {
 
 let cache = new Map<string, string>();
 
-function getCleanSVG(code: string): string {
-  let clean = cache.get(code);
-  if (!clean) {
-    clean = textUtil.sanitizeSVGContent(code);
-    cache.set(code, clean);
-  }
-
-  return clean;
-}
-
 function getCleanSVGAndStyle(code: string): string {
   let clean = cache.get(code);
   if (!clean) {

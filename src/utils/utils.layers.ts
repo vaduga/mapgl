@@ -1,5 +1,4 @@
-import { collectGroups, getGraphLayers, toRGB4Array } from '@mapgl/panel-core/utils';
-import { LineTextLayer, MyArcLayer, MyIconLayer } from '@mapgl/panel-core/deckLayers';
+import { isVisible, toRGB4Array } from '@mapgl/panel-core/deckLayers/utils';
 import { GeoJsonLayer, PathLayer, TextLayer } from '@deck.gl/layers';
 import { Layer } from '@deck.gl/core';
 import {
@@ -13,8 +12,10 @@ import {
   NS_SEPARATOR,
 } from '@mapgl/panel-core/types/defaults';
 import { type DeckLine, colTypes } from '@mapgl/panel-core/types';
-import { Rule } from '@mapgl/panel-core/editor';
 import {
+  LineTextLayer,
+  MyArcLayer,
+  MyIconLayer,
   EdgesGeojsonLayer,
   EdgeArrowLayer,
   NodesGeojsonLayer,
@@ -241,65 +242,6 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
   return [bboxes, icons, arcsBase, lines, comments, edgeLabels];
 }
 
-type InitGroupsResult = {
-  requiredIconNames: Set<string>;
-  svgSignature: string;
-};
-
-function initGroups(
-  groups: Rule[],
-  layers,
-  theme,
-  reload = false
-): InitGroupsResult {
-  const nsLayers = layers?.slice(1); //reload ? 1 : 0)
-
-  const iconNames = new Set<string>();
-
-  collectGroups(groups, iconNames, nsLayers, theme);
-  const svgSignature = getSvgGroupsSignature(groups);
-
-  return {
-    requiredIconNames: iconNames,
-    svgSignature,
-  };
-}
-
-function getSvgGroupsSignature(groups: Rule[]): string {
-  return JSON.stringify(
-    groups.map((group) => ({
-      groupIdx: group.groupIdx,
-      iconName: group.iconName,
-      svgTintMode: group.svgTintMode,
-      offset: group.offset,
-      overrides: group.overrides,
-    }))
-  );
-}
-
-function isVisible(getVisLayers, args: { index: number | null; name: string | null; group: string | null }) {
-  const { index, name, group } = args;
-
-  const [visible, indeterminate] = getVisLayers.getVisState(index, name, group) ?? [true, false];
-
-  return visible && !indeterminate;
-}
-
-function findSubgraphById(graph: Graph, id: string): Graph | undefined {
-  if (graph.id === id) {
-    return graph;
-  }
-
-  for (const sub of graph.graphs()) {
-    const found = findSubgraphById(sub, id);
-    if (found) {
-      return found;
-    }
-  }
-
-  return undefined;
-}
-
 function genVisLayers(panel: MapPanel, props) {
   const { groups, isLogic, graph, hasAnnots, useMockData } = panel;
   const { options, replaceVariables } = props;
@@ -381,11 +323,4 @@ function createDerivedLayers(visLayers: VisLayers, graph: Graph, isLogic, replac
   visLayers.addLayer(colTypes.Routed, colTypes.Routed, colTypes.Routed, false, isRouted, false, parentIdx, false);
 }
 
-export {
-  genPrimaryLayers,
-  initGroups,
-  isVisible,
-  genVisLayers,
-  createDerivedLayers,
-  findSubgraphById,
-};
+export { genVisLayers, genPrimaryLayers, createDerivedLayers };

@@ -77,7 +77,7 @@ export function getTintedSvgIcon(
   }
 
   const recoloredSvgText = recolorSvgMarkup(svgIcon.svgText, color);
-  const { svgText, svgDataUrl, width, height } = addSvgAttributes(recoloredSvgText);
+  const { svgText, svgDataUrl, width, height } = addSVGattributes(recoloredSvgText);
   const variant = {
     svgText,
     svgDataUrl,
@@ -198,14 +198,34 @@ async function renderCanvasTintedSvgIcon(
   };
 }
 
-function addSvgAttributes(svgText: string) {
+export function addSVGattributes(svgText: string, replaceUse = false) {
   const parser = new DOMParser();
   const xmlDoc = parser.parseFromString(svgText, 'image/svg+xml');
+
+  if (replaceUse) {
+    const useElements = xmlDoc.querySelectorAll('use');
+    useElements.forEach((useElement) => {
+      const href = useElement.getAttribute('xlink:href');
+      if (href && href.startsWith('#')) {
+        const symbol = xmlDoc.getElementById(href.substring(1));
+        if (symbol) {
+          const symbolContent = symbol.innerHTML;
+          useElement.parentNode?.replaceChild(
+            parser.parseFromString(symbolContent, 'image/svg+xml').documentElement,
+            useElement
+          );
+        }
+      }
+    });
+  }
+
+  //// add width and height
   const svgElement = xmlDoc.getElementsByTagName('svg')[0];
 
   let width = svgElement.getAttribute('width');
   let height = svgElement.getAttribute('height');
   const viewBox = svgElement.getAttribute('viewBox');
+  // If non, get width and height from the viewBox attribute
   if ((!width || !height) && viewBox) {
     const viewBoxValues = viewBox.split(' ').map(parseFloat);
     width = viewBoxValues[2]?.toString();

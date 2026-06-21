@@ -1,7 +1,4 @@
 import { Graph } from '@mapgl/panel-core/graph';
-import { toRGB4Array } from '../../deckLayers/utils/color';
-
-export { toRGB4Array };
 
 export function parseRoute(dsTarget: unknown) {
   if (typeof dsTarget === 'string' && (dsTarget.startsWith('[') || !parseInt(dsTarget, 10))) {

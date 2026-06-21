@@ -10,7 +10,7 @@ import {
   getMapglFeatureServices,
   type TooltipEdgeRecord,
   type TooltipEdgeSection,
-} from '../extension-points/featureContracts';
+} from '../../extension-points/featureContracts';
 
 import { Node, Edge, findEdge, getNodeData, Graph } from '@mapgl/panel-core/graph';
 

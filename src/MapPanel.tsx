@@ -17,7 +17,7 @@ import type {
   LayerDragShift,
 } from '@mapgl/panel-core/types';
 import { notifyPanelEditor } from '@mapgl/panel-core/utils/geomap_utils';
-import { getActions } from '@mapgl/panel-core/utils';
+import { getActions, applyLayerFilter, initLayer } from '@mapgl/panel-core/utils';
 import RootStore from './store/RootStore';
 import Mapgl from './components/Mapgl';
 import {
@@ -29,7 +29,6 @@ import {
   cutBinaryProps,
   SvgIconManager,
 } from './utils';
-import { applyLayerFilter, initLayer } from '@mapgl/panel-core/utils';
 import { geomapLayerRegistry, ORTHO_BASEMAP_CONFIG } from './layers/registry';
 import { defaultMarkersConfig } from '@mapgl/panel-core/layers/data';
 import { Graph, GraphEdgeIndex, bumpGraphVersion, resetGraph, resetGraphNodes } from '@mapgl/panel-core/graph';

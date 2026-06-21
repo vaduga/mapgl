@@ -12,12 +12,12 @@ import MapLibre, { AttributionControl } from '@vis.gl/react-maplibre';
 import Menu from '../components/Menu';
 import {
   useRootStore,
-  toRGB4Array,
   genPrimaryLayers,
   expandTooltip,
 } from '../utils';
 import { Tooltip } from './Tooltips/Tooltip';
 import { MyGeoJsonLayer, MyPathLayer, MyPolygonsLayer, getDimmedGraphLayers } from '@mapgl/panel-core/deckLayers';
+import { toRGB4Array } from '@mapgl/panel-core/deckLayers/utils';
 import {
   DARK_AUTO_HIGHLIGHT,
   LIGHT_AUTO_HIGHLIGHT,

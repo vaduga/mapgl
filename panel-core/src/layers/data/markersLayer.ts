@@ -3,8 +3,8 @@ import { PanelData, GrafanaTheme2, Field, PanelProps, FieldType, DataFrame } fro
 import {
   findSubgraphById,
   parseRoute,
-  toRGB4Array,
 } from './utils';
+import { toRGB4Array } from '../../deckLayers/utils/color';
 import { FrameGeometryField, getGeometryField, getLocationMatchers } from '../../utils/location';
 import { getStyleDimension } from '../../utils/geomap_utils';
 import { ExtendMapLayerRegistryItem, ExtendFrameGeometrySourceMode, ExtendMapLayerOptions } from '../../extension';
@@ -36,7 +36,6 @@ import {
   type PushPathProps,
 } from '@mapgl/panel-core/types';
 import { findField } from '../../grafana_core/app/features/dimensions';
-import { toJS } from 'mobx';
 import type { DataLayerEditorAdapters } from './types';
 import { mockEdgeGraphData, mockTextConfig } from './mockData';
 

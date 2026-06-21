@@ -1,7 +1,7 @@
 import React, { type ReactNode } from 'react';
 import { IconButton } from '@grafana/ui';
 
-import type { TooltipEdgeRecord, TooltipEdgeSection, TooltipEdgeSectionContributor, TooltipEdgeSectionContext } from '../extension-points/featureContracts';
+import type { TooltipEdgeRecord, TooltipEdgeSection, TooltipEdgeSectionContributor, TooltipEdgeSectionContext } from '../../extension-points/featureContracts';
 
 export type TooltipEdgeDirection = 'incoming' | 'outgoing';
 type TooltipEdgeIconName = React.ComponentProps<typeof IconButton>['name'];
