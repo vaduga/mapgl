@@ -38,6 +38,7 @@ import {
 import { findField } from '../../grafana_core/app/features/dimensions';
 import type { DataLayerEditorAdapters } from './types';
 import { mockEdgeGraphData, mockTextConfig } from './mockData';
+import { getMapglFeatureServices } from '../../extension-points/featureContracts';
 
 export interface MarkersConfig {
   graph?: Graph;
@@ -619,7 +620,7 @@ export function createMarkersLayer({
           .addFieldNamePicker({
             path: 'edgeIdField',
             name: 'Edge ID',
-            description: 'Optional. Used for parallel edges',
+            description: 'Optional. Used for parallel edges or trace ID',
             settings: {
               filter: (f: Field) => {
                 return f.type === FieldType.string;
@@ -628,8 +629,10 @@ export function createMarkersLayer({
               noFieldsMessage: 'No string fields found',
             },
             showIf: (opts) => !!opts.parField,
-          })
-          .addRadio({
+          });
+
+        if (getMapglFeatureServices().edition === 'extended') {
+          builder.addRadio({
             path: 'isWrapEdges',
             name: 'Reduce parallel edges to: ',
             settings: {
@@ -642,7 +645,10 @@ export function createMarkersLayer({
             },
             showIf: (opts) => true, //!!opts.edgeIdField,
             defaultValue: defaultOptions.isWrapEdges,
-          })
+          });
+        }
+
+        builder
           .addFieldNamePicker({
             path: 'config.vertexA_NS',
             name: 'Vertex A namespace',
