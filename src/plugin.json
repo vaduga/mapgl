@@ -46,6 +46,10 @@
       {
         "name": "Geomap",
         "path": "img/screenshots/screenshot3.png"
+      },
+      {
+        "name": "Service graph",
+        "path": "img/screenshots/screenshot4.png"
       }
     ],
     "version": "%VERSION%",
