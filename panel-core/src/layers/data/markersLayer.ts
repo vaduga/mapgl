@@ -442,7 +442,7 @@ export function createMarkersLayer({
               edgeStValues.color = rgba;
 
               if (edgeMetricField && edgeMetricField === nodeMetricField) {
-                edgeStValues.group = cloneResolvedGroup(stValues.group);
+                edgeStValues.group = stValues.group; //cloneResolvedGroup(stValues.group);
               }
 
               if (edgeDims?.size) {
