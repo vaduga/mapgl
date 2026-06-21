@@ -206,7 +206,7 @@ export function createMarkersLayer({
           const field = info?.field;
 
           if (!field?.values) {
-            console.log('no coords field');
+            //console.log('no coords field');
             break;
           }
 
@@ -282,7 +282,7 @@ export function createMarkersLayer({
           const field = info?.field;
           const coords = field?.values;
           if (!coords || !field?.nodes) {
-            console.log('no coords field / no query', field, coords, field?.nodes);
+            //console.log('no coords field / no query', field, coords, field?.nodes);
             return;
           }
 
@@ -870,7 +870,7 @@ function getParPath(target, id, idx, locName) {
     if (typeof target === 'string') {
       return [locName, target];
     }
-    console.log('Wrong format: ' + toJS(target));
+    //console.log('Wrong format: ' + toJS(target));
     return [];
   }
 
@@ -880,14 +880,14 @@ function getParPath(target, id, idx, locName) {
     (Array.isArray(parPath) && typeof parPath[0] === 'string') ||
     (!Array.isArray(parPath[0]) && typeof parPath === 'string'); // #TODO : better handling for single names like [["U1"],"M1"]
   if (!isInitString) {
-    console.log(
-      'Wrong path format: No coords, numbers, nulls allowed as 0 element), no deeper nesting arrays, or empty arrays. Info: id: ' +
-        id +
-        ' locName: ' +
-        locName +
-        ' target: ' +
-        target
-    );
+    // console.log(
+    //   'Wrong path format: No coords, numbers, nulls allowed as 0 element), no deeper nesting arrays, or empty arrays. Info: id: ' +
+    //     id +
+    //     ' locName: ' +
+    //     locName +
+    //     ' target: ' +
+    //     target
+    // );
     return [];
   }
 
