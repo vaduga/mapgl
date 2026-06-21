@@ -1,15 +1,11 @@
 import { isVisible, toRGB4Array } from '@mapgl/panel-core/deckLayers/utils';
 import { GeoJsonLayer, PathLayer, TextLayer } from '@deck.gl/layers';
 import { Layer } from '@deck.gl/core';
-import {
-  Graph,
-  getGraphComments,
-} from '@mapgl/panel-core/graph';
+import { Graph } from '@mapgl/panel-core/graph';
 import { getMapglFeatureServices, getNamespaceBoundaries } from '@mapgl/panel-core';
 import {
   BBOX_OUTLINE_COLOR,
   BBOX_OUTLINE_WIDTH,
-  NS_SEPARATOR,
 } from '@mapgl/panel-core/types/defaults';
 import { type DeckLine, colTypes } from '@mapgl/panel-core/types';
 import {
@@ -22,8 +18,6 @@ import {
   LogicMainLabelTextLayer,
   LogicPlaceholderTextLayer,
 } from '@mapgl/panel-core/deckLayers';
-import { MapPanel } from '../MapPanel';
-import { VisLayers } from '@mapgl/panel-core/store';
 
 function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps }) {
   let comments;
@@ -242,85 +236,5 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
   return [bboxes, icons, arcsBase, lines, comments, edgeLabels];
 }
 
-function genVisLayers(panel: MapPanel, props) {
-  const { groups, isLogic, graph, hasAnnots, useMockData } = panel;
-  const { options, replaceVariables } = props;
-  const dataLayers = options.dataLayers;
-  const visLayers = new VisLayers();
-
-  /// Layer Switcher
-
-  const userLayers: { [key: string]: number } = {};
-  if (dataLayers?.length) {
-    const nodeLayers = dataLayers?.filter((l) => l.type === colTypes.Markers);
-    const nodesCollections = nodeLayers?.reduce((acc, el, index) => {
-      acc.push([el, index]);
-      return acc;
-    }, []);
-
-    const userColTypes = [...new Set((isLogic ? nodeLayers : dataLayers).map((el) => el.type))];
-    userColTypes.forEach((type: any) => {
-      userLayers[type] = visLayers.addLayer(type, type, type, false, true, false, null, false); /// parent idx
-    });
-
-    dataLayers.forEach((layer) => {
-      const parentIdx = userLayers[layer.type];
-      if (parentIdx !== undefined) {
-        visLayers.addLayer(layer.name, layer.name, layer.type, false, true, false, parentIdx, false);
-      }
-    });
-
-    if (nodesCollections.length) {
-      createDerivedLayers(visLayers, graph, isLogic, replaceVariables, useMockData);
-    }
-  }
-
-  const len = groups.length + (hasAnnots ? 1 : 0);
-  visLayers.setActiveGroups(new Uint8Array(len).fill(1));
-  return visLayers;
-}
-
-function createDerivedLayers(visLayers: VisLayers, graph: Graph, isLogic, replaceVariables, useMockData = false) {
-  const graphs: Graph[] = [graph as Graph].concat(Array.from((graph as Graph).subgraphsBreadthFirst()));
-  const hasComments = graph ? !isLogic && graphs.some((g) => Object.keys(getGraphComments(g)).length) : false;
-
-  // Map from graph ID to visLayers index
-  const idToLayerIdx = new Map<string, number>();
-  const graphIdx = visLayers.addLayer('graph', 'graph', 'graph', false, true, false, null, false);
-
-  for (const g of graphs) {
-    const id = g.id;
-    const segments = id.split(NS_SEPARATOR);
-    const label = segments[segments.length - 1]; // Use last segment as label
-    const parentId = segments.length > 1 ? segments.slice(0, -1).join(NS_SEPARATOR) : 'graph';
-    const parentIdx = parentId !== 'graph' ? idToLayerIdx.get(parentId) : graphIdx;
-
-    const layerIdx = visLayers.addLayer(
-      label,
-      id,
-      parentId, //'graph',
-      false,
-      true,
-      false,
-      parentIdx ?? null,
-      false
-    );
-
-    idToLayerIdx.set(id, layerIdx);
-  }
-
-  const rVar = useMockData ? '1' : replaceVariables(`$routed`);
-  const parsed = parseInt(rVar, 10);
-  const isRouted = !isNaN(parsed) ? parsed > 0 : true;
-
-  const parentIdx = null;
-  visLayers.addLayer(colTypes.Circle, colTypes.Circle, colTypes.Circle, false, true, false, parentIdx, false);
-  visLayers.addLayer(colTypes.SVG, colTypes.SVG, colTypes.SVG, false, true, false, parentIdx, false);
-  visLayers.addLayer(colTypes.Label, colTypes.Label, colTypes.Label, false, true, false, parentIdx, false);
-  hasComments &&
-    visLayers.addLayer(colTypes.Comments, colTypes.Comments, colTypes.Comments, false, true, false, parentIdx, false);
-  visLayers.addLayer(colTypes.Edges, colTypes.Edges, colTypes.Edges, false, true, false, parentIdx, false);
-  visLayers.addLayer(colTypes.Routed, colTypes.Routed, colTypes.Routed, false, isRouted, false, parentIdx, false);
-}
-
-export { genVisLayers, genPrimaryLayers, createDerivedLayers };
+export { genVisLayers, createDerivedLayers } from '@mapgl/panel-core/utils';
+export { genPrimaryLayers };

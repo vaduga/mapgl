@@ -2,11 +2,37 @@ import { getFrameMatchers, PanelData, textUtil } from '@grafana/data';
 import { config } from '@grafana/runtime';
 
 import { MARKERS_LAYER_ID, MarkersConfig } from '../layers/data';
-import { MapLayerState } from '../types';
+import { MapLayerState, colTypes } from '../types';
 
 import { ExtendMapLayerHandler, ExtendMapLayerOptions } from '../extension';
 import { getNextLayerName } from './geomap_utils';
-import { FeatSource } from '@mapgl/panel-core/graph';
+import { FeatSource, Graph, getGraphComments } from '@mapgl/panel-core/graph';
+import {
+  getDerivedVisLayers,
+  getMapglFeatureServices,
+} from '../extension-points/featureContracts';
+import { VisLayers } from '../store';
+import { NS_SEPARATOR } from '../types/defaults';
+
+interface VisibilityDataLayer {
+  name: string;
+  type: string;
+}
+
+interface GenVisLayersPanel {
+  groups: unknown[];
+  isLogic: boolean;
+  graph: Graph;
+  hasAnnots?: boolean;
+  useMockData?: boolean;
+}
+
+interface GenVisLayersProps {
+  options: {
+    dataLayers?: VisibilityDataLayer[];
+  };
+  replaceVariables: (value: string) => string;
+}
 
 export const applyLayerFilter = (
   handler: ExtendMapLayerHandler<unknown>,
@@ -160,3 +186,116 @@ export async function initLayer(
 export const getMapLayerState = (l: any): MapLayerState => {
   return l?.state;
 };
+
+export function substituteLayers<TLayer extends { id?: string } | null | undefined>(
+  prev: TLayer[],
+  nameList: TLayer[]
+): TLayer[] {
+  const newLayers = prev;
+  const centerplotIdx = newLayers.findIndex((el) => el?.id === 'centerplot-layer');
+  if (centerplotIdx > -1) {
+    newLayers.splice(centerplotIdx, 1);
+  }
+
+  nameList.forEach((layer) => {
+    if (!layer) {
+      return;
+    }
+    const inLayersIdx = newLayers.findIndex((el) => el?.id === layer.id);
+    if (inLayersIdx > -1) {
+      newLayers[inLayersIdx] = layer;
+    }
+  });
+
+  return newLayers.filter((el): el is NonNullable<TLayer> => Boolean(el));
+}
+
+export function genVisLayers(panel: GenVisLayersPanel, props: GenVisLayersProps): VisLayers {
+  const { groups, isLogic, graph, hasAnnots, useMockData } = panel;
+  const { options, replaceVariables } = props;
+  const dataLayers = options.dataLayers;
+  const visLayers = new VisLayers();
+
+  const userLayers: Record<string, number> = {};
+  if (dataLayers?.length) {
+    const nodeLayers = dataLayers.filter((layer) => layer.type === colTypes.Markers);
+    const userColTypes = [...new Set((isLogic ? nodeLayers : dataLayers).map((layer) => layer.type))];
+
+    userColTypes.forEach((type) => {
+      userLayers[type] = visLayers.addLayer(type, type, type, false, true, false, null, false);
+    });
+
+    dataLayers.forEach((layer) => {
+      const parentIdx = userLayers[layer.type];
+      if (parentIdx !== undefined) {
+        visLayers.addLayer(layer.name, layer.name, layer.type, false, true, false, parentIdx, false);
+      }
+    });
+
+    if (nodeLayers.length) {
+      createDerivedLayers(visLayers, graph, isLogic, replaceVariables, useMockData);
+    }
+  }
+
+  const len = groups.length + (hasAnnots ? 1 : 0);
+  visLayers.setActiveGroups(new Uint8Array(len).fill(1));
+  return visLayers;
+}
+
+export function createDerivedLayers(
+  visLayers: VisLayers,
+  graph: Graph,
+  isLogic: boolean,
+  replaceVariables: (value: string) => string,
+  useMockData = false
+): void {
+  const graphs: Graph[] = [graph].concat(Array.from(graph.subgraphsBreadthFirst()) as Graph[]);
+  const hasComments = !isLogic && graphs.some((g) => Object.keys(getGraphComments(g)).length);
+
+  const idToLayerIdx = new Map<string, number>();
+  const graphIdx = visLayers.addLayer('graph', 'graph', 'graph', false, true, false, null, false);
+
+  for (const g of graphs) {
+    const id = g.id;
+    const segments = id.split(NS_SEPARATOR);
+    const label = segments[segments.length - 1];
+    const parentId = segments.length > 1 ? segments.slice(0, -1).join(NS_SEPARATOR) : 'graph';
+    const parentIdx = parentId !== 'graph' ? idToLayerIdx.get(parentId) : graphIdx;
+
+    const layerIdx = visLayers.addLayer(label, id, parentId, false, true, false, parentIdx ?? null, false);
+
+    idToLayerIdx.set(id, layerIdx);
+  }
+
+  const parentIdx = null;
+  getDerivedVisLayers(getMapglFeatureServices().derivedVisLayerContributors, {
+    graph,
+    isLogic,
+    replaceVariables,
+    useMockData,
+  }).forEach((layer) => {
+    visLayers.addLayer(
+      layer.label,
+      layer.name,
+      layer.group,
+      layer.fold ?? false,
+      layer.visible,
+      layer.indeterminate ?? false,
+      layer.parentIndex ?? parentIdx,
+      layer.combine ?? false
+    );
+  });
+  visLayers.addLayer(colTypes.Circle, colTypes.Circle, colTypes.Circle, false, true, false, parentIdx, false);
+  visLayers.addLayer(colTypes.SVG, colTypes.SVG, colTypes.SVG, false, true, false, parentIdx, false);
+  visLayers.addLayer(colTypes.Label, colTypes.Label, colTypes.Label, false, true, false, parentIdx, false);
+  if (hasComments) {
+    visLayers.addLayer(colTypes.Comments, colTypes.Comments, colTypes.Comments, false, true, false, parentIdx, false);
+  }
+  visLayers.addLayer(colTypes.Edges, colTypes.Edges, colTypes.Edges, false, true, false, parentIdx, false);
+
+  const rVar = useMockData ? '1' : replaceVariables(`$routed`);
+  const parsed = parseInt(rVar, 10);
+  const isRouted = !isNaN(parsed) ? parsed > 0 : true;
+  visLayers.addLayer(colTypes.Routed, colTypes.Routed, colTypes.Routed, false, isRouted, false, parentIdx, false);
+
+}

@@ -21,6 +21,7 @@ export interface MapglFeatureRegistry {
   namespaceBoundaryProviders: NamespaceBoundaryProvider[];
   edgeOffsetStrategies: EdgeOffsetStrategy[];
   clusterLayerProviders: ClusterLayerProvider[];
+  derivedVisLayerContributors: DerivedVisLayerContributor[];
 }
 
 export interface MapglFeatureServices extends MapglFeatureRegistry {
@@ -69,7 +70,38 @@ export function createDefaultFeatureRegistry(): MapglFeatureRegistry {
     namespaceBoundaryProviders: [defaultNamespaceBoundaryProvider],
     edgeOffsetStrategies: [defaultEdgeOffsetStrategy],
     clusterLayerProviders: [],
+    derivedVisLayerContributors: [],
   };
+}
+
+export interface DerivedVisLayerContext {
+  graph: Graph;
+  isLogic: boolean;
+  replaceVariables: (value: string) => string;
+  useMockData?: boolean;
+}
+
+export interface DerivedVisLayerSpec {
+  label: string;
+  name: string;
+  group: string;
+  visible: boolean;
+  fold?: boolean;
+  indeterminate?: boolean;
+  parentIndex?: number | null;
+  combine?: boolean | null;
+}
+
+export interface DerivedVisLayerContributor {
+  id: string;
+  getLayers(context: DerivedVisLayerContext): DerivedVisLayerSpec[];
+}
+
+export function getDerivedVisLayers(
+  contributors: DerivedVisLayerContributor[],
+  context: DerivedVisLayerContext
+): DerivedVisLayerSpec[] {
+  return contributors.flatMap((contributor) => contributor.getLayers(context));
 }
 
 export interface TooltipEdgeRecord {

@@ -1,5 +1,12 @@
 import { FullscreenWidget, CompassWidget, LoadingWidget } from '@deck.gl/widgets';
-import { PositionTracker, StateTime, useFullscreenPortalBridge, getDeckWidgetSkin } from '@mapgl/panel-core/components';
+import {
+  PositionTracker,
+  StateTime,
+  useFullscreenPortalBridge,
+  getDeckWidgetSkin,
+  LayerSwitcher,
+  Menu,
+} from '@mapgl/panel-core/components';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { css, keyframes } from '@emotion/css';
@@ -9,7 +16,6 @@ import { observer } from 'mobx-react-lite';
 import DeckGL from '@deck.gl/react';
 import MapLibre, { AttributionControl } from '@vis.gl/react-maplibre';
 
-import Menu from '../components/Menu';
 import {
   useRootStore,
   genPrimaryLayers,
@@ -44,7 +50,6 @@ import {
 } from '@mapgl/panel-core/graph';
 import { throttleTime } from 'rxjs';
 import { Layer, MapView, OrbitView } from 'deck.gl';
-import LayerSwitcher from './Selects/LayerSwitcher';
 import { BinaryPointFeature } from '@loaders.gl/schema';
 import { selectGotoHandler, ThresholdEdgeChangeEvent } from '@mapgl/panel-core/utils';
 
@@ -54,7 +59,8 @@ class AutolayoutLoadingWidget extends LoadingWidget {
 
 const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, replaceVariables, eventBus }) => {
   const HOVER_HIGHLIGHT_DELAY_MS = 100;
-  const { pointStore, viewStore } = useRootStore();
+  const rootStore = useRootStore();
+  const { pointStore, viewStore } = rootStore;
   const { setVisRefresh: setMobxLegendRefresh } = viewStore;
 
   const { isShowEdgeLegend, isShowLegend, isShowSwitcher } = options.common || {};
@@ -535,8 +541,8 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
   }, [visLayers]);
 
   const memoMenu = useMemo(() => {
-    return <Menu eventBus={eventBus} {...{ options, time, timeZone, data, panel }} />;
-  }, [options, panel.layers, graphVersion, data]);
+    return <Menu eventBus={eventBus} {...{ options, data, panel, rootStore }} />;
+  }, [options, panel.layers, graphVersion, data, rootStore]);
 
   const memoPositionTracker = useMemo(() => {
     return (
