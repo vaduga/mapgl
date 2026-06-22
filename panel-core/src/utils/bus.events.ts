@@ -1,5 +1,6 @@
 import { BusEventWithPayload } from '@grafana/data';
 import type { Edge } from '@mapgl/panel-core/graph';
+import type { RuntimeUpdateEvent } from '../extension-points/featureContracts';
 
 export class SelectNodeEvent extends BusEventWithPayload<{
   pId: number;
@@ -36,4 +37,8 @@ export class ThresholdNodeChangeEvent extends BusEventWithPayload<number> {
 
 export class ThresholdEdgeChangeEvent extends BusEventWithPayload<number> {
   static type = 'edgeThresholdType';
+}
+
+export class MapglRuntimeUpdateEvent extends BusEventWithPayload<RuntimeUpdateEvent> {
+  static type = 'mapgl-runtime-update';
 }

@@ -197,11 +197,13 @@ export type RuntimeUpdateEvent =
       namespace: string;
       document: unknown;
     }
-  | { type: 'node.position.updated'; nodeId: string; position: [number, number]; namespace?: string }
-  | { type: 'live.node.metric.updated'; nodeId: string; metric: string; value: unknown }
-  | { type: 'live.annotation.updated'; nodeId: string; annotation: unknown }
-  | { type: 'live.tooltip.updated'; nodeId: string; metadata: Record<string, unknown> }
-  | { type: 'live.style.updated'; nodeId: string; style: Record<string, unknown> };
+  | {
+      type: 'live.node.metric.updated';
+      nodeId: string;
+      metric: string;
+      value: unknown;
+      metadata?: Record<string, unknown>;
+    };
 
 export interface RuntimeSubscriptionContext {
   graph: Graph;
