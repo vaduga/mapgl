@@ -108,25 +108,6 @@ Mapgl is a dual-mode topology panel:
 
 The feature boundary is not just "map plus graph"; it is the same topology data model working across abstract graph and geographic views.
 
-### Namespaced Graphs
-
-Mapgl supports namespace-aware graph mode:
-
-- source and target namespaces can be selected separately
-- dot-separated namespace values create nested subgraphs
-- namespace visibility is exposed through the layer switcher
-- hidden namespaces affect edge and arc visibility in graph rendering
-
-This lets a node graph represent grouped or nested topology without forcing users into one flat graph.
-
-### Parallel Edges in Graph Mode
-
-Mapgl supports parallel link identity and graph-mode offset rendering:
-
-- unique **Edge ID** values preserve separate parallel links between the same nodes
-- each parallel link can keep its own properties, metrics, labels, widths, and colors
-- parallel edge offset rendering is available in abstract node graph mode
-
 ### Grafana-Native Styling and Tooltip Semantics
 
 Mapgl's topology model is integrated with Grafana panel data and styling:
@@ -134,7 +115,7 @@ Mapgl's topology model is integrated with Grafana panel data and styling:
 - node color, size, opacity, text, and arc sections come from configured fields
 - Grafana thresholds can drive node and edge color
 - node groups can match arbitrary fields or the injected `thrColor` value
-- groups can provide icons, size, width, color overrides, and icon tint behavior
+- groups can provide icons, size, width, color overrides for Grafana thresholds, and icon tint behavior
 - edge styles can use row fields for width, color, and labels
 - tooltips can show node, edge, and span fields from the source data
 - configured search fields participate in panel search

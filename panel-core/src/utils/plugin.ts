@@ -165,10 +165,6 @@ function collectGroups(allGroups: Rule[], iconNames: Set<string>, nsLayers: MapL
   });
 }
 
-function newUniqueIconNames(oldSvgIcons: Record<string, any>, newIconNames: Set<string>): string[] {
-  return [...newIconNames].filter((icon) => !oldSvgIcons?.[icon]);
-}
-
 function parseObjFromString(str) {
   const regex = /(\w+)\s*=\s*(\w+)/g;
   const matches = str.match(regex);
@@ -285,7 +281,6 @@ export {
   loadSvgIcons,
   addSVGattributes,
   fillAnnots,
-  newUniqueIconNames,
   initGroups,
   collectGroups,
   initBinaryProps,

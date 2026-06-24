@@ -4,11 +4,7 @@ import {
   FrameGeometrySourceMode,
   PanelOptionsEditorBuilder,
   PanelData,
-  MapLayerOptions,
-  EventBus,
   StandardEditorContext,
-  PanelProps,
-  Field,
 } from '@grafana/data';
 import type { libreSource } from '@mapgl/panel-core/types';
 import { ReactNode } from 'react';

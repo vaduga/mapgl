@@ -1,4 +1,4 @@
-import { loadSvgIcons, newUniqueIconNames } from './plugin';
+import { loadSvgIcons } from './plugin';
 
 export type SvgIconRenderState = {
   revision: number;
@@ -59,4 +59,8 @@ export class SvgIconManager {
   abort() {
     this.loadController?.abort();
   }
+}
+
+function newUniqueIconNames(oldSvgIcons: Record<string, any>, newIconNames: Set<string>): string[] {
+  return [...newIconNames].filter((icon) => !oldSvgIcons?.[icon]);
 }
