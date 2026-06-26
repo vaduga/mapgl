@@ -7,6 +7,7 @@ import GradientArcLayer from './ArcLayer/gradient-arc-layer';
 import { getArrowColor } from './ArrowLayer/edge-arrow-layer';
 import { CurveEdgeLayer } from './GeoJsonEdgesLayer/curve-edge-layer';
 import { makeScopedKey, type ConnectedEdgeIndex } from './graphHighlighter';
+import { EDGE_LABEL_DIM_OPACITY } from './TextLayer/text-layer';
 
 const ICON_CACHE_SOURCE_KEY = '__mapglIconCacheSource';
 
@@ -87,6 +88,9 @@ function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<
 
   const connectedFeatureDepths = edgeDepthsByGraph[graphId];
   if (!connectedFeatureDepths?.size) {
+    if (isEdgeTextLayer(layer)) {
+      return layer.clone({ opacity: EDGE_LABEL_DIM_OPACITY });
+    }
     return layer.clone({ opacity: 0.18 });
   }
 
@@ -176,6 +180,7 @@ function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<
   if (isEdgeTextLayer(layer)) {
     const textLayer = layer as any;
     return layer.clone({
+      opacity: 1,
       getText: (d: any, info: any) => {
         if (d?.skip) {
           return connectedFeatureDepths.has(info.index) ? (d.properties?.edgeStyle?.text ?? '') : '';
@@ -184,11 +189,11 @@ function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<
       },
       getColor: (d: any, info: any) => {
         const color = getAccessorResult(textLayer.props.getColor, d, info, [0, 0, 0, 200]);
-        return connectedFeatureDepths.has(info.index) ? color : getDimmedRgba(color, 0.18);
+        return connectedFeatureDepths.has(info.index) ? color : getDimmedRgba(color, EDGE_LABEL_DIM_OPACITY);
       },
       getBackgroundColor: (d: any, info: any) => {
         const color = getAccessorResult(textLayer.props.getBackgroundColor, d, info, [255, 255, 255, 100]);
-        return connectedFeatureDepths.has(info.index) ? color : getDimmedRgba(color, 0.18);
+        return connectedFeatureDepths.has(info.index) ? color : getDimmedRgba(color, EDGE_LABEL_DIM_OPACITY);
       },
       updateTriggers: {
         ...layer.props.updateTriggers,

@@ -1,5 +1,9 @@
 # Changelog Mapgl
 
+## 2.7.1
+- text labels are visible for highlighted edges only
+- auto-layout config in basemap layer section
+
 ## 2.7.0
 - traces on service dependency graph: multi-hop edge with per-fragment spans info from separate data-rows
 - new provisioned dashboard: traces + service graph

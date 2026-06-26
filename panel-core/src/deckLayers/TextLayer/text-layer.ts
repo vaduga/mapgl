@@ -6,6 +6,8 @@ import { BBOX_OUTLINE_COLOR } from '../../types/defaults';
 import { colTypes } from '@mapgl/panel-core/types';
 import { Matrix4 } from '@math.gl/core';
 
+export const EDGE_LABEL_DIM_OPACITY = 0;//.18;
+
 const LineTextLayer = ({
   id = '',
   data,
@@ -67,6 +69,7 @@ const LineTextLayer = ({
     visible: ['nums', 'bbox'].includes(type) || Labels,
     ...(type === 'arcLabels' ? { modelMatrix } : {}),
     ...(type === 'arcLabels' ? { parameters: { depthTest: false } } : {}),
+    ...(type === 'arcLabels' ? { opacity: EDGE_LABEL_DIM_OPACITY } : {}),
     pickable: false,
     id: colTypes.Text + '-' + type + id,
     getText: (d: any) => {
