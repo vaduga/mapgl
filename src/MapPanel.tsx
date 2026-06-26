@@ -30,6 +30,7 @@ import {
   SvgIconManager,
 } from './utils';
 import { geomapLayerRegistry, ORTHO_BASEMAP_CONFIG } from './layers/registry';
+import type { OrthoConfig } from '@mapgl/panel-core/layers';
 import { defaultMarkersConfig } from '@mapgl/panel-core/layers/data';
 import { Graph, GraphEdgeIndex, bumpGraphVersion, resetGraph, resetGraphNodes } from '@mapgl/panel-core/graph';
 import {
@@ -74,7 +75,7 @@ export class MapPanel extends Component<Props, State> {
   hasAnnots = false;
   useMockData;
   groups: Rule[] = [];
-  edgeRoutingOverride?: Options['common']['edgeRouting'];
+  autolayoutOverride?: OrthoConfig;
   layoutReady = false;
   layoutGraphBounds = new Map<string, LayoutGraphResult>();
   layoutCurveGroups = new Map<string, LayoutCurveGroup>();
@@ -107,7 +108,7 @@ export class MapPanel extends Component<Props, State> {
     const { locLabelName } = options.common || {};
 
     this.pId = props.id;
-    this.isLogic = !options.basemap || options.basemap.type === ORTHO_BASEMAP_CONFIG.type;
+    this.isLogic = isLogicBasemap(options.basemap);
     this.hasAnnots = !!props.data.annotations?.length;
 
     const firstRun = !this.props.options.dataLayers?.length;
@@ -203,6 +204,7 @@ export class MapPanel extends Component<Props, State> {
     const { options, onOptionsChange } = this.props;
 
     const layers = this.layers;
+    this.isLogic = isLogicBasemap(layers[0]?.options);
     onOptionsChange({
       ...options,
       basemap: layers[0].options,
@@ -222,6 +224,8 @@ export class MapPanel extends Component<Props, State> {
    */
   optionsChanged(options: Options) {
     const oldOptions = this.props.options;
+    this.isLogic = isLogicBasemap(options.basemap);
+
     if (options.view !== oldOptions.view) {
       const viewState = this.initMapView(options.view);
       if (viewState) {
@@ -232,10 +236,10 @@ export class MapPanel extends Component<Props, State> {
       }
     }
 
-    if (options.common?.edgeRouting !== oldOptions.common?.edgeRouting && this.isLogic) {
-      this.edgeRoutingOverride = options.common?.edgeRouting;
+    if (hasAutolayoutChanged(options, oldOptions) && this.isLogic) {
+      this.autolayoutOverride = options.basemap?.config as OrthoConfig | undefined;
       this.dataChanged(this.props.data).finally(() => {
-        this.edgeRoutingOverride = undefined;
+        this.autolayoutOverride = undefined;
       });
     }
   }
@@ -498,4 +502,12 @@ export class MapPanel extends Component<Props, State> {
       </>
     );
   }
+}
+
+function hasAutolayoutChanged(options: Options, oldOptions: Options): boolean {
+  return options.basemap?.type === ORTHO_BASEMAP_CONFIG.type && options.basemap?.config !== oldOptions.basemap?.config;
+}
+
+function isLogicBasemap(basemap: Options['basemap'] | undefined): boolean {
+  return !basemap || basemap.type === ORTHO_BASEMAP_CONFIG.type;
 }

@@ -4,7 +4,8 @@ import { genericLayers } from './generic';
 import { osmLayers } from './osm';
 import { jsonLayers } from './fromJson';
 
-export { orthoLayer } from './blank';
+export { defaultOrthoConfig, orthoLayer } from './blank';
+export type { OrthoConfig } from './blank';
 export { carto, cartoLayers, defaultCartoConfig, LayerTheme } from './carto';
 export { esriLayers, esriXYZTiles, publicServiceRegistry } from './esri';
 export { fromJson, jsonLayers } from './fromJson';

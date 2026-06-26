@@ -118,11 +118,15 @@ Multi-hop trace edges use the same identity rules as other edges, but **Vertex B
 
 If multiple consecutive trace rows share the same **Edge ID**, Mapgl appends their paths into one multi-hop edge. The edge is grouped by the shared key, but its individual span edges remain distinguishable because they keep properties from their source rows for tooltips, adjacent edge lists, styling, and highlighting.
 
-## Auto-layout edge routing
+## Auto-layout options
 
-- **Other -> Edge routing -> Splines** maps to `SugiyamaSplines`.
-- **Other -> Edge routing -> Rectilinear** maps to `Rectilinear`.
-- The setting applies in abstract node graph mode, where Mapgl runs auto-layout.
+- **Basemap layer -> Node Graph ortho -> Edge routing -> Splines** maps to `SugiyamaSplines`.
+- **Basemap layer -> Node Graph ortho -> Edge routing -> Rectilinear** maps to `Rectilinear`.
+- **Basemap layer -> Node Graph ortho -> Layout direction** maps to the MSAGL layer direction values `RL`, `LR`, `TB`, or `BT`.
+- **Basemap layer -> Node Graph ortho -> Layer separation** maps to MSAGL `LayerSeparation`. Default: `60`.
+- **Basemap layer -> Node Graph ortho -> Node separation** maps to MSAGL `NodeSeparation`. Default: `40`.
+- These settings apply in abstract node graph mode, where Mapgl runs auto-layout.
+- The settings are stored in the **Node Graph ortho** basemap layer config.
 
 ## Node style base
 

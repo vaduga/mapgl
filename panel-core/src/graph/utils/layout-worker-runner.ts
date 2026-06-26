@@ -36,18 +36,19 @@ const SOURCE_ARROW_FLAG = 1;
 const TARGET_ARROW_FLAG = 2;
 const MAX_CURVE_RESOLUTION = 64;
 const MIN_CURVE_RESOLUTION = 12;
+const DEFAULT_LAYER_SEPARATION = 60;
+const DEFAULT_NODE_SEPARATION = 40;
 
 type SnapshotNode = Node & { parent?: Graph; id: string; wasmId?: number };
 type SnapshotEdge = CoreEdge & { id?: string };
 
-export function configureLayout(rootGraph: GeomGraph, routing: LayoutRequest['routing']): void {
-  const edgeRoutingMode = routing === 'Rectilinear' ? EdgeRoutingMode.Rectilinear : EdgeRoutingMode.SugiyamaSplines;
-
+export function configureLayout(rootGraph: GeomGraph, request: LayoutRequest): void {
   const settings = new SugiyamaLayoutSettings();
-  settings.layerDirection = LayerDirectionEnum.RL;
-  settings.LayerSeparation = 60;
-  settings.commonSettings.NodeSeparation = 40;
-  settings.commonSettings.edgeRoutingSettings.EdgeRoutingMode = edgeRoutingMode;
+  settings.layerDirection = getLayerDirection(request.direction);
+  settings.LayerSeparation = getPositiveNumber(request.layerSeparation, DEFAULT_LAYER_SEPARATION);
+  settings.commonSettings.NodeSeparation = getPositiveNumber(request.nodeSeparation, DEFAULT_NODE_SEPARATION);
+  settings.commonSettings.edgeRoutingSettings.EdgeRoutingMode =
+    request.routing === 'Rectilinear' ? EdgeRoutingMode.Rectilinear : EdgeRoutingMode.SugiyamaSplines;
   rootGraph.layoutSettings = settings;
 }
 
@@ -55,7 +56,7 @@ export function getLayoutResult(request: LayoutRequest): LayoutResult {
   const graph = buildGraphFromSnapshot(request);
   const rootGraph = GeomGraph.getGeom(graph);
 
-  configureLayout(rootGraph, request.routing);
+  configureLayout(rootGraph, request);
   layoutGeomGraph(rootGraph);
 
   return extractLayoutResult(request.requestId, rootGraph, request.positionsLength, request.nodes, request.edges);
@@ -117,6 +118,24 @@ function buildGraphFromSnapshot(request: LayoutRequest): Graph {
   }
 
   return rootGraph;
+}
+
+function getLayerDirection(direction: LayoutRequest['direction']): LayerDirectionEnum {
+  switch (direction) {
+    case 'TB':
+      return LayerDirectionEnum.TB;
+    case 'LR':
+      return LayerDirectionEnum.LR;
+    case 'BT':
+      return LayerDirectionEnum.BT;
+    case 'RL':
+    default:
+      return LayerDirectionEnum.RL;
+  }
+}
+
+function getPositiveNumber(value: number | undefined, fallback: number): number {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : fallback;
 }
 
 function extractLayoutResult(

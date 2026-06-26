@@ -44,6 +44,7 @@ import { ExtendMapLayerHandler, ExtendMapLayerOptions } from '../extension';
 import type { libreSource } from './index';
 
 export type EdgeRoutingConfig = 'Splines' | 'Rectilinear';
+export type LayoutDirectionConfig = 'TB' | 'LR' | 'BT' | 'RL';
 
 export interface Options {
   isEditable: any;
@@ -62,7 +63,6 @@ export interface Options {
     isShowEdgeLegend: boolean;
     isShowSwitcher: boolean;
     isAppAuth: boolean;
-    edgeRouting?: EdgeRoutingConfig;
     isMeters?: boolean;
     svgTintMode?: SvgTintMode;
   };

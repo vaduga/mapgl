@@ -1,4 +1,5 @@
-type EdgeRoutingConfig = 'Splines' | 'Rectilinear';
+export type EdgeRoutingConfig = 'Splines' | 'Rectilinear';
+export type LayoutDirectionConfig = 'TB' | 'LR' | 'BT' | 'RL';
 
 export type LayoutNodeSnapshot = {
   id: string;
@@ -25,6 +26,9 @@ export type LayoutEdgeSnapshot = {
 export type LayoutRequest = {
   requestId: number;
   routing: EdgeRoutingConfig;
+  direction: LayoutDirectionConfig;
+  layerSeparation: number;
+  nodeSeparation: number;
   rootGraphId: string;
   positionsLength: number;
   graphs: LayoutGraphSnapshot[];

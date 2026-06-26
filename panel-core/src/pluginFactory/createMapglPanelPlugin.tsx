@@ -176,19 +176,6 @@ export function createMapglPanelPlugin<
           description: 'Use meters in Geo view (scales with zoom)',
           defaultValue: false,
         })
-        .addRadio({
-          category: ['Other'],
-          path: 'common.edgeRouting',
-          name: 'Edge routing',
-          description: 'Auto-layout routing mode',
-          settings: {
-            options: [
-              { label: 'Splines', value: 'Splines' },
-              { label: 'Rectilinear', value: 'Rectilinear' },
-            ],
-          },
-          defaultValue: 'Splines',
-        })
         .addTextInput({
           category: ['Other'],
           path: 'common.locLabelName',

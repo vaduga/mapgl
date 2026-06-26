@@ -2,13 +2,13 @@ import { GrafanaTheme2, PluginState, Registry, SelectableValue } from '@grafana/
 
 import { ExtendMapLayerOptions, ExtendMapLayerRegistryItem } from '../extension';
 import { basemapLayers as defaultBasemapLayers } from './basemaps';
-import { orthoLayer } from './basemaps/blank';
+import { defaultOrthoConfig, orthoLayer } from './basemaps/blank';
 import { carto } from './basemaps/carto';
 
 export const ORTHO_BASEMAP_CONFIG: ExtendMapLayerOptions = {
   type: 'blank',
   name: '',
-  config: {},
+  config: { ...defaultOrthoConfig },
 };
 
 export const DEFAULT_BASEMAP_CONFIG: ExtendMapLayerOptions = {

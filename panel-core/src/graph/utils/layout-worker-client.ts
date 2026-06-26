@@ -5,8 +5,10 @@ import { getNodeData } from '../structs/graphOps';
 import type { Edge } from '../structs/edge';
 import { SOURCE_ARROW_FLAG, TARGET_ARROW_FLAG } from './layout-worker-types';
 import type {
+  EdgeRoutingConfig,
   LayoutEdgeSnapshot,
   LayoutCurveGroup,
+  LayoutDirectionConfig,
   LayoutGraphResult,
   LayoutGraphSnapshot,
   LayoutNodeSnapshot,
@@ -27,8 +29,13 @@ type PanelLike = {
   layoutEdgeIndexes?: Map<string, number>;
   layoutEdgeKeys?: string[];
   layoutArrowTips?: Map<string, LayoutArrowTips>;
-  props?: { options?: { common?: { edgeRouting?: 'Splines' | 'Rectilinear' } } };
-  edgeRoutingOverride?: 'Splines' | 'Rectilinear';
+  layers?: Array<{ isBasemap?: boolean; options?: { config?: unknown } }>;
+  props?: {
+    options?: {
+      basemap?: { config?: AutolayoutOptions };
+    };
+  };
+  autolayoutOverride?: AutolayoutOptions;
 };
 
 interface LayoutAppliedCallback {
@@ -52,6 +59,16 @@ export type LayoutCache = {
 declare const __webpack_public_path__: string;
 
 const DEFAULT_NODE_RADIUS = 12.5;
+const DEFAULT_LAYOUT_DIRECTION: LayoutDirectionConfig = 'RL';
+const DEFAULT_LAYER_SEPARATION = 60;
+const DEFAULT_NODE_SEPARATION = 40;
+
+type AutolayoutOptions = {
+  edgeRouting?: EdgeRoutingConfig;
+  layoutDirection?: LayoutDirectionConfig;
+  layerSeparation?: number;
+  nodeSeparation?: number;
+};
 
 let worker: Worker | undefined;
 let workerObjectUrl: string | undefined;
@@ -269,17 +286,30 @@ function createLayoutRequest(panel: PanelLike): LayoutRequest {
   const graphs = collectGraphs(graph);
   const nodes = collectNodes(graph);
   const edges = collectEdges(graph);
-  const routing = panel.edgeRoutingOverride ?? panel.props?.options?.common?.edgeRouting ?? 'Splines';
+  const autolayout = panel.autolayoutOverride ?? getBasemapAutolayout(panel) ?? panel.props?.options?.basemap?.config ?? {};
 
   return {
     requestId: ++nextRequestId,
-    routing,
+    routing: autolayout.edgeRouting ?? 'Splines',
+    direction: autolayout.layoutDirection ?? DEFAULT_LAYOUT_DIRECTION,
+    layerSeparation: getPositiveNumber(autolayout.layerSeparation, DEFAULT_LAYER_SEPARATION),
+    nodeSeparation: getPositiveNumber(autolayout.nodeSeparation, DEFAULT_NODE_SEPARATION),
     rootGraphId: graph.id,
     positionsLength: panel.positions.length,
     graphs,
     nodes,
     edges,
   };
+}
+
+function getBasemapAutolayout(panel: PanelLike): AutolayoutOptions | undefined {
+  return (panel.layers?.find((layer) => layer.isBasemap) ?? panel.layers?.[0])?.options?.config as
+    | AutolayoutOptions
+    | undefined;
+}
+
+function getPositiveNumber(value: number | undefined, fallback: number): number {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : fallback;
 }
 
 function collectGraphs(root: Graph): LayoutGraphSnapshot[] {

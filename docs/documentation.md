@@ -17,8 +17,8 @@ Mapgl panel options are split into a few main areas:
 
 - **Map view**: initial position and zoom.
 - **Data layers**: add, select, reorder, or configure overlay layers. For topology data, use **Markers and links**.
-- **Basemap layer**: the mode switch and map background settings.
-- **Other**: layer switcher, legends, sizing mode, edge routing, and alert label options.
+- **Basemap layer**: the mode switch and map background settings. **Node Graph ortho** includes autolayout settings.
+- **Other**: layer switcher, legends, sizing mode, and alert label options.
 
 Most panel-specific topology work happens inside the **Markers and links** layer.
 
@@ -210,8 +210,16 @@ Outside the layer editor:
 - **Edge legend**: show legend for edge thresholds.
 - **Groups legend**: show legend for node groups.
 - **Meters for sizing**: scale sizes in Geo mode by map zoom.
-- **Edge routing**: choose the auto-layout edge routing mode. **Splines** for `SugiyamaSplines` or **Rectilinear**.
 - **VertexA name label in alert annotation**: field name used in alert annotation labels.
+
+## Node Graph ortho autolayout options
+
+These settings are shown in **Basemap layer** when **Node Graph ortho** is selected:
+
+- **Edge routing**: choose **Splines** for `SugiyamaSplines` or **Rectilinear**.
+- **Layout direction**: choose the layer flow direction: right-to-left, left-to-right, top-to-bottom, or bottom-to-top.
+- **Layer separation**: distance between adjacent layout layers. In the default right-to-left layout this mostly changes horizontal spacing and edge length.
+- **Node separation**: distance between nodes within the same layout layer. In the default right-to-left layout this mostly changes vertical spacing.
 
 ## Practical advice
 
