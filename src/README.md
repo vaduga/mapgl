@@ -12,16 +12,15 @@ Start a new panel with a mock node graph to test styles and modes.
 
 ---
 
-- **Node graph** with layered auto-layout or **Geomap view**
-- Spline / Rectilinear edge routing. Self-loops.
-- Multi-hop and parallel routes
-- Namespace-based subgraphs.
-- Arc sections on nodes for multiple metrics.
-- Network interface TX/RX load visualization using bi-metric arcs
-- Webgl GPU-acceleration for rendering large data volumes
-- Ad-hoc filtering by layers, node groups in the legend
+- **Node graph** with layered auto-layout and **Geomap** view
+- Spline, rectilinear, self-loop, multi-hop, and parallel edge routing
+- Arc sections on nodes for multiple metrics
+- TX/RX interface load visualization with bi-metric arcs
+- WebGL GPU-accelerated rendering for large datasets
+- Ad hoc filtering by layers and node groups in the legend
 - Dynamic drill-down data links to external panels
-- Distributed traces rendering with per-span props
+- Distributed tracing paths with per-span properties
+- Namespace-based subgraphs
 
 ---
 
