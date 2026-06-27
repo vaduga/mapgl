@@ -51,7 +51,7 @@ alt="Dataframe"
 width="800"
 />
 
-*Unified dataframe model for nodes and links. Field names are examples only; Mapgl does not require fixed field names.  
+*Unified dataframe model for nodes and edges. Field names are examples only; Mapgl does not require fixed field names.  
 
 See [Panel configuration](https://mapgl.org/documentation) for setup details and dataframe usage.
 

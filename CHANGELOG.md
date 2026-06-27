@@ -1,14 +1,14 @@
 # Changelog Mapgl
 
 ## 2.7.1
-- text labels are visible for highlighted edges only
-- auto-layout config in basemap layer section
+- auto-layout config in `Basemap layer` section
+- dimm text labels for non-highlighted edges 
 
 ## 2.7.0
-- traces on service dependency graph: multi-hop edge with per-fragment spans info from separate data-rows
+- traces on service dependency graph: multi-hop edge with per-fragment span info from separate data-rows
 - new provisioned dashboard: traces + service graph
 - config: 'routed' edge mode by default; rm node group icon offset
-- fix tooltip adjacent edges list bugs: header icons flicker, edge target node selection 
+- fix tooltip adjacency list selection bugs: icons flicker, target node selection 
 - refactor: externalize panel-core package. Panel acts as core consumer.
 
 ## 2.6.1
