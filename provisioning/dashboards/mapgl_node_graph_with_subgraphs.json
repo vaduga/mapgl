@@ -120,7 +120,9 @@
       "id": 1,
       "options": {
         "basemap": {
-          "config": {},
+          "config": {
+            "edgeRouting": "Rectilinear"
+          },
           "name": "Layer 0",
           "type": "blank"
         },
@@ -459,7 +461,7 @@
           "zoom": -1.26
         }
       },
-      "pluginVersion": "2.6.2",
+      "pluginVersion": "2.7.1",
       "targets": [
         {
           "datasource": {
@@ -926,7 +928,7 @@
           "zoom": -2.26
         }
       },
-      "pluginVersion": "2.6.2",
+      "pluginVersion": "2.7.1",
       "targets": [
         {
           "datasource": {
@@ -983,6 +985,6 @@
   "timezone": "browser",
   "title": "Mapgl Node Graph",
   "uid": "gdn8bn",
-  "version": 7,
+  "version": 1,
   "weekStart": ""
 }
