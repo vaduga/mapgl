@@ -10,7 +10,6 @@
 
 Start a new panel with a mock node graph to test styles and modes.
 
-
 ---
 
 - **Node graph** with layered auto-layout or **Geomap view**
@@ -22,6 +21,7 @@ Start a new panel with a mock node graph to test styles and modes.
 - Webgl GPU-acceleration for rendering large data volumes
 - Ad-hoc filtering by layers, node groups in the legend
 - Dynamic drill-down data links to external panels
+- Distributed traces rendering with per-span props
 
 ---
 
@@ -48,8 +48,8 @@ width="600"
 
 <img
 src="https://mapgl.org/img/screenshot3.png"
-alt="NodeGraph"
-width="900"
+alt="Dataframe"
+width="800"
 />
 
 *Unified dataframe model for nodes and links. Field names are examples only; Mapgl does not require fixed field names.  
@@ -67,7 +67,8 @@ Use Grafana’s built-in transformations to prepare and merge data from:
 - Postgres
 - Any other datasource
 
-[Netbox+Prometheus with drill-down datalinks](https://gfn-gp4l-rare.public.nmaas.eu/d/ae996h5rebcw0d/gp4l-topology-mapgl3a-netbox)</br>
+[Netbox + Prometheus with drill-down](https://gfn-gp4l-rare.public.nmaas.eu/d/ae996h5rebcw0d/gp4l-topology-mapgl3a-netbox)</br>
+[Netbox to Mapgl automation](https://github.com/hamptik/netbox2mapgl)</br>
 [Zabbix events on geomap](https://mapgl.org/zabbix)</br>
 
 ---
