@@ -103,12 +103,17 @@ export async function updateLayer(
     }
   }
 
+  if (layerIndex < 0) {
+    return false;
+  }
+
   if (current.options.type === MARKERS_LAYER_ID) {
     // any extra handling on collapse group rule section?
   }
 
   try {
-    const info = await initLayer(panel, newOptions, current.isBasemap);
+    const initLayerIdx = current.isBasemap ? undefined : Math.max(0, layerIndex - 1);
+    const info = await initLayer(panel, newOptions, current.isBasemap, initLayerIdx);
     layers[layerIndex]?.handler.dispose?.();
     layers[layerIndex] = info;
   } catch (err) {
