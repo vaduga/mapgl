@@ -1,5 +1,8 @@
 # Changelog Mapgl
 
+## 2.7.2*
+- fix: Fit-to-data Max zoom range 0-18 for both graph/geo
+
 ## 2.7.1
 - auto-layout config in `Basemap layer` section
 - dimm text labels for non-highlighted edges 

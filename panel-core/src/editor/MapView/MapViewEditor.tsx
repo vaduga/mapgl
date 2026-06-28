@@ -86,8 +86,10 @@ export const MapViewEditor = ({
           <NumberInput
             id={zoomInputId}
             value={value?.zoom ?? 1}
-            min={isLogic ? -5 : 1}
-            max={isLogic ? 5 : 18}
+            // min={isLogic ? -5 : 1}
+            // max={isLogic ? 5 : 18}
+            min={1}
+            max={18}
             step={0.01}
             onChange={(v) => {
               onChange({ ...value, zoom: v });
