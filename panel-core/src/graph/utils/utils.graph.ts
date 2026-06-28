@@ -9,12 +9,29 @@ import { findEdge, getNodeData, setEdge, setEntityAttrProp } from '../structs/gr
 import type { GraphEdgeIndex } from '../GraphEdgeIndex';
 
 type Vec2 = [number, number];
-type EdgeVertexIds = Array<number | undefined>;
+type EdgeVertexId = number | undefined;
+type EdgeVertexIds = readonly EdgeVertexId[];
+
 type UpdateEdgeVertices = (
   edgeIdx: number,
   nextVerticeIds: EdgeVertexIds,
   prevVerticeIds: EdgeVertexIds
 ) => ArrayLike<number | undefined> | Iterable<number | undefined>;
+
+type SpanWeight = {
+  lIdx?: number;
+  wrap?: number;
+  a?: number;
+  b?: number;
+  c?: number;
+};
+
+type AppendEdgeVertices = (
+  edgeIdx: number,
+  appendVerticeIds: EdgeVertexIds,
+  weight: SpanWeight
+) => ArrayLike<number | undefined> | Iterable<number | undefined>;
+
 type ArrowAngles = { start: number | undefined; end: number | undefined };
 type ArrowTips = { start?: Position; end?: Position };
 type ArrowLengths = { start?: number; end?: number };
@@ -56,31 +73,6 @@ function pushDummyEdges({
       multiEdges.push(dummy);
     }
   });
-}
-
-function appendVerticeIds(prevVerticeIds: Array<number | undefined>, nextVerticeIds: Array<number | undefined>) {
-  if (!prevVerticeIds.length) {
-    return Array.from(nextVerticeIds);
-  }
-  if (!nextVerticeIds.length) {
-    return Array.from(prevVerticeIds);
-  }
-
-  const shouldDropJoin = prevVerticeIds.at(-1) !== undefined && prevVerticeIds.at(-1) === nextVerticeIds[0];
-  return [...prevVerticeIds, ...(shouldDropJoin ? nextVerticeIds.slice(1) : nextVerticeIds)];
-}
-
-function replaceEdgeVertices(
-  graphEdgeIndex: GraphEdgeIndex,
-  updateEdgeVertices: UpdateEdgeVertices | undefined,
-  edgeIdx: number,
-  nextVerticeIds: EdgeVertexIds,
-  prevVerticeIds = graphEdgeIndex.edgeVerticeIds[edgeIdx][0]
-) {
-  const newVerticeIds = updateEdgeVertices
-    ? updateEdgeVertices(edgeIdx, nextVerticeIds, prevVerticeIds)
-    : nextVerticeIds;
-  graphEdgeIndex.edgeVerticeIds[edgeIdx][0] = Array.from(newVerticeIds);
 }
 
 export function getEdgeArrowSize(edgeSize: number | undefined): number {
@@ -270,6 +262,7 @@ function pushPath(props: PushPathProps) {
   const createEdge = panel.graphEngine?.createEdge?.bind(panel.graphEngine);
   const getEdgeVertices = panel.graphEngine?.getEdgeVertices?.bind(panel.graphEngine);
   const updateEdgeVertices = panel.graphEngine?.updateEdgeVertices?.bind(panel.graphEngine);
+  const appendEdgeSpan = panel.graphEngine?.appendEdgeSpan?.bind(panel.graphEngine);
 
   const findNodeA = (id: string) => graphA.findNode(id);
   const findNodeB = (id: string) => graphB.findNode(id);
@@ -401,9 +394,25 @@ function pushPath(props: PushPathProps) {
         graphEdgeIndex.wasm2Edges[edge_id] = multiEdges;
 
         const prevVerticeIds = graphEdgeIndex.edgeVerticeIds[edge_id][0];
-        const appendedVerticeIds = appendVerticeIds(prevVerticeIds, wasmVerticeIds);
-        replaceEdgeVertices(graphEdgeIndex, updateEdgeVertices, edge_id, appendedVerticeIds, prevVerticeIds);
+        const appendSpanVerticeIds = normalizeAppendSpan(prevVerticeIds, wasmVerticeIds);
 
+        if (!appendSpanVerticeIds) {
+          // This row is another fragment of the same logical edge, but not a tail continuation.
+          // Do not call appendEdgeSpan here.
+          return;
+        }
+
+        const allVerticeIds = appendVerticeIds(prevVerticeIds, appendSpanVerticeIds);
+
+        const weight: SpanWeight = {
+          lIdx: layerIdx,
+          wrap,
+          a: aMetric,
+          b: bMetric,
+          c: cMetric,
+        };
+
+        addEdgeSpan(graphEdgeIndex, appendEdgeSpan, edge_id, appendSpanVerticeIds, allVerticeIds, weight);
         return;
       }
 
@@ -506,6 +515,58 @@ function pushPath(props: PushPathProps) {
       }
     }
   });
+}
+
+function replaceEdgeVertices(
+  graphEdgeIndex: GraphEdgeIndex,
+  updateEdgeVertices: UpdateEdgeVertices | undefined,
+  edgeIdx: number,
+  nextVerticeIds: EdgeVertexIds,
+  prevVerticeIds = graphEdgeIndex.edgeVerticeIds[edgeIdx][0]
+) {
+  const newVerticeIds = updateEdgeVertices
+    ? updateEdgeVertices(edgeIdx, nextVerticeIds, prevVerticeIds)
+    : nextVerticeIds;
+  graphEdgeIndex.edgeVerticeIds[edgeIdx][0] = Array.from(newVerticeIds);
+}
+
+function appendVerticeIds(prevVerticeIds: Array<number | undefined>, appendSpanVerticeIds: Array<number | undefined>) {
+  return [...prevVerticeIds, ...appendSpanVerticeIds];
+}
+
+function addEdgeSpan(
+  graphEdgeIndex: GraphEdgeIndex,
+  appendEdgeSpan: AppendEdgeVertices | undefined,
+  edgeIdx: number,
+  addedVerticeIds: EdgeVertexIds,
+  allVerticeIds: EdgeVertexIds,
+  weight: SpanWeight
+) {
+  const newVerticeIds = appendEdgeSpan ? appendEdgeSpan(edgeIdx, addedVerticeIds, weight) : allVerticeIds;
+  graphEdgeIndex.edgeVerticeIds[edgeIdx][0] = Array.from(newVerticeIds);
+}
+
+function normalizeAppendSpan(
+  prevVerticeIds: readonly EdgeVertexId[],
+  nextSpanVerticeIds: readonly EdgeVertexId[]
+): EdgeVertexId[] | null {
+  if (!prevVerticeIds.length) {
+    return Array.from(nextSpanVerticeIds);
+  }
+
+  if (!nextSpanVerticeIds.length) {
+    return null;
+  }
+
+  const tail = prevVerticeIds.at(-1);
+  const head = nextSpanVerticeIds[0];
+
+  if (tail !== undefined && head !== undefined && tail === head) {
+    const normalized = nextSpanVerticeIds.slice(1);
+    return normalized.length ? normalized : null;
+  }
+
+  return null;
 }
 
 function segregatePath(path: any[], pathCoords: Position[], findNodeA: any, findNodeB: any): any[] {
