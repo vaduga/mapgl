@@ -17,7 +17,7 @@ import type {
   LayerDragShift,
 } from '@mapgl/panel-core/types';
 import { notifyPanelEditor } from '@mapgl/panel-core/utils/geomap_utils';
-import { getActions, applyLayerFilter, initLayer } from '@mapgl/panel-core/utils';
+import { getActions, applyLayerFilter, initLayer, MapglRuntimeUpdateEvent } from '@mapgl/panel-core/utils';
 import RootStore from './store/RootStore';
 import Mapgl from './components/Mapgl';
 import {
@@ -454,7 +454,7 @@ export class MapPanel extends Component<Props, State> {
   }
 
   private publishRuntimeUpdate = (event: RuntimeUpdateEvent) => {
-    this.props.eventBus?.publish({ type: 'mapgl-runtime-update', payload: event } as any);
+    this.props.eventBus?.publish(new MapglRuntimeUpdateEvent(event));
   };
 
   refreshRuntimeSubscriptions(context: Partial<RuntimeSubscriptionContext>) {
