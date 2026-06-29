@@ -107,7 +107,7 @@ export const defaultMarkersConfig: ExtendMapLayerOptions<MarkersConfig> = {
 };
 
 /**
- * Map data layer configuration for icons, circle, label overlay with polyline-strings for links
+ * Map data layer configuration for icons, circle, label overlay with line-strings for links/multi-hop links
  */
 export function createMarkersLayer({
   ArcOptionsEditor,
