@@ -7,6 +7,7 @@ import {
 } from '@mapgl/panel-core/editor';
 import {
   createGeomapLayerRegistry,
+  DEFAULT_BASEMAP_CONFIG,
   ORTHO_BASEMAP_CONFIG,
 } from '@mapgl/panel-core/layers';
 import { createDataLayers } from '@mapgl/panel-core/layers/data';
@@ -25,6 +26,6 @@ const layerRegistry = createGeomapLayerRegistry({
   hasAlphaPanels,
 });
 
-export { ORTHO_BASEMAP_CONFIG };
+export { DEFAULT_BASEMAP_CONFIG, ORTHO_BASEMAP_CONFIG };
 
-export const { basemapLayers, geomapLayerRegistry, getLayersOptions } = layerRegistry;
+export const { basemapLayers, defaultBaseLayer, geomapLayerRegistry, getLayersOptions } = layerRegistry;

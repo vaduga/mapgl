@@ -1,13 +1,20 @@
-import { PluginState, Registry, SelectableValue } from '@grafana/data';
+import { GrafanaTheme2, PluginState, Registry, SelectableValue } from '@grafana/data';
 
 import { ExtendMapLayerOptions, ExtendMapLayerRegistryItem } from '../extension';
 import { basemapLayers as defaultBasemapLayers } from './basemaps';
 import { defaultOrthoConfig, orthoLayer } from './basemaps/blank';
+import { carto } from './basemaps/carto';
 
 export const ORTHO_BASEMAP_CONFIG: ExtendMapLayerOptions = {
   type: 'blank',
   name: '',
   config: { ...defaultOrthoConfig },
+};
+
+export const DEFAULT_BASEMAP_CONFIG: ExtendMapLayerOptions = {
+  type: 'default',
+  name: '',
+  config: {},
 };
 
 interface RegistrySelectInfo {
@@ -27,8 +34,20 @@ export function createGeomapLayerRegistry(options: CreateGeomapLayerRegistryOpti
   const basemapLayers = options.basemapLayers ?? defaultBasemapLayers;
   const dataLayers = options.dataLayers ?? [];
 
+  const defaultBaseLayer: ExtendMapLayerRegistryItem = {
+    id: DEFAULT_BASEMAP_CONFIG.type,
+    hideOpacity: true,
+    name: 'Default base layer',
+    isBaseMap: true,
+
+    create: (panel: any, layerOptions: ExtendMapLayerOptions, theme: GrafanaTheme2) => {
+      return carto.create(panel, layerOptions, theme);
+    },
+  };
+
   const geomapLayerRegistry = new Registry<ExtendMapLayerRegistryItem<any>>(() => [
     orthoLayer,
+    defaultBaseLayer,
     ...basemapLayers,
     ...dataLayers,
   ]);
@@ -76,7 +95,7 @@ export function createGeomapLayerRegistry(options: CreateGeomapLayerRegistryOpti
 
   const getLayersOptions = (basemap: boolean, current?: string): RegistrySelectInfo => {
     if (basemap) {
-      return getLayersSelection([orthoLayer, ...basemapLayers], current);
+      return getLayersSelection([orthoLayer, defaultBaseLayer, ...basemapLayers], current);
     }
 
     return getLayersSelection([...dataLayers], current);
@@ -85,6 +104,7 @@ export function createGeomapLayerRegistry(options: CreateGeomapLayerRegistryOpti
   return {
     basemapLayers,
     dataLayers,
+    defaultBaseLayer,
     geomapLayerRegistry,
     getLayersOptions,
   };
