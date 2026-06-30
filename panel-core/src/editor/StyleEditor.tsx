@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 
-import { FieldConfigPropertyItem, StandardEditorProps, StandardEditorsRegistryItem, FrameMatcher } from '@grafana/data';
-import { ScaleDimensionConfig, ColorDimensionConfig, TextDimensionConfig } from '@grafana/schema';
+import type { FieldConfigPropertyItem, StandardEditorProps, StandardEditorsRegistryItem, FrameMatcher } from '@grafana/data';
+import type { ScaleDimensionConfig, ColorDimensionConfig, TextDimensionConfig } from '@grafana/schema';
 import { ColorPicker, Field, InlineField, InlineFieldRow, InlineLabel } from '@grafana/ui';
 import { NumberValueEditor } from '../grafana_core/app/core/components/OptionsUI/number';
 import { SliderValueEditor } from '../grafana_core/app/core/components/OptionsUI/slider';

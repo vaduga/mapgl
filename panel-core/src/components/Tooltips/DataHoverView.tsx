@@ -2,32 +2,32 @@ import { css } from '@emotion/css';
 import React from 'react';
 
 import {
-  arrayUtils,
-  DataFrame,
-  dateTime,
-  Field,
-  FieldType,
+  type DataFrame,
+  type Field,
   formattedValueToString,
   getFieldDisplayName,
-  GrafanaTheme2,
-  LinkModel,
+  type GrafanaTheme2,
+  type LinkModel,
+  dateTime,
+  FieldType,
+  arrayUtils,
 } from '@grafana/data';
 import { SortOrder, TooltipDisplayMode } from '@grafana/schema';
-import { TextLink, useStyles2 } from '@grafana/ui';
+import { getFieldDisplayLinks, TextLink, useStyles2 } from '@grafana/ui';
 
 export interface Props {
   data?: DataFrame; // source data
+  rowIndex?: number | null; // the hover row
+  columnIndex?: number | null; // the hover column
+  header?: string;
+  padding?: number;
   displayProps: string[];
   baseProps: string[];
   extraFields: Field[];
   all_annots: [];
   time: number;
-  rowIndex?: number | null; // the hover row
-  columnIndex?: number | null; // the hover column
   sortOrder?: SortOrder;
   mode?: TooltipDisplayMode | null;
-  header?: string;
-  padding?: number;
 }
 
 export interface DisplayValue {
@@ -49,26 +49,6 @@ function renderValue(value: string): string | React.ReactNode {
   }
 
   return value;
-}
-
-function getDataLinks(field: Field, rowIdx: number) {
-  const links: Array<LinkModel<Field>> = [];
-
-  if ((field.config.links?.length ?? 0) > 0 && field.getLinks != null) {
-    const v = field.values[rowIdx];
-    const disp = field.display ? field.display(v) : { text: `${v}`, numeric: +v };
-    const linkLookup = new Set<string>();
-
-    field.getLinks({ calculatedValue: disp, valueRowIndex: rowIdx }).forEach((link) => {
-      const key = `${link.title}/${link.href}`;
-      if (!linkLookup.has(key)) {
-        links.push(link);
-        linkLookup.add(key);
-      }
-    });
-  }
-
-  return links;
 }
 
 function sortAnnotations(annotations: any[]) {
@@ -160,7 +140,7 @@ export function getDisplayValuesAndLinks(
 
     const fieldDisplay = field.display ? field.display(value) : { text: `${value}`, numeric: +value };
 
-    getDataLinks(field, rowIndex).forEach((link) => {
+    getFieldDisplayLinks(field, rowIndex).forEach((link) => {
       const key = `${link.title}/${link.href}`;
       if (!linkLookup.has(key) && mode === TooltipDisplayMode.Single && field === hoveredField) {
         /// me ->> && mode === TooltipDisplayMode.Single && field === hoveredField

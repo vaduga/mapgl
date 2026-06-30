@@ -1,12 +1,12 @@
 import { get as lodashGet, isEqual } from 'lodash';
 
 import {
-  Field,
+  type Field,
   FieldType,
   FrameGeometrySourceMode,
   getFrameMatchers,
-  PanelOptionsEditorBuilder,
-  StandardEditorContext,
+  type NestedPanelOptions,
+  type NestedValueAccess,
 } from '@grafana/data';
 
 import { defaultMarkersConfig, getGeoJsonProps } from '../layers/data';
@@ -21,28 +21,11 @@ import { setOptionImmutably } from '../grafana_core/app/dashboard/components/Pan
 import { ExtendMapLayerOptions, ExtendMapLayerRegistryItem } from '../extension';
 import { colTypes } from '@mapgl/panel-core/types';
 
-interface PanelOptionsSupplier<TOptions> {
-  (builder: PanelOptionsEditorBuilder<TOptions>, context: StandardEditorContext<TOptions>): void;
-}
-
 export interface LayerEditorOptions {
   state: MapLayerState;
   category: string[];
-  isLogic: boolean;
   basemaps: boolean; // only basemaps
-}
-
-export interface NestedValueAccess {
-  getValue(path: string): any;
-  onChange(path: string, value: any): void;
-  getContext?(parent: StandardEditorContext<any, any>): StandardEditorContext<any, any>;
-}
-export interface NestedPanelOptions<TSub = any> {
-  path: string;
-  category?: string[];
-  defaultValue?: TSub;
-  build: PanelOptionsSupplier<TSub>;
-  values?(parent: NestedValueAccess): NestedValueAccess;
+  isLogic: boolean;
 }
 
 interface LayerEditorAdapters {
