@@ -1,0 +1,32 @@
+import { Field, LinkModel } from '@grafana/data';
+
+/**
+ * @alpha
+ *
+ * Returns the resolved data links for a specific data point in a field.
+ *
+ * Deduplicates links by `title/href` so that the same link target is not shown
+ * twice when multiple override rules produce identical links.
+ *
+ * @param field - The field containing the data point and its link configuration.
+ * @param rowIdx - The row index of the hovered data point within `field.values`.
+ */
+export const getFieldDisplayLinks = (field: Field, rowIdx: number): Array<LinkModel<Field>> => {
+  const links: Array<LinkModel<Field>> = [];
+
+  if ((field.config.links?.length ?? 0) > 0 && field.getLinks != null) {
+    const v = field.values[rowIdx];
+    const disp = field.display ? field.display(v) : { text: `${v}`, numeric: +v };
+    const linkLookup = new Set<string>();
+
+    field.getLinks({ calculatedValue: disp, valueRowIndex: rowIdx }).forEach((link) => {
+      const key = `${link.title}/${link.href}`;
+      if (!linkLookup.has(key)) {
+        links.push(link);
+        linkLookup.add(key);
+      }
+    });
+  }
+
+  return links;
+};
