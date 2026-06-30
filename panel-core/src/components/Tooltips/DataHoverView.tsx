@@ -13,7 +13,9 @@ import {
   arrayUtils,
 } from '@grafana/data';
 import { SortOrder, TooltipDisplayMode } from '@grafana/schema';
-import { getFieldDisplayLinks, TextLink, useStyles2 } from '@grafana/ui';
+import { TextLink, useStyles2 } from '@grafana/ui';
+//#TODO: getFieldDisplayLinks should be exported from @grafana/ui soon
+import { getFieldDisplayLinks } from '../../grafana_ui/components/VizTooltip/utils';
 
 export interface Props {
   data?: DataFrame; // source data
