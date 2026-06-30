@@ -126,9 +126,6 @@ export function createGetLayerEditor({ geomapLayerRegistry, getLayersOptions }: 
 
         addLocationFields('Location', 'location.', builder, opts.isLogic, options.location, data);
       }
-      if (handler.registerOptionsUI) {
-        handler.registerOptionsUI(builder, context);
-      }
       if (!isEqual(opts.category, ['Basemap layer'])) {
         builder.addFieldNamePicker({
           path: 'locField',
