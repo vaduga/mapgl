@@ -10,8 +10,8 @@ import {
 } from '@grafana/data';
 
 import { defaultMarkersConfig, getGeoJsonProps } from '../layers/data';
-import { ORTHO_BASEMAP_CONFIG, DEFAULT_BASEMAP_CONFIG } from '../layers/registry';
-import { MapLayerState } from '../types';
+import {  ORTHO_BASEMAP_CONFIG } from '../layers/registry';
+import { type MapLayerState } from '../types';
 
 import { addLocationFields } from './MapView/locationEditor';
 import { FrameSelectionEditor } from './FrameSelectionEditor';
@@ -56,7 +56,6 @@ export function createGetLayerEditor({ geomapLayerRegistry, getLayersOptions }: 
         const { options } = state;
         if (path === 'type' && value) {
           const layer = geomapLayerRegistry.getIfExists(value);
-          //console.log('layer onchange', layer)
           if (layer) {
             const opts = {
               ...options, // keep current shared options
@@ -74,7 +73,6 @@ export function createGetLayerEditor({ geomapLayerRegistry, getLayersOptions }: 
             return;
           }
         }
-        //console.log('state onchange?', state, options, path, value)
         state.onChange(setOptionImmutably(options, path, value));
       },
     }),
@@ -105,7 +103,7 @@ export function createGetLayerEditor({ geomapLayerRegistry, getLayersOptions }: 
       if (handler.update) {
         builder.addCustomEditor({
           id: 'filterData',
-          path: 'query',
+          path: 'filterData',
           name: 'Data',
           editor: FrameSelectionEditor,
           defaultValue: undefined,
@@ -116,22 +114,21 @@ export function createGetLayerEditor({ geomapLayerRegistry, getLayersOptions }: 
         return; // unknown layer type
       }
 
-      // Don't show UI for default configuration
-      if (options.type === DEFAULT_BASEMAP_CONFIG.type) {
-        return;
-      }
-
       if (layer.showLocation) {
         let data = context.data;
         // If 'query' (`filterData`) exists filter data feeding into location editor
-        if (options.query) {
-          const matcherFunc = getFrameMatchers(options.query);
-          data = data.filter(matcherFunc);
+        if (options.filterData) {
+          const matcherFunc = getFrameMatchers(options.filterData);
+          if (data.some(matcherFunc)) {
+            data = data.filter(matcherFunc);
+          }
         }
 
         addLocationFields('Location', 'location.', builder, opts.isLogic, options.location, data);
       }
-
+      if (handler.registerOptionsUI) {
+        handler.registerOptionsUI(builder, context);
+      }
       if (!isEqual(opts.category, ['Basemap layer'])) {
         builder.addFieldNamePicker({
           path: 'locField',

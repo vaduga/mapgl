@@ -7,11 +7,10 @@ import {
 } from '@mapgl/panel-core/editor';
 import {
   createGeomapLayerRegistry,
-  DEFAULT_BASEMAP_CONFIG,
   ORTHO_BASEMAP_CONFIG,
 } from '@mapgl/panel-core/layers';
 import { createDataLayers } from '@mapgl/panel-core/layers/data';
-import { config, hasAlphaPanels } from '../config';
+import { hasAlphaPanels } from '../config';
 
 const dataLayers = createDataLayers({
   ArcOptionsEditor,
@@ -23,10 +22,9 @@ const dataLayers = createDataLayers({
 
 const layerRegistry = createGeomapLayerRegistry({
   dataLayers,
-  getServerBaseLayerConfig: () => config?.geomapDefaultBaseLayerConfig,
   hasAlphaPanels,
 });
 
-export { DEFAULT_BASEMAP_CONFIG, ORTHO_BASEMAP_CONFIG };
+export { ORTHO_BASEMAP_CONFIG };
 
-export const { basemapLayers, defaultBaseLayer, geomapLayerRegistry, getLayersOptions } = layerRegistry;
+export const { basemapLayers, geomapLayerRegistry, getLayersOptions } = layerRegistry;

@@ -46,8 +46,8 @@ export const applyLayerFilter = (
   const f = collectNsNodes && (options.query || isSnapshot) ? handler.geom : handler.update;
   if (f) {
     let panelData = panelDataProps;
-    if (options.query) {
-      const matcherFunc = getFrameMatchers(options.query);
+    if (options.filterData) {
+      const matcherFunc = getFrameMatchers(options.filterData);
       panelData = {
         ...panelData,
         series: panelData.series.filter(matcherFunc),
@@ -137,7 +137,7 @@ export async function initLayer(
     options = panel.orthoBasemapConfig;
   }
 
-  // Use default makers layer
+  // Use default markers layer
   if (!options?.type) {
     options = {
       type: MARKERS_LAYER_ID,

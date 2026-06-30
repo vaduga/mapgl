@@ -1,20 +1,13 @@
-import { GrafanaTheme2, PluginState, Registry, SelectableValue } from '@grafana/data';
+import { PluginState, Registry, SelectableValue } from '@grafana/data';
 
 import { ExtendMapLayerOptions, ExtendMapLayerRegistryItem } from '../extension';
 import { basemapLayers as defaultBasemapLayers } from './basemaps';
 import { defaultOrthoConfig, orthoLayer } from './basemaps/blank';
-import { carto } from './basemaps/carto';
 
 export const ORTHO_BASEMAP_CONFIG: ExtendMapLayerOptions = {
   type: 'blank',
   name: '',
   config: { ...defaultOrthoConfig },
-};
-
-export const DEFAULT_BASEMAP_CONFIG: ExtendMapLayerOptions = {
-  type: 'default',
-  name: '',
-  config: {},
 };
 
 interface RegistrySelectInfo {
@@ -33,35 +26,9 @@ export interface CreateGeomapLayerRegistryOptions {
 export function createGeomapLayerRegistry(options: CreateGeomapLayerRegistryOptions = {}) {
   const basemapLayers = options.basemapLayers ?? defaultBasemapLayers;
   const dataLayers = options.dataLayers ?? [];
-  const fallbackBaseMapLayer = options.defaultBaseMapLayer ?? carto;
-
-  const defaultBaseLayer: ExtendMapLayerRegistryItem = {
-    id: DEFAULT_BASEMAP_CONFIG.type,
-    hideOpacity: true,
-    name: 'Default base layer',
-    isBaseMap: true,
-
-    create: (panel: any, layerOptions: ExtendMapLayerOptions, theme: GrafanaTheme2) => {
-      const serverLayerConfig = options.getServerBaseLayerConfig?.();
-      const serverLayerType = serverLayerConfig?.type;
-
-      if (serverLayerType) {
-        const layer = geomapLayerRegistry.getIfExists(serverLayerType);
-
-        if (!layer) {
-          throw new Error('Invalid basemap configuration on server');
-        }
-
-        return layer.create(panel, serverLayerConfig, theme);
-      }
-
-      return fallbackBaseMapLayer.create(panel, layerOptions, theme);
-    },
-  };
 
   const geomapLayerRegistry = new Registry<ExtendMapLayerRegistryItem<any>>(() => [
     orthoLayer,
-    defaultBaseLayer,
     ...basemapLayers,
     ...dataLayers,
   ]);
@@ -109,7 +76,7 @@ export function createGeomapLayerRegistry(options: CreateGeomapLayerRegistryOpti
 
   const getLayersOptions = (basemap: boolean, current?: string): RegistrySelectInfo => {
     if (basemap) {
-      return getLayersSelection([orthoLayer, defaultBaseLayer, ...basemapLayers], current);
+      return getLayersSelection([orthoLayer, ...basemapLayers], current);
     }
 
     return getLayersSelection([...dataLayers], current);
@@ -118,7 +85,6 @@ export function createGeomapLayerRegistry(options: CreateGeomapLayerRegistryOpti
   return {
     basemapLayers,
     dataLayers,
-    defaultBaseLayer,
     geomapLayerRegistry,
     getLayersOptions,
   };
