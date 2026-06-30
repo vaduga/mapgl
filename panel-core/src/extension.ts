@@ -75,7 +75,7 @@ export interface ExtendMapLayerOptions<TConfig = any> {
   parField?: string;
   edgeIdField?: string;
   config?: TConfig;
-  filterData?: MatcherConfig;
+  query?: MatcherConfig; //filterData
   location?: ExtendFrameGeometrySource;
   opacity?: number;
   displayProperties?: string[];

@@ -46,8 +46,8 @@ export const applyLayerFilter = (
   const f = collectNsNodes && (options.query || isSnapshot) ? handler.geom : handler.update;
   if (f) {
     let panelData = panelDataProps;
-    if (options.filterData) {
-      const matcherFunc = getFrameMatchers(options.filterData);
+    if (options.query) {
+      const matcherFunc = getFrameMatchers(options.query);
       panelData = {
         ...panelData,
         series: panelData.series.filter(matcherFunc),
