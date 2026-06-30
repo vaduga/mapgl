@@ -313,7 +313,7 @@ class PointStore {
     if (index !== undefined) {
       const prevNodes = selectedIds.get(colTypes.Nodes);
 
-      if (dataRecord.feature.type === 'Polygon') {
+      if (dataRecord.feature?.type === 'Polygon') {
         selectedIds.set(colTypes.Bboxes, [index]);
       } else {
         selectedIds.set(colTypes.Nodes, {
