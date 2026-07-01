@@ -10,7 +10,7 @@ import {
 } from '@grafana/data';
 
 import { defaultMarkersConfig, getGeoJsonProps } from '../layers/data';
-import {  ORTHO_BASEMAP_CONFIG } from '../layers/registry';
+import { ORTHO_BASEMAP_CONFIG, DEFAULT_BASEMAP_CONFIG } from '../layers/registry';
 import { type MapLayerState } from '../types';
 
 import { addLocationFields } from './MapView/locationEditor';
@@ -112,6 +112,11 @@ export function createGetLayerEditor({ geomapLayerRegistry, getLayersOptions }: 
 
       if (!layer) {
         return; // unknown layer type
+      }
+
+      // Don't show UI for default configuration
+      if (options.type === DEFAULT_BASEMAP_CONFIG.type) {
+        return;
       }
 
       if (layer.showLocation) {
