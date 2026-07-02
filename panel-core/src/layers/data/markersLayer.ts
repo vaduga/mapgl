@@ -603,6 +603,7 @@ export function createMarkersLayer({
       },
       registerOptionsUI: (builder, context) => {
         const useMockData = !!context.instanceState?.layer.useMockData;
+        const isExtendedEdition = getMapglFeatureServices().edition === 'extended';
         builder
           .addFieldNamePicker({
             path: 'parField',
@@ -631,7 +632,7 @@ export function createMarkersLayer({
             showIf: (opts) => !!opts.parField,
           });
 
-        if (getMapglFeatureServices().edition === 'extended') {
+        if (isExtendedEdition) {
           builder.addRadio({
             path: 'isWrapEdges',
             name: 'Reduce parallel edges to: ',
@@ -833,8 +834,10 @@ export function createMarkersLayer({
               min: 0,
               max: 1,
             },
-          })
-          .addNumberInput({
+          });
+
+        if (isExtendedEdition) {
+          builder.addNumberInput({
             category: ['Arc Styles'],
             path: 'config.arcConfig.tiltIncrement',
             name: 'Tilt angle increment',
@@ -845,20 +848,22 @@ export function createMarkersLayer({
               min: 0,
               max: 20,
             },
-          })
-          .addCustomEditor({
-            id: 'config.arcStyle.capacity',
-            category: ['Arc Styles'],
-            path: 'config.arcConfig.capacity',
-            name: 'Capacity',
-            description: 'Max value field',
-            editor: CapacityDimensionEditor,
-            settings: {
-              filteredFieldType: FieldType.number,
-            },
-            showIf: (opts) => opts.config.showStat2 && (!!opts.parField || useMockData),
-            defaultValue: defaultOptions.arcConfig.capacity,
           });
+        }
+
+        builder.addCustomEditor({
+          id: 'config.arcStyle.capacity',
+          category: ['Arc Styles'],
+          path: 'config.arcConfig.capacity',
+          name: 'Capacity',
+          description: 'Max value field',
+          editor: CapacityDimensionEditor,
+          settings: {
+            filteredFieldType: FieldType.number,
+          },
+          showIf: (opts) => opts.config.showStat2 && (!!opts.parField || useMockData),
+          defaultValue: defaultOptions.arcConfig.capacity,
+        });
       },
     };
   },
