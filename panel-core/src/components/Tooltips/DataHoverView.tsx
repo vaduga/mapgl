@@ -14,8 +14,7 @@ import {
 } from '@grafana/data';
 import { SortOrder, TooltipDisplayMode } from '@grafana/schema';
 import { TextLink, useStyles2 } from '@grafana/ui';
-//#TODO: getFieldDisplayLinks should be exported from @grafana/ui soon
-import { getFieldDisplayLinks } from '../../grafana_ui/components/VizTooltip/utils';
+import { getFieldDisplayLinksCompat } from '../Compat/getFieldDisplayLinksCompat';
 
 export interface Props {
   data?: DataFrame; // source data
@@ -142,7 +141,7 @@ export function getDisplayValuesAndLinks(
 
     const fieldDisplay = field.display ? field.display(value) : { text: `${value}`, numeric: +value };
 
-    getFieldDisplayLinks(field, rowIndex).forEach((link) => {
+    getFieldDisplayLinksCompat(field, rowIndex).forEach((link) => {
       const key = `${link.title}/${link.href}`;
       if (!linkLookup.has(key) && mode === TooltipDisplayMode.Single && field === hoveredField) {
         /// me ->> && mode === TooltipDisplayMode.Single && field === hoveredField
