@@ -4,7 +4,6 @@ export * from './Tooltips/Tooltip';
 export { default as Checkbox } from './Checkboxes/Checkbox';
 export { ComboboxCompat } from './Compat/ComboboxCompat';
 export type { ComboboxCompatOption } from './Compat/ComboboxCompat';
-export { getFieldDisplayLinksCompat } from './Compat/getFieldDisplayLinksCompat';
 export { StackCompat } from './Compat/StackCompat';
 export { PositionTracker } from './Geocoder/PositionTracker';
 export { StateTime } from './Geocoder/StateTime';

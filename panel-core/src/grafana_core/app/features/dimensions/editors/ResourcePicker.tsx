@@ -1,9 +1,10 @@
 import { css } from '@emotion/css';
-import React, { useRef, useState } from 'react';
-import { GrafanaTheme2 } from '@grafana/data';
+import React, { useRef } from 'react';
+
+import { type GrafanaTheme2 } from '@grafana/data';
+import { Trans } from '@mapgl/panel-core/utils/i18n';
 //import { t, Trans } from '@grafana/i18n';
 import {
-  Button,
   IconButton,
   LinkButton,
   Popover,
@@ -11,11 +12,13 @@ import {
   useStyles2,
   useTheme2,
 } from '@grafana/ui';
-
-import { getPublicOrAbsoluteUrl } from '../resource';
-import { MediaType, ResourceFolderName, ResourcePickerSize } from '../types';
 import { closePopover } from '../../../../ui/src/utils/closePopover';
 import { SanitizedSVG } from '../../../../components/SVG/SanitizedSVG';
+import { useResourcePickerPopoverControllerCompat } from '../../../../../components/Compat/ResourcePickerCompat';
+
+import { getPublicOrAbsoluteUrl } from '../resource';
+import { type MediaType, type ResourceFolderName, ResourcePickerSize } from '../types';
+
 import { ResourcePickerPopover } from './ResourcePickerPopover';
 
 interface Props {
@@ -30,24 +33,21 @@ interface Props {
   placeholder?: string;
   color?: string;
   maxFiles?: number;
+  id?: string;
 }
 
 export const ResourcePicker = (props: Props) => {
-  const { value, src, name, placeholder, onChange, onClear, mediaType, folderName, size, color, maxFiles } = props;
+  const { value, src, name, placeholder, onChange, onClear, mediaType, folderName, size, color, maxFiles, id } = props;
 
   const styles = useStyles2(getStyles);
   const theme = useTheme2();
 
   const pickerTriggerRef = useRef<HTMLDivElement>(null);
-  const hidePopperRef = useRef<(() => void) | null>(null);
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const closePickerPopover = () => {
-    setIsPopoverOpen(false);
-    hidePopperRef.current?.();
-  };
+  const { isPickerPopoverOpen, openPickerPopover, closePickerPopover, setPickerPopoverHide } =
+    useResourcePickerPopoverControllerCompat();
   const popoverElement = (
     <LazyResourcePickerPopover
-      isOpen={isPopoverOpen}
+      isOpen={isPickerPopoverOpen}
       onChange={onChange}
       value={value}
       mediaType={mediaType}
@@ -72,15 +72,14 @@ export const ResourcePicker = (props: Props) => {
     } else {
       return (
         <LinkButton variant="primary" fill="text" size="sm">
-          Set icon
-          {/*<Trans i18nKey="dimensions.resource-picker.render-small-resource-picker.set-icon">Set icon</Trans>*/}
+          <Trans i18nKey="dimensions.resource-picker.render-small-resource-picker.set-icon">Set icon</Trans>
         </LinkButton>
       );
     }
   };
 
   const renderNormalResourcePicker = () => (
-    <div className={styles.trigger}>
+    <div id={id} className={styles.trigger}>
       <div className={styles.triggerMain}>
         {sanitizedSrc ? (
           <SanitizedSVG src={sanitizedSrc} className={styles.icon} style={{ ...colorStyle }} />
@@ -104,23 +103,19 @@ export const ResourcePicker = (props: Props) => {
   return (
     <PopoverController content={popoverElement}>
       {(showPopper, hidePopper, popperProps) => {
-        hidePopperRef.current = hidePopper;
+        setPickerPopoverHide(hidePopper);
         const openPopover = () => {
-          setIsPopoverOpen(true);
-          showPopper();
+          openPickerPopover(showPopper);
         };
 
         return (
           <>
-            {pickerTriggerRef.current && isPopoverOpen && (
+            {pickerTriggerRef.current && isPickerPopoverOpen && (
               <Popover
                 {...popperProps}
                 referenceElement={pickerTriggerRef.current}
                 onKeyDown={(event) => {
-                  closePopover(event, () => {
-                    setIsPopoverOpen(false);
-                    hidePopper();
-                  });
+                  closePopover(event, closePickerPopover);
                 }}
               />
             )}
@@ -181,63 +176,63 @@ const getStyles = (theme: GrafanaTheme2) => {
   const iconHeight = theme.spacing(1.75);
 
   return {
-  pointer: css({
-    cursor: 'pointer',
-    width: '100%',
-    minWidth: 0,
-    maxWidth: '100%',
-    overflow: 'hidden',
-  }),
-  trigger: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(0.5),
-    width: '100%',
-    minWidth: 0,
-    maxWidth: '100%',
-    overflow: 'hidden',
-    height: theme.spacing(4),
-    minHeight: theme.spacing(4),
-    padding: `0 ${theme.spacing(0.5)}`,
-    border: `1px solid ${theme.components.input.borderColor}`,
-    borderRadius: theme.shape.radius.default,
-    background: theme.components.input.background,
-    boxSizing: 'border-box',
-  }),
-  triggerMain: css({
-    display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing(0.5),
-    flex: '1 1 auto',
-    minWidth: 0,
-    overflow: 'hidden',
-  }),
-  triggerText: css({
-    flex: '1 1 auto',
-    minWidth: 0,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    fontSize: theme.typography.size.sm,
-    lineHeight: 1.25,
-  }),
-  clearButton: css({
-    flex: '0 0 auto',
-    padding: 0,
-    margin: 0,
-  }),
-  iconPlaceholder: css({
-    width: iconWidth,
-    height: iconHeight,
-    flex: '0 0 auto',
-  }),
-  icon: css({
-    verticalAlign: 'middle',
-    display: 'inline-block',
-    fill: 'currentColor',
-    width: iconWidth,
-    height: iconHeight,
-    flex: '0 0 auto',
-  }),
+    pointer: css({
+      cursor: 'pointer',
+      width: '100%',
+      minWidth: 0,
+      maxWidth: '100%',
+      overflow: 'hidden',
+    }),
+    trigger: css({
+      display: 'flex',
+      alignItems: 'center',
+      gap: theme.spacing(0.5),
+      width: '100%',
+      minWidth: 0,
+      maxWidth: '100%',
+      overflow: 'hidden',
+      height: theme.spacing(4),
+      minHeight: theme.spacing(4),
+      padding: `0 ${theme.spacing(0.5)}`,
+      border: `1px solid ${theme.components.input.borderColor}`,
+      borderRadius: theme.shape.radius.default,
+      background: theme.components.input.background,
+      boxSizing: 'border-box',
+    }),
+    triggerMain: css({
+      display: 'flex',
+      alignItems: 'center',
+      gap: theme.spacing(0.5),
+      flex: '1 1 auto',
+      minWidth: 0,
+      overflow: 'hidden',
+    }),
+    triggerText: css({
+      flex: '1 1 auto',
+      minWidth: 0,
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap',
+      fontSize: theme.typography.bodySmall.fontSize,
+      lineHeight: 1.25,
+    }),
+    clearButton: css({
+      flex: '0 0 auto',
+      padding: 0,
+      margin: 0,
+    }),
+    iconPlaceholder: css({
+      width: iconWidth,
+      height: iconHeight,
+      flex: '0 0 auto',
+    }),
+    icon: css({
+      verticalAlign: 'middle',
+      display: 'inline-block',
+      fill: 'currentColor',
+      width: iconWidth,
+      height: iconHeight,
+      flex: '0 0 auto',
+    }),
   };
 };

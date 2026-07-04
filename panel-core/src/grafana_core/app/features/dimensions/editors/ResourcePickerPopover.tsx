@@ -4,15 +4,18 @@ import { FocusScope } from '@react-aria/focus';
 import { useOverlay } from '@react-aria/overlays';
 import React, { useRef, useState } from 'react';
 
-import { GrafanaTheme2 } from '@grafana/data';
+import { type GrafanaTheme2 } from '@grafana/data';
 //import { Trans } from '@grafana/i18n';
 import { config, getBackendSrv } from '@grafana/runtime';
 import { Button, useStyles2 } from '@grafana/ui';
 
-import { MediaType, PickerTabType, ResourceFolderName } from '../types';
-import { URLPickerTab } from './URLPickerTab';
+import { shouldCloseOnInteractOutside } from '../../../../../components/Compat/ResourcePickerCompat';
+import { type MediaType, PickerTabType, type ResourceFolderName } from '../types';
+
 import { FileUploader } from './FileUploader';
 import { FolderPickerTab } from './FolderPickerTab';
+import { URLPickerTab } from './URLPickerTab';
+import { Trans } from '@mapgl/panel-core/utils/i18n';
 
 interface Props {
   value?: string; //img/icons/unicons/0-plus.svg
@@ -20,7 +23,6 @@ interface Props {
   mediaType: MediaType;
   folderName: ResourceFolderName;
   maxFiles?: number;
-  onRequestClose?: () => void;
   hidePopper?: () => void;
 }
 
@@ -28,13 +30,12 @@ interface ErrorResponse {
   message: string;
 }
 export const ResourcePickerPopover = (props: Props) => {
-  const { value, onChange, mediaType, folderName, maxFiles, onRequestClose, hidePopper } = props;
+  const { value, onChange, mediaType, folderName, maxFiles, hidePopper } = props;
   const styles = useStyles2(getStyles);
-  const requestClose = onRequestClose ?? hidePopper ?? (() => {});
 
   const onClose = () => {
     onChange(value);
-    requestClose();
+    hidePopper?.();
   };
 
   const ref = useRef<HTMLElement>(null);
@@ -44,16 +45,7 @@ export const ResourcePickerPopover = (props: Props) => {
       onClose,
       isDismissable: true,
       isOpen: true,
-      shouldCloseOnInteractOutside: (element) => {
-        // Select menu can be rendered in a portal; treat menu interactions as inside.
-        if (
-          element.closest('[class*="folder-picker-select__menu"]') ||
-          element.closest('[class*="folder-picker-select__menu-portal"]')
-        ) {
-          return false;
-        }
-        return true;
-      },
+      shouldCloseOnInteractOutside,
     },
     ref
   );
@@ -112,20 +104,17 @@ export const ResourcePickerPopover = (props: Props) => {
               className={getTabClassName(PickerTabType.Folder)}
               onClick={() => setActivePicker(PickerTabType.Folder)}
             >
-              Folder
-              {/*<Trans i18nKey="dimensions.resource-picker-popover.folder">Folder</Trans>*/}
+              <Trans i18nKey="dimensions.resource-picker-popover.folder">Folder</Trans>
             </button>
             <button className={getTabClassName(PickerTabType.URL)} onClick={() => setActivePicker(PickerTabType.URL)}>
-              URL
-              {/*<Trans i18nKey="dimensions.resource-picker-popover.url">URL</Trans>*/}
+              <Trans i18nKey="dimensions.resource-picker-popover.url">URL</Trans>
             </button>
           </div>
           <div className={styles.resourcePickerPopoverContent}>
             {renderPicker()}
             <div className={styles.buttonRow}>
               <Button variant={'secondary'} onClick={() => onClose()} fill="outline">
-                Cancel
-                {/*<Trans i18nKey="dimensions.resource-picker-popover.cancel">Cancel</Trans>*/}
+                <Trans i18nKey="dimensions.resource-picker-popover.cancel">Cancel</Trans>
               </Button>
               <Button
                 variant={newValue && newValue !== value ? 'primary' : 'secondary'}
@@ -148,17 +137,16 @@ export const ResourcePickerPopover = (props: Props) => {
                           .get(`api/storage/read/${data.path}`)
                           .then(() => setNewValue(`${config.appUrl}api/storage/read/${data.path}`))
                           .then(() => onChange(`${config.appUrl}api/storage/read/${data.path}`))
-                          .then(() => requestClose());
+                          .then(() => hidePopper?.());
                       })
                       .catch((err) => console.error(err));
                   } else {
                     onChange(newValue);
-                    requestClose();
+                    hidePopper?.();
                   }
                 }}
               >
-                Select
-                {/*<Trans i18nKey="dimensions.resource-picker-popover.select">Select</Trans>*/}
+                <Trans i18nKey="dimensions.resource-picker-popover.select">Select</Trans>
               </Button>
             </div>
           </div>

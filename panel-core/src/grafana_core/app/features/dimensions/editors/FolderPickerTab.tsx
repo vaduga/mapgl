@@ -1,15 +1,17 @@
 import { css } from '@emotion/css';
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
-import * as React from 'react';
+import React, { type Dispatch, type SetStateAction, useEffect, useMemo, useState } from 'react';
+import { type Subscription } from 'rxjs';
 
-import { GrafanaTheme2, SelectableValue } from '@grafana/data';
-import { Field, FilterInput, Select, useStyles2 } from '@grafana/ui';
+import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { Field, FilterInput, useStyles2 } from '@grafana/ui';
 import { getDataSourceSrv as getDataSourceService } from '@grafana/runtime';
 
+import { FolderPickerSelectCompat } from '../../../../../components/Compat/ResourcePickerCompat';
 import { MediaType, ResourceFolderName } from '../types';
 import { ResourceCards } from './ResourceCards';
 import { CiscoIcons, DatabaseIcons, NetworkingIcons } from '../../../../../editor/Groups/data/iconOptions';
 import { getMapglPluginId } from '../../../../../pluginFactory/pluginRuntime';
+import { t } from '@mapgl/panel-core/utils/i18n';
 
 export const getDatasourceSrv = () => getDataSourceService();
 
@@ -19,6 +21,19 @@ export interface ResourceItem {
   search: string;
   imgUrl: string;
 }
+
+type FileElement = {
+  name: string;
+};
+
+type GrafanaDatasource = {
+  listFiles: (
+    folder: string,
+    maxFiles?: number
+  ) => {
+    subscribe: (observer: { next: (frame: FileElement[]) => void }) => Subscription;
+  };
+};
 
 const createPluginIconItems = (folder: string, names: string[]): ResourceItem[] =>
   names.map((name) => ({
@@ -104,25 +119,35 @@ export const FolderPickerTab = (props: Props) => {
     if (!folder) {
       setDirectoryIndex([]);
       setFilteredIndex([]);
-      return;
+      return undefined;
     }
 
     if (folder === ResourceFolderName.Custom) {
       const filter =
         mediaType === MediaType.Icon
-          ? (item: any) => item.name.endsWith('.svg')
-          : (item: any) => item.name.endsWith('.png') || item.name.endsWith('.gif');
+          ? (item: FileElement) => item.name.endsWith('.svg')
+          : (item: FileElement) => item.name.endsWith('.png') || item.name.endsWith('.gif');
 
+      let cancelled = false;
+      let subscription: Subscription | undefined;
       getDatasourceSrv()
         .get('-- Grafana --')
-        .then((ds: any) => {
-          const f = ds.listFiles(folder.replace(/^public\//, ''), maxFiles);
+        .then((ds) => {
+          if (cancelled) {
+            return;
+          }
 
-          f.subscribe({
-            next: (frame: any) => {
+          const f = (ds as unknown as GrafanaDatasource).listFiles(folder.replace(/^public\//, ''), maxFiles);
+
+          subscription = f.subscribe({
+            next: (frame) => {
+              if (cancelled) {
+                return;
+              }
+
               const cards: ResourceItem[] = [];
-              frame.forEach((item: any) => {
-                if (filter(item) || true) {
+              frame.forEach((item) => {
+                if (filter(item)) {
                   const idx = item.name.lastIndexOf('.');
                   cards.push({
                     value: `${folder}/${item.name}`,
@@ -140,29 +165,39 @@ export const FolderPickerTab = (props: Props) => {
         });
 
       //// skip parsing predefined icons from plugin folder
-      return;
+      return () => {
+        cancelled = true;
+        subscription?.unsubscribe();
+      };
     }
 
     const cards = getFoldersMap()[folder as ResourceFolderName] ?? [];
     setDirectoryIndex(cards);
     setFilteredIndex(cards);
+    return undefined;
   }, [mediaType, currentFolder, maxFiles]);
 
   return (
     <>
       <Field>
-        <Select
+        <FolderPickerSelectCompat
           options={folders}
+          onChange={(folder) => {
+            // Clear the grid immediately so it stays empty until the new folder's icons load,
+            // rather than showing the previous folder's icons during the request.
+            setDirectoryIndex([]);
+            setFilteredIndex([]);
+            setCurrentFolder(folder);
+          }}
           value={currentFolder}
-          onChange={setCurrentFolder}
-          menuShouldPortal={true}
-          classNamePrefix="folder-picker-select"
+          aria-label={t('dimensions.folder-picker-tab.label-folder', 'Folder')}
         />
       </Field>
       <Field>
         <FilterInput
           value={searchQuery ?? ''}
-          placeholder="Search"
+          placeholder={t('dimensions.folder-picker-tab.placeholder-search', 'Search')}
+          escapeRegex={false}
           onChange={(v) => {
             onChangeSearch(v);
             setSearchQuery(v);

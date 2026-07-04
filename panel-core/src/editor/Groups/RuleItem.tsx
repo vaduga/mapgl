@@ -15,12 +15,19 @@ import { isEqual } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { css } from '@emotion/css';
 import { OverrideField } from './OverrideField';
-import { OverField, OverrideTracker, Rule, SvgTintModeOptions } from './ruleTypes';
+import {
+  OverField,
+  OverrideTracker,
+  Rule,
+  SvgTintModeOptions,
+  DEFAULT_LINE_WIDTH,
+  LineWidthStates,
+  NodeSizeStates,
+} from './ruleTypes';
 import { DEFAULT_COLOR_PICKER } from '../../types/defaults';
 import { ResourceDimensionEditor } from '../../grafana_core/app/features/dimensions/editors';
 import { MediaType, ResourceFolderName } from '../../grafana_core/app/features/dimensions';
 import { ResourceDimensionMode } from '@grafana/schema';
-import { DEFAULT_LINE_WIDTH, LineWidthStates, NodeSizeStates } from './ruleTypes';
 
 interface RuleItemProps {
   rule: Rule;

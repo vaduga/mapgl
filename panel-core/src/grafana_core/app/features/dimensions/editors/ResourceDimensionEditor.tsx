@@ -1,14 +1,18 @@
 import { useCallback } from 'react';
 import * as React from 'react';
 
-import { FieldNamePickerConfigSettings, StandardEditorProps, StandardEditorsRegistryItem } from '@grafana/data';
+import {
+  type FieldNamePickerConfigSettings,
+  type StandardEditorProps,
+  type StandardEditorsRegistryItem,
+} from '@grafana/data';
 import { t } from '../../../../../utils/i18n';
-import { ResourceDimensionConfig, ResourceDimensionMode } from '@grafana/schema';
+import { type ResourceDimensionConfig, ResourceDimensionMode } from '@grafana/schema';
 import { InlineField, InlineFieldRow, RadioButtonGroup } from '@grafana/ui';
 import { FieldNamePicker } from '../../../../components/MatchersUI/FieldNamePicker';
 
 import { getPublicOrAbsoluteUrl } from '../resource';
-import { MediaType, ResourceDimensionOptions, ResourceFolderName, ResourcePickerSize } from '../types';
+import { MediaType, type ResourceDimensionOptions, ResourceFolderName, ResourcePickerSize } from '../types';
 
 import { ResourcePicker } from './ResourcePicker';
 
@@ -19,8 +23,21 @@ const dummyFieldSettings = {
 export const ResourceDimensionEditor = (
   props: StandardEditorProps<ResourceDimensionConfig, ResourceDimensionOptions, unknown>
 ) => {
-  const { value, context, onChange, item } = props;
+  const { value, context, onChange, item, id } = props;
   const labelWidth = 9;
+  const resourceOptions = [
+    {
+      label: t('dimensions.resource-dimension-editor.label-fixed', 'Fixed'),
+      value: ResourceDimensionMode.Fixed,
+      description: t('dimensions.resource-dimension-editor.description-fixed', 'Fixed value'),
+    },
+    {
+      label: t('dimensions.resource-dimension-editor.label-field', 'Field'),
+      value: ResourceDimensionMode.Field,
+      description: t('dimensions.resource-dimension-editor.description-field', 'Use a string field result'),
+    },
+    //  { label: 'Mapping', value: ResourceDimensionMode.Mapping, description: 'Map the results of a value to an svg' },
+  ];
 
   const onModeChange = useCallback(
     (mode: ResourceDimensionMode) => {
@@ -73,6 +90,17 @@ export const ResourceDimensionEditor = (
 
   return (
     <>
+      {showSourceRadio && (
+        <InlineFieldRow>
+          <InlineField
+            label={t('dimensions.resource-dimension-editor.label-source', 'Source')}
+            labelWidth={labelWidth}
+            grow={true}
+          >
+            <RadioButtonGroup value={mode} options={resourceOptions} onChange={onModeChange} fullWidth />
+          </InlineField>
+        </InlineFieldRow>
+      )}
       {mode !== ResourceDimensionMode.Fixed && (
         <InlineFieldRow>
           <InlineField
@@ -91,6 +119,7 @@ export const ResourceDimensionEditor = (
       )}
       {mode === ResourceDimensionMode.Fixed && (
         <ResourcePicker
+          id={id}
           onChange={onFixedChange}
           onClear={onClear}
           value={value?.fixed}
@@ -118,7 +147,7 @@ export const ResourceDimensionEditor = (
   );
 };
 
-export function niceName(value?: string): string | undefined {
+function niceName(value?: string): string | undefined {
   if (!value) {
     return undefined;
   }
