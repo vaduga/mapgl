@@ -3,8 +3,6 @@ import React, { useCallback, useRef, useState } from 'react';
 import type { SelectableValue } from '@grafana/data';
 import * as GrafanaUI from '@grafana/ui';
 
-import { ComboboxCompat } from './ComboboxCompat';
-
 export const classNamePrefix = 'folder-picker-select';
 
 const legacyReactSelectClassNameFragments = [
@@ -31,23 +29,14 @@ export const FolderPickerSelectCompat = <T = string,>({
   'aria-label': ariaLabel,
 }: FolderPickerSelectCompatProps<T>) => {
   const Select = (GrafanaUI as any).Select;
+  const Component = Select ?? (GrafanaUI as any).Combobox;
 
-  if (Select) {
-    return (
-      <Select
-        options={options}
-        value={value}
-        onChange={onChange}
-        aria-label={ariaLabel}
-        menuShouldPortal={true}
-        menuPosition="fixed"
-        classNamePrefix={classNamePrefix}
-      />
-    );
+  if (!Component) {
+    return null;
   }
 
   return (
-    <ComboboxCompat
+    <Component
       options={options}
       value={value}
       onChange={onChange}
