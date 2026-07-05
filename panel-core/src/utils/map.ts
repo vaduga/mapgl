@@ -125,5 +125,7 @@ export function denormalizeZoom(isWebmercator: boolean, normalizedZoom: number):
     return normalizedZoom;
   }
 
-  return (normalizedZoom / 17) * 10 - 5;
+  const clampedZoom = Math.max(1, Math.min(18, normalizedZoom));
+
+  return ((clampedZoom - 1) / 17) * 10 - 5;
 }
