@@ -4,15 +4,14 @@ export { Node } from '@msagl/core/dist/structs/node';
 export { Edge } from './structs/edge';
 export { GraphEdgeIndex, type EdgeTuple } from './GraphEdgeIndex';
 export {
-  addNodeGroup,
   bumpGraphVersion,
   getGraphComments,
+  getNodeGroupsWithNodes,
   getGraphPositionRanges,
   getGraphVersion,
-  getNodeGroupCounts,
+  markNodeGroupHasNodes,
   pushGraphPositionRange,
   resetGraphState,
-  rmNodeGroup,
   setGraphPositionRanges,
 } from './structs/graphState';
 export {

@@ -615,13 +615,13 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
           displayMode={LegendDisplayMode.List}
           placement="bottom"
           items={getGroupsLegend.filter(
-            (item, i) => item.data.count || (hasAnnots && i === getGroupsLegend.length - 1)
+            (item, i) => item.data.hasNodes || (hasAnnots && i === getGroupsLegend.length - 1)
           )}
           onLabelClick={(item) => onLabelClick(item)}
         />
       </div>
     );
-  }, [getGroupsLegend]);
+  }, [getGroupsLegend, hasAnnots]);
 
   const viewId = isLogic ? '3d-scene' : 'geo-view';
   const views = useMemo(

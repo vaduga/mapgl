@@ -17,9 +17,9 @@ import {
   Graph,
   FeatSource,
   AttributeRegistry,
-  addNodeGroup,
   getGraphComments,
   getNodeData,
+  markNodeGroupHasNodes,
   setEntityAttrProp,
 } from '@mapgl/panel-core/graph';
 import {
@@ -524,7 +524,9 @@ export function createMarkersLayer({
 
               panel.features.push(dataRecord);
               const wasmId = getNodeData(node)!.wasmId as number;
-              addNodeGroup(graph, group.groupIdx);
+              if (typeof group.groupIdx === 'number') {
+                markNodeGroupHasNodes(graph, group.groupIdx);
+              }
 
               const muted = [...group.color];
               muted[3] = stValues.opacity !== undefined ? Math.round(muted[3] * stValues.opacity) : muted[3];

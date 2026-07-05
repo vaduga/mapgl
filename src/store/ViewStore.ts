@@ -3,8 +3,7 @@ import RootStore from './RootStore';
 import { DEFAULT_CLUSTER_MAX_ZOOM, ANNOTS_LABEL, ALERTING_STATES } from '@mapgl/panel-core/types/defaults';
 import type { ViewState } from '@mapgl/panel-core/types';
 import { VizLegendItem } from '@grafana/ui';
-
-import { getNodeGroupCounts } from '@mapgl/panel-core/graph';
+import { getNodeGroupsWithNodes } from '@mapgl/panel-core/graph';
 
 class ViewStore {
   root: RootStore;
@@ -56,15 +55,16 @@ class ViewStore {
 
     if (dataLayers.length) {
       const { groups, graph } = this.root.panel;
+      const nodeGroupsWithNodes = getNodeGroupsWithNodes(graph);
       groups.forEach((g, i) => {
         if (g.color) {
-          const count = getNodeGroupCounts(graph).get(i) ?? 0;
+          const groupIdx = g.groupIdx ?? i;
           nodeThres.push({
             color: g.color,
-            label: (g.label ?? g.color),// + (count ? ' ' + count : ''),
+            label: g.label ?? g.color,
             yAxis: 1,
-            disabled: !active_indexes[i], //getGroupsLegend?.find(el => el.data?.rawLabel === g.label)?.disabled ??
-            data: { rawLabel: g.label ?? g.color, groupIdx: g.groupIdx, count },
+            disabled: !active_indexes[groupIdx], //getGroupsLegend?.find(el => el.data?.rawLabel === g.label)?.disabled ??
+            data: { rawLabel: g.label ?? g.color, groupIdx, hasNodes: nodeGroupsWithNodes.has(groupIdx) },
           });
         }
       });
@@ -80,7 +80,7 @@ class ViewStore {
           label: ANNOTS_LABEL,
           yAxis: 1,
           disabled: !active_indexes[i],
-          data: { rawLabel: ANNOTS_LABEL, groupIdx: i, count: 0 },
+          data: { rawLabel: ANNOTS_LABEL, groupIdx: i, hasNodes: false },
         });
       }
     }

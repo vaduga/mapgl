@@ -3,7 +3,7 @@ import { CommentsData } from '@mapgl/panel-core/types';
 
 export type GraphState = {
   comments: CommentsData;
-  groupCounts: Map<number, number>;
+  nodeGroupsWithNodes: Set<number>;
   positionRanges: Array<[number, number]>;
   version: number;
 };
@@ -14,7 +14,7 @@ function createGraphState(): GraphState {
   return observable(
     {
       comments: {},
-      groupCounts: observable.map<number, number>(),
+      nodeGroupsWithNodes: observable.set<number>(),
       positionRanges: [],
       version: 0,
     },
@@ -36,22 +36,12 @@ export function getGraphComments(graph: object): CommentsData {
   return getGraphState(graph).comments;
 }
 
-export function getNodeGroupCounts(graph: object): Map<number, number> {
-  return getGraphState(graph).groupCounts;
+export function getNodeGroupsWithNodes(graph: object): Set<number> {
+  return getGraphState(graph).nodeGroupsWithNodes;
 }
 
-export const addNodeGroup = action('addNodeGroup', (graph: object, idx: number): void => {
-  const groupCounts = getNodeGroupCounts(graph);
-  const count = groupCounts.get(idx);
-  groupCounts.set(idx, count ? count + 1 : 1);
-});
-
-export const rmNodeGroup = action('rmNodeGroup', (graph: object, idx: number): void => {
-  const groupCounts = getNodeGroupCounts(graph);
-  const count = groupCounts.get(idx);
-  if (count) {
-    groupCounts.set(idx, count - 1);
-  }
+export const markNodeGroupHasNodes = action('markNodeGroupHasNodes', (graph: object, idx: number): void => {
+  getNodeGroupsWithNodes(graph).add(idx);
 });
 
 export function getGraphPositionRanges(graph: object): Array<[number, number]> {
@@ -82,6 +72,6 @@ export const bumpGraphVersion = action('bumpGraphVersion', (graph: object): void
 
 export const resetGraphState = action('resetGraphState', (graph: object): void => {
   const state = getGraphState(graph);
-  state.groupCounts.clear();
+  state.nodeGroupsWithNodes.clear();
   state.positionRanges = [];
 });
