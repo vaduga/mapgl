@@ -1,6 +1,6 @@
 # Mapgl Public Feature Boundary
 
-Last reviewed: 2026-06-22
+Last reviewed: 2026-07-05
 
 This file describes the public feature boundary of the Mapgl Grafana panel, `vaduga-mapgl-panel`. It is meant for duplicate-feature review discussions and for setting expectations about what the Mapgl maintainer considers a copy of the plugin's public functionality.
 
@@ -51,6 +51,8 @@ The Mapgl maintainer considers another Grafana panel to be functionally copying 
 - Showing multi-hop edge fragments with their own styling, metrics, labels, tooltip values, highlighting, or adjacent-edge relations.
 - Rendering these paths in an automatically laid out abstract node graph, not only as static map polylines.
 - Advertising compatibility with Mapgl-style trace, service path, or physical path dataframe semantics.
+- Recreating Mapgl's node-group cascade on top of Grafana thresholds: injected `thrColor`, threshold/fixed-color fallback groups, field-matched group rules, separate icon/color/size/width/dash/tint resolution, and group legend/filter behavior.
+- Advertising Grafana-threshold-aware node groups that behave like Mapgl's cascading group system rather than ordinary field overrides.
 
 A generic graph panel with direct node-to-node links is not the same feature. A generic geomap line/path layer is not the same feature. The distinctive boundary is the combination of dataframe-driven path identity, multi-hop graph-edge semantics, graph-mode routing, and per-fragment row data retention.
 
@@ -122,6 +124,26 @@ Mapgl's topology model is integrated with Grafana panel data and styling:
 
 These features are not individually unique in isolation, but they are part of the Mapgl topology workflow when combined with the multi-hop edge model.
 
+### Node Groups Cascading Threshold System
+
+Mapgl's **Node Groups** system is a distinct public feature boundary because it is not a flat set of style overrides. It is a cascading style resolver built on top of Grafana's native threshold output.
+
+The public contract is:
+
+- **Grafana threshold base**: **Node Styles -> Color** resolves the starting node color from Grafana field config thresholds, or from a fixed Grafana color.
+- **Injected `thrColor`**: Mapgl injects `thrColor` during rendering so group rules can match the resolved threshold/fixed color without requiring users to create a dataframe column.
+- **User groups plus ephemeral groups**: configured groups are user-visible rules; internal ephemeral groups preserve threshold/fixed colors for fallback coloring, group indexing, legends, and filtering.
+- **Cascading precedence**: Mapgl sorts matching groups by match strength, including **Vertex A** matches, additional field matches, and `thrColor` matches.
+- **Separated visual sources**: icon, size, line width, dashed edge styling, icon tint mode, and color can resolve from different matching groups.
+- **Threshold fallback**: if no matching user-created group provides an explicit color, the node keeps the Grafana threshold color.
+- **Group color override**: a user-created group overrides threshold color only when it explicitly sets a group color.
+- **Icon tint inheritance**: SVG icons can keep original colors, use markup recolor, or use canvas tint from the resolved group or threshold color.
+- **Edge style propagation**: matching node-group width and dashed-line settings can affect connected edge styling in the topology view.
+
+The distinctive feature is the combination: Grafana thresholds remain the severity model, `thrColor` exposes that resolved color to group matching, and Mapgl then cascades multiple matching groups so different visual properties can come from different rules while preserving threshold color as the default.
+
+A plugin is inside this supporting copy boundary if it recreates a substantially similar threshold-aware node-group resolver for a Grafana topology panel, especially when it combines `thrColor`-style matching, internal threshold fallback groups, multi-source visual property resolution, explicit group color override precedence, icon tint inheritance, and group legend/filter integration.
+
 ## Example Boundaries
 
 ### Path Stored in Vertex B
@@ -158,6 +180,7 @@ The maintainer does not consider these ideas alone to copy Mapgl's feature bound
 - a visualization that supports traces only as a separate trace viewer, without path edges in a node graph
 - a graph panel that requires separate node and edge tables and has no path-aware edge primitive
 - generic use of MapLibre, deck.gl, auto layout algorithms, Grafana thresholds, or SVG icons
+- ordinary Grafana threshold coloring, flat field-based style rules, or a simple group legend without Mapgl's cascading `thrColor` resolver
 - a panel that only implements ordinary parallel edges without multi-hop path semantics
 
 The boundary is the public Mapgl behavior as a coherent topology model, with multi-hop edges as the defining primitive.
