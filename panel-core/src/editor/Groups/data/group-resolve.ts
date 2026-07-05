@@ -1,6 +1,6 @@
 import { FeatSource } from '@mapgl/panel-core/graph';
 import { Rule } from '../ruleTypes';
-import { DEFAULT_SVG_ICON_V_OFFSET, FIXED_COLOR_LABEL } from '../../../types/defaults';
+import { FIXED_COLOR_LABEL } from '../../../types/defaults';
 import { RGBAColor } from '@mapgl/panel-core/types';
 import { getGroupRules } from './rules-processor';
 import { FieldType } from '@grafana/data';
@@ -133,14 +133,12 @@ export function resolveFeatureGroup(args: {
     group.groupIdx = newGroup.groupIdx;
 
     group.svgTintMode = tintModeRule?.svgTintMode ?? group.svgTintMode ?? baseGroup?.svgTintMode ?? 'none';
-    group.offset = DEFAULT_SVG_ICON_V_OFFSET;
 
     return { group, createdGroup: newGroup };
   }
 
   if (group) {
     group.svgTintMode = tintModeRule?.svgTintMode ?? group.svgTintMode ?? baseGroup?.svgTintMode ?? 'none';
-    group.offset = DEFAULT_SVG_ICON_V_OFFSET;
   }
 
   return { group };

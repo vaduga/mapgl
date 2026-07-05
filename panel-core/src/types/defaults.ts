@@ -58,10 +58,6 @@ export const ALERTING_NUMS = {
 
 
 export const DEFAULT_ICON_NAME = '';
-export const DEFAULT_SVG_ICON_V_OFFSET = 0;
-export const DEFAULT_CLUSTER_SCALE = 40;
-export const DEFAULT_CLUSTER_ICON_SIZE = 45;
-export const DEFAULT_CLUSTER_MAX_ZOOM = 16;
 export const SEL_LINE_WIDTH_MULTIPLIER = 2;
 
 export const blankHoverInfo: Info = {};

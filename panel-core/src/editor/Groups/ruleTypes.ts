@@ -2,7 +2,6 @@ import { FieldType, SelectableValue } from '@grafana/data';
 import type { SvgTintMode } from '../../deckLayers/utils/svg';
 import {
   DEFAULT_ICON_NAME,
-  DEFAULT_SVG_ICON_V_OFFSET,
 } from '../../types/defaults';
 
 export interface Rule {
@@ -12,7 +11,6 @@ export interface Rule {
   overrides?: OverrideTracker | OverField[];
   label: string;
   color?: string;
-  offset?: number;
   iconName?: string;
   svgTintMode?: SvgTintMode;
   isEph?: boolean;
@@ -22,7 +20,6 @@ export interface Rule {
 export function defaultGroup(label): Rule {
   return {
     label,
-    offset: DEFAULT_SVG_ICON_V_OFFSET,
     iconName: DEFAULT_ICON_NAME,
     svgTintMode: 'none',
   };
