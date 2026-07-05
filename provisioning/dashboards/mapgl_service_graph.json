@@ -159,9 +159,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "dark-green"
-                      ]
+                      "value": ["dark-green", "green"]
                     }
                   ],
                   "svgTintMode": "none"
@@ -175,9 +173,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "red"
-                      ]
+                      "value": ["red"]
                     }
                   ],
                   "svgTintMode": "markup"
@@ -191,25 +187,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "#EF843C"
-                      ]
-                    }
-                  ],
-                  "svgTintMode": "markup"
-                },
-                {
-                  "color": "#96D98D",
-                  "iconName": "",
-                  "label": "base",
-                  "offset": 0,
-                  "overrides": [
-                    {
-                      "name": "thrColor",
-                      "type": "enum",
-                      "value": [
-                        "green"
-                      ]
+                      "value": ["#EF843C"]
                     }
                   ],
                   "svgTintMode": "markup"
@@ -223,9 +201,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "#6ED0E0"
-                      ]
+                      "value": ["#6ED0E0"]
                     }
                   ],
                   "svgTintMode": "markup"
@@ -239,9 +215,7 @@
                     {
                       "name": "thrColor",
                       "type": "enum",
-                      "value": [
-                        "#EAB839"
-                      ]
+                      "value": ["#EAB839"]
                     }
                   ],
                   "svgTintMode": "markup"
@@ -279,12 +253,7 @@
                 "useGroups": true
               }
             },
-            "displayProperties": [
-              "type",
-              "spanCount",
-              "errorCount",
-              "errorRate"
-            ],
+            "displayProperties": ["type", "spanCount", "errorCount", "errorRate"],
             "isShowTooltip": true,
             "locField": "source",
             "location": {
@@ -352,6 +321,22 @@
                   "fontSize": 14
                 }
               },
+              "groups": [
+                {
+                  "iconName": "",
+                  "isDashed": true,
+                  "label": "group 1",
+                  "offset": 0,
+                  "overrides": [
+                    {
+                      "name": "source",
+                      "type": "string",
+                      "value": "redis-cache"
+                    }
+                  ],
+                  "svgTintMode": "none"
+                }
+              ],
               "showStat2": false,
               "style": {
                 "arrow": 0,
@@ -370,10 +355,7 @@
                 "useGroups": true
               }
             },
-            "displayProperties": [
-              "type",
-              "avgBranchLinkCost"
-            ],
+            "displayProperties": ["type", "avgBranchLinkCost"],
             "isShowTooltip": true,
             "locField": "source",
             "location": {
@@ -469,18 +451,10 @@
                 "textConfig": {
                   "fontSize": 14
                 },
-                "useGroups": true
+                "useGroups": false
               }
             },
-            "displayProperties": [
-              "type",
-              "traceId",
-              "spanIds",
-              "linkKey",
-              "branchIndex",
-              "linkIndex",
-              "linkCost"
-            ],
+            "displayProperties": ["type", "traceId", "spanIds", "linkKey", "branchIndex", "linkIndex", "linkCost"],
             "edgeIdField": "multiHopEdgeId",
             "isShowTooltip": true,
             "locField": "source",
@@ -507,7 +481,7 @@
           "zoom": -0.48
         }
       },
-      "pluginVersion": "2.6.2",
+      "pluginVersion": "2.7.1",
       "targets": [
         {
           "csvContent": "\"type\",\"multiHopEdgeId\",\"traceId\",\"branchIndex\",\"linkIndex\",\"servicePath\",\"spanIds\",\"totalCost\",\"linkKey\",\"source\",\"target\",\"occurrenceCount\",\"linkCost\",\"occurrenceCosts\",\"occurrenceSpanIds\"\nmultiHopEdgeLink,4a31629bef4e5060b558b7e675c72b5d:branch:0,4a31629bef4e5060b558b7e675c72b5d,0,0,\"[\"\"otel-mock\"\",\"\"api-gateway\"\"]\",\"[\"\"fuopT7+VFqY=\"\"]\",875,otel-mock->api-gateway,otel-mock,api-gateway,1,231,[231],\"[\"\"fuopT7+VFqY=\"\"]\"\nmultiHopEdgeLink,4a31629bef4e5060b558b7e675c72b5d:branch:0,4a31629bef4e5060b558b7e675c72b5d,0,1,\"[\"\"api-gateway\"\",\"\"order-service\"\"]\",\"[\"\"Yt5Rp/CC7+o=\"\"]\",875,api-gateway->order-service,api-gateway,order-service,1,185,[185],\"[\"\"Yt5Rp/CC7+o=\"\"]\"\nmultiHopEdgeLink,4a31629bef4e5060b558b7e675c72b5d:branch:0,4a31629bef4e5060b558b7e675c72b5d,0,2,\"[\"\"order-service\"\",\"\"payment-service\"\"]\",\"[\"\"4/aOePGxlk0=\"\"]\",875,order-service->payment-service,order-service,payment-service,1,148,[148],\"[\"\"4/aOePGxlk0=\"\"]\"\nmultiHopEdgeLink,4a31629bef4e5060b558b7e675c72b5d:branch:0,4a31629bef4e5060b558b7e675c72b5d,0,3,\"[\"\"payment-service\"\",\"\"notification-service\"\"]\",\"[\"\"9j1TCPaXxmc=\"\"]\",875,payment-service->notification-service,payment-service,notification-service,1,80,[80],\"[\"\"9j1TCPaXxmc=\"\"]\"\nmultiHopEdgeLink,5aa07eaaa83006c1c37e14eb0dd6c23b:branch:0,5aa07eaaa83006c1c37e14eb0dd6c23b,0,0,\"[\"\"otel-mock\"\",\"\"api-gateway\"\"]\",\"[\"\"0YE3BNni184=\"\"]\",2255,otel-mock->api-gateway,otel-mock,api-gateway,1,615,[615],\"[\"\"0YE3BNni184=\"\"]\"\nmultiHopEdgeLink,5aa07eaaa83006c1c37e14eb0dd6c23b:branch:0,5aa07eaaa83006c1c37e14eb0dd6c23b,0,1,\"[\"\"api-gateway\"\",\"\"order-service\"\"]\",\"[\"\"d55WvnvOTqU=\"\"]\",2255,api-gateway->order-service,api-gateway,order-service,1,559,[559],\"[\"\"d55WvnvOTqU=\"\"]\"\nmultiHopEdgeLink,5aa07eaaa83006c1c37e14eb0dd6c23b:branch:0,5aa07eaaa83006c1c37e14eb0dd6c23b,0,2,\"[\"\"order-service\"\",\"\"payment-service\"\"]\",\"[\"\"v3NJcWXLBWw=\"\"]\",2255,order-service->payment-service,order-service,payment-service,1,357,[357],\"[\"\"v3NJcWXLBWw=\"\"]\"\nmultiHopEdgeLink,5aa07eaaa83006c1c37e14eb0dd6c23b:branch:0,5aa07eaaa83006c1c37e14eb0dd6c23b,0,3,\"[\"\"payment-service\"\",\"\"notification-service\"\"]\",\"[\"\"fjy5NCc/+Rs=\"\"]\",2255,payment-service->notification-service,payment-service,notification-service,1,109,[109],\"[\"\"fjy5NCc/+Rs=\"\"]\"\nmultiHopEdgeLink,9023185a14273b789451ba76bc9d3e70:branch:0,9023185a14273b789451ba76bc9d3e70,0,0,\"[\"\"otel-mock\"\",\"\"api-gateway\"\"]\",\"[\"\"uCQYtXr/o+c=\"\"]\",2247,otel-mock->api-gateway,otel-mock,api-gateway,1,553,[553],\"[\"\"uCQYtXr/o+c=\"\"]\"\nmultiHopEdgeLink,9023185a14273b789451ba76bc9d3e70:branch:0,9023185a14273b789451ba76bc9d3e70,0,1,\"[\"\"api-gateway\"\",\"\"order-service\"\"]\",\"[\"\"liP3x/PEg3s=\"\"]\",2247,api-gateway->order-service,api-gateway,order-service,1,462,[462],\"[\"\"liP3x/PEg3s=\"\"]\"\nmultiHopEdgeLink,9023185a14273b789451ba76bc9d3e70:branch:0,9023185a14273b789451ba76bc9d3e70,0,2,\"[\"\"order-service\"\",\"\"payment-service\"\"]\",\"[\"\"GSgL3VJw1Uo=\"\"]\",2247,order-service->payment-service,order-service,payment-service,1,388,[388],\"[\"\"GSgL3VJw1Uo=\"\"]\"\nmultiHopEdgeLink,9023185a14273b789451ba76bc9d3e70:branch:0,9023185a14273b789451ba76bc9d3e70,0,3,\"[\"\"payment-service\"\",\"\"postgres-db\"\"]\",\"[\"\"opMfFTXRHyA=\"\"]\",2247,payment-service->postgres-db,payment-service,postgres-db,1,291,[291],\"[\"\"opMfFTXRHyA=\"\"]\"\nmultiHopEdgeLink,af47f10d5ef480b0e87aa8f6b50ac862:branch:0,af47f10d5ef480b0e87aa8f6b50ac862,0,0,\"[\"\"otel-mock\"\",\"\"api-gateway\"\"]\",\"[\"\"ZcQ9iFYjZ/4=\"\"]\",1285,otel-mock->api-gateway,otel-mock,api-gateway,1,398,[398],\"[\"\"ZcQ9iFYjZ/4=\"\"]\"\nmultiHopEdgeLink,af47f10d5ef480b0e87aa8f6b50ac862:branch:0,af47f10d5ef480b0e87aa8f6b50ac862,0,1,\"[\"\"api-gateway\"\",\"\"user-service\"\"]\",\"[\"\"5+XCcwshxxo=\"\"]\",1285,api-gateway->user-service,api-gateway,user-service,1,343,[343],\"[\"\"5+XCcwshxxo=\"\"]\"\nmultiHopEdgeLink,af47f10d5ef480b0e87aa8f6b50ac862:branch:0,af47f10d5ef480b0e87aa8f6b50ac862,0,2,\"[\"\"user-service\"\",\"\"auth-service\"\"]\",\"[\"\"5BBkLyo0iFM=\"\"]\",1285,user-service->auth-service,user-service,auth-service,1,133,[133],\"[\"\"5BBkLyo0iFM=\"\"]\"\nmultiHopEdgeLink,af47f10d5ef480b0e87aa8f6b50ac862:branch:0,af47f10d5ef480b0e87aa8f6b50ac862,0,3,\"[\"\"auth-service\"\",\"\"redis-cache\"\"]\",\"[\"\"8cdGS03knbo=\"\"]\",1285,auth-service->redis-cache,auth-service,redis-cache,1,13,[13],\"[\"\"8cdGS03knbo=\"\"]\"\nmultiHopEdgeLink,ef7ae1099e58f826eb85922f436211f6:branch:0,ef7ae1099e58f826eb85922f436211f6,0,0,\"[\"\"otel-mock\"\",\"\"api-gateway\"\"]\",\"[\"\"Gp+QR5ZIZ9E=\"\"]\",924,otel-mock->api-gateway,otel-mock,api-gateway,1,274,[274],\"[\"\"Gp+QR5ZIZ9E=\"\"]\"\nmultiHopEdgeLink,ef7ae1099e58f826eb85922f436211f6:branch:0,ef7ae1099e58f826eb85922f436211f6,0,1,\"[\"\"api-gateway\"\",\"\"user-service\"\"]\",\"[\"\"aBzXX+7qbFs=\"\"]\",924,api-gateway->user-service,api-gateway,user-service,1,235,[235],\"[\"\"aBzXX+7qbFs=\"\"]\"\nmultiHopEdgeLink,ef7ae1099e58f826eb85922f436211f6:branch:0,ef7ae1099e58f826eb85922f436211f6,0,2,\"[\"\"user-service\"\",\"\"auth-service\"\"]\",\"[\"\"4izdaezVC9U=\"\"]\",924,user-service->auth-service,user-service,auth-service,1,116,[116],\"[\"\"4izdaezVC9U=\"\"]\"\nmultiHopEdgeLink,ef7ae1099e58f826eb85922f436211f6:branch:0,ef7ae1099e58f826eb85922f436211f6,0,3,\"[\"\"auth-service\"\",\"\"redis-cache\"\"]\",\"[\"\"9DH5QXXzL14=\"\"]\",924,auth-service->redis-cache,auth-service,redis-cache,1,25,[25],\"[\"\"9DH5QXXzL14=\"\"]\"",
@@ -575,6 +549,6 @@
   "timezone": "browser",
   "title": "Mapgl Service graph",
   "uid": "33f9075c-015b-4498-a6f4-c02a469b2093",
-  "version": 1,
+  "version": 17,
   "weekStart": ""
 }
