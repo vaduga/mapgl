@@ -202,6 +202,7 @@ function getGroupRules(
       label?: string;
       size?: number;
       width?: number;
+      isDashed?: boolean;
       svgTintMode?: SvgTintMode;
       iconName?: string;
       offset?: number;
@@ -222,6 +223,7 @@ function getGroupRules(
     color: t.color,
     label: t.label,
     ...(t.width && { width: t.width }),
+    ...(t.isDashed !== undefined ? { isDashed: t.isDashed } : {}),
     ...(t.size && { size: t.size }),
     svgTintMode: t.svgTintMode,
     iconName: t.iconName,

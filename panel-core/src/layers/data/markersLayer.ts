@@ -452,6 +452,9 @@ export function createMarkersLayer({
               if (group.width !== undefined) {
                 edgeStValues.size = group.width;
               }
+              if (group.isDashed !== undefined) {
+                edgeStValues.isDashed = group.isDashed;
+              }
               if (edgeDims?.text) {
                 edgeStValues.text = edgeDims.text.get(i);
               }
@@ -465,6 +468,7 @@ export function createMarkersLayer({
                   size: edgeStValues.size,
                   text: edgeStValues.text,
                   opacity: edgeStValues.opacity,
+                  isDashed: edgeStValues.isDashed,
                 };
               } else {
                 const { field: arcMetricField, fixed: arcFixed } = arcStyle?.[side]?.config?.color || {};

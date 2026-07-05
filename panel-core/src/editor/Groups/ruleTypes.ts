@@ -7,6 +7,7 @@ import {
 
 export interface Rule {
   width?: number;
+  isDashed?: boolean;
   size?: number;
   overrides?: OverrideTracker | OverField[];
   label: string;

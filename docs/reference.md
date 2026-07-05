@@ -189,8 +189,11 @@ Node groups can define:
 - color override
 - fixed size
 - fixed width
+- dashed edge line
 - icon render mode
 - icon offset is currently fixed at `0`; saved group offset values are ignored
+
+For node-group rules, `isDashed: true` renders matching edge strokes with the current `[4, 2]` dash pattern, relative to stroke width. An absent value leaves the edge solid unless another matching rule supplies the dashed flag.
 
 ## Node group priority
 
@@ -226,6 +229,7 @@ Implication:
 - icon can come from one matching group
 - color can come from another matching group
 - size and width can come from the base group
+- dashed edge line can come from the base group
 - if no group color override applies, color falls back to Grafana threshold output
 
 ## Icon render mode

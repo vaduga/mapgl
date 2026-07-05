@@ -4,10 +4,20 @@ import type { Color } from '@deck.gl/core';
 import type { Feature, Geometry } from 'geojson';
 import { ALERTING_STATES } from '../../types/defaults';
 import { type DeckLine, colTypes, type PointFeatureProperties, type RGBAColor } from '@mapgl/panel-core/types';
-import { DataFilterExtension } from '@deck.gl/extensions';
+import { DataFilterExtension, PathStyleExtension } from '@deck.gl/extensions';
 import { Matrix4 } from '@math.gl/core';
 import { CurveEdgeBinaryData, CurveEdgeLayer, type CurveEdgeSegment } from './curve-edge-layer';
 import { getEdgeFilterCategories, getEdgeFilterCategory } from '../edgeFilterCategories';
+
+type EdgePathStyleLayerProps = {
+  getDashArray?: (d: CurveEdgeSegment<DeckLine> | DeckLine | Feature<Geometry, PointFeatureProperties>) => readonly [number, number];
+  dashGapPickable?: boolean;
+  dashJustified?: boolean;
+};
+
+const EDGE_DASH_ARRAY = [4, 2] as const;
+const SOLID_EDGE_DASH_ARRAY = [0, 0] as const;
+const pathStyleExtension = new PathStyleExtension({ dash: true });
 
 function createEmptyCurveData(features: DeckLine[] = []): CurveEdgeBinaryData<DeckLine> {
   return createCurveBinaryData({
@@ -198,6 +208,14 @@ export const EdgesGeojsonLayer = (props) => {
     return muted as [number, number, number];
   };
 
+  const getEdgeDashArray = (
+    d: CurveEdgeSegment<DeckLine> | DeckLine | Feature<Geometry, PointFeatureProperties>
+  ): readonly [number, number] => {
+    const feature = 'feature' in d ? d.feature : d;
+    const edgeStyle = feature?.properties?.edgeStyle as { isDashed?: boolean } | undefined;
+    return edgeStyle?.isDashed ? EDGE_DASH_ARRAY : SOLID_EDGE_DASH_ARRAY;
+  };
+
   const units = options.common?.isMeters ? 'meters' : 'pixels';
   const sizeUnits = isLogic ? 'common' : units;
   const commonLayerProps = {
@@ -219,16 +237,18 @@ export const EdgesGeojsonLayer = (props) => {
       return getEdgeFilterCategory({ feature, baseCategories, filterIncludesSkip, usesRendererNamespaceFiltering });
     },
     filterCategories: categories,
-    extensions: [new DataFilterExtension({ categorySize })],
+    extensions: [new DataFilterExtension({ categorySize }), pathStyleExtension],
   };
 
   const createGeoJsonLineLayer = (data, idSuffix = '') =>
-    new GeoJsonLayer<PointFeatureProperties, {}>({
+    new GeoJsonLayer<PointFeatureProperties, EdgePathStyleLayerProps>({
       ...commonLayerProps,
       id: commonLayerProps.id + idSuffix,
       data,
       getLineWidth,
       getLineColor,
+      getDashArray: getEdgeDashArray,
+      dashGapPickable: true,
 
       // Styles
       lineWidthUnits: sizeUnits,
@@ -254,6 +274,8 @@ export const EdgesGeojsonLayer = (props) => {
       widthScale: 1,
       widthMinPixels: 0.1,
       skipVisibleMaxDepth: -1,
+      getDashArray: getEdgeDashArray,
+      dashGapPickable: true,
       pickable,
       autoHighlight,
     });
@@ -275,6 +297,8 @@ export const EdgesGeojsonLayer = (props) => {
       widthUnits: sizeUnits,
       widthScale: 1,
       widthMinPixels: 0.1,
+      getDashArray: getEdgeDashArray,
+      dashGapPickable: true,
       pickable,
       autoHighlight,
     });

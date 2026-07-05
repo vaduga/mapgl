@@ -35,6 +35,7 @@ interface RuleItemProps {
   ID: string;
   colorSetter: any;
   widthSetter: any;
+  isDashedSetter: any;
   sizeSetter: any;
   iconNameSetter: any;
   svgTintModeSetter: any;
@@ -151,6 +152,7 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps) => {
   const iconName = options.rule.iconName ?? '';
   const nodeSize = options.rule.size;
   const lineWidth = options.rule.width;
+  const isDashed = options.rule.isDashed;
   // const iconVOffset = options.rule.offset;
   const svgTintMode = options.rule.svgTintMode ?? 'none';
 
@@ -286,6 +288,19 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps) => {
           />
         </div>
       )}
+      <InlineField label="dash">
+        <Tooltip content={'render matching edges as dashed'}>
+          <div>
+            <InlineSwitch
+              value={isDashed === true}
+              disabled={options.disabled}
+              onChange={() => {
+                options.isDashedSetter(options.index, isDashed === true ? undefined : true);
+              }}
+            />
+          </div>
+        </Tooltip>
+      </InlineField>
 
       {oTracker &&
         oTracker.map((tracker: OverrideTracker, index: number) => {

@@ -58,6 +58,7 @@ export function resolveFeatureGroup(args: {
         !rule.isEph &&
         (rule.color !== undefined ||
           rule.width !== undefined ||
+          rule.isDashed !== undefined ||
           rule.size !== undefined ||
           rule.iconName !== undefined ||
           rule.svgTintMode !== undefined)

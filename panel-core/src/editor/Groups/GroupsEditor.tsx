@@ -99,6 +99,10 @@ export const GroupsEditor = ({ onChange, item, ...props }: Props) => {
     updateTrackerRule(index, (rule) => ({ ...rule, width }));
   };
 
+  const updateIsDashed = (index: number, isDashed: boolean | undefined) => {
+    updateTrackerRule(index, (rule) => ({ ...rule, isDashed }));
+  };
+
   const updateSize = (index: number, size: number) => {
     updateTrackerRule(index, (rule) => ({ ...rule, size }));
   };
@@ -261,6 +265,7 @@ export const GroupsEditor = ({ onChange, item, ...props }: Props) => {
                               rule={entry.rule}
                               colorSetter={updateRuleColor}
                               widthSetter={updateWidth}
+                              isDashedSetter={updateIsDashed}
                               sizeSetter={updateSize}
                               offsetSetter={updateOffset}
                               iconNameSetter={updateIconName}

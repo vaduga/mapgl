@@ -1,4 +1,5 @@
 import { Layer, project32, picking, UNIT, type Accessor, type Color, type DefaultProps, type LayerProps, type Unit } from '@deck.gl/core';
+import { PathStyleExtension } from '@deck.gl/extensions';
 import { Geometry, Model } from '@luma.gl/engine';
 import type { ShaderModule } from '@luma.gl/shadertools';
 
@@ -46,11 +47,15 @@ type CurveEdgeLayerProps<DataT> = {
   getSegment?: Accessor<CurveEdgeSegment<DataT>, ArrayLike<number>>;
   getWidth?: Accessor<CurveEdgeSegment<DataT>, number>;
   getColor?: Accessor<CurveEdgeSegment<DataT>, Color>;
+  getDashArray?: Accessor<CurveEdgeSegment<DataT>, Readonly<[number, number]>>;
   getHighlightDepth?: Accessor<CurveEdgeSegment<DataT>, number>;
   getSkip?: Accessor<CurveEdgeSegment<DataT>, boolean | number>;
+  dashJustified?: boolean;
+  dashGapPickable?: boolean;
 } & LayerProps;
 
 const DEFAULT_COLOR = [0, 0, 0, 255] as const;
+const pathStyleExtension = new PathStyleExtension({ dash: true });
 
 const defaultProps: DefaultProps<CurveEdgeLayerProps<any>> = {
   widthUnits: 'pixels',
@@ -117,6 +122,18 @@ layout(std140) uniform curveUniforms {
   highlightOnly: number;
 }>;
 
+const pathStyleCompatUniforms = {
+  name: 'path',
+  fs: `\
+layout(std140) uniform pathUniforms {
+  float capType;
+} path;
+`,
+  uniformTypes: {
+    capType: 'f32',
+  },
+} as const satisfies ShaderModule<{ capType: number }>;
+
 const vs = `\
 #version 300 es
 #define SHADER_NAME curve-edge-layer-vertex-shader
@@ -137,6 +154,8 @@ in float instanceSkip;
 
 out vec4 vColor;
 out vec2 uv;
+out vec2 vPathPosition;
+out float vPathLength;
 out float vHighlightDepth;
 out float vSkip;
 
@@ -193,6 +212,13 @@ void main(void) {
     curve.widthMinPixels,
     curve.widthMaxPixels
   );
+  float halfWidthPixels = max(widthPixels / 2.0, 0.001);
+  vec2 currNdc = curr.xy / curr.w;
+  vec2 nextNdc = next.xy / next.w;
+  float segmentLengthPixels = length((nextNdc - currNdc) * project.viewportSize * 0.5);
+  vPathLength = segmentLengthPixels / halfWidthPixels;
+  vPathPosition = vec2(positions.y, positions.x * vPathLength);
+
   vec3 offset = vec3(getExtrusionOffset(next.xy - curr.xy, positions.y, widthPixels), 0.0);
 
   DECKGL_FILTER_SIZE(offset, geometry);
@@ -214,6 +240,8 @@ precision highp float;
 
 in vec4 vColor;
 in vec2 uv;
+in vec2 vPathPosition;
+in float vPathLength;
 in float vHighlightDepth;
 in float vSkip;
 out vec4 fragColor;
@@ -242,11 +270,19 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
 
   state!: {
     model?: Model;
+    pathTesselator?: true;
     segmentByPickingIndex?: Map<number, CurveEdgeSegment<DataT>>;
   };
 
+  constructor(props: CurveEdgeLayerProps<DataT>) {
+    super({
+      ...props,
+      extensions: withPathStyleExtension(props.extensions),
+    });
+  }
+
   getShaders() {
-    return super.getShaders({ vs, fs, modules: [project32, picking, curveUniforms] });
+    return super.getShaders({ vs, fs, modules: [project32, picking, curveUniforms, pathStyleCompatUniforms] });
   }
 
   getBounds(): [number[], number[]] | null {
@@ -254,6 +290,8 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
   }
 
   initializeState() {
+    this.setState({ pathTesselator: true });
+
     this.getAttributeManager()!.addInstanced({
       instancePositions: {
         size: 8,
@@ -373,6 +411,9 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
         highlightDimOpacity,
         skipVisibleMaxDepth,
       },
+      path: {
+        capType: 0,
+      },
     });
     model.draw(this.context.renderPass);
   }
@@ -409,4 +450,16 @@ function getSegmentByPickingIndex<DataT>(data: CurveEdgeLayerData<DataT>) {
 
 function isCurveEdgeBinaryData<DataT>(data: CurveEdgeLayerData<DataT>): data is CurveEdgeBinaryData<DataT> {
   return !Array.isArray(data) && typeof data?.length === 'number' && !!data?.attributes;
+}
+
+function withPathStyleExtension(extensions: LayerProps['extensions'] = []): NonNullable<LayerProps['extensions']> {
+  return extensions.some(isPathStyleExtension) ? extensions : [...extensions, pathStyleExtension];
+}
+
+function isPathStyleExtension(extension: unknown): boolean {
+  if (extension instanceof PathStyleExtension) {
+    return true;
+  }
+
+  return (extension as { constructor?: { extensionName?: string } })?.constructor?.extensionName === 'PathStyleExtension';
 }
