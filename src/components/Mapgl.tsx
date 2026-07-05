@@ -89,7 +89,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
   const graphs: Graph[] = [graph as Graph].concat(clusters);
 
   // isRouted is the only 'layer' that is active even in indeterminate state
-  const [isRouted = false] = visLayers.getVisState(null, colTypes.Routed, colTypes.Routed) ?? [];
+  const [isRouted = true] = visLayers.getVisState(null, colTypes.Routed, colTypes.Routed) ?? [];
 
   const mapLibreRef: any = useRef(null);
 
@@ -101,7 +101,6 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
   const [hoverInfo, setHoverInfo] = useState({});
   const [layers, setLayers] = useState<Layer[]>([]);
   const [localViewState, setLocalViewState] = useState<ViewState>(getViewState);
-  const timeZone = replaceVariables('$__timezone');
   const [time, setTime] = useState<any>(data.timeRange?.to.unix() * 1000);
   const [edgeLegend, setEdgeLegend] = useState<VizLegendItem[]>([]);
   const hasAnnots = !!data.annotations?.length;

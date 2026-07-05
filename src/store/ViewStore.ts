@@ -1,6 +1,6 @@
 import { makeAutoObservable } from 'mobx';
 import RootStore from './RootStore';
-import { DEFAULT_CLUSTER_MAX_ZOOM, ANNOTS_LABEL, ALERTING_STATES } from '@mapgl/panel-core/types/defaults';
+import { ANNOTS_LABEL, ALERTING_STATES } from '@mapgl/panel-core/types/defaults';
 import type { ViewState } from '@mapgl/panel-core/types';
 import { VizLegendItem } from '@grafana/ui';
 import { getNodeGroupsWithNodes } from '@mapgl/panel-core/graph';
@@ -12,16 +12,13 @@ class ViewStore {
 
   viewState: ViewState;
 
-  level = 0;
-
   constructor(root: RootStore, viewState: ViewState) {
     this.root = root;
     this.viewState = viewState;
 
     makeAutoObservable(this);
     //autorun(() => console.log('getVisLayers', toJS(this.getVisLayers)));
-    //autorun(() => console.log('getGroupsLegend', toJS(this.getGroupsLegend)));
-    //makeObservable(this, {forceRefresh: observable, setVisRefresh: action, getVisRefresh: computed, getVisLayers: computed, getGroupsLegend: computed}, { autoBind: true })//, { autoBind: true })
+    //makeObservable(this, {forceRefresh: observable, setVisRefresh: action, getVisRefresh: computed, getVisLayers: computed, getGroupsLegend: computed}, { autoBind: true })
   }
 
   get getViewState() {
@@ -68,8 +65,6 @@ class ViewStore {
           });
         }
       });
-
-      //console.log('groups', groups)
 
       const hasAnnots = this.root.panel.hasAnnots;
       if (hasAnnots) {
