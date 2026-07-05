@@ -1,9 +1,20 @@
 import type { RGBAColor } from '@mapgl/panel-core/types';
 
+function expandShortHex(color: string): string {
+  return color
+    .split('')
+    .map((char) => char + char)
+    .join('');
+}
+
 function hexToRgba(hexColor: string) {
   let color = hexColor;
   if (color.startsWith('#')) {
     color = color.slice(1);
+  }
+
+  if (color.length === 3 || color.length === 4) {
+    color = expandShortHex(color);
   }
 
   let alpha = 1;
@@ -17,6 +28,18 @@ function hexToRgba(hexColor: string) {
   const blue = parseInt(color.substr(4, 2), 16);
 
   return alpha !== 1 ? `rgba(${red},${green},${blue},${alpha.toFixed(2)})` : `rgb(${red},${green},${blue})`;
+}
+
+function cssColorToRgba(color: string): string {
+  if (color === 'transparent') {
+    return 'rgba(0,0,0,0)';
+  }
+
+  if (color.startsWith('rgb')) {
+    return color;
+  }
+
+  return hexToRgba(color);
 }
 
 export function makeColorLighter(color: RGBAColor): RGBAColor {
@@ -33,12 +56,12 @@ export function makeColorDarker(color: RGBAColor): RGBAColor {
   return color.map((value, index) => (index === 3 ? Math.min(value, 255) : Math.max(value - 45, 0))) as RGBAColor;
 }
 
-export function toRGB4Array(hexColor: string, opacity?: number): RGBAColor {
-  if (!hexColor) {
+export function toRGB4Array(color: string, opacity?: number): RGBAColor {
+  if (!color) {
     return [0, 0, 0, 0];
   }
 
-  const rgbStr = hexToRgba(hexColor);
+  const rgbStr = cssColorToRgba(color);
   const matches = rgbStr.match(/[\d.]+/g);
   if (!matches || matches.length < 3) {
     return [0, 0, 0, 0];
