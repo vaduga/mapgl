@@ -101,6 +101,8 @@ export function getEdgesGeometry(panel: any) {
       if (!parPath) {
         return;
       }
+      const fragSrcGraph = edge.source.parent as Graph;
+      const fragTarGraph = edge.target.parent as Graph;
       const locName = parPath[0];
       let layoutArrowTips = panel.layoutArrowTips?.get(`${srcGraph.id ?? ''}:${edge.id}`);
       const layoutGeometry = panel.isLogic ? getLayoutTerminalGeometry(edge, panel) : undefined;
@@ -147,8 +149,8 @@ export function getEdgesGeometry(panel: any) {
         edge,
         panel,
         layerShift,
-        srcGraph,
-        tarGraph,
+        srcGraph: fragSrcGraph,
+        tarGraph: fragTarGraph,
         subPath,
         pathsCoords,
         layoutArrowTips,
@@ -177,7 +179,7 @@ export function getEdgesGeometry(panel: any) {
 
       let coordinates = panel.isLogic
         ? targetTerminalShift || isContracted
-          ? ([...pathsCoords] as Position[])
+          ? ([...(frCoords ?? pathsCoords)] as Position[])
           : layoutGeometry ?? ([...pathsCoords] as Position[])
         : override && frCoords?.length === 2
           ? [frCoords[0], ...override, frCoords[frCoords.length - 1]]

@@ -1,7 +1,7 @@
-import { Position } from 'geojson';
-import { Graph } from '../structs/graph';
+import type { Position } from 'geojson';
+import type { Graph } from '../structs/graph';
 import { getNodeData } from '../structs/graphOps';
-import { CoordRef } from '@mapgl/panel-core/types';
+import type { CoordRef } from '@mapgl/panel-core/types';
 import { inheritedShift } from './utils.graph';
 
 const DEFAULT_NODE_RADIUS = 12.5;
@@ -54,8 +54,11 @@ export function getProjectedTerminalsGeometry({
   }
 
   const targetTerminalShift: Position = [bx - ax, by - ay];
+  const isStraightPath = subPath.length <= 2 && pathsCoords.length <= 2;
   const shiftedTerminals =
-    !isContracted && !isTarContracted ? getShiftedStraightTerminals(edge, panel, targetTerminalShift) : undefined;
+    isStraightPath && !isContracted && !isTarContracted
+      ? getShiftedStraightTerminals(edge, panel, targetTerminalShift)
+      : undefined;
   const startTip =
     shiftedTerminals?.coordinates[0] ??
     (isContracted ? pathsCoords[0] : layoutArrowTips?.start ?? layoutGeometry?.[0] ?? pathsCoords[0]);
@@ -71,10 +74,15 @@ export function getProjectedTerminalsGeometry({
     shiftedTerminals || (isSrcContracted && isTarContracted)
       ? endTip
       : [endTip[0] + targetTerminalShift[0], endTip[1] + targetTerminalShift[1]];
+  const shiftedPathCoords = pathsCoords.map((coords) => [...coords] as Position);
+  if (shiftedTerminals) {
+    shiftedPathCoords[0] = startTip;
+  }
+  shiftedPathCoords[shiftedPathCoords.length - 1] = lastShifted;
 
   return {
-    subPath: [subPath[0], subPath.at(-1) as CoordRef],
-    pathsCoords: [startTip, lastShifted],
+    subPath,
+    pathsCoords: shiftedPathCoords,
     targetTerminalShift,
     layoutArrowTips: shiftedTerminals?.arrowTips ?? layoutArrowTips,
   };

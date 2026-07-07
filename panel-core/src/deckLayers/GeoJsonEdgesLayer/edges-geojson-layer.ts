@@ -141,7 +141,7 @@ export const EdgesGeojsonLayer = (props) => {
   const lineFeatures = linesCollection?.features ?? [];
   const straightLineFeatures = isLogic
     ? lineFeatures
-        .map((feature, lineId) => (feature.renderGeometryOnly ? { ...feature, lineId } : undefined))
+        .map((feature, lineId) => (feature.renderGeometryOnly && !feature.skip ? { ...feature, lineId } : undefined))
         .filter((feature): feature is DeckLine & { lineId: number } => Boolean(feature))
     : [];
   const curveSegments = isLogic ? getLayoutCurveSegments(srcGraphId, lineFeatures, getWasmId2Edges, panel) : undefined;
