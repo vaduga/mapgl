@@ -39,7 +39,6 @@ interface RuleItemProps {
   sizeSetter: any;
   iconNameSetter: any;
   svgTintModeSetter: any;
-  offsetSetter: any;
   overrideSetter: any;
   remover: any;
   index: number;
@@ -373,30 +372,6 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps) => {
               width="auto"
             />
           </InlineField>
-          {/*
-          <InlineField shrink label="offset" className={styles.voffset}>
-            <Input
-              className={styles.offsetInput}
-              disabled={options.disabled}
-              type="number"
-              step="1.0"
-              key={options.index}
-              value={iconVOffset ?? ''}
-              onChange={(e) => {
-                const { value } = e.currentTarget;
-                if (value === '') {
-                  options.offsetSetter(options.index, undefined);
-                  return;
-                }
-                const intValue = typeof value === 'string' ? parseFloat(value) : value;
-                if (Number.isNaN(intValue)) {
-                  return;
-                }
-                options.offsetSetter(options.index, intValue);
-              }}
-            />
-          </InlineField>
-          */}
         </>
       )}
     </InlineFieldRow>

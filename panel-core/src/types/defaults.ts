@@ -33,8 +33,6 @@ export const LIGHT_HULL_HIGHLIGHT = '#42a4f533'; //'rgb(66, 164, 245, 0.2)'
 export const LINES_EDIT_HANDLE_COLOR = '#e6ca5ce6'; //'rgb(230, 202, 92, 0.9)'
 export const LINES_SNAP_SOURCE_COLOR = '#dfff7bcc'; // 'rgb(223,523,123, 0.8)'
 export const LINES_SNAP_TARGET_COLOR = '#2fa1deb3'; //'rgb(47, 161, 222, 0.7)'
-export const DEFAULT_CLUSTER_BK_COLOR = '#f0f0f0'; //'rgb(240,240,240)'
-export const ANNOT_CLUSTER_BK_COLOR = '#e0be8b'; // 'rgb(224, 190, 139)'
 export const ALERTING_STATES = {
   Alerting: '#e0226e',
   Pending: '#ff9900',

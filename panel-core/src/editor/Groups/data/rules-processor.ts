@@ -205,7 +205,6 @@ function getGroupRules(
       isDashed?: boolean;
       svgTintMode?: SvgTintMode;
       iconName?: string;
-      offset?: number;
     }>
   | [] {
   if (!groups.length) {
@@ -227,7 +226,6 @@ function getGroupRules(
     ...(t.size && { size: t.size }),
     svgTintMode: t.svgTintMode,
     iconName: t.iconName,
-    offset: t.offset,
     groupIdx: t.groupIdx,
   }));
 }

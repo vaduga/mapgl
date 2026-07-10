@@ -124,10 +124,6 @@ export const GroupsEditor = ({ onChange, item, ...props }: Props) => {
     );
   };
 
-  const updateOffset = (index: number, offset: number) => {
-    updateTrackerRule(index, (rule) => ({ ...rule, offset }));
-  };
-
   const updateIconName = (index: number, name: string) => {
     updateTrackerRule(index, (rule) => ({ ...rule, iconName: name }));
   };
@@ -267,7 +263,6 @@ export const GroupsEditor = ({ onChange, item, ...props }: Props) => {
                               widthSetter={updateWidth}
                               isDashedSetter={updateIsDashed}
                               sizeSetter={updateSize}
-                              offsetSetter={updateOffset}
                               iconNameSetter={updateIconName}
                               svgTintModeSetter={updateSvgTintMode}
                               overrideSetter={updateRuleOverrides}
@@ -293,13 +288,12 @@ export const GroupsEditor = ({ onChange, item, ...props }: Props) => {
 };
 
 const sanitizeRule = (rule: Rule): Rule => {
-  const { width, size, offset, ...rest } = rule;
+  const { width, size, offset: _offset, ...rest } = rule as Rule & { offset?: unknown };
 
   return {
     ...rest,
     ...(width !== undefined ? { width } : {}),
     ...(size !== undefined ? { size } : {}),
-    ...(offset !== undefined ? { offset } : {}),
   };
 };
 

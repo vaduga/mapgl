@@ -37,7 +37,6 @@ function getSvgGroupsSignature(groups: Rule[]): string {
       groupIdx: group.groupIdx,
       iconName: group.iconName,
       svgTintMode: group.svgTintMode,
-      offset: group.offset,
       overrides: group.overrides,
     }))
   );
