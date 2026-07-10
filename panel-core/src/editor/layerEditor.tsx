@@ -103,7 +103,7 @@ export function createGetLayerEditor({ geomapLayerRegistry, getLayersOptions }: 
       if (handler.update) {
         builder.addCustomEditor({
           id: 'filterData',
-          path: 'filterData',
+          path: 'query',
           name: 'Data',
           editor: FrameSelectionEditor,
           defaultValue: undefined,
