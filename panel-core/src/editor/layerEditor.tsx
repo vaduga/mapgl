@@ -121,9 +121,9 @@ export function createGetLayerEditor({ geomapLayerRegistry, getLayersOptions }: 
 
       if (layer.showLocation) {
         let data = context.data;
-        // If 'query' (`filterData`) exists filter data feeding into location editor
-        if (options.filterData) {
-          const matcherFunc = getFrameMatchers(options.filterData);
+        // If 'query' exists, filter data feeding into location editor
+        if (options.query) {
+          const matcherFunc = getFrameMatchers(options.query);
           if (data.some(matcherFunc)) {
             data = data.filter(matcherFunc);
           }
