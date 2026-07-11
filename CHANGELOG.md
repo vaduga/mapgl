@@ -1,8 +1,8 @@
 # Changelog Mapgl
 
-## 2.7.2*
+## 2.7.2
 - dashed style for edges
-- fix: Fit-to-data Max zoom range 0-18 for both graph/geo
+- fix: fit-to-data Max zoom range 0-18
 
 ## 2.7.1
 - auto-layout config in `Basemap layer` section
