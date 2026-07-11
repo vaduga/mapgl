@@ -5,22 +5,18 @@
 - fix: fit-to-data Max zoom range 0-18
 
 ## 2.7.1
-- auto-layout config in `Basemap layer` section
-- dimm text labels for non-highlighted edges 
-
-## 2.7.0
 - traces on service dependency graph: multi-hop edge with per-fragment span info from separate data-rows
 - new provisioned dashboard: traces + service graph
 - config: 'routed' edge mode by default; rm node group icon offset
 - fix tooltip adjacency list selection bugs: icons flicker, target node selection 
 - refactor: externalize panel-core package. Panel acts as core consumer.
+- auto-layout config in `Basemap layer` section
+- dim text labels for non-highlighted edges
 
 ## 2.6.1
-- fix: same-query layers and no-refId queries no longer panic due to positions buffer under-allocation
- 
-## 2.6.0
 - auto-layout via Web Worker with shared memory for a non-blocking UX and no JSON-passthrough overhead
-- refactor: types relocated, graph imports moved to the Web Worker, leaving only a thin shim in the main bundle  
+- refactor: types relocated, graph imports moved to the Web Worker, leaving only a thin shim in the main bundle
+- fix: same-query layers and no-refId queries no longer panic due to positions buffer under-allocation
 
 ## 2.5.0
 - adjacent edges list in tooltip.
