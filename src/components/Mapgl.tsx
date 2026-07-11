@@ -666,6 +666,9 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
         ref={deckRef}
         layers={renderedLayers}
         initialViewState={deckViewState}
+        eventRecognizerOptions={{
+          click: { interval: 0 },
+        }}
         controller={{
           dragMode: 'pan',
           dragRotate: !isLogic,
