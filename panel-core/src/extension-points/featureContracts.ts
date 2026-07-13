@@ -1,9 +1,10 @@
 import type { EventBus, PanelData } from '@grafana/data';
+import type { Position } from 'geojson';
 
 import { ALERTING_NUMS, ALERTING_STATES } from '../types/defaults';
 import type { Edge, Graph, GraphEdgeIndex, Node } from '@mapgl/panel-core/graph';
 import { getGraphNodeMap, getNodeData } from '@mapgl/panel-core/graph';
-import type { DeckLine, Feature, ViewState } from '@mapgl/panel-core/types';
+import type { CoordRef, DeckLine, Feature, ViewState } from '@mapgl/panel-core/types';
 
 export type MapglEdition = 'oss' | 'extended';
 
@@ -19,6 +20,7 @@ export interface MapglFeatureRegistry {
   pointPositionStrategies: PointPositionStrategy[];
   namespaceProjectionStrategies: NamespaceProjectionStrategy[];
   namespaceBoundaryProviders: NamespaceBoundaryProvider[];
+  projectedTerminalGeometryStrategies: ProjectedTerminalGeometryStrategy[];
   edgeOffsetStrategies: EdgeOffsetStrategy[];
   clusterLayerProviders: ClusterLayerProvider[];
   derivedVisLayerContributors: DerivedVisLayerContributor[];
@@ -68,6 +70,7 @@ export function createDefaultFeatureRegistry(): MapglFeatureRegistry {
     pointPositionStrategies: [noopPointPositionStrategy],
     namespaceProjectionStrategies: [defaultNamespaceProjectionStrategy],
     namespaceBoundaryProviders: [defaultNamespaceBoundaryProvider],
+    projectedTerminalGeometryStrategies: [],
     edgeOffsetStrategies: [defaultEdgeOffsetStrategy],
     clusterLayerProviders: [],
     derivedVisLayerContributors: [],
@@ -645,6 +648,51 @@ export function getNamespaceBoundaries(
   }
 
   return Array.from(byNamespace.values());
+}
+
+export type TerminalArrowTips = { start?: Position; end?: Position };
+
+export interface ProjectedTerminalGeometryContext {
+  edge: Edge;
+  panel?: unknown;
+  layerShift?: Record<string, [number, number]>;
+  srcGraph: Graph;
+  tarGraph: Graph;
+  srcProjectionNamespace?: string;
+  tarProjectionNamespace?: string;
+  subPath: CoordRef[];
+  pathsCoords: Position[];
+  layoutArrowTips?: TerminalArrowTips;
+  layoutGeometry?: Position[];
+  isSrcContracted?: boolean;
+  isContracted?: boolean;
+  isTarContracted?: boolean;
+}
+
+export interface ProjectedTerminalGeometryResult {
+  subPath: CoordRef[];
+  pathsCoords: Position[];
+  targetTerminalShift?: Position;
+  layoutArrowTips?: TerminalArrowTips;
+}
+
+export interface ProjectedTerminalGeometryStrategy {
+  id: string;
+  project(context: ProjectedTerminalGeometryContext): ProjectedTerminalGeometryResult | null | undefined;
+}
+
+export function getProjectedTerminalGeometry(
+  strategies: ProjectedTerminalGeometryStrategy[],
+  context: ProjectedTerminalGeometryContext
+): ProjectedTerminalGeometryResult | null | undefined {
+  for (const strategy of strategies) {
+    const result = strategy.project(context);
+    if (result !== undefined) {
+      return result;
+    }
+  }
+
+  return undefined;
 }
 
 export type EdgeRenderDecisionType = 'visible' | 'offset' | 'reduced' | 'representative';

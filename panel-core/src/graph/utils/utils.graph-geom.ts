@@ -6,6 +6,7 @@ import { BiColProps, CoordRef, DeckLine } from '@mapgl/panel-core/types';
 import { CoordsConvert, distance2D } from './utils.turf';
 import {
   getEdgeRenderDecisions,
+  getProjectedTerminalGeometry,
   getMapglFeatureServices,
   type EdgeRenderDecision,
 } from '../../extension-points/featureContracts';
@@ -18,7 +19,6 @@ import {
   paraboloid,
   segregatePath,
 } from './utils.graph';
-import { getProjectedTerminalsGeometry } from './utils.projected-terminals';
 
 type FragKey = `${string}:${number}`;
 type MapPanel = {
@@ -38,6 +38,7 @@ export function getEdgesGeometry(panel: any) {
   const skipFrags = new Set<string>();
   const geomOverride: Map<FragKey, Position[]> = new Map();
   const renderDecisions: Map<FragKey, EdgeRenderDecision> = new Map();
+  const featureServices = getMapglFeatureServices();
   const { graphEdgeIndex } = panel;
 
   const visibleNamespaces = panel.visLayers.getCategories()[1];
@@ -53,7 +54,7 @@ export function getEdgesGeometry(panel: any) {
   ];
 
   applyEdgeRenderDecisions({
-    decisions: getEdgeRenderDecisions(getMapglFeatureServices().edgeOffsetStrategies, {
+    decisions: getEdgeRenderDecisions(featureServices.edgeOffsetStrategies, {
       graph: panel.graph,
       edgeIndex: graphEdgeIndex,
       projectedEdges: panel.namespaceProjection?.edges,
@@ -120,9 +121,6 @@ export function getEdgesGeometry(panel: any) {
         isContracted = true;
         isTarContracted = true;
       }
-      if (isContracted && fragSrcGraph.id === fragTarGraph.id) {
-        return;
-      }
       const srcProjectionNamespace = isSrcContracted
         ? getContractedGraph(srcGraph.id, visibleNamespaces, allNamespaces)
         : srcGraph.id;
@@ -148,22 +146,25 @@ export function getEdgesGeometry(panel: any) {
 
       let targetTerminalShift: Position | undefined;
 
-      const projectedTerminalsGeometry = getProjectedTerminalsGeometry({
-        edge,
-        panel,
-        layerShift,
-        srcGraph: fragSrcGraph,
-        tarGraph: fragTarGraph,
-        subPath,
-        pathsCoords,
-        layoutArrowTips,
-        layoutGeometry,
-        srcProjectionNamespace,
-        tarProjectionNamespace,
-        isSrcContracted,
-        isContracted,
-        isTarContracted,
-      });
+      const projectedTerminalsGeometry = getProjectedTerminalGeometry(
+        featureServices.projectedTerminalGeometryStrategies,
+        {
+          edge,
+          panel,
+          layerShift,
+          srcGraph: fragSrcGraph,
+          tarGraph: fragTarGraph,
+          subPath,
+          pathsCoords,
+          layoutArrowTips,
+          layoutGeometry,
+          srcProjectionNamespace,
+          tarProjectionNamespace,
+          isSrcContracted,
+          isContracted,
+          isTarContracted,
+        }
+      );
 
       if (projectedTerminalsGeometry === null) {
         return;
@@ -235,10 +236,13 @@ export function getEdgesGeometry(panel: any) {
         ? undefined
         : getArrowAngles(coordinates, !panel.isLogic, hasStartArrow, hasEndArrow, arrowTips);
       const skip = skipFrags.has(`${heIdx}:${fragIdx}`);
+      const graphFeatures = (features[srcGraph.id] ??= []);
+      const lineId = graphFeatures.length;
 
       const newFeature: DeckLine = {
         heIdx,
         fragIdx,
+        lineId,
         edgeId: edge.id,
         skip,
         renderGeometryOnly: Boolean(targetTerminalShift || isContracted),
@@ -266,12 +270,8 @@ export function getEdgesGeometry(panel: any) {
         },
       };
 
-      if (!features[srcGraph.id]) {
-        features[srcGraph.id] = [];
-      }
-
-      features[srcGraph.id].push(newFeature);
-      edge.setLineId(features[srcGraph.id].length - 1);
+      graphFeatures.push(newFeature);
+      edge.setLineId(lineId);
 
       if (isFirst) {
         srcFeatureProps = newFeature.properties;

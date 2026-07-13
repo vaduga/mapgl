@@ -126,6 +126,7 @@ export interface DeckLine<G extends Geometry | null = Geometry, P = BiColProps> 
   //id: number;
   heIdx: number;
   fragIdx: number;
+  lineId?: number;
   edgeId: string;
   skip?: boolean;
   renderGeometryOnly?: boolean;

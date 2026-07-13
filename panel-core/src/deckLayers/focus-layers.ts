@@ -124,12 +124,24 @@ function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<
     const geoJsonLayer = layer as any;
     return layer.clone({
       getLineWidth: (d: any, info: any) => {
-        const width = getAccessorValue(geoJsonLayer.props.getLineWidth, d, info, 1);
-        return connectedFeatureDepths.has(getLineFeatureIndex(d, info)) ? Math.max(3, width * widthMultiplier) : width;
+        const isConnected = isConnectedLineFeature(connectedFeatureDepths, d);
+        const width = getAccessorValue(
+          geoJsonLayer.props.getLineWidth,
+          isConnected ? getRenderableLineFeature(d) : d,
+          info,
+          1
+        );
+        return isConnected ? Math.max(3, width * widthMultiplier) : width;
       },
       getLineColor: (d: any, info: any) => {
-        const color = getAccessorResult(geoJsonLayer.props.getLineColor, d, info, [0, 0, 0, 255]);
-        return connectedFeatureDepths.has(getLineFeatureIndex(d, info)) ? color : getDimmedRgba(color, 0.18);
+        const isConnected = isConnectedLineFeature(connectedFeatureDepths, d);
+        const color = getAccessorResult(
+          geoJsonLayer.props.getLineColor,
+          isConnected ? getRenderableLineFeature(d) : d,
+          info,
+          [0, 0, 0, 255]
+        );
+        return isConnected ? color : getDimmedRgba(color, 0.18);
       },
       updateTriggers: {
         ...layer.props.updateTriggers,
@@ -263,8 +275,35 @@ function isStraightEdgeGeometryLayer(layer: Layer): boolean {
   return layer instanceof GeoJsonLayer && id.startsWith('edges-view') && id.endsWith('-geometry');
 }
 
-function getLineFeatureIndex(d: any, info: any): number {
-  return typeof d?.lineId === 'number' ? d.lineId : info.index;
+function isConnectedLineFeature(connectedFeatureDepths: Map<number, number>, d: any): boolean {
+  const lineId = getLineFeatureId(d);
+  return lineId !== undefined && connectedFeatureDepths.has(lineId);
+}
+
+function getLineFeatureId(d: any): number | undefined {
+  const sourceObject = d?.__source?.object;
+  const sourceLineId = sourceObject?.lineId;
+  if (typeof sourceLineId === 'number') {
+    return sourceLineId;
+  }
+
+  const lineId = d?.lineId;
+  return typeof lineId === 'number' ? lineId : undefined;
+}
+
+function getRenderableLineFeature(d: any): any {
+  const sourceObject = d?.__source?.object;
+  if (sourceObject?.skip && sourceObject.renderGeometryOnly) {
+    return {
+      ...d,
+      __source: {
+        ...d.__source,
+        object: { ...sourceObject, skip: false },
+      },
+    };
+  }
+
+  return d?.skip && d.renderGeometryOnly ? { ...d, skip: false } : d;
 }
 
 function isEdgeTextLayer(layer: Layer): boolean {
