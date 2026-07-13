@@ -1,8 +1,9 @@
 # Changelog Mapgl
 
 ## 2.7.2
+- technical release: add github url in Grafana catalog links
 - dashed style for edges
-- fix: fit-to-data Max zoom range 0-18
+- fix: fit-to-data Max zoom range
 
 ## 2.7.1
 - traces on service dependency graph: multi-hop edge with per-fragment span info from separate data-rows
