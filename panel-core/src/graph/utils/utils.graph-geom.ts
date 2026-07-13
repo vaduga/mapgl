@@ -120,6 +120,9 @@ export function getEdgesGeometry(panel: any) {
         isContracted = true;
         isTarContracted = true;
       }
+      if (isContracted && fragSrcGraph.id === fragTarGraph.id) {
+        return;
+      }
       const srcProjectionNamespace = isSrcContracted
         ? getContractedGraph(srcGraph.id, visibleNamespaces, allNamespaces)
         : srcGraph.id;
@@ -155,6 +158,8 @@ export function getEdgesGeometry(panel: any) {
         pathsCoords,
         layoutArrowTips,
         layoutGeometry,
+        srcProjectionNamespace,
+        tarProjectionNamespace,
         isSrcContracted,
         isContracted,
         isTarContracted,

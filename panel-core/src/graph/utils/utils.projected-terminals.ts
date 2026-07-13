@@ -18,6 +18,8 @@ export function getProjectedTerminalsGeometry({
   pathsCoords,
   layoutArrowTips,
   layoutGeometry,
+  srcProjectionNamespace,
+  tarProjectionNamespace,
   isSrcContracted,
   isContracted,
   isTarContracted,
@@ -31,6 +33,8 @@ export function getProjectedTerminalsGeometry({
   pathsCoords: Position[];
   layoutArrowTips?: ArrowTips;
   layoutGeometry?: Position[];
+  srcProjectionNamespace?: string;
+  tarProjectionNamespace?: string;
   isSrcContracted?: boolean;
   isContracted?: boolean;
   isTarContracted?: boolean;
@@ -47,8 +51,8 @@ export function getProjectedTerminalsGeometry({
     return undefined;
   }
 
-  const [ax, ay] = inheritedShift(srcGraph.id, layerShift);
-  const [bx, by] = inheritedShift(tarGraph.id, layerShift);
+  const [ax, ay] = inheritedShift(srcProjectionNamespace ?? srcGraph.id, layerShift);
+  const [bx, by] = inheritedShift(tarProjectionNamespace ?? tarGraph.id, layerShift);
   if (ax === bx && ay === by) {
     return undefined;
   }
@@ -70,10 +74,9 @@ export function getProjectedTerminalsGeometry({
     return null;
   }
 
-  const lastShifted =
-    shiftedTerminals || (isSrcContracted && isTarContracted)
-      ? endTip
-      : [endTip[0] + targetTerminalShift[0], endTip[1] + targetTerminalShift[1]];
+  const lastShifted = shiftedTerminals
+    ? endTip
+    : [endTip[0] + targetTerminalShift[0], endTip[1] + targetTerminalShift[1]];
   const shiftedPathCoords = pathsCoords.map((coords) => [...coords] as Position);
   if (shiftedTerminals) {
     shiftedPathCoords[0] = startTip;
