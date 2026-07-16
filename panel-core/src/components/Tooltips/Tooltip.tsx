@@ -1,8 +1,10 @@
 import React, { type ReactNode, useState } from 'react';
 import { css } from '@emotion/css';
 import { IconButton, SeriesIcon, useStyles2, useTheme2, VizTooltipContainer } from '@grafana/ui';
-import { DataFrame, Field, FieldType, GrafanaTheme2 } from '@grafana/data';
+import { DataFrame, EventBus, Field, FieldType, GrafanaTheme2 } from '@grafana/data';
 import { colTypes, type BiColProps } from '@mapgl/panel-core/types';
+import { selectGotoHandler } from '@mapgl/panel-core/utils';
+import { toRgbaString } from '@mapgl/panel-core/deckLayers/utils';
 import { DataHoverView } from './DataHoverView';
 import { SortOrder, TooltipDisplayMode } from '@grafana/schema';
 import { getTooltipEdgeSections, TooltipEdgeSectionList, type TooltipEdgeDirection } from './tooltipEdgeSections';
@@ -16,16 +18,6 @@ import { Node, Edge, findEdge, getNodeData, Graph } from '@mapgl/panel-core/grap
 
 const includes = ['ack', 'msg', 'all_annots', 'liveUpd']; //liveStat
 const TOOLTIP_OFFSET_SCALE = 1.25;
-
-export type CoreTooltipSelectGotoHandler = (args: {
-  pId?: unknown;
-  value?: unknown;
-  edge?: Edge;
-  eventBus?: unknown;
-  graphId?: string;
-  select?: boolean;
-  fly?: boolean;
-}) => void;
 
 export interface CoreTooltipPointStore {
   graphHighlighter: {
@@ -65,16 +57,14 @@ export interface CoreTooltipProps {
   data: any;
   panel: any;
   info: any;
-  eventBus?: unknown;
+  eventBus?: EventBus;
   setHoverInfo(info: any): void;
   time: number;
   isClosed?: boolean;
   isRouted?: boolean;
   dataLayers: any[];
   pointStore: CoreTooltipPointStore;
-  pId?: unknown;
-  selectGotoHandler: CoreTooltipSelectGotoHandler;
-  toRgbaString(value: unknown): string;
+  pId?: number;
   renderClusterTooltip?(info: any, props: any, x: number, y: number, isClosed: boolean): ReactNode;
   getExtraEdgeSections?(context: CoreTooltipExtraEdgeSectionContext): TooltipEdgeSection[];
   isEditHandle?(object: any, pointStore: CoreTooltipPointStore): boolean;
@@ -94,8 +84,6 @@ export const Tooltip = ({
   dataLayers,
   pointStore,
   pId,
-  selectGotoHandler,
-  toRgbaString,
   renderClusterTooltip,
   getExtraEdgeSections,
   isEditHandle,
@@ -161,13 +149,6 @@ export const Tooltip = ({
   };
   const handleEdgeTriggerClick = (nextIsDefDir: boolean) => {
     handleEdgeListed(nextIsDefDir);
-    handleEdgeCountClick(nextIsDefDir);
-  };
-  const handleEdgeCountExpand = (nextIsDefDir: boolean) => {
-    if (!getisEdgeListed || isDefDir !== nextIsDefDir) {
-      setEdgeListed(true);
-    }
-
     handleEdgeCountClick(nextIsDefDir);
   };
 
@@ -581,14 +562,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
     gap: ${theme.spacing(0.5)};
   `,
   fab: css`
-    margin-left: ${theme.spacing(0.625)};
-    //transform: scale(0.8);
-    //position: absolute;
-    //zIndex: 1;
-    //top: 0;
-    //left: 0;
-    //right: 0;
-    //margin: 0 auto;
+    margin-left: ${theme.spacing(0.625)};  
   `,
   edgeListHeader: css`
     display: inline-flex;
