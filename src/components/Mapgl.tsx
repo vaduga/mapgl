@@ -6,6 +6,7 @@ import {
   getDeckWidgetSkin,
   LayerSwitcher,
   Menu,
+  Tooltip,
 } from '@mapgl/panel-core/components';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
@@ -21,7 +22,6 @@ import {
   genPrimaryLayers,
   expandTooltip,
 } from '../utils';
-import { Tooltip } from './Tooltips/Tooltip';
 import { MyGeoJsonLayer, MyPathLayer, MyPolygonsLayer, getDimmedGraphLayers } from '@mapgl/panel-core/deckLayers';
 import { toRGB4Array } from '@mapgl/panel-core/deckLayers/utils';
 import {

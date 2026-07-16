@@ -1,9 +1,10 @@
 import React, { type ReactNode, useState } from 'react';
+import { observer } from 'mobx-react-lite';
 import { css } from '@emotion/css';
 import { IconButton, SeriesIcon, useStyles2, useTheme2, VizTooltipContainer } from '@grafana/ui';
 import { DataFrame, EventBus, Field, FieldType, GrafanaTheme2 } from '@grafana/data';
 import { colTypes, type BiColProps } from '@mapgl/panel-core/types';
-import { selectGotoHandler } from '@mapgl/panel-core/utils';
+import { selectGotoHandler, useRootStore } from '@mapgl/panel-core/utils';
 import { toRgbaString } from '@mapgl/panel-core/deckLayers/utils';
 import { DataHoverView } from './DataHoverView';
 import { SortOrder, TooltipDisplayMode } from '@grafana/schema';
@@ -63,8 +64,6 @@ export interface CoreTooltipProps {
   isClosed?: boolean;
   isRouted?: boolean;
   dataLayers: any[];
-  pointStore: CoreTooltipPointStore;
-  pId?: number;
   renderClusterTooltip?(info: any, props: any, x: number, y: number, isClosed: boolean): ReactNode;
   getExtraEdgeSections?(context: CoreTooltipExtraEdgeSectionContext): TooltipEdgeSection[];
   isEditHandle?(object: any, pointStore: CoreTooltipPointStore): boolean;
@@ -72,7 +71,7 @@ export interface CoreTooltipProps {
   tooltipReactionKey?: unknown;
 }
 
-export const Tooltip = ({
+const TooltipBase = ({
   data,
   panel,
   info,
@@ -82,8 +81,6 @@ export const Tooltip = ({
   isClosed = false,
   isRouted,
   dataLayers,
-  pointStore,
-  pId,
   renderClusterTooltip,
   getExtraEdgeSections,
   isEditHandle,
@@ -97,6 +94,7 @@ export const Tooltip = ({
   const tooltipOffset = Number.parseFloat(theme.spacing(TOOLTIP_OFFSET_SCALE));
   const [selIdx, setSelIdx] = useState(-1);
   const [extraEdgeSectionDirection, setExtraEdgeSectionDirection] = useState<TooltipEdgeDirection | undefined>();
+  const { pointStore, pId } = useRootStore();
 
   if (!info || !Object.entries(info).length) {
     return null;
@@ -545,6 +543,8 @@ export const Tooltip = ({
     </VizTooltipContainer>
   );
 };
+
+export const Tooltip = observer(TooltipBase);
 
 const getStyles = (theme: GrafanaTheme2) => ({
   viz: css`
