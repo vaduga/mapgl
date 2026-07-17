@@ -191,13 +191,10 @@ export function createMarkersLayer({
     return {
       init: () => featSource,
       geom: (data: PanelData) => {
-        if (panel.useMockData) {
-          ///} || !panel.positions.length) {
-          data.series = [mockEdgeGraphData];
-        }
+        const panelData = panel.useMockData ? { ...data, series: [mockEdgeGraphData] } : data;
         featSource.useMockData = panel.useMockData;
 
-        for (const frame of data.series) {
+        for (const frame of panelData.series) {
           info = getGeometryField(frame, matchers, locField, vertexA_NS, vertexB_NS, panel, featSource, graph);
           if (info.warning) {
             //console.log(info.warning);
@@ -236,12 +233,10 @@ export function createMarkersLayer({
       update: (data: PanelData) => {
         // console.log('update data filtered', data)
 
-        if (panel.useMockData) {
-          data.series = [mockEdgeGraphData];
-        }
+        const panelData = panel.useMockData ? { ...data, series: [mockEdgeGraphData] } : data;
         featSource.useMockData = panel.useMockData;
 
-        for (const frame of data.series) {
+        for (const frame of panelData.series) {
           const frameRefId = frame.refId;
 
           style.dims = getStyleDimension(frame, style, theme);
