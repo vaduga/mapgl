@@ -2,7 +2,7 @@ import { defaultMapViewConfig, TooltipMode, type Options } from '@mapgl/panel-co
 import { CMN_NAMESPACE_PREFIX } from '@mapgl/panel-core/types/defaults';
 
 export type PartialMapglOptions = Omit<Partial<Options>, 'common' | 'view' | 'tooltip'> & {
-  common?: Partial<Options['common']>;
+  common?: Partial<Options['common']> & Record<string, unknown>;
   view?: Partial<Options['view']>;
   tooltip?: Partial<Options['tooltip']>;
 };
@@ -24,7 +24,7 @@ const DEFAULT_DATA_LAYER: Options['dataLayers'][number] = {
 
 export function normalizeOptions(options: PartialMapglOptions | undefined | null): Options {
   const source = options ?? {};
-  const common: Partial<Options['common']> = source.common ?? {};
+  const common = source.common ?? {};
 
   return {
     ...source,
@@ -40,6 +40,7 @@ export function normalizeOptions(options: PartialMapglOptions | undefined | null
       ...source.view,
     } as Options['view'],
     common: {
+      ...common,
       nsPrefix: common.nsPrefix ?? CMN_NAMESPACE_PREFIX,
       jitterPoints: common.jitterPoints ?? false,
       locLabelName: common.locLabelName ?? '',
