@@ -5,13 +5,13 @@ import { t } from '../../utils/i18n';
 import { InlineFieldRow, InlineField, RadioButtonGroup, Select } from '@grafana/ui';
 import { NumberInput } from '../../grafana_core/app/core/components/OptionsUI/NumberInput';
 
-import { GeomapInstanceState, type Options, type MapViewConfig } from '../../types';
+import { MapInstanceState, type Options, type MapViewConfig } from '../../types';
 
 type Props = {
   labelWidth: number;
   value: MapViewConfig;
   onChange: (value?: MapViewConfig | undefined) => void;
-  context: StandardEditorContext<Options, GeomapInstanceState>;
+  context: StandardEditorContext<Options, MapInstanceState>;
 };
 
 // Data scope options for 'Fit to data'

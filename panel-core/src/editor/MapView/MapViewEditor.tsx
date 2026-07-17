@@ -5,7 +5,7 @@ import { NumberInput } from '../../grafana_core/app/core/components/OptionsUI/Nu
 import { Trans, t } from '../../utils/i18n';
 import { StackCompat } from '../../components/Compat/StackCompat';
 
-import { type Options, type MapViewConfig, GeomapInstanceState, type DeckGLRefWithViewManager } from '../../types';
+import { type Options, type MapViewConfig, MapInstanceState, type DeckGLRefWithViewManager } from '../../types';
 import { centerPointRegistry, MapCenterID } from '../../view';
 
 import { CoordinatesMapViewEditor } from './CoordinatesMapViewEditor';
@@ -15,7 +15,7 @@ export const MapViewEditor = ({
   value,
   onChange,
   context,
-}: StandardEditorProps<MapViewConfig, unknown, Options, GeomapInstanceState>) => {
+}: StandardEditorProps<MapViewConfig, unknown, Options, MapInstanceState>) => {
   const { isLogic } = context.instanceState || {};
   const labelWidth = 10;
 

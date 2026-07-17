@@ -3,11 +3,11 @@ import { DropResult } from '@hello-pangea/dnd';
 import { StandardEditorProps } from '@grafana/data';
 import { Container } from '@grafana/ui';
 
-import { Options, MapLayerState, GeomapInstanceState } from '../types';
+import { Options, MapLayerState, MapInstanceState } from '../types';
 import { AddLayerButton } from '../grafana_core/app/core/components/Layers/AddLayerButton';
 import { LayerDragDropList } from '../grafana_core/app/core/components/Layers/LayerDragDropList';
 
-type LayersEditorProps = StandardEditorProps<unknown, unknown, Options, GeomapInstanceState>;
+type LayersEditorProps = StandardEditorProps<unknown, unknown, Options, MapInstanceState>;
 
 interface LayersEditorAdapters {
   getLayersOptions: (basemap: boolean, current?: string) => { options: any[]; current: any[] };

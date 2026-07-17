@@ -8,7 +8,7 @@ export interface ControlsOptions extends ControlsOptionsBase {
   scaleUnits?: Units;
 }
 
-export interface GeomapLayerActions {
+export interface MapLayerActions {
   selectLayer(uid: string): void;
   deleteLayer(uid: string): void;
   addlayer(type: string): void;
@@ -18,13 +18,13 @@ export interface GeomapLayerActions {
 
 import type { DeckGLRefWithViewManager } from './deck';
 
-export interface GeomapInstanceState {
+export interface MapInstanceState {
   map?: DeckGLRefWithViewManager;
   graph: Graph;
   isLogic: boolean;
   layers: MapLayerState[];
   selected: number;
-  actions: GeomapLayerActions;
+  actions: MapLayerActions;
 }
 
 //-------------------

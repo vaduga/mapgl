@@ -2,13 +2,13 @@ import { cloneDeep } from 'lodash';
 
 import { FrameGeometrySourceMode } from '@grafana/schema';
 import { defaultStyleConfig } from '../style/types';
-import type { GeomapLayerActions, MapLayerState } from '../types';
+import type { MapLayerActions, MapLayerState } from '../types';
 
 import { initLayer } from './layers';
 import { getNextLayerName, notifyPanelEditor } from './geomap_utils';
 
 export const getActions = (panel: any) => {
-  const actions: GeomapLayerActions = {
+  const actions: MapLayerActions = {
     selectLayer: (uid: string) => {
       const selected = panel.layers.findIndex((v) => v.options.name === uid);
       notifyPanelEditor(panel, panel.layers, selected);
