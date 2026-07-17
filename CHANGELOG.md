@@ -1,7 +1,8 @@
 # Changelog Mapgl
 
 Unreleased:
-- `RefreshController` to debounce auto-layout on opts change. Panel lifecycle clean up 
+- `RefreshController` to debounce auto-layout on opts change. Panel lifecycle clean up
+-  prevent `LayerSwitcher` from bubbling in Grafana 13 'Edit mode'
 
 ## 2.7.2
 - technical release: add github url in Grafana catalog links

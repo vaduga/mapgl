@@ -105,7 +105,7 @@ const LayerSwitcher = <TPanel extends LayerSwitcherPanel = LayerSwitcherPanel>({
           </button>
         </Tooltip>
       </div>
-      {panelVisible && <div ref={panelRef} className="panel"></div>}
+      {panelVisible && <div ref={panelRef} className="panel" onPointerDown={(event) => event.stopPropagation()}></div>}
     </div>
   );
 };
