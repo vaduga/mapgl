@@ -23,6 +23,7 @@ import {
   initLayer,
   MapglRuntimeUpdateEvent,
   RefreshController,
+  LatestAsyncGate,
 } from '@mapgl/panel-core/utils';
 import RootStore from './store/RootStore';
 import Mapgl from './components/Mapgl';
@@ -58,6 +59,7 @@ import { Rule } from '@mapgl/panel-core/editor';
 import { VisLayers } from '@mapgl/panel-core/store';
 
 export class MapPanel extends Component<Props, State> {
+  private readonly panelUpdateGate = new LatestAsyncGate();
   private readonly optionsRefresh = new RefreshController({
     delayMs: 150,
     isBlocked: () => !this.map || this.layoutInProgress,
@@ -169,6 +171,7 @@ export class MapPanel extends Component<Props, State> {
   }
 
   componentWillUnmount() {
+    this.panelUpdateGate.dispose();
     this.optionsRefresh.cancel();
     this.svgIconManager.abort();
     resetGraph(this.graph);
@@ -179,6 +182,7 @@ export class MapPanel extends Component<Props, State> {
     }
     this.map = undefined;
     this.layers = [];
+    this.byName.clear();
     this.runtimeSubscriptions.dispose();
     this.subs.unsubscribe();
   }
@@ -253,8 +257,12 @@ export class MapPanel extends Component<Props, State> {
   dataChanged = async (data: PanelData) => {
     this.optionsRefresh.cancel();
 
-    // Only update if panel data matches component data
-    if (data === this.props.data) {
+    await this.panelUpdateGate.run(async (isCurrent) => {
+      // Only update if panel data matches component data
+      if (data !== this.props.data || !isCurrent()) {
+        return;
+      }
+
       this.groups = [];
       this.features = [];
       let svgIconState;
@@ -268,14 +276,16 @@ export class MapPanel extends Component<Props, State> {
         console.error('error loading SVG icons', ex);
         return;
       }
-      if (!svgIconState) {
+      if (!svgIconState || !isCurrent()) {
         return;
       }
 
       if (this.locLabelName) {
-        await (async () => {
-          this.annotations = await fillAnnots(this.locLabelName, data.annotations);
-        })();
+        const annotations = await fillAnnots(this.locLabelName, data.annotations);
+        if (!isCurrent()) {
+          return;
+        }
+        this.annotations = annotations;
       }
 
       if (!this.layers.length) {
@@ -316,104 +326,125 @@ export class MapPanel extends Component<Props, State> {
         bumpGraphVersion(this.graph);
         this.layoutInProgress = scheduleLayout(this, this.onLayoutApplied);
       }
-    }
 
-    const viewState = this.initMapView(this.props.options.view);
-    if (viewState) {
-      if (this.isLogic) {
-        viewState.rotationX = -90;
-      }
-      this.setState({ viewState });
-    }
-    this.runtimeSubscriptions.onDataChange(this.getRuntimeSubscriptionContext(data));
-  };
-
-  initMapRef = async (deckRef) => {
-    if (this.locLabelName) {
-      await (async () => {
-        this.annotations = await fillAnnots(this.locLabelName, this.props.data.annotations);
-      })();
-    }
-
-    const { options } = this.props;
-    this.byName.clear();
-    const layers: MapLayerState[] = [];
-    const layoutCache: LayoutCache | undefined =
-      this.isLogic && this.layoutDisplayReady ? captureLayoutCache(this) : undefined;
-    for (const g of this.graph.graphs()) {
-      resetGraphNodes(g);
-    }
-    resetGraph(this.graph);
-    this.graphEdgeIndex.reset();
-    this.vCount = 0;
-    initBinaryProps(this);
-
-    try {
-      const baseLayer = await initLayer(this, options.basemap ?? ORTHO_BASEMAP_CONFIG, true);
-      layers.push(baseLayer);
-
-      let layerIdx = 0;
-      for (const lyr of options.dataLayers) {
-        const layerState = await initLayer(this, { ...lyr }, false, layerIdx);
-        layers.push(layerState);
-        layerIdx++;
-      }
-
-      const d = { ...this.props.data };
-      layers.forEach((state) => applyLayerFilter(state.handler, state.options, d, true));
-      cutBinaryProps(this);
-
-      this.groups = [];
-      this.features = [];
-      const svgGroups = initGroups(this.groups, layers, this.theme2);
-      const svgIconState = await this.svgIconManager.resolve({
-        requiredIconNames: svgGroups.requiredIconNames,
-        signature: svgGroups.svgSignature,
-      });
-      if (!svgIconState) {
+      if (!isCurrent()) {
         return;
       }
 
-      layers.forEach((state) => applyLayerFilter(state.handler, state.options, d, false));
-
-      this.layers = layers;
-
-      if (this.isLogic) {
-        this.layoutReady = false;
-        this.layoutDisplayReady = restoreLayoutCache(layoutCache, this);
-        if (!this.layoutDisplayReady) {
-          this.layoutGraphBounds.clear();
-          this.layoutCurveGroups.clear();
-          this.layoutEdgeIndexes.clear();
-          this.layoutEdgeKeys = [];
-          this.layoutArrowTips.clear();
-        }
-      }
-
-      this.visLayers = genVisLayers(this, this.props);
-
-      if (this.isLogic) {
-        bumpGraphVersion(this.graph);
-        this.layoutInProgress = scheduleLayout(this, this.onLayoutApplied);
-      }
-
-      const viewState = this.initMapView(options.view);
+      const viewState = this.initMapView(this.props.options.view);
       if (viewState) {
-        this.map = deckRef.current;
         if (this.isLogic) {
           viewState.rotationX = -90;
         }
         this.setState({ viewState });
       }
+      this.runtimeSubscriptions.onDataChange(this.getRuntimeSubscriptionContext(data));
+    });
+  };
 
-      notifyPanelEditor(this, layers, layers.length - 1);
-      void this.runtimeSubscriptions.start(this.getRuntimeSubscriptionContext());
-    } catch (ex) {
-      if ((ex as any)?.name === 'AbortError') {
-        return;
+  initMapRef = async (deckRef) => {
+    await this.panelUpdateGate.run(async (isCurrent) => {
+      if (this.locLabelName) {
+        const annotations = await fillAnnots(this.locLabelName, this.props.data.annotations);
+        if (!isCurrent()) {
+          return;
+        }
+        this.annotations = annotations;
       }
-      console.error('error loading layers', ex);
-    }
+
+      const { options } = this.props;
+      this.byName.clear();
+      const layers: MapLayerState[] = [];
+      const layoutCache: LayoutCache | undefined =
+        this.isLogic && this.layoutDisplayReady ? captureLayoutCache(this) : undefined;
+      for (const g of this.graph.graphs()) {
+        resetGraphNodes(g);
+      }
+      resetGraph(this.graph);
+      this.graphEdgeIndex.reset();
+      this.vCount = 0;
+      initBinaryProps(this);
+
+      try {
+        const baseLayer = await initLayer(this, options.basemap ?? ORTHO_BASEMAP_CONFIG, true);
+        if (!isCurrent()) {
+          return;
+        }
+        layers.push(baseLayer);
+
+        let layerIdx = 0;
+        for (const lyr of options.dataLayers) {
+          const layerState = await initLayer(this, { ...lyr }, false, layerIdx);
+          if (!isCurrent()) {
+            return;
+          }
+          layers.push(layerState);
+          layerIdx++;
+        }
+
+        const d = { ...this.props.data };
+        layers.forEach((state) => applyLayerFilter(state.handler, state.options, d, true));
+        cutBinaryProps(this);
+
+        this.groups = [];
+        this.features = [];
+        const svgGroups = initGroups(this.groups, layers, this.theme2);
+        const svgIconState = await this.svgIconManager.resolve({
+          requiredIconNames: svgGroups.requiredIconNames,
+          signature: svgGroups.svgSignature,
+        });
+        if (!svgIconState || !isCurrent()) {
+          return;
+        }
+
+        layers.forEach((state) => applyLayerFilter(state.handler, state.options, d, false));
+
+        this.layers = layers;
+
+        if (this.isLogic) {
+          this.layoutReady = false;
+          this.layoutDisplayReady = restoreLayoutCache(layoutCache, this);
+          if (!this.layoutDisplayReady) {
+            this.layoutGraphBounds.clear();
+            this.layoutCurveGroups.clear();
+            this.layoutEdgeIndexes.clear();
+            this.layoutEdgeKeys = [];
+            this.layoutArrowTips.clear();
+          }
+        }
+
+        this.visLayers = genVisLayers(this, this.props);
+
+        if (this.isLogic) {
+          bumpGraphVersion(this.graph);
+          this.layoutInProgress = scheduleLayout(this, this.onLayoutApplied);
+        }
+
+        const viewState = this.initMapView(options.view);
+        if (viewState) {
+          this.map = deckRef.current;
+          if (this.isLogic) {
+            viewState.rotationX = -90;
+          }
+          if (!isCurrent()) {
+            return;
+          }
+          this.setState({ viewState });
+        }
+
+        if (!isCurrent()) {
+          return;
+        }
+
+        notifyPanelEditor(this, layers, layers.length - 1);
+        void this.runtimeSubscriptions.start(this.getRuntimeSubscriptionContext());
+      } catch (ex) {
+        if ((ex as any)?.name === 'AbortError') {
+          return;
+        }
+        console.error('error loading layers', ex);
+      }
+    });
   };
 
   onLayoutApplied = (applied = true) => {

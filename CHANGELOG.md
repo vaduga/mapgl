@@ -2,7 +2,8 @@
 
 Unreleased:
 - `RefreshController` to debounce auto-layout on opts change. Panel lifecycle clean up
--  prevent `LayerSwitcher` from bubbling in Grafana 13 'Edit mode'
+- prevent `LayerSwitcher` from bubbling in Grafana 13 'Edit mode'
+- panel async update gate. Drops stale tasks on panel update/reload
 
 ## 2.7.2
 - technical release: add github url in Grafana catalog links
