@@ -7,6 +7,8 @@ import { getStyleConfigState } from '../../style/utils';
 import { FeatSource } from '@mapgl/panel-core/graph';
 import { type Feature, colTypes } from '@mapgl/panel-core/types';
 import type { DataLayerEditorAdapters } from './types';
+import { fetchGeoJsonFeatureCollection, getGeoJsonFeatureProperties, getGeoJsonLocName } from './geojsonUtils';
+export { fetchGeoJsonFeatureCollection, getGeoJsonFeatureProperties, getGeoJsonLocName } from './geojsonUtils';
 
 export interface GeoJsonConfig {
   style: StyleConfig;
@@ -46,132 +48,121 @@ export function createGeoJsonLayer({
      * @param options
      */
     create: async (panel: any, options: ExtendMapLayerOptions<GeoJsonConfig>, theme: GrafanaTheme2) => {
-    // Assert default values
-    const config = {
-      ...defaultOptions,
-      ...options.config,
-    };
+      // Assert default values
+      const config = {
+        ...defaultOptions,
+        ...options.config,
+      };
 
-    const props: PanelProps<any> = panel.props;
-    const globalOpts = props.options;
-    const layerName = options.name as string;
+      const layerName = options.name as string;
 
-    const featSource = new FeatSource(GEOJSON_LAYER_ID, layerName);
+      const featSource = new FeatSource(GEOJSON_LAYER_ID, layerName);
 
-    const locField = options.geojsonLocName;
-    const metricName = options.geojsonMetricName;
-    const geoColor = options?.geojsonColor ? theme.visualization.getColorByName(options?.geojsonColor) : undefined;
+      const locField = options.geojsonLocName;
 
-    const style = await getStyleConfigState(config.style);
-    style.dims = getStyleDimension(undefined, style, theme);
+      const style = await getStyleConfigState(config.style);
+      style.dims = getStyleDimension(undefined, style, theme);
 
-    return {
-      init: () => featSource,
-      //legend: legend,
-      update: async (data: PanelData) => {
-        const geoUrl = options?.geojsonurl;
-        if (geoUrl) {
-          let ds = await fetch(geoUrl, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }).catch((er) => {
-            //console.log(er);
-          });
+      return {
+        init: () => featSource,
+        //legend: legend,
+        update: async (data: PanelData) => {
+          const geoUrl = options?.geojsonurl;
+          if (!geoUrl) {
+            featSource.setFeatures([], undefined);
+            return;
+          }
 
-          if (ds) {
-            let geoData = await ds.json();
-            if (geoData?.features?.length) {
-              const points: Feature[] = geoData?.features?.map((point, i) => {
-                const { geometry, properties: props } = point;
+          try {
+            const geoData = await fetchGeoJsonFeatureCollection(geoUrl);
+            const points: Feature[] = geoData.features.map((point, i) => {
+              const { geometry } = point;
+              const props = point.properties ?? {};
 
-                const stValues: any = { ...style.base };
-                const dims = style.dims;
+              const stValues: any = { ...style.base };
+              const dims = style.dims;
 
-                if (dims) {
-                  if (dims.color) {
-                    stValues.color = dims.color.get(i);
-                  }
-
-                  if (dims.size) {
-                    stValues.size = dims.size.get(i);
-                  }
-                  if (dims.text) {
-                    stValues.text = dims.text.get(i);
-                  }
+              if (dims) {
+                if (dims.color) {
+                  stValues.color = dims.color.get(i);
                 }
 
-                /// no field but prop in static geojson actually
-                const locName = locField ? props[locField] : undefined;
+                if (dims.size) {
+                  stValues.size = dims.size.get(i);
+                }
+                if (dims.text) {
+                  stValues.text = dims.text.get(i);
+                }
+              }
 
-                const newFeature: any = {
-                  id: i,
-                  type: 'Feature',
-                  geometry,
-                  rowIndex: i,
-                  properties: {
-                    featSource,
-                    locName: locName ? props[locName] : undefined,
-                    geoJsonProps: props,
-                    style: stValues,
-                  },
-                };
-                return newFeature;
-              });
-              featSource.setFeatures(points, undefined);
-            }
+              const newFeature: any = {
+                id: i,
+                type: 'Feature',
+                geometry,
+                rowIndex: i,
+                properties: {
+                  featSource,
+                  locName: getGeoJsonLocName(props, locField),
+                  geoJsonProps: props,
+                  style: stValues,
+                },
+              };
+              return newFeature;
+            });
+            featSource.setFeatures(points, undefined);
+          } catch (error) {
+            featSource.setFeatures([], undefined);
+            console.error('GeoJSON layer failed to load features', error);
           }
-        }
-      },
-      // Geojson layer overlay options
-      registerOptionsUI: (builder, options) => {
-        builder.addCustomEditor({
-          id: 'config.style',
-          path: 'config.style',
-          name: 'Line width and shape fill color (FIXED only)',
-          editor: StyleEditor,
-          settings: {
-            isAuxLayer: true,
-            displayRotation: true,
-          },
-          defaultValue: defaultOptions.style,
-        });
-        builder.addTextInput({
-          path: 'geojsonurl',
-          name: 'GeoJson Url',
-          description: 'URL to a file with valid GeoJSON FeatureCollection object',
-          settings: {},
-          showIf: (opts) => opts.type === colTypes.GeoJson,
-        });
-        builder.addSelect({
-          path: 'geojsonLocName',
-          name: 'Location name GeoJson property',
-          //description: 'Select location name from GeoJson properties',
-          settings: {
-            allowCustomValue: true,
-            options: [],
-            placeholder: 'GeoJson properties',
-            getOptions: async (context) => await getGeoJsonProps(context),
-          },
-          showIf: (opts) => opts.type === colTypes.GeoJson,
-          defaultValue: '',
-        });
-        // .addSelect({
-        //     path: 'geojsonMetricName',
-        //     name: 'Metric name GeoJson property',
-        //     description: 'select Metric GeoJson property with numeric values',
-        //     settings: {
-        //         allowCustomValue: true,
-        //         options: [],
-        //         placeholder: 'GeoJson properties',
-        //
-        //         getOptions: async (context)=> await getGeoJsonProps(context),
-        //     },
-        //     showIf: (opts) => opts.type === colTypes.GeoJson,
-        // })
-      },
-    };
+        },
+        // Geojson layer overlay options
+        registerOptionsUI: (builder, options) => {
+          builder.addCustomEditor({
+            id: 'config.style',
+            path: 'config.style',
+            name: 'Line width and shape fill color (FIXED only)',
+            editor: StyleEditor,
+            settings: {
+              isAuxLayer: true,
+              displayRotation: true,
+            },
+            defaultValue: defaultOptions.style,
+          });
+          builder.addTextInput({
+            path: 'geojsonurl',
+            name: 'GeoJson Url',
+            description: 'URL to a file with valid GeoJSON FeatureCollection object',
+            settings: {},
+            showIf: (opts) => opts.type === colTypes.GeoJson,
+          });
+          builder.addSelect({
+            path: 'geojsonLocName',
+            name: 'Location name GeoJson property',
+            //description: 'Select location name from GeoJson properties',
+            settings: {
+              allowCustomValue: true,
+              options: [],
+              placeholder: 'GeoJson properties',
+              getOptions: async (context) => await getGeoJsonProps(context),
+            },
+            showIf: (opts) => opts.type === colTypes.GeoJson,
+            defaultValue: '',
+          });
+          // .addSelect({
+          //     path: 'geojsonMetricName',
+          //     name: 'Metric name GeoJson property',
+          //     description: 'select Metric GeoJson property with numeric values',
+          //     settings: {
+          //         allowCustomValue: true,
+          //         options: [],
+          //         placeholder: 'GeoJson properties',
+          //
+          //         getOptions: async (context)=> await getGeoJsonProps(context),
+          //     },
+          //     showIf: (opts) => opts.type === colTypes.GeoJson,
+          // })
+        },
+      };
     },
     // fill in the default values
     defaultOptions,
@@ -184,20 +175,14 @@ export const getGeoJsonProps = async (context) => {
     return [];
   }
 
-  let ds = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  }).catch((er) => {
-    //console.log(er);
-  });
-  if (!ds) {
+  try {
+    const geoData = await fetchGeoJsonFeatureCollection(url);
+    return getGeoJsonFeatureProperties(geoData).map((el) => ({
+      value: el,
+      label: el,
+    }));
+  } catch (error) {
+    console.error('GeoJSON layer failed to load property options', error);
     return [];
   }
-  let geoData = await ds.json();
-  return Object.keys(geoData.features[0].properties).map((el) => ({
-    value: el,
-    label: el,
-  }));
 };
