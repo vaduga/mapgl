@@ -24,6 +24,7 @@ import {
   MapglRuntimeUpdateEvent,
   RefreshController,
   LatestAsyncGate,
+  normalizeOptions,
 } from '@mapgl/panel-core/utils';
 import RootStore from './store/RootStore';
 import Mapgl from './components/Mapgl';
@@ -37,7 +38,6 @@ import {
   SvgIconManager,
 } from './utils';
 import { geomapLayerRegistry, ORTHO_BASEMAP_CONFIG } from './layers/registry';
-import { defaultMarkersConfig } from '@mapgl/panel-core/layers/data';
 import { Graph, GraphEdgeIndex, bumpGraphVersion, resetGraph, resetGraphNodes } from '@mapgl/panel-core/graph';
 import {
   getMapglFeatureServices,
@@ -113,26 +113,32 @@ export class MapPanel extends Component<Props, State> {
     return this.svgIconManager.state;
   }
 
+  private get normalizedOptions(): Options {
+    return normalizeOptions(this.props.options);
+  }
+
+  private get normalizedProps(): Props {
+    return {
+      ...this.props,
+      options: this.normalizedOptions,
+    };
+  }
+
   constructor(props: Props) {
     super(props);
-    const { options } = props;
+    const options = normalizeOptions(props.options);
     const { locLabelName } = options.common || {};
 
     this.pId = props.id;
     this.isLogic = isLogicBasemap(options.basemap);
     this.hasAnnots = !!props.data.annotations?.length;
 
-    const firstRun = !this.props.options.dataLayers?.length;
-    this.useMockData = this.isLogic && (firstRun || this.props.options.dataLayers?.every((el) => !el.locField));
+    const firstRun = !options.dataLayers.length;
+    this.useMockData = this.isLogic && (firstRun || options.dataLayers.every((el) => !el.locField));
 
     const rootGraph = new Graph(CMN_NAMESPACE);
     this.graph = rootGraph;
     this.visLayers = new VisLayers();
-
-    // Default layer starter-values
-    if (!options.dataLayers?.length) {
-      options.dataLayers = [defaultMarkersConfig];
-    }
 
     this.locLabelName = locLabelName;
     this.state = {
@@ -143,7 +149,7 @@ export class MapPanel extends Component<Props, State> {
     this.panelContext = {
       onToggleSeriesVisibility: undefined,
       onSeriesColorChange: (v, c) => {
-        const newOptions = { ...this.props.options };
+        const newOptions = { ...this.normalizedOptions };
         const newFieldConfig = { ...this.props.fieldConfig };
         const steps = newFieldConfig.defaults.thresholds?.steps;
         steps?.forEach((t) => {
@@ -198,13 +204,14 @@ export class MapPanel extends Component<Props, State> {
     }
 
     if (this.props.options !== prevProps.options) {
-      this.optionsChanged(this.props.options, prevProps.options, dataChanged);
+      this.optionsChanged(this.normalizedOptions, normalizeOptions(prevProps.options), dataChanged);
     }
   }
 
   /** This function will actually update the JSON model */
   doOptionsUpdate = async (selected: number) => {
-    const { options, onOptionsChange } = this.props;
+    const { onOptionsChange } = this.props;
+    const options = this.normalizedOptions;
 
     const layers = this.layers;
     this.isLogic = isLogicBasemap(layers[0]?.options);
@@ -320,7 +327,7 @@ export class MapPanel extends Component<Props, State> {
         }
       }
 
-      this.visLayers = genVisLayers(this, this.props);
+      this.visLayers = genVisLayers(this, this.normalizedProps);
 
       if (this.isLogic) {
         bumpGraphVersion(this.graph);
@@ -331,7 +338,7 @@ export class MapPanel extends Component<Props, State> {
         return;
       }
 
-      const viewState = this.initMapView(this.props.options.view);
+      const viewState = this.initMapView(this.normalizedOptions.view);
       if (viewState) {
         if (this.isLogic) {
           viewState.rotationX = -90;
@@ -352,7 +359,7 @@ export class MapPanel extends Component<Props, State> {
         this.annotations = annotations;
       }
 
-      const { options } = this.props;
+      const options = this.normalizedOptions;
       this.byName.clear();
       const layers: MapLayerState[] = [];
       const layoutCache: LayoutCache | undefined =
@@ -413,7 +420,7 @@ export class MapPanel extends Component<Props, State> {
           }
         }
 
-        this.visLayers = genVisLayers(this, this.props);
+        this.visLayers = genVisLayers(this, this.normalizedProps);
 
         if (this.isLogic) {
           bumpGraphVersion(this.graph);
@@ -455,7 +462,7 @@ export class MapPanel extends Component<Props, State> {
       this.layoutReady = true;
       this.layoutDisplayReady = true;
       bumpGraphVersion(this.graph);
-      const viewState = this.initMapView(this.props.options.view);
+      const viewState = this.initMapView(this.normalizedOptions.view);
       if (viewState) {
         viewState.rotationX = -90;
         this.setState({ viewState });
@@ -483,7 +490,7 @@ export class MapPanel extends Component<Props, State> {
       graph: this.graph,
       edgeIndex: this.graphEdgeIndex,
       data,
-      options: this.props.options,
+      options: this.normalizedOptions,
       eventBus: this.props.eventBus,
       panel: this,
       publish: this.publishRuntimeUpdate,
@@ -502,7 +509,8 @@ export class MapPanel extends Component<Props, State> {
   }
 
   render() {
-    const { data, options, replaceVariables, fieldConfig, eventBus } = this.props;
+    const { data, replaceVariables, fieldConfig, eventBus } = this.props;
+    const options = this.normalizedOptions;
 
     return (
       <>

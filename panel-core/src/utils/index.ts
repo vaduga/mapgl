@@ -7,3 +7,4 @@ export * from './provider';
 export * from './RefreshController';
 export * from './SvgIconManager';
 export * from './LatestAsyncGate';
+export * from './normalizeOptions';
