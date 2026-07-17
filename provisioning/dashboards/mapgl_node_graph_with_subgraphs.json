@@ -113,7 +113,7 @@
       },
       "gridPos": {
         "h": 21,
-        "w": 14,
+        "w": 13,
         "x": 0,
         "y": 0
       },
@@ -121,7 +121,8 @@
       "options": {
         "basemap": {
           "config": {
-            "edgeRouting": "Rectilinear"
+            "edgeRouting": "Splines",
+            "layoutDirection": "TB"
           },
           "name": "Layer 0",
           "type": "blank"
@@ -461,7 +462,7 @@
           "zoom": -1.26
         }
       },
-      "pluginVersion": "2.7.1",
+      "pluginVersion": "2.7.2",
       "targets": [
         {
           "datasource": {
@@ -582,14 +583,17 @@
       },
       "gridPos": {
         "h": 21,
-        "w": 10,
-        "x": 14,
+        "w": 11,
+        "x": 13,
         "y": 0
       },
       "id": 2,
       "options": {
         "basemap": {
-          "config": {},
+          "config": {
+            "edgeRouting": "Rectilinear",
+            "layoutDirection": "RL"
+          },
           "name": "Layer 0",
           "type": "blank"
         },
@@ -922,13 +926,13 @@
         "view": {
           "allLayers": true,
           "id": "coords",
-          "lat": 995.552158,
-          "lon": 3002.001881,
+          "lat": 848.902011,
+          "lon": 3270.727378,
           "padding": 0,
-          "zoom": -2.26
+          "zoom": -1.84
         }
       },
-      "pluginVersion": "2.7.1",
+      "pluginVersion": "2.7.2",
       "targets": [
         {
           "datasource": {
@@ -985,6 +989,6 @@
   "timezone": "browser",
   "title": "Mapgl Node Graph",
   "uid": "gdn8bn",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
