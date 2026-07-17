@@ -64,7 +64,6 @@ export interface Options {
     isShowSwitcher: boolean;
     isAppAuth: boolean;
     isMeters?: boolean;
-    svgTintMode?: SvgTintMode;
   };
   dataLayers: ExtendMapLayerOptions[];
 }
@@ -78,9 +77,9 @@ export interface MapViewConfig {
   allLayers?: boolean;
   id: string;
   lastOnly?: boolean;
+  lon?: number;
   lat?: number;
   layer?: string;
-  lon?: number;
   maxZoom?: number;
   minZoom?: number;
   padding?: number;
@@ -91,8 +90,8 @@ export interface MapViewConfig {
 export const defaultMapViewConfig: Partial<MapViewConfig> = {
   allLayers: true,
   id: 'zero',
-  lat: 0,
   lon: 0,
+  lat: 0,
   zoom: 1,
 };
 
@@ -131,11 +130,3 @@ export enum TooltipMode {
   Details = 'details',
   None = 'none',
 }
-
-export enum MapCenterID {
-  Coords = 'coords',
-  Fit = 'fit',
-  Zero = 'zero',
-}
-
-export type SvgTintMode = 'none' | 'markup' | 'canvasTint';
