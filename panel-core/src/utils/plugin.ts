@@ -10,6 +10,7 @@ import { MarkersConfig } from '../layers/data';
 import { Rule } from '../editor';
 import { getMapglPluginId } from '../pluginFactory/pluginRuntime';
 import { MapLayerState } from '../types';
+import { normalizeOptions } from './normalizeOptions';
 
 
 type InitGroupsResult = {
@@ -272,7 +273,9 @@ function cutBinaryProps(panel) {
 }
 
 function getGraphLayers(panel) {
-  const dataLayers = panel.layers.length ? panel.layers.slice(1) : panel.props.options.dataLayers; /// init vs update layers config
+  const dataLayers = panel.layers.length
+    ? panel.layers.slice(1)
+    : normalizeOptions(panel.props.options).dataLayers; /// init vs update layers config
   return dataLayers?.filter((el) => el.options?.type === colTypes.Markers || el.type === colTypes.Markers) ?? [];
 }
 
