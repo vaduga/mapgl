@@ -1,5 +1,8 @@
 # Changelog Mapgl
 
+Unreleased:
+- `RefreshController` to debounce auto-layout on opts change 
+
 ## 2.7.2
 - technical release: add github url in Grafana catalog links
 - dashed style for edges
