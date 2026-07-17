@@ -6,7 +6,7 @@ import AnimatedBlobsLayer from './ArcLayer/animated-blobs-layer';
 import GradientArcLayer from './ArcLayer/gradient-arc-layer';
 import { getArrowColor } from './ArrowLayer/edge-arrow-layer';
 import { CurveEdgeLayer } from './GeoJsonEdgesLayer/curve-edge-layer';
-import { makeScopedKey, type ConnectedEdgeIndex } from './graphHighlighter';
+import { makeScopedKey, type ConnectedEdgeIndex } from './GraphHighlighter';
 import { EDGE_LABEL_DIM_OPACITY } from './TextLayer/text-layer';
 
 const ICON_CACHE_SOURCE_KEY = '__mapglIconCacheSource';

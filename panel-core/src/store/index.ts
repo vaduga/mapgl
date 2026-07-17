@@ -1,2 +1,2 @@
 export * from './visLayer';
-export * from './visLayers';
+export * from './VisLayers';

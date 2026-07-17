@@ -418,9 +418,6 @@ const NodesGeojsonLayer = (props) => {
   });
 };
 
-export { NodesGeojsonLayer };
-export { ICON_CACHE_SOURCE_KEY };
-
 const LogicPlaceholderTextLayer = (props) => {
   const {
     biCol,
@@ -583,4 +580,4 @@ const LogicMainLabelTextLayer = (props) => {
   });
 };
 
-export { LogicMainLabelTextLayer };
+export { NodesGeojsonLayer, LogicMainLabelTextLayer, ICON_CACHE_SOURCE_KEY };

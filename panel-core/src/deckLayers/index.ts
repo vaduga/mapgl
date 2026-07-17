@@ -43,8 +43,8 @@ export {
   getResolvedTextPixelOffset,
 } from './GeoJsonNodesLayer/nodeGeometry';
 export { getDimmedGraphLayers } from './focus-layers';
-export { GraphHighlighter, makeScopedKey } from './graphHighlighter';
-export type { ConnectedEdgeIndex } from './graphHighlighter';
+export { GraphHighlighter, makeScopedKey } from './GraphHighlighter';
+export type { ConnectedEdgeIndex } from './GraphHighlighter';
 
 export { MyGeoJsonLayer } from './GeoJsonStaticLayer/static-geojson-layer';
 export { MyIconLayer } from './IconLayer/icon-layer';

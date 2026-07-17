@@ -4,4 +4,4 @@ export * from './layers';
 export * from './map';
 export * from './plugin';
 export * from './provider';
-export * from './svgIconManager';
+export * from './SvgIconManager';
