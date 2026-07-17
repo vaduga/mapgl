@@ -17,7 +17,13 @@ import type {
   LayerDragShift,
 } from '@mapgl/panel-core/types';
 import { notifyPanelEditor } from '@mapgl/panel-core/utils/geomap_utils';
-import { getActions, applyLayerFilter, initLayer, MapglRuntimeUpdateEvent } from '@mapgl/panel-core/utils';
+import {
+  getActions,
+  applyLayerFilter,
+  initLayer,
+  MapglRuntimeUpdateEvent,
+  RefreshController,
+} from '@mapgl/panel-core/utils';
 import RootStore from './store/RootStore';
 import Mapgl from './components/Mapgl';
 import {
@@ -30,7 +36,6 @@ import {
   SvgIconManager,
 } from './utils';
 import { geomapLayerRegistry, ORTHO_BASEMAP_CONFIG } from './layers/registry';
-import type { OrthoConfig } from '@mapgl/panel-core/layers';
 import { defaultMarkersConfig } from '@mapgl/panel-core/layers/data';
 import { Graph, GraphEdgeIndex, bumpGraphVersion, resetGraph, resetGraphNodes } from '@mapgl/panel-core/graph';
 import {
@@ -53,6 +58,11 @@ import { Rule } from '@mapgl/panel-core/editor';
 import { VisLayers } from '@mapgl/panel-core/store';
 
 export class MapPanel extends Component<Props, State> {
+  private readonly optionsRefresh = new RefreshController({
+    delayMs: 150,
+    isBlocked: () => !this.map || this.layoutInProgress,
+    refresh: () => this.dataChanged(this.props.data),
+  });
   declare context: React.ContextType<typeof PanelContextRoot>;
   static contextType = PanelContextRoot;
   panelContext: PanelContext | undefined;
@@ -75,7 +85,6 @@ export class MapPanel extends Component<Props, State> {
   hasAnnots = false;
   useMockData;
   groups: Rule[] = [];
-  autolayoutOverride?: OrthoConfig;
   layoutReady = false;
   layoutGraphBounds = new Map<string, LayoutGraphResult>();
   layoutCurveGroups = new Map<string, LayoutCurveGroup>();
@@ -160,6 +169,7 @@ export class MapPanel extends Component<Props, State> {
   }
 
   componentWillUnmount() {
+    this.optionsRefresh.cancel();
     this.svgIconManager.abort();
     resetGraph(this.graph);
     this.graphEdgeIndex.reset();
@@ -173,29 +183,18 @@ export class MapPanel extends Component<Props, State> {
     this.subs.unsubscribe();
   }
 
-  shouldComponentUpdate(nextProps: Props) {
-    if (!this.map) {
-      return true; // not yet initialized
-    }
-
-    // External data changed
-    //console.log('should update with datachanged', this.props.data !== nextProps.data)
-    if (this.props.data !== nextProps.data) {
-      this.dataChanged(nextProps.data);
-    }
-
-    // Options changed
-    if (this.props.options !== nextProps.options) {
-      this.optionsChanged(nextProps.options);
-    }
-
-    return true; // always?
-  }
-
   componentDidUpdate(prevProps: Props) {
-    // Check for a difference between previous data and component data
-    if (this.map && this.props.data !== prevProps.data) {
-      this.dataChanged(this.props.data);
+    if (!this.map) {
+      return;
+    }
+
+    const dataChanged = this.props.data !== prevProps.data;
+    if (dataChanged) {
+      void this.dataChanged(this.props.data);
+    }
+
+    if (this.props.options !== prevProps.options) {
+      this.optionsChanged(this.props.options, prevProps.options, dataChanged);
     }
   }
 
@@ -211,7 +210,11 @@ export class MapPanel extends Component<Props, State> {
       dataLayers: layers.slice(1).map((v) => v.options),
     } as Options);
 
-    this.dataChanged(this.props.data);
+    if (this.isLogic) {
+      this.optionsRefresh.schedule();
+    } else {
+      void this.dataChanged(this.props.data);
+    }
     notifyPanelEditor(this, layers, selected);
   };
 
@@ -222,8 +225,7 @@ export class MapPanel extends Component<Props, State> {
    *
    * NOTE: changes to basemap and layers are handled independently
    */
-  optionsChanged(options: Options) {
-    const oldOptions = this.props.options;
+  optionsChanged(options: Options, oldOptions: Options, dataAlreadyChanged = false) {
     this.isLogic = isLogicBasemap(options.basemap);
 
     if (options.view !== oldOptions.view) {
@@ -236,11 +238,12 @@ export class MapPanel extends Component<Props, State> {
       }
     }
 
-    if (hasAutolayoutChanged(options, oldOptions) && this.isLogic) {
-      this.autolayoutOverride = options.basemap?.config as OrthoConfig | undefined;
-      this.dataChanged(this.props.data).finally(() => {
-        this.autolayoutOverride = undefined;
-      });
+    if (
+      !dataAlreadyChanged &&
+      options.basemap?.type === ORTHO_BASEMAP_CONFIG.type &&
+      options.basemap.config !== oldOptions.basemap?.config
+    ) {
+      this.optionsRefresh.schedule();
     }
   }
 
@@ -248,6 +251,8 @@ export class MapPanel extends Component<Props, State> {
    * Called when PanelData changes (query results etc)
    */
   dataChanged = async (data: PanelData) => {
+    this.optionsRefresh.cancel();
+
     // Only update if panel data matches component data
     if (data === this.props.data) {
       this.groups = [];
@@ -415,16 +420,17 @@ export class MapPanel extends Component<Props, State> {
     this.layoutInProgress = false;
     if (!applied) {
       bumpGraphVersion(this.graph);
-      return;
+    } else {
+      this.layoutReady = true;
+      this.layoutDisplayReady = true;
+      bumpGraphVersion(this.graph);
+      const viewState = this.initMapView(this.props.options.view);
+      if (viewState) {
+        viewState.rotationX = -90;
+        this.setState({ viewState });
+      }
     }
-    this.layoutReady = true;
-    this.layoutDisplayReady = true;
-    bumpGraphVersion(this.graph);
-    const viewState = this.initMapView(this.props.options.view);
-    if (viewState) {
-      viewState.rotationX = -90;
-      this.setState({ viewState });
-    }
+    this.optionsRefresh.resume();
   };
 
   initMapView = (config: MapViewConfig): ViewState | undefined => {
@@ -502,10 +508,6 @@ export class MapPanel extends Component<Props, State> {
       </>
     );
   }
-}
-
-function hasAutolayoutChanged(options: Options, oldOptions: Options): boolean {
-  return options.basemap?.type === ORTHO_BASEMAP_CONFIG.type && options.basemap?.config !== oldOptions.basemap?.config;
 }
 
 function isLogicBasemap(basemap: Options['basemap'] | undefined): boolean {
