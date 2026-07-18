@@ -5,10 +5,10 @@ import { createGetLayerEditor, createLayersEditor, MapViewEditor } from '@mapgl/
 import { MapPanel } from './MapPanel';
 import { defaultMapViewConfig, type MapInstanceState, type MapLayerState, type Options } from '@mapgl/panel-core/types';
 import { initPluginTranslations } from '@mapgl/panel-core/utils/i18n';
-import { geomapLayerRegistry, getLayersOptions } from './layers/registry';
+import { mapLayerRegistry, getLayersOptions } from './layers/registry';
 
 const LayersEditor = createLayersEditor({ getLayersOptions });
-const getLayerEditor = createGetLayerEditor({ geomapLayerRegistry, getLayersOptions });
+const getLayerEditor = createGetLayerEditor({ mapLayerRegistry, getLayersOptions });
 
 export const plugin = createMapglPanelPlugin<Options, MapLayerState, MapInstanceState>({
   edition: 'oss',

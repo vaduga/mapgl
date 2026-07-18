@@ -21,14 +21,6 @@ import {
   getActions,
   applyLayerFilter,
   initLayer,
-  MapglRuntimeUpdateEvent,
-  RefreshController,
-  LatestAsyncGate,
-  normalizeOptions,
-} from '@mapgl/panel-core/utils';
-import RootStore from './store/RootStore';
-import Mapgl from './components/Mapgl';
-import {
   RootStoreProvider,
   fillAnnots,
   initGroups,
@@ -36,8 +28,14 @@ import {
   initBinaryProps,
   cutBinaryProps,
   SvgIconManager,
-} from './utils';
-import { geomapLayerRegistry, ORTHO_BASEMAP_CONFIG } from './layers/registry';
+  MapglRuntimeUpdateEvent,
+  RefreshController,
+  LatestAsyncGate,
+  normalizeOptions,
+} from '@mapgl/panel-core/utils';
+import RootStore from './store/RootStore';
+import Mapgl from './components/Mapgl';
+import { mapLayerRegistry, ORTHO_BASEMAP_CONFIG } from './layers/registry';
 import { Graph, GraphEdgeIndex, bumpGraphVersion, resetGraph, resetGraphNodes } from '@mapgl/panel-core/graph';
 import {
   getMapglFeatureServices,
@@ -106,7 +104,7 @@ export class MapPanel extends Component<Props, State> {
 
   theme2: GrafanaTheme2 = config.theme2;
   readonly byName = new Map<string, MapLayerState>();
-  readonly geomapLayerRegistry = geomapLayerRegistry;
+  readonly mapLayerRegistry = mapLayerRegistry;
   readonly orthoBasemapConfig = ORTHO_BASEMAP_CONFIG;
 
   get svgIconState() {

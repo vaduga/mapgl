@@ -146,7 +146,7 @@ export async function initLayer(
     };
   }
 
-  const item = panel.geomapLayerRegistry?.getIfExists(options.type);
+  const item = panel.mapLayerRegistry?.getIfExists(options.type);
   if (!item) {
     return Promise.reject('unknown layer: ' + options.type);
   }

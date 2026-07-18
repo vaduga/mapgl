@@ -35,17 +35,17 @@ export function getStyleDimension(
   return dims;
 }
 
-export const notifyPanelEditor = (geomapPanel: any, layers: MapLayerState[], selected: number) => {
+export const notifyPanelEditor = (mapPanel: any, layers: MapLayerState[], selected: number) => {
   // Notify the panel editor
-  if (geomapPanel.panelContext && geomapPanel.panelContext.onInstanceStateChange) {
-    geomapPanel.panelContext.onInstanceStateChange({
-      map: geomapPanel.map,
-      graph: geomapPanel.graph,
-      isLogic: geomapPanel.isLogic,
-      useMockData: geomapPanel.useMockData,
+  if (mapPanel.panelContext && mapPanel.panelContext.onInstanceStateChange) {
+    mapPanel.panelContext.onInstanceStateChange({
+      map: mapPanel.map,
+      graph: mapPanel.graph,
+      isLogic: mapPanel.isLogic,
+      useMockData: mapPanel.useMockData,
       layers: layers,
       selected: selected,
-      actions: geomapPanel.actions,
+      actions: mapPanel.actions,
     });
   }
 };

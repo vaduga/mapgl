@@ -22,7 +22,7 @@ interface RegistrySelectInfo {
   current: Array<SelectableValue<string>>;
 }
 
-export interface CreateGeomapLayerRegistryOptions {
+export interface CreateMapLayerRegistryOptions {
   basemapLayers?: Array<ExtendMapLayerRegistryItem<any>>;
   dataLayers?: Array<ExtendMapLayerRegistryItem<any>>;
   defaultBaseMapLayer?: ExtendMapLayerRegistryItem<any>;
@@ -30,7 +30,7 @@ export interface CreateGeomapLayerRegistryOptions {
   hasAlphaPanels?: boolean;
 }
 
-export function createGeomapLayerRegistry(options: CreateGeomapLayerRegistryOptions = {}) {
+export function createMapLayerRegistry(options: CreateMapLayerRegistryOptions = {}) {
   const basemapLayers = options.basemapLayers ?? defaultBasemapLayers;
   const dataLayers = options.dataLayers ?? [];
 
@@ -45,7 +45,7 @@ export function createGeomapLayerRegistry(options: CreateGeomapLayerRegistryOpti
     },
   };
 
-  const geomapLayerRegistry = new Registry<ExtendMapLayerRegistryItem<any>>(() => [
+  const mapLayerRegistry = new Registry<ExtendMapLayerRegistryItem<any>>(() => [
     orthoLayer,
     defaultBaseLayer,
     ...basemapLayers,
@@ -105,7 +105,7 @@ export function createGeomapLayerRegistry(options: CreateGeomapLayerRegistryOpti
     basemapLayers,
     dataLayers,
     defaultBaseLayer,
-    geomapLayerRegistry,
+    mapLayerRegistry,
     getLayersOptions,
   };
 }

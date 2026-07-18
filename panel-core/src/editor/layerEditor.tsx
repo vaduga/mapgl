@@ -29,13 +29,13 @@ export interface LayerEditorOptions {
 }
 
 interface LayerEditorAdapters {
-  geomapLayerRegistry: {
+  mapLayerRegistry: {
     getIfExists: (id: string) => ExtendMapLayerRegistryItem<any> | undefined;
   };
   getLayersOptions: (basemap: boolean, current?: string) => { options: any[]; current: any[] };
 }
 
-export function createGetLayerEditor({ geomapLayerRegistry, getLayersOptions }: LayerEditorAdapters) {
+export function createGetLayerEditor({ mapLayerRegistry, getLayersOptions }: LayerEditorAdapters) {
   return function getLayerEditor(opts: LayerEditorOptions): NestedPanelOptions<ExtendMapLayerOptions> {
   return {
     category: opts.category,
@@ -55,7 +55,7 @@ export function createGetLayerEditor({ geomapLayerRegistry, getLayersOptions }: 
         const { state } = opts;
         const { options } = state;
         if (path === 'type' && value) {
-          const layer = geomapLayerRegistry.getIfExists(value);
+          const layer = mapLayerRegistry.getIfExists(value);
           if (layer) {
             const opts = {
               ...options, // keep current shared options
@@ -82,7 +82,7 @@ export function createGetLayerEditor({ geomapLayerRegistry, getLayersOptions }: 
       }
 
       const { handler, options } = opts.state;
-      const layer = geomapLayerRegistry.getIfExists(options?.type);
+      const layer = mapLayerRegistry.getIfExists(options?.type);
 
       const layerTypes = getLayersOptions(
         opts.basemaps,

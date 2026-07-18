@@ -6,7 +6,7 @@ import {
   StyleEditor,
 } from '@mapgl/panel-core/editor';
 import {
-  createGeomapLayerRegistry,
+  createMapLayerRegistry,
   DEFAULT_BASEMAP_CONFIG,
   ORTHO_BASEMAP_CONFIG,
 } from '@mapgl/panel-core/layers';
@@ -21,11 +21,11 @@ const dataLayers = createDataLayers({
   getQueryFields,
 });
 
-const layerRegistry = createGeomapLayerRegistry({
+const layerRegistry = createMapLayerRegistry({
   dataLayers,
   hasAlphaPanels,
 });
 
 export { DEFAULT_BASEMAP_CONFIG, ORTHO_BASEMAP_CONFIG };
 
-export const { basemapLayers, defaultBaseLayer, geomapLayerRegistry, getLayersOptions } = layerRegistry;
+export const { basemapLayers, defaultBaseLayer, mapLayerRegistry, getLayersOptions } = layerRegistry;

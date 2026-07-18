@@ -61,11 +61,11 @@ const defaultOptions: RenderOptions = {
 const LayerSwitcher = <TPanel extends LayerSwitcherPanel = LayerSwitcherPanel>({
   label,
   className = '',
-  panel: geomap,
+  panel,
   setVisRefresh,
   inlineControls = [],
 }: LayerSwitcherProps<TPanel>) => {
-  const { visLayers } = geomap;
+  const { visLayers } = panel;
   const styles = useStyles2(getStyles);
 
   const [panelVisible, setPanelVisible] = useState(false);
@@ -81,7 +81,7 @@ const LayerSwitcher = <TPanel extends LayerSwitcherPanel = LayerSwitcherPanel>({
     }
     renderLayerSwitcherPanel(
       {
-        panel: geomap,
+        panel,
         setVisRefresh,
         inlineControls,
       },
@@ -299,12 +299,12 @@ function renderLayers<TPanel extends LayerSwitcherPanel>(
 }
 
 function setVisible<TPanel extends LayerSwitcherPanel>(
-  geomap: TPanel,
+  panel: TPanel,
   lyr: LayerTreeInfo,
   visible: boolean,
   groupSelectStyle: RenderOptions['groupSelectStyle']
 ) {
-  const { visLayers, graph } = geomap;
+  const { visLayers, graph } = panel;
   if (!visLayers) {
     return;
   }
@@ -316,24 +316,24 @@ function setVisible<TPanel extends LayerSwitcherPanel>(
 
   if (lyr.group && !lyr.combine && groupSelectStyle === 'children') {
     lyr.children.forEach((l) => {
-      setVisible(geomap, l, visible, groupSelectStyle);
+      setVisible(panel, l, visible, groupSelectStyle);
     });
   }
 
   const allNameSpaces = Array.from(graphs).map((el) => el.id);
   const visibleNamespaces = visLayers.getCategories()[1];
 
-  if ((geomap.isLogic && lyr.group === 'graph') || allNameSpaces.includes(lyr.name)) {
-    geomap.namespaceProjection = applyNamespaceProjectionStrategies(
+  if ((panel.isLogic && lyr.group === 'graph') || allNameSpaces.includes(lyr.name)) {
+    panel.namespaceProjection = applyNamespaceProjectionStrategies(
       getMapglFeatureServices().namespaceProjectionStrategies,
       {
         graph,
-        edgeIndex: geomap.graphEdgeIndex,
+        edgeIndex: panel.graphEdgeIndex,
         visibleNamespaces: new Set(visibleNamespaces),
         allNamespaces: new Set(allNameSpaces),
-        positions: geomap.positions ?? new Float64Array(),
-        layerShift: geomap.layerShift,
-        panel: geomap,
+        positions: panel.positions ?? new Float64Array(),
+        layerShift: panel.layerShift,
+        panel: panel,
       }
     );
   }

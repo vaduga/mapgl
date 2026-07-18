@@ -29,7 +29,7 @@ export const getActions = (panel: any) => {
       panel.doOptionsUpdate(0);
     },
     addlayer: (type: string) => {
-      const item = panel.geomapLayerRegistry?.getIfExists(type);
+      const item = panel.mapLayerRegistry?.getIfExists(type);
       if (!item) {
         return; // ignore empty request
       }
