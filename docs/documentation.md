@@ -120,6 +120,8 @@ Use **Node Styles** for the base appearance of nodes:
 
 This is the foundation for group escalation. Node groups do not replace Grafana field config. They build on top of it.
 
+For field-driven **Size**, Min is the rendered size assigned to the lowest metric and Max is the size assigned to the highest metric. Set Min greater than Max when lower metric values should appear larger. The same direction rule applies to field-driven edge and arc line widths.
+
 ## Node groups
 
 Node groups are the most specific styling system in Mapgl. A group can define:
@@ -203,6 +205,8 @@ Use **Edge Styles** when `Vertex B` is configured:
 - text for edge labels
 
 If you enable **Arc styles**, Mapgl can style side A and side B independently and use a capacity field for metric normalization.
+
+Field-driven line width uses the same endpoint semantics as node size: Min is rendered at the normalized low end and Max at the normalized high end. A Min value greater than Max creates a descending scale.
 
 ## Other panel options
 

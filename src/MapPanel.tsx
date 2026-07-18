@@ -107,10 +107,6 @@ export class MapPanel extends Component<Props, State> {
   readonly mapLayerRegistry = mapLayerRegistry;
   readonly orthoBasemapConfig = ORTHO_BASEMAP_CONFIG;
 
-  get svgIconState() {
-    return this.svgIconManager.state;
-  }
-
   private get normalizedOptions(): Options {
     return normalizeOptions(this.props.options);
   }
@@ -120,6 +116,10 @@ export class MapPanel extends Component<Props, State> {
       ...this.props,
       options: this.normalizedOptions,
     };
+  }
+
+  get svgIconState() {
+    return this.svgIconManager.state;
   }
 
   constructor(props: Props) {

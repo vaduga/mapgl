@@ -37,7 +37,7 @@ export function getScaledDimensionForField(
   const info = getMinMaxAndDelta(field);
   const delta = config.max - config.min;
   const values = field.values;
-  if (values.length < 1 || delta <= 0 || info.delta <= 0) {
+  if (values.length < 1 || delta === 0 || info.delta <= 0) {
     return {
       fixed: config.min,
       value: () => config.min,
@@ -109,19 +109,10 @@ export function validateScaleConfig(copy: ScaleDimensionConfig, options: ScaleDi
   if (copy.min == null) {
     copy.min = min;
   }
-  // Make sure the order is right
-  if (copy.min > copy.max) {
-    const tmp = copy.max;
-    copy.max = copy.min;
-    copy.min = tmp;
-  }
-  // Validate range
-  if (copy.min < min) {
-    copy.min = min;
-  }
-  if (copy.max > max) {
-    copy.max = max;
-  }
+  // Min and Max are output values at the metric range endpoints. Their order
+  // determines whether the visual scale is ascending or descending.
+  copy.min = Math.min(max, Math.max(min, copy.min));
+  copy.max = Math.min(max, Math.max(min, copy.max));
 
   if (copy.fixed == null) {
     copy.fixed = copy.min + (copy.max - copy.min) / 2.0;

@@ -1,6 +1,7 @@
 # Changelog Mapgl
 
 Unreleased:
+- inverted style scaling option. Make lower metric values appear larger
 - `RefreshController` to debounce auto-layout on opts change. Panel lifecycle clean up
 - prevent `LayerSwitcher` from bubbling in Grafana 13 'Edit mode'
 - panel async update gate. Drops stale tasks on panel update/reload

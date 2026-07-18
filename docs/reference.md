@@ -140,6 +140,17 @@ If multiple consecutive trace rows share the same **Edge ID**, Mapgl appends the
 
 Node group matching and escalation happen after this base style is resolved.
 
+## Field-driven size scaling
+
+- **Min** is the rendered size or line width at normalized percentage `0`.
+- **Max** is the rendered size or line width at normalized percentage `1`.
+- For ordinary field scaling, those percentages correspond to the selected metric field's minimum and maximum.
+- For capacity-relative arc scaling, they correspond to zero and the row's capacity.
+- When Min is less than Max, lower metrics render smaller and higher metrics render larger.
+- When Min is greater than Max, lower metrics render larger and higher metrics render smaller.
+- When Min equals Max, the rendered size is constant.
+- Min and Max are independently limited to the style editor's allowed size range; they are not reordered.
+
 ## `thrColor`
 
 - `thrColor` is injected by Mapgl during rendering.

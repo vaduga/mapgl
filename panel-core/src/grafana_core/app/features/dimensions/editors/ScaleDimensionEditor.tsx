@@ -14,6 +14,9 @@ import { validateScaleOptions, validateScaleConfig } from '../scale';
 import { ScaleDimensionOptions } from '../types';
 import { NumberInput } from '../../../core/components/OptionsUI/NumberInput';
 
+const SCALE_MIN_TOOLTIP =
+  'Set Min greater than Max to make lower metric values appear larger.';
+
 export const ScaleDimensionEditor = (props: StandardEditorProps<ScaleDimensionConfig, ScaleDimensionOptions>) => {
   const { value, context, onChange, item, id } = props;
   const { settings } = item;
@@ -104,6 +107,7 @@ export const ScaleDimensionEditor = (props: StandardEditorProps<ScaleDimensionCo
   const valueInputId = useId();
   const minInputId = useId();
   const maxInputId = useId();
+  const minTooltip = t('dimensions.scale-dimension-editor.tooltip-min', SCALE_MIN_TOOLTIP);
 
   const val = value ?? {};
   const selectedOption = isFixed ? fixedValueOption : selectOptions.find((v) => v.value === fieldName);
@@ -129,7 +133,12 @@ export const ScaleDimensionEditor = (props: StandardEditorProps<ScaleDimensionCo
         {!isFixed && !minMaxStep.hideRange && (
           <>
             <InlineFieldRow>
-              <InlineField label={t('dimensions.scale-dimension-editor.label-min', 'Min')} labelWidth={8} grow={true}>
+              <InlineField
+                label={t('dimensions.scale-dimension-editor.label-min', 'Min')}
+                tooltip={minTooltip}
+                labelWidth={8}
+                grow={true}
+              >
                 <NumberInput id={minInputId} value={val.min} {...minMaxStep} onChange={onMinChange} />
               </InlineField>
             </InlineFieldRow>
