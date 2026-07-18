@@ -3,6 +3,10 @@ import { getFittedDimensions } from './nodeGeometry';
 
 const MAX_ICON_SOURCE_SIZE = 1020; ///384;
 const DONUT_SOURCE_SCALE = 4;
+const ICON_ATLAS_WIDTH = 1024;
+const SAFE_ICON_ATLAS_HEIGHT = 4096;
+const ICON_ATLAS_BUFFER = 4;
+const ICON_SOURCE_SIZE_TIERS = [1020, 508, 252, 124, 60, 28, 12, 4, 1];
 type CountEntry = { count: number; label?: string };
 type CountMap = Record<string, number | CountEntry>;
 type StripeItem = { color: string; count: number };
@@ -82,7 +86,11 @@ function getPackedSvgIcon(svgIcon, sourceBoxSize: number) {
     return null;
   }
 
-  const packedSize = getFittedDimensions(sourceBoxSize, svgIcon.width, svgIcon.height);
+  const fittedSize = getFittedDimensions(sourceBoxSize, svgIcon.width, svgIcon.height);
+  const packedSize = {
+    width: Math.max(1, Math.round(fittedSize.width)),
+    height: Math.max(1, Math.round(fittedSize.height)),
+  };
   const packedSvg =
     getSizedSvgMarkup(svgIcon, {
       width: packedSize.width,
@@ -115,6 +123,7 @@ function createDonutChart({
   bkColor,
   isDark = false,
   svgIcon,
+  sourceSize: requestedSourceSize,
 }) {
   void isDark;
   const userSvgUrl = svgIcon?.svgDataUrl;
@@ -135,7 +144,7 @@ function createDonutChart({
   const ringRadius = (r + r0) / 2;
   const strokeWidth = r - r0;
   const w = r * 2;
-  const sourceSize = getDonutIconSrcSize(w);
+  const sourceSize = requestedSourceSize ?? getDonutIconSrcSize(w);
 
   let svg = `
   <svg width='${sourceSize}' height='${sourceSize}' stroke-width='1' viewBox='0 0 ${w} ${w}' 
@@ -318,7 +327,23 @@ function normalizeStripeCount(value: number | CountEntry) {
 function getDonutIconSrcSize(size: number, options?: { scale?: number; maxSize?: number }) {
   const scale = options?.scale ?? DONUT_SOURCE_SCALE;
   const maxSize = options?.maxSize ?? MAX_ICON_SOURCE_SIZE;
-  return Math.min(Math.max(size, size * DONUT_SOURCE_SCALE), MAX_ICON_SOURCE_SIZE);
+  return Math.ceil(Math.min(Math.max(size, size * scale), maxSize));
 }
 
-export { svgToDataURL, createDonutChart, getDonutIconSrcSize, getPackedSvgIcon };
+function getNodeIconAtlasSourceSize(entryCount: number) {
+  const normalizedEntryCount = Math.max(1, Math.ceil(entryCount));
+
+  for (const sourceSize of ICON_SOURCE_SIZE_TIERS) {
+    const cellSize = sourceSize + ICON_ATLAS_BUFFER;
+    const columnCount = Math.max(1, Math.floor(ICON_ATLAS_WIDTH / cellSize));
+    const rowCount = Math.ceil(normalizedEntryCount / columnCount);
+
+    if (rowCount * cellSize <= SAFE_ICON_ATLAS_HEIGHT) {
+      return sourceSize;
+    }
+  }
+
+  return 1;
+}
+
+export { svgToDataURL, createDonutChart, getDonutIconSrcSize, getNodeIconAtlasSourceSize, getPackedSvgIcon };

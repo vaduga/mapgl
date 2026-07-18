@@ -27,6 +27,27 @@ export const getMaxResolvedIconSize = (feature: any) => {
   return diameter * sizeMultiplier;
 };
 
+export const getMaxNodeIconSizesByVariant = (
+  properties: any[] | Record<string, any> | undefined,
+  getVariantKey: (properties: any) => string | undefined
+) => {
+  const maxSizes = new Map<string, number>();
+
+  for (const featureProperties of Object.values(properties ?? {})) {
+    const variantKey = getVariantKey(featureProperties);
+    const size = Number(featureProperties?.style?.size);
+
+    if (!variantKey) {
+      continue;
+    }
+
+    const normalizedSize = Number.isFinite(size) && size > 0 ? size : 0;
+    maxSizes.set(variantKey, Math.max(maxSizes.get(variantKey) ?? 0, normalizedSize));
+  }
+
+  return maxSizes;
+};
+
 export const getFittedIconSize = (targetBoxSize: number, width?: number, height?: number) => {
   if (!width || !height || width <= 0 || height <= 0) {
     return targetBoxSize;
