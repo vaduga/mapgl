@@ -135,7 +135,7 @@ export function createGetLayerEditor({ mapLayerRegistry, getLayersOptions }: Lay
         builder.addFieldNamePicker({
           path: 'locField',
           name: 'Vertex A',
-          description: 'Unique node ID',
+          description: 'Node ID',
           settings: {
             filter: (f: Field) => f.type === FieldType.string,
             noFieldsMessage: 'No string fields found',

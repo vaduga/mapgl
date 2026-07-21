@@ -129,3 +129,13 @@ export function denormalizeZoom(isWebmercator: boolean, normalizedZoom: number):
 
   return ((clampedZoom - 1) / 17) * 10 - 5;
 }
+
+export function normalizeZoom(isWebmercator: boolean, zoom: number): number {
+  if (isWebmercator) {
+    return zoom;
+  }
+
+  const clampedZoom = Math.max(-5, Math.min(5, zoom));
+
+  return ((clampedZoom + 5) / 10) * 17 + 1;
+}

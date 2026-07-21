@@ -6,6 +6,7 @@ import { Trans, t } from '../../utils/i18n';
 import { StackCompat } from '../../components/Compat/StackCompat';
 
 import { type Options, type MapViewConfig, MapInstanceState, type DeckGLRefWithViewManager } from '../../types';
+import { normalizeZoom } from '../../utils';
 import { centerPointRegistry, MapCenterID } from '../../view';
 
 import { CoordinatesMapViewEditor } from './CoordinatesMapViewEditor';
@@ -16,7 +17,6 @@ export const MapViewEditor = ({
   onChange,
   context,
 }: StandardEditorProps<MapViewConfig, unknown, Options, MapInstanceState>) => {
-  const { isLogic } = context.instanceState || {};
   const labelWidth = 10;
 
   const viewId = value?.id ?? centerPointRegistry.list()[0].id;
@@ -32,12 +32,14 @@ export const MapViewEditor = ({
       const zoom = scene.zoom;
 
       if ([lon, lat, zoom].every((el) => el !== undefined)) {
+        const normalizedZoom = normalizeZoom(!isLogic, zoom);
+
         onChange({
           ...value,
           id: MapCenterID.Coordinates,
           lon: +lon.toFixed(6),
           lat: +lat.toFixed(6),
-          zoom: +zoom.toFixed(2),
+          zoom: +normalizedZoom.toFixed(2),
         });
       }
     }
@@ -86,11 +88,9 @@ export const MapViewEditor = ({
           <NumberInput
             id={zoomInputId}
             value={value?.zoom ?? 1}
-            // min={isLogic ? -5 : 1}
-            // max={isLogic ? 5 : 18}
             min={1}
             max={18}
-            step={0.01}
+            step={0.1}
             onChange={(v) => {
               onChange({ ...value, zoom: v });
             }}

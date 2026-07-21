@@ -170,7 +170,7 @@ export const StyleEditor = (props: Props) => {
         </Field>
       )}
       {!isAuxLayer && !hideText && (
-        <Field label={'Text label'} description={isEdge ? 'For arcs only' : ''}>
+        <Field label={'Text label'} description={isEdge ? 'For non-routed mode only (arcs)' : ''}>
           <TextDimensionEditor
             value={value?.text ?? defaultTextConfig}
             context={context}

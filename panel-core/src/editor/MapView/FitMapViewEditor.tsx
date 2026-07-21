@@ -37,7 +37,6 @@ export const FitMapViewEditor = ({ labelWidth, value, onChange, context }: Props
   const dataLayers = context.options?.dataLayers;
 
   const layers = useMemo(() => {
-    //console.log('context.options', context.options)
     if (dataLayers) {
       return dataLayers.map((layer) => ({
         label: layer.name,
