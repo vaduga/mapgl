@@ -1,16 +1,15 @@
 # Changelog Mapgl
 
-Unreleased:
-- inverted style scaling option. Make lower metric values appear larger
-- SVG packing revised for large node sizes
-- `RefreshController` to debounce auto-layout on opts change. Panel lifecycle clean up
-- prevent `LayerSwitcher` from bubbling in Grafana 13 'Edit mode'
+## 2.7.3:
+  
+- inverted style scaling option, allowing lower metric values to appear larger
+- node graph zoom levels normalized to match Geo mode’s 1–18 range.
+  QA:
+- debounce auto-layout recalculation on opts change
 - panel async update gate. Drops stale tasks on panel update/reload
 
 ## 2.7.2
-- technical release: add github url in Grafana catalog links
-- dashed style for edges
-- fix: fit-to-data Max zoom range
+- dashed style for edges; fit-to-data Max zoom range 
 
 ## 2.7.1
 - traces on service dependency graph: multi-hop edge with per-fragment span info from separate data-rows
