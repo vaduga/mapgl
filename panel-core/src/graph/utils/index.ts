@@ -6,7 +6,6 @@ export {
   getEdgeArrowLength,
   dragRelatedLines,
   getContractedGraph,
-  computeCorrectedBounds,
   inheritedShift,
 } from './utils.graph';
 export { captureLayoutCache, restoreLayoutCache, scheduleLayout } from './layout-worker-client';

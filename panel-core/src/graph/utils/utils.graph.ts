@@ -75,11 +75,11 @@ function pushDummyEdges({
   });
 }
 
-export function getEdgeArrowSize(edgeSize: number | undefined): number {
+function getEdgeArrowSize(edgeSize: number | undefined): number {
   return typeof edgeSize === 'number' ? Math.max(2, edgeSize * 4) : 12;
 }
 
-export function getEdgeArrowLength(edgeSize: number | undefined): number {
+function getEdgeArrowLength(edgeSize: number | undefined): number {
   return getEdgeArrowSize(edgeSize);
 }
 
@@ -644,7 +644,7 @@ function getMidpoint(sourcePosition: Position, targetPosition: Position, isLogic
   }
 }
 
-export function dragRelatedLines({
+function dragRelatedLines({
   panel,
   node,
   isRouted,
@@ -756,41 +756,10 @@ function inheritedShift(id: string, layerShift: any) {
   );
 }
 
-function computeCorrectedBounds(
-  layerId: string,
-  graphEngine: any,
-  layerShift: Record<string, [number, number]>,
-  visNamespaces: string[],
-  separator = NS_SEPARATOR,
-  padding = 0
-): [number, number, number, number] {
-  const baseBbox = graphEngine.getBbox(layerId, visNamespaces, separator, padding);
-  const [baseDx, baseDy] = inheritedShift(layerId, layerShift);
-  let [minX, minY, maxX, maxY] = [
-    baseBbox.minX + baseDx,
-    baseBbox.minY + baseDy,
-    baseBbox.maxX + baseDx,
-    baseBbox.maxY + baseDy,
-  ];
-
-  for (const nsId of visNamespaces) {
-    const bbox = graphEngine.getBbox(nsId, visNamespaces, separator, padding);
-    if (!bbox) {
-      continue;
-    }
-
-    const shift = inheritedShift(nsId, layerShift);
-    minX = Math.min(minX, bbox.minX + shift[0]);
-    minY = Math.min(minY, bbox.minY + shift[1]);
-    maxX = Math.max(maxX, bbox.maxX + shift[0]);
-    maxY = Math.max(maxY, bbox.maxY + shift[1]);
-  }
-
-  return [minX, minY, maxX, maxY];
-}
-
 export {
   pushPath,
+  getEdgeArrowSize,
+  getEdgeArrowLength,
   getArrowAngle,
   getArrowAngles,
   getEdgeTerminals,
@@ -798,6 +767,6 @@ export {
   segregatePath,
   getMidpoint,
   getContractedGraph,
-  computeCorrectedBounds,
+  dragRelatedLines,
   inheritedShift,
 };
