@@ -1,4 +1,3 @@
-export * from './utils.data-click';
 export * from './utils.layers';
 export * from './utils.map';
 export * from '@mapgl/panel-core/utils';

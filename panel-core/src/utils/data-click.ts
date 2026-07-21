@@ -1,20 +1,11 @@
 import { findEdge, getGraphNodeMap, Graph } from '@mapgl/panel-core/graph';
 import type { ViewState, BiColProps } from '@mapgl/panel-core/types';
 
-export const expandTooltip = (
-  info: any,
-  panel: any,
-  eventBus: any,
-  map: any,
-  dataClickProps: any,
-  selectGotoHandler: any
-) => {
-  const {
-    setSelCoord,
-    setTooltipObject,
-    setLocalViewState,
-    pId
-  } = dataClickProps;
+import { getMapglFeatureServices } from '../extension-points/featureContracts';
+
+export const expandTooltip = (info: any, panel: any, eventBus: any, dataClickProps: any, selectGotoHandler: any) => {
+  const { setSelCoord, setTooltipObject, setLocalViewState, pId } = dataClickProps;
+  const isExtended = getMapglFeatureServices().edition === 'extended';
   const position = info.coordinate;
   if (position) {
     const [longitude, latitude] = position.map((e: number) => parseFloat(e.toFixed(6)));
@@ -54,8 +45,7 @@ export const expandTooltip = (
     }
     const { locName } = props || {};
 
-    const subGraph: Graph | undefined =
-      props.graph ?? info.object?.properties?.graph;
+    const subGraph: Graph | undefined = props.graph ?? info.object?.properties?.graph;
     const edge = subGraph ? findEdge(subGraph, edgeId) : undefined;
 
     if (comId !== undefined && edge) {
@@ -69,10 +59,17 @@ export const expandTooltip = (
         fly: false,
         edge,
       });
+      if (isExtended) {
+        dataClickProps.setCommentOpenIdx(index);
+        dataClickProps.setDrawerOpen(true);
+      }
       return;
     }
 
     if (locName) {
+      if (isExtended) {
+        dataClickProps.setCommentOpenIdx(-1);
+      }
       const nodeMap = subGraph ? getGraphNodeMap(subGraph) : undefined;
       const node = nodeMap?.get(locName) ?? subGraph;
       setTooltipObject({ ...info, object }); // this pins tooltip
@@ -103,13 +100,23 @@ export const expandTooltip = (
         zoom: expZoom,
         yZoom: expZoom + 1,
         transitionDuration: 250,
+        maxPitch: 45 * 0.95,
+        rotationX: -90,
         rnd: Math.random(), /// to trigger zoom in/out on repeat click the same cluster
       };
       setLocalViewState(newState as ViewState);
     }
   } else {
     // reset tooltip by clicking blank space
+    if (isExtended) {
+      dataClickProps.setHoverCluster(null);
+      dataClickProps.setHoverInfo({});
+      dataClickProps.setIsShowCenter(null);
+    }
     selectGotoHandler({ pId, eventBus, select: true });
     setTooltipObject({});
+    if (isExtended) {
+      dataClickProps.setLogTooltipObject({});
+    }
   }
 };

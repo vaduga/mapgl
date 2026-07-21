@@ -676,7 +676,7 @@ const Mapgl = ({ panel, annots, initMapRef, fieldConfig, source, options, data, 
           scrollZoom: { smooth: false, speed: 0.005 },
           inertia: true,
         }}
-        onClick={(info) => expandTooltip(info, panel, eventBus, panel.map, dataClickProps, selectGotoHandler)}
+        onClick={(info) => expandTooltip(info, panel, eventBus, dataClickProps, selectGotoHandler)}
         getCursor={(state) => (state.isHovering ? 'pointer' : 'grab')}
       >
         {!isLogic && (

@@ -1,5 +1,6 @@
 export * from './actions';
 export * from './bus.events';
+export * from './data-click';
 export * from './layers';
 export * from './map';
 export * from './plugin';
