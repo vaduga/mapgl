@@ -84,9 +84,10 @@ function initViewExtent(view: ViewState, config: MapViewConfig, width, height, l
   if (config.minZoom !== undefined) {
     view.minZoom = config.minZoom;
   }
-  if (config.zoom && v?.id !== MapCenterID.Fit) {
-    view.zoom = config.zoom;
-    view.yZoom = config.zoom + 1;
+  if (config.zoom !== undefined && v?.id !== MapCenterID.Fit) {
+    const zoom = denormalizeZoom(!panel.isLogic, config.zoom);
+    view.zoom = zoom;
+    view.yZoom = zoom + 1;
   }
 
   if ([view.longitude, view.latitude, view.zoom].every((el) => el !== undefined)) {
