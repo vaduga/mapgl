@@ -1,9 +1,5 @@
-import { PanelData, GrafanaTheme2, Field, PanelProps, FieldType, DataFrame } from '@grafana/data';
-
-import {
-  findSubgraphById,
-  parseRoute,
-} from './utils';
+import { PanelData, GrafanaTheme2, Field, PanelProps, FieldType } from '@grafana/data';
+import { findSubgraphById, getParPath, indexFields, parseRoute } from './utils';
 import { toRGB4Array } from '../../deckLayers/utils/color';
 import { FrameGeometryField, getGeometryField, getLocationMatchers } from '../../utils/location';
 import { getStyleDimension } from '../../utils/geomap_utils';
@@ -11,7 +7,7 @@ import { ExtendMapLayerRegistryItem, ExtendFrameGeometrySourceMode, ExtendMapLay
 import { defaultStyleConfig, StyleConfig } from '../../style/types';
 import { getStyleConfigState } from '../../style/utils';
 
-import { OverField, Rule } from '../../editor/Groups/ruleTypes';
+import { Rule } from '../../editor/Groups/ruleTypes';
 import { resolveFeatureGroup } from '../../editor/Groups/data/group-resolve';
 import {
   Graph,
@@ -872,46 +868,4 @@ export function createMarkersLayer({
     // fill in the default values
     defaultOptions,
   };
-}
-
-function getParPath(target, id, idx, locName) {
-  const isArray = Array.isArray(target);
-
-  if (!isArray) {
-    if (typeof target === 'string') {
-      return [locName, target];
-    }
-    //console.log('Wrong format: ' + toJS(target));
-    return [];
-  }
-
-  const parPath: any = target;
-
-  const isInitString =
-    (Array.isArray(parPath) && typeof parPath[0] === 'string') ||
-    (!Array.isArray(parPath[0]) && typeof parPath === 'string'); // #TODO : better handling for single names like [["U1"],"M1"]
-  if (!isInitString) {
-    // console.log(
-    //   'Wrong path format: No coords, numbers, nulls allowed as 0 element), no deeper nesting arrays, or empty arrays. Info: id: ' +
-    //     id +
-    //     ' locName: ' +
-    //     locName +
-    //     ' target: ' +
-    //     target
-    // );
-    return [];
-  }
-
-  const isSingle = Array.isArray(parPath) ? parPath.length === 1 : false;
-  return isSingle ? [locName, parPath[0]] : parPath[0] !== locName ? [locName, ...parPath] : (parPath as []);
-}
-
-function indexFields(frame: DataFrame) {
-  const map: Record<string, any[]> = {};
-
-  for (const field of frame.fields) {
-    map[field.name] = field.values as any[];
-  }
-
-  return map;
 }
