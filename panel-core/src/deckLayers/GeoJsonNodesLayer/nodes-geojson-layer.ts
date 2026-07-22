@@ -254,8 +254,7 @@ const NodesGeojsonLayer = (props) => {
 
   const getNodeTextPixelOffset = (d) => {
     if (isPlaceholderTextMode) {
-      const offset = d.properties?.style?.group?.offset;
-      return [0, offset ?? 0];
+      return [0, 0];
     }
 
     if (isLogic) {
@@ -382,14 +381,6 @@ const NodesGeojsonLayer = (props) => {
       };
     },
     iconSizeScale: 1,
-    getIconPixelOffset: (d) => {
-      const { style } = d.properties || {};
-      if (isLogic && style?.arcs?.length) {
-        return [0, 0];
-      }
-      const offset = style?.group.offset;
-      return [0, offset ?? 0];
-    },
     getIconSize: (d) => {
       return getNodeIconSize(d);
     },
@@ -515,10 +506,6 @@ const LogicPlaceholderTextLayer = (props) => {
     getText: () => '-\n-',
     getColor: [240, 240, 240, 50],
     getPosition: (d: any) => d.coordinates,
-    getPixelOffset: (d: any) => {
-      const offset = d.properties?.style?.group?.offset;
-      return [0, offset ?? 0];
-    },
     getContentBox: (d: any) => {
       const side = logicTextData.placeholderBoxSide[d.pointIndex] ?? 0;
       return [-side / 2, -side / 2, side, side];

@@ -152,7 +152,6 @@ export const RuleItem: React.FC<RuleItemProps> = (options: RuleItemProps) => {
   const nodeSize = options.rule.size;
   const lineWidth = options.rule.width;
   const isDashed = options.rule.isDashed;
-  // const iconVOffset = options.rule.offset;
   const svgTintMode = options.rule.svgTintMode ?? 'none';
 
   return (

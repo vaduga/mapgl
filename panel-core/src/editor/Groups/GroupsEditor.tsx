@@ -288,7 +288,7 @@ export const GroupsEditor = ({ onChange, item, ...props }: Props) => {
 };
 
 const sanitizeRule = (rule: Rule): Rule => {
-  const { width, size, offset: _offset, ...rest } = rule as Rule & { offset?: unknown };
+  const { width, size, ...rest } = rule;
 
   return {
     ...rest,

@@ -11,6 +11,12 @@ For workflow-oriented setup guidance, see [Panel configuration](documentation.md
 - Geo coordinates are optional in graph mode.
 - Auto-layout edge routing applies in graph mode.
 
+## Fresh panel defaults
+
+- A panel without data layers initializes with one **Markers and links** layer.
+- Its initial map view is **Fit to data**, with a maximum zoom of `15`.
+- Panels that already contain a data layer retain their configured map view.
+
 ## Field semantics
 
 - **Data**: optional frame/query filter for a layer.
@@ -202,7 +208,6 @@ Node groups can define:
 - fixed width
 - dashed edge line
 - icon render mode
-- icon offset is currently fixed at `0`; saved group offset values are ignored
 
 For node-group rules, `isDashed: true` renders matching edge strokes with the current `[4, 2]` dash pattern, relative to stroke width. An absent value leaves the edge solid unless another matching rule supplies the dashed flag.
 

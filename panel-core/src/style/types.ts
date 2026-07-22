@@ -1,7 +1,3 @@
-import { Rule } from '../editor/Groups/ruleTypes';
-
-type Style = {};
-
 import {
   ColorDimensionConfig,
   ResourceDimensionConfig,
@@ -12,6 +8,7 @@ import {
 } from '@grafana/schema';
 import { DimensionSupplier } from '../grafana_core/app/features/dimensions';
 import type { RGBAColor } from '@mapgl/panel-core/types';
+import type { Rule } from '@mapgl/panel-core/editor';
 
 export interface ColorDimensionConfigWithThresholds extends ColorDimensionConfig {
   thresholds?: unknown;
@@ -40,7 +37,7 @@ export interface StyleConfig {
   group?: Rule;
   color?: ColorDimensionConfigWithThresholds;
   arcs?: ArcOption[];
-  opacity?: number; // defaults to 80%
+  opacity?: number;
   arrow?: 0 | 1 | -1 | 2;
   capacity?: BaseDimensionConfig;
   useGroups?: boolean;
@@ -109,8 +106,7 @@ export interface SymbolAlign {
 }
 
 /**
- * Static options for text display.  See:
- * https://openlayers.org/en/latest/apidoc/module-ol_style_Text.html
+ * Static options for text display.
  */
 export interface TextStyleConfig {
   fontSize?: number;
@@ -131,7 +127,7 @@ export interface StyleConfigValues {
   rotation?: number;
   text?: string;
 
-  // Pass though (not value dependant)
+  // Pass through (not value dependant)
   textConfig?: TextStyleConfig;
   arrow?: 0 | 1 | -1 | 2;
   useGroups?: boolean;

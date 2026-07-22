@@ -32,6 +32,7 @@ import {
   RefreshController,
   LatestAsyncGate,
   normalizeOptions,
+  persistFreshPanelOptions,
 } from '@mapgl/panel-core/utils';
 import RootStore from './store/RootStore';
 import Mapgl from './components/Mapgl';
@@ -172,6 +173,7 @@ export class MapPanel extends Component<Props, State> {
 
   async componentDidMount() {
     this.panelContext = { ...this.context, ...this.panelContext };
+    persistFreshPanelOptions(this.props.options, this.props.onOptionsChange);
   }
 
   componentWillUnmount() {

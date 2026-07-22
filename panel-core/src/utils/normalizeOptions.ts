@@ -1,5 +1,7 @@
-import { defaultMapViewConfig, TooltipMode, type Options } from '@mapgl/panel-core/types';
-import { CMN_NAMESPACE_PREFIX } from '@mapgl/panel-core/types/defaults';
+import { defaultMapViewConfig, TooltipMode, type Options } from '../types/panel';
+import { CMN_NAMESPACE_PREFIX } from '../types/defaults';
+import { createDefaultMarkersConfig } from '../layers/data/markersDefaults';
+import { MapCenterID } from '../view';
 
 export type PartialMapglOptions = Omit<Partial<Options>, 'common' | 'view' | 'tooltip'> & {
   common?: Partial<Options['common']> & Record<string, unknown>;
@@ -13,18 +15,15 @@ const DEFAULT_BASEMAP: Options['basemap'] = {
   config: {},
 };
 
-const DEFAULT_DATA_LAYER: Options['dataLayers'][number] = {
-  type: 'markers',
-  name: 'new markers layer',
-  config: {},
-  location: {
-    mode: 'auto' as any,
-  },
+const FRESH_PANEL_VIEW: Partial<Options['view']> = {
+  id: MapCenterID.Fit,
+  zoom: 15,
 };
 
 export function normalizeOptions(options: PartialMapglOptions | undefined | null): Options {
   const source = options ?? {};
   const common = source.common ?? {};
+  const isFreshPanel = !source.dataLayers?.length;
 
   return {
     ...source,
@@ -38,6 +37,7 @@ export function normalizeOptions(options: PartialMapglOptions | undefined | null
     view: {
       ...defaultMapViewConfig,
       ...source.view,
+      ...(isFreshPanel ? FRESH_PANEL_VIEW : {}),
     } as Options['view'],
     common: {
       ...common,
@@ -50,8 +50,21 @@ export function normalizeOptions(options: PartialMapglOptions | undefined | null
       isAppAuth: common.isAppAuth ?? false,
       isMeters: common.isMeters ?? false,
     },
-    dataLayers: source.dataLayers?.length ? source.dataLayers.map(cloneLayerOptions) : [cloneLayerOptions(DEFAULT_DATA_LAYER)],
+    dataLayers: isFreshPanel ? [createDefaultMarkersConfig()] : source.dataLayers!.map(cloneLayerOptions),
   } as Options;
+}
+
+/** Persist defaults that must exist in Grafana's panel model for a fresh panel. */
+export function persistFreshPanelOptions(
+  options: PartialMapglOptions | undefined | null,
+  onOptionsChange: (options: Options) => void
+): boolean {
+  if (options?.dataLayers?.length) {
+    return false;
+  }
+
+  onOptionsChange(normalizeOptions(options));
+  return true;
 }
 
 function cloneLayerOptions<T extends object>(layer: T): T {

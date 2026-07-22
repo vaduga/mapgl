@@ -1,6 +1,6 @@
 {
   "name": "vaduga-mapgl-panel",
-  "version": "2.7.3",
+  "version": "2.7.4",
   "description": "Mapgl panel",
   "scripts": {
     "build": "webpack -c ./webpack.config.ts --env production",
@@ -21,14 +21,14 @@
   "author": "Vadim Pyatakov",
   "license": "GPL-3.0",
   "devDependencies": {
-    "@grafana/e2e-selectors": "13.1.0",
+    "@grafana/e2e-selectors": "13.1.1",
     "@grafana/eslint-config": "^10.0.0",
     "@grafana/plugin-e2e": "^3.10.0",
     "@grafana/plugin-meta-extractor": "^0.13.0",
     "@grafana/sign-plugin": "^3.3.3",
     "@grafana/tsconfig": "^2.2.0",
-    "@rspack/cli": "2.1.4",
-    "@rspack/core": "2.1.4",
+    "@rspack/cli": "2.1.5",
+    "@rspack/core": "2.1.5",
     "@stylistic/eslint-plugin": "^5.10.0",
     "@swc/core": "^1.15.46",
     "@swc/helpers": "^0.5.23",
@@ -88,11 +88,11 @@
     "@emotion/css": "11.13.5",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@grafana/data": "13.1.0",
-    "@grafana/i18n": "13.1.0",
-    "@grafana/runtime": "13.1.0",
-    "@grafana/schema": "13.1.0",
-    "@grafana/ui": "13.1.0",
+    "@grafana/data": "13.1.1",
+    "@grafana/i18n": "13.1.1",
+    "@grafana/runtime": "13.1.1",
+    "@grafana/schema": "13.1.1",
+    "@grafana/ui": "13.1.1",
     "@msagl/core": "1.1.24",
     "@turf/bbox": "^7.3.5",
     "@turf/distance": "^7.3.5",
@@ -113,7 +113,7 @@
     "react-map-gl": "^8.1.1",
     "react-virtualized-auto-sizer": "1.0.26",
     "react-window": "1.8.11",
-    "uuid": "^11.1.1"
+    "uuid": "^14.0.1"
   },
   "overrides": {
     "fast-uri": "3.1.2",

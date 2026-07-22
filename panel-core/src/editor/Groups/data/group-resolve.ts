@@ -7,7 +7,7 @@ import { FieldType } from '@grafana/data';
 import { toRGB4Array } from '../../../deckLayers/utils/color';
 
 type ResolvedFeatureGroup = Omit<Rule, 'color'> & {
-  color?: RGBAColor;
+  color: RGBAColor;
 };
 
 type ResolvedFeatureGroupInput = Omit<Partial<Rule>, 'color'> & {
@@ -24,16 +24,12 @@ export function resolveFeatureGroup(args: {
   locName: string;
   hexColor: string;
   rgba: RGBAColor;
-}): { group?: ResolvedFeatureGroup; createdGroup?: Rule } {
+}): { group: ResolvedFeatureGroup; createdGroup?: Rule } {
   const { feature, featSource, allGroups, theme, isFixed, locField, locName, hexColor, rgba } = args;
-  const normalizeRule = (rule: ResolvedFeatureGroupInput | undefined): ResolvedFeatureGroup | undefined => {
-    if (!rule) {
-      return undefined;
-    }
-
+  const normalizeRule = (rule: ResolvedFeatureGroupInput): ResolvedFeatureGroup => {
     return {
       ...rule,
-      color: typeof rule.color === 'string' ? toRGB4Array(rule.color) : rule.color,
+      color: typeof rule.color === 'string' ? toRGB4Array(rule.color) : (rule.color ?? rgba),
       label: rule.label ?? hexColor,
     };
   };
@@ -66,7 +62,7 @@ export function resolveFeatureGroup(args: {
     matchedRules.find((rule) => !rule.isEph) ??
     matchedRules[0];
 
-  let group = normalizeRule(baseGroup);
+  let group = baseGroup ? normalizeRule(baseGroup) : undefined;
   const nextThr =
     matchedRules.find((rule) => !rule.isEph && rule.color !== undefined) ??
     matchedRules.find((rule) => rule.color !== undefined);
@@ -82,10 +78,31 @@ export function resolveFeatureGroup(args: {
       });
     }
   } else if (isFixed) {
-    const fallbackGroup = normalizeRule(fixedFallbackGroup ? { ...fixedFallbackGroup, color: rgba } : undefined);
+    const fallbackRule: Rule = fixedFallbackGroup ?? {
+      label: `fix-${hexColor}`,
+      color: hexColor,
+      isEph: true,
+      groupIdx: allGroups.length,
+      overrides: [
+        {
+          name: 'thrColor',
+          type: FieldType.enum,
+          value: [FIXED_COLOR_LABEL],
+        },
+      ],
+    };
+
+    if (!featSource.getGroups.includes(fallbackRule)) {
+      featSource.addGroup(fallbackRule);
+    }
+    if (!allGroups.includes(fallbackRule)) {
+      allGroups.push(fallbackRule);
+    }
+
+    const fallbackGroup = normalizeRule({ ...fallbackRule, color: rgba });
     if (group) {
       group.color = rgba;
-      group.groupIdx = fallbackGroup?.groupIdx ?? group.groupIdx;
+      group.groupIdx = fallbackGroup.groupIdx ?? group.groupIdx;
     } else {
       group = fallbackGroup;
     }
@@ -125,10 +142,7 @@ export function resolveFeatureGroup(args: {
     if (group) {
       group.color = rgba;
     } else {
-      group = normalizeRule({ ...newGroup, color: toRGB4Array(newGroup.color!) });
-    }
-    if (!group) {
-      return { createdGroup: newGroup };
+      group = normalizeRule({ ...newGroup, color: newGroup.color });
     }
     group.groupIdx = newGroup.groupIdx;
 
@@ -137,9 +151,7 @@ export function resolveFeatureGroup(args: {
     return { group, createdGroup: newGroup };
   }
 
-  if (group) {
-    group.svgTintMode = tintModeRule?.svgTintMode ?? group.svgTintMode ?? baseGroup?.svgTintMode ?? 'none';
-  }
+  group.svgTintMode = tintModeRule?.svgTintMode ?? group.svgTintMode ?? baseGroup?.svgTintMode ?? 'none';
 
   return { group };
 }

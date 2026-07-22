@@ -1,10 +1,13 @@
 # Changelog Mapgl
 
+## 2.7.4:
+- fix: fresh new panel initializes with mock data and a datalayer in panel config
+
 ## 2.7.3:
-  
+Regression bug: new panels do not initialize with this version. Update to v2.7.4.  
 - inverted style scaling option, allowing lower metric values to appear larger
 - node graph zoom levels normalized to match Geo mode’s 1–18 range.
-  QA:
+  QA:  
 - debounce auto-layout recalculation on opts change
 - panel async update gate. Drops stale tasks on panel update/reload
 

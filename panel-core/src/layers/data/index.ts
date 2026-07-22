@@ -14,6 +14,7 @@ export function createDataLayers(adapters: DataLayerEditorAdapters) {
 }
 
 export * from './geojsonLayer';
+export * from './markersDefaults';
 export * from './markersLayer';
 export * from './pathLayer';
 export * from './polygonsLayer';

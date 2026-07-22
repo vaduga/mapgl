@@ -22,6 +22,8 @@ Mapgl panel options are split into a few main areas:
 
 Most panel-specific topology work happens inside the **Markers and links** layer.
 
+Fresh panels initialize with one **Markers and links** data layer so its configuration is available immediately in the panel editor.
+
 ## Quick setup
 
 1. Choose the mode in **Basemap layer**.

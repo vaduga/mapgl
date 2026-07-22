@@ -3,11 +3,10 @@ import { findSubgraphById, getParPath, indexFields, parseRoute } from './utils';
 import { toRGB4Array } from '../../deckLayers/utils/color';
 import { FrameGeometryField, getGeometryField, getLocationMatchers } from '../../utils/location';
 import { getStyleDimension } from '../../utils/geomap_utils';
-import { ExtendMapLayerRegistryItem, ExtendFrameGeometrySourceMode, ExtendMapLayerOptions } from '../../extension';
-import { defaultStyleConfig, StyleConfig } from '../../style/types';
+import { ExtendMapLayerRegistryItem, ExtendMapLayerOptions } from '../../extension';
+import type { StyleConfig } from '../../style/types';
 import { getStyleConfigState } from '../../style/utils';
 
-import { Rule } from '../../editor/Groups/ruleTypes';
 import { resolveFeatureGroup } from '../../editor/Groups/data/group-resolve';
 import {
   Graph,
@@ -35,72 +34,28 @@ import { findField } from '../../grafana_core/app/features/dimensions';
 import type { DataLayerEditorAdapters } from './types';
 import { mockEdgeGraphData, mockTextConfig } from './mockData';
 import { getMapglFeatureServices } from '../../extension-points/featureContracts';
+import {
+  defaultMarkersOptions,
+  MARKERS_LAYER_ID,
+  type MarkersConfig,
+} from './markersDefaults';
 
-export interface MarkersConfig {
-  graph?: Graph;
-  searchProperties?: string[];
-  style: StyleConfig;
-  edgeStyle: StyleConfig;
-  arcStyle: {
-    sideA: StyleConfig;
-    sideB: StyleConfig;
-  };
-  arcConfig: {
-    height: number;
-    tiltIncrement: number;
-    capacity: { field?: string; fixed: number };
-  };
-  groups?: Rule[];
-  showStat2?: boolean;
-  isWrapEdges?: 0 | 1 | 2 | 3;
-  vertexA_NS?: string;
-  vertexB_NS?: string;
-}
+const defaultOptions = defaultMarkersOptions;
 
-const fixForNodes = {
-  ...defaultStyleConfig,
-  size: { ...defaultStyleConfig.size, fixed: 25 },
-};
+const mergeStyleConfig = (defaults: StyleConfig, configured?: StyleConfig): StyleConfig => ({
+  ...defaults,
+  ...configured,
+  size: { ...defaults.size, ...configured?.size } as StyleConfig['size'],
+  color: { ...defaults.color, ...configured?.color } as StyleConfig['color'],
+  textConfig: { ...defaults.textConfig, ...configured?.textConfig },
+});
 
-const defaultOptions: MarkersConfig = {
-  style: { ...fixForNodes, useGroups: true },
-  edgeStyle: { ...defaultStyleConfig },
-  arcStyle: {
-    sideA: { ...defaultStyleConfig, arrow: 0 },
-    sideB: { ...defaultStyleConfig, arrow: 0 },
-  },
-  arcConfig: {
-    height: 0.5,
-    tiltIncrement: 7,
-    capacity: { fixed: 1 },
-  },
-  showStat2: false,
-  isWrapEdges: 0,
-};
+type ResolvedFeatureGroup = ReturnType<typeof resolveFeatureGroup>['group'];
 
-const cloneResolvedGroup = (group: any) => {
-  if (!group) {
-    return group;
-  }
-
-  return {
-    ...group,
-    color: Array.isArray(group.color) ? [...group.color] : group.color,
-    offset: Array.isArray(group.offset) ? [...group.offset] : group.offset,
-  };
-};
-
-export const MARKERS_LAYER_ID = colTypes.Markers;
-
-// Used by default when nothing is configured
-export const defaultMarkersConfig: ExtendMapLayerOptions<MarkersConfig> = {
-  type: MARKERS_LAYER_ID,
-  name: 'new markers layer',
-  config: defaultOptions,
-  location: {
-    mode: ExtendFrameGeometrySourceMode.Auto,
-  },
-};
+const cloneResolvedGroup = (group: ResolvedFeatureGroup): ResolvedFeatureGroup => ({
+  ...group,
+  color: [...group.color],
+});
 
 /**
  * Map data layer configuration for icons, circle, label overlay with line-strings for links/multi-hop links
@@ -141,23 +96,34 @@ export function createMarkersLayer({
     const locField = options.locField ?? MOC_LOC_FIELD;
 
     // Assert default values
-    const config = {
+    const configured = options.config;
+    const config: MarkersConfig = {
       ...defaultOptions,
-      ...options.config,
-      style: {
-        ...defaultOptions.style,
-        ...options.config?.style,
+      ...configured,
+      style: mergeStyleConfig(defaultOptions.style, {
+        ...configured?.style,
         ...(panel.useMockData && {
           text: mockTextConfig,
         }),
-      },
-      edgeStyle: {
-        ...defaultOptions.edgeStyle,
-        ...options.config?.edgeStyle,
+      }),
+      edgeStyle: mergeStyleConfig(defaultOptions.edgeStyle, {
+        ...configured?.edgeStyle,
         ...(panel.useMockData &&
-          options.config?.edgeStyle.arrow === undefined && {
+          configured?.edgeStyle?.arrow === undefined && {
             arrow: 1,
           }),
+      }),
+      arcStyle: {
+        sideA: mergeStyleConfig(defaultOptions.arcStyle.sideA, configured?.arcStyle?.sideA),
+        sideB: mergeStyleConfig(defaultOptions.arcStyle.sideB, configured?.arcStyle?.sideB),
+      },
+      arcConfig: {
+        ...defaultOptions.arcConfig,
+        ...configured?.arcConfig,
+        capacity: {
+          ...defaultOptions.arcConfig.capacity,
+          ...configured?.arcConfig?.capacity,
+        },
       },
     };
 
@@ -365,51 +331,49 @@ export function createMarkersLayer({
               sideB: arcStyle.sideB.dims,
             };
 
-            // try {
-
             if ((!dims || !Object.keys(dims).length) && !fixed) {
               return;
             }
-            let group;
-            const fixedColor = fixed ? theme.visualization.getColorByName(fixed) : undefined;
-            const hexColor = isFixed ? fixedColor : dims?.color?.get(i) ?? fixedColor;
-            if (hexColor) {
-              const thrColor = isFixed ? undefined : hexColor;
-              if (thrColor !== undefined) {
-                point.thrColor = thrColor;
-              }
+            const baseColor = style.base.color as string;
+            const fixedColor = fixed
+              ? theme.visualization.getColorByName(fixed) ?? baseColor
+              : baseColor;
+            const hexColor = dims?.color?.get(i) ?? fixedColor;
+            const thrColor = isFixed ? undefined : hexColor;
+            if (thrColor !== undefined) {
+              point.thrColor = thrColor;
+            }
 
-              const rgba = toRGB4Array(hexColor);
-              stValues.color = rgba;
+            const rgba = toRGB4Array(hexColor);
+            stValues.color = rgba;
 
-              ({ group } = resolveFeatureGroup({
-                feature: point,
-                featSource,
-                allGroups: panel.groups,
-                theme,
-                isFixed,
-                locField,
-                locName,
-                hexColor,
-                rgba,
-              }));
+            const { group } = resolveFeatureGroup({
+              feature: point,
+              featSource,
+              allGroups: panel.groups,
+              theme,
+              isFixed,
+              locField,
+              locName,
+              hexColor,
+              rgba,
+            });
 
-              stValues.group = cloneResolvedGroup(group);
-              if (dims?.size) {
-                stValues.size = dims.size.get(i);
-              }
-              if (dims?.text) {
-                stValues.text = dims.text.get(i);
-              }
+            stValues.group = cloneResolvedGroup(group);
+            if (dims?.size) {
+              stValues.size = dims.size.get(i);
+            }
+            if (dims?.text) {
+              stValues.text = dims.text.get(i);
+            }
 
-              if (group.size !== undefined) {
-                stValues.size = group.size;
-              }
+            if (group.size !== undefined) {
+              stValues.size = group.size;
+            }
 
-              if (panel.isLogic && style.arcDims) {
-                const arcs = style.arcDims.map((arc) => arc.color?.get(i));
-                stValues.arcs = arcs;
-              }
+            if (panel.isLogic && style.arcDims) {
+              const arcs = style.arcDims.map((arc) => arc.color?.get(i));
+              stValues.arcs = arcs;
             }
 
             const edgeMetrics = {
@@ -530,7 +494,9 @@ export function createMarkersLayer({
               panel.colors.set(color, wasmId * 4);
               panel.muted.set(muted, wasmId * 4);
               panel.annots.set(muted, wasmId * 4); // duplicate for live updates fallback
-              panel.groupIndices[wasmId] = group.groupIdx;
+              if (typeof group.groupIdx === 'number') {
+                panel.groupIndices[wasmId] = group.groupIdx;
+              }
               points.push(dataRecord);
               counter++;
             }
@@ -583,13 +549,7 @@ export function createMarkersLayer({
                 processParPath(parPath);
               }
             }
-            //   }
-            //
-            //   catch (error ){
-            //     console.log('locName: '+locName+'. '+error)
-            //     //throw new Error('locName: '+locName+'. '+error);
-            //   }
-            //
+
           });
 
           featSource?.setFeatures(points, frameRefId);
@@ -773,7 +733,7 @@ export function createMarkersLayer({
               isEdge: true,
               //frameMatcher: (frame: DataFrame) => frame === frameEdges,
             },
-            showIf: (opts) => opts.config.showStat2 && (!!opts.parField || useMockData),
+            showIf: (opts) => opts.config?.showStat2 && (!!opts.parField || useMockData),
             defaultValue: defaultOptions.style,
           })
           .addRadio({
@@ -787,7 +747,7 @@ export function createMarkersLayer({
                 { label: 'Reverse', value: -1 },
               ],
             },
-            showIf: (opts) => opts.config.showStat2 && (!!opts.parField || useMockData),
+            showIf: (opts) => opts.config?.showStat2 && (!!opts.parField || useMockData),
             defaultValue: defaultOptions.arcStyle.sideA.arrow,
           })
           .addCustomEditor({
@@ -803,7 +763,7 @@ export function createMarkersLayer({
               isEdge: true,
               //frameMatcher: (frame: DataFrame) => frame === frameEdges,
             },
-            showIf: (opts) => opts.config.showStat2 && (!!opts.parField || useMockData),
+            showIf: (opts) => opts.config?.showStat2 && (!!opts.parField || useMockData),
             defaultValue: defaultOptions.style,
           })
           .addRadio({
@@ -817,7 +777,7 @@ export function createMarkersLayer({
                 { label: 'Reverse', value: -1 },
               ],
             },
-            showIf: (opts) => opts.config.showStat2 && (!!opts.parField || useMockData),
+            showIf: (opts) => opts.config?.showStat2 && (!!opts.parField || useMockData),
             defaultValue: defaultOptions.arcStyle.sideB.arrow,
           })
           .addNumberInput({
@@ -826,7 +786,7 @@ export function createMarkersLayer({
             name: 'Height multiplier',
             description: '0 - Flat, 1 - Max',
             defaultValue: defaultOptions.arcConfig.height,
-            showIf: (opts) => opts.config.showStat2 && (!!opts.parField || useMockData),
+            showIf: (opts) => opts.config?.showStat2 && (!!opts.parField || useMockData),
             settings: {
               min: 0,
               max: 1,
@@ -840,7 +800,7 @@ export function createMarkersLayer({
             name: 'Tilt angle increment',
             description: '0 - no tilt, 20 - max',
             defaultValue: defaultOptions.arcConfig.tiltIncrement,
-            showIf: (opts) => opts.config.showStat2 && (!!opts.parField || useMockData),
+            showIf: (opts) => opts.config?.showStat2 && (!!opts.parField || useMockData),
             settings: {
               min: 0,
               max: 20,
@@ -858,13 +818,12 @@ export function createMarkersLayer({
           settings: {
             filteredFieldType: FieldType.number,
           },
-          showIf: (opts) => opts.config.showStat2 && (!!opts.parField || useMockData),
+          showIf: (opts) => opts.config?.showStat2 && (!!opts.parField || useMockData),
           defaultValue: defaultOptions.arcConfig.capacity,
         });
       },
     };
   },
-
     // fill in the default values
     defaultOptions,
   };
