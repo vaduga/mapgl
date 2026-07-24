@@ -5,6 +5,8 @@ export const getStyles = (theme: GrafanaTheme2) => {
   const buttonSize = theme.spacing(3.5);
   const buttonRadius = theme.shape.radius.default;
   const buttonBorderWidth = theme.spacing(0.125);
+  const innerButtonSize = `calc(var(--button-size, ${buttonSize}) - ${theme.spacing(0.25)})`;
+  const innerButtonRadius = `calc(var(--button-corner-radius, ${buttonRadius}) - ${buttonBorderWidth})`;
   const panelBorderWidth = theme.spacing(0.5);
   const panelRadius = theme.shape.radius.default;
   const compactSpacing = theme.spacing(0.75);
@@ -52,47 +54,6 @@ export const getStyles = (theme: GrafanaTheme2) => {
         boxSizing: 'border-box',
         overflowY: 'auto',
       },
-      '& button': {
-        width: `var(--button-size, ${buttonSize})`,
-        height: `var(--button-size, ${buttonSize})`,
-        boxSizing: 'border-box',
-        borderRadius: `var(--button-corner-radius, ${buttonRadius})`,
-        boxShadow: `var(--button-shadow, ${theme.shadows.z2})`,
-        overflow: 'hidden',
-        appearance: 'none',
-        backgroundSize: `var(--button-size, ${buttonSize}) var(--button-size, ${buttonSize})`,
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'center',
-        backgroundColor: theme.colors.background.primary,
-        color: theme.colors.getContrastText(theme.colors.background.primary),
-        border: `${buttonBorderWidth} solid ${theme.colors.border.weak}`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: toggleButtonFontSize,
-        lineHeight: 1,
-        padding: 0,
-      },
-      '& button:hover, & button:focus': {
-        backgroundColor: theme.colors.background.primary,
-      },
-      '& .layer-switcher-toggle-icon': {
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        lineHeight: 1,
-        fontSize: toggleIconFontSize,
-        fontWeight: 100,
-        letterSpacing: '-0.125em',
-        transformOrigin: 'center',
-        color: `var(--button-icon-idle, ${theme.colors.text.secondary})`,
-      },
-      '& button:hover .layer-switcher-toggle-icon, & button:focus .layer-switcher-toggle-icon': {
-        color: `var(--button-icon-hover, ${theme.colors.text.primary})`,
-      },
-      '& .layer-switcher-toggle-icon.closed': {
-        transform: 'rotate(90deg)',
-      },
       '&.shown.ol-control': {
         display: 'flex',
         backgroundColor: 'transparent',
@@ -102,23 +63,6 @@ export const getStyles = (theme: GrafanaTheme2) => {
       },
       '&.shown .panel': {
         display: 'block',
-      },
-      '&.shown button': {
-        display: 'none',
-      },
-      '&.shown > div > button': {
-        display: 'flex',
-        backgroundColor: theme.colors.background.secondary,
-        color: theme.colors.getContrastText(theme.colors.background.secondary),
-      },
-      '&.shown > div > button .layer-switcher-toggle-icon': {
-        color: `var(--button-icon-idle, ${theme.colors.text.secondary})`,
-      },
-      '&.shown > div > button:hover .layer-switcher-toggle-icon, &.shown > div > button:focus .layer-switcher-toggle-icon': {
-        color: `var(--button-icon-hover, ${theme.colors.text.primary})`,
-      },
-      '&.shown button:hover, &.shown button:focus': {
-        backgroundColor: theme.colors.background.secondary,
       },
       '& ul': {
         listStyle: 'none',
@@ -241,9 +185,61 @@ export const getStyles = (theme: GrafanaTheme2) => {
     toggleWrapper: css({
       width: `var(--button-size, ${buttonSize})`,
       height: `var(--button-size, ${buttonSize})`,
+      background: `var(--button-stroke, ${theme.colors.background.secondary})`,
+      borderRadius: `var(--button-corner-radius, ${buttonRadius})`,
+      boxShadow: `var(--button-shadow, ${theme.shadows.z2})`,
       display: 'flex',
-      justifyContent: 'flex-start',
-      alignItems: 'flex-start',
+      justifyContent: 'center',
+      alignItems: 'center',
+      flex: '0 0 auto',
+    }),
+    toggleButton: css({
+      // Doubling the class keeps OpenLayers' equally specific .ol-control button
+      // rules from winning when its stylesheet is injected after Emotion.
+      '&&': {
+        width: innerButtonSize,
+        height: innerButtonSize,
+        boxSizing: 'border-box',
+        borderRadius: innerButtonRadius,
+        overflow: 'hidden',
+        appearance: 'none',
+        background: `var(--button-background, ${theme.colors.background.primary})`,
+        color: `var(--button-icon-idle, ${theme.colors.text.secondary})`,
+        border: `var(--button-inner-stroke, ${buttonBorderWidth} solid ${theme.colors.border.weak})`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: toggleButtonFontSize,
+        lineHeight: 1,
+        padding: 0,
+        margin: 0,
+        outline: 'none',
+        cursor: 'pointer',
+      },
+      '&&:hover, &&:focus': {
+        background: `var(--button-background, ${theme.colors.background.primary})`,
+        color: `var(--button-icon-hover, ${theme.colors.text.primary})`,
+        outline: 'none',
+      },
+    }),
+    toggleButtonOpen: css({
+      '&&, &&:hover, &&:focus': {
+        background: theme.colors.background.secondary,
+      },
+    }),
+    toggleIcon: css({
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      lineHeight: 1,
+      fontSize: toggleIconFontSize,
+      fontWeight: 100,
+      letterSpacing: '-0.125em',
+      transformOrigin: 'center',
+      color: 'currentColor',
+    }),
+    toggleIconClosed: css({
+      transform: 'rotate(90deg)',
     }),
   };
 };

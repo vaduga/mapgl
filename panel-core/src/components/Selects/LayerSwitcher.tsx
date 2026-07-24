@@ -100,8 +100,14 @@ const LayerSwitcher = <TPanel extends LayerSwitcherPanel = LayerSwitcherPanel>({
     <div ref={elementRef} className={`${styles.root} ${hiddenClassName} ${panelVisible ? 'shown' : ''} ${className}`}>
       <div className={styles.toggleWrapper}>
         <Tooltip content={label}>
-          <button aria-label={label} onClick={() => setPanelVisible(!panelVisible)}>
-            <span className={`layer-switcher-toggle-icon ${panelVisible ? 'open' : 'closed'}`}>››</span>
+          <button
+            className={`${styles.toggleButton} ${panelVisible ? styles.toggleButtonOpen : ''}`}
+            type="button"
+            aria-label={label}
+            aria-expanded={panelVisible}
+            onClick={() => setPanelVisible((visible) => !visible)}
+          >
+            <span className={`${styles.toggleIcon} ${panelVisible ? '' : styles.toggleIconClosed}`}>››</span>
           </button>
         </Tooltip>
       </div>
