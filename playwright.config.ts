@@ -6,6 +6,7 @@ const pluginE2eAuth = `${dirname(require.resolve('@grafana/plugin-e2e'))}/auth`;
 
 export default defineConfig<PluginOptions>({
   testDir: './e2e',
+  outputDir: 'e2e-results',
   reporter: process.env.CI ? 'github' : 'list',
   expect: {
     timeout: 15_000,
