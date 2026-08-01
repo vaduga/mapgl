@@ -15,9 +15,9 @@ Start a new panel with a mock node graph to test styles and modes.
 ### Node graph for metrics and traces
 
 - Layered **Auto-layout** and **Geomap view**
+- Multistep and parallel edge routing
 - Arc sections on nodes for multiple metrics
 - TX/RX interface load visualization with bi-metric arcs
-- Spline, rectilinear, self-loop, multi-hop, and parallel edge routing
 - Ad hoc filtering by layers and node groups in the legend
 - Dynamic drill-down data links to external panels
 - WebGL GPU-accelerated rendering for large datasets
