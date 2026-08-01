@@ -1,9 +1,9 @@
-[//]: # ([![Project Site]&#40;https://img.shields.io/badge/Project-site-blue&#41;]&#40;https://mapgl.org&#41;)
+[//]: # ([![GitHub]&#40;https://img.shields.io/github/stars/vaduga/mapgl?style=social&#41;]&#40;https://github.com/vaduga/mapgl&#41;)
 [![Downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgrafana.com%2Fapi%2Fplugins%2Fvaduga-mapgl-panel&query=%24.downloads&logo=grafana&label=downloads)](https://grafana.com/grafana/plugins/vaduga-mapgl-panel)
+[![Project Site](https://img.shields.io/badge/Project-site-blue)](https://mapgl.org)
 [![Discord](https://img.shields.io/discord/973739619118088232?logo=discord&logoColor=%232490D7)](https://discord.gg/DZCAfzYwjC)
 [![Telegram Url](https://img.shields.io/badge/Telegram-blue?logo=telegram)](https://t.me/mapgrafana)
 [![YOUTUBE](https://img.shields.io/youtube/channel/subscribers/UCxjo9tNt0ApLBpB46m49wvw)](https://www.youtube.com/@mapgraf)
-[![GitHub](https://img.shields.io/github/stars/vaduga/mapgl?style=social)](https://github.com/vaduga/mapgl)
 [✉️][email]
 
 [//]: # '[![Change Log](https://img.shields.io/badge/Change-log-blue.svg?style=flat)](https://github.com/vaduga/mapgl/blob/main/CHANGELOG.md)'
@@ -12,7 +12,9 @@ Start a new panel with a mock node graph to test styles and modes.
 
 ---
 
-- **Node graph** with layered auto-layout and **Geomap** view
+### Node graph for metrics and traces
+
+- Layered **Auto-layout** and **Geomap view**
 - Spline, rectilinear, self-loop, multi-hop, and parallel edge routing
 - Arc sections on nodes for multiple metrics
 - TX/RX interface load visualization with bi-metric arcs
