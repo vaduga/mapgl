@@ -1,0 +1,47 @@
+import { getNodeData } from '../structs/graphOps';
+
+function SingleCoordsConvert(pathItem: any, panel: any, mode2D = true) {
+  if (pathItem.id) {
+    // node
+    const wasmId = getNodeData(pathItem)!.wasmId;
+    const lng = panel.positions[wasmId * 2];
+    const lat = panel.positions[wasmId * 2 + 1];
+    if (lng !== undefined && !lat !== undefined) {
+      return [lng, lat];
+    }
+  } else if (Array.isArray(pathItem)) {
+    return mode2D ? pathItem.slice(0, 2) : pathItem;
+  }
+
+  return null;
+}
+
+function CoordsConvert(subPath: any, wasmIds: ArrayLike<number>, positions: Float64Array, mode2D = true) {
+  let p = subPath
+    .map((p: any, i: number) => {
+      if (typeof p === 'string') {
+        const wasmId = wasmIds[i];
+        if (wasmId !== undefined && wasmId >= 0) {
+          const lng = positions[wasmId * 2];
+          const lat = positions[wasmId * 2 + 1];
+          if (lng !== undefined && !lat !== undefined) {
+            return [lng, lat];
+          }
+        }
+      } else if (Array.isArray(p)) {
+        return mode2D ? p.slice(0, 2) : p;
+      }
+      return null;
+    })
+    .filter((el: any) => el);
+
+  return p;
+}
+
+function distance2D(a: number[], b: number[]) {
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+export { CoordsConvert, SingleCoordsConvert, distance2D };

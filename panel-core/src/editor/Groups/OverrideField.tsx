@@ -1,0 +1,189 @@
+import { AutoSizeInput, IconButton, InlineField, MultiSelect, Select, useStyles2, useTheme2 } from '@grafana/ui';
+import { OverField, Rule } from './ruleTypes';
+import React, { ReactNode, useEffect, useState } from 'react';
+import { FieldType, GrafanaTheme2, SelectableValue } from '@grafana/data';
+import { css } from '@emotion/css';
+import { FieldSelectEditor } from './FieldSelectEditor';
+import { RuleOption } from './RuleItem';
+import { useFieldDisplayNames } from '../../grafana_core/components/MatchersUI/utils';
+
+interface OverrideFieldProps {
+  overrideField: OverField;
+  key: string;
+  ID: string;
+
+  nameTypeSetter: any;
+  rule: Rule;
+  valueSetter: any;
+  remover: any;
+  index: number;
+  disabled: boolean;
+  context: any;
+}
+
+export const OverrideField: React.FC<OverrideFieldProps> = (options: OverrideFieldProps) => {
+  const styles = useStyles2(getThresholdFieldStyles);
+  const theme = useTheme2();
+  const fieldNames = useFieldDisplayNames(options.context.data ?? []);
+  const [cachedThresholdOptions, setCachedThresholdOptions] = useState<RuleOption[]>([]);
+  const hasData = Boolean(options.context.data && options.context.data.length > 0);
+  const instanceState = options.context.instanceState;
+  const selectedMetricField = options.context.options?.config?.style?.color?.field;
+  const colorThresholds =
+    instanceState?.layer?.colorThresholds ??
+    options.context.options?.config?.style?.color?.thresholds ??
+    fieldNames.fields.get(selectedMetricField)?.config?.thresholds ??
+    undefined;
+  const tOptions: RuleOption[] =
+    colorThresholds?.steps
+      ?.map((t) => {
+        if (t === undefined) {
+          return null;
+        }
+        return {
+          color: theme.visualization.getColorByName(t.color),
+          label: t.color,
+          value: t.value,
+        };
+      })
+      .filter((t) => t !== null) ?? [];
+
+  useEffect(() => {
+    if (tOptions.length) {
+      setCachedThresholdOptions(tOptions);
+    }
+  }, [tOptions]);
+
+  if (hasData) {
+    const dataFields = options.context.data
+      .flatMap((frame) => frame.fields)
+      .map((field) => ({
+        label: field.name,
+        value: field.name,
+        type: field.type,
+      }));
+
+    const thresField = {
+      label: 'threshold',
+      value: 'thrColor',
+      type: 'enum',
+    };
+
+    const { name, type } = options.overrideField;
+    const customField = {
+      label: name,
+      value: name,
+      type: type,
+    };
+    const fields = [thresField, ...dataFields, customField];
+    const isThresField = options.overrideField.name === 'thrColor' && options.overrideField.type === 'enum';
+
+    const thrColors = Array.isArray(options.overrideField.value) ? options.overrideField.value : [];
+    const activeThresholdOptions = tOptions.length ? tOptions : cachedThresholdOptions;
+    const fallbackOptions: RuleOption[] = thrColors.map((color) => ({
+      color: theme.visualization.getColorByName(color),
+      label: color,
+      value: color as any,
+    }));
+    const mergedOptions = [
+      ...activeThresholdOptions,
+      ...fallbackOptions.filter(
+        (fallback) => !activeThresholdOptions.some((option) => option.label === fallback.label)
+      ),
+    ];
+    const storedOptions = thrColors.length ? mergedOptions.filter((t) => thrColors.includes(t.label)) : [];
+    // setSelThresOpts(storedOptions)
+    // setThresOpts(tOptions)
+    // }, [combinedThresholds]);
+    // const [selThresOpts, setSelThresOpts] = useState<ThresholdOption[]>()
+    // const [thresOpts, setThresOpts] = useState<ThresholdOption[]>()
+
+    const renderOption = (option: SelectableValue<number>) =>
+      (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div
+            style={{
+              width: 16,
+              height: 16,
+              backgroundColor: 'color' in option ? option.color : undefined,
+              borderRadius: '50%',
+              marginRight: 8,
+            }}
+          ></div>
+          {option.value}
+        </div>
+      ) as ReactNode;
+
+    return (
+      <>
+        <InlineField shrink label={'prop ' + (options.index + 1)}>
+          <FieldSelectEditor
+            context={options.context}
+            options={fields}
+            allowCustomValue={true}
+            item={options.context.item}
+            //context={options.context}
+            value={options.overrideField.name}
+            onChange={(v) => {
+              if (typeof v === 'string') {
+                options.nameTypeSetter(options.index, v, fields.find((el) => el.value === v)?.type ?? FieldType.string);
+              }
+            }}
+          />
+        </InlineField>
+        {isThresField ? (
+          // shrink label="thr"
+          <InlineField>
+            <MultiSelect
+              options={mergedOptions}
+              value={storedOptions}
+              getOptionLabel={renderOption}
+              onChange={(t: Array<SelectableValue<number>>) => {
+                options.valueSetter(
+                  options.index,
+                  t.map((t) => String(t.label))
+                );
+                //setSelThresOpts(t)
+              }}
+            />
+          </InlineField>
+        ) : (
+          <InlineField label="values">
+            <AutoSizeInput
+              minWidth={10}
+              // disabled={!options.overrideField.name}
+              onCommitChange={(v) => {
+                options.valueSetter(options.index, v.currentTarget.value);
+              }}
+              defaultValue={options.overrideField.value}
+              placeholder={'val1,val2...'}
+            />
+          </InlineField>
+        )}
+        <InlineField className={styles.rmButton}>
+          <IconButton
+            disabled={options.disabled}
+            key="deleteThresholdField"
+            variant="destructive"
+            name="x"
+            tooltip="remove property"
+            onClick={() => options.remover(options.index)}
+          />
+        </InlineField>
+      </>
+    );
+  }
+
+  return <Select onChange={() => {}} disabled={true} />;
+};
+
+const getThresholdFieldStyles = (theme: GrafanaTheme2) => {
+  return {
+    colorPicker: css`
+      padding: 0 ${theme.spacing(1)};
+    `,
+    rmButton: css`
+      align-items: center;
+    `,
+  };
+};

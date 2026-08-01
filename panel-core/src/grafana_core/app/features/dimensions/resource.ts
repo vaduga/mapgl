@@ -1,0 +1,20 @@
+import { DataFrame } from '@grafana/data';
+import { ResourceDimensionConfig, ResourceDimensionMode } from '@grafana/schema';
+
+import { DimensionSupplier, ResourceFolderName } from './types';
+import { findField, getLastNotNullFieldValue } from './utils';
+import { getMapglPluginId } from '../../../../pluginFactory/pluginRuntime';
+
+//---------------------------------------------------------
+// Resource dimension
+//---------------------------------------------------------
+export function getPublicOrAbsoluteUrl(v: string): string {
+  if (!v) {
+    return '';
+  }
+
+  if (v.indexOf(':/') > 0) {
+    return (window as Window & { __grafana_public_path__?: string }).__grafana_public_path__ ?? '';
+  }
+  return v.startsWith(ResourceFolderName.Custom) ? v : `public/plugins/${getMapglPluginId()}/img/icons/${v}.svg`;
+}

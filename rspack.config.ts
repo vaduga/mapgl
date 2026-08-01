@@ -1,0 +1,152 @@
+import rspack, { type Compiler, type Configuration } from '@rspack/core';
+import fs from 'fs';
+import path from 'path';
+import grafanaConfig from './.config/rspack/rspack.config';
+import { merge } from 'webpack-merge';
+
+const rootCopyFiles = new Map([
+  ['../LICENSE', 'LICENSE'],
+  ['../CHANGELOG.md', 'CHANGELOG.md'],
+]);
+
+const coreIconsPath = path.resolve(process.cwd(), 'panel-core/src/img/icons');
+
+const getCoreIconFiles = (dir: string): string[] => {
+  if (!fs.existsSync(dir)) {
+    return [];
+  }
+
+  return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const fullPath = path.join(dir, entry.name);
+    return entry.isDirectory() ? getCoreIconFiles(fullPath) : [fullPath];
+  });
+};
+
+class RootFileCopyPlugin {
+  apply(compiler: Compiler): void {
+    compiler.hooks.thisCompilation.tap('RootFileCopyPlugin', (compilation) => {
+      compilation.hooks.processAssets.tap(
+        {
+          name: 'RootFileCopyPlugin',
+          stage: rspack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONS,
+        },
+        () => {
+          for (const filename of rootCopyFiles.values()) {
+            compilation.emitAsset(
+              filename,
+              new rspack.sources.RawSource(fs.readFileSync(path.resolve(process.cwd(), filename)))
+            );
+          }
+        }
+      );
+    });
+  }
+}
+
+class CoreIconCopyRspackPlugin {
+  apply(compiler: Compiler): void {
+    compiler.hooks.thisCompilation.tap('CoreIconCopyRspackPlugin', (compilation) => {
+      compilation.hooks.processAssets.tap(
+        {
+          name: 'CoreIconCopyRspackPlugin',
+          stage: rspack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONS,
+        },
+        () => {
+          for (const sourcePath of getCoreIconFiles(coreIconsPath)) {
+            const relativePath = path.relative(coreIconsPath, sourcePath).split(path.sep).join('/');
+            compilation.emitAsset(
+              `img/icons/${relativePath}`,
+              new rspack.sources.RawSource(fs.readFileSync(sourcePath))
+            );
+          }
+        }
+      );
+    });
+  }
+}
+
+const patchRootCopyFiles = (baseConfig: Configuration): void => {
+  baseConfig.plugins = baseConfig.plugins?.map((plugin) => {
+    if (plugin?.constructor?.name !== 'CopyRspackPlugin') {
+      return plugin;
+    }
+
+    const copyPlugin = plugin as typeof plugin & {
+      _args?: Array<{ patterns?: Array<Record<string, unknown>> }>;
+    };
+    const options = copyPlugin._args?.[0];
+    const patterns = options?.patterns;
+
+    if (!patterns) {
+      return plugin;
+    }
+
+    return new (plugin.constructor as new (options: unknown) => typeof plugin)({
+      ...options,
+      patterns: patterns.filter((pattern) => !rootCopyFiles.has(String(pattern.from))),
+    });
+  });
+  baseConfig.plugins?.push(new RootFileCopyPlugin(), new CoreIconCopyRspackPlugin());
+};
+
+const config = async (env: Record<string, unknown>): Promise<Configuration> => {
+  const baseConfig = await grafanaConfig(env);
+  patchRootCopyFiles(baseConfig);
+
+  const extension: Configuration = {
+    entry: {
+      'layout-worker': '../panel-core/src/workers/layout-worker.ts',
+    },
+    module: {
+      rules: [
+        {
+          test: /node_modules\/@msagl\/core\/dist\/.*\.js$/,
+          resolve: {
+            fullySpecified: false,
+          },
+        },
+      ],
+    },
+    resolve: {
+      alias: {
+        '@mapgl/panel-core$': path.resolve(process.cwd(), 'panel-core/src/index.ts'),
+        '@mapgl/panel-core/featureContracts$': path.resolve(
+          process.cwd(),
+          'panel-core/src/extension-points/featureContracts.ts'
+        ),
+        '@mapgl/panel-core/graph$': path.resolve(process.cwd(), 'panel-core/src/graph/main.ts'),
+        '@mapgl/panel-core/graph/frame$': path.resolve(process.cwd(), 'panel-core/src/graph/frame/index.ts'),
+        '@mapgl/panel-core/graph/utils$': path.resolve(process.cwd(), 'panel-core/src/graph/utils/index.ts'),
+        '@mapgl/panel-core/components$': path.resolve(process.cwd(), 'panel-core/src/components/index.ts'),
+        '@mapgl/panel-core/editor$': path.resolve(process.cwd(), 'panel-core/src/editor/index.ts'),
+        '@mapgl/panel-core/store$': path.resolve(process.cwd(), 'panel-core/src/store/index.ts'),
+        '@mapgl/panel-core/deckLayers$': path.resolve(process.cwd(), 'panel-core/src/deckLayers/index.ts'),
+        '@mapgl/panel-core/deckLayers/utils$': path.resolve(process.cwd(), 'panel-core/src/deckLayers/utils/index.ts'),
+        '@mapgl/panel-core/extension$': path.resolve(process.cwd(), 'panel-core/src/extension.ts'),
+        '@mapgl/panel-core/layers$': path.resolve(process.cwd(), 'panel-core/src/layers/index.ts'),
+        '@mapgl/panel-core/layers/basemaps$': path.resolve(process.cwd(), 'panel-core/src/layers/basemaps/index.ts'),
+        '@mapgl/panel-core/layers/data$': path.resolve(process.cwd(), 'panel-core/src/layers/data/index.ts'),
+        '@mapgl/panel-core/types$': path.resolve(process.cwd(), 'panel-core/src/types/index.ts'),
+        '@mapgl/panel-core/types/defaults$': path.resolve(process.cwd(), 'panel-core/src/types/defaults.ts'),
+        '@mapgl/panel-core/types/deck$': path.resolve(process.cwd(), 'panel-core/src/types/deck.ts'),
+        '@mapgl/panel-core/types/panel$': path.resolve(process.cwd(), 'panel-core/src/types/panel.ts'),
+        '@mapgl/panel-core/view$': path.resolve(process.cwd(), 'panel-core/src/view.ts'),
+        '@mapgl/panel-core/style/types$': path.resolve(process.cwd(), 'panel-core/src/style/types.ts'),
+        '@mapgl/panel-core/style/utils$': path.resolve(process.cwd(), 'panel-core/src/style/utils.ts'),
+        '@mapgl/panel-core/utils/location$': path.resolve(process.cwd(), 'panel-core/src/utils/location.ts'),
+        '@mapgl/panel-core/utils$': path.resolve(process.cwd(), 'panel-core/src/utils/index.ts'),
+        '@mapgl/panel-core/utils/geomap_utils$': path.resolve(process.cwd(), 'panel-core/src/utils/geomap_utils.ts'),
+        '@mapgl/panel-core/utils/i18n$': path.resolve(process.cwd(), 'panel-core/src/utils/i18n.tsx'),
+        '@mapgl/panel-core/grafana_core': path.resolve(process.cwd(), 'panel-core/src/grafana_core'),
+        '@mapgl/panel-core/grafana_data': path.resolve(process.cwd(), 'panel-core/src/grafana_data'),
+        '@mapgl/panel-core/workers/layout-worker$': path.resolve(
+          process.cwd(),
+          'panel-core/src/workers/layout-worker.ts'
+        ),
+      },
+    },
+  };
+  return merge(baseConfig, extension);
+};
+
+export default config;

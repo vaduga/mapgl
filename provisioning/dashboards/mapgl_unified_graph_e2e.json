@@ -1,0 +1,460 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "grafana-testdata-datasource",
+        "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "links": [
+            {
+              "targetBlank": true,
+              "title": "Open node details",
+              "url": "https://example.com/nodes/${__value.text}"
+            }
+          ],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 50
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "basemap": {
+          "config": {
+            "edgeRouting": "Splines",
+            "layoutDirection": "LR"
+          },
+          "name": "Logic layout",
+          "type": "blank"
+        },
+        "common": {
+          "edgeRouting": "Splines",
+          "isMeters": false,
+          "isShowEdgeLegend": true,
+          "isShowLegend": true,
+          "isShowSwitcher": true,
+          "jitterPoints": false
+        },
+        "dataLayers": [
+          {
+            "config": {
+              "arcConfig": {
+                "capacity": {
+                  "fixed": 1
+                },
+                "height": 0.5,
+                "tiltIncrement": 7
+              },
+              "arcStyle": {
+                "sideA": {
+                  "arrow": 0,
+                  "color": {
+                    "fixed": "blue"
+                  },
+                  "size": {
+                    "fixed": 2
+                  }
+                },
+                "sideB": {
+                  "arrow": 0,
+                  "color": {
+                    "fixed": "blue"
+                  },
+                  "size": {
+                    "fixed": 2
+                  }
+                }
+              },
+              "edgeStyle": {
+                "arrow": 1,
+                "color": {
+                  "field": "nodeMetric",
+                  "fixed": "blue"
+                },
+                "opacity": 0.8,
+                "size": {
+                  "field": "edgeWidth",
+                  "fixed": 3,
+                  "max": 10,
+                  "min": 2
+                },
+                "text": {
+                  "field": "edgeId",
+                  "fixed": "",
+                  "mode": "field"
+                }
+              },
+              "groups": [],
+              "isWrapEdges": 0,
+              "showStat2": false,
+              "style": {
+                "color": {
+                  "field": "nodeMetric",
+                  "fixed": "green"
+                },
+                "opacity": 1,
+                "size": {
+                  "fixed": 32
+                },
+                "text": {
+                  "field": "source",
+                  "fixed": "",
+                  "mode": "field"
+                },
+                "useGroups": false
+              },
+              "vertexA_NS": "sourceNs",
+              "vertexB_NS": "targetNs"
+            },
+            "edgeIdField": "edgeId",
+            "isShowTooltip": true,
+            "locField": "source",
+            "location": {
+              "mode": "auto"
+            },
+            "name": "Unified graph",
+            "parField": "targetPath",
+            "query": {
+              "id": "byRefId",
+              "options": "Graph"
+            },
+            "searchProperties": ["label"],
+            "type": "markers"
+          }
+        ],
+        "tooltip": {
+          "mode": "details"
+        },
+        "view": {
+          "allLayers": true,
+          "id": "fit",
+          "lat": 0,
+          "lon": 0,
+          "zoom": 15
+        }
+      },
+      "pluginVersion": "2.7.4",
+      "targets": [
+        {
+          "csvContent": "\"source\",\"targetPath\",\"edgeId\",\"sourceNs\",\"targetNs\",\"nodeMetric\",\"edgeWidth\",\"label\"\nA,,,site.one,site.one,10,10,Alpha\nB,,,site.one,site.one,25,10,Beta\nC,,,site.two,site.two,75,10,Gamma\nD,,,site.two,site.two,90,10,Delta\nA,\"[\"\"A\"\",\"\"B\"\"]\",edge-low,site.one,site.one,10,10,Alpha to Beta\nB,\"[\"\"B\"\",\"\"C\"\"]\",edge-wide,site.one,site.two,25,90,Beta to Gamma\nC,\"[\"\"C\"\",\"\"D\"\"]\",edge-mid,site.two,site.two,75,50,Gamma to Delta",
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
+          },
+          "refId": "Graph",
+          "scenarioId": "csv_content"
+        }
+      ],
+      "title": "Unified graph",
+      "type": "vaduga-mapgl-panel"
+    },
+    {
+      "datasource": {
+        "type": "grafana-testdata-datasource",
+        "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 14
+      },
+      "id": 2,
+      "options": {
+        "basemap": {
+          "config": {
+            "layoutDirection": "TB"
+          },
+          "name": "Logic layout",
+          "type": "blank"
+        },
+        "common": {
+          "isShowSwitcher": false
+        },
+        "dataLayers": [
+          {
+            "config": {
+              "style": {
+                "color": {
+                  "fixed": "green"
+                },
+                "size": {
+                  "fixed": 25
+                },
+                "useGroups": false
+              }
+            },
+            "locField": "source",
+            "location": {
+              "mode": "auto"
+            },
+            "name": "Empty",
+            "query": {
+              "id": "byRefId",
+              "options": "Empty"
+            },
+            "type": "markers"
+          }
+        ],
+        "view": {
+          "allLayers": true,
+          "id": "fit",
+          "zoom": 15
+        }
+      },
+      "pluginVersion": "2.7.4",
+      "targets": [
+        {
+          "csvContent": "\"source\",\"metric\"\n,",
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
+          },
+          "refId": "Empty",
+          "scenarioId": "csv_content"
+        }
+      ],
+      "title": "Empty graph",
+      "type": "vaduga-mapgl-panel"
+    },
+    {
+      "datasource": {
+        "type": "grafana-testdata-datasource",
+        "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 14
+      },
+      "id": 3,
+      "options": {
+        "basemap": {
+          "config": {
+            "layoutDirection": "TB"
+          },
+          "name": "Logic layout",
+          "type": "blank"
+        },
+        "common": {
+          "isShowSwitcher": false
+        },
+        "dataLayers": [
+          {
+            "config": {
+              "style": {
+                "color": {
+                  "fixed": "green"
+                },
+                "size": {
+                  "fixed": 25
+                },
+                "useGroups": false
+              }
+            },
+            "locField": "missingNode",
+            "location": {
+              "mode": "auto"
+            },
+            "name": "Missing field",
+            "query": {
+              "id": "byRefId",
+              "options": "Missing"
+            },
+            "type": "markers"
+          }
+        ],
+        "view": {
+          "allLayers": true,
+          "id": "fit",
+          "zoom": 15
+        }
+      },
+      "pluginVersion": "2.7.4",
+      "targets": [
+        {
+          "csvContent": "\"source\",\"metric\"\nA,1",
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
+          },
+          "refId": "Missing",
+          "scenarioId": "csv_content"
+        }
+      ],
+      "title": "Missing configured field",
+      "type": "vaduga-mapgl-panel"
+    },
+    {
+      "datasource": {
+        "type": "grafana-testdata-datasource",
+        "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 14
+      },
+      "id": 4,
+      "options": {
+        "basemap": {
+          "config": {
+            "layoutDirection": "TB"
+          },
+          "name": "Logic layout",
+          "type": "blank"
+        },
+        "common": {
+          "isShowSwitcher": false
+        },
+        "dataLayers": [
+          {
+            "config": {
+              "edgeStyle": {
+                "color": {
+                  "fixed": "blue"
+                },
+                "size": {
+                  "fixed": 3
+                }
+              },
+              "style": {
+                "color": {
+                  "fixed": "green"
+                },
+                "size": {
+                  "fixed": 25
+                },
+                "useGroups": false
+              }
+            },
+            "edgeIdField": "edgeId",
+            "locField": "source",
+            "location": {
+              "mode": "auto"
+            },
+            "name": "Partial graph",
+            "parField": "targetPath",
+            "query": {
+              "id": "byRefId",
+              "options": "Partial"
+            },
+            "type": "markers"
+          }
+        ],
+        "view": {
+          "allLayers": true,
+          "id": "fit",
+          "zoom": 15
+        }
+      },
+      "pluginVersion": "2.7.4",
+      "targets": [
+        {
+          "csvContent": "\"source\",\"targetPath\",\"edgeId\"\nA,,\nB,,\nA,\"[\"\"A\"\",\"\"B\"\"]\",valid-edge\nA,\"[\"\"A\"\"\",invalid-path\nA,\"[\"\"A\"\",\"\"ghost\"\"]\",dangling-edge\nA,\"[\"\"A\"\",\"\"missing-intermediate\"\",\"\"B\"\"]\",routed-edge",
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
+          },
+          "refId": "Partial",
+          "scenarioId": "csv_content"
+        }
+      ],
+      "title": "Partially valid graph",
+      "type": "vaduga-mapgl-panel"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 42,
+  "tags": ["mapgl", "e2e"],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "one",
+          "value": "one"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Graph refresh",
+        "multi": false,
+        "name": "graph_refresh",
+        "options": [
+          {
+            "selected": true,
+            "text": "one",
+            "value": "one"
+          },
+          {
+            "selected": false,
+            "text": "two",
+            "value": "two"
+          }
+        ],
+        "query": "one,two",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timezone": "browser",
+  "title": "MapGL Unified Graph E2E",
+  "uid": "mapgl-unified-graph-e2e",
+  "version": 1
+}
