@@ -1,7 +1,7 @@
 import { FeatSource } from '@mapgl/panel-core/graph';
 import { FIXED_COLOR_LABEL } from '../types/defaults';
 import { colTypes } from '@mapgl/panel-core/types';
-import { FieldType, getFrameMatchers } from '@grafana/data';
+import { FieldType } from '@grafana/data';
 import {
   addSVGattributes,
   type SvgIconRecord,
@@ -223,55 +223,6 @@ async function fillAnnots(locLabelName, annotations) {
   return newAnnots;
 }
 
-function initBinaryProps(panel) {
-  const ptLayers = getGraphLayers(panel);
-
-  let newLen =
-    ptLayers?.reduce((sum, el) => {
-      const query = el.options?.query ?? el.query;
-
-      if (query) {
-        const matcherFunc = getFrameMatchers(query);
-        return sum + panel.props.data.series.reduce((seriesSum, frame) => {
-          return seriesSum + (matcherFunc(frame) ? frame.length || 0 : 0);
-        }, 0);
-      }
-
-      return sum + panel.props.data.series.reduce((seriesSum, frame) => seriesSum + (frame.length || 0), 0);
-    }, 0) ?? 0;
-
-  const customQuery = panel.props.data?.request?.targets[0];
-
-  const isSnapshot = customQuery?.queryType === 'snapshot';
-  if (!newLen && isSnapshot) {
-    newLen = customQuery?.snapshot?.[0]?.data.values[0]?.length;
-  }
-  if (!newLen && ptLayers?.length) {
-    const s = panel.props.data?.series[0];
-    if (s?.length && !panel.useMockData) {
-      newLen = s.length; //dashboard DS
-    } else if (panel.useMockData) {
-      newLen = 8; /// mockEdgeGraphData len
-    }
-  }
-
-  panel.graphEngine?.preallocPos?.(newLen * 2);
-  panel.positions = new Float64Array(newLen * 2);
-  panel.colors = new Uint8Array(newLen * 4);
-  panel.muted = new Uint8Array(newLen * 4);
-  panel.annots = new Uint8Array(newLen * 4);
-  panel.groupIndices = new Uint8Array(newLen);
-}
-
-function cutBinaryProps(panel) {
-  const end = panel.vCount;
-  panel.positions = panel.positions.slice(0, end * 2);
-  panel.colors = panel.colors.slice(0, end * 4);
-  panel.muted = panel.colors.slice(0, end * 4);
-  panel.annots = panel.annots.slice(0, end * 4);
-  panel.groupIndices = panel.groupIndices.slice(0, end);
-}
-
 function getGraphLayers(panel) {
   const dataLayers = panel.layers.length
     ? panel.layers.slice(1)
@@ -285,7 +236,5 @@ export {
   fillAnnots,
   initGroups,
   collectGroups,
-  initBinaryProps,
-  cutBinaryProps,
   getGraphLayers,
 };
