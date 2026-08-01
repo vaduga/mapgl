@@ -19,8 +19,8 @@ Start a new panel with a mock node graph to test styles and modes.
 - Arc sections on nodes for multiple metrics
 - TX/RX interface load visualization with bi-metric arcs
 - Ad hoc filtering by layers and node groups in the legend
-- Dynamic drill-down data links to external panels
 - WebGL GPU-accelerated rendering for large datasets
+- Dynamic drill-down data links to external panels
 - Distributed tracing paths with per-span properties
 - Namespace-based subgraphs
 
