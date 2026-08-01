@@ -14,7 +14,7 @@ Start a new panel with a mock node graph to test styles and modes.
 
 ### Node graph for metrics and traces
 
-- Layered **auto-layout** and **Geomap view**
+- Layered auto-layout and Geomap view
 - Multi-step and parallel-edge routing
 - Arc segments on nodes for visualizing multiple metrics
 - TX/RX interface load visualization with dual-metric arcs
