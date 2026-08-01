@@ -266,6 +266,6 @@ These settings are shown in **Basemap layer** when **Node Graph ortho** is selec
 - Start with one **Markers and links** layer and get **Vertex A** and **Vertex B** working first.
 - Use native Grafana thresholds for the base severity model.
 - Use groups mainly for icon and size escalation.
-- Add group color overrides where threshold color is not enough, and to make node group to be labeled in the legend 
+- Add group color overrides where threshold color is not enough, and to make node group labeled in the legend 
 - Use unique **Edge ID** values for parallel links.
 - If group results look unexpected, check whether multiple groups match the same node. Mixed icon/color outcomes are valid behavior in Mapgl.
