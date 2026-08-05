@@ -3,8 +3,7 @@ import React, { useCallback, useId, useMemo } from 'react';
 
 import { GrafanaTheme2, SelectableValue, StandardEditorProps } from '@grafana/data';
 import { ScaleDimensionConfig } from '@grafana/schema';
-import { InlineField, InlineFieldRow, useStyles2 } from '@grafana/ui';
-import { ComboboxCompat } from '../../../../../components/Compat/ComboboxCompat';
+import { Combobox, InlineField, InlineFieldRow, useStyles2 } from '@grafana/ui';
 import { useFieldDisplayNames, useMatcherSelectOptions } from '../../../../components/MatchersUI/utils';
 import { t } from '../../../../../utils/i18n';
 
@@ -14,8 +13,7 @@ import { validateScaleOptions, validateScaleConfig } from '../scale';
 import { ScaleDimensionOptions } from '../types';
 import { NumberInput } from '../../../core/components/OptionsUI/NumberInput';
 
-const SCALE_MIN_TOOLTIP =
-  'Set Min greater than Max to make lower metric values appear larger.';
+const SCALE_MIN_TOOLTIP = 'Set Min greater than Max to make lower metric values appear larger.';
 
 export const ScaleDimensionEditor = (props: StandardEditorProps<ScaleDimensionConfig, ScaleDimensionOptions>) => {
   const { value, context, onChange, item, id } = props;
@@ -114,7 +112,7 @@ export const ScaleDimensionEditor = (props: StandardEditorProps<ScaleDimensionCo
   return (
     <>
       <div>
-        <ComboboxCompat
+        <Combobox
           id={id}
           value={selectedOption}
           options={selectOptions}

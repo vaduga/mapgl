@@ -2,10 +2,9 @@ import React, { FC } from 'react';
 import { observer } from 'mobx-react-lite';
 import { DataFrame, EventBus, GrafanaTheme2, SelectableValue } from '@grafana/data';
 import { css } from '@emotion/css';
-import { useStyles2 } from '@grafana/ui';
+import { Combobox, type ComboboxOption, useStyles2 } from '@grafana/ui';
 import { Graph, Edge, getGraphNodes, getNodeData } from '@mapgl/panel-core/graph';
 import { colTypes } from '@mapgl/panel-core/types';
-import { ComboboxCompat } from '../Compat/ComboboxCompat';
 
 export type handlerProps = {
   pId: number;
@@ -20,7 +19,7 @@ export type handlerProps = {
   zoomIn?: boolean;
   lineId?: number | null;
 };
-type SearchOption = SelectableValue<string> & { graphId: string; nodeId: string };
+type SearchOption = ComboboxOption<string> & { graphId: string; nodeId: string };
 type ReactSelectSearchRootStore = {
   pointStore: {
     getSelectedNode?: { id?: string } | null;
@@ -78,7 +77,7 @@ const ReactSelectSearch: FC<MapRefProps> = ({
         dataLayers?.length && dataLayers.find((el) => el.type === colTypes.Markers && el.name === layerName);
       const searchProperties = layer?.searchProperties;
       const frame: DataFrame | undefined = frameRefId
-        ? data.series.find((el) => el.refId === frameRefId || el.name === frameRefId) ?? data.series[0]
+        ? (data.series.find((el) => el.refId === frameRefId || el.name === frameRefId) ?? data.series[0])
         : data.series[0];
 
       const paneProps = searchProperties?.length ? searchProperties : [];
@@ -117,7 +116,7 @@ const ReactSelectSearch: FC<MapRefProps> = ({
 
   return (
     <div className={s.select}>
-      <ComboboxCompat
+      <Combobox
         // key={optionsKey}
         options={filteredOptions}
         value={selectedOption}

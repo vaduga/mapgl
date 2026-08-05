@@ -1,19 +1,29 @@
 import { GeoJsonLayer, TextLayer } from '@deck.gl/layers';
 import { CollisionFilterExtension, DataFilterExtension } from '@deck.gl/extensions';
 
-import { createDonutChart, getNodeIconAtlasSourceSize, getPackedSvgIcon, svgToDataURL } from './donutChart';
+import { getPackedSvgIcon, svgToDataURL } from './svgIconAtlas';
+import {
+  DonutCircleLayer,
+  createDonutAtlas,
+  createEqualDonutInput,
+  getDonutInputKey,
+  getDonutRecord,
+} from '../DonutCircleLayer';
 import { getTintedSvgIcon, resolveSvgTintMode } from '../utils/svg';
+import { createUserSvgAtlasPlan, getUserSvgVariantKey } from './userSvgAtlas';
 import { isVisible } from '../utils/visibility';
 import { toRgbaString } from '../utils/color';
+import { getNodeLayerVisibility, getNodePointType } from './nodeRenderPlan';
 import {
   getFittedIconSize,
   getMaxNodeIconSizesByVariant,
-  getResolvedIconSize,
+  getResolvedNodeArcColors,
   getResolvedPointRadius,
   getResolvedTextPixelOffset,
+  getResolvedUserIconBoxSize,
 } from './nodeGeometry';
-import { colTypes } from '@mapgl/panel-core/types';
 import { Matrix4 } from '@math.gl/core';
+import { colTypes } from '@mapgl/panel-core/types';
 
 type LogicTextDatum = {
   coordinates: [number, number];
@@ -90,7 +100,10 @@ const buildLogicTextLayerData = (biCol: any, selectedNodeId?: string): LogicText
   };
 };
 
-const getNodeIconCache = (biCol: any): NodeIconCache => {
+const getNodeIconCache = (biCol: any, panelCache?: NodeIconCache): NodeIconCache => {
+  if (panelCache) {
+    return panelCache;
+  }
   if (DEBUG_DISABLE_NODE_ICON_CACHE) {
     return disabledNodeIconCache;
   }
@@ -117,28 +130,6 @@ const isCanvasTintPending = (
   return !svgIcon.colorVariants?.[`canvasTint:${tintColor}:${renderSize}`];
 };
 
-const getNodeIconVariantKey = ({
-  iconName,
-  tintMode,
-  tintColor,
-  arcs,
-  isDonut,
-}: {
-  iconName?: string;
-  tintMode: string;
-  tintColor?: string;
-  arcs?: Array<string | undefined>;
-  isDonut: boolean;
-}) => {
-  if (!iconName && !isDonut) {
-    return undefined;
-  }
-
-  return `${isDonut ? 'donut' : 'svg'}:${iconName ?? 'none'}:${tintMode}:${tintColor ?? 'base'}:${
-    isDonut ? (arcs ?? []).join('|') : ''
-  }`;
-};
-
 const NodesGeojsonLayer = (props) => {
   const {
     biCol,
@@ -149,10 +140,10 @@ const NodesGeojsonLayer = (props) => {
     options,
     svgIconState,
     visRefresh,
-    theme,
     isLogic,
     isRouted,
     onSvgIconReady,
+    svgIconCache,
     getVisLayers,
     panel,
     autoHighlight,
@@ -162,46 +153,32 @@ const NodesGeojsonLayer = (props) => {
     idSuffix = '',
   } = props;
 
-  const Circle = isVisible(getVisLayers, {
-    index: null,
-    name: colTypes.Circle,
-    group: colTypes.Circle,
-  });
-  const SVG = isVisible(getVisLayers, {
-    index: null,
-    name: colTypes.SVG,
-    group: colTypes.SVG,
-  });
-  const Labels = isVisible(getVisLayers, {
-    index: null,
-    name: colTypes.Label,
-    group: colTypes.Label,
-  });
+  const { circle: Circle, svg: SVG, labels: Labels } = getNodeLayerVisibility(getVisLayers);
 
   const units = isLogic ? 'common' : options.common?.isMeters ? 'meters' : 'pixels';
   const categories = getVisLayers.getCategories();
   const categorySize = 2;
-  const pointType = pointTypeOverride ?? 'circle+icon+text';
   const isPlaceholderTextMode = logicTextMode === 'placeholder';
   const isLabelTextMode = logicTextMode === 'label';
   const selectedNodeId = getSelectedNode?.id;
   const svgIcons = svgIconState?.icons ?? {};
   const svgIconRevision = svgIconState?.revision ?? 0;
 
-  const iconCache = getNodeIconCache(biCol);
+  const iconCache = getNodeIconCache(biCol, svgIconCache);
 
-  const resolveNodeIconVariant = (properties: any) => {
-    const { group, arcs } = properties?.style || {};
+  const resolveUserSvgVariant = (properties: any) => {
+    const { group } = properties?.style || {};
     const iconName = group?.iconName;
     const svgIcon = iconName && svgIcons[iconName];
     const requestedTintMode = group?.svgTintMode ?? 'none';
     const tintMode = resolveSvgTintMode(svgIcon, requestedTintMode);
     const requestedTintColor = group?.color ? toRgbaString(group.color) : properties?.thrColor;
     const tintColor = tintMode === 'none' ? undefined : requestedTintColor;
-    const isDonut = Boolean(isLogic && arcs?.length);
-    const key = getNodeIconVariantKey({ iconName, tintMode, tintColor, arcs, isDonut });
+    const key = svgIcon
+      ? getUserSvgVariantKey({ iconName, tintMode, tintColor, revision: svgIconRevision })
+      : undefined;
 
-    return { key, iconName, svgIcon, tintMode, tintColor, arcs, isDonut };
+    return { key, iconName, svgIcon, tintMode, tintColor };
   };
 
   // Deck.gl auto-packs every distinct icon id into its texture atlas. Use one
@@ -214,23 +191,39 @@ const NodesGeojsonLayer = (props) => {
     ? Array.from(featureIds, (featureId: number) => pointProperties?.[featureId])
     : pointProperties;
   const maxIconSizesByVariant = getMaxNodeIconSizesByVariant(activePointProperties, (properties) => {
-    return resolveNodeIconVariant(properties).key;
+    return resolveUserSvgVariant(properties).key;
   });
-  // Reserve one additional entry for nodes without an SVG. Canvas tint uses a
-  // base image while its rasterized variant is pending, so it needs two slots.
-  const iconAtlasEntryCount = [...maxIconSizesByVariant.keys()].reduce((count, variantKey) => {
-    return count + (variantKey.includes(':canvasTint:') ? 2 : 1);
-  }, 1);
-  const packedIconSize = getNodeIconAtlasSourceSize(iconAtlasEntryCount);
+  const hasActiveUserSvg = maxIconSizesByVariant.size > 0;
+  const pointType = getNodePointType(pointTypeOverride, hasActiveUserSvg);
+  const userSvgAtlasPlan = createUserSvgAtlasPlan(maxIconSizesByVariant, {
+    revision: svgIconRevision,
+    devicePixelRatio: globalThis.devicePixelRatio ?? 1,
+  });
+  const packedIconSize = userSvgAtlasPlan.sourceTier;
+
+  const donutVariants = new Map<string, ReturnType<typeof createEqualDonutInput>>();
+  for (const properties of Object.values(activePointProperties ?? {}) as any[]) {
+    const arcs = properties?.style?.arcs;
+    if (!arcs?.length) {
+      continue;
+    }
+    const input = createEqualDonutInput(arcs);
+    donutVariants.set(getDonutInputKey(input), input);
+  }
+  const donutAtlas = createDonutAtlas(donutVariants);
+
+  const getNodeDonutRecord = (d: any, info?: { index?: number }) => {
+    const arcs = getResolvedNodeArcColors(d, pointProperties, featureIds, info?.index);
+    if (!arcs?.length) {
+      return -1;
+    }
+    const input = createEqualDonutInput(arcs);
+    return getDonutRecord(donutAtlas, getDonutInputKey(input));
+  };
 
   const getNodeIconSize = (d) => {
-    const targetBoxSize = getResolvedIconSize(d, selectedNodeId);
-    const { group, arcs } = d.properties?.style || {};
-
-    if (isLogic && arcs?.length) {
-      return targetBoxSize;
-    }
-
+    const targetBoxSize = getResolvedUserIconBoxSize(d, selectedNodeId);
+    const { group } = d.properties?.style || {};
     const iconName = group?.iconName;
     const svgIcon = iconName && svgIcons[iconName];
     return getFittedIconSize(targetBoxSize, svgIcon?.width, svgIcon?.height);
@@ -303,8 +296,13 @@ const NodesGeojsonLayer = (props) => {
       return getResolvedPointRadius(d, selectedNodeId);
     },
     getIcon: (d) => {
-      const { key: variantKey, iconName, svgIcon, tintMode: resolvedTintMode, tintColor, arcs, isDonut } =
-        resolveNodeIconVariant(d.properties);
+      const {
+        key: variantKey,
+        iconName,
+        svgIcon,
+        tintMode: resolvedTintMode,
+        tintColor,
+      } = resolveUserSvgVariant(d.properties);
       const tintedSvgIcon = getTintedSvgIcon(svgIcon, tintColor, {
         mode: resolvedTintMode,
         onReady: onSvgIconReady,
@@ -313,44 +311,10 @@ const NodesGeojsonLayer = (props) => {
       const canvasTintPending = isCanvasTintPending(svgIcon, tintColor, resolvedTintMode, packedIconSize);
       const cacheState = canvasTintPending ? 'pending' : 'ready';
 
-      if (isDonut) {
-        const donutCacheKey = `${variantKey}:${cacheState}:${packedIconSize}`;
-        const cachedDonut = canvasTintPending ? undefined : iconCache.get(donutCacheKey);
-        if (cachedDonut) {
-          return cachedDonut;
-        }
-
-        const colorCounts = {};
-        arcs.forEach((color) => {
-          colorCounts[color] = {
-            count: 1,
-          };
-        });
-        const icon = {
-          id: donutCacheKey,
-          url: svgToDataURL(
-            createDonutChart({
-              colorCounts,
-              stripeCounts: undefined,
-              allTotal: arcs.length,
-              bkColor: undefined,
-              radius: 50,
-              sourceSize: packedIconSize,
-              isDark: theme.isDark,
-              svgIcon: tintedSvgIcon,
-            })
-          ),
-          width: packedIconSize,
-          height: packedIconSize,
-        };
-        if (!canvasTintPending) {
-          iconCache.set(donutCacheKey, icon);
-        }
-        return icon;
-      } else if (tintedSvgIcon) {
+      if (tintedSvgIcon) {
         const iconWidth = tintedSvgIcon.width;
         const iconHeight = tintedSvgIcon.height;
-        const cacheKey = `svg:${iconName ?? 'none'}:${resolvedTintMode}:${cacheState}:${tintColor ?? 'base'}:${packedIconSize}:${iconWidth ?? 'auto'}x${iconHeight ?? 'auto'}`;
+        const cacheKey = `svg:${svgIconRevision}:${iconName ?? 'none'}:${resolvedTintMode}:${cacheState}:${tintColor ?? 'base'}:${packedIconSize}:${iconWidth ?? 'auto'}x${iconHeight ?? 'auto'}`;
         const cachedSvg = canvasTintPending ? undefined : iconCache.get(cacheKey);
         if (cachedSvg) {
           return cachedSvg;
@@ -359,7 +323,7 @@ const NodesGeojsonLayer = (props) => {
         const packedSvgIcon =
           resolvedTintMode === 'canvasTint' && !canvasTintPending
             ? tintedSvgIcon
-            : getPackedSvgIcon(tintedSvgIcon, packedIconSize) ?? tintedSvgIcon;
+            : (getPackedSvgIcon(tintedSvgIcon, packedIconSize) ?? tintedSvgIcon);
         const icon = {
           url: packedSvgIcon.svgDataUrl,
           width: packedSvgIcon.width,
@@ -432,6 +396,9 @@ const NodesGeojsonLayer = (props) => {
         },
       },
       'points-circle': {
+        type: DonutCircleLayer,
+        donutAtlas,
+        getDonutRecord: getNodeDonutRecord,
         sizeUnits: units,
         radiusUnits: units,
         visible: Circle,
@@ -444,6 +411,7 @@ const NodesGeojsonLayer = (props) => {
         },
         updateTriggers: {
           getRadius: [selectedNodeId],
+          getDonutRecord: [donutAtlas, visRefresh],
         },
       },
     },
@@ -574,7 +542,6 @@ const LogicMainLabelTextLayer = (props) => {
       modelMatrix.translate([shift[0], shift[1], 0]);
     }
   }
-
 
   return new TextLayer({
     id: `${biCol.graph.id}-view-label-text${idSuffix}`,

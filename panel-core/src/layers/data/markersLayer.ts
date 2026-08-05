@@ -142,7 +142,6 @@ export function createMarkersLayer({
                   name: 'Arc sections',
                   path: 'arcs',
                   editor: ArcOptionsEditor,
-                  showIf: () => panel.isLogic,
                 });
               },
             })

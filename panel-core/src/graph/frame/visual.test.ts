@@ -303,6 +303,30 @@ describe('graph visual stage', () => {
     expect(state.edgeUnits[0]!.style.size).toBe(2);
   });
 
+  it('resolves node arc sections in geo mode', async () => {
+    const frame = toDataFrame({
+      refId: 'GeoArcs',
+      fields: [
+        { name: 'source', values: ['A', 'B'] },
+        { name: 'target', values: ['B', null] },
+      ],
+    });
+    const config = visualConfig({
+      isLogic: false,
+      style: {
+        color: { fixed: 'red' },
+        size: { fixed: 24, min: 5, max: 30 },
+        opacity: 0.5,
+        arcs: [{ fixed: 'blue' }, { fixed: 'green' }],
+      },
+    });
+
+    const { state } = await visuals(frame, config);
+
+    expect(state.nodes[0].style.arcs).toHaveLength(2);
+    expect(state.nodes[0].style.arcs?.every(Boolean)).toBe(true);
+  });
+
   it('resolves capacity-relative arc channels, arrows, and edge metrics', async () => {
     const frame = toDataFrame({
       refId: 'Arcs',

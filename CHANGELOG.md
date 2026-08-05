@@ -1,5 +1,10 @@
 # Changelog Mapgl
 
+## 2.9.0
+- GPU-shader donut arcs and annotation stripes; user SVGs use a demand-bounded atlas to reduce texture memory.
+- packed graph relation storage with a flat runtime edge index.
+- donut arc sections enabled in Geo mode as well as Logic mode; cluster visibility remains independent.
+
 ## 2.8.1
 - graph frame validation pipeline with `Diagnostic UI` (disable in panel editor)
 - frame signature to skip re-layout on metric updates or panel config editing

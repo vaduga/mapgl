@@ -11,20 +11,20 @@ export const getResolvedPointRadius = (feature: any, selectedNodeId?: string) =>
 };
 
 export const getResolvedIconSize = (feature: any, selectedNodeId?: string) => {
-  const { style } = feature?.properties || {};
-  const hasDonutChartIcon = Boolean(style?.arcs?.length);
-  const sizeMultiplier = 1;
-
-  return getResolvedCircleDiameter(feature, selectedNodeId) * sizeMultiplier;
+  return getResolvedCircleDiameter(feature, selectedNodeId);
 };
 
 export const getMaxResolvedIconSize = (feature: any) => {
-  const { style } = feature?.properties || {};
-  const hasDonutChartIcon = Boolean(style?.arcs?.length);
-  const sizeMultiplier = 1;
-  const diameter = feature?.properties?.style?.size ?? 0;
+  return feature?.properties?.style?.size ?? 0;
+};
 
-  return diameter * sizeMultiplier;
+// The previous SVG donut used a radius of 50 and fitted the user icon into
+// the square inscribed by its rounded 0.73 inner radius, with a 1.1 margin.
+export const DONUT_USER_ICON_BOX_RATIO = ((Math.round(50 * 0.73) / 50) * 1.1) / Math.SQRT2;
+
+export const getResolvedUserIconBoxSize = (feature: any, selectedNodeId?: string) => {
+  const size = getResolvedIconSize(feature, selectedNodeId);
+  return feature?.properties?.style?.arcs?.length ? size * DONUT_USER_ICON_BOX_RATIO : size;
 };
 
 export const getMaxNodeIconSizesByVariant = (
@@ -46,6 +46,17 @@ export const getMaxNodeIconSizesByVariant = (
   }
 
   return maxSizes;
+};
+
+export const getResolvedNodeArcColors = (
+  feature: any,
+  properties: any[] | Record<string, any> | undefined,
+  featureIds: ArrayLike<number> | undefined,
+  index: number | undefined
+) => {
+  const featureProperties =
+    feature?.properties ?? (Number.isInteger(index) && featureIds ? properties?.[featureIds[index!]] : undefined);
+  return featureProperties?.style?.arcs;
 };
 
 export const getFittedIconSize = (targetBoxSize: number, width?: number, height?: number) => {

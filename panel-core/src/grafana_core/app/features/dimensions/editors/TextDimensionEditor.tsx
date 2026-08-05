@@ -10,8 +10,7 @@ import {
 } from '@grafana/data';
 import { t } from '../../../../../utils/i18n';
 import { TextDimensionConfig, TextDimensionMode } from '@grafana/schema';
-import { Button, InlineField, InlineFieldRow, Input, RadioButtonGroup, useStyles2 } from '@grafana/ui';
-import { ComboboxCompat } from '../../../../../components/Compat/ComboboxCompat';
+import { Button, Combobox, InlineField, InlineFieldRow, Input, RadioButtonGroup, useStyles2 } from '@grafana/ui';
 import { frameHasName, useFieldDisplayNames, useMatcherSelectOptions } from '../../../../components/MatchersUI/utils';
 
 import { TextDimensionOptions } from '../types';
@@ -185,17 +184,18 @@ const FieldNamePickerCompact = ({ value, onChange, context, item, id, className 
   };
 
   return (
-    <ComboboxCompat
-      className={className}
-      id={id}
-      value={selectedOption}
-      options={selectOptions}
-      onChange={onChangeOption}
-      placeholder={
-        settings.placeholderText ?? t('grafana-ui.matchers-ui.field-name-picker.placeholder', 'Select field')
-      }
-      isClearable={settings.isClearable}
-    />
+    <div className={className}>
+      <Combobox
+        id={id}
+        value={selectedOption}
+        options={selectOptions}
+        onChange={onChangeOption}
+        placeholder={
+          settings.placeholderText ?? t('grafana-ui.matchers-ui.field-name-picker.placeholder', 'Select field')
+        }
+        {...(settings.isClearable ? { isClearable: true } : { isClearable: false })}
+      />
+    </div>
   );
 };
 

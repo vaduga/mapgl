@@ -19,12 +19,32 @@ export {
 export type { ArrowItem } from './ArrowLayer/edge-arrow-layer';
 export { getIconAtlasImage, iconAtlas, iconMapping } from './ArrowLayer/arrow-atlas';
 
-export { CurveEdgeLayer, CurveType } from './GeoJsonEdgesLayer/curve-edge-layer';
+export {
+  DONUT_INNER_RADIUS_RATIO,
+  DONUT_RECORD_TEXELS,
+  DonutCircleLayer,
+  EMPTY_DONUT_ATLAS,
+  MAX_DONUT_SEGMENTS,
+  MAX_DONUT_STRIPES,
+  createDonutAtlas,
+  createEqualDonutInput,
+  getDonutInputKey,
+  getDonutRecord,
+  normalizeDonutInput,
+} from './DonutCircleLayer';
 export type {
-  CurveEdgeBinaryData,
-  CurveEdgeLayerData,
-  CurveEdgeSegment,
-} from './GeoJsonEdgesLayer/curve-edge-layer';
+  DonutAtlas,
+  DonutAtlasDiagnostics,
+  DonutCircleLayerProps,
+  DonutColor,
+  DonutInput,
+  DonutWeightedColor,
+  NormalizedDonutInput,
+  NormalizedDonutPart,
+} from './DonutCircleLayer';
+
+export { CurveEdgeLayer, CurveType } from './GeoJsonEdgesLayer/curve-edge-layer';
+export type { CurveEdgeBinaryData, CurveEdgeLayerData, CurveEdgeSegment } from './GeoJsonEdgesLayer/curve-edge-layer';
 export { EdgesGeojsonLayer } from './GeoJsonEdgesLayer/edges-geojson-layer';
 export {
   ICON_CACHE_SOURCE_KEY,
@@ -32,15 +52,26 @@ export {
   LogicPlaceholderTextLayer,
   NodesGeojsonLayer,
 } from './GeoJsonNodesLayer/nodes-geojson-layer';
-export { createDonutChart, getDonutIconSrcSize, getPackedSvgIcon, svgToDataURL } from './GeoJsonNodesLayer/donutChart';
+export { getNodeIconAtlasSourceSize, getPackedSvgIcon, svgToDataURL } from './GeoJsonNodesLayer/svgIconAtlas';
+export {
+  createUserSvgAtlasPlan,
+  getUserSvgVariantKey,
+  type UserSvgAtlasDiagnostics,
+  type UserSvgAtlasPlan,
+} from './GeoJsonNodesLayer/userSvgAtlas';
+export type { UserSvgVariantKeyInput } from './GeoJsonNodesLayer/userSvgAtlas';
+export { getNodeLayerVisibility, getNodePointType } from './GeoJsonNodesLayer/nodeRenderPlan';
 export {
   getFittedDimensions,
   getFittedIconSize,
+  getMaxNodeIconSizesByVariant,
   getMaxResolvedIconSize,
   getResolvedCircleDiameter,
   getResolvedIconSize,
   getResolvedPointRadius,
+  getResolvedNodeArcColors,
   getResolvedTextPixelOffset,
+  getResolvedUserIconBoxSize,
 } from './GeoJsonNodesLayer/nodeGeometry';
 export { getDimmedGraphLayers } from './focus-layers';
 export { GraphHighlighter, makeScopedKey } from './GraphHighlighter';

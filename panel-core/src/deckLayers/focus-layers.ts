@@ -43,10 +43,40 @@ export function getDimmedGraphLayers(layers: Layer[], opts: DimmedGraphLayerOpti
     if (data?.points) {
       return layer.clone({
         data: getDimmedNodeBiCol(data, connectedNodeIds),
+        ...getDimmedNodeCircleProps(layer, connectedNodeIds),
       });
     }
     return layer.clone({ opacity: 0.18 });
   });
+}
+
+function getDimmedNodeCircleProps(layer: Layer, connectedNodeIds: Set<string>) {
+  const subLayerProps = (layer.props as any)?._subLayerProps;
+  const circleProps = subLayerProps?.['points-circle'];
+  if (!circleProps?.getDonutRecord) {
+    return {};
+  }
+
+  const pointProperties = (layer.props as any)?.data?.points?.properties;
+  const featureIds = (layer.props as any)?.data?.points?.featureIds?.value;
+  const highlightTrigger = Array.from(connectedNodeIds);
+  return {
+    _subLayerProps: {
+      ...subLayerProps,
+      'points-circle': {
+        ...circleProps,
+        getDonutOpacity: (d: any, info: any) => {
+          const featureId = Number.isInteger(info?.index) ? featureIds?.[info.index] : undefined;
+          const properties = d?.properties?.locName ? d.properties : pointProperties?.[featureId ?? info?.index];
+          return isConnectedNode(properties, connectedNodeIds) ? 1 : 0.18;
+        },
+        updateTriggers: {
+          ...circleProps.updateTriggers,
+          getDonutOpacity: highlightTrigger,
+        },
+      },
+    },
+  };
 }
 
 function flattenDeckLayers(layers: unknown[]): Layer[] {

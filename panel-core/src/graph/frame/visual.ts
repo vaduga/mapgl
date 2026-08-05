@@ -202,7 +202,7 @@ function resolvedNodeStyle(
     ...(resolved.group.size !== undefined && { size: resolved.group.size }),
   };
 
-  if (input.config.isLogic && input.config.style.arcs?.length) {
+  if (input.config.style.arcs?.length) {
     let arcDimensions = prepared.nodeArcs.get(row.frameIndex);
     if (!arcDimensions) {
       arcDimensions = input.config.style.arcs.map((arc) =>

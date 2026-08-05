@@ -11,12 +11,15 @@ export type SvgIconRequest = {
   signature: string;
 };
 
+export type SvgIconCache = Map<string, any>;
+
 export class SvgIconManager {
   private icons: Record<string, any> = {};
   private revision = 0;
   private signature = '';
   private requestId = 0;
   private loadController: AbortController | null = null;
+  private readonly iconCache: SvgIconCache = new Map();
 
   get state(): SvgIconRenderState {
     return {
@@ -24,6 +27,10 @@ export class SvgIconManager {
       icons: this.icons,
       signature: this.signature,
     };
+  }
+
+  get cache(): SvgIconCache {
+    return this.iconCache;
   }
 
   async resolve(request: SvgIconRequest): Promise<SvgIconRenderState | undefined> {
@@ -51,6 +58,7 @@ export class SvgIconManager {
     if (newNames.length || request.signature !== this.signature) {
       this.revision++;
       this.signature = request.signature;
+      this.iconCache.clear();
     }
 
     return this.state;
@@ -58,6 +66,14 @@ export class SvgIconManager {
 
   abort() {
     this.loadController?.abort();
+  }
+
+  dispose() {
+    this.abort();
+    this.requestId++;
+    this.icons = {};
+    this.iconCache.clear();
+    this.signature = '';
   }
 }
 

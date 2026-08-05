@@ -211,7 +211,7 @@ export class MapPanel extends Component<Props, State> {
     this.panelUpdateGate.dispose();
     this.graphPipeline.dispose();
     this.optionsRefresh.cancel();
-    this.svgIconManager.abort();
+    this.svgIconManager.dispose();
     resetGraph(this.graph);
     this.graphEdgeIndex.reset();
     this.vCount = 0;

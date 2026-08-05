@@ -3,8 +3,7 @@ import React, { useCallback, useMemo } from 'react';
 
 import { FieldNamePickerBaseNameMode, GrafanaTheme2, SelectableValue, StandardEditorProps } from '@grafana/data';
 import { ColorDimensionConfig } from '@grafana/schema';
-import { ColorPicker, useStyles2 } from '@grafana/ui';
-import { ComboboxCompat } from '../../../../../components/Compat/ComboboxCompat';
+import { ColorPicker, Combobox, useStyles2 } from '@grafana/ui';
 import { useFieldDisplayNames, useMatcherSelectOptions } from '../../../../components/MatchersUI/utils';
 import { ColorDimensionConfigWithThresholds } from '../../../../../style/types';
 
@@ -78,7 +77,7 @@ export const ColorDimensionEditor = (props: StandardEditorProps<ColorDimensionCo
   return (
     <>
       <div className={styles.container}>
-        <ComboboxCompat
+        <Combobox
           id={id}
           value={selectedOption}
           options={selectOptions}

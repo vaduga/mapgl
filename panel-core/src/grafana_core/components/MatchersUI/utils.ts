@@ -1,12 +1,11 @@
 import { useMemo } from 'react';
 
 import { DataFrame, Field, getFieldDisplayName, FieldType, SelectableValue } from '@grafana/data';
+import type { ComboboxOption } from '@grafana/ui';
 import { t } from '../../../utils/i18n';
 
 type MatcherScope = 'series' | 'nested' | 'annotation' | 'exemplar';
 type FieldNameMode = string | undefined;
-
-import { getFieldTypeIcon } from '@grafana/ui';
 
 /**
  * @internal
@@ -138,7 +137,7 @@ interface UseMatcherSelectOptionsProps {
   /**
    * An additional first option to add to the beginning of the list. This is useful for an "All" option, for example.
    */
-  firstItem?: SelectableValue;
+  firstItem?: ComboboxOption;
   /**
    * if set, filter the options by field type.
    */
@@ -163,7 +162,7 @@ export function useMatcherSelectOptions(
   displayNames: FrameFieldsDisplayNames,
   currentName?: string,
   { firstItem, fieldType, baseNameMode, scope }: UseMatcherSelectOptionsProps = {}
-): SelectableValue[] {
+): ComboboxOption[] {
   return useMemo(() => {
     let found = false;
 
@@ -173,35 +172,25 @@ export function useMatcherSelectOptions(
     const getGroup = (name: string) =>
       shouldShowScopes ? getGroupLabelForScope(displayNames.scopes.get(name)) : undefined;
     const optionFactory =
-      (getLabel: (name: string) => string, getExtraOptions?: (name: string) => Partial<SelectableValue> | undefined) =>
-      (name: string) => ({
+      (getLabel: (name: string) => string) =>
+      (name: string): ComboboxOption => ({
         value: name,
         label: getLabel(name),
         group: getGroup(name),
-        ...getExtraOptions?.(name),
       });
 
-    const displayNameBuilder = optionFactory(
-      (name) => name,
-      (name) => {
-        const field = displayNames.fields.get(name);
-        if (!field) {
-          return;
-        }
-        return { icon: getFieldTypeIcon(field) };
-      }
-    );
+    const displayNameBuilder = optionFactory((name) => name);
     const baseFieldNameBuilder = optionFactory((name) =>
       t('grafana-ui.matchers.labels.base-field-name', '{{name}} (base field name)', { name })
     );
 
-    let options: SelectableValue[] = [];
+    let options: ComboboxOption[] = [];
     if (firstItem) {
       options.push(firstItem);
     }
 
     // the list order and contents of the list depends on the baseNameMode
-    const sets: Array<{ set: Set<string>; builder: (name: string) => SelectableValue }> = [];
+    const sets: Array<{ set: Set<string>; builder: (name: string) => ComboboxOption }> = [];
     if (isOnlyBaseNames(baseNameMode)) {
       sets.push({ set: displayNames.raw, builder: baseFieldNameBuilder });
     } else {

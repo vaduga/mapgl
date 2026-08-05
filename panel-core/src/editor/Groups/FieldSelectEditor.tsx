@@ -1,6 +1,6 @@
 import React from 'react';
 import { StandardEditorProps, FieldType } from '@grafana/data';
-import { ComboboxCompat } from '../../components/Compat/ComboboxCompat';
+import { Combobox } from '@grafana/ui';
 
 interface Settings {
   filterByType: FieldType[];
@@ -25,7 +25,7 @@ export const FieldSelectEditor: React.FC<Props> = ({ value, onChange, options, a
   const selectedOption = options.find((option: { value: string }) => option.value === value);
 
   return (
-    <ComboboxCompat
+    <Combobox
       width={20}
       createCustomValue={allowCustomValue}
       value={selectedOption ?? (value as string | null)}
