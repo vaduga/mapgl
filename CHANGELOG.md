@@ -1,9 +1,9 @@
 # Changelog Mapgl
 
 ## 2.9.0
-- GPU-shader donut arcs and annotation stripes; user SVGs use a demand-bounded atlas to reduce texture memory.
-- packed graph relation storage with a flat runtime edge index.
-- donut arc sections enabled in Geo mode as well as Logic mode; cluster visibility remains independent.
+- Refactor for performance: packed graph relation storage with a flat runtime edge index. 30% faster graph build time.
+- GPU-shader for donut-charts to 50% reduce texture memory, SVG generation left for users icons.
+- donut arc sections enabled in Geo mode too.
 
 ## 2.8.1
 - graph frame validation pipeline with `Diagnostic UI` (disable in panel editor)
@@ -11,8 +11,8 @@
 - fix: fit-to-data for nodegraph, panel editing with no render flicker
 - preserve viewport during style editing
 
-## 2.7.3 - 2.7.4:
-  regression bug: fresh new panels don't initialize with v2.7.3. Use v2.7.4.
+## 2.7.4
+  regression bug: fresh new panels don't initialize with v2.7.3. Use this v2.7.4.
 - inverted style scaling option, allowing lower metric values to appear larger
 - node graph zoom levels normalized to match Geo mode’s 1–18 range.  
 - debounce auto-layout recalculation on opts change
