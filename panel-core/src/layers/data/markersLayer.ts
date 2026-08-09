@@ -158,20 +158,6 @@ export function createMarkersLayer({
               name: 'Legend label, SVG icon, color override',
               editor: GroupsEditor,
             })
-            .addRadio({
-              path: 'config.edgeStyle.arrow',
-              category: ['Edge Styles'],
-              name: 'Arrow',
-              settings: {
-                options: [
-                  { label: 'None', value: 0 },
-                  { label: 'Forward', value: 1 },
-                  { label: 'Reverse', value: -1 },
-                  { label: 'Both', value: 2 },
-                ],
-              },
-              defaultValue: defaultOptions.edgeStyle.arrow,
-            })
             .addCustomEditor({
               id: 'config.edgeStyle',
               category: ['Edge Styles'],
@@ -181,6 +167,12 @@ export function createMarkersLayer({
               settings: {
                 hideSymbol: true,
                 isEdge: true,
+                arrowOptions: [
+                  { label: 'None', value: 0 },
+                  { label: 'Forward', value: 1 },
+                  { label: 'Reverse', value: -1 },
+                  { label: 'Both', value: 2 },
+                ],
               },
               showIf: (opts) => !!opts.parField || useMockData,
               defaultValue: defaultOptions.edgeStyle,
@@ -203,23 +195,15 @@ export function createMarkersLayer({
                 hideOpacity: true,
                 hideText: true,
                 isEdge: true,
-              },
-              showIf: (opts) => opts.config?.showStat2 && (!!opts.parField || useMockData),
-              defaultValue: defaultOptions.style,
-            })
-            .addRadio({
-              path: 'config.arcStyle.sideA.arrow',
-              category: ['Arc Styles'],
-              name: 'Arrow',
-              settings: {
-                options: [
+                arrowOptions: [
                   { label: 'None', value: 0 },
                   { label: 'Forward', value: 1 },
                   { label: 'Reverse', value: -1 },
                 ],
+                sectionStyle: true,
               },
               showIf: (opts) => opts.config?.showStat2 && (!!opts.parField || useMockData),
-              defaultValue: defaultOptions.arcStyle.sideA.arrow,
+              defaultValue: defaultOptions.style,
             })
             .addCustomEditor({
               id: 'config.arcStyle.sideB',
@@ -232,23 +216,15 @@ export function createMarkersLayer({
                 hideOpacity: true,
                 hideText: true,
                 isEdge: true,
-              },
-              showIf: (opts) => opts.config?.showStat2 && (!!opts.parField || useMockData),
-              defaultValue: defaultOptions.style,
-            })
-            .addRadio({
-              path: 'config.arcStyle.sideB.arrow',
-              category: ['Arc Styles'],
-              name: 'Arrow',
-              settings: {
-                options: [
+                arrowOptions: [
                   { label: 'None', value: 0 },
                   { label: 'Forward', value: 1 },
                   { label: 'Reverse', value: -1 },
                 ],
+                sectionStyle: true,
               },
               showIf: (opts) => opts.config?.showStat2 && (!!opts.parField || useMockData),
-              defaultValue: defaultOptions.arcStyle.sideB.arrow,
+              defaultValue: defaultOptions.style,
             })
             .addNumberInput({
               category: ['Arc Styles'],

@@ -1,8 +1,23 @@
 import React, { useMemo } from 'react';
+import { css } from '@emotion/css';
 
-import type { FieldConfigPropertyItem, StandardEditorProps, StandardEditorsRegistryItem, FrameMatcher } from '@grafana/data';
+import type {
+  FieldConfigPropertyItem,
+  GrafanaTheme2,
+  StandardEditorProps,
+  StandardEditorsRegistryItem,
+  FrameMatcher,
+} from '@grafana/data';
 import type { ScaleDimensionConfig, ColorDimensionConfig, TextDimensionConfig } from '@grafana/schema';
-import { ColorPicker, Field, InlineField, InlineFieldRow, InlineLabel } from '@grafana/ui';
+import {
+  ColorPicker,
+  Field,
+  InlineField,
+  InlineFieldRow,
+  InlineLabel,
+  RadioButtonGroup,
+  useStyles2,
+} from '@grafana/ui';
 import { NumberValueEditor } from '../grafana_core/app/core/components/OptionsUI/number';
 import { SliderValueEditor } from '../grafana_core/app/core/components/OptionsUI/slider';
 import {
@@ -25,6 +40,8 @@ export interface StyleEditorOptions {
   hideText?: boolean;
   hideOpacity?: boolean;
   isEdge?: boolean;
+  arrowOptions?: Array<{ label: string; value: NonNullable<StyleConfig['arrow']> }>;
+  sectionStyle?: boolean;
   frameMatcher?: FrameMatcher;
 }
 
@@ -32,8 +49,9 @@ type Props = StandardEditorProps<StyleConfig, StyleEditorOptions>;
 
 export const StyleEditor = (props: Props) => {
   const { value, onChange, item } = props;
+  const styles = useStyles2(getStyles);
 
-  const { isAuxLayer, hideText, hideOpacity = false, isEdge } = item.settings || {};
+  const { isAuxLayer, hideText, hideOpacity = false, isEdge, sectionStyle } = item.settings || {};
   const context = useMemo(() => {
     if (!item.settings?.frameMatcher) {
       return props.context;
@@ -78,6 +96,10 @@ export const StyleEditor = (props: Props) => {
     onChange({ ...value, textConfig: { ...value.textConfig, fontSize } });
   };
 
+  const onArrowChange = (arrow: NonNullable<StyleConfig['arrow']>) => {
+    onChange({ ...value, arrow });
+  };
+
   const hasTextLabel = styleUsesText(value);
   const maxFiles = 2000;
 
@@ -120,7 +142,19 @@ export const StyleEditor = (props: Props) => {
   }
 
   return (
-    <>
+    <div className={sectionStyle ? styles.section : undefined}>
+      {settings?.arrowOptions && (
+        <InlineFieldRow className={styles.arrowRow}>
+          <InlineField label="Arrow">
+            <RadioButtonGroup
+              value={value?.arrow ?? settings.arrowOptions[0]?.value}
+              options={settings.arrowOptions}
+              onChange={onArrowChange}
+            />
+          </InlineField>
+        </InlineFieldRow>
+      )}
+
       <Field label={isEdge ? 'Line width' : 'Size'}>
         <ScaleDimensionEditor
           value={value?.size ?? defaultStyleConfig.size}
@@ -192,6 +226,20 @@ export const StyleEditor = (props: Props) => {
           </Field>
         </InlineFieldRow>
       )}
-    </>
+    </div>
   );
 };
+
+const getStyles = (theme: GrafanaTheme2) => ({
+  section: css({
+    background: theme.colors.background.secondary,
+    border: `1px solid ${theme.colors.border.weak}`,
+    borderLeft: `3px solid ${theme.colors.secondary.main}`,
+    borderRadius: theme.shape.radius.default,
+    marginBottom: theme.spacing(1),
+    padding: theme.spacing(1),
+  }),
+  arrowRow: css({
+    marginBottom: theme.spacing(1),
+  }),
+});
