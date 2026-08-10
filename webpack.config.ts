@@ -68,6 +68,7 @@ const config = async (env: Env): Promise<Configuration> => {
         '@mapgl/panel-core/graph/frame$': path.resolve(process.cwd(), 'panel-core/src/graph/frame/index.ts'),
         '@mapgl/panel-core/graph/utils$': path.resolve(process.cwd(), 'panel-core/src/graph/utils/index.ts'),
         '@mapgl/panel-core/components$': path.resolve(process.cwd(), 'panel-core/src/components/index.ts'),
+        '@mapgl/panel-core/render$': path.resolve(process.cwd(), 'panel-core/src/render/index.ts'),
         '@mapgl/panel-core/editor$': path.resolve(process.cwd(), 'panel-core/src/editor/index.ts'),
         '@mapgl/panel-core/store$': path.resolve(process.cwd(), 'panel-core/src/store/index.ts'),
         '@mapgl/panel-core/deckLayers$': path.resolve(process.cwd(), 'panel-core/src/deckLayers/index.ts'),

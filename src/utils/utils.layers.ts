@@ -15,8 +15,9 @@ import {
   LogicMainLabelTextLayer,
   LogicPlaceholderTextLayer,
 } from '@mapgl/panel-core/deckLayers';
+import type { RenderLayerBundle } from '@mapgl/panel-core/render';
 
-function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps }) {
+function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps }): RenderLayerBundle {
   let comments;
   const lines: any[] = [];
   const arcsBase: any[] = [];
@@ -232,7 +233,14 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
     });
   }
 
-  return [bboxes, icons, arcsBase, lines, comments, edgeLabels];
+  return {
+    bounds: bboxes,
+    nodes: icons,
+    baseEdges: arcsBase,
+    edges: lines,
+    comments,
+    labels: edgeLabels,
+  };
 }
 
 export { genVisLayers, createDerivedLayers } from '@mapgl/panel-core/utils';

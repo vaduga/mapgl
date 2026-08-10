@@ -15,14 +15,13 @@
     "paths": {
       "*": ["./src/*"],
       "@mapgl/panel-core": ["./panel-core/src/index.ts"],
-      "@mapgl/panel-core/featureContracts": [
-        "./panel-core/src/extension-points/featureContracts.ts"
-      ],
+      "@mapgl/panel-core/featureContracts": ["./panel-core/src/extension-points/featureContracts.ts"],
       "@mapgl/panel-core/graph": ["./panel-core/src/graph/main.ts"],
       "@mapgl/panel-core/graph/frame": ["./panel-core/src/graph/frame/index.ts"],
       "@mapgl/panel-core/graph/utils": ["./panel-core/src/graph/utils/index.ts"],
       "@mapgl/panel-core/types/defaults": ["./panel-core/src/types/defaults.ts"],
       "@mapgl/panel-core/components": ["./panel-core/src/components/index.ts"],
+      "@mapgl/panel-core/render": ["./panel-core/src/render/index.ts"],
       "@mapgl/panel-core/editor": ["./panel-core/src/editor/index.ts"],
       "@mapgl/panel-core/store": ["./panel-core/src/store/index.ts"],
       "@mapgl/panel-core/deckLayers": ["./panel-core/src/deckLayers/index.ts"],
@@ -43,9 +42,7 @@
       "@mapgl/panel-core/utils/i18n": ["./panel-core/src/utils/i18n.tsx"],
       "@mapgl/panel-core/grafana_core/*": ["./panel-core/src/grafana_core/*"],
       "@mapgl/panel-core/grafana_data/*": ["./panel-core/src/grafana_data/*"],
-      "@mapgl/panel-core/workers/layout-worker": [
-        "./panel-core/src/workers/layout-worker.ts"
-      ]
+      "@mapgl/panel-core/workers/layout-worker": ["./panel-core/src/workers/layout-worker.ts"]
     }
   },
   "include": ["src", "panel-core/src", ".config/types"]

@@ -13,6 +13,7 @@
     "./graph/packed-relations": "./src/graph/frame/packedRelationReaders.ts",
     "./graph/utils": "./src/graph/utils/index.ts",
     "./components": "./src/components/index.ts",
+    "./render": "./src/render/index.ts",
     "./deckLayers/edgeFilterCategories": "./src/deckLayers/edgeFilterCategories.ts",
     "./extension": "./src/extension.ts",
     "./layers": "./src/layers/index.ts",

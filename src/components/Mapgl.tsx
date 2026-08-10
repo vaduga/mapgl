@@ -1,51 +1,38 @@
 import { FullscreenWidget, CompassWidget, LoadingWidget } from '@deck.gl/widgets';
 import {
-  PositionTracker,
-  StateTime,
   useFullscreenPortalBridge,
-  getDeckWidgetSkin,
   LayerSwitcher,
   Menu,
   Tooltip,
   GraphFrameDiagnostics,
 } from '@mapgl/panel-core/components';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { flushSync } from 'react-dom';
-import { css, keyframes } from '@emotion/css';
-import { DataHoverEvent, GrafanaTheme2 } from '@grafana/data';
-import { LegendDisplayMode, VizLegend, useStyles2, useTheme2, VizLegendItem } from '@grafana/ui';
+import { useStyles2, useTheme2, type VizLegendItem } from '@grafana/ui';
 import { observer } from 'mobx-react-lite';
 import DeckGL from '@deck.gl/react';
 import MapLibre, { AttributionControl } from '@vis.gl/react-maplibre';
 
 import { useRootStore, genPrimaryLayers, expandTooltip } from '../utils';
-import { MyGeoJsonLayer, MyPathLayer, MyPolygonsLayer, getDimmedGraphLayers } from '@mapgl/panel-core/deckLayers';
+import { getDimmedGraphLayers } from '@mapgl/panel-core/deckLayers';
 import { toRGB4Array } from '@mapgl/panel-core/deckLayers/utils';
-import {
-  DARK_AUTO_HIGHLIGHT,
-  LIGHT_AUTO_HIGHLIGHT,
-  emptyBiCol,
-  ANNOTS_LABEL,
-  NS_SEPARATOR,
-} from '@mapgl/panel-core/types/defaults';
-import {
-  type DeckLine,
-  colTypes,
-  type ViewState,
-  type ComFeature,
-  type GraphBiFeatCol,
-} from '@mapgl/panel-core/types';
+import { DARK_AUTO_HIGHLIGHT, LIGHT_AUTO_HIGHLIGHT, ANNOTS_LABEL } from '@mapgl/panel-core/types/defaults';
+import { colTypes, type ViewState, type ComFeature } from '@mapgl/panel-core/types';
 import { getEdgesGeometry } from '@mapgl/panel-core/graph/utils';
-import { getGraphPositionRanges, getGraphVersion, type Graph } from '@mapgl/panel-core/graph';
-import { throttleTime } from 'rxjs';
+import { getGraphVersion, type Graph } from '@mapgl/panel-core/graph';
 import { Layer, MapView, OrbitView } from 'deck.gl';
-import { BinaryPointFeature } from '@loaders.gl/schema';
+import { selectGotoHandler } from '@mapgl/panel-core/utils';
 import {
-  packGraphNodeBinaryRanges,
-  selectGraphNodeFillColors,
-  selectGotoHandler,
-  ThresholdEdgeChangeEvent,
-} from '@mapgl/panel-core/utils';
+  buildGraphBinaryCollections,
+  buildSecondaryLayers,
+  composeRenderLayers,
+  getStyles,
+  LegendStack,
+  PositionStatus,
+  useDelayedHover,
+  useLatestRenderCommit,
+  useEventState,
+  useSvgIconRefresh,
+} from '@mapgl/panel-core/render';
 import { GraphDomObservability } from './GraphDomObservability';
 
 class AutolayoutLoadingWidget extends LoadingWidget {
@@ -64,7 +51,6 @@ const Mapgl = ({
   eventBus,
   editing,
 }) => {
-  const HOVER_HIGHLIGHT_DELAY_MS = 100;
   const rootStore = useRootStore();
   const { pointStore, viewStore } = rootStore;
   const { setVisRefresh: setMobxLegendRefresh } = viewStore;
@@ -109,7 +95,7 @@ const Mapgl = ({
 
   const mapLibreRef: any = useRef(null);
 
-  const deckRef = useRef(null);
+  const deckRef = useRef<DeckGLRef | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const { fullscreenContainer } = useFullscreenPortalBridge(containerRef);
 
@@ -117,14 +103,14 @@ const Mapgl = ({
   const [hoverInfo, setHoverInfo] = useState({});
   const [layers, setLayers] = useState<Layer[]>([]);
   const [localViewState, setLocalViewState] = useState<ViewState>(getViewState);
-  const [time, setTime] = useState<any>(data.timeRange?.to.unix() * 1000);
-  const [edgeLegend, setEdgeLegend] = useState<VizLegendItem[]>([]);
+  const { time, edgeLegend } = useEventState({
+    eventBus,
+    fieldConfig,
+    theme: theme2,
+    initialTime: getTime,
+  });
   const hasAnnots = !!data.annotations?.length;
   const layerCount = panel.layers.length;
-
-  const lineFeaturesRef = useRef<Record<string, DeckLine[]>>({});
-  const svgTintRefreshFrameRef = useRef<number | null>(null);
-  const hoverHighlightTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!hasAnnots) {
@@ -140,86 +126,11 @@ const Mapgl = ({
     });
   }, [time, annots, committedVersion, hasAnnots]);
 
-  useEffect(() => {
-    setTime(getTime);
-  }, [getTime]);
-
-  useEffect(() => {
-    const edgeThres: VizLegendItem[] = [];
-
-    const thresholds = fieldConfig.defaults.thresholds;
-    thresholds?.steps?.forEach((s, i) =>
-      edgeThres.push({
-        color: theme2.visualization.getColorByName(s.color),
-        label: [null, undefined, -Infinity].includes(s.value) ? '-Inf' : s.value,
-        yAxis: 1,
-        disabled: false,
-      })
-    );
-
-    setEdgeLegend(edgeThres);
-  }, [panel.layers]);
-
-  useEffect(() => {
-    const sub0 = eventBus
-      .getStream(DataHoverEvent)
-      .pipe(throttleTime(50))
-      .subscribe({
-        next: (event) => {
-          const time = event.payload?.point?.time;
-          if (time) {
-            // && !getGroupsLegend?.at(-1)?.disabled) {
-            setTime(time);
-          }
-        },
-      });
-
-    const sub1 = eventBus.subscribe(ThresholdEdgeChangeEvent, (evt) => {
-      if (evt.payload?.thresholds) {
-        const arr: VizLegendItem[] = [];
-        evt.payload.thresholds?.forEach((s, i) =>
-          arr.push({
-            color: theme2.visualization.getColorByName(s.color),
-            label: [null, undefined, -Infinity].includes(s.value) ? '-Inf' : s.value,
-            yAxis: 1,
-            disabled: false,
-          })
-        );
-        setEdgeLegend(arr);
-      }
-    });
-
-    return () => {
-      sub0.unsubscribe();
-      sub1.unsubscribe();
-    };
-  }, [eventBus]);
-
-  useEffect(() => {
-    return () => {
-      if (svgTintRefreshFrameRef.current !== null) {
-        cancelAnimationFrame(svgTintRefreshFrameRef.current);
-      }
-      if (hoverHighlightTimeoutRef.current !== null) {
-        clearTimeout(hoverHighlightTimeoutRef.current);
-      }
-    };
-  }, []);
-
   const onMapLoad = useCallback(() => {
     initMapRef(deckRef);
   }, []);
 
-  const onSvgIconReady = useCallback(() => {
-    if (svgTintRefreshFrameRef.current !== null) {
-      return;
-    }
-
-    svgTintRefreshFrameRef.current = requestAnimationFrame(() => {
-      svgTintRefreshFrameRef.current = null;
-      setVisRefresh((refresh) => refresh + 1);
-    });
-  }, []);
+  const onSvgIconReady = useSvgIconRefresh(() => setVisRefresh((refresh) => refresh + 1));
 
   useEffect(() => {
     if (isLogic && !source) {
@@ -239,25 +150,13 @@ const Mapgl = ({
     //</editor-fold>
   };
 
+  const focusHoveredElement = useDelayedHover(setFocusedNodeFromPickingInfo);
   const onDeckHover = useCallback(
     (info: any) => {
       setHoverInfo(info);
-
-      if (hoverHighlightTimeoutRef.current !== null) {
-        clearTimeout(hoverHighlightTimeoutRef.current);
-        hoverHighlightTimeoutRef.current = null;
-      }
-
-      if (!info?.picked) {
-        return;
-      }
-
-      hoverHighlightTimeoutRef.current = setTimeout(() => {
-        hoverHighlightTimeoutRef.current = null;
-        setFocusedNodeFromPickingInfo(info);
-      }, HOVER_HIGHLIGHT_DELAY_MS);
+      focusHoveredElement(info);
     },
-    [setFocusedNodeFromPickingInfo, setHoverInfo]
+    [focusHoveredElement]
   );
 
   const layerProps = {
@@ -309,184 +208,44 @@ const Mapgl = ({
   }, [layers, focusRevision, canDimGraph, pointStore, isRouted]);
 
   useEffect(() => {
-    flushSync(() => {
-      if (!getViewState) {
-        return;
-      }
-      const { longitude, latitude } = getViewState;
-      setLocalViewState(getViewState);
-      setSelCoord({ type: 'Point', coordinates: [longitude, latitude] });
-    });
+    if (!getViewState) {
+      return;
+    }
+    const { longitude, latitude } = getViewState;
+    setLocalViewState(getViewState);
+    setSelCoord({ type: 'Point', coordinates: [longitude, latitude] });
   }, [getViewState]);
 
   /// init render
 
+  const commitLayerBuild = useLatestRenderCommit<Layer[]>(setLayers, (error) => console.error(error));
   const getLayers = () => {
-    const secLayers: any = [];
-
-    const secDataLayers = panel.layers
-      .slice(1)
-      .filter((el) => el.layer.colType !== colTypes.Markers && el.layer.features?.length);
-    let poly = 0,
-      path = 0,
-      geojson = 0;
-    !isLogic &&
-      secDataLayers.forEach((l) => {
-        const features = l.layer.features;
-        const { name, isShowTooltip } = l.options;
-        const pickable = !!isShowTooltip;
-        switch (l.options.type) {
-          case colTypes.Polygons:
-            secLayers.push(
-              MyPolygonsLayer({
-                ...layerProps,
-                pickable,
-                name,
-                index: poly,
-                data: features,
-              })
-            );
-            poly++;
-            break;
-          case colTypes.Path:
-            secLayers.push(
-              MyPathLayer({
-                ...layerProps,
-                pickable,
-                name,
-                index: path,
-                data: features,
-                type: 'path',
-              })
-            );
-            path++;
-            break;
-          case colTypes.GeoJson:
-            const featCollection = {
-              type: 'FeatureCollection',
-              features,
-            };
-            secLayers.push(
-              MyGeoJsonLayer({
-                ...layerProps,
-                pickable,
-                name,
-                index: geojson,
-                data: featCollection,
-              })
-            );
-            geojson++;
-            break;
-        }
-      });
-
+    const secondary = buildSecondaryLayers({ isLogic, layers: panel.layers, layerProps });
     const edgesGeometry = hidePendingLogicLayout ? [{}, {}] : getEdgesGeometry(panel);
     const initLineFeatures: any = isRouted ? edgesGeometry[0] : edgesGeometry[1];
-    lineFeaturesRef.current = initLineFeatures ?? {};
     refreshGraphHighlighter();
 
     const commentFeatures: readonly ComFeature[] = graphRuntime?.render.state.commentFeatures ?? [];
 
-    /// Graphs nodes
-
-    const visNamespaces = visLayers.getCategories()[1];
-    const biCols: GraphBiFeatCol[] = hidePendingLogicLayout
-      ? []
-      : graphs
-          .filter((g) => visNamespaces.includes(g.id))
-          .sort((a, b) => {
-            const lenA = a.id.split(NS_SEPARATOR).length;
-            const lenB = b.id.split(NS_SEPARATOR).length;
-            return lenA - lenB;
-          })
-          .map((g, i) => {
-            const positionRanges = getGraphPositionRanges(g);
-
-            if (!features?.length) {
-              return null;
-            }
-
-            const packedNodeArrays = packGraphNodeBinaryRanges(
-              {
-                positions,
-                colors,
-                muted,
-                annotations: annotationColors,
-                groupIndices,
-              },
-              positionRanges
-            );
-            const {
-              count: totalCount,
-              positions: cutPositions,
-              colors: cutColors,
-              muted: cutMuted,
-              annotations: cutAnnots,
-              groupIndices: cutGroupIndices,
-            } = packedNodeArrays;
-            const biColors = selectGraphNodeFillColors(
-              { muted: cutMuted, annotations: cutAnnots },
-              hasAnnots && !getGroupsLegend.at(-1)?.disabled
-            );
-
-            const featureIds = { value: new Uint16Array(totalCount), size: 1 };
-            const globalFeatureIds = { value: new Uint32Array(totalCount), size: 1 };
-
-            let offset = 0;
-            for (const [start, end] of positionRanges) {
-              for (let i = start; i < end; i++) {
-                globalFeatureIds.value[offset] = offset;
-                featureIds.value[offset++] = i; // `i` is your global index
-              }
-            }
-
-            return {
-              ...emptyBiCol,
-              shape: 'binary-feature-collection',
-              graph: g,
-              groupIndices: cutGroupIndices,
-              annots: cutAnnots,
-              points: {
-                type: 'Point',
-                positions: { value: cutPositions, size: 2 },
-                attributes: {
-                  getFillColor: { value: biColors, size: 4, normalized: true },
-                  getColor: { value: cutColors, size: 4, normalized: true }, /// label use no opacity
-                },
-                featureIds,
-                globalFeatureIds,
-                numericProps: {},
-                properties: features,
-                // numericProps: {  /// for points it can be derived from index, for lines - datarecord has other rowIndex, considering multiple edges
-                // rowIndex: {value: featureIds, size: 1},
-                // },
-              } as unknown as BinaryPointFeature,
-            } as GraphBiFeatCol;
-          })
-          .filter((el): el is GraphBiFeatCol => el !== null);
-
-    const res = genPrimaryLayers({
+    const biCols = buildGraphBinaryCollections({
+      graphs,
+      visibleNamespaces: visLayers.getCategories()[1],
+      features,
+      positions,
+      colors,
+      muted,
+      annotations: annotationColors,
+      groupIndices,
+      showAnnotations: hasAnnots && !getGroupsLegend.at(-1)?.disabled,
+      hide: hidePendingLogicLayout,
+    });
+    const bundle = genPrimaryLayers({
       layerProps,
       biCols,
       lineFeatures: initLineFeatures,
       commentFeatures,
     });
-
-    const [bboxes, icons, arcsBase, lines, comments, edgeLabels] = res;
-
-    const nextLayers = [
-      ...secLayers,
-      ...bboxes,
-      ...arcsBase,
-      ...lines,
-      ...icons,
-      ...(comments ? [comments] : []),
-      ...edgeLabels,
-    ].filter((el) => el !== null && el !== undefined);
-
-    flushSync(() => {
-      setLayers(nextLayers);
-    });
+    void commitLayerBuild(() => composeRenderLayers({ ...bundle, secondary }));
   };
 
   /// refresh selIds for edges
@@ -527,15 +286,6 @@ const Mapgl = ({
     return <Menu eventBus={eventBus} {...{ options, data, panel, rootStore }} />;
   }, [options, panel.layers, graphVersion, data, rootStore]);
 
-  const memoPositionTracker = useMemo(() => {
-    return (
-      <div className={s.timeNcoords}>
-        {!!getGroupsLegend?.find((el) => el.label === ANNOTS_LABEL) && <StateTime time={time} />}
-        {!isLogic && <PositionTracker isLogic={panel.isLogic} selectedCoord={getSelCoord} />}
-      </div>
-    );
-  }, [getSelCoord, time, getGroupsLegend]);
-
   const onLabelClick = useCallback(
     (clickItem: VizLegendItem) => {
       const active_indexes = visLayers.getActiveGroups();
@@ -568,43 +318,6 @@ const Mapgl = ({
     },
     [getGroupsLegend, visLayers]
   );
-
-  const memoEdgeLegend = useMemo(() => {
-    if (!edgeLegend?.length) {
-      return null;
-    }
-
-    return (
-      <div className={s.edgeLegend}>
-        <VizLegend
-          className={s.compactLegend}
-          displayMode={LegendDisplayMode.List}
-          placement="bottom"
-          items={edgeLegend}
-        />
-      </div>
-    );
-  }, [edgeLegend]);
-
-  const memoLegend = useMemo(() => {
-    if (!getGroupsLegend?.length) {
-      return null;
-    }
-
-    return (
-      <div className={s.nodesLegend}>
-        <VizLegend
-          className={s.compactLegend}
-          displayMode={LegendDisplayMode.List}
-          placement="bottom"
-          items={getGroupsLegend.filter(
-            (item, i) => item.data.hasNodes || (hasAnnots && i === getGroupsLegend.length - 1)
-          )}
-          onLabelClick={(item) => onLabelClick(item)}
-        />
-      </div>
-    );
-  }, [getGroupsLegend, hasAnnots]);
 
   const viewId = isLogic ? '3d-scene' : 'geo-view';
   const views = useMemo(
@@ -723,156 +436,28 @@ const Mapgl = ({
         replaceVariables={replaceVariables}
       />
 
-      {(isShowEdgeLegend || isShowLegend) && (
-        <div className={s.legendStack}>
-          {isShowEdgeLegend && !isRouted && memoEdgeLegend}
-          {isShowLegend && memoLegend}
-        </div>
-      )}
+      <LegendStack
+        edgeLegend={edgeLegend}
+        nodeLegend={getGroupsLegend}
+        hasAnnotations={hasAnnots}
+        isRouted={isRouted}
+        showEdgeLegend={isShowEdgeLegend}
+        showNodeLegend={isShowLegend}
+        onNodeLabelClick={onLabelClick}
+        classes={s}
+      />
 
       {!panel.layoutInProgress && memoMenu}
-      {memoPositionTracker}
+      <PositionStatus
+        className={s.timeNcoords}
+        groupsLegend={getGroupsLegend}
+        time={time}
+        isLogic={panel.isLogic}
+        selectedCoord={getSelCoord}
+      />
       {isShowSwitcher && memoLayerSwitcher}
     </GraphDomObservability>
   );
 };
 
 export default observer(Mapgl);
-
-const layoutLoadingSpin = keyframes`
-  to {
-    transform: rotate(360deg);
-  }
-`;
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  page: css`
-    padding: ${theme.spacing(3)};
-    background-color: ${theme.colors.background.secondary};
-    display: flex;
-    justify-content: center;
-  `,
-  container: css`
-    .maplibregl-ctrl-attrib-button {
-      display: none;
-    }
-    background-color: ${theme.colors.background.secondary};
-  `,
-  graphDiagnostics: css`
-    position: absolute;
-    top: ${theme.spacing(1)};
-    left: 50%;
-    z-index: ${theme.zIndex.dropdown};
-    width: min(560px, calc(100% - ${theme.spacing(2)}));
-    transform: translateX(-50%);
-  `,
-  graphEmptyState: css`
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    z-index: ${theme.zIndex.dropdown};
-    width: min(560px, calc(100% - ${theme.spacing(2)}));
-    transform: translate(-50%, -50%);
-  `,
-  fullscreen: css`
-    z-index: ${theme.zIndex.dropdown};
-    position: absolute;
-    top: ${theme.spacing(1)};
-    right: ${theme.spacing(1)};
-    ${getDeckWidgetSkin(theme)}
-  `,
-  compass: css`
-    z-index: ${theme.zIndex.dropdown};
-    position: absolute;
-    top: calc(${theme.spacing(1)} + var(--button-size, ${theme.spacing(3.5)}) + ${theme.spacing(1.5)});
-    right: ${theme.spacing(1)};
-    ${getDeckWidgetSkin(theme)}
-  `,
-  layoutLoading: css`
-    z-index: ${theme.zIndex.dropdown};
-    position: absolute;
-    top: ${theme.spacing(1)};
-    left: ${theme.spacing(1)};
-    ${getDeckWidgetSkin(theme)}
-
-    button.deck-widget-spinner {
-      cursor: default;
-    }
-
-    button.deck-widget-spinner .deck-widget-icon {
-      animation: ${layoutLoadingSpin} 1s linear infinite;
-      mask: url("data:image/svg+xml,%3Csvg%20viewBox%3D'0%200%2024%2024'%20xmlns%3D'http://www.w3.org/2000/svg'%20fill%3D'none'%20stroke%3D'black'%20stroke-width%3D'2'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Cpath%20d%3D'M21%2012a9%209%200%201%201-6.219-8.56'%2F%3E%3C%2Fsvg%3E")
-        center / 70% 70% no-repeat;
-      -webkit-mask: url("data:image/svg+xml,%3Csvg%20viewBox%3D'0%200%2024%2024'%20xmlns%3D'http://www.w3.org/2000/svg'%20fill%3D'none'%20stroke%3D'black'%20stroke-width%3D'2'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Cpath%20d%3D'M21%2012a9%209%200%201%201-6.219-8.56'%2F%3E%3C%2Fsvg%3E")
-        center / 70% 70% no-repeat;
-    }
-  `,
-  layerSwitcher: css`
-    z-index: ${theme.zIndex.dropdown};
-    position: absolute;
-    top: ${theme.spacing(7)};
-    left: 0;
-
-    overflow: hidden;
-    pointer-events: all;
-  `,
-  legendStack: css`
-    z-index: ${theme.zIndex.dropdown};
-    position: absolute;
-    bottom: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    pointer-events: none;
-  `,
-  edgeLegend: css`
-    pointer-events: all;
-    background: ${theme.colors.background.secondary};
-  `,
-  nodesLegend: css`
-    padding-bottom: ${theme.spacing(0.5)};
-    pointer-events: all;
-    background: ${theme.colors.background.secondary};
-  `,
-  compactLegend: css`
-    & > div {
-      padding: ${theme.spacing(0.25)} ${theme.spacing(0.375)};
-      gap: ${theme.spacing(0.25)} ${theme.spacing(0.75)};
-    }
-
-    & ul {
-      display: flex;
-      align-items: center;
-      gap: ${theme.spacing(0.25)};
-    }
-
-    & li > span {
-      padding-right: ${theme.spacing(0.5)};
-      font-size: calc(${theme.typography.bodySmall.fontSize} * 1);
-      line-height: 1.1;
-    }
-
-    & button {
-      font-size: inherit;
-      line-height: 1.1;
-    }
-
-    & svg {
-      width: ${theme.spacing(1.5)};
-      height: ${theme.spacing(1.5)};
-    }
-  `,
-  timeNcoords: css`
-    position: absolute;
-    z-index: ${theme.zIndex.dropdown};
-    display: flex;
-    align-items: center;
-    gap: ${theme.spacing(1)};
-    font-size: calc(${theme.typography.bodySmall.fontSize} * 0.85);
-    line-height: 1;
-    top: ${theme.spacing(1)};
-    right: calc(${theme.spacing(1)} + var(--button-size, ${theme.spacing(3.5)}) + ${theme.spacing(1)});
-    white-space: nowrap;
-    pointer-events: all;
-  `,
-});
