@@ -94,6 +94,12 @@ const config = async (env: Record<string, unknown>): Promise<Configuration> => {
   patchRootCopyFiles(baseConfig);
 
   const extension: Configuration = {
+    ignoreWarnings: [
+      {
+        module: /maplibre-gl[\\/]dist[\\/]maplibre-gl\.mjs$/,
+        message: /Critical dependency: the request of a dependency is an expression/,
+      },
+    ],
     entry: {
       'layout-worker': '../panel-core/src/workers/layout-worker.ts',
     },
