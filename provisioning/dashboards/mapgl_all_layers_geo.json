@@ -132,13 +132,16 @@
         },
         "common": {
           "edgeRouting": "Splines",
+          "hideDiagnostics": true,
           "isMeters": false,
           "isShowEdgeLegend": true,
           "isShowLegend": true,
           "isShowSwitcher": true,
           "jitterPoints": true,
+          "locLabelName": "",
           "nsPrefix": "cmn"
         },
+        "controls": {},
         "dataLayers": [
           {
             "config": {
@@ -496,16 +499,7 @@
               ],
               "showStat2": true,
               "style": {
-                "arcs": [
-                  {
-                    "field": "",
-                    "fixed": "#FFEE52"
-                  },
-                  {
-                    "field": "metric",
-                    "fixed": ""
-                  }
-                ],
+                "arcs": [],
                 "color": {
                   "field": "metric",
                   "fixed": "dark-purple"
@@ -547,6 +541,9 @@
           }
         ],
         "isEditable": false,
+        "tooltip": {
+          "mode": "details"
+        },
         "updatesLog": true,
         "view": {
           "allLayers": true,
@@ -557,7 +554,7 @@
           "zoom": 16
         }
       },
-      "pluginVersion": "2.4.1",
+      "pluginVersion": "2.9.0",
       "targets": [
         {
           "datasource": {
@@ -659,6 +656,6 @@
   "timezone": "browser",
   "title": "Mapgl Geo view",
   "uid": "bc41f708-0b15-456b-ba0e-d2e16bbaef33",
-  "version": 1,
+  "version": 4,
   "weekStart": ""
 }
