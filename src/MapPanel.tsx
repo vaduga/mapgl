@@ -43,6 +43,7 @@ import {
   type GraphPanelRenderState,
   type GraphPanelLayoutState,
 } from '@mapgl/panel-core/graph/frame';
+import { updateThresholdColor } from '@mapgl/panel-core/render';
 import { createMarkersLayersPipelineInput, MARKERS_LAYER_ID, type MarkersConfig } from '@mapgl/panel-core/layers/data';
 import { areMapViewConfigsEqual } from '@mapgl/panel-core/view';
 import {
@@ -170,25 +171,19 @@ export class MapPanel extends Component<Props, State> {
 
     this.panelContext = {
       onToggleSeriesVisibility: undefined,
-      onSeriesColorChange: (v, c) => {
-        const newOptions = { ...this.normalizedOptions };
-        const newFieldConfig = { ...this.props.fieldConfig };
-        const steps = newFieldConfig.defaults.thresholds?.steps;
-        steps?.forEach((t) => {
-          const label = v === '-Inf' ? -Infinity : v;
-          if (t.value === label) {
-            const color = this.theme2.visualization.getColorByName(c);
-            if (color) {
-              t.color = color; //hexToRgba(color);
-            }
-          }
-        });
+      onSeriesColorChange: (label, colorName) => {
+        const color = this.theme2.visualization.getColorByName(colorName);
+        const fieldConfig = updateThresholdColor(this.props.fieldConfig, label, color);
+        if (fieldConfig === this.props.fieldConfig) {
+          return;
+        }
+
+        const steps = fieldConfig.defaults.thresholds?.steps;
         this.props.eventBus?.publish({
           type: 'edgeThresholdType',
           payload: { thresholds: steps },
         });
-        this.props.onOptionsChange(newOptions);
-        this.props.onFieldConfigChange(newFieldConfig);
+        this.props.onFieldConfigChange(fieldConfig);
       },
       graph: this.graph,
     } as unknown as PanelContext;

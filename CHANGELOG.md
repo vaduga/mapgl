@@ -1,5 +1,9 @@
 # Changelog Mapgl
 
+## 2.9.1
+- restore edge legend color picker
+- arc side distinct style config sections
+
 ## 2.9.0
 - Refactor for performance: packed graph relation storage with a flat runtime edge index. 30% faster graph build time.
 - GPU-shader for donut-charts to 50% reduce texture memory, SVG generation left for users icons.
