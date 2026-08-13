@@ -1,10 +1,11 @@
 import { css } from '@emotion/css';
+import { locationService } from '@grafana/runtime';
 import type { GraphFrameSnapshotSummary, GraphNodeRecord } from '@mapgl/panel-core/graph/frame';
 import { getGraphEdges, type Graph } from '@mapgl/panel-core/graph';
 import React, { useMemo } from 'react';
 
 const GRAPH_DOM_SAMPLE_LIMIT = 32;
-const GRAPH_E2E_QUERY_FLAG = 'mapglE2E=1';
+const GRAPH_E2E_QUERY_FLAG = 'mapglE2E';
 
 export interface GraphDomObservabilityProps {
   children: React.ReactNode;
@@ -23,7 +24,7 @@ export interface GraphDomObservabilityProps {
 }
 
 function isEnabled(): boolean {
-  return typeof window !== 'undefined' && window.location.search.includes(GRAPH_E2E_QUERY_FLAG);
+  return locationService.getSearch().get(GRAPH_E2E_QUERY_FLAG) === '1';
 }
 
 export const GraphDomObservability = React.forwardRef<HTMLDivElement, GraphDomObservabilityProps>(
