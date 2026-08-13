@@ -1,5 +1,5 @@
 import { toRGB4Array, makeColorDarker, makeColorLighter } from '../utils/color';
-import { Unit } from 'deck.gl';
+import type { Unit } from '@deck.gl/core';
 import { ALERTING_STATES } from '../../types/defaults';
 import { colTypes, type RGBAColor } from '@mapgl/panel-core/types';
 import AnimatedBlobsLayer from './animated-blobs-layer';

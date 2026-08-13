@@ -19,7 +19,7 @@ import { DARK_AUTO_HIGHLIGHT, LIGHT_AUTO_HIGHLIGHT, ANNOTS_LABEL } from '@mapgl/
 import { colTypes, type ViewState, type ComFeature } from '@mapgl/panel-core/types';
 import { getEdgesGeometry } from '@mapgl/panel-core/graph/utils';
 import { getGraphVersion, type Graph } from '@mapgl/panel-core/graph';
-import { Layer, MapView, OrbitView } from 'deck.gl';
+import { Layer, MapView, OrbitView } from '@deck.gl/core';
 import { selectGotoHandler } from '@mapgl/panel-core/utils';
 import {
   buildGraphBinaryCollections,
