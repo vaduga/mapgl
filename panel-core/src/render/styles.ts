@@ -1,6 +1,6 @@
 import { css, keyframes } from '@emotion/css';
 import type { GrafanaTheme2 } from '@grafana/data';
-import { getDeckWidgetSkin } from '../components/deck-widget-skin';
+import { getDeckWidgetSkin } from './deck-widget-skin';
 
 const layoutLoadingSpin = keyframes`
   to {

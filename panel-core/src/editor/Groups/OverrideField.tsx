@@ -3,7 +3,7 @@ import { OverField, Rule } from './ruleTypes';
 import React, { ReactNode, useEffect, useState } from 'react';
 import { FieldType, GrafanaTheme2, SelectableValue } from '@grafana/data';
 import { css } from '@emotion/css';
-import { FieldSelectEditor } from './FieldSelectEditor';
+import { FieldNamePicker } from '../../grafana_core/components/MatchersUI/FieldNamePicker';
 import { RuleOption } from './RuleItem';
 import { useFieldDisplayNames } from '../../grafana_core/components/MatchersUI/utils';
 
@@ -69,13 +69,7 @@ export const OverrideField: React.FC<OverrideFieldProps> = (options: OverrideFie
       type: 'enum',
     };
 
-    const { name, type } = options.overrideField;
-    const customField = {
-      label: name,
-      value: name,
-      type: type,
-    };
-    const fields = [thresField, ...dataFields, customField];
+    const fields = [thresField, ...dataFields];
     const isThresField = options.overrideField.name === 'thrColor' && options.overrideField.type === 'enum';
 
     const thrColors = Array.isArray(options.overrideField.value) ? options.overrideField.value : [];
@@ -92,11 +86,6 @@ export const OverrideField: React.FC<OverrideFieldProps> = (options: OverrideFie
       ),
     ];
     const storedOptions = thrColors.length ? mergedOptions.filter((t) => thrColors.includes(t.label)) : [];
-    // setSelThresOpts(storedOptions)
-    // setThresOpts(tOptions)
-    // }, [combinedThresholds]);
-    // const [selThresOpts, setSelThresOpts] = useState<ThresholdOption[]>()
-    // const [thresOpts, setThresOpts] = useState<ThresholdOption[]>()
 
     const renderOption = (option: SelectableValue<number>) =>
       (
@@ -117,12 +106,10 @@ export const OverrideField: React.FC<OverrideFieldProps> = (options: OverrideFie
     return (
       <>
         <InlineField shrink label={'prop ' + (options.index + 1)}>
-          <FieldSelectEditor
+          <FieldNamePicker
             context={options.context}
-            options={fields}
-            allowCustomValue={true}
+            options={[thresField]}
             item={options.context.item}
-            //context={options.context}
             value={options.overrideField.name}
             onChange={(v) => {
               if (typeof v === 'string') {

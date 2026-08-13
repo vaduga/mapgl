@@ -2,7 +2,6 @@ export * from './ArcOptionsEditor';
 export * from './FrameSelectionEditor';
 export * from './getQueryFields';
 export * from './StyleEditor';
-export * from './Groups/FieldSelectEditor';
 export * from './Groups/GroupsEditor';
 export * from './Groups/OverrideField';
 export * from './Groups/RuleItem';

@@ -11,5 +11,5 @@ export { default as Menu } from './Menu';
 export type { MenuAction, MenuActionContext, MenuProps } from './Menu';
 export { default as ReactSelectSearch } from './Selects/ReactSelectSearch';
 export type { handlerProps } from './Selects/ReactSelectSearch';
-export { getDeckWidgetSkin } from './deck-widget-skin';
+export { getDeckWidgetSkin } from '../render/deck-widget-skin';
 export * from './Diagnostics';

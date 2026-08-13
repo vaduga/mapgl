@@ -9,7 +9,7 @@ import {
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useStyles2, useTheme2, type VizLegendItem } from '@grafana/ui';
 import { observer } from 'mobx-react-lite';
-import DeckGL from '@deck.gl/react';
+import DeckGL, { DeckGLRef } from '@deck.gl/react';
 import MapLibre, { AttributionControl } from '@vis.gl/react-maplibre';
 
 import { useRootStore, genPrimaryLayers, expandTooltip } from '../utils';
