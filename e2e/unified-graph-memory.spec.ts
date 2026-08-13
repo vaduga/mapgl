@@ -2,7 +2,7 @@ import { expect, test } from '@grafana/plugin-e2e';
 
 import { installWebglTextureDiagnostics, readWebglTextureSnapshot } from './helpers/webgl-textures';
 
-const NODE_GRAPH_DASHBOARD = 'mapgl_node_graph_with_subgraphs.json';
+const NODE_GRAPH_DASHBOARD = 'mapgl_node_graph.json';
 
 test('captures live WebGL texture memory after node graph rendering', async ({
   gotoDashboardPage,
