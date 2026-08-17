@@ -61,7 +61,7 @@ export const SEL_LINE_WIDTH_MULTIPLIER = 2;
 export const blankHoverInfo: Info = {};
 
 export const defDeckViewPort = (c: { viewState: { zoom: number; bearing: number; pitch: number } }) => ({
-  transitionDuration: 1,
+  //transitionDuration: 1,
   //transitionInterpolator: new FlyToInterpolator(),
   //
   yZoom: c.viewState.zoom + 1,
