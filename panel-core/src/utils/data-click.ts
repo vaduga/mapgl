@@ -30,8 +30,9 @@ export const expandTooltip = (info: any, panel: any, eventBus: any, dataClickPro
 
   if (info.picked) {
     let { object, featureType, index, layer: deckLayer } = info;
-    const { comId, edgeId } = object || {};
-    let props = object?.properties ?? object;
+    const wrappedFeature = object?.feature;
+    const { comId } = object || {};
+    let props = object?.properties ?? wrappedFeature?.properties ?? object;
     let rowIndex;
 
     const points = !props?.cluster && deckLayer?.props.data.points;
@@ -55,11 +56,20 @@ export const expandTooltip = (info: any, panel: any, eventBus: any, dataClickPro
     if (!props || info.object?.properties?.guideType) {
       return;
     }
-    const { locName } = props || {};
-
-    const subGraph: Graph | undefined = props.graph ?? info.object?.properties?.graph;
-    const edge = subGraph ? findEdge(subGraph, edgeId) : undefined;
     const graphInteraction = resolvePanelGraphInteraction(panel, { ...info, object });
+    const edgeRef = graphInteraction?.kind === 'edge' ? graphInteraction.edgeRef : undefined;
+    const indexedEdge =
+      edgeRef !== undefined && edgeRef < (panel.graphEdgeIndex?.edgeCount ?? 0)
+        ? panel.graphEdgeIndex.getEdge(edgeRef)
+        : undefined;
+    const edgeId =
+      object?.edgeId ??
+      wrappedFeature?.edgeId ??
+      (graphInteraction?.kind === 'edge' ? graphInteraction.runtimeId : undefined);
+    const subGraph: Graph | undefined =
+      props.graph ?? wrappedFeature?.properties?.graph ?? (indexedEdge?.source.parent as Graph | undefined);
+    const edge = indexedEdge ?? (subGraph && edgeId !== undefined ? findEdge(subGraph, edgeId) : undefined);
+    const locName = props?.locName ?? edge?.source.id;
 
     if (comId !== undefined && edge) {
       const { index } = props;

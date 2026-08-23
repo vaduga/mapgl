@@ -176,6 +176,7 @@ describe('graph frame interaction identity', () => {
     const select = jest.fn();
     const panel = {
       features: state.features,
+      graphEdgeIndex: state.graph.edgeIndex,
       graphFrameRuntime: {
         snapshot: state.snapshot,
         graph: { state: state.graph },
@@ -228,6 +229,39 @@ describe('graph frame interaction identity', () => {
           unitRow: expect.objectContaining({ rowIndex: 1 }),
           record: expect.objectContaining({ id: 'trace-1' }),
         }),
+      })
+    );
+
+    select.mockClear();
+    expandTooltip(
+      {
+        picked: true,
+        x: 10,
+        y: 20,
+        object: {
+          feature: {
+            edgeRef: 1,
+            edgeId: edge.id,
+            properties: {
+              id: 0,
+              locName: edge.source.id,
+              graph: edge.source.parent,
+              rowIndex: 1,
+            },
+          },
+        },
+      },
+      panel,
+      {},
+      props,
+      select
+    );
+    expect(select).toHaveBeenCalledWith(
+      expect.objectContaining({
+        value: edge.source.id,
+        graphId: state.graph.graph.id,
+        edge,
+        edgeId: edge.id,
       })
     );
 
