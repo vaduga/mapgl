@@ -144,6 +144,39 @@ describe('graph frame normalization', () => {
     expect(result.relations.getRecordRefsById('A-B')).toEqual(new Uint32Array([0, 1]));
   });
 
+  it('uses one shared external namespace in Geo mode even when namespace fields are configured', async () => {
+    const frame = toDataFrame({
+      refId: 'GeoNamespaces',
+      fields: [
+        { name: 'source', values: ['A', 'B'] },
+        { name: 'target', values: ['B', null] },
+        { name: 'sourceNs', values: ['site.one', 'site.two'] },
+        { name: 'targetNs', values: ['site.one', 'site.two'] },
+        { name: 'longitude', values: [104.28, 104.31] },
+        { name: 'latitude', values: [52.29, 52.31] },
+      ],
+    });
+    const result = snapshot(
+      await normalizeGraphFrames({
+        data: { series: [frame] },
+        options: {
+          ...logicOptions,
+          sourceNamespaceField: 'sourceNs',
+          targetNamespaceField: 'targetNs',
+          defaultNamespace: 'configured-default',
+          isLogic: false,
+        },
+      })
+    );
+
+    expect(result.namespaces).toEqual(['external']);
+    expect(result.nodes.map(({ namespaceId, id }) => [namespaceId, id])).toEqual([
+      ['external', 'A'],
+      ['external', 'B'],
+    ]);
+    expect(result.relations.recordCount).toBe(1);
+  });
+
   it('merges multiple frames in order and preserves primary and contributing rows', async () => {
     const fixtures = createGraphCompatibilityFixtures();
     const result = snapshot(

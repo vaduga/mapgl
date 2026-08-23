@@ -85,6 +85,7 @@ These fields define how Mapgl builds the topology:
 - **Edge ID**: optional link identity. Use a unique value for every parallel link that should stay separate. Reuse a value only for consecutive rows that form one continuous route; fields from each row remain available on its displayed route portion.
 - **Vertex A namespace**: optional namespace for source nodes in graph mode.
 - **Vertex B namespace**: optional namespace for target nodes in graph mode.
+- Geo mode uses one shared `external` namespace; namespace field selections are ignored there.
 - **Search by**: extra fields included in the panel search text.
 
 Coordinates are not required for graph mode. They are only needed when you want Geo placement instead of auto-layout.

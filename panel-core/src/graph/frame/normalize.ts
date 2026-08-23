@@ -264,7 +264,7 @@ export async function normalizeGraphFrames(
 
   for (const layer of resolvedLayers) {
     const { options } = layer;
-    const defaultNamespace = options.defaultNamespace ?? CMN_NAMESPACE;
+    const defaultNamespace = options.isLogic ? (options.defaultNamespace ?? CMN_NAMESPACE) : CMN_NAMESPACE;
 
     for (const resolved of layer.frames) {
       const frame = resolved.selection.frame;
@@ -287,8 +287,12 @@ export async function normalizeGraphFrames(
           continue;
         }
 
-        const sourceNamespaceId = normalizeId(fieldValue(resolved.sourceNamespace, rowIndex)) ?? defaultNamespace;
-        const targetNamespaceId = normalizeId(fieldValue(resolved.targetNamespace, rowIndex)) ?? defaultNamespace;
+        const sourceNamespaceId = options.isLogic
+          ? (normalizeId(fieldValue(resolved.sourceNamespace, rowIndex)) ?? defaultNamespace)
+          : defaultNamespace;
+        const targetNamespaceId = options.isLogic
+          ? (normalizeId(fieldValue(resolved.targetNamespace, rowIndex)) ?? defaultNamespace)
+          : defaultNamespace;
         const nodeKey = graphNodeKey(sourceNamespaceId, nodeId);
         const position = positionAt(resolved, rowIndex, options.isLogic);
         let node = nodeBuilders.get(nodeKey);

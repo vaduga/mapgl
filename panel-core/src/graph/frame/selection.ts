@@ -124,22 +124,26 @@ export async function resolveGraphFrames(
           diagnostics,
           options.layerName
         ),
-        sourceNamespace: optionalField(
-          selection,
-          options.sourceNamespaceField,
-          'missing-source-namespace-field',
-          'source namespace',
-          diagnostics,
-          options.layerName
-        ),
-        targetNamespace: optionalField(
-          selection,
-          options.targetNamespaceField,
-          'missing-target-namespace-field',
-          'target namespace',
-          diagnostics,
-          options.layerName
-        ),
+        sourceNamespace: options.isLogic
+          ? optionalField(
+              selection,
+              options.sourceNamespaceField,
+              'missing-source-namespace-field',
+              'source namespace',
+              diagnostics,
+              options.layerName
+            )
+          : undefined,
+        targetNamespace: options.isLogic
+          ? optionalField(
+              selection,
+              options.targetNamespaceField,
+              'missing-target-namespace-field',
+              'target namespace',
+              diagnostics,
+              options.layerName
+            )
+          : undefined,
         location: Object.freeze(location),
       })
     );

@@ -129,6 +129,55 @@ describe('markers graph pipeline adapter', () => {
     expect(normalized.ok && normalized.value.relations.recordCount).toBe(1);
   });
 
+  it('uses one shared external namespace for Geo layers with stale namespace config', async () => {
+    const geographicData = {
+      series: [
+        toDataFrame({
+          refId: 'geo-query-with-namespaces',
+          fields: [
+            { name: 'source', values: ['A', 'B'] },
+            { name: 'target', values: ['B', null] },
+            { name: 'sourceNs', values: ['site.one', 'site.two'] },
+            { name: 'targetNs', values: ['site.one', 'site.two'] },
+            { name: 'longitude', values: [104.28, 104.31] },
+            { name: 'latitude', values: [52.29, 52.31] },
+          ],
+        }),
+      ],
+    } as PanelData;
+    const layer = {
+      ...createDefaultMarkersConfig(),
+      name: 'saved geographic graph with stale namespaces',
+      locField: 'source',
+      parField: 'target',
+      config: {
+        vertexA_NS: 'sourceNs',
+        vertexB_NS: 'targetNs',
+      },
+    };
+
+    const input = createMarkersPipelineInput({
+      data: geographicData,
+      layer,
+      theme: createTheme(),
+      isLogic: false,
+      useMockData: false,
+    });
+    const normalized = await normalizeGraphFrames(input);
+
+    expect(input.options).toMatchObject({
+      defaultNamespace: 'external',
+      sourceNamespaceField: undefined,
+      targetNamespaceField: undefined,
+    });
+    expect(normalized.ok && normalized.value.namespaces).toEqual(['external']);
+    expect(normalized.ok && normalized.value.nodes.map(({ namespaceId }) => namespaceId)).toEqual([
+      'external',
+      'external',
+    ]);
+    expect(normalized.ok && normalized.value.relations.recordCount).toBe(1);
+  });
+
   it('composes all active graph layers in logic mode with per-layer render identity', async () => {
     const logicData = {
       series: [

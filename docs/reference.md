@@ -118,7 +118,8 @@ Vertex A=A, Vertex B=["A", [15, 55], "B"], Edge ID=geo-route-1
 ## Namespace rules
 
 - Namespaces apply in graph mode.
-- The default namespace is `external`.
+- Geo mode uses one shared namespace, `external`; configured namespace fields and custom defaults are ignored there.
+- The default namespace in graph mode is `external`.
 - **Vertex A namespace** selects or creates the source node namespace.
 - **Vertex B namespace** selects the target node namespace.
 - Dot-separated namespace values create nested subgraphs, for example `site.core.router`.

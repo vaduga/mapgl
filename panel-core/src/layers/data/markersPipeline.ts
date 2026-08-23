@@ -3,7 +3,7 @@ import type { GrafanaTheme2, PanelData } from '@grafana/data';
 import type { ExtendMapLayerOptions } from '../../extension';
 import type { GraphPipelineInput, GraphPipelineLayerInput } from '../../graph/frame';
 import type { StyleConfig } from '../../style/types';
-import { MOC_LOC_FIELD } from '../../types/defaults';
+import { CMN_NAMESPACE, MOC_LOC_FIELD } from '../../types/defaults';
 import { defaultMarkersOptions, type MarkersConfig } from './markersDefaults';
 import { mockEdgeGraphData, mockTextConfig } from './mockData';
 
@@ -82,9 +82,12 @@ export function createMarkersPipelineInput(options: MarkersPipelineOptions): Gra
       nodeIdField,
       targetField: options.useMockData ? 'target' : options.layer.parField,
       edgeIdField: options.useMockData ? 'edgeId' : options.layer.edgeIdField,
-      sourceNamespaceField: config.vertexA_NS,
-      targetNamespaceField: config.vertexB_NS,
+      // Namespace fields are a graph-mode feature. Geo mode has one shared
+      // namespace so stale saved panel config cannot split geographic nodes.
+      sourceNamespaceField: options.isLogic ? config.vertexA_NS : undefined,
+      targetNamespaceField: options.isLogic ? config.vertexB_NS : undefined,
       location: options.layer.location,
+      defaultNamespace: CMN_NAMESPACE,
       isLogic: options.isLogic,
       layoutSignature: options.layoutSignature,
     },
