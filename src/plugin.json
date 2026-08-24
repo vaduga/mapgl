@@ -40,11 +40,11 @@
     ],
     "screenshots": [
       {
-        "name": "Node graph",
+        "name": "Service graph",
         "path": "img/screenshots/screenshot1.png"
       },
       {
-        "name": "Namespaces",
+        "name": "Node graph",
         "path": "img/screenshots/screenshot2.png"
       },
       {
@@ -52,7 +52,7 @@
         "path": "img/screenshots/screenshot3.png"
       },
       {
-        "name": "Service graph",
+        "name": "Namespaces",
         "path": "img/screenshots/screenshot4.png"
       }
     ],

@@ -1,7 +1,7 @@
 # Changelog Mapgl
 
 ## 2.10
-- Gauge visualization in case of a single Node `arc sections` metric
+- Gauge overlay for a single field-driven metric in Node Styles → Arc sections 
 - fix: parallel edges picking
 
 ## 2.9.1
