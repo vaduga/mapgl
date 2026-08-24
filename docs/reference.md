@@ -177,6 +177,28 @@ These rows form one supported ordered route because they are consecutive and con
 
 Node group matching and escalation happen after this base style is resolved.
 
+## Node arc and gradient-gauge rules
+
+- No configured **Arc sections** renders no donut decoration.
+- Two or more configured sections render the existing equal-section donut. Field-driven and fixed-color sections can be mixed.
+- Exactly one fixed-color section renders the existing full ring.
+- Exactly one field-driven section renders a circular gradient gauge in the existing donut band.
+- The gauge radial bars with narrow separators fill begins at 12 o'clock, advances clockwise by whole bars, and is normalized against the selected field's effective Grafana Min and Max.
+- The Arc editor shows Bar width factor when at least one Arc section is configured. It shows Segments, Segment spacing, and Show thresholds only for exactly one field-driven Arc; it additionally shows Gradient when that Arc field uses From thresholds. 
+- Bar width factor scales Arc radial thickness inward while retaining the node's outer footprint. Segments and Segment spacing control gauge bar count and gaps. Disabling Show thresholds removes the outer full-range reference circle and its glow.
+- Arc presentation settings are resolved per node from its originating **Markers and links** layer. 
+- When Segments is `1`, the single radial bar covers the full circle for any finite metric value and uses the active field Color scheme color at its normalized value rather than the inactive track color. Missing or invalid values retain the subdued track behavior.
+- A thin outer reference circle displays the field's complete configured color range; the value controls which inner bars are active and does not truncate the reference circle.
+- Values below Min clamp to an empty gauge; values above Max clamp to a complete circle.
+- A null, missing, non-finite value, missing selected field, or non-positive effective range renders only the subdued gauge track, without an active bar or glow.
+- The active bar uses the metric field's native **Standard options -> Color scheme**. Continuous by-value schemes render their Grafana gradient; **From thresholds** uses native absolute or percentage threshold positions and theme-resolved colors. For a single metric Arc using **From thresholds**, the optional **Gradient** setting defaults to enabled and interpolates between those stops; when disabled, the gauge uses piecewise-constant threshold levels with sharp boundaries. The setting is hidden for non-threshold schemes, which retain their existing behavior. Non-by-value schemes render a solid Grafana-resolved field color.
+- Discrete threshold levels are visualized in the gauge bars and, when **Show thresholds** is enabled, in the outer reference circle.
+- In both Geo and abstract node graph modes, a single field-driven gauge resolves a center display string through the selected field's existing Grafana display processor. The result includes configured units, decimals, value mappings, prefixes, suffixes, and no-value text.
+- Center icon/value visibility is resolved per node. A gauge node without a configured group icon shows its value. A gauge node with a configured group icon shows the icon and suppresses the value while the **Icon** visibility layer is on; switching that layer off suppresses the icon and reveals the value. Mixed icon and no-icon groups in the same node layer are handled independently.
+- The **Label** visibility layer, graph-layer visibility, group and layer filters, and focus behavior still apply to gauge center values. Multi-section and fixed-color donuts retain their existing center placeholder behavior.
+- Gauge rendering does not add a separate threshold, Min/Max, palette, or gauge-style configuration to Mapgl.
+- Gauge and donut rendering retain the same node size, inner icon opening, selection scaling, focus opacity, collision, filtering, and picking behavior.
+
 ## Field-driven size scaling
 
 - **Min** is the rendered size or line width at normalized percentage `0`.

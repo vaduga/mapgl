@@ -1,10 +1,22 @@
-import type { DataFrame, GrafanaTheme2, ThresholdsConfig } from '@grafana/data';
+import {
+  FieldColorModeId,
+  ThresholdsMode,
+  formattedValueToString,
+  getDisplayProcessor,
+  getFieldColorModeForField,
+  getFieldConfigWithMinMax,
+  getScaleCalculator,
+  type DataFrame,
+  type Field,
+  type GrafanaTheme2,
+  type ThresholdsConfig,
+} from '@grafana/data';
 
 import { cloneResolvedGroup, resolveFeatureGroup } from '../../editor/Groups/data/group-resolve';
 import type { Rule } from '../../editor/Groups/ruleTypes';
 import { findField } from '../../grafana_core/app/features/dimensions';
 import { FeatSource, getNodeData, type Graph } from '../main';
-import type { StyleConfig, StyleConfigState } from '../../style/types';
+import { isMetricDrivenArc, resolveArcOptions, type StyleConfig, type StyleConfigState } from '../../style/types';
 import { resolveStyleConfigState } from '../../style/utils';
 import { colTypes, type BiColProps, type RGBAColor } from '../../types';
 import { getStyleDimension } from '../../utils/geomap_utils';
@@ -15,6 +27,7 @@ import type {
   GraphEdgeVisualMetrics,
   GraphFrameSnapshot,
   GraphNodeRecord,
+  GraphResolvedNodeGauge,
   GraphNodeVisualRecord,
   GraphResolvedArcStyle,
   GraphResolvedVisualGroup,
@@ -26,6 +39,110 @@ import type {
   GraphVisualState,
 } from './types';
 import { PACKED_INVALID_REF } from './packedRelations';
+
+const GAUGE_COLOR_SAMPLE_COUNT = 16;
+const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
+
+const toSingleLineGaugeText = (value: string): string => value.replace(/\s*[\r\n]+\s*/g, ' ').trim();
+
+function resolveGaugeDisplayText(field: Field, rowIndex: number, theme: GrafanaTheme2): string {
+  const display = field.display ?? getDisplayProcessor({ field, theme });
+  if (!field.display) {
+    field.display = display;
+  }
+  return toSingleLineGaugeText(formattedValueToString(display(field.values[rowIndex])));
+}
+
+function effectiveNumericField(field: Field): Field {
+  const config = getFieldConfigWithMinMax(field, true);
+  if (config === field.config) {
+    return field;
+  }
+  return getFieldColorModeForField(field).isByValue ? { ...field, config, state: undefined } : { ...field, config };
+}
+
+const finiteConfigNumber = (value: unknown): number | undefined =>
+  typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+
+function resolveGaugeStops(field: Field, theme: GrafanaTheme2): GraphResolvedNodeGauge['stops'] {
+  const mode = getFieldColorModeForField(field);
+  const scale = getScaleCalculator(field, theme);
+  const min = finiteConfigNumber(field.config.min);
+  const max = finiteConfigNumber(field.config.max);
+  const delta = min !== undefined && max !== undefined ? max - min : Number.NaN;
+
+  if (min === undefined || max === undefined || delta <= 0) {
+    const color = toRGB4Array(scale(min ?? 0).color);
+    return [
+      { color, endFraction: 0 },
+      { color, endFraction: 1 },
+    ];
+  }
+
+  const colorAt = (fraction: number) => toRGB4Array(scale(min + delta * clamp01(fraction)).color);
+
+  if (mode.id !== FieldColorModeId.Thresholds) {
+    if (!mode.isByValue) {
+      const color = colorAt(0);
+      return [
+        { color, endFraction: 0 },
+        { color, endFraction: 1 },
+      ];
+    }
+    return Array.from({ length: GAUGE_COLOR_SAMPLE_COUNT }, (_, index) => {
+      const endFraction = index / (GAUGE_COLOR_SAMPLE_COUNT - 1);
+      return { color: colorAt(endFraction), endFraction };
+    });
+  }
+
+  const thresholds = field.config.thresholds;
+  const fractions = (thresholds?.steps ?? [])
+    .map((step, index) => {
+      if (index === 0 || step.value === null || !Number.isFinite(Number(step.value))) {
+        return 0;
+      }
+      return thresholds?.mode === ThresholdsMode.Percentage
+        ? clamp01(Number(step.value) / 100)
+        : clamp01((Number(step.value) - min) / delta);
+    })
+    .filter((fraction, index, values) => index === 0 || fraction !== values[index - 1]);
+  const positions = Array.from(new Set([0, ...fractions, 1])).sort((left, right) => left - right);
+  return positions.map((endFraction) => ({ color: colorAt(endFraction), endFraction }));
+}
+
+function resolveNodeGauge(
+  sourceField: Field | undefined,
+  rowIndex: number,
+  theme: GrafanaTheme2,
+  fallbackColor: string | undefined
+): GraphResolvedNodeGauge {
+  if (!sourceField) {
+    const color = toRGB4Array(fallbackColor ?? '#808080');
+    return {
+      colorMode: 'missing-field',
+      displayText: '',
+      fillFraction: -1,
+      stops: [
+        { color, endFraction: 0 },
+        { color, endFraction: 1 },
+      ],
+    };
+  }
+  const field = effectiveNumericField(sourceField);
+  const min = finiteConfigNumber(field.config.min);
+  const max = finiteConfigNumber(field.config.max);
+  const rawValue = sourceField.values[rowIndex];
+  const value = typeof rawValue === 'number' ? rawValue : Number.NaN;
+  const hasRange = min !== undefined && max !== undefined && max > min;
+  const fillFraction = hasRange && Number.isFinite(value) ? clamp01((value - min) / (max - min)) : -1;
+
+  return {
+    colorMode: getFieldColorModeForField(field).id,
+    displayText: resolveGaugeDisplayText(sourceField, rowIndex, theme),
+    fillFraction,
+    stops: resolveGaugeStops(field, theme),
+  };
+}
 
 interface PreparedStyle {
   readonly state: StyleConfigState;
@@ -190,10 +307,12 @@ function resolvedNodeStyle(
   dimensions: ReturnType<typeof dimensionsFor>,
   resolved: ReturnType<typeof resolveGroup>
 ): GraphResolvedVisualStyle {
+  const arcOptions = input.config.style.arcs?.length ? resolveArcOptions(input.config.style.arcOptions) : undefined;
   const values: GraphResolvedVisualStyle = {
     ...baseStyle(prepared.node.state),
     color: resolved.color,
     group: resolved.group,
+    ...(arcOptions && { arcOptions }),
     ...(dimensions.size && { size: dimensions.size.get(row.rowIndex) }),
     ...(dimensions.text && { text: dimensions.text.get(row.rowIndex) }),
   };
@@ -213,6 +332,16 @@ function resolvedNodeStyle(
     style = {
       ...style,
       arcs: arcDimensions.map((arc) => arc.color?.get(row.rowIndex)),
+      ...(isMetricDrivenArc(input.config.style.arcs)
+        ? {
+            gauge: resolveNodeGauge(
+              arcDimensions[0].color?.field ?? findField(frame, input.config.style.arcs[0].field),
+              row.rowIndex,
+              input.theme,
+              arcDimensions[0].color?.get(row.rowIndex)
+            ),
+          }
+        : {}),
     };
   }
 

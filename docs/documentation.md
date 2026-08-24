@@ -2,7 +2,7 @@
 
 This page focuses on configuring the Mapgl panel in Grafana after your query already returns node and edge data.
 
-Mapgl is a **dual-mode topology panel**, not a geomap-only panel:
+Mapgl is a **dual-mode topology panel**:
 
 - use **abstract node graph mode** when you want automatic topology layout without coordinates
 - use **network geomap mode** when you want to place that topology on real map coordinates
@@ -156,6 +156,16 @@ This is the foundation for group escalation. Node groups do not replace Grafana 
 
 For field-driven **Size**, Min is the rendered size assigned to the lowest metric and Max is the size assigned to the highest metric. Set Min greater than Max when lower metric values should appear larger. The same direction rule applies to field-driven edge and arc line widths.
 
+Arc sections adapt to the selected configuration:
+
+- Two or more sections keep the existing equal-section donut around the node.
+- One fixed-color section remains a full fixed-color ring.
+- One field-driven section becomes a circular gradient gauge. Its compact radial bars start at 12 o'clock and fill clockwise according to the metric's effective Min and Max. Filled bars use the selected field's **Standard options -> Color scheme**; unfilled bars stay subdued. A thin outer circle shows the full configured color range, and carries the restrained glow.
+
+The gauge supports native Grafana continuous by-value schemes and **From thresholds**. Configure Min, Max, Color scheme, and thresholds through Grafana standard field options or field overrides; Mapgl does not define a separate gauge color scale.
+
+In both Geo and abstract node graph modes, the center of a single field-driven gauge shows the same metric through Grafana's display formatting, including units, decimals, value mappings, prefixes, suffixes, and configured no-value text. A node group without a configured icon shows the value normally. When a group has an icon, the center shows either that icon or the value: switching off the **Icon** visibility layer reveals the value. 
+
 ## Node groups
 
 Node groups are the most specific styling system in Mapgl. A group can define:
@@ -267,6 +277,6 @@ These settings are shown in **Basemap layer** when **Node Graph ortho** is selec
 - Start with one **Markers and links** layer and get **Vertex A** and **Vertex B** working first.
 - Use native Grafana thresholds for the base severity model.
 - Use groups mainly for icon and size escalation.
-- Add group color overrides where threshold color is not enough, and to make node group labeled in the legend 
+- Add group color overrides where threshold color is not enough, and to make node group labeled in the legend
 - Use unique **Edge ID** values for parallel links.
 - If group results look unexpected, check whether multiple groups match the same node. Mixed icon/color outcomes are valid behavior in Mapgl.

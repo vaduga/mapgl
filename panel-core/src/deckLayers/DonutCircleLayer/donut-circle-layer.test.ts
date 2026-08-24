@@ -4,6 +4,7 @@ jest.mock('@deck.gl/layers', () => {
     props: any;
     state: any = {};
     context: any;
+    attributeManager = { addInstanced: jest.fn(), invalidate: jest.fn() };
 
     constructor(props: any) {
       this.props = props;
@@ -18,7 +19,7 @@ jest.mock('@deck.gl/layers', () => {
     finalizeState() {}
     draw() {}
     getAttributeManager() {
-      return { addInstanced: jest.fn(), invalidate: jest.fn() };
+      return this.attributeManager;
     }
     setState(next: any) {
       this.state = { ...this.state, ...next };
@@ -64,6 +65,16 @@ describe('DonutCircleLayer resource lifecycle', () => {
 
     layer.initializeState();
     expect(textures).toHaveLength(1);
+    expect(layer.attributeManager.addInstanced).toHaveBeenCalledWith(
+      expect.objectContaining({
+        instanceDonutGaugeValues: expect.objectContaining({ accessor: 'getDonutGaugeValue', defaultValue: -1 }),
+        instanceDonutGaugeOptions: expect.objectContaining({
+          size: 4,
+          accessor: 'getDonutGaugeOptions',
+          defaultValue: [-1, -1, -1, -1],
+        }),
+      })
+    );
 
     layer.updateState({
       props: { donutAtlas: atlas('#00ff00') },

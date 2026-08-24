@@ -5,7 +5,7 @@ import type { Rule } from '../../editor/Groups/ruleTypes';
 import type { GraphEdgeIndex } from '../GraphEdgeIndex';
 import type { FeatSource } from '../FeatSource';
 import type { Graph } from '../structs/graph';
-import type { StyleConfig, StyleConfigValues } from '../../style/types';
+import type { ArcOptionsConfig, StyleConfig, StyleConfigValues } from '../../style/types';
 import type { BiColProps, RGBAColor } from '../../types';
 import type { PackedGraphRelations } from './packedRelations';
 
@@ -280,10 +280,24 @@ export type GraphResolvedVisualGroup = Omit<Rule, 'color'> & {
   readonly color: RGBAColor;
 };
 
+export type GraphResolvedGaugeStop = {
+  readonly color: RGBAColor;
+  readonly endFraction: number;
+};
+
+export type GraphResolvedNodeGauge = {
+  readonly colorMode: string;
+  readonly displayText: string;
+  readonly fillFraction: number;
+  readonly stops: readonly GraphResolvedGaugeStop[];
+};
+
 export type GraphResolvedVisualStyle = Omit<StyleConfigValues, 'color'> & {
   readonly color: RGBAColor;
   readonly group?: GraphResolvedVisualGroup;
   readonly arcs?: ReadonlyArray<string | undefined>;
+  readonly arcOptions?: ArcOptionsConfig;
+  readonly gauge?: GraphResolvedNodeGauge;
   readonly isDashed?: boolean;
 };
 

@@ -325,6 +325,211 @@ describe('graph visual stage', () => {
 
     expect(state.nodes[0].style.arcs).toHaveLength(2);
     expect(state.nodes[0].style.arcs?.every(Boolean)).toBe(true);
+    expect(state.nodes[0].style.gauge).toBeUndefined();
+  });
+
+  it('resolves a single metric arc as a threshold gradient gauge', async () => {
+    const frame = toDataFrame({
+      refId: 'ThresholdGauge',
+      fields: [
+        { name: 'source', values: ['A', 'B', 'C'] },
+        {
+          name: 'load',
+          values: [-10, 50, 110],
+          config: {
+            min: 0,
+            max: 100,
+            color: { mode: FieldColorModeId.Thresholds },
+            thresholds: {
+              mode: ThresholdsMode.Absolute,
+              steps: [
+                { color: 'green', value: null },
+                { color: 'red', value: 50 },
+              ],
+            },
+          },
+        },
+      ],
+    });
+    const { state } = await visuals(
+      frame,
+      visualConfig({
+        style: {
+          ...visualConfig().style,
+          arcs: [{ field: 'load', fixed: '' }],
+          arcOptions: {
+            barWidthFactor: 0.7,
+            segments: 24,
+            segmentSpacing: 0.2,
+            showThresholds: false,
+            gradient: false,
+          },
+        },
+      })
+    );
+
+    expect(state.nodes.map(({ style }) => style.gauge?.fillFraction)).toEqual([0, 0.5, 1]);
+    expect(state.nodes[0].style.arcOptions).toEqual({
+      barWidthFactor: 0.7,
+      segments: 24,
+      segmentSpacing: 0.2,
+      showThresholds: false,
+      gradient: false,
+    });
+    expect(state.nodes[1].style.gauge).toMatchObject({
+      colorMode: FieldColorModeId.Thresholds,
+      stops: [
+        { endFraction: 0, color: toRGB4Array(theme.visualization.getColorByName('green')) },
+        { endFraction: 0.5, color: toRGB4Array(theme.visualization.getColorByName('red')) },
+        { endFraction: 1, color: toRGB4Array(theme.visualization.getColorByName('red')) },
+      ],
+    });
+  });
+
+  it('formats gauge center values with the native Grafana display processor', async () => {
+    const frame = toDataFrame({
+      refId: 'FormattedGauge',
+      fields: [
+        { name: 'source', values: ['A', 'B'] },
+        {
+          name: 'load',
+          values: [0.425, null],
+          config: { min: 0, max: 1, unit: 'percentunit', decimals: 1, noValue: 'No data' },
+        },
+      ],
+    });
+    const { state } = await visuals(
+      frame,
+      visualConfig({ style: { ...visualConfig().style, arcs: [{ field: 'load', fixed: '' }] } })
+    );
+
+    expect(state.nodes.map(({ style }) => style.gauge?.displayText)).toEqual(['42.5%', 'No data']);
+  });
+
+  it('reuses an existing field display processor and normalizes its output to one line', async () => {
+    const display = jest.fn(() => ({ text: '42\nms', prefix: '~', suffix: ' total' }));
+    const frame = toDataFrame({
+      refId: 'ExistingGaugeDisplay',
+      fields: [
+        { name: 'source', values: ['A'] },
+        { name: 'load', values: [42], config: { min: 0, max: 100 }, display },
+      ],
+    });
+    const { state } = await visuals(
+      frame,
+      visualConfig({ style: { ...visualConfig().style, arcs: [{ field: 'load', fixed: '' }] } })
+    );
+
+    expect(display).toHaveBeenCalledWith(42);
+    expect(state.nodes[0].style.gauge?.displayText).toBe('~42 ms total');
+  });
+
+  it('resolves continuous and solid Grafana field color schemes', async () => {
+    const continuous = toDataFrame({
+      refId: 'ContinuousGauge',
+      fields: [
+        { name: 'source', values: ['A'] },
+        {
+          name: 'load',
+          values: [25],
+          config: { min: 0, max: 100, color: { mode: FieldColorModeId.ContinuousGrYlRd } },
+        },
+      ],
+    });
+    const solid = toDataFrame({
+      refId: 'SolidGauge',
+      fields: [
+        { name: 'source', values: ['A'] },
+        {
+          name: 'load',
+          values: [75],
+          config: { min: 0, max: 100, color: { mode: FieldColorModeId.Fixed, fixedColor: 'blue' } },
+        },
+      ],
+    });
+    const config = visualConfig({ style: { ...visualConfig().style, arcs: [{ field: 'load', fixed: '' }] } });
+    const continuousState = (await visuals(continuous, config)).state;
+    const solidState = (await visuals(solid, config)).state;
+
+    expect(continuousState.nodes[0].style.gauge).toMatchObject({
+      colorMode: FieldColorModeId.ContinuousGrYlRd,
+      fillFraction: 0.25,
+    });
+    expect(continuousState.nodes[0].style.gauge?.stops).toHaveLength(16);
+    expect(solidState.nodes[0].style.gauge).toMatchObject({ colorMode: FieldColorModeId.Fixed, fillFraction: 0.75 });
+    expect(solidState.nodes[0].style.gauge?.stops[0].color).toEqual(solidState.nodes[0].style.gauge?.stops[1].color);
+  });
+
+  it('leaves invalid gauge values empty and preserves fixed arc fallback', async () => {
+    const frame = toDataFrame({
+      refId: 'InvalidGauge',
+      fields: [
+        { name: 'source', values: ['A', 'B'] },
+        { name: 'load', values: [null, 5], config: { min: 0, max: 10 } },
+      ],
+    });
+    const metricState = (
+      await visuals(frame, visualConfig({ style: { ...visualConfig().style, arcs: [{ field: 'load', fixed: '' }] } }))
+    ).state;
+    const fixedState = (
+      await visuals(frame, visualConfig({ style: { ...visualConfig().style, arcs: [{ fixed: 'blue' }] } }))
+    ).state;
+
+    expect(metricState.nodes.map(({ style }) => style.gauge?.fillFraction)).toEqual([-1, 0.5]);
+    expect(fixedState.nodes[0].style.gauge).toBeUndefined();
+  });
+
+  it('normalizes percentage thresholds and leaves invalid ranges or missing fields as tracks', async () => {
+    const frame = toDataFrame({
+      refId: 'GaugeEdgeCases',
+      fields: [
+        { name: 'source', values: ['A'] },
+        {
+          name: 'percentageLoad',
+          values: [100],
+          config: {
+            min: 0,
+            max: 200,
+            color: { mode: FieldColorModeId.Thresholds },
+            thresholds: {
+              mode: ThresholdsMode.Percentage,
+              steps: [
+                { color: 'green', value: null },
+                { color: 'red', value: 50 },
+              ],
+            },
+          },
+        },
+        { name: 'flatLoad', values: [5], config: { min: 5, max: 5 } },
+      ],
+    });
+    const percentageState = (
+      await visuals(
+        frame,
+        visualConfig({ style: { ...visualConfig().style, arcs: [{ field: 'percentageLoad', fixed: '' }] } })
+      )
+    ).state;
+    const flatState = (
+      await visuals(
+        frame,
+        visualConfig({ style: { ...visualConfig().style, arcs: [{ field: 'flatLoad', fixed: '' }] } })
+      )
+    ).state;
+    const missingState = (
+      await visuals(
+        frame,
+        visualConfig({ style: { ...visualConfig().style, arcs: [{ field: 'missingLoad', fixed: '' }] } })
+      )
+    ).state;
+
+    expect(percentageState.nodes[0].style.gauge?.stops.map(({ endFraction }) => endFraction)).toEqual([0, 0.5, 1]);
+    expect(flatState.nodes[0].style.gauge).toMatchObject({ fillFraction: -1 });
+    expect(flatState.nodes[0].style.gauge?.stops).toHaveLength(2);
+    expect(missingState.nodes[0].style.gauge).toMatchObject({
+      colorMode: 'missing-field',
+      displayText: '',
+      fillFraction: -1,
+    });
   });
 
   it('resolves capacity-relative arc channels, arrows, and edge metrics', async () => {

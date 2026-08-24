@@ -126,13 +126,19 @@
               "isWrapEdges": 0,
               "showStat2": false,
               "style": {
+                "arcs": [
+                  {
+                    "field": "nodeMetric",
+                    "fixed": ""
+                  }
+                ],
                 "color": {
                   "field": "nodeMetric",
                   "fixed": "green"
                 },
                 "opacity": 1,
                 "size": {
-                  "fixed": 32
+                  "fixed": 64
                 },
                 "text": {
                   "field": "source",

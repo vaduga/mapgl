@@ -5,6 +5,7 @@ import {
   MAX_DONUT_STRIPES,
   createDonutAtlas,
   createEqualDonutInput,
+  createGaugeDonutInput,
   getDonutInputKey,
   getDonutRecord,
   normalizeDonutInput,
@@ -46,8 +47,46 @@ describe('donut shader data', () => {
   });
 
   it('handles empty inputs and missing node colors deterministically', () => {
-    expect(normalizeDonutInput({})).toMatchObject({ segments: [], stripes: [] });
+    expect(normalizeDonutInput({})).toMatchObject({ mode: 'sections', segments: [], stripes: [] });
     expect(normalizeDonutInput(createEqualDonutInput([undefined])).segments[0].color).toEqual([0, 0, 0, 1]);
+  });
+
+  it('normalizes gauge stops independently from section weights', () => {
+    const normalized = normalizeDonutInput(
+      createGaugeDonutInput({
+        colorMode: 'continuous-GrYlRd',
+        stops: [
+          { color: '#ff0000', endFraction: 1 },
+          { color: '#00ff00', endFraction: 0 },
+          { color: '#ffff00', endFraction: 0.5 },
+        ],
+      })
+    );
+
+    expect(normalized).toMatchObject({
+      mode: 'gauge',
+      colorMode: 'continuous-GrYlRd',
+      stripes: [],
+      reducedGaugeStopCount: 0,
+    });
+    expect(normalized.segments.map(({ endFraction }) => endFraction)).toEqual([0, 0.5, 1]);
+  });
+
+  it('reduces oversized gauge scales deterministically while preserving endpoints', () => {
+    const normalized = normalizeDonutInput(
+      createGaugeDonutInput({
+        colorMode: 'thresholds',
+        stops: Array.from({ length: MAX_DONUT_SEGMENTS + 5 }, (_, index) => ({
+          color: [index, 0, 0, 255],
+          endFraction: index / (MAX_DONUT_SEGMENTS + 4),
+        })),
+      })
+    );
+
+    expect(normalized.segments).toHaveLength(MAX_DONUT_SEGMENTS);
+    expect(normalized.segments[0].endFraction).toBe(0);
+    expect(normalized.segments[MAX_DONUT_SEGMENTS - 1].endFraction).toBe(1);
+    expect(normalized.reducedGaugeStopCount).toBe(5);
   });
 
   it('bounds segment and stripe records and reports truncation', () => {
@@ -99,6 +138,29 @@ describe('donut shader data', () => {
     expect(getDonutInputKey(createEqualDonutInput(['#00ff00', '#ff0000']))).not.toBe(
       getDonutInputKey(createEqualDonutInput(['#ff0000', '#00ff00']))
     );
+    expect(
+      getDonutInputKey(
+        createGaugeDonutInput({
+          colorMode: 'thresholds',
+          stops: [{ color: '#ff0000', endFraction: 1 }],
+        })
+      )
+    ).not.toBe(getDonutInputKey(createEqualDonutInput(['#ff0000'])));
+  });
+
+  it('encodes gauge mode in the atlas header and reports gauge diagnostics', () => {
+    const input = createGaugeDonutInput({
+      colorMode: 'continuous-blues',
+      stops: [
+        { color: '#000000', endFraction: 0 },
+        { color: '#0000ff', endFraction: 1 },
+      ],
+    });
+    const key = getDonutInputKey(input);
+    const atlas = createDonutAtlas([[key, input]]);
+
+    expect(atlas.data[3]).toBe(1);
+    expect(atlas.diagnostics).toMatchObject({ gaugeRecordCount: 1, reducedGaugeStopCount: 0 });
   });
 
   it('keeps deterministic visual fixtures for node, cluster, and annotation variants', () => {

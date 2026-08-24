@@ -1,7 +1,11 @@
 # Changelog Mapgl
 
+## 2.10
+- Gauge visualization in case of a single Node `arc sections` metric
+- fix: parallel edges picking
+
 ## 2.9.1
-- fix: unblock Field selector in Grafana 13 (Combobox) for Node Group rules.
+- fix: Field selector in Grafana 13 (Combobox) for Node Group rules.
 - restore edge legend color picker
 - separate visually Arc A/B side Style config sections 
 

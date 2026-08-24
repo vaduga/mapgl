@@ -5,6 +5,7 @@ import { toRGB4Array } from '../utils/color';
 export const MAX_DONUT_SEGMENTS = 16;
 export const MAX_DONUT_STRIPES = 4;
 export const DONUT_INNER_RADIUS_RATIO = 0.73;
+export const DONUT_GAUGE_BAR_OUTER_RADIUS_RATIO = 0.972;
 export const DONUT_RECORD_TEXELS = 1 + (MAX_DONUT_SEGMENTS + MAX_DONUT_STRIPES) * 2;
 
 export type DonutColor = string | Color | null | undefined;
@@ -14,9 +15,20 @@ export type DonutWeightedColor = {
   count: number;
 };
 
+export type DonutGaugeStop = {
+  color: DonutColor;
+  endFraction: number;
+};
+
+export type DonutGaugeInput = {
+  colorMode: string;
+  stops: readonly DonutGaugeStop[];
+};
+
 export type DonutInput = {
   segments?: readonly DonutWeightedColor[];
   stripes?: readonly DonutWeightedColor[];
+  gauge?: DonutGaugeInput;
   total?: number;
   innerRadius?: number;
 };
@@ -27,8 +39,10 @@ export type NormalizedDonutPart = {
 };
 
 export type NormalizedDonutInput = {
+  mode: 'sections' | 'gauge';
   segments: readonly NormalizedDonutPart[];
   stripes: readonly NormalizedDonutPart[];
+  colorMode?: string;
   innerRadius: number;
 };
 
@@ -44,6 +58,8 @@ export type DonutAtlasDiagnostics = {
   estimatedBytes: number;
   truncatedSegmentCount: number;
   truncatedStripeCount: number;
+  reducedGaugeStopCount: number;
+  gaugeRecordCount: number;
 };
 
 export type DonutAtlas = {
@@ -73,6 +89,8 @@ export const EMPTY_DONUT_ATLAS: DonutAtlas = Object.freeze({
     estimatedBytes: 16,
     truncatedSegmentCount: 0,
     truncatedStripeCount: 0,
+    reducedGaugeStopCount: 0,
+    gaugeRecordCount: 0,
   }),
 });
 
@@ -115,21 +133,61 @@ const normalizeParts = (
   return { parts, truncated: Math.max(0, positive.length - maximum) };
 };
 
+const reduceGaugeStops = (stops: readonly NormalizedDonutPart[], maximum: number): NormalizedDonutPart[] => {
+  if (stops.length <= maximum) {
+    return [...stops];
+  }
+  return Array.from({ length: maximum }, (_, index) => {
+    const sourceIndex = Math.round((index * (stops.length - 1)) / (maximum - 1));
+    return stops[sourceIndex];
+  });
+};
+
+const normalizeGaugeStops = (
+  values: readonly DonutGaugeStop[] | undefined
+): { parts: NormalizedDonutPart[]; reduced: number } => {
+  const sorted = (values ?? [])
+    .filter((value) => Number.isFinite(value.endFraction))
+    .map((value) => ({ color: normalizeColor(value.color), endFraction: clamp01(value.endFraction) }))
+    .sort((left, right) => left.endFraction - right.endFraction);
+  const unique = sorted.filter(
+    (part, index) => index === sorted.length - 1 || part.endFraction !== sorted[index + 1].endFraction
+  );
+  const parts = reduceGaugeStops(unique, MAX_DONUT_SEGMENTS);
+  return { parts, reduced: Math.max(0, unique.length - parts.length) };
+};
+
 export const normalizeDonutInput = (
   input: DonutInput
 ): NormalizedDonutInput & {
   truncatedSegmentCount: number;
   truncatedStripeCount: number;
+  reducedGaugeStopCount: number;
 } => {
+  if (input.gauge) {
+    const gauge = normalizeGaugeStops(input.gauge.stops);
+    return {
+      mode: 'gauge',
+      segments: gauge.parts,
+      stripes: [],
+      colorMode: input.gauge.colorMode,
+      innerRadius: clamp01(input.innerRadius ?? DONUT_INNER_RADIUS_RATIO),
+      truncatedSegmentCount: 0,
+      truncatedStripeCount: 0,
+      reducedGaugeStopCount: gauge.reduced,
+    };
+  }
   const segments = normalizeParts(input.segments, MAX_DONUT_SEGMENTS, input.total);
   const stripes = normalizeParts(input.stripes, MAX_DONUT_STRIPES);
 
   return {
+    mode: 'sections',
     segments: segments.parts,
     stripes: stripes.parts,
     innerRadius: clamp01(input.innerRadius ?? DONUT_INNER_RADIUS_RATIO),
     truncatedSegmentCount: segments.truncated,
     truncatedStripeCount: stripes.truncated,
+    reducedGaugeStopCount: 0,
   };
 };
 
@@ -138,12 +196,14 @@ export const createEqualDonutInput = (colors: readonly DonutColor[] | undefined)
   total: colors?.length ?? 0,
 });
 
+export const createGaugeDonutInput = (gauge: DonutGaugeInput): DonutInput => ({ gauge });
+
 export const getDonutInputKey = (input: DonutInput): string => {
   const normalized = normalizeDonutInput(input);
   const serialize = (part: NormalizedDonutPart) => `${part.color.join(',')}@${part.endFraction}`;
-  return `${normalized.innerRadius}|${normalized.segments.map(serialize).join(';')}|${normalized.stripes
+  return `${normalized.mode}|${normalized.colorMode ?? ''}|${normalized.innerRadius}|${normalized.segments
     .map(serialize)
-    .join(';')}`;
+    .join(';')}|${normalized.stripes.map(serialize).join(';')}`;
 };
 
 const nextPowerOfTwo = (value: number) => 2 ** Math.ceil(Math.log2(Math.max(1, value)));
@@ -161,6 +221,8 @@ export const createDonutAtlas = (variants: Iterable<readonly [string, DonutInput
   let stripeCount = 0;
   let truncatedSegmentCount = 0;
   let truncatedStripeCount = 0;
+  let reducedGaugeStopCount = 0;
+  let gaugeRecordCount = 0;
   const recordKeys: string[] = [];
 
   for (const [key, input] of variants) {
@@ -178,6 +240,8 @@ export const createDonutAtlas = (variants: Iterable<readonly [string, DonutInput
     stripeCount += normalized.stripes.length;
     truncatedSegmentCount += normalized.truncatedSegmentCount;
     truncatedStripeCount += normalized.truncatedStripeCount;
+    reducedGaugeStopCount += normalized.reducedGaugeStopCount;
+    gaugeRecordCount += normalized.mode === 'gauge' ? 1 : 0;
   }
 
   if (!normalizedRecords.length) {
@@ -195,6 +259,7 @@ export const createDonutAtlas = (variants: Iterable<readonly [string, DonutInput
     data[headerOffset] = record.segments.length;
     data[headerOffset + 1] = record.stripes.length;
     data[headerOffset + 2] = record.innerRadius;
+    data[headerOffset + 3] = record.mode === 'gauge' ? 1 : 0;
 
     record.segments.forEach((part, index) => {
       writePart(data, recordOffset + 1 + index * 2, part);
@@ -222,6 +287,8 @@ export const createDonutAtlas = (variants: Iterable<readonly [string, DonutInput
       estimatedBytes: data.byteLength,
       truncatedSegmentCount,
       truncatedStripeCount,
+      reducedGaugeStopCount,
+      gaugeRecordCount,
     },
   };
 };

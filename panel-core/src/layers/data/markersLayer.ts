@@ -139,7 +139,8 @@ export function createMarkersLayer({
               build: (builder) => {
                 builder.addCustomEditor({
                   id: 'arcs',
-                  name: 'Arc sections',
+                  // ArcOptionsEditor renders the visible label and collapse control.
+                  name: '',
                   path: 'arcs',
                   editor: ArcOptionsEditor,
                 });

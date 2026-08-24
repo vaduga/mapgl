@@ -28,6 +28,7 @@ export {
   MAX_DONUT_STRIPES,
   createDonutAtlas,
   createEqualDonutInput,
+  createGaugeDonutInput,
   getDonutInputKey,
   getDonutRecord,
   normalizeDonutInput,
@@ -38,6 +39,8 @@ export type {
   DonutCircleLayerProps,
   DonutColor,
   DonutInput,
+  DonutGaugeInput,
+  DonutGaugeStop,
   DonutWeightedColor,
   NormalizedDonutInput,
   NormalizedDonutPart,
@@ -48,8 +51,8 @@ export type { CurveEdgeBinaryData, CurveEdgeLayerData, CurveEdgeSegment } from '
 export { EdgesGeojsonLayer } from './GeoJsonEdgesLayer/edges-geojson-layer';
 export {
   ICON_CACHE_SOURCE_KEY,
-  LogicMainLabelTextLayer,
-  LogicPlaceholderTextLayer,
+  MainLabelTextLayer,
+  PlaceholderTextLayer,
   NodesGeojsonLayer,
 } from './GeoJsonNodesLayer/nodes-geojson-layer';
 export { getNodeIconAtlasSourceSize, getPackedSvgIcon, svgToDataURL } from './GeoJsonNodesLayer/svgIconAtlas';

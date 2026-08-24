@@ -1,7 +1,7 @@
 import { isVisible, toRGB4Array } from '@mapgl/panel-core/deckLayers/utils';
 import { GeoJsonLayer, PathLayer, TextLayer } from '@deck.gl/layers';
-import { Layer } from '@deck.gl/core';
-import { Graph } from '@mapgl/panel-core/graph';
+import type { Layer } from '@deck.gl/core';
+import type { Graph } from '@mapgl/panel-core/graph';
 import { getMapglFeatureServices, getNamespaceBoundaries } from '@mapgl/panel-core';
 import { BBOX_OUTLINE_COLOR, BBOX_OUTLINE_WIDTH } from '@mapgl/panel-core/types/defaults';
 import { type DeckLine, colTypes } from '@mapgl/panel-core/types';
@@ -12,8 +12,8 @@ import {
   EdgesGeojsonLayer,
   EdgeArrowLayer,
   NodesGeojsonLayer,
-  LogicMainLabelTextLayer,
-  LogicPlaceholderTextLayer,
+  MainLabelTextLayer,
+  PlaceholderTextLayer,
 } from '@mapgl/panel-core/deckLayers';
 import type { RenderLayerBundle } from '@mapgl/panel-core/render';
 
@@ -42,8 +42,6 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
           idSuffix: '-main',
         })
       );
-      icons.push(LogicPlaceholderTextLayer({ ...layerProps, biCol: col, visible }));
-      icons.push(LogicMainLabelTextLayer({ ...layerProps, biCol: col, visible }));
     } else {
       icons.push(
         nodeLayer({
@@ -52,6 +50,10 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
           visible,
         })
       );
+    }
+    icons.push(PlaceholderTextLayer({ ...layerProps, biCol: col, visible }));
+    if (isLogic) {
+      icons.push(MainLabelTextLayer({ ...layerProps, biCol: col, visible }));
     }
   }
 

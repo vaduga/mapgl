@@ -1,29 +1,39 @@
 import { GeoJsonLayer, TextLayer } from '@deck.gl/layers';
 import { CollisionFilterExtension, DataFilterExtension } from '@deck.gl/extensions';
+import { FieldColorModeId } from '@grafana/data';
 
 import { getPackedSvgIcon, svgToDataURL } from './svgIconAtlas';
 import {
   DonutCircleLayer,
   createDonutAtlas,
   createEqualDonutInput,
+  createGaugeDonutInput,
   getDonutInputKey,
   getDonutRecord,
+  type DonutInput,
 } from '../DonutCircleLayer';
 import { getTintedSvgIcon, resolveSvgTintMode } from '../utils/svg';
 import { createUserSvgAtlasPlan, getUserSvgVariantKey } from './userSvgAtlas';
 import { isVisible } from '../utils/visibility';
-import { toRgbaString } from '../utils/color';
+import { toRGB4Array, toRgbaString } from '../utils/color';
 import { getNodeLayerVisibility, getNodePointType } from './nodeRenderPlan';
 import {
+  GAUGE_VALUE_FONT_FAMILY,
+  GAUGE_VALUE_FONT_WEIGHT,
+  getFittedGaugeValueTextSize,
   getFittedIconSize,
+  getGaugeValueContentBoxSide,
   getMaxNodeIconSizesByVariant,
+  getResolvedNodeArcOptions,
   getResolvedNodeArcColors,
+  getResolvedNodeGauge,
   getResolvedPointRadius,
   getResolvedTextPixelOffset,
   getResolvedUserIconBoxSize,
 } from './nodeGeometry';
 import { Matrix4 } from '@math.gl/core';
 import { colTypes } from '@mapgl/panel-core/types';
+import { resolveArcOptions } from '../../style/types';
 
 type LogicTextDatum = {
   coordinates: [number, number];
@@ -36,6 +46,7 @@ type LogicTextLayerData = {
   placeholderData: LogicTextDatum[];
   labelYOffset: Float32Array;
   placeholderBoxSide: Float32Array;
+  placeholderTextSize: Float32Array;
 };
 
 type NodeIconCache = {
@@ -61,7 +72,14 @@ const getPlaceholderBoxSide = (properties: any, selectedNodeId?: string) => {
   return (getResolvedPointRadius(getFeatureWrapper(properties), selectedNodeId) * 2) / Math.SQRT2;
 };
 
-const buildLogicTextLayerData = (biCol: any, selectedNodeId?: string): LogicTextLayerData => {
+const getPlaceholderTextSize = (properties: any) => {
+  const size = properties?.style?.size ?? 0;
+  const r = size / 2;
+  const r0 = Math.round(r * 0.73);
+  return Math.round(r0 * 0.5);
+};
+
+const buildLogicTextLayerData = (biCol: any, selectedNodeId?: string, iconLayerVisible = true): LogicTextLayerData => {
   const featureIds = biCol?.points?.featureIds?.value;
   const positions = biCol?.points?.positions?.value;
   const properties = biCol?.points?.properties;
@@ -70,13 +88,21 @@ const buildLogicTextLayerData = (biCol: any, selectedNodeId?: string): LogicText
   const placeholderData: LogicTextDatum[] = [];
   const labelYOffset = new Float32Array(count);
   const placeholderBoxSide = new Float32Array(count);
+  const placeholderTextSize = new Float32Array(count);
 
   if (featureIds && positions && properties) {
     for (let i = 0; i < count; i++) {
       const featureProps = properties[featureIds[i]];
 
       labelYOffset[i] = getLabelYOffset(featureProps, selectedNodeId);
-      placeholderBoxSide[i] = getPlaceholderBoxSide(featureProps, selectedNodeId);
+      const gauge = featureProps?.style?.gauge;
+      const boxSide = gauge
+        ? getGaugeValueContentBoxSide(getFeatureWrapper(featureProps), selectedNodeId)
+        : getPlaceholderBoxSide(featureProps, selectedNodeId);
+      placeholderBoxSide[i] = boxSide;
+      placeholderTextSize[i] = gauge
+        ? getFittedGaugeValueTextSize(gauge.displayText ?? '', boxSide)
+        : getPlaceholderTextSize(featureProps);
 
       const datum = {
         coordinates: [positions[i * 2], positions[i * 2 + 1]] as [number, number],
@@ -86,7 +112,7 @@ const buildLogicTextLayerData = (biCol: any, selectedNodeId?: string): LogicText
       labelData.push(datum);
 
       const iconName = featureProps?.style?.group?.iconName;
-      if (!iconName) {
+      if ((gauge && (!iconName || !iconLayerVisible)) || (!gauge && !iconName)) {
         placeholderData.push(datum);
       }
     }
@@ -97,6 +123,7 @@ const buildLogicTextLayerData = (biCol: any, selectedNodeId?: string): LogicText
     placeholderData,
     labelYOffset,
     placeholderBoxSide,
+    placeholderTextSize,
   };
 };
 
@@ -201,24 +228,54 @@ const NodesGeojsonLayer = (props) => {
   });
   const packedIconSize = userSvgAtlasPlan.sourceTier;
 
-  const donutVariants = new Map<string, ReturnType<typeof createEqualDonutInput>>();
-  for (const properties of Object.values(activePointProperties ?? {}) as any[]) {
+  const getDonutInput = (properties: any): DonutInput | undefined => {
+    const gauge = properties?.style?.gauge;
+    if (gauge?.stops?.length) {
+      return createGaugeDonutInput({ colorMode: gauge.colorMode, stops: gauge.stops });
+    }
     const arcs = properties?.style?.arcs;
-    if (!arcs?.length) {
+    return arcs?.length ? createEqualDonutInput(arcs) : undefined;
+  };
+
+  const donutVariants = new Map<string, DonutInput>();
+  const activeProperties = Object.values(activePointProperties ?? {}) as any[];
+  for (const properties of activeProperties) {
+    const input = getDonutInput(properties);
+    if (!input) {
       continue;
     }
-    const input = createEqualDonutInput(arcs);
     donutVariants.set(getDonutInputKey(input), input);
   }
   const donutAtlas = createDonutAtlas(donutVariants);
 
   const getNodeDonutRecord = (d: any, info?: { index?: number }) => {
+    const gauge = getResolvedNodeGauge(d, pointProperties, featureIds, info?.index);
     const arcs = getResolvedNodeArcColors(d, pointProperties, featureIds, info?.index);
-    if (!arcs?.length) {
+    const input = gauge?.stops?.length
+      ? createGaugeDonutInput({ colorMode: gauge.colorMode, stops: gauge.stops })
+      : arcs?.length
+        ? createEqualDonutInput(arcs)
+        : undefined;
+    if (!input) {
       return -1;
     }
-    const input = createEqualDonutInput(arcs);
     return getDonutRecord(donutAtlas, getDonutInputKey(input));
+  };
+
+  const getNodeDonutGaugeValue = (d: any, info?: { index?: number }) => {
+    return getResolvedNodeGauge(d, pointProperties, featureIds, info?.index)?.fillFraction ?? -1;
+  };
+
+  const getNodeDonutGaugeOptions = (d: any, info?: { index?: number }) => {
+    const arcOptions = resolveArcOptions(getResolvedNodeArcOptions(d, pointProperties, featureIds, info?.index));
+    const gauge = getResolvedNodeGauge(d, pointProperties, featureIds, info?.index);
+    const gradient = gauge?.colorMode !== FieldColorModeId.Thresholds || arcOptions.gradient;
+    return [
+      arcOptions.barWidthFactor,
+      arcOptions.segments,
+      arcOptions.segmentSpacing,
+      (arcOptions.showThresholds ? 1 : 0) + (gradient ? 0 : 2),
+    ] as const;
   };
 
   const getNodeIconSize = (d) => {
@@ -227,13 +284,6 @@ const NodesGeojsonLayer = (props) => {
     const iconName = group?.iconName;
     const svgIcon = iconName && svgIcons[iconName];
     return getFittedIconSize(targetBoxSize, svgIcon?.width, svgIcon?.height);
-  };
-
-  const getPlaceholderTextSize = (d) => {
-    const size = d.properties?.style?.size ?? 0;
-    const r = size / 2;
-    const r0 = Math.round(r * 0.73);
-    return Math.round(r0 * 0.5);
   };
 
   const getNodeText = (d: any) => {
@@ -286,7 +336,7 @@ const NodesGeojsonLayer = (props) => {
     getTextPixelOffset: getNodeTextPixelOffset,
     getTextSize: (d) => {
       if (isPlaceholderTextMode) {
-        return getPlaceholderTextSize(d);
+        return getPlaceholderTextSize(d.properties);
       }
       const size = d.properties.style?.textConfig?.fontSize;
       return size ?? 12;
@@ -399,6 +449,11 @@ const NodesGeojsonLayer = (props) => {
         type: DonutCircleLayer,
         donutAtlas,
         getDonutRecord: getNodeDonutRecord,
+        getDonutGaugeValue: getNodeDonutGaugeValue,
+        getDonutGaugeOptions: getNodeDonutGaugeOptions,
+        // OrbitView rotates the graph plane so its local +Y points down on
+        // screen; MapView keeps local +Y pointing toward screen 12 o'clock.
+        gaugeCoordinateYSign: isLogic ? -1 : 1,
         sizeUnits: units,
         radiusUnits: units,
         visible: Circle,
@@ -412,6 +467,8 @@ const NodesGeojsonLayer = (props) => {
         updateTriggers: {
           getRadius: [selectedNodeId],
           getDonutRecord: [donutAtlas, visRefresh],
+          getDonutGaugeValue: [visRefresh],
+          getDonutGaugeOptions: [visRefresh],
         },
       },
     },
@@ -425,7 +482,7 @@ const NodesGeojsonLayer = (props) => {
   });
 };
 
-const LogicPlaceholderTextLayer = (props) => {
+const PlaceholderTextLayer = (props) => {
   const {
     biCol,
     getVisLayers,
@@ -436,19 +493,20 @@ const LogicPlaceholderTextLayer = (props) => {
     pickable,
     onHover,
     autoHighlight,
+    theme,
+    visRefresh,
     idSuffix = '',
   } = props;
-  const Labels = isVisible(getVisLayers, {
-    index: null,
-    name: colTypes.Label,
-    group: colTypes.Label,
-  });
+  const { svg: SVG, labels: Labels } = getNodeLayerVisibility(getVisLayers);
   const categories = getVisLayers.getCategories();
   const categorySize = 2;
   const units = isLogic ? 'common' : options.common?.isMeters ? 'meters' : 'pixels';
 
   const selectedNodeId = getSelectedNode?.id;
-  const logicTextData = buildLogicTextLayerData(biCol, selectedNodeId);
+  const logicTextData = buildLogicTextLayerData(biCol, selectedNodeId, SVG);
+  const gaugeTextColor = theme?.colors?.text?.primary
+    ? toRGB4Array(theme.colors.text.primary, 1)
+    : ([240, 240, 240, 255] as const);
 
   const modelMatrix = new Matrix4();
   const srcGraphId = biCol.graph.id;
@@ -471,8 +529,10 @@ const LogicPlaceholderTextLayer = (props) => {
     onHover,
     autoHighlight,
     sizeUnits: units,
-    getText: () => '-\n-',
-    getColor: [240, 240, 240, 50],
+    fontFamily: GAUGE_VALUE_FONT_FAMILY,
+    fontWeight: GAUGE_VALUE_FONT_WEIGHT,
+    getText: (d: any) => d.properties?.style?.gauge?.displayText ?? '-\n-',
+    getColor: (d: any) => (d.properties?.style?.gauge ? gaugeTextColor : [240, 240, 240, 50]),
     getPosition: (d: any) => d.coordinates,
     getContentBox: (d: any) => {
       const side = logicTextData.placeholderBoxSide[d.pointIndex] ?? 0;
@@ -481,27 +541,25 @@ const LogicPlaceholderTextLayer = (props) => {
     contentCutoffPixels: [1, 1],
     contentAlignHorizontal: 'center',
     contentAlignVertical: 'center',
-    getSize: (d: any) => {
-      const size = d.properties?.style?.size ?? 0;
-      const r = size / 2;
-      const r0 = Math.round(r * 0.73);
-      return Math.round(r0 * 0.5);
-    },
+    getSize: (d: any) => logicTextData.placeholderTextSize[d.pointIndex] ?? 0,
     getFilterCategory: (d: any) => {
       const { style, layerName } = d.properties || {};
       return [style?.group?.groupIdx, layerName];
     },
     updateTriggers: {
-      getContentBox: [selectedNodeId],
+      getText: [biCol?.points?.properties, SVG, visRefresh],
+      getColor: [theme?.colors?.text?.primary],
+      getContentBox: [selectedNodeId, biCol?.points?.properties, visRefresh],
+      getSize: [selectedNodeId, biCol?.points?.properties, visRefresh],
     },
     filterCategories: categories,
     extensions: [new DataFilterExtension({ categorySize })],
   });
 };
 
-export { LogicPlaceholderTextLayer };
+export { PlaceholderTextLayer };
 
-const LogicMainLabelTextLayer = (props) => {
+const MainLabelTextLayer = (props) => {
   const {
     biCol,
     getVisLayers,
@@ -582,4 +640,4 @@ const LogicMainLabelTextLayer = (props) => {
   });
 };
 
-export { NodesGeojsonLayer, LogicMainLabelTextLayer, ICON_CACHE_SOURCE_KEY };
+export { NodesGeojsonLayer, MainLabelTextLayer, ICON_CACHE_SOURCE_KEY };

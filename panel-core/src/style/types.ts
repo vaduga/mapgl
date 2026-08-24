@@ -32,11 +32,57 @@ export interface ArcOption {
   field?: string;
 }
 
+export interface ArcOptionsConfig {
+  /** Radial thickness multiplier for both section and gauge bars. */
+  barWidthFactor?: number;
+  /** Number of compact bars used by the metric-driven gauge. */
+  segments?: number;
+  /** Normalized gap between gauge bars. */
+  segmentSpacing?: number;
+  /** Whether the gauge's full-range outer reference circle is rendered. */
+  showThresholds?: boolean;
+  /** Whether threshold colors are smoothly interpolated across the gauge. */
+  gradient?: boolean;
+}
+
+export type ResolvedArcOptionsConfig = {
+  barWidthFactor: number;
+  segments: number;
+  segmentSpacing: number;
+  showThresholds: boolean;
+  gradient: boolean;
+};
+
+export const DEFAULT_ARC_OPTIONS: ResolvedArcOptionsConfig = Object.freeze({
+  barWidthFactor: 0.5,
+  segments: 48,
+  segmentSpacing: 0.3,
+  showThresholds: true,
+  gradient: true,
+});
+
+const clampArcOption = (value: unknown, min: number, max: number, fallback: number): number => {
+  const numeric = typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+  return Math.min(max, Math.max(min, numeric));
+};
+
+export const resolveArcOptions = (options?: ArcOptionsConfig): ResolvedArcOptionsConfig => ({
+  barWidthFactor: clampArcOption(options?.barWidthFactor, 0.1, 1, DEFAULT_ARC_OPTIONS.barWidthFactor),
+  segments: Math.round(clampArcOption(options?.segments, 1, 100, DEFAULT_ARC_OPTIONS.segments)),
+  segmentSpacing: clampArcOption(options?.segmentSpacing, 0, 1, DEFAULT_ARC_OPTIONS.segmentSpacing),
+  showThresholds: options?.showThresholds ?? DEFAULT_ARC_OPTIONS.showThresholds,
+  gradient: typeof options?.gradient === 'boolean' ? options.gradient : DEFAULT_ARC_OPTIONS.gradient,
+});
+
+export const isMetricDrivenArc = (arcs?: readonly ArcOption[]): boolean =>
+  arcs?.length === 1 && Boolean(arcs[0]?.field);
+
 // StyleConfig is saved in panel json and is used to configure how items get rendered
 export interface StyleConfig {
   group?: Rule;
   color?: ColorDimensionConfigWithThresholds;
   arcs?: ArcOption[];
+  arcOptions?: ArcOptionsConfig;
   opacity?: number;
   arrow?: 0 | 1 | -1 | 2;
   capacity?: BaseDimensionConfig;
