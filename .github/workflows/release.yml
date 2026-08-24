@@ -17,7 +17,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: grafana/plugin-actions/build-plugin@main
+      # Use Grafana's release action so the attestation is attached to the
+      # exact ZIP that is uploaded as the release asset. Pin the action ref so
+      # the catalog's provenance check sees the same supported build pipeline
+      # on every release.
+      - uses: grafana/plugin-actions/build-plugin@build-plugin/v1.2.0
         with:
           policy_token: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
           attestation: true
+          node-version: '22'

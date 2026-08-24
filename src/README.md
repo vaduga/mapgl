@@ -1,9 +1,9 @@
 [//]: # ([![GitHub]&#40;https://img.shields.io/github/stars/vaduga/mapgl?style=social&#41;]&#40;https://github.com/vaduga/mapgl&#41;)
+[//]: # ([![YOUTUBE]&#40;https://img.shields.io/youtube/channel/subscribers/UCxjo9tNt0ApLBpB46m49wvw&#41;]&#40;https://www.youtube.com/@mapgraf&#41;)
 [![Downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgrafana.com%2Fapi%2Fplugins%2Fvaduga-mapgl-panel&query=%24.downloads&logo=grafana&label=downloads)](https://grafana.com/grafana/plugins/vaduga-mapgl-panel)
 [![Project Site](https://img.shields.io/badge/Project-site-blue)](https://mapgl.org)
 [![Discord](https://img.shields.io/discord/973739619118088232?logo=discord&logoColor=%232490D7)](https://discord.gg/DZCAfzYwjC)
 [![Telegram Url](https://img.shields.io/badge/Telegram-blue?logo=telegram)](https://t.me/mapgrafana)
-[![YOUTUBE](https://img.shields.io/youtube/channel/subscribers/UCxjo9tNt0ApLBpB46m49wvw)](https://www.youtube.com/@mapgraf)
 [✉️][email]
 
 [//]: # '[![Change Log](https://img.shields.io/badge/Change-log-blue.svg?style=flat)](https://github.com/vaduga/mapgl/blob/main/CHANGELOG.md)'
