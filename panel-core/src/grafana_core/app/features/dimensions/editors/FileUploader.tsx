@@ -6,7 +6,7 @@ import { FileDropzone, useStyles2, Button, DropzoneFile, Field } from '@grafana/
 import { Trans, t } from '../../../../../utils/i18n';
 
 import { MediaType } from '../types';
-import { SanitizedSVG } from '../../../../components/SVG/SanitizedSVG';
+import { SanitizedSVG } from '../../../core/components/SVG/SanitizedSVG';
 
 interface Props {
   setFormData: Dispatch<SetStateAction<FormData>>;

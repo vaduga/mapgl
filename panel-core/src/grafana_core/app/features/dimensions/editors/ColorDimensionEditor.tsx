@@ -4,7 +4,7 @@ import React, { useCallback, useMemo } from 'react';
 import { FieldNamePickerBaseNameMode, GrafanaTheme2, SelectableValue, StandardEditorProps } from '@grafana/data';
 import { ColorDimensionConfig } from '@grafana/schema';
 import { ColorPicker, Combobox, useStyles2 } from '@grafana/ui';
-import { useFieldDisplayNames, useMatcherSelectOptions } from '../../../../components/MatchersUI/utils';
+import { useFieldDisplayNames, useMatcherSelectOptions } from '../../../../ui/components/MatchersUI/utils';
 import { ColorDimensionConfigWithThresholds } from '../../../../../style/types';
 
 interface ColorDimensionSettings {

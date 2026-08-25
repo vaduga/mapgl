@@ -4,7 +4,7 @@ import React, { useCallback, useId, useMemo } from 'react';
 import { FieldType, GrafanaTheme2, SelectableValue, StandardEditorProps } from '@grafana/data';
 import { ScalarDimensionMode, ScalarDimensionConfig } from '@grafana/schema';
 import { Combobox, InlineField, InlineFieldRow, RadioButtonGroup, useStyles2 } from '@grafana/ui';
-import { useFieldDisplayNames, useMatcherSelectOptions } from '../../../../components/MatchersUI/utils';
+import { useFieldDisplayNames, useMatcherSelectOptions } from '../../../../ui/components/MatchersUI/utils';
 import { NumberInput } from '../../../core/components/OptionsUI/NumberInput';
 import { t } from '../../../../../utils/i18n';
 

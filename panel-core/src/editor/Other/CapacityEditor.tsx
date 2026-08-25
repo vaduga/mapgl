@@ -4,7 +4,7 @@ import React, { useCallback, useMemo } from 'react';
 import { GrafanaTheme2, SelectableValue, StandardEditorProps } from '@grafana/data';
 import { Combobox, useStyles2 } from '@grafana/ui';
 
-import { useFieldDisplayNames, useMatcherSelectOptions } from '../../grafana_core/components/MatchersUI/utils';
+import { useFieldDisplayNames, useMatcherSelectOptions } from '../../grafana_core/ui/components/MatchersUI/utils';
 
 export const CapacityDimensionEditor = (props: StandardEditorProps) => {
   const { value, context, onChange, item } = props;

@@ -3,7 +3,7 @@ import React, { Dispatch, SetStateAction } from 'react';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { Field, Input, Label, useStyles2 } from '@grafana/ui';
-import { SanitizedSVG } from '../../../../components/SVG/SanitizedSVG';
+import { SanitizedSVG } from '../../../core/components/SVG/SanitizedSVG';
 import { t } from '../../../../../utils/i18n';
 
 import { getPublicOrAbsoluteUrl } from '../resource';

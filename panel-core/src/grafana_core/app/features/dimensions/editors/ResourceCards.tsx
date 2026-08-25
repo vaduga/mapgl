@@ -7,7 +7,7 @@ import { areEqual, FixedSizeGrid as Grid } from 'react-window';
 import { GrafanaTheme2 } from '@grafana/data';
 import { useStyles2 } from '@grafana/ui';
 import { ResourceItem } from './FolderPickerTab';
-import { SanitizedSVG } from '../../../../components/SVG/SanitizedSVG';
+import { SanitizedSVG } from '../../../core/components/SVG/SanitizedSVG';
 
 interface CellProps {
   columnIndex: number;

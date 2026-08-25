@@ -12,8 +12,8 @@ import {
   useStyles2,
   useTheme2,
 } from '@grafana/ui';
-import { closePopover } from '../../../../ui/src/utils/closePopover';
-import { SanitizedSVG } from '../../../../components/SVG/SanitizedSVG';
+import { closePopover } from '../../../../ui/utils/closePopover';
+import { SanitizedSVG } from '../../../core/components/SVG/SanitizedSVG';
 import { useResourcePickerPopoverControllerCompat } from '../../../../../components/Compat/ResourcePickerCompat';
 
 import { getPublicOrAbsoluteUrl } from '../resource';

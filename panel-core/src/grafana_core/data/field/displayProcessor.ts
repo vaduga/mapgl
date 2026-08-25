@@ -32,7 +32,7 @@ import {
   TimeZone,
   toUtc,
 } from '@grafana/data';
-import { getValueMappingResult } from '../utils/valueMappings';
+import { getValueMappingResult } from '@mapgl/panel-core/grafana_core/data/utils/valueMappings';
 
 interface DisplayProcessorOptions {
   field: Partial<Field>;

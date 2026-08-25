@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { DataFrame, Field, getFieldDisplayName, FieldType, SelectableValue } from '@grafana/data';
 import type { ComboboxOption } from '@grafana/ui';
-import { t } from '../../../utils/i18n';
+import { t } from '@mapgl/panel-core/utils/i18n';
 
 type MatcherScope = 'series' | 'nested' | 'annotation' | 'exemplar';
 type FieldNameMode = string | undefined;

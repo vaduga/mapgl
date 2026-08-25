@@ -4,7 +4,7 @@ import SVG, { type Props } from 'react-inlinesvg';
 import { textUtil } from '@grafana/data';
 
 import { svgStyleCleanup } from './utils';
-import { addSVGattributes } from '../../../utils';
+import { addSVGattributes } from '../../../../../deckLayers/utils';
 
 type SanitizedSVGProps = Props & { cleanStyle?: boolean };
 

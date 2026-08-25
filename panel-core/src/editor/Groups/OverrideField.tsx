@@ -3,9 +3,9 @@ import { OverField, Rule } from './ruleTypes';
 import React, { ReactNode, useEffect, useState } from 'react';
 import { FieldType, GrafanaTheme2, SelectableValue } from '@grafana/data';
 import { css } from '@emotion/css';
-import { FieldNamePicker } from '../../grafana_core/components/MatchersUI/FieldNamePicker';
+import { FieldNamePicker } from '../../grafana_core/ui/components/MatchersUI/FieldNamePicker';
 import { RuleOption } from './RuleItem';
-import { useFieldDisplayNames } from '../../grafana_core/components/MatchersUI/utils';
+import { useFieldDisplayNames } from '../../grafana_core/ui/components/MatchersUI/utils';
 
 interface OverrideFieldProps {
   overrideField: OverField;

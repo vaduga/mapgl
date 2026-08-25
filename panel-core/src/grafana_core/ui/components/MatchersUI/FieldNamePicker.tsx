@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 
 import { type FieldNamePickerConfigSettings, type SelectableValue, type StandardEditorProps } from '@grafana/data';
 import { Combobox, type ComboboxOption } from '@grafana/ui';
-import { t } from '../../../utils/i18n';
+import { t } from '@mapgl/panel-core/utils/i18n';
 
 import { useFieldDisplayNames, useMatcherSelectOptions, frameHasName } from './utils';
 

@@ -11,7 +11,11 @@ import {
 import { t } from '../../../../../utils/i18n';
 import { TextDimensionConfig, TextDimensionMode } from '@grafana/schema';
 import { Button, Combobox, InlineField, InlineFieldRow, Input, RadioButtonGroup, useStyles2 } from '@grafana/ui';
-import { frameHasName, useFieldDisplayNames, useMatcherSelectOptions } from '../../../../components/MatchersUI/utils';
+import {
+  frameHasName,
+  useFieldDisplayNames,
+  useMatcherSelectOptions,
+} from '../../../../ui/components/MatchersUI/utils';
 
 import { TextDimensionOptions } from '../types';
 

@@ -23,7 +23,7 @@ import {
 } from '@grafana/ui';
 
 import React from 'react';
-import { FieldNamePicker } from '../grafana_core/components/MatchersUI/FieldNamePicker';
+import { FieldNamePicker } from '../grafana_core/ui/components/MatchersUI/FieldNamePicker';
 import { SliderValueEditor } from '../grafana_core/app/core/components/OptionsUI/slider';
 import { setOptionImmutably } from '../grafana_core/app/dashboard/components/PanelEditor/utils';
 import { ArcOption, ArcOptionsConfig, isMetricDrivenArc, resolveArcOptions, StyleConfig } from '../style/types';
