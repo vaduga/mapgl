@@ -19,5 +19,13 @@ module.exports = {
     '<rootDir>/panel-core/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
     '<rootDir>/panel-core/src/**/*.{spec,test,jest}.{js,jsx,ts,tsx}',
   ],
-  transformIgnorePatterns: [nodeModulesToTransform([...grafanaESModules, '@msagl/core', 'queue-typescript'])],
+  transformIgnorePatterns: [
+    nodeModulesToTransform([
+      ...grafanaESModules,
+      '@msagl/core',
+      '@react-hookz/web',
+      '@ver0/deep-equal',
+      'queue-typescript',
+    ]),
+  ],
 };

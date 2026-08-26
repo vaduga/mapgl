@@ -1,7 +1,7 @@
 import { css, cx } from '@emotion/css';
 import { memo, CSSProperties } from 'react';
 import * as React from 'react';
-import AutoSizer from 'react-virtualized-auto-sizer';
+import { AutoSizer } from 'react-virtualized-auto-sizer';
 import { areEqual, FixedSizeGrid as Grid } from 'react-window';
 
 import { GrafanaTheme2 } from '@grafana/data';
@@ -66,8 +66,12 @@ export const ResourceCards = (props: CardProps) => {
   const styles = useStyles2(getStyles);
 
   return (
-    <AutoSizer defaultWidth={680}>
-      {({ width, height }) => {
+    <AutoSizer
+      renderProp={({ width, height }) => {
+        if (width === undefined || height === undefined) {
+          return null;
+        }
+
         const cardWidth = 90;
         const cardHeight = 90;
         const columnCount = Math.floor(width / cardWidth);
@@ -87,7 +91,7 @@ export const ResourceCards = (props: CardProps) => {
           </Grid>
         );
       }}
-    </AutoSizer>
+    />
   );
 };
 
