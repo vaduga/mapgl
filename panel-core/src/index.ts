@@ -1,10 +1,10 @@
-export { createMapglPanelPlugin } from './pluginFactory/createMapglPanelPlugin';
+export { createMapglPanelPlugin } from './plugin-factory/createMapglPanelPlugin';
 export type {
   CreateMapglPanelPluginOptions,
   LayerEditorOptions,
   MapglPanelPluginInstanceState,
   MapglPanelPluginLayerState,
-} from './pluginFactory/createMapglPanelPlugin';
+} from './plugin-factory/createMapglPanelPlugin';
 
 export * from './extension-points/featureContracts';
 export * from './view';

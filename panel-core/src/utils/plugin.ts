@@ -8,7 +8,7 @@ import {
 } from '../deckLayers/utils/svg';
 import { MarkersConfig } from '../layers/data';
 import { Rule } from '../editor';
-import { getMapglPluginId } from '../pluginFactory/pluginRuntime';
+import { getMapglPluginId } from '../plugin-factory/pluginRuntime';
 import { MapLayerState } from '../types';
 import { normalizeOptions } from './normalizeOptions';
 

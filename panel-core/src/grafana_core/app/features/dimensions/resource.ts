@@ -3,7 +3,7 @@ import { ResourceDimensionConfig, ResourceDimensionMode } from '@grafana/schema'
 
 import { DimensionSupplier, ResourceFolderName } from './types';
 import { findField, getLastNotNullFieldValue } from './utils';
-import { getMapglPluginId } from '../../../../pluginFactory/pluginRuntime';
+import { getMapglPluginId } from '../../../../plugin-factory/pluginRuntime';
 
 //---------------------------------------------------------
 // Resource dimension

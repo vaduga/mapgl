@@ -10,7 +10,7 @@ import { FolderPickerSelectCompat } from '../../../../../components/Compat/Resou
 import { MediaType, ResourceFolderName } from '../types';
 import { ResourceCards } from './ResourceCards';
 import { CiscoIcons, DatabaseIcons, NetworkingIcons } from '../../../../../editor/Groups/data/iconOptions';
-import { getMapglPluginId } from '../../../../../pluginFactory/pluginRuntime';
+import { getMapglPluginId } from '../../../../../plugin-factory/pluginRuntime';
 import { t } from '@mapgl/panel-core/utils/i18n';
 
 export const getDatasourceSrv = () => getDataSourceService();
