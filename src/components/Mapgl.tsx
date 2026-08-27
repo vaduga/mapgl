@@ -10,7 +10,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useStyles2, useTheme2, type VizLegendItem } from '@grafana/ui';
 import { observer } from 'mobx-react-lite';
 import DeckGL, { DeckGLRef } from '@deck.gl/react';
-import MapLibre, { AttributionControl } from '@vis.gl/react-maplibre';
 
 import { useRootStore, genPrimaryLayers, expandTooltip } from '../utils';
 import { getDimmedGraphLayers } from '@mapgl/panel-core/deckLayers';
@@ -34,6 +33,19 @@ import {
   useSvgIconRefresh,
 } from '@mapgl/panel-core/render';
 import { GraphDomObservability } from './GraphDomObservability';
+import type { GeoBasemapProps } from '@mapgl/panel-core/components/GeoBasemap';
+
+const LazyGeoBasemap = React.lazy(
+  () => import(/* webpackChunkName: "geo-maplibre" */ '@mapgl/panel-core/components/GeoBasemap')
+);
+
+function GeoBasemapLoader(props: GeoBasemapProps) {
+  return (
+    <React.Suspense fallback={null}>
+      <LazyGeoBasemap {...props} />
+    </React.Suspense>
+  );
+}
 
 class AutolayoutLoadingWidget extends LoadingWidget {
   onRedraw(): void {}
@@ -92,8 +104,6 @@ const Mapgl = ({
 
   // isRouted is the only 'layer' that is active even in indeterminate state
   const [isRouted = true] = visLayers.getVisState(null, colTypes.Routed, colTypes.Routed) ?? [];
-
-  const mapLibreRef: any = useRef(null);
 
   const deckRef = useRef<DeckGLRef | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -357,7 +367,7 @@ const Mapgl = ({
   ///// return
   return (
     <GraphDomObservability
-      className={s.container}
+      className={isLogic ? s.container : `${s.container} ${s.geoContainer}`}
       colors={colors}
       edgeRevision={committedVersion + graphVersion}
       features={features}
@@ -401,22 +411,16 @@ const Mapgl = ({
         getCursor={(state) => (state.isHovering ? 'pointer' : 'grab')}
       >
         {!isLogic && (
-          <MapLibre
-            //reuseMaps // to enable, we need to rebind mapLibreRef everytime
+          <GeoBasemapLoader
             onLoad={onMapLoad}
-            ref={mapLibreRef}
             mapStyle={source}
-            attributionControl={false}
-          >
-            <AttributionControl
-              style={{
-                zIndex: theme2.zIndex.dropdown,
-                position: 'absolute',
-                right: theme2.spacing(0.5),
-                bottom: theme2.spacing(0.5),
-              }}
-            />
-          </MapLibre>
+            attributionStyle={{
+              zIndex: theme2.zIndex.dropdown,
+              position: 'absolute',
+              right: theme2.spacing(0.5),
+              bottom: theme2.spacing(0.5),
+            }}
+          />
         )}
       </DeckGL>
 

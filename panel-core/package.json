@@ -13,6 +13,7 @@
     "./graph/packed-relations": "./src/graph/frame/packedRelationReaders.ts",
     "./graph/utils": "./src/graph/utils/index.ts",
     "./components": "./src/components/index.ts",
+    "./components/GeoBasemap": "./src/components/GeoBasemap.tsx",
     "./render": "./src/render/index.ts",
     "./deckLayers/edgeFilterCategories": "./src/deckLayers/edgeFilterCategories.ts",
     "./extension": "./src/extension.ts",

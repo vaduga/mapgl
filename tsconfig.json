@@ -18,6 +18,7 @@
       "@mapgl/panel-core/graph/packed-relations": ["./panel-core/src/graph/frame/packedRelationReaders.ts"],
       "@mapgl/panel-core/graph/utils": ["./panel-core/src/graph/utils/index.ts"],
       "@mapgl/panel-core/components": ["./panel-core/src/components/index.ts"],
+      "@mapgl/panel-core/components/GeoBasemap": ["./panel-core/src/components/GeoBasemap.tsx"],
       "@mapgl/panel-core/render": ["./panel-core/src/render/index.ts"],
       "@mapgl/panel-core/editor": ["./panel-core/src/editor/index.ts"],
       "@mapgl/panel-core/store": ["./panel-core/src/store/index.ts"],

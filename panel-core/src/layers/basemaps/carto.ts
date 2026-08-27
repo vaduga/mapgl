@@ -1,8 +1,7 @@
-import { EventBus, GrafanaTheme2, MapLayerOptions } from '@grafana/data';
+import { GrafanaTheme2 } from '@grafana/data';
 import { ExtendMapLayerOptions, ExtendMapLayerRegistryItem } from '../../extension';
-import type { libreSource } from '@mapgl/panel-core/types';
 
-// https://carto.com/help/building-maps/basemap-list/
+// https://docs.carto.com/carto-for-developers/carto-for-react/guides/basemaps
 
 export enum LayerTheme {
   Auto = 'auto',
@@ -13,13 +12,11 @@ export enum LayerTheme {
 export interface CartoConfig {
   theme?: LayerTheme;
   showLabels?: boolean;
-  apiKey?: string;
 }
 
 export const defaultCartoConfig: CartoConfig = {
   theme: LayerTheme.Auto,
   showLabels: true,
-  apiKey: '',
 };
 
 export const carto: ExtendMapLayerRegistryItem<CartoConfig> = {
@@ -34,40 +31,14 @@ export const carto: ExtendMapLayerRegistryItem<CartoConfig> = {
    * @param options
    */
   create: (panel: any, options: ExtendMapLayerOptions<CartoConfig>, theme: GrafanaTheme2) => ({
-    init: (): libreSource => {
+    init: (): string => {
       const cfg = { ...defaultCartoConfig, ...options.config };
-      let style = cfg.theme as string;
-      if (!style || style === LayerTheme.Auto) {
-        style = theme.isDark ? 'dark' : 'light';
-      }
-      if (cfg.showLabels) {
-        style += '_all';
-      } else {
-        style += '_nolabels';
-      }
-      const scale = window.devicePixelRatio > 1 ? '@2x' : '';
-      const apiKey = cfg.apiKey?.trim();
-      const apiKeyQuery = apiKey ? `?key=${encodeURIComponent(apiKey)}` : '';
-      return {
-        version: 8,
-        sources: {
-          carto: {
-            type: 'raster',
-            tiles: [`https://basemaps.cartocdn.com/${style}/{z}/{x}/{y}${scale}.png${apiKeyQuery}`],
-            tileSize: 256,
-            attribution: '© CARTO',
-          },
-        },
-        layers: [
-          {
-            id: 'carto',
-            type: 'raster',
-            source: 'carto',
-            minzoom: 0,
-            maxzoom: 21,
-          },
-        ],
-      };
+      const selectedTheme = cfg.theme === LayerTheme.Auto ? undefined : cfg.theme;
+      const style = selectedTheme ?? (theme.isDark ? LayerTheme.Dark : LayerTheme.Light);
+      const styleName = style === LayerTheme.Dark ? 'dark-matter' : 'positron';
+      const labels = cfg.showLabels ? '' : '-nolabels';
+
+      return `https://basemaps.cartocdn.com/gl/${styleName}${labels}-gl-style/style.json`;
     },
     registerOptionsUI: (builder) => {
       builder
@@ -92,15 +63,6 @@ export const carto: ExtendMapLayerRegistryItem<CartoConfig> = {
           name: 'Show labels',
           description: '',
           defaultValue: defaultCartoConfig.showLabels,
-        })
-        .addTextInput({
-          path: 'config.apiKey',
-          name: 'CARTO API key',
-          description: 'Optional key used to authenticate CARTO tile requests',
-          settings: {
-            placeholder: 'Enter your CARTO API key',
-          },
-          defaultValue: defaultCartoConfig.apiKey,
         });
     },
   }),

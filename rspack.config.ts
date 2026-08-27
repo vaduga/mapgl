@@ -65,6 +65,33 @@ class CoreIconCopyRspackPlugin {
   }
 }
 
+class MapLibreWorkerAssetsPlugin {
+  apply(compiler: Compiler): void {
+    compiler.hooks.thisCompilation.tap('MapLibreWorkerAssetsPlugin', (compilation) => {
+      compilation.hooks.processAssets.tap(
+        {
+          name: 'MapLibreWorkerAssetsPlugin',
+          stage: rspack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONS,
+        },
+        () => {
+          for (const [fileName, sourcePath] of [
+            [
+              'maplibre-gl-worker.mjs',
+              path.resolve(process.cwd(), 'node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs'),
+            ],
+            [
+              'maplibre-gl-shared.mjs',
+              path.resolve(process.cwd(), 'node_modules/maplibre-gl/dist/maplibre-gl-shared.mjs'),
+            ],
+          ]) {
+            compilation.emitAsset(fileName, new rspack.sources.RawSource(fs.readFileSync(sourcePath)));
+          }
+        }
+      );
+    });
+  }
+}
+
 const patchRootCopyFiles = (baseConfig: Configuration): void => {
   baseConfig.plugins = baseConfig.plugins?.map((plugin) => {
     if (plugin?.constructor?.name !== 'CopyRspackPlugin') {
@@ -92,6 +119,8 @@ const patchRootCopyFiles = (baseConfig: Configuration): void => {
 const config = async (env: Record<string, unknown>): Promise<Configuration> => {
   const baseConfig = await grafanaConfig(env);
   patchRootCopyFiles(baseConfig);
+
+  baseConfig.plugins?.push(new MapLibreWorkerAssetsPlugin());
 
   const extension: Configuration = {
     ignoreWarnings: [
@@ -124,6 +153,10 @@ const config = async (env: Record<string, unknown>): Promise<Configuration> => {
         '@mapgl/panel-core/graph/frame$': path.resolve(process.cwd(), 'panel-core/src/graph/frame/index.ts'),
         '@mapgl/panel-core/graph/utils$': path.resolve(process.cwd(), 'panel-core/src/graph/utils/index.ts'),
         '@mapgl/panel-core/components$': path.resolve(process.cwd(), 'panel-core/src/components/index.ts'),
+        '@mapgl/panel-core/components/GeoBasemap$': path.resolve(
+          process.cwd(),
+          'panel-core/src/components/GeoBasemap.tsx'
+        ),
         '@mapgl/panel-core/render$': path.resolve(process.cwd(), 'panel-core/src/render/index.ts'),
         '@mapgl/panel-core/editor$': path.resolve(process.cwd(), 'panel-core/src/editor/index.ts'),
         '@mapgl/panel-core/store$': path.resolve(process.cwd(), 'panel-core/src/store/index.ts'),

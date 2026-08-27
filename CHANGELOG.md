@@ -1,5 +1,8 @@
 # Changelog Mapgl
 
+## 2.10.1
+- Geo Maplibre-gl migrate to vector tiles to avoid new Carto api key requirement for raster.
+
 ## 2.10
 - Gauge overlay for a single field-driven metric in Node Styles → Arc sections 
 - fix: parallel edges picking

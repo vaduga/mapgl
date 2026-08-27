@@ -40,6 +40,33 @@ class CoreIconCopyWebpackPlugin {
   }
 }
 
+class MapLibreWorkerAssetsWebpackPlugin {
+  apply(compiler: Compiler): void {
+    compiler.hooks.thisCompilation.tap('MapLibreWorkerAssetsWebpackPlugin', (compilation) => {
+      compilation.hooks.processAssets.tap(
+        {
+          name: 'MapLibreWorkerAssetsWebpackPlugin',
+          stage: webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONS,
+        },
+        () => {
+          for (const [fileName, sourcePath] of [
+            [
+              'maplibre-gl-worker.mjs',
+              path.resolve(process.cwd(), 'node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs'),
+            ],
+            [
+              'maplibre-gl-shared.mjs',
+              path.resolve(process.cwd(), 'node_modules/maplibre-gl/dist/maplibre-gl-shared.mjs'),
+            ],
+          ]) {
+            compilation.emitAsset(fileName, new webpack.sources.RawSource(fs.readFileSync(sourcePath)));
+          }
+        }
+      );
+    });
+  }
+}
+
 const config = async (env: Env): Promise<Configuration> => {
   const baseConfig = await grafanaConfig(env);
 
@@ -68,6 +95,10 @@ const config = async (env: Env): Promise<Configuration> => {
         '@mapgl/panel-core/graph/frame$': path.resolve(process.cwd(), 'panel-core/src/graph/frame/index.ts'),
         '@mapgl/panel-core/graph/utils$': path.resolve(process.cwd(), 'panel-core/src/graph/utils/index.ts'),
         '@mapgl/panel-core/components$': path.resolve(process.cwd(), 'panel-core/src/components/index.ts'),
+        '@mapgl/panel-core/components/GeoBasemap$': path.resolve(
+          process.cwd(),
+          'panel-core/src/components/GeoBasemap.tsx'
+        ),
         '@mapgl/panel-core/render$': path.resolve(process.cwd(), 'panel-core/src/render/index.ts'),
         '@mapgl/panel-core/editor$': path.resolve(process.cwd(), 'panel-core/src/editor/index.ts'),
         '@mapgl/panel-core/store$': path.resolve(process.cwd(), 'panel-core/src/store/index.ts'),
@@ -96,7 +127,7 @@ const config = async (env: Env): Promise<Configuration> => {
         ),
       },
     },
-    plugins: [new CoreIconCopyWebpackPlugin()],
+    plugins: [new CoreIconCopyWebpackPlugin(), new MapLibreWorkerAssetsWebpackPlugin()],
   };
 
   return merge(baseConfig, extension);

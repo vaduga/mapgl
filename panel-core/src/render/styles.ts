@@ -15,6 +15,17 @@ export const getStyles = (theme: GrafanaTheme2) => ({
     }
     background-color: ${theme.colors.background.secondary};
   `,
+  geoContainer: css`
+    background-color: transparent;
+
+    > #deckgl-wrapper > .deck-events-root > .maplibregl-map {
+      z-index: 0 !important;
+    }
+
+    > #deckgl-wrapper > .deck-events-root > #deckgl-overlay {
+      z-index: 1;
+    }
+  `,
   graphDiagnostics: css`
     position: absolute;
     top: ${theme.spacing(1)};
