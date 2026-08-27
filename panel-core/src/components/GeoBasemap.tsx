@@ -1,20 +1,23 @@
 import { locationService } from '@grafana/runtime';
 import MapLibre, { AttributionControl } from '@vis.gl/react-maplibre';
-import * as maplibregl from 'maplibre-gl';
 import React, { type CSSProperties } from 'react';
 
 declare const __webpack_public_path__: string;
 
-function configureMapLibreWorker(): void {
-  if (typeof Worker === 'undefined' || typeof __webpack_public_path__ === 'undefined') {
-    return;
-  }
+type MapLibreModule = typeof import('maplibre-gl');
 
-  const publicPath = new URL(__webpack_public_path__, locationService.getLocation().href);
-  maplibregl.setWorkerUrl(new URL('maplibre-gl-worker.mjs', publicPath).href);
+function getMapLibreAssetUrl(fileName: string): string {
+  const location = locationService.getLocation();
+  const publicPath = typeof __webpack_public_path__ === 'undefined' ? location.href : __webpack_public_path__;
+  return new URL(fileName, new URL(publicPath, location.href)).href;
 }
 
-configureMapLibreWorker();
+let mapLibrePromise: Promise<MapLibreModule> | undefined;
+
+function loadMapLibre(): Promise<MapLibreModule> {
+  mapLibrePromise ??= import(/* webpackIgnore: true */ getMapLibreAssetUrl('maplibre-gl.mjs'));
+  return mapLibrePromise;
+}
 
 type MapLibreProps = React.ComponentProps<typeof MapLibre>;
 
@@ -29,11 +32,12 @@ export interface GeoBasemapProps {
 function GeoBasemap({ attributionStyle, mapStyle, onLoad, style, viewState }: GeoBasemapProps) {
   return (
     <MapLibre
-      mapLib={maplibregl}
+      mapLib={loadMapLibre()}
       mapStyle={mapStyle}
       onLoad={onLoad}
       style={style}
       viewState={viewState}
+      workerUrl={getMapLibreAssetUrl('maplibre-gl-worker.mjs')}
       attributionControl={false}
     >
       <AttributionControl style={attributionStyle} />

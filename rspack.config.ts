@@ -75,6 +75,7 @@ class MapLibreWorkerAssetsPlugin {
         },
         () => {
           for (const [fileName, sourcePath] of [
+            ['maplibre-gl.mjs', path.resolve(process.cwd(), 'node_modules/maplibre-gl/dist/maplibre-gl.mjs')],
             [
               'maplibre-gl-worker.mjs',
               path.resolve(process.cwd(), 'node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs'),
@@ -157,6 +158,7 @@ const config = async (env: Record<string, unknown>): Promise<Configuration> => {
           process.cwd(),
           'panel-core/src/components/GeoBasemap.tsx'
         ),
+        'maplibre-gl$': path.resolve(process.cwd(), 'panel-core/src/components/maplibre-gl-fallback.ts'),
         '@mapgl/panel-core/render$': path.resolve(process.cwd(), 'panel-core/src/render/index.ts'),
         '@mapgl/panel-core/editor$': path.resolve(process.cwd(), 'panel-core/src/editor/index.ts'),
         '@mapgl/panel-core/store$': path.resolve(process.cwd(), 'panel-core/src/store/index.ts'),

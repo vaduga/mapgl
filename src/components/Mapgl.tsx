@@ -33,19 +33,7 @@ import {
   useSvgIconRefresh,
 } from '@mapgl/panel-core/render';
 import { GraphDomObservability } from './GraphDomObservability';
-import type { GeoBasemapProps } from '@mapgl/panel-core/components/GeoBasemap';
-
-const LazyGeoBasemap = React.lazy(
-  () => import(/* webpackChunkName: "geo-maplibre" */ '@mapgl/panel-core/components/GeoBasemap')
-);
-
-function GeoBasemapLoader(props: GeoBasemapProps) {
-  return (
-    <React.Suspense fallback={null}>
-      <LazyGeoBasemap {...props} />
-    </React.Suspense>
-  );
-}
+import GeoBasemap from '@mapgl/panel-core/components/GeoBasemap';
 
 class AutolayoutLoadingWidget extends LoadingWidget {
   onRedraw(): void {}
@@ -411,7 +399,7 @@ const Mapgl = ({
         getCursor={(state) => (state.isHovering ? 'pointer' : 'grab')}
       >
         {!isLogic && (
-          <GeoBasemapLoader
+          <GeoBasemap
             onLoad={onMapLoad}
             mapStyle={source}
             attributionStyle={{
