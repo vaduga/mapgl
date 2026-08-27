@@ -34,13 +34,26 @@ export function createMapLayerRegistry(options: CreateMapLayerRegistryOptions = 
   const basemapLayers = options.basemapLayers ?? defaultBasemapLayers;
   const dataLayers = options.dataLayers ?? [];
 
-  const defaultBaseLayer: ExtendMapLayerRegistryItem = {
+  const defaultBaseLayer: ExtendMapLayerRegistryItem<any> = {
     id: DEFAULT_BASEMAP_CONFIG.type,
     hideOpacity: true,
     name: 'Default base layer',
     isBaseMap: true,
 
     create: (panel: any, layerOptions: ExtendMapLayerOptions, theme: GrafanaTheme2) => {
+      const serverLayerConfig = options.getServerBaseLayerConfig?.();
+      const serverLayerType = serverLayerConfig?.type;
+
+      if (serverLayerType && serverLayerType !== DEFAULT_BASEMAP_CONFIG.type) {
+        const layer = mapLayerRegistry.getIfExists(serverLayerType);
+
+        if (!layer) {
+          throw new Error('Invalid basemap configuration on server');
+        }
+
+        return layer.create(panel, serverLayerConfig, theme);
+      }
+
       return carto.create(panel, layerOptions, theme);
     },
   };

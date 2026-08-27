@@ -272,6 +272,10 @@ These settings are shown in **Basemap layer** when **Node Graph ortho** is selec
 - **Layer separation**: distance between adjacent layout layers. In the default right-to-left layout this mostly changes horizontal spacing and edge length.
 - **Node separation**: distance between nodes within the same layout layer. In the default right-to-left layout this mostly changes vertical spacing.
 
+## Default basemap layer
+
+The **Default base layer** uses the server-configured `geomapDefaultBaseLayerConfig` when its `type` is a registered basemap. For example, setting `type` to `carto` reuses the Carto `config`, including its `apiKey`.
+
 ## Practical advice
 
 - Start with one **Markers and links** layer and get **Vertex A** and **Vertex B** working first.
