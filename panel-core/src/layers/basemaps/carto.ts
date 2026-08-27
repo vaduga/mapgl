@@ -13,11 +13,13 @@ export enum LayerTheme {
 export interface CartoConfig {
   theme?: LayerTheme;
   showLabels?: boolean;
+  apiKey?: string;
 }
 
 export const defaultCartoConfig: CartoConfig = {
   theme: LayerTheme.Auto,
   showLabels: true,
+  apiKey: '',
 };
 
 export const carto: ExtendMapLayerRegistryItem<CartoConfig> = {
@@ -44,12 +46,14 @@ export const carto: ExtendMapLayerRegistryItem<CartoConfig> = {
         style += '_nolabels';
       }
       const scale = window.devicePixelRatio > 1 ? '@2x' : '';
+      const apiKey = cfg.apiKey?.trim();
+      const apiKeyQuery = apiKey ? `?key=${encodeURIComponent(apiKey)}` : '';
       return {
         version: 8,
         sources: {
           carto: {
             type: 'raster',
-            tiles: [`https://basemaps.cartocdn.com/${style}/{z}/{x}/{y}${scale}.png`],
+            tiles: [`https://basemaps.cartocdn.com/${style}/{z}/{x}/{y}${scale}.png${apiKeyQuery}`],
             tileSize: 256,
             attribution: '© CARTO',
           },
@@ -88,6 +92,15 @@ export const carto: ExtendMapLayerRegistryItem<CartoConfig> = {
           name: 'Show labels',
           description: '',
           defaultValue: defaultCartoConfig.showLabels,
+        })
+        .addTextInput({
+          path: 'config.apiKey',
+          name: 'CARTO API key',
+          description: 'Optional key used to authenticate CARTO tile requests',
+          settings: {
+            placeholder: 'Enter your CARTO API key',
+          },
+          defaultValue: defaultCartoConfig.apiKey,
         });
     },
   }),
