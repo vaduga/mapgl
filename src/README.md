@@ -15,7 +15,7 @@ Start a new panel with a mock node graph to test styles and modes.
 ### Node graph for metrics and traces
 
 - Layered auto-layout and Geomap view
-- Multi-step and parallel-edge routing
+- Multistep and parallel edge routing
 - Arc segments on nodes for visualizing multiple metrics
 - TX/RX interface load visualization with dual-metric arcs
 - Ad hoc filtering by layer and node group through the legend
@@ -75,8 +75,7 @@ Use Grafana’s built-in transformations to prepare and merge data from:
 ---
 
 ### Field Config
-Full support for native Grafana field config:
-
+Native Grafana:
 
 - `Thresholds` – value ranges with associated colors to visually indicate status
 - `Mapping` – rename displayed values
@@ -84,7 +83,7 @@ Full support for native Grafana field config:
 - `Overrides` – custom settings for specific metrics
 - `DataLinks` – links to external dashboards or graphs
 
-  **Node Group style** rules extend control over node color, icon, size, and line width.
+Mapgl **Node Group style** rules extend control over node color, icon, size, and line width.
 
 ---
 
