@@ -1,4 +1,14 @@
-import { Layer, project32, picking, UNIT, type Accessor, type Color, type DefaultProps, type LayerProps, type Unit } from '@deck.gl/core';
+import {
+  Layer,
+  project32,
+  picking,
+  UNIT,
+  type Accessor,
+  type Color,
+  type DefaultProps,
+  type LayerProps,
+  type Unit,
+} from '@deck.gl/core';
 import { PathStyleExtension } from '@deck.gl/extensions';
 import { Geometry, Model } from '@luma.gl/engine';
 import type { ShaderModule } from '@luma.gl/shadertools';
@@ -125,15 +135,50 @@ layout(std140) uniform curveUniforms {
 
 const pathStyleCompatUniforms = {
   name: 'path',
+  vs: `\
+layout(std140) uniform pathUniforms {
+  float widthScale;
+  float widthMinPixels;
+  float widthMaxPixels;
+  float jointType;
+  float capType;
+  float miterLimit;
+  bool billboard;
+  highp int widthUnits;
+} path;
+`,
   fs: `\
 layout(std140) uniform pathUniforms {
+  float widthScale;
+  float widthMinPixels;
+  float widthMaxPixels;
+  float jointType;
   float capType;
+  float miterLimit;
+  bool billboard;
+  highp int widthUnits;
 } path;
 `,
   uniformTypes: {
+    widthScale: 'f32',
+    widthMinPixels: 'f32',
+    widthMaxPixels: 'f32',
+    jointType: 'f32',
     capType: 'f32',
+    miterLimit: 'f32',
+    billboard: 'f32',
+    widthUnits: 'i32',
   },
-} as const satisfies ShaderModule<{ capType: number }>;
+} as const satisfies ShaderModule<{
+  widthScale: number;
+  widthMinPixels: number;
+  widthMaxPixels: number;
+  jointType: number;
+  capType: number;
+  miterLimit: number;
+  billboard: boolean;
+  widthUnits: number;
+}>;
 
 const vs = `\
 #version 300 es
@@ -213,6 +258,9 @@ void main(void) {
     curve.widthMinPixels,
     curve.widthMaxPixels
   );
+  // PathStyleExtension's Deck.gl 9.4 vertex injection expects the PathLayer
+  // half-width variable. This custom layer already extrudes in screen space.
+  vec2 width = vec2(widthPixels / 2.0);
   float halfWidthPixels = max(widthPixels / 2.0, 0.001);
   vec2 currNdc = curr.xy / curr.w;
   vec2 nextNdc = next.xy / next.w;
@@ -413,7 +461,14 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
         skipVisibleMaxDepth,
       },
       path: {
+        widthScale: 1,
+        widthMinPixels,
+        widthMaxPixels,
+        jointType: 0,
         capType: 0,
+        miterLimit: 4,
+        billboard: true,
+        widthUnits: UNIT[widthUnits],
       },
     });
     model.draw(this.context.renderPass);
@@ -462,5 +517,7 @@ function isPathStyleExtension(extension: unknown): boolean {
     return true;
   }
 
-  return (extension as { constructor?: { extensionName?: string } })?.constructor?.extensionName === 'PathStyleExtension';
+  return (
+    (extension as { constructor?: { extensionName?: string } })?.constructor?.extensionName === 'PathStyleExtension'
+  );
 }
