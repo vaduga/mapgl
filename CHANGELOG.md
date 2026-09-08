@@ -1,11 +1,12 @@
 # Changelog Mapgl
 
-## 2.10.1
-- Vector tiles for Carto basemap to avoid the new Carto api key requirement for raster.
+## 2.10.2
+- bump deck.gl 9.4.0, webgpu disabled
 
-## 2.10
-- Gauge overlay for a single field-driven metric in Node Styles → Arc sections 
+## 2.10.1
+- Gauge overlay for a single field-driven metric in Node Styles → Arc sections
 - fix: parallel edges picking
+- Vector tiles for Carto basemap to avoid the new Carto api key requirement for raster.
 
 ## 2.9.1
 - fix: Field selector in Grafana 13 (Combobox) for Node Group rules.
