@@ -144,6 +144,7 @@ const config = async (env: Record<string, unknown>): Promise<Configuration> => {
       ],
     },
     resolve: {
+      conditionNames: ['visgl:webgl-only', '...'],
       alias: {
         '@mapgl/panel-core$': path.resolve(process.cwd(), 'panel-core/src/index.ts'),
         '@mapgl/panel-core/featureContracts$': path.resolve(
