@@ -6,8 +6,6 @@
 [![Telegram Url](https://img.shields.io/badge/Telegram-blue?logo=telegram)](https://t.me/mapgrafana)
 [✉️][email]
 
-[//]: # '[![Change Log](https://img.shields.io/badge/Change-log-blue.svg?style=flat)](https://github.com/vaduga/mapgl/blob/main/CHANGELOG.md)'
-
 Start a new panel with a mock node graph to test styles and modes.
 
 ---
@@ -59,13 +57,14 @@ See [Panel configuration](https://mapgl.org/documentation) for setup details and
 
 ---
 
-### Data Preparation
+### 🛠️ Data Source
 
 Use Grafana’s built-in transformations to prepare and merge data from:
 
-- Zabbix
-- Prometheus
 - Postgres
+- Prometheus
+- Zabbix
+- Infinity (JSON API)
 - Any other datasource
 
 [Netbox + Prometheus with drill-down](https://gfn-gp4l-rare.public.nmaas.eu/d/ae996h5rebcw0d/gp4l-topology-mapgl3a-netbox)</br>

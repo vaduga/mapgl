@@ -46,5 +46,6 @@ docker_data/grafana_data
 /.vscode/launch.json
 
 /vaduga-mapgl-panel/
+/openspec
 /scripts/check-private-imports.mjs
 /scripts/check-packed-graph-relations.mjs
