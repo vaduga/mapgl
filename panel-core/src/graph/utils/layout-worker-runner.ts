@@ -54,13 +54,36 @@ export function configureLayout(rootGraph: GeomGraph, request: LayoutRequest): v
 }
 
 export function getLayoutResult(request: LayoutRequest): LayoutResult {
+  let rootGraph = createAndLayoutGraph(request);
+
+  if (!rootGraph && request.routing === 'Rectilinear') {
+    rootGraph = createAndLayoutGraph({ ...request, routing: 'Splines' });
+  }
+
+  if (!rootGraph) {
+    throw new Error('MSAGL graph layout failed');
+  }
+
+  return extractLayoutResult(request.requestId, rootGraph, request.positionsLength, request.nodes, request.edges);
+}
+
+function createAndLayoutGraph(request: LayoutRequest): GeomGraph | undefined {
   const graph = buildGraphFromSnapshot(request);
   const rootGraph = GeomGraph.getGeom(graph);
 
   configureLayout(rootGraph, request);
-  layoutGeomGraph(rootGraph);
-
-  return extractLayoutResult(request.requestId, rootGraph, request.positionsLength, request.nodes, request.edges);
+  try {
+    layoutGeomGraph(rootGraph);
+    return rootGraph;
+  } catch (error) {
+    if (request.routing !== 'Rectilinear') {
+      throw error;
+    }
+    // MSAGL's rectilinear obstacle builder can fail when flattened
+    // namespaces produce overlapping non-rectangular obstacles. Rebuild the
+    // graph before retrying because the failed router mutates its geometry.
+    return undefined;
+  }
 }
 
 function buildGraphFromSnapshot(request: LayoutRequest): Graph {

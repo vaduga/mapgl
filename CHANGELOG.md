@@ -2,6 +2,7 @@
 
 ## 2.10.2
 - namespace hierarchy separator symbol config
+- fallback to Splines if Rectilinear layout fails with complicated obstacles 
 - bump deck.gl 9.4.0 webgl only, webgpu disabled for bundle size
 
 ## 2.10.1

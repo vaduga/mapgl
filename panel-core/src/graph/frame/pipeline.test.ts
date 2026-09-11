@@ -191,6 +191,34 @@ describe('GraphFramePipeline', () => {
     );
   });
 
+  it('commits cross-namespace edges when namespace values do not contain the configured separator', async () => {
+    const frame = toDataFrame({
+      refId: 'TopLevelNamespaces',
+      fields: [
+        { name: 'source', values: ['A', 'B'] },
+        { name: 'target', values: ['B', null] },
+        { name: 'sourceNs', values: ['nodes.aggr', 'nodes.switches'] },
+        { name: 'targetNs', values: ['nodes.switches', 'nodes.switches'] },
+      ],
+    });
+    const baseInput = input(frame);
+    const pipelineInput = {
+      ...baseInput,
+      options: {
+        ...baseInput.options,
+        sourceNamespaceField: 'sourceNs',
+        targetNamespaceField: 'targetNs',
+        namespaceSeparator: ',',
+      },
+    };
+
+    const state = successful(await createPipeline().run(pipelineInput));
+
+    expect(state.snapshot.nodes.map(({ namespaceId }) => namespaceId)).toEqual(['nodes%2Eaggr', 'nodes%2Eswitches']);
+    expect(state.snapshot.relations.recordCount).toBe(1);
+    expect(state.graph.state.edgeIndex.recordCount).toBe(1);
+  });
+
   it('does not replace the committed baseline after a fatal frame configuration result', async () => {
     const commits: string[] = [];
     const pipeline = createPipeline({

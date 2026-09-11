@@ -92,6 +92,36 @@ describe('snapshot to graph state builder', () => {
     expect(graphs.map(getGraphNsLabel)).toEqual(['site', 'site,core.edge']);
   });
 
+  it('builds edges between dotted top-level namespaces when another separator is configured', async () => {
+    const frame = toDataFrame({
+      refId: 'TopLevelNamespaces',
+      fields: [
+        { name: 'source', values: ['A', 'B'] },
+        { name: 'target', values: ['B', null] },
+        { name: 'sourceNs', values: ['nodes.aggr', 'nodes.switches'] },
+        { name: 'targetNs', values: ['nodes.switches', 'nodes.switches'] },
+      ],
+    });
+    const snapshot = success(
+      await normalizeGraphFrames({
+        data: { series: [frame] },
+        options: {
+          ...options,
+          sourceNamespaceField: 'sourceNs',
+          targetNamespaceField: 'targetNs',
+          namespaceSeparator: ',',
+        },
+      })
+    );
+    const state = success(buildGraphFromSnapshot(snapshot));
+    const graphs = Array.from(state.graph.subgraphsBreadthFirst());
+
+    expect(snapshot.relations.recordCount).toBe(1);
+    expect(state.edgeIndex.recordCount).toBe(1);
+    expect(graphs.map(({ id }) => id)).toEqual(['nodes%2Eaggr', 'nodes%2Eswitches']);
+    expect(graphs.map(getGraphNsLabel)).toEqual(['nodes.aggr', 'nodes.switches']);
+  });
+
   it('keeps editable node indexes local when a namespace contains a child namespace', async () => {
     const frame = toDataFrame({
       refId: 'NestedNamespaceNodes',
