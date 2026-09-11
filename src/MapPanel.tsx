@@ -13,7 +13,6 @@ import {
   getActions,
   applyLayerFilter,
   initLayer,
-  RootStoreProvider,
   fillAnnots,
   initGroups,
   genVisLayers,
@@ -24,6 +23,7 @@ import {
   normalizeOptions,
   persistFreshPanelOptions,
 } from '@mapgl/panel-core/utils';
+import { RootStoreProvider, VisLayers } from '@mapgl/panel-core/store';
 import RootStore from './store/RootStore';
 import Mapgl from './components/Mapgl';
 import { mapLayerRegistry, ORTHO_BASEMAP_CONFIG } from './layers/registry';
@@ -64,7 +64,6 @@ interface State {
 }
 
 import { Rule } from '@mapgl/panel-core/editor';
-import { VisLayers } from '@mapgl/panel-core/store';
 
 export class MapPanel extends Component<Props, State> {
   private readonly panelUpdateGate = new LatestAsyncGate();

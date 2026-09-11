@@ -4,7 +4,8 @@ import { css } from '@emotion/css';
 import { IconButton, SeriesIcon, useStyles2, useTheme2, VizTooltipContainer } from '@grafana/ui';
 import { DataFrame, EventBus, Field, FieldType, GrafanaTheme2, type InterpolateFunction } from '@grafana/data';
 import { colTypes, type BiColProps } from '@mapgl/panel-core/types';
-import { clearTooltipInteraction, selectGotoHandler, useRootStore } from '@mapgl/panel-core/utils';
+import { clearTooltipInteraction, selectGotoHandler } from '@mapgl/panel-core/utils';
+import { useRootStore } from '@mapgl/panel-core/store';
 import { toRgbaString } from '@mapgl/panel-core/deckLayers/utils';
 import {
   getGraphInteractionScopedVars,

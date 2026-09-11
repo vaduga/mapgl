@@ -11,7 +11,8 @@ import { useStyles2, useTheme2, type VizLegendItem } from '@grafana/ui';
 import { observer } from 'mobx-react-lite';
 import DeckGL, { DeckGLRef } from '@deck.gl/react';
 
-import { useRootStore, genPrimaryLayers, expandTooltip } from '../utils';
+import { genPrimaryLayers, expandTooltip } from '../utils';
+import { useRootStore } from '@mapgl/panel-core/store';
 import { getDimmedGraphLayers } from '@mapgl/panel-core/deckLayers';
 import { toRGB4Array } from '@mapgl/panel-core/deckLayers/utils';
 import { DARK_AUTO_HIGHLIGHT, LIGHT_AUTO_HIGHLIGHT, ANNOTS_LABEL } from '@mapgl/panel-core/types/defaults';

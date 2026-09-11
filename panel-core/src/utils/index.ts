@@ -5,7 +5,6 @@ export * from './data-click';
 export * from './layers';
 export * from './map';
 export * from './plugin';
-export * from './provider';
 export * from './RefreshController';
 export * from './SvgIconManager';
 export * from './LatestAsyncGate';
