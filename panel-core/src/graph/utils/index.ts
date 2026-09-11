@@ -5,6 +5,9 @@ export {
   getEdgeArrowLength,
   getContractedGraph,
   inheritedShift,
+  splitNsId,
+  joinNsParts,
+  getNsPrefixes,
 } from './utils.graph';
 export type { LayoutArrowTips } from './layout-worker-client';
 export type { LayoutCurveGroup, LayoutGraphResult } from './layout-worker-types';

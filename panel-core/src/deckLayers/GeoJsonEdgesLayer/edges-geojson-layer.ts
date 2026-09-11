@@ -3,6 +3,7 @@ import { GeoJsonLayer } from '@deck.gl/layers';
 import type { Color } from '@deck.gl/core';
 import type { Feature, Geometry } from 'geojson';
 import { ALERTING_STATES } from '../../types/defaults';
+import { getNsPrefixes } from '../../graph/utils/utils.graph';
 import { type DeckLine, colTypes, type PointFeatureProperties, type RGBAColor } from '@mapgl/panel-core/types';
 import { DataFilterExtension, PathStyleExtension } from '@deck.gl/extensions';
 import { Matrix4 } from '@math.gl/core';
@@ -167,11 +168,7 @@ export const EdgesGeojsonLayer = (props) => {
   });
 
   const modelMatrix = new Matrix4();
-  const parts = srcGraphId.split('.');
-  let path = '';
-  for (let i = 0; i < parts.length; i++) {
-    path = path ? `${path}.${parts[i]}` : parts[i];
-
+  for (const path of getNsPrefixes(srcGraphId)) {
     const shift = layerShift[path];
     if (shift) {
       modelMatrix.translate([shift[0], shift[1], 0]);

@@ -86,6 +86,7 @@ export function createMarkersPipelineInput(options: MarkersPipelineOptions): Gra
       // namespace so stale saved panel config cannot split geographic nodes.
       sourceNamespaceField: options.isLogic ? config.vertexA_NS : undefined,
       targetNamespaceField: options.isLogic ? config.vertexB_NS : undefined,
+      namespaceSeparator: options.isLogic && (config.vertexA_NS || config.vertexB_NS) ? config.nsSeparator : undefined,
       location: options.layer.location,
       defaultNamespace: CMN_NAMESPACE,
       isLogic: options.isLogic,

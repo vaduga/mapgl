@@ -4,6 +4,7 @@ import type { GraphGeometrySignature, GraphNodeRecord, GraphTopologySignature } 
 interface GraphTopologySignatureInput {
   readonly nodes: readonly GraphNodeRecord[];
   readonly namespaces: readonly string[];
+  readonly namespaceLabels: ReadonlyMap<string, string>;
   readonly relations: PackedGraphRelations;
 }
 
@@ -15,6 +16,7 @@ interface GraphGeometrySignatureInput {
 
 interface GraphBuildDataSignatureInput extends GraphGeometrySignatureInput {
   readonly namespaces: readonly string[];
+  readonly namespaceLabels: ReadonlyMap<string, string>;
 }
 
 function hashString(value: string): string {
@@ -68,6 +70,7 @@ export function createGraphTopologySignature(input: GraphTopologySignatureInput)
       primaryRow.layerIndex ?? null,
     ]),
     namespaces: input.namespaces,
+    namespaceLabels: Array.from(input.namespaceLabels),
     records,
   });
 }
@@ -100,6 +103,7 @@ export function createGraphBuildDataSignature(input: GraphBuildDataSignatureInpu
     version: 1,
     nodes: input.nodes.map(({ key, primaryRow, rows }) => [key, primaryRow, rows]),
     namespaces: input.namespaces,
+    namespaceLabels: Array.from(input.namespaceLabels),
     records: Array.from({ length: relations.recordCount }, (_, recordRef) => {
       const unitStart = relations.getRecordUnitStart(recordRef);
       const unitCount = relations.getRecordUnitCount(recordRef);

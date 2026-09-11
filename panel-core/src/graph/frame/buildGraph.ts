@@ -1,7 +1,8 @@
-import { Graph, GraphEdgeIndex, Node, setEdge, setNodeData, setGraphPositionRanges } from '../main';
+import { Graph, GraphEdgeIndex, Node, setEdge, setGraphNsLabel, setNodeData, setGraphPositionRanges } from '../main';
 import { AttributeRegistry } from '../structs/attributeRegistry';
 import type { Edge } from '../structs/edge';
-import { CMN_NAMESPACE, NS_SEPARATOR } from '../../types/defaults';
+import { CMN_NAMESPACE } from '../../types/defaults';
+import { joinNsParts, splitNsId } from '../utils/utils.graph';
 import type { CoordRef, NodeData } from '../../types';
 import { PackedRelationFlags, decodeRouteRef, isCoordinateToken } from './packedRelations';
 import type {
@@ -16,23 +17,29 @@ type RuntimeNodeData = NodeData & {
   graphFrame: GraphEntityRowMetadata;
 };
 
-function ensureNamespace(root: Graph, namespaces: Map<string, Graph>, namespaceId: string): Graph {
+function ensureNamespace(
+  root: Graph,
+  namespaces: Map<string, Graph>,
+  namespaceId: string,
+  namespaceLabels?: ReadonlyMap<string, string>
+): Graph {
   if (!namespaceId || namespaceId === CMN_NAMESPACE) {
     return root;
   }
 
   let parent = root;
-  const parts = namespaceId.split(NS_SEPARATOR);
+  const parts = splitNsId(namespaceId);
   const path: string[] = [];
   for (const part of parts) {
     path.push(part);
-    const id = path.join(NS_SEPARATOR);
+    const id = joinNsParts(path);
     let graph = namespaces.get(id);
     if (!graph) {
       graph = new Graph(id);
       parent.addNode(graph);
       namespaces.set(id, graph);
     }
+    setGraphNsLabel(graph, namespaceLabels?.get(id) ?? id);
     parent = graph;
   }
   return parent;
@@ -102,7 +109,7 @@ export function buildGraphFromSnapshot(
   const graph = new Graph(CMN_NAMESPACE);
   const graphByNamespace = new Map<string, Graph>([[CMN_NAMESPACE, graph]]);
   for (const namespaceId of snapshot.namespaces) {
-    ensureNamespace(graph, graphByNamespace, namespaceId);
+    ensureNamespace(graph, graphByNamespace, namespaceId, snapshot.namespaceLabels);
   }
 
   const positions = snapshot.positions.slice();
@@ -113,7 +120,7 @@ export function buildGraphFromSnapshot(
 
   snapshot.nodes.forEach((record) => {
     const { index } = record;
-    const parent = ensureNamespace(graph, graphByNamespace, record.namespaceId);
+    const parent = ensureNamespace(graph, graphByNamespace, record.namespaceId, snapshot.namespaceLabels);
     const node = new Node(record.id);
     const metadata = Object.freeze({
       key: record.key,

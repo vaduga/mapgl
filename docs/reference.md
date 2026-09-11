@@ -33,7 +33,8 @@ For workflow-oriented setup guidance, see [Panel configuration](documentation.md
 - **Vertex B**: target node ID or path definition. If set, Mapgl can generate links.
 - **Edge ID**: optional link identity. Use unique values for separate parallel links. Reuse one value only for consecutive, datasource-ordered rows that form a continuous route; each row keeps its user-facing properties on the matching route portion.
 - **Vertex A namespace**: optional source namespace for graph mode.
-- **Vertex B namespace**: optional target namespace for graph mode.
+- **Vertex B namespace**: optional target namespace for graph mode. It remains active when **Vertex A namespace** is unset; the source then uses the default `external` namespace.
+- **Namespace layers separator**: one- or two-symbol delimiter for nested namespace values. The preset values are `.`, `,`, and `-`; custom values are supported and `.` is selected by default.
 - **Search by**: extra fields exposed to panel search.
 - **coordinates**: optional; used for Geo placement.
 
@@ -121,8 +122,8 @@ Vertex A=A, Vertex B=["A", [15, 55], "B"], Edge ID=geo-route-1
 - Geo mode uses one shared namespace, `external`; configured namespace fields and custom defaults are ignored there.
 - The default namespace in graph mode is `external`.
 - **Vertex A namespace** selects or creates the source node namespace.
-- **Vertex B namespace** selects the target node namespace.
-- Dot-separated namespace values create nested subgraphs, for example `site.core.router`.
+- **Vertex B namespace** independently selects the target node namespace. When either namespace field is unset or does not resolve, that side uses the default `external` namespace.
+- **Namespace layers separator** splits nested namespaces. The default `.` makes `site.core.router` a three-layer namespace; selecting `,` gives the same hierarchy from `site,core,router`.
 - A target node must exist in the resolved target namespace for a link to be created.
 
 ## Parallel link rules
@@ -184,9 +185,9 @@ Node group matching and escalation happen after this base style is resolved.
 - Exactly one fixed-color section renders the existing full ring.
 - Exactly one field-driven section renders a circular gradient gauge in the existing donut band.
 - The gauge radial bars with narrow separators fill begins at 12 o'clock, advances clockwise by whole bars, and is normalized against the selected field's effective Grafana Min and Max.
-- The Arc editor shows Bar width factor when at least one Arc section is configured. It shows Segments, Segment spacing, and Show thresholds only for exactly one field-driven Arc; it additionally shows Gradient when that Arc field uses From thresholds. 
+- The Arc editor shows Bar width factor when at least one Arc section is configured. It shows Segments, Segment spacing, and Show thresholds only for exactly one field-driven Arc; it additionally shows Gradient when that Arc field uses From thresholds.
 - Bar width factor scales Arc radial thickness inward while retaining the node's outer footprint. Segments and Segment spacing control gauge bar count and gaps. Disabling Show thresholds removes the outer full-range reference circle and its glow.
-- Arc presentation settings are resolved per node from its originating **Markers and links** layer. 
+- Arc presentation settings are resolved per node from its originating **Markers and links** layer.
 - When Segments is `1`, the single radial bar covers the full circle for any finite metric value and uses the active field Color scheme color at its normalized value rather than the inactive track color. Missing or invalid values retain the subdued track behavior.
 - A thin outer reference circle displays the field's complete configured color range; the value controls which inner bars are active and does not truncate the reference circle.
 - Values below Min clamp to an empty gauge; values above Max clamp to a complete circle.

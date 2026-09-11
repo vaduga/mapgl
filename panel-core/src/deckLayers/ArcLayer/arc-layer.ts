@@ -1,6 +1,7 @@
 import { toRGB4Array, makeColorDarker, makeColorLighter } from '../utils/color';
 import type { Unit } from '@deck.gl/core';
 import { ALERTING_STATES } from '../../types/defaults';
+import { getNsPrefixes } from '../../graph/utils/utils.graph';
 import { colTypes, type RGBAColor } from '@mapgl/panel-core/types';
 import AnimatedBlobsLayer from './animated-blobs-layer';
 import GradientArcLayer from './gradient-arc-layer';
@@ -93,11 +94,7 @@ export const MyArcLayer = (props) => {
   };
 
   const modelMatrix = new Matrix4();
-  const parts = srcGraphId.split('.');
-  let path = '';
-  for (let i = 0; i < parts.length; i++) {
-    path = path ? `${path}.${parts[i]}` : parts[i];
-
+  for (const path of getNsPrefixes(srcGraphId)) {
     const shift = layerShift[path];
     if (shift) {
       modelMatrix.translate([shift[0], shift[1], 0]);

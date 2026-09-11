@@ -14,10 +14,12 @@ export {
   getGraphComments,
   getNodeGroupsWithNodes,
   getGraphPositionRanges,
+  getGraphNsLabel,
   getGraphVersion,
   markNodeGroupHasNodes,
   resetGraphState,
   setGraphPositionRanges,
+  setGraphNsLabel,
 } from './structs/graphState';
 export {
   findEdge,

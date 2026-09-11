@@ -1,6 +1,7 @@
 import { GeoJsonLayer, TextLayer } from '@deck.gl/layers';
 import { CollisionFilterExtension, DataFilterExtension } from '@deck.gl/extensions';
 import { FieldColorModeId } from '@grafana/data';
+import { getNsPrefixes } from '../../graph/utils/utils.graph';
 
 import { getPackedSvgIcon, svgToDataURL } from './svgIconAtlas';
 import {
@@ -309,10 +310,7 @@ const NodesGeojsonLayer = (props) => {
 
   const modelMatrix = new Matrix4();
   const srcGraphId = biCol.graph.id;
-  const parts = srcGraphId.split('.');
-  let path = '';
-  for (let i = 0; i < parts.length; i++) {
-    path = path ? `${path}.${parts[i]}` : parts[i];
+  for (const path of getNsPrefixes(srcGraphId)) {
     const shift = props.layerShift?.[path];
     if (shift) {
       modelMatrix.translate([shift[0], shift[1], 0]);
@@ -510,10 +508,7 @@ const PlaceholderTextLayer = (props) => {
 
   const modelMatrix = new Matrix4();
   const srcGraphId = biCol.graph.id;
-  const parts = srcGraphId.split('.');
-  let path = '';
-  for (let i = 0; i < parts.length; i++) {
-    path = path ? `${path}.${parts[i]}` : parts[i];
+  for (const path of getNsPrefixes(srcGraphId)) {
     const shift = props.layerShift?.[path];
     if (shift) {
       modelMatrix.translate([shift[0], shift[1], 0]);
@@ -591,10 +586,7 @@ const MainLabelTextLayer = (props) => {
 
   const modelMatrix = new Matrix4();
   const srcGraphId = biCol.graph.id;
-  const parts = srcGraphId.split('.');
-  let path = '';
-  for (let i = 0; i < parts.length; i++) {
-    path = path ? `${path}.${parts[i]}` : parts[i];
+  for (const path of getNsPrefixes(srcGraphId)) {
     const shift = props.layerShift?.[path];
     if (shift) {
       modelMatrix.translate([shift[0], shift[1], 0]);

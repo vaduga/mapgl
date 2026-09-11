@@ -22,6 +22,7 @@ export interface MarkersConfig {
   isWrapEdges?: 0 | 1 | 2 | 3;
   vertexA_NS?: string;
   vertexB_NS?: string;
+  nsSeparator?: string;
 }
 
 export const MARKERS_LAYER_ID = 'markers';
@@ -57,6 +58,7 @@ export function createDefaultMarkersConfig(): ExtendMapLayerOptions<MarkersConfi
       },
       showStat2: false,
       isWrapEdges: 0,
+      nsSeparator: '.',
     },
     location: {
       mode: 'auto' as ExtendFrameGeometrySourceMode,

@@ -16,6 +16,38 @@ type EdgeTerminals = {
   targetPosition?: Position;
 };
 
+export function splitNsId(id: string): string[] {
+  const parts: string[] = [];
+  let part = '';
+
+  for (let index = 0; index < id.length; index++) {
+    const symbol = id[index];
+    const next = id[index + 1];
+    if (symbol === '\\' && (next === '\\' || next === NS_SEPARATOR)) {
+      part += next;
+      index++;
+    } else if (symbol === NS_SEPARATOR) {
+      parts.push(part);
+      part = '';
+    } else {
+      part += symbol;
+    }
+  }
+  parts.push(part);
+  return parts;
+}
+
+export function joinNsParts(parts: readonly string[]): string {
+  return parts
+    .map((part) => part.replaceAll('\\', '\\\\').replaceAll(NS_SEPARATOR, `\\${NS_SEPARATOR}`))
+    .join(NS_SEPARATOR);
+}
+
+export function getNsPrefixes(id: string): string[] {
+  const parts = splitNsId(id);
+  return parts.map((_, index) => joinNsParts(parts.slice(0, index + 1)));
+}
+
 function wrapDeltaLonDeg(dLon: number): number {
   if (dLon > 180) {
     return dLon - 360;
@@ -221,38 +253,36 @@ function getMidpoint(sourcePosition: Position, targetPosition: Position, isLogic
 }
 
 function getContractedGraph(graphId: string, visibleNamespaces: string[], allNameSpaces: string[]) {
-  const currentParts = graphId.split(NS_SEPARATOR);
+  const currentParts = splitNsId(graphId);
 
   const eligibleIds = visibleNamespaces.filter((id) => {
-    const parts = id.split(NS_SEPARATOR);
+    const parts = splitNsId(id);
     return parts.length <= currentParts.length && parts.every((part, index) => part === currentParts[index]);
   });
 
   const allEligibleIds = allNameSpaces.filter((id) => {
-    const parts = id.split(NS_SEPARATOR);
+    const parts = splitNsId(id);
     return parts.length <= currentParts.length && parts.every((part, index) => part === currentParts[index]);
   });
 
   if (!eligibleIds.length) {
-    return currentParts[0];
+    return getNsPrefixes(graphId)[0];
   }
 
-  const fallbackId = eligibleIds.reduce((best, id) =>
-    id.split(NS_SEPARATOR).length > best.split(NS_SEPARATOR).length ? id : best
-  );
-  const fallbackParts = fallbackId.split(NS_SEPARATOR);
+  const fallbackId = eligibleIds.reduce((best, id) => (splitNsId(id).length > splitNsId(best).length ? id : best));
+  const fallbackParts = splitNsId(fallbackId);
 
   return (
     allEligibleIds
       .filter((item) => item.startsWith(fallbackId))
-      .find((id) => id.split(NS_SEPARATOR).length === fallbackParts.length + 1) ?? fallbackId
+      .find((id) => splitNsId(id).length === fallbackParts.length + 1) ?? fallbackId
   );
 }
 
 function inheritedShift(id: string, layerShift: Record<string, [number, number]>) {
-  return id.split('.').reduce<[number, number]>(
-    ([x, y], _, index, parts) => {
-      const shift = layerShift[parts.slice(0, index + 1).join('.')];
+  return getNsPrefixes(id).reduce<[number, number]>(
+    ([x, y], path) => {
+      const shift = layerShift[path];
       return shift ? [x + shift[0], y + shift[1]] : [x, y];
     },
     [0, 0]

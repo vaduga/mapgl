@@ -1,6 +1,6 @@
 import { toDataFrame } from '@grafana/data';
 
-import { getGraphPositionRanges, getNodeData } from '../main';
+import { getGraphNsLabel, getGraphPositionRanges, getNodeData } from '../main';
 import { buildGraphFromSnapshot } from './buildGraph';
 import { normalizeGraphFrames } from './normalize';
 import { createGraphCompatibilityFixtures } from './testFixtures';
@@ -65,6 +65,31 @@ describe('snapshot to graph state builder', () => {
       { namespaceId: 'site.one', start: 0, end: 2 },
       { namespaceId: 'site.two', start: 2, end: 4 },
     ]);
+  });
+
+  it('keeps the configured separator in namespace display labels', async () => {
+    const frame = toDataFrame({
+      refId: 'CustomNamespaceSeparator',
+      fields: [
+        { name: 'source', values: ['A'] },
+        { name: 'sourceNs', values: ['site,core.edge'] },
+      ],
+    });
+    const snapshot = success(
+      await normalizeGraphFrames({
+        data: { series: [frame] },
+        options: {
+          ...options,
+          sourceNamespaceField: 'sourceNs',
+          namespaceSeparator: ',',
+        },
+      })
+    );
+    const state = success(buildGraphFromSnapshot(snapshot));
+    const graphs = Array.from(state.graph.subgraphsBreadthFirst());
+
+    expect(graphs.map(({ id }) => id)).toEqual(['site', String.raw`site.core\.edge`]);
+    expect(graphs.map(getGraphNsLabel)).toEqual(['site', 'site,core.edge']);
   });
 
   it('keeps editable node indexes local when a namespace contains a child namespace', async () => {

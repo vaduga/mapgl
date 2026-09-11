@@ -7,12 +7,9 @@ import { MapLayerState, colTypes } from '../types';
 import { ExtendMapLayerHandler, ExtendMapLayerOptions } from '../extension';
 import { getNextLayerName } from './geomap_utils';
 import { Graph } from '@mapgl/panel-core/graph';
-import {
-  getDerivedVisLayers,
-  getMapglFeatureServices,
-} from '../extension-points/featureContracts';
+import { getDerivedVisLayers, getMapglFeatureServices } from '../extension-points/featureContracts';
 import { VisLayers } from '../store';
-import { NS_SEPARATOR } from '../types/defaults';
+import { joinNsParts, splitNsId } from '../graph/utils/utils.graph';
 
 interface VisibilityDataLayer {
   name: string;
@@ -53,11 +50,7 @@ export const applyLayerFilter = (
 };
 
 // panel: MapPanel
-export async function updateLayer(
-  panel: any,
-  uid: string,
-  newOptions: ExtendMapLayerOptions
-): Promise<boolean> {
+export async function updateLayer(panel: any, uid: string, newOptions: ExtendMapLayerOptions): Promise<boolean> {
   if (!panel.map) {
     return false;
   }
@@ -225,9 +218,9 @@ export function createDerivedLayers(
 
   for (const g of graphs) {
     const id = g.id;
-    const segments = id.split(NS_SEPARATOR);
+    const segments = splitNsId(id);
     const label = segments[segments.length - 1];
-    const parentId = segments.length > 1 ? segments.slice(0, -1).join(NS_SEPARATOR) : 'graph';
+    const parentId = segments.length > 1 ? joinNsParts(segments.slice(0, -1)) : 'graph';
     const parentIdx = parentId !== 'graph' ? idToLayerIdx.get(parentId) : graphIdx;
 
     const layerIdx = visLayers.addLayer(label, id, parentId, false, true, false, parentIdx ?? null, false);
@@ -265,5 +258,4 @@ export function createDerivedLayers(
   const parsed = parseInt(rVar, 10);
   const isRouted = !isNaN(parsed) ? parsed > 0 : true;
   visLayers.addLayer(colTypes.Routed, colTypes.Routed, colTypes.Routed, false, isRouted, false, parentIdx, false);
-
 }

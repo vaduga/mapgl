@@ -1,7 +1,7 @@
 import { isVisible, toRGB4Array } from '@mapgl/panel-core/deckLayers/utils';
 import { GeoJsonLayer, PathLayer, TextLayer } from '@deck.gl/layers';
 import type { Layer } from '@deck.gl/core';
-import type { Graph } from '@mapgl/panel-core/graph';
+import { getGraphNsLabel, type Graph } from '@mapgl/panel-core/graph';
 import { getMapglFeatureServices, getNamespaceBoundaries } from '@mapgl/panel-core';
 import { BBOX_OUTLINE_COLOR, BBOX_OUTLINE_WIDTH } from '@mapgl/panel-core/types/defaults';
 import { type DeckLine, colTypes } from '@mapgl/panel-core/types';
@@ -92,6 +92,7 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
           properties: {
             id: boundaryGraph.id,
             locName: boundaryGraph.id,
+            namespaceLabel: getGraphNsLabel(boundaryGraph) ?? boundaryGraph.id,
             graph: boundaryGraph,
           },
           geometry: {
@@ -131,6 +132,7 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
 
       bboxFeatCollection.features.forEach((feature) => {
         const id = feature.properties.id;
+        const namespaceLabel = feature.properties.namespaceLabel;
         const geom = feature.geometry.coordinates[0];
 
         const [[minX, minY], [maxX], [, maxY]] = geom;
@@ -140,7 +142,7 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
 
         const data = [
           {
-            text: id,
+            text: namespaceLabel,
             coordinates: [center_x, center_y],
           },
         ];

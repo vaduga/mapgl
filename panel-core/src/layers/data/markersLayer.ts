@@ -4,6 +4,7 @@ import { colTypes } from '@mapgl/panel-core/types';
 
 import { getMapglFeatureServices } from '../../extension-points/featureContracts';
 import { ExtendMapLayerOptions, ExtendMapLayerRegistryItem } from '../../extension';
+import { NamespaceSeparatorEditor } from '../../editor/Other/nsSeparatorEditor';
 import { defaultMarkersOptions, MARKERS_LAYER_ID, type MarkersConfig } from './markersDefaults';
 import type { DataLayerEditorAdapters } from './types';
 
@@ -56,7 +57,7 @@ export function createMarkersLayer({
             .addFieldNamePicker({
               path: 'edgeIdField',
               name: 'Edge ID',
-              description: 'Optional. Used for parallel edges or trace ID',
+              description: 'Optional. Used for parallel edges or as trace ID',
               settings: {
                 filter: (f: Field) => {
                   return f.type === FieldType.string;
@@ -88,7 +89,7 @@ export function createMarkersLayer({
             .addFieldNamePicker({
               path: 'config.vertexA_NS',
               name: 'Vertex A namespace',
-              description: 'Optional. Use "." to separate layers',
+              description: 'Optional',
               settings: {
                 filter: (f: Field) => {
                   return f.type === FieldType.string;
@@ -109,7 +110,15 @@ export function createMarkersLayer({
                 isClearable: true,
                 noFieldsMessage: 'No string fields found',
               },
-              showIf: (opts) => panel.isLogic && !!opts.parField,
+              showIf: (opts) => panel.isLogic && !!opts.locField && !!opts.parField,
+            })
+            .addCustomEditor({
+              id: 'config.nsSeparator',
+              path: 'config.nsSeparator',
+              name: 'Namespace layers separator',
+              editor: NamespaceSeparatorEditor,
+              showIf: (opts) => panel.isLogic && !!(opts.config?.vertexA_NS || opts.config?.vertexB_NS),
+              defaultValue: defaultOptions.nsSeparator,
             })
             .addMultiSelect({
               path: 'searchProperties',

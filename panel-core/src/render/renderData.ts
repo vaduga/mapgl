@@ -2,7 +2,8 @@ import type { BinaryPointFeature } from '@loaders.gl/schema';
 import { MyGeoJsonLayer, MyPathLayer, MyPolygonsLayer } from '../deckLayers';
 import { getGraphPositionRanges, type Graph } from '../graph/main';
 import { packGraphNodeBinaryRanges, selectGraphNodeFillColors } from '../utils';
-import { emptyBiCol, NS_SEPARATOR } from '../types/defaults';
+import { emptyBiCol } from '../types/defaults';
+import { splitNsId } from '../graph/utils/utils.graph';
 import type { GraphBiFeatCol } from '../types';
 import type { RenderLayer } from './layers';
 
@@ -37,7 +38,7 @@ export function buildGraphBinaryCollections({
 
   return graphs
     .filter((graph) => visibleNamespaces.includes(graph.id))
-    .sort((a, b) => a.id.split(NS_SEPARATOR).length - b.id.split(NS_SEPARATOR).length)
+    .sort((a, b) => splitNsId(a.id).length - splitNsId(b.id).length)
     .map((graph) => {
       const positionRanges = getGraphPositionRanges(graph);
       const packed = packGraphNodeBinaryRanges({ positions, colors, muted, annotations, groupIndices }, positionRanges);

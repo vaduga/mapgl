@@ -1,7 +1,8 @@
 # Changelog Mapgl
 
 ## 2.10.2
-- bump deck.gl 9.4.0, webgpu disabled
+- namespace hierarchy separator symbol config
+- bump deck.gl 9.4.0 webgl only, webgpu disabled for bundle size
 
 ## 2.10.1
 - Gauge overlay for a single field-driven metric in Node Styles → Arc sections

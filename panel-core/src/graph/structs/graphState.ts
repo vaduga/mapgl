@@ -3,6 +3,7 @@ import { CommentsData } from '@mapgl/panel-core/types';
 
 export type GraphState = {
   comments: CommentsData;
+  namespaceLabel?: string;
   nodeGroupsWithNodes: Set<number>;
   positionRanges: Array<[number, number]>;
   version: number;
@@ -35,6 +36,14 @@ export function getGraphState(graph: object): GraphState {
 export function getGraphComments(graph: object): CommentsData {
   return getGraphState(graph).comments;
 }
+
+export function getGraphNsLabel(graph: object): string | undefined {
+  return getGraphState(graph).namespaceLabel;
+}
+
+export const setGraphNsLabel = action('setGraphNsLabel', (graph: object, label: string): void => {
+  getGraphState(graph).namespaceLabel = label;
+});
 
 export function getNodeGroupsWithNodes(graph: object): Set<number> {
   return getGraphState(graph).nodeGroupsWithNodes;
@@ -71,4 +80,5 @@ export const resetGraphState = action('resetGraphState', (graph: object): void =
   const state = getGraphState(graph);
   state.nodeGroupsWithNodes.clear();
   state.positionRanges = [];
+  state.namespaceLabel = undefined;
 });

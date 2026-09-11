@@ -108,6 +108,7 @@ export interface GraphFrameSnapshot {
   readonly positions: Float64Array;
   readonly relations: PackedGraphRelations;
   readonly namespaces: readonly string[];
+  readonly namespaceLabels: ReadonlyMap<string, string>;
   readonly nodeByKey: ReadonlyMap<string, GraphNodeRecord>;
   readonly diagnostics: readonly GraphFrameDiagnostic[];
   readonly topologySignature: GraphTopologySignature;
@@ -176,6 +177,7 @@ export interface GraphFrameOptions {
   readonly edgeIdField?: string;
   readonly sourceNamespaceField?: string;
   readonly targetNamespaceField?: string;
+  readonly namespaceSeparator?: string;
   readonly location?: GraphFrameLocationOptions;
   readonly defaultNamespace?: string;
   readonly isLogic: boolean;

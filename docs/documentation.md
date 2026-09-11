@@ -84,7 +84,8 @@ These fields define how Mapgl builds the topology:
 - **Vertex B**: target node ID or path array. If set, Mapgl draws links.
 - **Edge ID**: optional link identity. Use a unique value for every parallel link that should stay separate. Reuse a value only for consecutive rows that form one continuous route; fields from each row remain available on its displayed route portion.
 - **Vertex A namespace**: optional namespace for source nodes in graph mode.
-- **Vertex B namespace**: optional namespace for target nodes in graph mode.
+- **Vertex B namespace**: optional namespace for target nodes in graph mode. It can be configured independently; an unset source namespace uses `external`.
+- **Namespace layers separator**: one or two symbols used to split nested namespace values. Choose `.`, `,`, or `-`, or enter a custom separator. It appears when either namespace field is configured and defaults to `.`.
 - Geo mode uses one shared `external` namespace; namespace field selections are ignored there.
 - **Search by**: extra fields included in the panel search text.
 
@@ -164,7 +165,7 @@ Arc sections adapt to the selected configuration:
 
 The gauge supports native Grafana continuous by-value schemes and **From thresholds**. Configure Min, Max, Color scheme, and thresholds through Grafana standard field options or field overrides; Mapgl does not define a separate gauge color scale.
 
-In both Geo and abstract node graph modes, the center of a single field-driven gauge shows the same metric through Grafana's display formatting, including units, decimals, value mappings, prefixes, suffixes, and configured no-value text. A node group without a configured icon shows the value normally. When a group has an icon, the center shows either that icon or the value: switching off the **Icon** visibility layer reveals the value. 
+In both Geo and abstract node graph modes, the center of a single field-driven gauge shows the same metric through Grafana's display formatting, including units, decimals, value mappings, prefixes, suffixes, and configured no-value text. A node group without a configured icon shows the value normally. When a group has an icon, the center shows either that icon or the value: switching off the **Icon** visibility layer reveals the value.
 
 ## Node groups
 

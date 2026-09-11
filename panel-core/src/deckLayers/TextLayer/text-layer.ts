@@ -3,10 +3,11 @@ import { DataFilterExtension } from '@deck.gl/extensions';
 import { toRGB4Array } from '../utils/color';
 import { isVisible } from '../utils/visibility';
 import { BBOX_OUTLINE_COLOR } from '../../types/defaults';
+import { getNsPrefixes } from '../../graph/utils/utils.graph';
 import { colTypes } from '@mapgl/panel-core/types';
 import { Matrix4 } from '@math.gl/core';
 
-export const EDGE_LABEL_DIM_OPACITY = 0;//.18;
+export const EDGE_LABEL_DIM_OPACITY = 0; //.18;
 
 const LineTextLayer = ({
   id = '',
@@ -53,11 +54,7 @@ const LineTextLayer = ({
   const extensions = ['nums', 'bbox'].includes(type) ? [] : [new DataFilterExtension({ categorySize })];
 
   const modelMatrix = new Matrix4();
-  const parts = id.split('.');
-  let path = '';
-  for (let i = 0; i < parts.length; i++) {
-    path = path ? `${path}.${parts[i]}` : parts[i];
-
+  for (const path of getNsPrefixes(id)) {
     const shift = layerShift[path];
     if (shift) {
       modelMatrix.translate([shift[0], shift[1], 0]);

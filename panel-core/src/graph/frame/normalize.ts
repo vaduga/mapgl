@@ -2,6 +2,7 @@ import type { Field } from '@grafana/data';
 
 import { decodeGeohash } from '../../grafana_core/app/features/geo/format/geohash';
 import { CMN_NAMESPACE } from '../../types/defaults';
+import { getNsPrefixes, joinNsParts } from '../utils/utils.graph';
 import { GraphDiagnosticCollector } from './diagnostics';
 import {
   PACKED_MAX_REF,
@@ -54,6 +55,22 @@ function normalizeId(value: unknown): string | undefined {
 
 function graphNodeKey(namespaceId: string, id: string): string {
   return JSON.stringify([namespaceId, id]);
+}
+
+function namespaceSeparator(value: string | undefined): string {
+  return value && Array.from(value).length <= 2 ? value : '.';
+}
+
+function normalizeNamespace(value: unknown, fallback: string, separator: string | undefined) {
+  const label = normalizeId(value) ?? fallback;
+  const resolvedSeparator = namespaceSeparator(separator);
+  const parts = label.split(resolvedSeparator);
+  const id = resolvedSeparator === '.' ? label : joinNsParts(parts);
+  const prefixes = getNsPrefixes(id);
+  return {
+    id,
+    labels: prefixes.map((prefix, index) => [prefix, parts.slice(0, index + 1).join(resolvedSeparator)] as const),
+  };
 }
 
 function graphEdgeKey(sourceNamespaceId: string, id: string): string {
@@ -258,6 +275,7 @@ export async function normalizeGraphFrames(
 
   const nodeBuilders = new Map<string, MutableNode>();
   const namespaces = new Set<string>();
+  const namespaceLabels = new Map<string, string>();
   const maximum = internalOptions.packedMaxRef ?? PACKED_MAX_REF;
   const relationBuilder = new PackedGraphRelationsBuilder({ maxRef: maximum });
   let packedCapacityError: PackedRelationCapacityError | undefined;
@@ -287,12 +305,27 @@ export async function normalizeGraphFrames(
           continue;
         }
 
-        const sourceNamespaceId = options.isLogic
-          ? (normalizeId(fieldValue(resolved.sourceNamespace, rowIndex)) ?? defaultNamespace)
-          : defaultNamespace;
-        const targetNamespaceId = options.isLogic
-          ? (normalizeId(fieldValue(resolved.targetNamespace, rowIndex)) ?? defaultNamespace)
-          : defaultNamespace;
+        const sourceNamespace = options.isLogic
+          ? normalizeNamespace(
+              fieldValue(resolved.sourceNamespace, rowIndex),
+              defaultNamespace,
+              options.namespaceSeparator
+            )
+          : { id: defaultNamespace, labels: [[defaultNamespace, defaultNamespace] as const] };
+        const targetNamespace = options.isLogic
+          ? normalizeNamespace(
+              fieldValue(resolved.targetNamespace, rowIndex),
+              defaultNamespace,
+              options.namespaceSeparator
+            )
+          : { id: defaultNamespace, labels: [[defaultNamespace, defaultNamespace] as const] };
+        const sourceNamespaceId = sourceNamespace.id;
+        const targetNamespaceId = targetNamespace.id;
+        for (const [id, label] of [...sourceNamespace.labels, ...targetNamespace.labels]) {
+          if (!namespaceLabels.has(id)) {
+            namespaceLabels.set(id, label);
+          }
+        }
         const nodeKey = graphNodeKey(sourceNamespaceId, nodeId);
         const position = positionAt(resolved, rowIndex, options.isLogic);
         let node = nodeBuilders.get(nodeKey);
@@ -458,6 +491,7 @@ export async function normalizeGraphFrames(
   const topologySignature = createGraphTopologySignature({
     nodes,
     namespaces: Array.from(namespaces),
+    namespaceLabels,
     relations,
   });
   const geometrySignature = createGraphGeometrySignature({ nodes, positions, relations });
@@ -468,6 +502,7 @@ export async function normalizeGraphFrames(
     positions,
     relations,
     namespaces: Object.freeze(Array.from(namespaces)),
+    namespaceLabels,
     nodeByKey,
     diagnostics: finalDiagnostics,
     topologySignature,
