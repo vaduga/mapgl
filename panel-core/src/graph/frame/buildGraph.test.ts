@@ -88,7 +88,7 @@ describe('snapshot to graph state builder', () => {
     const state = success(buildGraphFromSnapshot(snapshot));
     const graphs = Array.from(state.graph.subgraphsBreadthFirst());
 
-    expect(graphs.map(({ id }) => id)).toEqual(['site', String.raw`site.core\.edge`]);
+    expect(graphs.map(({ id }) => id)).toEqual(['site', 'site.core%2Eedge']);
     expect(graphs.map(getGraphNsLabel)).toEqual(['site', 'site,core.edge']);
   });
 

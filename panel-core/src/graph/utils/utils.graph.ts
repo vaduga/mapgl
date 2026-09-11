@@ -17,30 +17,11 @@ type EdgeTerminals = {
 };
 
 export function splitNsId(id: string): string[] {
-  const parts: string[] = [];
-  let part = '';
-
-  for (let index = 0; index < id.length; index++) {
-    const symbol = id[index];
-    const next = id[index + 1];
-    if (symbol === '\\' && (next === '\\' || next === NS_SEPARATOR)) {
-      part += next;
-      index++;
-    } else if (symbol === NS_SEPARATOR) {
-      parts.push(part);
-      part = '';
-    } else {
-      part += symbol;
-    }
-  }
-  parts.push(part);
-  return parts;
+  return id.split(NS_SEPARATOR).map((part) => part.replaceAll('%2E', NS_SEPARATOR).replaceAll('%25', '%'));
 }
 
 export function joinNsParts(parts: readonly string[]): string {
-  return parts
-    .map((part) => part.replaceAll('\\', '\\\\').replaceAll(NS_SEPARATOR, `\\${NS_SEPARATOR}`))
-    .join(NS_SEPARATOR);
+  return parts.map((part) => part.replaceAll('%', '%25').replaceAll(NS_SEPARATOR, '%2E')).join(NS_SEPARATOR);
 }
 
 export function getNsPrefixes(id: string): string[] {

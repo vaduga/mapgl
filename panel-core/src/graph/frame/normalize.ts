@@ -65,7 +65,7 @@ function normalizeNamespace(value: unknown, fallback: string, separator: string 
   const label = normalizeId(value) ?? fallback;
   const resolvedSeparator = namespaceSeparator(separator);
   const parts = label.split(resolvedSeparator);
-  const id = resolvedSeparator === '.' ? label : joinNsParts(parts);
+  const id = joinNsParts(parts);
   const prefixes = getNsPrefixes(id);
   return {
     id,

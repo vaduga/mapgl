@@ -1,14 +1,15 @@
 import { getNsPrefixes, joinNsParts, splitNsId } from './utils.graph';
 
 describe('namespace hierarchy IDs', () => {
-  it('round-trips literal dots and backslashes inside hierarchy segments', () => {
-    const id = joinNsParts(['site', 'core.edge', String.raw`rack\west`]);
+  it('round-trips literal dots, percent signs, and backslashes inside hierarchy segments', () => {
+    const id = joinNsParts(['site', 'core.edge', String.raw`rack\west%2E`]);
 
-    expect(splitNsId(id)).toEqual(['site', 'core.edge', String.raw`rack\west`]);
+    expect(id).toBe(String.raw`site.core%2Eedge.rack\west%252E`);
+    expect(splitNsId(id)).toEqual(['site', 'core.edge', String.raw`rack\west%2E`]);
     expect(getNsPrefixes(id).map(splitNsId)).toEqual([
       ['site'],
       ['site', 'core.edge'],
-      ['site', 'core.edge', String.raw`rack\west`],
+      ['site', 'core.edge', String.raw`rack\west%2E`],
     ]);
   });
 
