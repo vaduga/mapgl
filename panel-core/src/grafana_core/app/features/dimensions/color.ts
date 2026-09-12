@@ -12,7 +12,6 @@ import { DimensionSupplier } from './types';
 import { findField, getLastNotNullFieldValue } from './utils';
 import { isEmpty } from 'lodash';
 import { getDisplayProcessor } from '../../../data/field/displayProcessor';
-import index from 'eslint-plugin-jsdoc';
 
 //---------------------------------------------------------
 // Color dimension

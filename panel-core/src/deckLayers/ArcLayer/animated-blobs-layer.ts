@@ -1,4 +1,4 @@
-import type { Accessor } from '@deck.gl/core';
+import type { Accessor, DefaultProps } from '@deck.gl/core';
 import vs from './arc-layer-vertex.glsl';
 import { arcUniforms } from './arc-layer-uniforms';
 import GradientArcLayer from './gradient-arc-layer';
@@ -12,7 +12,7 @@ type AnimatedBlobsLayerProps<DataT = unknown> = {
   coef?: number;
 };
 
-const defaultProps = {
+const defaultProps: DefaultProps = {
   ...GradientArcLayer.defaultProps,
   coef: { type: 'number', value: 1.0, min: 0.0, max: 1.0 },
   getSourceArrow: { type: 'accessor', value: 0 },

@@ -1,6 +1,6 @@
 // main.ts
 export { Graph } from './structs/graph';
-export { Node } from '@msagl/core/dist/structs/node';
+export { Node } from '@msagl/core/dist/structs/node.js';
 export { Edge } from './structs/edge';
 export {
   GraphEdgeIndex,

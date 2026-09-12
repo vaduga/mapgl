@@ -1,5 +1,5 @@
 import vs from './arc-layer-vertex.glsl';
-import type { Accessor } from '@deck.gl/core';
+import type { Accessor, DefaultProps } from '@deck.gl/core';
 import Float32ArcLayer from './float32-arc-layer';
 
 type HighlightMaskProps<DataT = any> = {
@@ -8,7 +8,7 @@ type HighlightMaskProps<DataT = any> = {
   getSkip?: Accessor<DataT, boolean | number>;
 };
 
-const defaultProps = {
+const defaultProps: DefaultProps = {
   ...Float32ArcLayer.defaultProps,
   getHighlightDepth: { type: 'accessor', value: 0 },
   getHighlightDimOpacity: { type: 'accessor', value: 1 },

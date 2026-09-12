@@ -1,5 +1,5 @@
 import { AttributeRegistry } from './attributeRegistry';
-import { Entity } from '@msagl/core/dist/structs/entity';
+import { Entity } from '@msagl/core/dist/structs/entity.js';
 import type { Node } from '@msagl/core';
 
 export class Edge extends Entity {

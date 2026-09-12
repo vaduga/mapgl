@@ -1,4 +1,4 @@
-import { Graph as MSGraph } from '@msagl/core/dist/structs/graph';
+import { Graph as MSGraph } from '@msagl/core/dist/structs/graph.js';
 import type { Node } from '@msagl/core';
 import type { Edge } from './edge';
 
