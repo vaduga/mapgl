@@ -3,7 +3,7 @@
   "version": "2.10.3",
   "description": "Mapgl panel",
   "scripts": {
-    "build": "npm run core:build && rspack -c ./rspack.config.ts --env production",
+    "build": "rspack -c ./rspack.config.ts --env production",
     "build:webpack": "webpack -c ./webpack.config.ts --env production",
     "dev": "rspack -w -c ./rspack.config.ts --env development",
     "test": "jest --watch --onlyChanged",
@@ -15,8 +15,6 @@
     "e2e": "playwright test",
     "server": "docker compose up --build",
     "sign": "sign-plugin",
-    "core:build": "npm run build --workspace @mapgl/panel-core",
-    "core:test:built": "npm run core:build && jest --config jest.core-built.config.js --maxWorkers 4",
     "core:pack": "node scripts/package-core.mjs"
   },
   "author": "Vadim Pyatakov",

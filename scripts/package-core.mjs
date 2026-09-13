@@ -12,7 +12,12 @@ const npmEnvironment = {
   npm_config_cache: path.join(root, '.cache/npm'),
   npm_config_loglevel: 'error',
 };
-for (const args of [['run', 'core:build'], ['pack', '--workspace', '@mapgl/panel-core', '--pack-destination', artifacts]]) {
+// The OSS bundle uses panel-core/src directly. Build the workspace only for
+// the packed artifact consumed by other downstream repositories.
+for (const args of [
+  ['run', 'build', '--workspace', '@mapgl/panel-core'],
+  ['pack', '--workspace', '@mapgl/panel-core', '--pack-destination', artifacts],
+]) {
   const result = spawnSync('npm', args, { cwd: root, env: npmEnvironment, stdio: 'inherit', shell: false });
   if (result.error) throw result.error;
   if (result.status !== 0) process.exit(result.status ?? 1);
