@@ -1,3 +1,4 @@
+import { useMapglPlugin } from '../../../../../plugin-factory/pluginRuntime';
 import { css } from '@emotion/css';
 import React, { Dispatch, SetStateAction } from 'react';
 
@@ -19,7 +20,8 @@ export const URLPickerTab = (props: Props) => {
   const { newValue, setNewValue, mediaType } = props;
   const styles = useStyles2(getStyles);
 
-  const imgSrc = getPublicOrAbsoluteUrl(newValue!);
+  const { pluginId } = useMapglPlugin();
+  const imgSrc = getPublicOrAbsoluteUrl(newValue!, pluginId);
 
   let shortName = newValue?.substring(newValue.lastIndexOf('/') + 1, newValue.lastIndexOf('.'));
   if (shortName.length > 20) {

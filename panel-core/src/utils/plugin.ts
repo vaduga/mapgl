@@ -45,7 +45,8 @@ function getSvgGroupsSignature(groups: Rule[]): string {
 
 async function parseSvgFileToString(
   svgIconName: string,
-  uController: AbortController
+  uController: AbortController,
+  pluginId: string
 ): Promise<[string, SvgIconRecord] | null> {
   const signal = uController.signal;
   if (!svgIconName) {
@@ -53,7 +54,7 @@ async function parseSvgFileToString(
   }
 
   const isPublic = svgIconName.startsWith('public/');
-  const localName = isPublic ? svgIconName : `public/plugins/${getMapglPluginId()}/img/icons/${svgIconName}.svg`;
+  const localName = isPublic ? svgIconName : `public/plugins/${pluginId}/img/icons/${svgIconName}.svg`;
   const svgFilePath = svgIconName.startsWith('http') ? svgIconName : localName;
 
   try {
@@ -96,7 +97,8 @@ async function parseSvgFileToString(
 async function loadSvgIcons(
   names: string[],
   svgIcons: Record<string, any>,
-  loadController: AbortController
+  loadController: AbortController,
+  pluginId = 'vaduga-mapgl-panel'
 ): Promise<Record<string, any>> {
   if (!names?.length) {
     return svgIcons;
@@ -104,7 +106,7 @@ async function loadSvgIcons(
 
   try {
     const promises: Array<Promise<[string, SvgIconRecord] | null>> = names.map((name) =>
-      parseSvgFileToString(name, loadController)
+      parseSvgFileToString(name, loadController, pluginId)
     );
 
     const res = await Promise.all(promises);

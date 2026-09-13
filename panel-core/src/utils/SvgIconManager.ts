@@ -14,6 +14,7 @@ export type SvgIconRequest = {
 export type SvgIconCache = Map<string, any>;
 
 export class SvgIconManager {
+  constructor(private readonly pluginId = 'vaduga-mapgl-panel') {}
   private icons: Record<string, any> = {};
   private revision = 0;
   private signature = '';
@@ -42,7 +43,7 @@ export class SvgIconManager {
     const newNames = newUniqueIconNames(this.icons, request.requiredIconNames);
     try {
       if (newNames.length) {
-        await loadSvgIcons(newNames, this.icons, controller);
+        await loadSvgIcons(newNames, this.icons, controller, this.pluginId);
       }
     } catch (ex: any) {
       if (ex?.name === 'AbortError') {

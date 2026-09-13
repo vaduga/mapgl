@@ -50,7 +50,9 @@ describe('RuntimeSubscriptionController', () => {
     await start;
 
     expect(onDataChange).toHaveBeenCalledTimes(1);
-    expect(onDataChange).toHaveBeenCalledWith(latest);
+    expect(onDataChange).toHaveBeenCalledWith(
+      expect.objectContaining({ graph: latest.graph, options: latest.options, signal: expect.any(AbortSignal) })
+    );
   });
 
   it('dispatches subsequent data changes immediately after startup', async () => {
@@ -66,7 +68,9 @@ describe('RuntimeSubscriptionController', () => {
     controller.onDataChange(update);
 
     expect(onDataChange).toHaveBeenCalledTimes(1);
-    expect(onDataChange).toHaveBeenCalledWith(update);
+    expect(onDataChange).toHaveBeenCalledWith(
+      expect.objectContaining({ graph: update.graph, options: update.options, signal: expect.any(AbortSignal) })
+    );
   });
 
   it('drops queued data changes when disposed before startup completes', async () => {
@@ -89,4 +93,96 @@ describe('RuntimeSubscriptionController', () => {
 
     expect(onDataChange).not.toHaveBeenCalled();
   });
+});
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((done) => {
+    resolve = done;
+  });
+  return { promise, resolve };
+}
+
+it('does not start later providers after disposal during asynchronous startup', async () => {
+  const pending = deferred<RuntimeSubscription>();
+  const dispose = jest.fn();
+  const later = jest.fn(() => ({ dispose: jest.fn() }));
+  const controller = new RuntimeSubscriptionController([
+    { id: 'pending', start: () => pending.promise },
+    { id: 'later', start: later },
+  ]);
+  const starting = controller.start(context('old'));
+  controller.dispose();
+  pending.resolve({ dispose });
+  await starting;
+  expect(dispose).toHaveBeenCalledTimes(1);
+  expect(later).not.toHaveBeenCalled();
+});
+
+it('suppresses stale publication and invalidates pending annotation updates', async () => {
+  let startup!: RuntimeSubscriptionContext;
+  const updates: RuntimeSubscriptionContext[] = [];
+  const controller = new RuntimeSubscriptionController([
+    {
+      id: 'events',
+      start: (value) => {
+        startup = value;
+        return {
+          dispose: jest.fn(),
+          onDataChange: (value) => {
+            updates.push(value);
+          },
+        };
+      },
+    },
+  ]);
+  const input = context('panel');
+  await controller.start(input);
+  controller.onDataChange(input);
+  controller.onDataChange(input);
+  expect(updates[0].signal?.aborted).toBe(true);
+  expect(updates[1].signal?.aborted).toBe(false);
+  controller.dispose();
+  startup.publish({ type: 'live.node.metric.updated', nodeId: 'node', metric: 'metric', value: 7 });
+  expect(input.publish).not.toHaveBeenCalled();
+  expect(updates[1].signal?.aborted).toBe(true);
+});
+
+it('disposes successful providers when a later startup fails and can restart', async () => {
+  const dispose = jest.fn();
+  const start = jest.fn().mockRejectedValueOnce(new Error('failed')).mockResolvedValue({ dispose: jest.fn() });
+  const controller = new RuntimeSubscriptionController([
+    { id: 'first', start: () => ({ dispose }) },
+    { id: 'failing', start },
+  ]);
+  await expect(controller.start(context('first'))).rejects.toThrow('failed');
+  expect(dispose).toHaveBeenCalledTimes(1);
+  await controller.start(context('retry'));
+  controller.dispose();
+  expect(dispose).toHaveBeenCalledTimes(2);
+});
+
+it('keeps concurrent panels independent and re-evaluates capability changes on restart', async () => {
+  const starts: RuntimeSubscriptionContext[] = [];
+  const provider: RuntimeSubscriptionProvider = {
+    id: 'capability',
+    isEnabled: (value) => (value.options as { enabled?: boolean }).enabled === true,
+    start: (value) => {
+      starts.push(value);
+      return { dispose: jest.fn() };
+    },
+  };
+  const first = new RuntimeSubscriptionController([provider]);
+  const second = new RuntimeSubscriptionController([provider]);
+  const enabled = { ...context('enabled'), options: { enabled: true } };
+  await first.start(enabled);
+  await second.start(enabled);
+  await first.start({ ...enabled, options: { enabled: false } });
+  expect(starts).toHaveLength(2);
+  expect(starts[0].signal?.aborted).toBe(true);
+  expect(starts[1].signal?.aborted).toBe(false);
+  await first.start(enabled);
+  expect(starts).toHaveLength(3);
+  first.dispose();
+  second.dispose();
 });

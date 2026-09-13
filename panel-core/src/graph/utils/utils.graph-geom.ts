@@ -60,7 +60,7 @@ export function getEdgesGeometry(panel: any) {
   const skippedEdges = new Set<number>();
   const geomOverride: Map<number, Position[]> = new Map();
   const renderDecisions: Map<number, EdgeRenderDecision> = new Map();
-  const featureServices = getMapglFeatureServices();
+  const featureServices = getMapglFeatureServices(panel);
   const { graphEdgeIndex } = panel;
 
   const visibleNamespaces = panel.visLayers.getCategories()[1];
@@ -82,7 +82,6 @@ export function getEdgesGeometry(panel: any) {
       projectedEdges: panel.namespaceProjection?.edges,
       positions,
       visibleNamespaces: new Set(visibleNamespaces),
-      panel,
     }),
     graphEdgeIndex,
     skippedEdges,
@@ -174,7 +173,7 @@ export function getEdgesGeometry(panel: any) {
         featureServices.projectedTerminalGeometryStrategies,
         {
           edge,
-          panel,
+          positions: panel.positions,
           layerShift,
           srcGraph: edgeSrcGraph,
           tarGraph: edgeTarGraph,

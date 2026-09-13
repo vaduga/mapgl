@@ -1,3 +1,4 @@
+import { useMapglPlugin } from '../../../../../plugin-factory/pluginRuntime';
 import { css } from '@emotion/css';
 import React, { type Dispatch, type SetStateAction, useEffect, useMemo, useState } from 'react';
 import { type Subscription } from 'rxjs';
@@ -35,18 +36,18 @@ type GrafanaDatasource = {
   };
 };
 
-const createPluginIconItems = (folder: string, names: string[]): ResourceItem[] =>
+const createPluginIconItems = (folder: string, names: string[], pluginId: string): ResourceItem[] =>
   names.map((name) => ({
     label: name,
     value: `${folder}/${name}`,
     search: name.toLowerCase(),
-    imgUrl: `public/plugins/${getMapglPluginId()}/img/icons/${folder}/${name}.svg`,
+    imgUrl: `public/plugins/${pluginId}/img/icons/${folder}/${name}.svg`,
   }));
 
-const getFoldersMap = (): Partial<Record<ResourceFolderName, ResourceItem[]>> => ({
-  [ResourceFolderName.Cisco]: createPluginIconItems('cisco', CiscoIcons),
-  [ResourceFolderName.Networking]: createPluginIconItems('networking', NetworkingIcons),
-  [ResourceFolderName.Databases]: createPluginIconItems('databases', DatabaseIcons),
+const getFoldersMap = (pluginId: string): Partial<Record<ResourceFolderName, ResourceItem[]>> => ({
+  [ResourceFolderName.Cisco]: createPluginIconItems('cisco', CiscoIcons, pluginId),
+  [ResourceFolderName.Networking]: createPluginIconItems('networking', NetworkingIcons, pluginId),
+  [ResourceFolderName.Databases]: createPluginIconItems('databases', DatabaseIcons, pluginId),
 });
 
 const getFolders = (mediaType: MediaType): ResourceFolderName[] => {
@@ -80,6 +81,7 @@ interface Props {
 }
 
 export const FolderPickerTab = (props: Props) => {
+  const { pluginId } = useMapglPlugin();
   const { value, mediaType, folderName, newValue, setNewValue, maxFiles } = props;
   const styles = useStyles2(getStyles);
 
@@ -171,7 +173,7 @@ export const FolderPickerTab = (props: Props) => {
       };
     }
 
-    const cards = getFoldersMap()[folder as ResourceFolderName] ?? [];
+    const cards = getFoldersMap(pluginId)[folder as ResourceFolderName] ?? [];
     setDirectoryIndex(cards);
     setFilteredIndex(cards);
     return undefined;

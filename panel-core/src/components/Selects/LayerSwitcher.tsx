@@ -11,6 +11,7 @@ import { getStyles } from './LayerSwitcher.styles';
 const CSS_PREFIX = 'layer-switcher-';
 
 export interface LayerSwitcherPanel {
+  featureServices?: import('../../extension-points/contracts').MapglFeatureServices;
   visLayers?: VisLayers;
   graph: Graph;
   graphEdgeIndex?: GraphEdgeIndex;
@@ -337,7 +338,7 @@ function setVisible<TPanel extends LayerSwitcherPanel>(
 
   if ((panel.isLogic && lyr.group === 'graph') || allNameSpaces.includes(lyr.name)) {
     panel.namespaceProjection = applyNamespaceProjectionStrategies(
-      getMapglFeatureServices().namespaceProjectionStrategies,
+      getMapglFeatureServices(panel).namespaceProjectionStrategies,
       {
         graph,
         edgeIndex: panel.graphEdgeIndex,
@@ -345,7 +346,6 @@ function setVisible<TPanel extends LayerSwitcherPanel>(
         allNamespaces: new Set(allNameSpaces),
         positions: panel.positions ?? new Float64Array(),
         layerShift: panel.layerShift,
-        panel: panel,
       }
     );
   }

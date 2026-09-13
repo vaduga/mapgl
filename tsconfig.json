@@ -10,6 +10,16 @@
     "noImplicitAny": false,
     "strictNullChecks": true,
     "paths": {
+      // Keep application and panel-core source files on one type graph while
+      // developing. Without these aliases, core self-imports can resolve to
+      // installed dist declarations and duplicate nominal class types.
+      "@mapgl/panel-core": ["./panel-core/src/index.ts"],
+      "@mapgl/panel-core/featureContracts": ["./panel-core/src/extension-points/featureContracts.ts"],
+      "@mapgl/panel-core/graph": ["./panel-core/src/graph/main.ts"],
+      "@mapgl/panel-core/graph/packed-relations": ["./panel-core/src/graph/frame/packedRelationReaders.ts"],
+      "@mapgl/panel-core/*": [
+        "./panel-core/src/*"
+      ],
       "*": [
         "./src/*"
       ]

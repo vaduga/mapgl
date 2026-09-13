@@ -4,3 +4,5 @@ export * from './renderData';
 export * from './runtime';
 export * from './seriesColor';
 export * from './styles';
+
+export * from './useNodeLegendClick';

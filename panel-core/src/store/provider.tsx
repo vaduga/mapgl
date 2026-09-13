@@ -6,6 +6,8 @@ interface RootStoreProviderProps<TRootStore> {
   children: ReactNode;
   props: any;
   createRootStore: (props: any) => TRootStore;
+  connectRootStore?: (root: TRootStore) => void;
+  disposeRootStore?: (root: TRootStore) => void;
   updateRootStore?: (root: TRootStore, props: any) => void;
 }
 
@@ -14,15 +16,24 @@ export const RootStoreProvider = <TRootStore,>({
   props,
   createRootStore,
   updateRootStore,
+  disposeRootStore,
+  connectRootStore,
 }: RootStoreProviderProps<TRootStore>) => {
   const [stableRoot] = React.useState(() => (updateRootStore ? createRootStore(props) : undefined));
-  if (!updateRootStore || stableRoot === undefined) {
-    const root = createRootStore(props);
-    return <StoreContext.Provider value={root}>{children}</StoreContext.Provider>;
+  const root = updateRootStore && stableRoot !== undefined ? stableRoot : createRootStore(props);
+  if (updateRootStore) {
+    updateRootStore(root, props);
   }
-
-  updateRootStore(stableRoot, props);
-  const root = stableRoot;
+  const dispose = React.useRef(disposeRootStore);
+  dispose.current = disposeRootStore;
+  const connect = React.useRef(connectRootStore);
+  connect.current = connectRootStore;
+  // Render can be discarded by React, so subscriptions belong to the
+  // committed root and are refreshed only when its event bus changes.
+  React.useEffect(() => {
+    connect.current?.(root);
+  }, [root, props.eventBus]);
+  React.useEffect(() => () => dispose.current?.(root), [root]);
   return <StoreContext.Provider value={root}>{children}</StoreContext.Provider>;
 };
 

@@ -10,12 +10,12 @@ import { commonOptionsBuilder } from '@grafana/ui';
 import React from 'react';
 
 import {
-  buildMapglFeatureServices,
-  setMapglFeatureServices,
   type MapglEdition,
   type MapglPanelFeature,
+  validateMapglFeatureIds,
 } from '../extension-points/featureContracts';
-import { setMapglPluginId } from './pluginRuntime';
+import { MapglPluginContext, type MapglPanelProps } from './pluginRuntime';
+import { isNestedPanelOptionsCompat } from './nestedPanelOptions';
 
 export interface MapglPanelPluginLayerState {
   options?: unknown;
@@ -44,7 +44,7 @@ export interface CreateMapglPanelPluginOptions<
   edition: MapglEdition;
   features?: MapglPanelFeature[];
   pluginId?: string;
-  panelComponent: React.ComponentType<PanelProps<TOptions>>;
+  panelComponent: React.ComponentType<MapglPanelProps<TOptions>>;
   mapViewEditor: React.ComponentType<any>;
   layersEditor: React.ComponentType<any>;
   getLayerEditor: (options: LayerEditorOptions<TLayerState>) => any;
@@ -73,11 +73,42 @@ export function createMapglPanelPlugin<
   initPluginTranslations,
   addExtraOptions,
 }: CreateMapglPanelPluginOptions<TOptions, TLayerState, TInstanceState>): PanelPlugin<TOptions> {
-  setMapglPluginId(pluginId);
+  const configuredFeatures = Object.freeze([...features]);
+  validateMapglFeatureIds(configuredFeatures);
+  const configuration = Object.freeze({ pluginId, edition, features: configuredFeatures });
   void initPluginTranslations?.(pluginId);
-  setMapglFeatureServices(buildMapglFeatureServices({ edition, features }));
+  const editors = new WeakMap<React.ComponentType<any>, React.ComponentType<any>>();
+  const scopeEditors = (builder: PanelOptionsEditorBuilder<any>) => {
+    for (const item of builder.getItems()) {
+      if (isNestedPanelOptionsCompat(item)) {
+        const build = item.getBuilder();
+        item.getBuilder = () => (nestedBuilder, context) => {
+          build(nestedBuilder, context);
+          scopeEditors(nestedBuilder);
+        };
+      } else {
+        const Editor = item.editor;
+        let ScopedEditor = editors.get(Editor);
+        if (!ScopedEditor) {
+          ScopedEditor = (props) => (
+            <MapglPluginContext.Provider value={configuration}>
+              <Editor {...props} />
+            </MapglPluginContext.Provider>
+          );
+          editors.set(Editor, ScopedEditor);
+        }
+        item.editor = ScopedEditor;
+      }
+    }
+  };
+  const Panel = panelComponent;
+  const ScopedPanel = (props: PanelProps<TOptions>) => (
+    <MapglPluginContext.Provider value={configuration}>
+      <Panel {...props} mapglPlugin={configuration} />
+    </MapglPluginContext.Provider>
+  );
 
-  return new PanelPlugin<TOptions>(panelComponent)
+  return new PanelPlugin<TOptions>(ScopedPanel)
     .setNoPadding()
     .useFieldConfig({
       useCustomConfig: (builder) => {
@@ -190,6 +221,7 @@ export function createMapglPanelPlugin<
           name: 'VertexA name label in alert annotation',
           settings: {},
         });
+      scopeEditors(builder);
     })
     .setDataSupport({
       annotations: true,

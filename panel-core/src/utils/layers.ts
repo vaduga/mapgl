@@ -17,6 +17,7 @@ interface VisibilityDataLayer {
 }
 
 interface GenVisLayersPanel {
+  featureServices?: import('../extension-points/contracts').MapglFeatureServices;
   groups: unknown[];
   isLogic: boolean;
   graph: Graph;
@@ -195,7 +196,7 @@ export function genVisLayers(panel: GenVisLayersPanel, props: GenVisLayersProps)
     });
 
     if (nodeLayers.length) {
-      createDerivedLayers(visLayers, graph, isLogic, replaceVariables, useMockData);
+      createDerivedLayers(visLayers, graph, isLogic, replaceVariables, useMockData, getMapglFeatureServices(panel));
     }
   }
 
@@ -209,7 +210,8 @@ export function createDerivedLayers(
   graph: Graph,
   isLogic: boolean,
   replaceVariables: (value: string) => string,
-  useMockData = false
+  useMockData = false,
+  featureServices = getMapglFeatureServices()
 ): void {
   const graphs: Graph[] = [graph].concat(Array.from(graph.subgraphsBreadthFirst()) as Graph[]);
 
@@ -229,7 +231,7 @@ export function createDerivedLayers(
   }
 
   const parentIdx = null;
-  getDerivedVisLayers(getMapglFeatureServices().derivedVisLayerContributors, {
+  getDerivedVisLayers(featureServices.derivedVisLayerContributors, {
     graph,
     isLogic,
     replaceVariables,

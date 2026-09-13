@@ -1,3 +1,4 @@
+import { useMapglPlugin } from '../../../../../plugin-factory/pluginRuntime';
 import { css } from '@emotion/css';
 import React, { useRef } from 'react';
 
@@ -42,6 +43,7 @@ export const ResourcePicker = (props: Props) => {
   const styles = useStyles2(getStyles);
   const theme = useTheme2();
 
+  const { pluginId } = useMapglPlugin();
   const pickerTriggerRef = useRef<HTMLDivElement>(null);
   const { isPickerPopoverOpen, openPickerPopover, closePickerPopover, setPickerPopoverHide } =
     useResourcePickerPopoverControllerCompat();
@@ -59,7 +61,7 @@ export const ResourcePicker = (props: Props) => {
 
   let sanitizedSrc = src;
   if (!sanitizedSrc && value) {
-    sanitizedSrc = getPublicOrAbsoluteUrl(value);
+    sanitizedSrc = getPublicOrAbsoluteUrl(value, pluginId);
   }
 
   const colorStyle = color && {

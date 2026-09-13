@@ -39,7 +39,7 @@ export function createMarkersLayer({
         init: () => featSource,
         registerOptionsUI: (builder, context) => {
           const useMockData = !!context.instanceState?.layer.useMockData;
-          const isExtendedEdition = getMapglFeatureServices().edition === 'extended';
+          const isExtendedEdition = getMapglFeatureServices(panel).edition === 'extended';
           builder
             .addFieldNamePicker({
               path: 'parField',

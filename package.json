@@ -1,6 +1,6 @@
 {
   "name": "vaduga-mapgl-panel",
-  "version": "2.10.2",
+  "version": "2.10.3",
   "description": "Mapgl panel",
   "scripts": {
     "build": "npm run core:build && rspack -c ./rspack.config.ts --env production",
@@ -16,6 +16,7 @@
     "server": "docker compose up --build",
     "sign": "sign-plugin",
     "core:build": "npm run build --workspace @mapgl/panel-core",
+    "core:test:built": "npm run core:build && jest --config jest.core-built.config.js --maxWorkers 4",
     "core:pack": "node scripts/package-core.mjs"
   },
   "author": "Vadim Pyatakov",
@@ -103,7 +104,7 @@
     "@luma.gl/core": "9.4.0",
     "@luma.gl/engine": "9.4.0",
     "@luma.gl/shadertools": "9.4.0",
-    "@mapgl/panel-core": "2.10.2",
+    "@mapgl/panel-core": "2.10.3",
     "@math.gl/core": "^4.1.0",
     "@msagl/core": "1.1.24",
     "@rc-component/slider": "1.1.1",

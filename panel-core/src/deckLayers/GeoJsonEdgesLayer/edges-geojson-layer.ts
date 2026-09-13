@@ -106,7 +106,7 @@ function getLayoutCurveSegments(
       segmentFeatureIndexes[segmentIndex] = featureIndex;
     }
   });
-  const hiddenSegments = getCurveSegmentHidden(getMapglFeatureServices().edgeOffsetStrategies, {
+  const hiddenSegments = getCurveSegmentHidden(getMapglFeatureServices(panel).edgeOffsetStrategies, {
     segmentFeatureIndexes,
     features: featuresByLineId,
   });

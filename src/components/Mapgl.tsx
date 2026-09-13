@@ -1,4 +1,4 @@
-import { FullscreenWidget, CompassWidget, LoadingWidget } from '@deck.gl/widgets';
+import { MapglViewport } from '@mapgl/panel-core/render/MapglViewport';
 import {
   useFullscreenPortalBridge,
   LayerSwitcher,
@@ -7,22 +7,23 @@ import {
   GraphFrameDiagnostics,
 } from '@mapgl/panel-core/components';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useStyles2, useTheme2, type VizLegendItem } from '@grafana/ui';
+import { useStyles2, useTheme2 } from '@grafana/ui';
 import { observer } from 'mobx-react-lite';
-import DeckGL, { DeckGLRef } from '@deck.gl/react';
+import type { DeckGLRef } from '@deck.gl/react';
 
 import { genPrimaryLayers, expandTooltip } from '../utils';
 import { useRootStore } from '@mapgl/panel-core/store';
 import { getDimmedGraphLayers } from '@mapgl/panel-core/deckLayers';
 import { toRGB4Array } from '@mapgl/panel-core/deckLayers/utils';
-import { DARK_AUTO_HIGHLIGHT, LIGHT_AUTO_HIGHLIGHT, ANNOTS_LABEL } from '@mapgl/panel-core/types/defaults';
+import { DARK_AUTO_HIGHLIGHT, LIGHT_AUTO_HIGHLIGHT } from '@mapgl/panel-core/types/defaults';
 import { colTypes, type ViewState, type ComFeature } from '@mapgl/panel-core/types';
 import { getEdgesGeometry } from '@mapgl/panel-core/graph/utils';
 import { getGraphVersion, type Graph } from '@mapgl/panel-core/graph';
-import { Layer, MapView, OrbitView } from '@deck.gl/core';
+import { Layer } from '@deck.gl/core';
 import { selectGotoHandler } from '@mapgl/panel-core/utils';
 import {
   buildGraphBinaryCollections,
+  useNodeLegendClick,
   buildSecondaryLayers,
   composeRenderLayers,
   getStyles,
@@ -34,11 +35,6 @@ import {
   useSvgIconRefresh,
 } from '@mapgl/panel-core/render';
 import { GraphDomObservability } from './GraphDomObservability';
-import GeoBasemap from '@mapgl/panel-core/components/GeoBasemap';
-
-class AutolayoutLoadingWidget extends LoadingWidget {
-  onRedraw(): void {}
-}
 
 const Mapgl = ({
   panel,
@@ -264,7 +260,7 @@ const Mapgl = ({
       return;
     }
     getLayers();
-  }, [graphVersion, committedVersion, getTooltipObject, time, getViewState, visRefresh]);
+  }, [graphVersion, committedVersion, getTooltipObject, getSelectedNode, time, getViewState, visRefresh]);
 
   const memoLayerSwitcher = useMemo(() => {
     return (
@@ -285,73 +281,13 @@ const Mapgl = ({
     return <Menu eventBus={eventBus} {...{ options, data, panel, rootStore }} />;
   }, [options, panel.layers, graphVersion, data, rootStore]);
 
-  const onLabelClick = useCallback(
-    (clickItem: VizLegendItem) => {
-      const active_indexes = visLayers.getActiveGroups();
-      const allChecked = active_indexes.every((item) => item);
-
-      let newStates;
-      if (hasAnnots && clickItem.data?.rawLabel === ANNOTS_LABEL) {
-        active_indexes[active_indexes.length - 1] = active_indexes[active_indexes.length - 1] ? 0 : 1;
-        newStates = active_indexes;
-      } else {
-        const itemIdx = clickItem.data.groupIdx;
-        const unCheck = !allChecked && itemIdx > -1 && active_indexes[itemIdx];
-
-        newStates = active_indexes.map((item, i) => {
-          if (hasAnnots && i === itemIdx) {
-            return 1;
-          }
-
-          if (i === itemIdx) {
-            return 1;
-          } else {
-            return unCheck ? 1 : 0;
-          }
-        });
-      }
-
-      visLayers.setActiveGroups(newStates);
-      setVisRefresh(Math.random() + 1);
-      setMobxLegendRefresh(Math.random() + 1);
-    },
-    [getGroupsLegend, visLayers]
-  );
-
-  const viewId = isLogic ? '3d-scene' : 'geo-view';
-  const views = useMemo(
-    () => [isLogic ? new OrbitView({ id: viewId, controller: true }) : new MapView({ id: viewId, controller: true })],
-    [isLogic, viewId]
-  );
-  const deckViewState = useMemo(() => ({ [viewId]: localViewState }), [viewId, localViewState]);
-
-  const widgets: any = [
-    new FullscreenWidget({
-      id: 'myfull',
-      container: fullscreenContainer,
-      placement: 'top-right',
-      className: s.fullscreen,
-    }),
-  ];
-  if (!isLogic) {
-    widgets.push(
-      new CompassWidget({
-        id: 'compass',
-        placement: 'top-right',
-        className: s.compass,
-      })
-    );
-  }
-  if (panel.layoutInProgress) {
-    widgets.push(
-      new AutolayoutLoadingWidget({
-        id: 'autolayout-loading',
-        placement: 'top-left',
-        className: s.layoutLoading,
-        label: 'Calculating graph layout',
-      })
-    );
-  }
+  const onLabelClick = useNodeLegendClick({
+    visLayers,
+    hasAnnots,
+    getGroupsLegend,
+    setVisRefresh,
+    setMobxLegendRefresh,
+  });
 
   ///// return
   return (
@@ -380,38 +316,13 @@ const Mapgl = ({
         setHoverInfo({ ...pickingInfo, mapglPinned: true });
       }}
     >
-      <DeckGL
-        widgets={widgets}
-        views={views}
-        ref={deckRef}
-        layers={renderedLayers}
-        initialViewState={deckViewState}
-        eventRecognizerOptions={{
-          click: { interval: 0 },
-        }}
-        controller={{
-          dragMode: 'pan',
-          dragRotate: !isLogic,
-          doubleClickZoom: false,
-          scrollZoom: { smooth: false, speed: 0.005 },
-          inertia: true,
-        }}
+      <MapglViewport
+        {...{ isLogic, localViewState, fullscreenContainer, deckRef, renderedLayers, source, onMapLoad }}
+        layoutInProgress={panel.layoutInProgress}
+        theme={theme2}
+        classes={s}
         onClick={(info) => expandTooltip(info, panel, eventBus, dataClickProps, selectGotoHandler)}
-        getCursor={(state) => (state.isHovering ? 'pointer' : 'grab')}
-      >
-        {!isLogic && (
-          <GeoBasemap
-            onLoad={onMapLoad}
-            mapStyle={source}
-            attributionStyle={{
-              zIndex: theme2.zIndex.dropdown,
-              position: 'absolute',
-              right: theme2.spacing(0.5),
-              bottom: theme2.spacing(0.5),
-            }}
-          />
-        )}
-      </DeckGL>
+      />
 
       <div className={panel.graphFrameView.phase === 'empty' ? s.graphEmptyState : s.graphDiagnostics}>
         <GraphFrameDiagnostics state={panel.graphFrameView} editing={editing} hideDiagnostics={hideDiagnostics} />

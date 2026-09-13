@@ -1,9 +1,10 @@
 # Changelog Mapgl
 
-## 2.10.2
+## 2.10.3
 - namespace hierarchy separator symbol config
-- fallback to Splines if Rectilinear layout fails with complicated obstacles 
+- fallback to Splines if Rectilinear layout fails with complicated obstacles
 - bump deck.gl 9.4.0 webgl only, webgpu disabled for bundle size
+- refactor: consolidate runtime and package panel core 
 
 ## 2.10.1
 - Gauge overlay for a single field-driven metric in Node Styles → Arc sections

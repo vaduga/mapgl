@@ -17,7 +17,7 @@ export function clearTooltipInteraction({
 
 export const expandTooltip = (info: any, panel: any, eventBus: any, dataClickProps: any, selectGotoHandler: any) => {
   const { setSelCoord, setTooltipObject, setLocalViewState, pId } = dataClickProps;
-  const isExtended = getMapglFeatureServices().edition === 'extended';
+  const isExtended = getMapglFeatureServices(panel).edition === 'extended';
   const position = info.coordinate;
   if (position) {
     const [longitude, latitude] = position.map((e: number) => parseFloat(e.toFixed(6)));

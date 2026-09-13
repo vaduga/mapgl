@@ -8,7 +8,7 @@ import { getMapglPluginId } from '../../../../plugin-factory/pluginRuntime';
 //---------------------------------------------------------
 // Resource dimension
 //---------------------------------------------------------
-export function getPublicOrAbsoluteUrl(v: string): string {
+export function getPublicOrAbsoluteUrl(v: string, pluginId = 'vaduga-mapgl-panel'): string {
   if (!v) {
     return '';
   }
@@ -16,5 +16,5 @@ export function getPublicOrAbsoluteUrl(v: string): string {
   if (v.indexOf(':/') > 0) {
     return (window as Window & { __grafana_public_path__?: string }).__grafana_public_path__ ?? '';
   }
-  return v.startsWith(ResourceFolderName.Custom) ? v : `public/plugins/${getMapglPluginId()}/img/icons/${v}.svg`;
+  return v.startsWith(ResourceFolderName.Custom) ? v : `public/plugins/${pluginId}/img/icons/${v}.svg`;
 }

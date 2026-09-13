@@ -1,3 +1,4 @@
+import { useMapglPlugin } from '../../../../../plugin-factory/pluginRuntime';
 import { useCallback } from 'react';
 import * as React from 'react';
 
@@ -74,6 +75,7 @@ export const ResourceDimensionEditor = (
     onChange({ mode: ResourceDimensionMode.Fixed, fixed: '', field: '' });
   };
 
+  const { pluginId } = useMapglPlugin();
   const mode = value?.mode ?? ResourceDimensionMode.Fixed;
   const showSourceRadio = item.settings?.showSourceRadio ?? true;
   const mediaType = item.settings?.resourceType ?? MediaType.Icon;
@@ -82,9 +84,9 @@ export const ResourceDimensionEditor = (
   let srcPath = '';
   if (mediaType === MediaType.Icon) {
     if (value?.fixed) {
-      srcPath = getPublicOrAbsoluteUrl(value.fixed);
+      srcPath = getPublicOrAbsoluteUrl(value.fixed, pluginId);
     } else if (item.settings?.placeholderValue) {
-      srcPath = getPublicOrAbsoluteUrl(item.settings.placeholderValue);
+      srcPath = getPublicOrAbsoluteUrl(item.settings.placeholderValue, pluginId);
     }
   }
 

@@ -24,6 +24,7 @@ export interface CartesianFitResult {
 }
 
 type ViewportFitPanel = {
+  featureServices?: import('../extension-points/contracts').MapglFeatureServices;
   graph: Graph;
   positions: Float64Array;
   layers?: unknown[];
@@ -75,7 +76,6 @@ export function getLayerFitBounds(
       lastOnly: config.lastOnly,
       layer: config.layer,
     },
-    panel,
   })?.bounds;
 }
 
@@ -85,7 +85,7 @@ export function getLogicFitBounds(
   width: number,
   height: number
 ): Bounds | undefined {
-  const services = getMapglFeatureServices();
+  const services = getMapglFeatureServices(panel);
   const visibleNamespaces = new Set(visNamespaces);
   const context: ViewportFitContext = {
     width,
@@ -99,7 +99,6 @@ export function getLogicFitBounds(
       positions: panel.positions,
       layoutGraphBounds: panel.layoutGraphBounds,
       layerShift: panel.layerShift,
-      panel,
       padding: 0,
       includeRoot: true,
     }),
@@ -107,7 +106,6 @@ export function getLogicFitBounds(
     options: {
       allLayers: true,
     },
-    panel,
   };
 
   return getViewportFitBounds(services.viewportFitStrategies, context);

@@ -1,7 +1,6 @@
 import { toDataFrame } from '@grafana/data';
 
 import { GraphHighlighter } from '../../deckLayers/GraphHighlighter';
-import { buildMapglFeatureServices, setMapglFeatureServices } from '../../extension-points/featureContracts';
 import { getEdgesGeometry } from '../utils/utils.graph-geom';
 import { getNodeData } from '../main';
 import { buildGraphFromSnapshot } from './buildGraph';
@@ -52,7 +51,6 @@ async function routedState() {
 
 describe('multi-hop runtime compatibility baseline', () => {
   beforeEach(() => {
-    setMapglFeatureServices(buildMapglFeatureServices({ edition: 'oss' }));
   });
 
   it('preserves route segments, arrow placement, line identity, and geometry', async () => {

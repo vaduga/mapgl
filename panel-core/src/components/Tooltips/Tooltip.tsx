@@ -291,7 +291,7 @@ const TooltipBase = ({
 
   const tooltipEdgeSections =
     graph && !extraEdgeSections.length
-      ? getTooltipEdgeSections(getMapglFeatureServices().tooltipEdgeSections, {
+      ? getTooltipEdgeSections(getMapglFeatureServices(panel).tooltipEdgeSections, {
           graph,
           edgeIndex: panel.graphEdgeIndex,
           node: pickedNode,
