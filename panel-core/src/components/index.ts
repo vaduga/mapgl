@@ -4,7 +4,6 @@ export * from './Tooltips/Tooltip';
 export { default as Checkbox } from './Checkboxes/Checkbox';
 export { PositionTracker } from './Geocoder/PositionTracker';
 export { StateTime } from './Geocoder/StateTime';
-export { useFullscreenPortalBridge } from './hooks/useFullscreenPortalBridge';
 export { default as LayerSwitcher } from './Selects/LayerSwitcher';
 export type { LayerSwitcherInlineControl, LayerSwitcherPanel, LayerSwitcherProps } from './Selects/LayerSwitcher';
 export { default as Menu } from './Menu';

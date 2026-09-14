@@ -6,3 +6,4 @@ export * from './seriesColor';
 export * from './styles';
 
 export * from './useNodeLegendClick';
+export * from './useFullscreenPortalBridge';

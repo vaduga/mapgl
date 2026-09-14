@@ -1,6 +1,5 @@
 import { MapglViewport } from '@mapgl/panel-core/render/MapglViewport';
 import {
-  useFullscreenPortalBridge,
   LayerSwitcher,
   Menu,
   Tooltip,
@@ -33,6 +32,7 @@ import {
   useLatestRenderCommit,
   useEventState,
   useSvgIconRefresh,
+  useFullscreenPortalBridge,
 } from '@mapgl/panel-core/render';
 import { GraphDomObservability } from './GraphDomObservability';
 
