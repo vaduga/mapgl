@@ -57,7 +57,7 @@ See [Panel configuration](https://mapgl.org/documentation) for setup details and
 
 ---
 
-### 🛠️ Data Source
+### Data Source
 
 Use Grafana’s built-in transformations to prepare and merge data from:
 

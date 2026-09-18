@@ -3,6 +3,7 @@
 ## 2.10.4
 - replace dynamic uploads for node SVG with complete prepacked atlases; remove the obsolete node SVG icon cache. Improves Firefox WebGL stability
 - fix: recalculate nested namespace boundaries after MSAGL autolayout to remove stale empty space
+- fix: arc-edge picking restored 
 
 ## 2.10.3
 - namespace hierarchy separator symbol config
