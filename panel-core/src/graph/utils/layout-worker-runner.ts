@@ -74,6 +74,7 @@ function createAndLayoutGraph(request: LayoutRequest): GeomGraph | undefined {
   configureLayout(rootGraph, request);
   try {
     layoutGeomGraph(rootGraph);
+    refreshGraphBoundsAfterLayout(rootGraph);
     return rootGraph;
   } catch (error) {
     if (request.routing !== 'Rectilinear') {
@@ -83,6 +84,19 @@ function createAndLayoutGraph(request: LayoutRequest): GeomGraph | undefined {
     // namespaces produce overlapping non-rectangular obstacles. Rebuild the
     // graph before retrying because the failed router mutates its geometry.
     return undefined;
+  }
+}
+
+/**
+ * Recalculate nested graph bounds from the geometry left by the completed
+ * layout. MSAGL includes a child graph's existing bounding box while pumping
+ * its parent, so stale child bounds can otherwise survive alongside the final
+ * node positions and leave empty space in the reported boundary.
+ */
+export function refreshGraphBoundsAfterLayout(rootGraph: GeomGraph): void {
+  const graphs = [rootGraph, ...Array.from(rootGraph.subgraphs())];
+  for (let index = graphs.length - 1; index >= 0; index--) {
+    graphs[index].pumpTheBoxToTheGraphWithMargins();
   }
 }
 
@@ -235,7 +249,7 @@ function extractGraphBounds(rootGraph: GeomGraph): LayoutGraphResult[] {
 
   return graphs
     .map((graph) => {
-      const box = GeomGraph.getGeom(graph)?.getPumpedGraphWithMarginsBox();
+      const box = GeomGraph.getGeom(graph)?.boundingBox;
       if (!box) {
         return undefined;
       }
