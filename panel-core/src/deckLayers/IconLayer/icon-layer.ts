@@ -19,7 +19,7 @@ const MyIconLayer = (props) => {
   const categorySize = 2;
 
   const svgico = svgToDataURL(`
-<svg fill="#000000" height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+<svg fill="#000000" height="128" width="128" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
 \t viewBox="0 0 512.051 512.051" xml:space="preserve">
 <g>
 \t<g>
@@ -48,12 +48,11 @@ const MyIconLayer = (props) => {
     highlightColor,
     onHover,
     id: colTypes.Comments,
-    getIcon: () => ({
-      url: svgico,
-      width: 128,
-      height: 128,
-      mask: true,
-    }),
+    iconAtlas: svgico,
+    iconMapping: {
+      comment: { x: 0, y: 0, width: 128, height: 128, mask: true },
+    },
+    getIcon: () => 'comment',
     data,
     getPosition: (d: any) => d.geometry.coordinates,
     getColor: (d: any) => {

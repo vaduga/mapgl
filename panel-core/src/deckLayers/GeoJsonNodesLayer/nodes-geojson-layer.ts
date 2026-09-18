@@ -3,7 +3,7 @@ import { CollisionFilterExtension, DataFilterExtension } from '@deck.gl/extensio
 import { FieldColorModeId } from '@grafana/data';
 import { getNsPrefixes } from '../../graph/utils/utils.graph';
 
-import { getPackedSvgIcon, svgToDataURL } from './svgIconAtlas';
+import { getPackedSvgIcon } from './svgIconAtlas';
 import {
   DonutCircleLayer,
   createDonutAtlas,
@@ -14,7 +14,13 @@ import {
   type DonutInput,
 } from '../DonutCircleLayer';
 import { getTintedSvgIcon, resolveSvgTintMode } from '../utils/svg';
-import { createUserSvgAtlasPlan, getUserSvgVariantKey } from './userSvgAtlas';
+import {
+  BLANK_USER_SVG_ICON,
+  createUserSvgAtlas,
+  createUserSvgAtlasPlan,
+  getUserSvgVariantKey,
+  type UserSvgAtlasEntry,
+} from './userSvgAtlas';
 import { isVisible } from '../utils/visibility';
 import { toRGB4Array, toRgbaString } from '../utils/color';
 import { getNodeLayerVisibility, getNodePointType } from './nodeRenderPlan';
@@ -48,19 +54,6 @@ type LogicTextLayerData = {
   labelYOffset: Float32Array;
   placeholderBoxSide: Float32Array;
   placeholderTextSize: Float32Array;
-};
-
-type NodeIconCache = {
-  get(key: string): any;
-  set(key: string, value: any): unknown;
-};
-
-const nodeIconCache = new WeakMap<object, Map<string, any>>();
-const DEBUG_DISABLE_NODE_ICON_CACHE = false;
-const ICON_CACHE_SOURCE_KEY = '__mapglIconCacheSource';
-const disabledNodeIconCache: NodeIconCache = {
-  get: () => undefined,
-  set: () => disabledNodeIconCache,
 };
 
 const getFeatureWrapper = (properties: any) => ({ properties });
@@ -128,23 +121,6 @@ const buildLogicTextLayerData = (biCol: any, selectedNodeId?: string, iconLayerV
   };
 };
 
-const getNodeIconCache = (biCol: any, panelCache?: NodeIconCache): NodeIconCache => {
-  if (panelCache) {
-    return panelCache;
-  }
-  if (DEBUG_DISABLE_NODE_ICON_CACHE) {
-    return disabledNodeIconCache;
-  }
-
-  const cacheSource = biCol?.[ICON_CACHE_SOURCE_KEY] ?? biCol;
-  let cache = nodeIconCache.get(cacheSource);
-  if (!cache) {
-    cache = new Map();
-    nodeIconCache.set(cacheSource, cache);
-  }
-  return cache;
-};
-
 const isCanvasTintPending = (
   svgIcon: any,
   tintColor: string | undefined,
@@ -171,7 +147,6 @@ const NodesGeojsonLayer = (props) => {
     isLogic,
     isRouted,
     onSvgIconReady,
-    svgIconCache,
     getVisLayers,
     panel,
     autoHighlight,
@@ -191,8 +166,6 @@ const NodesGeojsonLayer = (props) => {
   const selectedNodeId = getSelectedNode?.id;
   const svgIcons = svgIconState?.icons ?? {};
   const svgIconRevision = svgIconState?.revision ?? 0;
-
-  const iconCache = getNodeIconCache(biCol, svgIconCache);
 
   const resolveUserSvgVariant = (properties: any) => {
     const { group } = properties?.style || {};
@@ -228,6 +201,36 @@ const NodesGeojsonLayer = (props) => {
     devicePixelRatio: globalThis.devicePixelRatio ?? 1,
   });
   const packedIconSize = userSvgAtlasPlan.sourceTier;
+  const activeProperties = Object.values(activePointProperties ?? {}) as any[];
+  const userSvgAtlasEntries: UserSvgAtlasEntry[] = [];
+  const collectedUserSvgKeys = new Set<string>();
+
+  for (const properties of activeProperties) {
+    const { key, svgIcon, tintMode, tintColor } = resolveUserSvgVariant(properties);
+    if (!key || collectedUserSvgKeys.has(key)) {
+      continue;
+    }
+    collectedUserSvgKeys.add(key);
+
+    const tintedSvgIcon = getTintedSvgIcon(svgIcon, tintColor, {
+      mode: tintMode,
+      onReady: onSvgIconReady,
+      renderSize: tintMode === 'canvasTint' ? packedIconSize : undefined,
+    });
+    const canvasTintPending = isCanvasTintPending(svgIcon, tintColor, tintMode, packedIconSize);
+    const packedSvgIcon =
+      tintMode === 'canvasTint' && !canvasTintPending ? tintedSvgIcon : getPackedSvgIcon(tintedSvgIcon, packedIconSize);
+
+    if (packedSvgIcon?.svgDataUrl && packedSvgIcon.width && packedSvgIcon.height) {
+      userSvgAtlasEntries.push({
+        key,
+        url: packedSvgIcon.svgDataUrl,
+        width: packedSvgIcon.width,
+        height: packedSvgIcon.height,
+      });
+    }
+  }
+  const userSvgAtlas = createUserSvgAtlas(userSvgAtlasPlan, userSvgAtlasEntries);
 
   const getDonutInput = (properties: any): DonutInput | undefined => {
     const gauge = properties?.style?.gauge;
@@ -239,7 +242,6 @@ const NodesGeojsonLayer = (props) => {
   };
 
   const donutVariants = new Map<string, DonutInput>();
-  const activeProperties = Object.values(activePointProperties ?? {}) as any[];
   for (const properties of activeProperties) {
     const input = getDonutInput(properties);
     if (!input) {
@@ -328,6 +330,8 @@ const NodesGeojsonLayer = (props) => {
     //   depthTest: false
     // },
     pointType,
+    iconAtlas: userSvgAtlas.iconAtlas,
+    iconMapping: userSvgAtlas.iconMapping,
     getText: getNodeText,
     getTextAlignmentBaseline: isPlaceholderTextMode ? undefined : 'top',
     getTextAnchor: isPlaceholderTextMode ? undefined : 'middle',
@@ -343,55 +347,7 @@ const NodesGeojsonLayer = (props) => {
     getPointRadius: (d) => {
       return getResolvedPointRadius(d, selectedNodeId);
     },
-    getIcon: (d) => {
-      const {
-        key: variantKey,
-        iconName,
-        svgIcon,
-        tintMode: resolvedTintMode,
-        tintColor,
-      } = resolveUserSvgVariant(d.properties);
-      const tintedSvgIcon = getTintedSvgIcon(svgIcon, tintColor, {
-        mode: resolvedTintMode,
-        onReady: onSvgIconReady,
-        renderSize: resolvedTintMode === 'canvasTint' ? packedIconSize : undefined,
-      });
-      const canvasTintPending = isCanvasTintPending(svgIcon, tintColor, resolvedTintMode, packedIconSize);
-      const cacheState = canvasTintPending ? 'pending' : 'ready';
-
-      if (tintedSvgIcon) {
-        const iconWidth = tintedSvgIcon.width;
-        const iconHeight = tintedSvgIcon.height;
-        const cacheKey = `svg:${svgIconRevision}:${iconName ?? 'none'}:${resolvedTintMode}:${cacheState}:${tintColor ?? 'base'}:${packedIconSize}:${iconWidth ?? 'auto'}x${iconHeight ?? 'auto'}`;
-        const cachedSvg = canvasTintPending ? undefined : iconCache.get(cacheKey);
-        if (cachedSvg) {
-          return cachedSvg;
-        }
-
-        const packedSvgIcon =
-          resolvedTintMode === 'canvasTint' && !canvasTintPending
-            ? tintedSvgIcon
-            : (getPackedSvgIcon(tintedSvgIcon, packedIconSize) ?? tintedSvgIcon);
-        const icon = {
-          url: packedSvgIcon.svgDataUrl,
-          width: packedSvgIcon.width,
-          height: packedSvgIcon.height,
-          id: `${variantKey}:${cacheState}:${packedIconSize}:${packedSvgIcon.width ?? 'auto'}x${packedSvgIcon.height ?? 'auto'}`,
-        };
-        if (!canvasTintPending) {
-          iconCache.set(cacheKey, icon);
-        }
-        return icon;
-      }
-      // no custom svg icon loaded
-      return {
-        url: svgToDataURL(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">  
-</svg>`),
-        width: 1,
-        height: 1,
-        id: 'blank',
-      };
-    },
+    getIcon: (d) => resolveUserSvgVariant(d.properties).key ?? BLANK_USER_SVG_ICON,
     iconSizeScale: 1,
     getIconSize: (d) => {
       return getNodeIconSize(d);
@@ -632,4 +588,4 @@ const MainLabelTextLayer = (props) => {
   });
 };
 
-export { NodesGeojsonLayer, MainLabelTextLayer, ICON_CACHE_SOURCE_KEY };
+export { NodesGeojsonLayer, MainLabelTextLayer };

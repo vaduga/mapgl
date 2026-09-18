@@ -9,8 +9,6 @@ import { CurveEdgeLayer } from './GeoJsonEdgesLayer/curve-edge-layer';
 import { makeScopedKey, type ConnectedEdgeIndex } from './GraphHighlighter';
 import { EDGE_LABEL_DIM_OPACITY } from './TextLayer/text-layer';
 
-const ICON_CACHE_SOURCE_KEY = '__mapglIconCacheSource';
-
 type DimmedGraphLayerOptions = {
   connectedNodeIds: Set<string>;
   connectedEdgeIndexes?: ConnectedEdgeIndex[];
@@ -427,7 +425,6 @@ function getDimmedNodeBiCol(data, connectedNodeIds: Set<string>) {
 
   return {
     ...data,
-    [ICON_CACHE_SOURCE_KEY]: data[ICON_CACHE_SOURCE_KEY] ?? data,
     points: {
       ...points,
       attributes: {

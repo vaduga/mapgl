@@ -50,7 +50,6 @@ export { CurveEdgeLayer, CurveType } from './GeoJsonEdgesLayer/curve-edge-layer'
 export type { CurveEdgeBinaryData, CurveEdgeLayerData, CurveEdgeSegment } from './GeoJsonEdgesLayer/curve-edge-layer';
 export { EdgesGeojsonLayer } from './GeoJsonEdgesLayer/edges-geojson-layer';
 export {
-  ICON_CACHE_SOURCE_KEY,
   MainLabelTextLayer,
   PlaceholderTextLayer,
   NodesGeojsonLayer,

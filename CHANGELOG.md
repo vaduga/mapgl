@@ -1,5 +1,8 @@
 # Changelog Mapgl
 
+## 2.10.4
+- replace dynamic uploads for node SVG with complete prepacked atlases; remove the obsolete node SVG icon cache. Improves Firefox WebGL stability
+
 ## 2.10.3
 - namespace hierarchy separator symbol config
 - fallback to Splines if Rectilinear layout fails with complicated obstacles

@@ -172,7 +172,6 @@ const Mapgl = ({
     time,
     options,
     svgIconState: panel.svgIconState,
-    svgIconCache: panel.svgIconManager.cache,
     visRefresh,
     setHoverInfo,
     hoverInfo,

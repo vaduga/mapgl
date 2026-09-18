@@ -86,7 +86,6 @@ function createLayer(overrides: Record<string, any> = {}) {
         },
       },
     },
-    svgIconCache: new Map(),
     getSelectedNode: { id: 'router-a' },
     isLogic: true,
     pickable: true,
@@ -161,8 +160,10 @@ describe('node shader and SVG interaction contract', () => {
     const circle = layer.props._subLayerProps['points-circle'];
 
     const iconValue = layer.props.getIcon(feature);
-    expect(iconValue.id).toContain('svg:router:4');
-    expect(iconValue.id).not.toContain('#ff0000');
+    expect(iconValue).toBe('svg:router:4:none:base');
+    expect(iconValue).not.toContain('#ff0000');
+    expect(layer.props.iconAtlas).toMatch(/^data:image\/svg\+xml/);
+    expect(layer.props.iconMapping[iconValue]).toMatchObject({ width: 30, height: 60, mask: false });
     expect(circle.getDonutRecord(feature, { index: 0 })).toBe(0);
   });
 
