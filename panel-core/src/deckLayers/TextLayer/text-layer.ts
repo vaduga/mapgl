@@ -124,7 +124,7 @@ const LineTextLayer = ({
     getSize: (d: any) => {
       switch (type) {
         case 'bbox':
-          return 50;
+          return 25;
           break;
         case 'unames':
           return 5;

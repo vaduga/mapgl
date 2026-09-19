@@ -1,4 +1,4 @@
-import { GeoJsonLayer, IconLayer, TextLayer } from '@deck.gl/layers';
+import { IconLayer, TextLayer } from '@deck.gl/layers';
 import type { Layer } from '@deck.gl/core';
 import type { RGBAColor } from '@mapgl/panel-core/types';
 import { toRGB4Array } from './utils/color';
@@ -130,15 +130,10 @@ function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<
       highlightMaxDepth: getMaxMapValue(connectedFeatureDepths),
       highlightDimOpacity: 0.18,
       skipVisibleMaxDepth: getMaxMapValue(connectedFeatureDepths),
-      getHighlightDepth: (d: any) =>
-        d.feature?.renderGeometryOnly
-          ? Number.MAX_SAFE_INTEGER
-          : (connectedFeatureDepths.get(d.featureIndex) ?? Number.MAX_SAFE_INTEGER),
+      getHighlightDepth: (d: any) => connectedFeatureDepths.get(d.featureIndex) ?? Number.MAX_SAFE_INTEGER,
       getWidth: (d: any, info: any) => {
         const width = getAccessorValue(curveLayer.props.getWidth, d, info, 1);
-        return !d.feature?.renderGeometryOnly && connectedFeatureDepths.has(d.featureIndex)
-          ? Math.max(3, width * widthMultiplier)
-          : width;
+        return connectedFeatureDepths.has(d.featureIndex) ? Math.max(3, width * widthMultiplier) : width;
       },
       updateTriggers: {
         ...layer.props.updateTriggers,
@@ -148,42 +143,10 @@ function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<
     });
   }
 
-  if (isStraightEdgeGeometryLayer(layer)) {
-    const geoJsonLayer = layer as any;
-    return layer.clone({
-      getLineWidth: (d: any, info: any) => {
-        const isConnected = isConnectedLineFeature(connectedFeatureDepths, d);
-        const width = getAccessorValue(
-          geoJsonLayer.props.getLineWidth,
-          isConnected ? getRenderableLineFeature(d) : d,
-          info,
-          1
-        );
-        return isConnected ? Math.max(3, width * widthMultiplier) : width;
-      },
-      getLineColor: (d: any, info: any) => {
-        const isConnected = isConnectedLineFeature(connectedFeatureDepths, d);
-        const color = getAccessorResult(
-          geoJsonLayer.props.getLineColor,
-          isConnected ? getRenderableLineFeature(d) : d,
-          info,
-          [0, 0, 0, 255]
-        );
-        return isConnected ? color : getDimmedRgba(color, 0.18);
-      },
-      updateTriggers: {
-        ...layer.props.updateTriggers,
-        getLineWidth: [geoJsonLayer.props.updateTriggers?.getLineWidth, highlightDepthTrigger],
-        getLineColor: [geoJsonLayer.props.updateTriggers?.getLineColor, highlightDepthTrigger],
-      },
-    } as any);
-  }
-
   if ((layer as any) instanceof AnimatedBlobsLayer) {
     const blobLayer = layer as any;
     return blobLayer.clone({
-      getHighlightDepth: (_d: any, info: any) =>
-        connectedFeatureDepths.has(info.index) ? 0 : 1,
+      getHighlightDepth: (_d: any, info: any) => (connectedFeatureDepths.has(info.index) ? 0 : 1),
       getHighlightDimOpacity: 0.18,
       getWidth: (d: any, info: any) => {
         const width = getAccessorValue(blobLayer.props.getWidth, d, info, 1);
@@ -201,8 +164,7 @@ function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<
   if (isArcLayer(layer)) {
     const arcLayer = layer as any;
     return layer.clone({
-      getHighlightDepth: (_d: any, info: any) =>
-        connectedFeatureDepths.has(info.index) ? 0 : 1,
+      getHighlightDepth: (_d: any, info: any) => (connectedFeatureDepths.has(info.index) ? 0 : 1),
       getHighlightDimOpacity: 0.18,
       getWidth: (d: any, info: any) => {
         const width = getAccessorValue(arcLayer.props.getWidth, d, info, 1);
@@ -249,7 +211,9 @@ function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<
     return layer.clone({
       getColor: (d: any, info: any) => {
         if (connectedFeatureDepths.has(d.lineIndex)) {
-          return d.feature?.skip ? getArrowColor(d.feature) : getAccessorResult(arrowLayer.props.getColor, d, info, [0, 0, 0, 255]);
+          return d.feature?.skip
+            ? getArrowColor(d.feature)
+            : getAccessorResult(arrowLayer.props.getColor, d, info, [0, 0, 0, 255]);
         }
 
         if (d.feature?.skip) {
@@ -296,42 +260,6 @@ function isArcLayer(layer: Layer): boolean {
 
 function isArrowLayer(layer: Layer): boolean {
   return layer instanceof IconLayer && (layer?.id ?? '').startsWith('edges-arrow-');
-}
-
-function isStraightEdgeGeometryLayer(layer: Layer): boolean {
-  const id = layer?.id ?? '';
-  return layer instanceof GeoJsonLayer && id.startsWith('edges-view') && id.endsWith('-geometry');
-}
-
-function isConnectedLineFeature(connectedFeatureDepths: Map<number, number>, d: any): boolean {
-  const lineId = getLineFeatureId(d);
-  return lineId !== undefined && connectedFeatureDepths.has(lineId);
-}
-
-function getLineFeatureId(d: any): number | undefined {
-  const sourceObject = d?.__source?.object;
-  const sourceLineId = sourceObject?.lineId;
-  if (typeof sourceLineId === 'number') {
-    return sourceLineId;
-  }
-
-  const lineId = d?.lineId;
-  return typeof lineId === 'number' ? lineId : undefined;
-}
-
-function getRenderableLineFeature(d: any): any {
-  const sourceObject = d?.__source?.object;
-  if (sourceObject?.skip && sourceObject.renderGeometryOnly) {
-    return {
-      ...d,
-      __source: {
-        ...d.__source,
-        object: { ...sourceObject, skip: false },
-      },
-    };
-  }
-
-  return d?.skip && d.renderGeometryOnly ? { ...d, skip: false } : d;
 }
 
 function isEdgeTextLayer(layer: Layer): boolean {

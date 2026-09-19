@@ -1,9 +1,10 @@
 # Changelog Mapgl
 
 ## 2.10.4
-- replace dynamic uploads for node SVG with complete prepacked atlases; remove the obsolete node SVG icon cache. Improves Firefox WebGL stability
+- improve WebGL stability (Firefox). Replace dynamic node SVG uploads with complete prepacked atlases; remove SVG icon cache. 
 - fix: recalculate nested namespace boundaries after MSAGL autolayout to remove stale empty space
-- fix: arc-edge picking restored 
+- fix: arc-edge picking restored
+- autolayout worker: reroute request 
 
 ## 2.10.3
 - namespace hierarchy separator symbol config

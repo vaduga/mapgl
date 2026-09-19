@@ -88,7 +88,7 @@ function getLayoutCurveSegments(
       if (layoutEdgeIndex !== undefined) {
         const lineId = typeof edge.lineId === 'number' ? edge.lineId : featureIndex;
         lineIdsByEdgeIndex[layoutEdgeIndex] = lineId;
-        featuresByLineId[lineId] = feature.renderGeometryOnly ? { ...feature, skip: true } : feature;
+        featuresByLineId[lineId] = feature;
       }
     }
   });
@@ -147,17 +147,6 @@ export const EdgesGeojsonLayer = (props) => {
   const usesRendererNamespaceFiltering = panel.namespaceProjection?.rendererFiltering !== 'none';
   const selectedFeatureIndexes = getSelectedIdxs?.get(colTypes.Edges)?.[srcGraphId] ?? [];
   const lineFeatures = linesCollection?.features ?? [];
-  const straightLineFeatures = isLogic
-    ? lineFeatures
-        .map((feature) => {
-          if (!feature.renderGeometryOnly || typeof feature.lineId !== 'number') {
-            return undefined;
-          }
-
-          return feature;
-        })
-        .filter((feature): feature is DeckLine & { lineId: number } => Boolean(feature))
-    : [];
   const curveSegments = isLogic ? getLayoutCurveSegments(srcGraphId, lineFeatures, edgeIndex, panel) : undefined;
   const baseCategories = getVisLayers.getCategories();
   const filterIncludesSkip = !isLogic || !curveSegments?.length;
@@ -192,11 +181,6 @@ export const EdgesGeojsonLayer = (props) => {
     d: CurveEdgeSegment<DeckLine> | DeckLine | Feature<Geometry, PointFeatureProperties>
   ): Color => {
     const feature = 'feature' in d ? d.feature : d;
-    const edgeFeature = feature as DeckLine | undefined;
-    if (edgeFeature?.skip && edgeFeature.renderGeometryOnly) {
-      return [0, 0, 0, 0];
-    }
-
     if (!feature?.properties) {
       return [0, 0, 0, 0];
     }
@@ -295,9 +279,7 @@ export const EdgesGeojsonLayer = (props) => {
       autoHighlight,
     });
 
-    return straightLineFeatures.length
-      ? [curveLayer, createGeoJsonLineLayer({ ...linesCollection, features: straightLineFeatures }, '-geometry')]
-      : curveLayer;
+    return curveLayer;
   }
 
   if (isLogic) {
@@ -315,9 +297,7 @@ export const EdgesGeojsonLayer = (props) => {
       autoHighlight,
     });
 
-    return straightLineFeatures.length
-      ? [emptyCurveLayer, createGeoJsonLineLayer({ ...linesCollection, features: straightLineFeatures }, '-geometry')]
-      : emptyCurveLayer;
+    return emptyCurveLayer;
   }
 
   return createGeoJsonLineLayer(linesCollection);

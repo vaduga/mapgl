@@ -125,7 +125,6 @@ export interface DeckLine<G extends Geometry | null = Geometry, P = BiColProps> 
   lineId?: number;
   edgeId: string;
   skip?: boolean;
-  renderGeometryOnly?: boolean;
   hideArrowheads?: boolean;
   type: 'Feature';
   rowIndex: number;
