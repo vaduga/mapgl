@@ -11,6 +11,8 @@ export type LayoutNodeSnapshot = {
 export type LayoutGraphSnapshot = {
   id: string;
   parentId?: string;
+  shiftX?: number;
+  shiftY?: number;
 };
 
 export type LayoutEdgeSnapshot = {
@@ -23,7 +25,7 @@ export type LayoutEdgeSnapshot = {
   targetArrowLength?: number;
 };
 
-export type LayoutRequest = {
+type LayoutRequestBase = {
   requestId: number;
   routing: EdgeRoutingConfig;
   direction: LayoutDirectionConfig;
@@ -35,6 +37,18 @@ export type LayoutRequest = {
   nodes: LayoutNodeSnapshot[];
   edges: LayoutEdgeSnapshot[];
 };
+
+export type LayoutPassRequest = LayoutRequestBase & {
+  operation: 'layout';
+};
+
+export type LayoutRerouteRequest = LayoutRequestBase & {
+  operation: 'reroute';
+  positions: Float64Array;
+  contractedNodeWasmIds: Int32Array;
+};
+
+export type LayoutRequest = LayoutPassRequest | LayoutRerouteRequest;
 
 export type LayoutGraphResult = {
   id: string;

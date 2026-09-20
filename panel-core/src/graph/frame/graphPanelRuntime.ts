@@ -48,7 +48,8 @@ function unchangedLayoutState(positions: Float64Array): GraphPanelLayoutState {
 
 export async function resolveGraphPanelLayout(
   context: GraphPipelineLayoutContext,
-  basemap: ExtendMapLayerOptions | undefined
+  basemap: ExtendMapLayerOptions | undefined,
+  layerShift?: Record<string, [number, number]>
 ): Promise<GraphPanelLayoutState> {
   if (!context.input.options.isLogic) {
     return unchangedLayoutState(context.graph.positions);
@@ -60,6 +61,7 @@ export async function resolveGraphPanelLayout(
     graph: context.graph.graph,
     positionsLength: context.graph.positions.length,
     autolayout: basemap?.config as AutolayoutOptions | undefined,
+    layerShift,
   });
   return result ?? unchangedLayoutState(context.graph.positions);
 }

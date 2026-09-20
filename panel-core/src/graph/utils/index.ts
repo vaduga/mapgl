@@ -9,7 +9,13 @@ export {
   joinNsParts,
   getNsPrefixes,
 } from './utils.graph';
-export type { LayoutArrowTips } from './layout-worker-client';
+export {
+  requestGraphLayout,
+  requestGraphReroute,
+  type GraphRerouteRequestInput,
+  type GraphLayoutWorkerResult,
+  type LayoutArrowTips,
+} from './layout-worker-client';
 export type { LayoutCurveGroup, LayoutGraphResult } from './layout-worker-types';
 export { getEdgesGeometry } from './utils.graph-geom';
 export { CoordsConvert, SingleCoordsConvert } from './utils.turf';

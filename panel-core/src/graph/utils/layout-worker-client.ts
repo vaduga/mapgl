@@ -1,9 +1,11 @@
 import { locationService } from '@grafana/runtime';
+import type { Node } from '@msagl/core';
 
 import { Graph } from '../structs/graph';
 import { getNodeData } from '../structs/graphOps';
 import type { Edge } from '../structs/edge';
 import { getLayoutNodeRadius, resolveLayoutArrowLengths } from './layout-geometry';
+import { inheritedShift } from './utils.graph';
 import { SOURCE_ARROW_FLAG, TARGET_ARROW_FLAG } from './layout-worker-types';
 import type {
   EdgeRoutingConfig,
@@ -26,6 +28,13 @@ export interface GraphLayoutRequestInput {
   readonly graph: Graph;
   readonly positionsLength: number;
   readonly autolayout?: AutolayoutOptions;
+  readonly layerShift?: Record<string, [number, number]>;
+}
+
+export interface GraphRerouteRequestInput extends GraphLayoutRequestInput {
+  readonly positions: Float64Array;
+  readonly layerShift: Record<string, [number, number]>;
+  readonly contractedNodes?: ReadonlySet<Node>;
 }
 
 export interface GraphLayoutWorkerResult {
@@ -69,6 +78,25 @@ export function requestGraphLayout(input: GraphLayoutRequestInput): Promise<Grap
   }
 
   const request = createLayoutRequest(input);
+  const edgeIndex = createEdgeIndex(request);
+  return new Promise((resolve, reject) => {
+    pendingRequests.set(request.requestId, { ...edgeIndex, resolve, reject });
+    try {
+      layoutWorker.postMessage(request);
+    } catch (error) {
+      pendingRequests.delete(request.requestId);
+      reject(error instanceof Error ? error : new Error(String(error)));
+    }
+  });
+}
+
+export function requestGraphReroute(input: GraphRerouteRequestInput): Promise<GraphLayoutWorkerResult | undefined> {
+  const layoutWorker = getWorker();
+  if (!layoutWorker) {
+    return Promise.resolve(undefined);
+  }
+
+  const request = createLayoutRequest(input, 'reroute');
   const edgeIndex = createEdgeIndex(request);
   return new Promise((resolve, reject) => {
     pendingRequests.set(request.requestId, { ...edgeIndex, resolve, reject });
@@ -161,14 +189,20 @@ function createEdgeIndex(request: LayoutRequest): { edgeIndexes: Map<string, num
   return { edgeIndexes: indexes, edgeKeys };
 }
 
-function createLayoutRequest(input: GraphLayoutRequestInput): LayoutRequest {
+export function createLayoutRequest(
+  input: GraphLayoutRequestInput | GraphRerouteRequestInput,
+  operation: LayoutRequest['operation'] = 'layout'
+): LayoutRequest {
   const graph = input.graph;
-  const graphs = collectGraphs(graph);
-  const nodes = collectNodes(graph);
+  const graphs = collectGraphs(graph, input.layerShift);
+  const { nodes, contractedNodeWasmIds } = collectNodes(
+    graph,
+    operation === 'reroute' ? (input as GraphRerouteRequestInput).contractedNodes : undefined
+  );
   const edges = collectEdges(graph);
   const autolayout = input.autolayout ?? {};
 
-  return {
+  const request = {
     requestId: ++nextRequestId,
     routing: autolayout.edgeRouting ?? 'Splines',
     direction: autolayout.layoutDirection ?? DEFAULT_LAYOUT_DIRECTION,
@@ -180,21 +214,42 @@ function createLayoutRequest(input: GraphLayoutRequestInput): LayoutRequest {
     nodes,
     edges,
   };
+
+  if (operation === 'reroute') {
+    const rerouteInput = input as GraphRerouteRequestInput;
+    return {
+      ...request,
+      operation,
+      positions: rerouteInput.positions,
+      contractedNodeWasmIds: Int32Array.from(contractedNodeWasmIds),
+    };
+  }
+
+  return { ...request, operation };
 }
 
 function getPositiveNumber(value: number | undefined, fallback: number): number {
   return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : fallback;
 }
 
-function collectGraphs(root: Graph): LayoutGraphSnapshot[] {
-  return [root].concat(Array.from(root.subgraphsBreadthFirst() as Iterable<Graph>)).map((graph) => ({
-    id: graph.id,
-    parentId: (graph.parent as Graph | undefined)?.id,
-  }));
+function collectGraphs(root: Graph, layerShift?: Record<string, [number, number]>): LayoutGraphSnapshot[] {
+  return [root].concat(Array.from(root.subgraphsBreadthFirst() as Iterable<Graph>)).map((graph) => {
+    const [shiftX, shiftY] = layerShift ? inheritedShift(graph.id, layerShift) : [0, 0];
+    return {
+      id: graph.id,
+      parentId: (graph.parent as Graph | undefined)?.id,
+      ...(shiftX ? { shiftX } : {}),
+      ...(shiftY ? { shiftY } : {}),
+    };
+  });
 }
 
-function collectNodes(root: Graph): LayoutNodeSnapshot[] {
+function collectNodes(
+  root: Graph,
+  contractedNodes?: ReadonlySet<Node>
+): { nodes: LayoutNodeSnapshot[]; contractedNodeWasmIds: number[] } {
   const nodes: LayoutNodeSnapshot[] = [];
+  const contractedNodeWasmIds: number[] = [];
   for (const graph of [root].concat(Array.from(root.subgraphsBreadthFirst() as Iterable<Graph>))) {
     for (const node of graph.shallowNodes as Iterable<any>) {
       if (node instanceof Graph) {
@@ -211,9 +266,12 @@ function collectNodes(root: Graph): LayoutNodeSnapshot[] {
         wasmId: nodeData.wasmId,
         radius: getLayoutNodeRadius(nodeSize),
       });
+      if (contractedNodes?.has(node)) {
+        contractedNodeWasmIds.push(nodeData.wasmId);
+      }
     }
   }
-  return nodes;
+  return { nodes, contractedNodeWasmIds };
 }
 
 function collectEdges(root: Graph): LayoutEdgeSnapshot[] {

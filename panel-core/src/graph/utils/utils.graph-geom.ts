@@ -131,6 +131,7 @@ export function getEdgesGeometry(panel: any) {
       const locName = parPath[0];
       let layoutArrowTips = panel.layoutArrowTips?.get(`${srcGraph.id ?? ''}:${edge.id}`);
       const layoutGeometry = panel.isLogic ? getLayoutTerminalGeometry(edge, panel) : undefined;
+      const projectedLayoutGeometry = panel.layoutIncludesProjection ? layoutGeometry : undefined;
 
       let isSrcContracted;
       let isContracted;
@@ -181,6 +182,7 @@ export function getEdgesGeometry(panel: any) {
           pathsCoords,
           layoutArrowTips,
           layoutGeometry,
+          layoutIncludesProjection: panel.layoutIncludesProjection,
           srcProjectionNamespace,
           tarProjectionNamespace,
           isSrcContracted,
@@ -206,9 +208,10 @@ export function getEdgesGeometry(panel: any) {
       const frCoords = segrCoords[segmentOrdinal];
 
       let coordinates = panel.isLogic
-        ? targetTerminalShift || isContracted
-          ? ([...(frCoords ?? pathsCoords)] as Position[])
-          : (layoutGeometry ?? ([...pathsCoords] as Position[]))
+        ? (projectedLayoutGeometry ??
+          (targetTerminalShift || isContracted
+            ? ([...(frCoords ?? pathsCoords)] as Position[])
+            : (layoutGeometry ?? ([...pathsCoords] as Position[]))))
         : override && frCoords?.length === 2
           ? [frCoords[0], ...override, frCoords[frCoords.length - 1]]
           : frCoords;
@@ -217,7 +220,7 @@ export function getEdgesGeometry(panel: any) {
         continue;
       }
 
-      if (isContracted) {
+      if (isContracted && !projectedLayoutGeometry) {
         coordinates = [coordinates[0], coordinates.at(-1) as Position];
       }
 
@@ -246,7 +249,7 @@ export function getEdgesGeometry(panel: any) {
           continue;
         }
 
-        if (!isContracted) {
+        if (!isContracted || projectedLayoutGeometry) {
           coordinates = edgeTerminals.coordinates;
           arrowTips = edgeTerminals.arrowTips;
           sourceArrowTip = edgeTerminals.sourcePosition;
@@ -266,7 +269,6 @@ export function getEdgesGeometry(panel: any) {
         lineId,
         edgeId: edge.id,
         skip,
-        renderGeometryOnly: Boolean(targetTerminalShift || isContracted),
         hideArrowheads,
         type: 'Feature',
         geometry: {

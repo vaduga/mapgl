@@ -72,7 +72,7 @@ export abstract class MapPanelRuntime<
   protected graphViewportFitSignature?: string;
   protected graphViewportRefitRequired = true;
   protected readonly graphPipeline = new GraphFramePipeline<GraphPanelLayoutState, GraphPanelRenderState>({
-    layout: (context) => resolveGraphPanelLayout(context, this.normalizedOptions.basemap),
+    layout: (context) => resolveGraphPanelLayout(context, this.normalizedOptions.basemap, this.layerShift),
     render: createGraphPanelRenderState,
     commit: (state) => this.commitGraphPipelineState(state),
   });

@@ -242,6 +242,7 @@ export interface ProjectedTerminalGeometryContext {
   pathsCoords: Position[];
   layoutArrowTips?: TerminalArrowTips;
   layoutGeometry?: Position[];
+  layoutIncludesProjection?: boolean;
   isSrcContracted?: boolean;
   isContracted?: boolean;
   isTarContracted?: boolean;
