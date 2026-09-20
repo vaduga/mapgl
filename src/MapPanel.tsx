@@ -1,8 +1,8 @@
 import React from 'react';
 import { MapPanelRuntime } from '@mapgl/panel-core/runtime';
 import type { ViewState, MapViewConfig } from '@mapgl/panel-core/types';
+import { initViewExtent } from '@mapgl/panel-core/utils';
 import { mapLayerRegistry, ORTHO_BASEMAP_CONFIG } from './layers/registry';
-import { initViewExtent } from './utils/utils.map';
 import RootStore from './store/RootStore';
 import Mapgl from './components/Mapgl';
 
