@@ -226,7 +226,7 @@
     "@deck.gl/widgets": "^9.4.0"
   },
   "dependencies": {
-    "@grafana/e2e-selectors": "13.2.1",
+    "@grafana/e2e-selectors": "13.2.2",
     "@hello-pangea/dnd": "18.0.1",
     "@loaders.gl/schema": "4.4.5",
     "@msagl/core": "1.1.24",
