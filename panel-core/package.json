@@ -1,6 +1,6 @@
 {
   "name": "@mapgl/panel-core",
-  "version": "2.10.3",
+  "version": "2.10.4",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

@@ -25,6 +25,7 @@ import type {
   ViewportFitStrategy,
 } from './contracts';
 import type { Edge, Graph, GraphEdgeIndex } from '@mapgl/panel-core/graph';
+import { inheritedShift } from '../graph/utils';
 import { annotationTimeRuntimeSubscriptionProvider, noopRuntimeSubscriptionProvider } from './runtimeSubscriptions';
 
 export function createDefaultFeatureRegistry(): MapglFeatureRegistry {
@@ -270,7 +271,7 @@ type LayoutGraphBoundsLike = {
 
 export const defaultNamespaceBoundaryProvider: NamespaceBoundaryProvider = {
   id: 'core.msagl-layout-bounds',
-  getBoundaries: ({ graph, layoutGraphBounds }) => {
+  getBoundaries: ({ graph, layoutGraphBounds, layerShift, applyLayerShift }) => {
     if (!layoutGraphBounds) {
       return [];
     }
@@ -282,9 +283,11 @@ export const defaultNamespaceBoundaryProvider: NamespaceBoundaryProvider = {
         return records;
       }
 
+      const [dx, dy] = applyLayerShift ? inheritedShift(subgraph.id, layerShift ?? {}) : [0, 0];
+
       records.push({
         namespace: subgraph.id,
-        bounds: [bounds.minX, bounds.minY, bounds.maxX, bounds.maxY],
+        bounds: [bounds.minX + dx, bounds.minY + dy, bounds.maxX + dx, bounds.maxY + dy],
       });
       return records;
     }, []);

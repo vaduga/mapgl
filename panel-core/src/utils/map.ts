@@ -7,9 +7,9 @@ import type { Graph } from '../graph/main';
 import type { handlerProps } from '../components/Selects/ReactSelectSearch';
 import { centerPointRegistry, MapCenterID } from '../view';
 import {
+  defaultNamespaceBoundaryProvider,
   defaultViewportFitStrategy,
   getMapglFeatureServices,
-  getNamespaceBoundaries,
   type ViewportFitContext,
   type ViewportFitStrategy,
 } from '../extension-points/featureContracts';
@@ -119,7 +119,7 @@ export function getLogicFitBounds(
     graph: panel.graph,
     layers: panel.layers,
     visibleNamespaces,
-    namespaceBoundaries: getNamespaceBoundaries(services.namespaceBoundaryProviders, {
+    namespaceBoundaries: defaultNamespaceBoundaryProvider.getBoundaries({
       graph: panel.graph,
       visibleNamespaces,
       positions: panel.positions,
