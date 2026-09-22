@@ -2,7 +2,7 @@
 
 ## 2.10.4
 - fix: correct namespace boundaries to remove stale empty space
-- fix: map view fit-to-data max zoom and padding configs fixed for node graph
+- fix: fit-to-data view for node graph (maxZoom,padding,include root graph box)
 - fix: arc-edge picking restored
 - autolayout worker: separate reroute request
 - improve WebGL stability (Firefox). Replace dynamic SVG uploads with prepacked atlases

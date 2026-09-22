@@ -271,22 +271,22 @@ type LayoutGraphBoundsLike = {
 
 export const defaultNamespaceBoundaryProvider: NamespaceBoundaryProvider = {
   id: 'core.msagl-layout-bounds',
-  getBoundaries: ({ graph, layoutGraphBounds, layerShift, applyLayerShift }) => {
+  getBoundaries: ({ graph, layoutGraphBounds, layerShift, applyLayerShift, includeRoot }) => {
     if (!layoutGraphBounds) {
       return [];
     }
 
-    const subgraphs = Array.from(graph.subgraphsBreadthFirst()) as Graph[];
-    return subgraphs.reduce<NamespaceBoundaryRecord[]>((records, subgraph) => {
-      const bounds = layoutGraphBounds.get(subgraph.id) as LayoutGraphBoundsLike | undefined;
+    const namespaces = (includeRoot ? [graph] : []).concat(Array.from(graph.subgraphsBreadthFirst()) as Graph[]);
+    return namespaces.reduce<NamespaceBoundaryRecord[]>((records, namespace) => {
+      const bounds = layoutGraphBounds.get(namespace.id) as LayoutGraphBoundsLike | undefined;
       if (!bounds) {
         return records;
       }
 
-      const [dx, dy] = applyLayerShift ? inheritedShift(subgraph.id, layerShift ?? {}) : [0, 0];
+      const [dx, dy] = applyLayerShift ? inheritedShift(namespace.id, layerShift ?? {}) : [0, 0];
 
       records.push({
-        namespace: subgraph.id,
+        namespace: namespace.id,
         bounds: [bounds.minX + dx, bounds.minY + dy, bounds.maxX + dx, bounds.maxY + dy],
       });
       return records;
