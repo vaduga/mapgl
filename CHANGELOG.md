@@ -4,7 +4,6 @@
 - fix: correct namespace boundaries to remove stale empty space
 - fix: fit-to-data view for node graph (maxZoom,padding,include root graph box)
 - fix: arc-edge picking restored
-- autolayout worker: separate reroute request
 - improve WebGL stability (Firefox). Replace dynamic SVG uploads with prepacked atlases
 
 ## 2.10.3

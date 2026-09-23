@@ -15,7 +15,7 @@ const workerScope = self as unknown as LayoutWorkerScope;
 workerScope.onmessage = ({ data }: MessageEvent<LayoutRequest>) => {
   try {
     const result = getLayoutResult(data);
-    workerScope.postMessage(result, getTransferables(result));
+    workerScope.postMessage(result, getLayoutTransferables(result));
   } catch (error) {
     workerScope.postMessage({
       type: 'error',
@@ -25,7 +25,7 @@ workerScope.onmessage = ({ data }: MessageEvent<LayoutRequest>) => {
   }
 };
 
-function getTransferables(result: LayoutResult): Transferable[] {
+export function getLayoutTransferables(result: LayoutResult): Transferable[] {
   return [
     result.positions.buffer,
     result.arrows.edgeIndexes.buffer,

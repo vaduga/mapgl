@@ -39,6 +39,16 @@
       "import": "./dist/graph/frame/packedRelationReaders.js",
       "default": "./dist/graph/frame/packedRelationReaders.js"
     },
+    "./graph/layout-worker-helpers": {
+      "types": "./dist/graph/utils/layout-worker-helpers.d.ts",
+      "import": "./dist/graph/utils/layout-worker-helpers.js",
+      "default": "./dist/graph/utils/layout-worker-helpers.js"
+    },
+    "./graph/layout-worker-runner": {
+      "types": "./dist/graph/utils/layout-worker-runner.d.ts",
+      "import": "./dist/graph/utils/layout-worker-runner.js",
+      "default": "./dist/graph/utils/layout-worker-runner.js"
+    },
     "./graph/utils": {
       "types": "./dist/graph/utils/index.d.ts",
       "import": "./dist/graph/utils/index.js",

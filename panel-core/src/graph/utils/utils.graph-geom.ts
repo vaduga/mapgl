@@ -129,7 +129,7 @@ export function getEdgesGeometry(panel: any) {
       const edgeSrcGraph = edge.source.parent as Graph;
       const edgeTarGraph = edge.target.parent as Graph;
       const locName = parPath[0];
-      let layoutArrowTips = panel.layoutArrowTips?.get(`${srcGraph.id ?? ''}:${edge.id}`);
+      let layoutArrowTips = panel.layoutArrowTips?.get(`${edgeSrcGraph.id ?? ''}:${edge.id}`);
       const layoutGeometry = panel.isLogic ? getLayoutTerminalGeometry(edge, panel) : undefined;
       const projectedLayoutGeometry = panel.layoutIncludesProjection ? layoutGeometry : undefined;
 
@@ -137,21 +137,21 @@ export function getEdgesGeometry(panel: any) {
       let isContracted;
       let isTarContracted;
 
-      if (contractsHiddenNamespaces && !visibleNamespaces.includes(srcGraph.id)) {
+      if (contractsHiddenNamespaces && !visibleNamespaces.includes(edgeSrcGraph.id)) {
         isSrcContracted = true;
         isContracted = true;
       }
 
-      if (contractsHiddenNamespaces && !visibleNamespaces.includes(tarGraph.id)) {
+      if (contractsHiddenNamespaces && !visibleNamespaces.includes(edgeTarGraph.id)) {
         isContracted = true;
         isTarContracted = true;
       }
       const srcProjectionNamespace = isSrcContracted
-        ? getContractedGraph(srcGraph.id, visibleNamespaces, allNamespaces)
-        : srcGraph.id;
+        ? getContractedGraph(edgeSrcGraph.id, visibleNamespaces, allNamespaces)
+        : edgeSrcGraph.id;
       const tarProjectionNamespace = isTarContracted
-        ? getContractedGraph(tarGraph.id, visibleNamespaces, allNamespaces)
-        : tarGraph.id;
+        ? getContractedGraph(edgeTarGraph.id, visibleNamespaces, allNamespaces)
+        : edgeTarGraph.id;
       const hideArrowheads = Boolean(
         isSrcContracted &&
         isTarContracted &&

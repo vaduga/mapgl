@@ -11,12 +11,14 @@ export {
 } from './utils.graph';
 export {
   requestGraphLayout,
-  requestGraphReroute,
-  type GraphRerouteRequestInput,
+  createLayoutRequest,
+  postLayoutWorkerRequest,
+  type AutolayoutOptions,
   type GraphLayoutWorkerResult,
   type LayoutArrowTips,
 } from './layout-worker-client';
-export type { LayoutCurveGroup, LayoutGraphResult } from './layout-worker-types';
+export type { LayoutCurveGroup, LayoutGraphResult, LayoutPassRequest, LayoutResult } from './layout-worker-types';
+export { edgeKey, nodeKey } from './layout-worker-types';
 export { getEdgesGeometry } from './utils.graph-geom';
 export { CoordsConvert, SingleCoordsConvert } from './utils.turf';
 
