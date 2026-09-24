@@ -29,6 +29,7 @@ describe('markers graph pipeline adapter', () => {
       parField: 'target',
       edgeIdField: 'edge',
       isWrapEdges: 2,
+      isNestEdges: true,
       config: {
         style: {
           color: { fixed: 'red' },
@@ -54,7 +55,7 @@ describe('markers graph pipeline adapter', () => {
       edgeIdField: 'edge',
       layoutSignature: 'layout:RL',
     });
-    expect(input.graphOptions).toEqual({ layerIndex: 3, wrap: 2 });
+    expect(input.graphOptions).toEqual({ layerIndex: 3, wrap: 2, nest: true });
     expect(input.visualConfig.style).toEqual(
       expect.objectContaining({
         color: expect.objectContaining({ fixed: 'red' }),

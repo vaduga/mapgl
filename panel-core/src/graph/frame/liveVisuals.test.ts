@@ -44,6 +44,7 @@ describe('live graph visual synchronization', () => {
       vertexRefs: [],
       layerIndex: 0,
       wrap: 0,
+      nest: false,
     });
     edgeIndex.appendRecord({
       recordRef: 1,
@@ -51,6 +52,7 @@ describe('live graph visual synchronization', () => {
       vertexRefs: [],
       layerIndex: 0,
       wrap: 0,
+      nest: false,
     });
     edgeIndex.finalize();
 
@@ -78,6 +80,7 @@ describe('live graph visual synchronization', () => {
       vertexRefs: [],
       layerIndex: 0,
       wrap: 0,
+      nest: false,
     });
     edgeIndex.appendRecord({
       recordRef: 1,
@@ -85,6 +88,7 @@ describe('live graph visual synchronization', () => {
       vertexRefs: [],
       layerIndex: 0,
       wrap: 0,
+      nest: false,
     });
     edgeIndex.finalize();
     const annotations = [

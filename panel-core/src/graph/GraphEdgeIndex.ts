@@ -13,6 +13,7 @@ export interface GraphEdgeIndexRecordInput {
   readonly vertexRefs: ReadonlyArray<number | undefined>;
   readonly layerIndex: number;
   readonly wrap: number;
+  readonly nest: boolean;
   readonly metrics?: {
     readonly primary?: number;
     readonly sideA?: number;
@@ -79,7 +80,7 @@ export class GraphEdgeIndex {
       this.stagedVertexRefs.push(vertexRef ?? INVALID_VERTEX_REF);
     }
     this.stagedVertexOffsets.push(this.stagedVertexRefs.length);
-    this.stagedLayoutValues.push(input.layerIndex, input.wrap);
+    this.stagedLayoutValues.push(input.layerIndex, input.wrap, input.nest ? 1 : 0);
     this.stagedMetrics.push(
       input.metrics?.primary ?? 0,
       input.metrics?.sideA ?? Number.NaN,
@@ -240,12 +241,17 @@ export class GraphEdgeIndex {
 
   getRecordLayerIndex(recordRef: number): number {
     this.assertRecordRef(recordRef);
-    return (this.finalized ? this.layoutValues : this.stagedLayoutValues)[recordRef * 2];
+    return (this.finalized ? this.layoutValues : this.stagedLayoutValues)[recordRef * 3];
   }
 
   getRecordWrap(recordRef: number): number {
     this.assertRecordRef(recordRef);
-    return (this.finalized ? this.layoutValues : this.stagedLayoutValues)[recordRef * 2 + 1];
+    return (this.finalized ? this.layoutValues : this.stagedLayoutValues)[recordRef * 3 + 1];
+  }
+
+  getRecordNest(recordRef: number): boolean {
+    this.assertRecordRef(recordRef);
+    return Boolean((this.finalized ? this.layoutValues : this.stagedLayoutValues)[recordRef * 3 + 2]);
   }
 
   getRecordMetrics(recordRef: number): Readonly<{ primary: number; sideA?: number; sideB?: number }> {

@@ -227,6 +227,7 @@ export interface GraphEntityRowMetadata {
 export interface GraphLayerBuildOptions {
   readonly layerIndex?: number;
   readonly wrap?: number;
+  readonly nest?: boolean;
 }
 
 export interface GraphBuildOptions extends GraphLayerBuildOptions {

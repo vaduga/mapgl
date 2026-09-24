@@ -83,6 +83,12 @@ export function createMarkersLayer({
               showIf: (opts) => true,
               defaultValue: defaultOptions.isWrapEdges,
             });
+            builder.addBooleanSwitch({
+              path: 'isNestEdges',
+              name: 'Nest edges',
+              description: 'Hide a multihop fragment when a dedicated edge connects its A–B vertices',
+              defaultValue: defaultOptions.isNestEdges ?? false,
+            });
           }
 
           builder

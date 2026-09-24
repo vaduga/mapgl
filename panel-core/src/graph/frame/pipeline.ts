@@ -232,6 +232,7 @@ function graphBuildSignature(snapshot: GraphFrameSnapshot, options?: GraphBuildO
     createGraphBuildDataSignature(snapshot),
     options?.layerIndex ?? null,
     options?.wrap ?? null,
+    options?.nest ?? null,
     options?.layers ?? null,
   ]);
 }

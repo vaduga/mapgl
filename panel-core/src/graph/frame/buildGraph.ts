@@ -183,6 +183,7 @@ export function buildGraphFromSnapshot(
       vertexRefs: vertexIds,
       layerIndex: layerOptions?.layerIndex ?? options.layerIndex ?? 0,
       wrap: layerOptions?.wrap ?? options.wrap ?? 0,
+      nest: layerOptions?.nest ?? options.nest ?? false,
     });
     for (const { unitRef } of units) {
       edgeIndex.forEachUnitEdge(unitRef, (edge, edgeRef) => {

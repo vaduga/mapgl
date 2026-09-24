@@ -95,6 +95,7 @@ export function createMarkersPipelineInput(options: MarkersPipelineOptions): Gra
     graphOptions: {
       layerIndex: options.layerIndex,
       wrap: (options.layer.isWrapEdges ?? config.isWrapEdges ?? 0) as number,
+      nest: (options.layer.isNestEdges ?? config.isNestEdges ?? false) as boolean,
     },
     visualConfig: {
       layerName: options.layer.name,

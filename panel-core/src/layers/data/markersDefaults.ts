@@ -20,6 +20,7 @@ export interface MarkersConfig {
   groups?: Rule[];
   showStat2?: boolean;
   isWrapEdges?: 0 | 1 | 2 | 3;
+  isNestEdges?: boolean;
   vertexA_NS?: string;
   vertexB_NS?: string;
   nsSeparator?: string;
@@ -58,6 +59,7 @@ export function createDefaultMarkersConfig(): ExtendMapLayerOptions<MarkersConfi
       },
       showStat2: false,
       isWrapEdges: 0,
+      isNestEdges: false,
       nsSeparator: '.',
     },
     location: {
