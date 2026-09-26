@@ -10,6 +10,7 @@ import { defViewState, CMN_NAMESPACE } from '@mapgl/panel-core/types/defaults';
 import type { ViewState, BiColProps, ComFeature, LayerDragShift } from '@mapgl/panel-core/types';
 import type { LayoutArrowTips, LayoutCurveGroup, LayoutGraphResult } from '@mapgl/panel-core/graph/utils';
 import { notifyPanelEditor } from '@mapgl/panel-core/utils/geomap_utils';
+import { initViewExtent } from '../utils/map';
 import {
   getActions,
   applyLayerFilter,
@@ -721,6 +722,10 @@ export abstract class MapPanelRuntime<
     return view;
   };
 
+  protected fitViewExtent(view: ViewState, config: MapViewConfig): void {
+    initViewExtent(view, config, this.props.width, this.props.height, this.layers, this.visLayers, this);
+  }
+
   protected getRuntimeSubscriptionContext(data = this.props.data): RuntimeSubscriptionContext {
     return {
       graph: this.graph,
@@ -755,7 +760,6 @@ export abstract class MapPanelRuntime<
     }
   }
 
-  protected abstract fitViewExtent(view: ViewState, config: MapViewConfig): void;
   protected abstract createRootStore(props: any): { update(props: any): void; connect(): void; dispose(): void };
   protected abstract renderMap(props: any): React.ReactNode;
 
