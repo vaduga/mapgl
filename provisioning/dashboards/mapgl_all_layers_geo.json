@@ -378,6 +378,9 @@
                 "useGroups": true
               }
             },
+            "optional": {
+              "searchProps": ["source", "target", "aggrType"]
+            },
             "edgeIdField": "edge_id",
             "isShowTooltip": true,
             "locField": "vertexA",
@@ -391,7 +394,6 @@
               "id": "byRefId",
               "options": "Nodes"
             },
-            "searchProperties": ["source", "target", "aggrType"],
             "type": "markers"
           },
           {
@@ -522,6 +524,9 @@
                 "useGroups": true
               }
             },
+            "optional": {
+              "searchProps": ["city"]
+            },
             "displayProperties": ["metric", "edge_id", "vertexA", "vertexB", "bps"],
             "edgeIdField": "edge_id",
             "isShowTooltip": true,
@@ -536,7 +541,6 @@
               "id": "byRefId",
               "options": "Switches"
             },
-            "searchProperties": ["city"],
             "type": "markers"
           }
         ],

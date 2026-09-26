@@ -284,6 +284,9 @@
                 "useGroups": true
               }
             },
+            "optional": {
+              "searchProps": ["source", "target", "aggrType"]
+            },
             "isShowTooltip": true,
             "locField": "vertexA",
             "location": {
@@ -296,7 +299,6 @@
               "id": "byRefId",
               "options": "B"
             },
-            "searchProperties": ["source", "target", "aggrType"],
             "type": "markers"
           },
           {
@@ -753,6 +755,9 @@
               "vertexA_NS": "namespaceA",
               "vertexB_NS": "namespaceB"
             },
+            "optional": {
+              "searchProps": ["source", "target", "aggrType"]
+            },
             "isShowTooltip": true,
             "locField": "vertexA",
             "location": {
@@ -765,7 +770,6 @@
               "id": "byRefId",
               "options": "B"
             },
-            "searchProperties": ["source", "target", "aggrType"],
             "type": "markers"
           },
           {

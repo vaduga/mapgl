@@ -225,7 +225,6 @@
                   "svgTintMode": "canvasTint"
                 }
               ],
-              "isWrapEdges": 0,
               "showStat2": false,
               "style": {
                 "arcOptions": {
@@ -259,6 +258,9 @@
                 },
                 "useGroups": true
               }
+            },
+            "optional": {
+              "wrapEdges": 0
             },
             "displayProperties": ["type", "spanCount", "errorCount", "errorRate"],
             "isShowTooltip": true,
@@ -441,7 +443,6 @@
                 }
               },
               "groups": [],
-              "isWrapEdges": 0,
               "showStat2": false,
               "style": {
                 "arrow": 0,
@@ -460,6 +461,9 @@
                 },
                 "useGroups": false
               }
+            },
+            "optional": {
+              "wrapEdges": 0
             },
             "displayProperties": ["type", "traceId", "spanIds", "linkKey", "branchIndex", "linkIndex", "linkCost"],
             "edgeIdField": "multiHopEdgeId",

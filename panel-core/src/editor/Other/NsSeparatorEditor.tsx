@@ -10,28 +10,28 @@ const options: Array<ComboboxOption<string>> = [
 
 export const DEFAULT_NAMESPACE_SEPARATOR = '.';
 
-export const isValidNamespaceSeparator = (value: string): boolean => {
+export const isValidNsSeparator = (value: string): boolean => {
   const length = Array.from(value).length;
   return length > 0 && length <= 2;
 };
 
-export function resolveNamespaceSeparator(value: string | undefined): string {
-  return value && isValidNamespaceSeparator(value) ? value : DEFAULT_NAMESPACE_SEPARATOR;
+export function resolveNsSeparator(value: string | undefined): string {
+  return value && isValidNsSeparator(value) ? value : DEFAULT_NAMESPACE_SEPARATOR;
 }
 
-export function getNamespaceSeparatorOptions(value: string | undefined): Array<ComboboxOption<string>> {
-  const selected = resolveNamespaceSeparator(value);
+export function getNsSeparatorOptions(value: string | undefined): Array<ComboboxOption<string>> {
+  const selected = resolveNsSeparator(value);
   return options.some((option) => option.value === selected)
     ? options
     : [...options, { label: selected, value: selected }];
 }
 
-export function NamespaceSeparatorEditor({ value, onChange }: StandardEditorProps<string>) {
-  const selected = resolveNamespaceSeparator(value);
-  const selectOptions = getNamespaceSeparatorOptions(value);
+export function NsSeparatorEditor({ value, onChange }: StandardEditorProps<string>) {
+  const selected = resolveNsSeparator(value);
+  const selectOptions = getNsSeparatorOptions(value);
 
   const apply = (next: string | undefined) => {
-    if (next && isValidNamespaceSeparator(next)) {
+    if (next && isValidNsSeparator(next)) {
       onChange(next);
     }
   };

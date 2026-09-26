@@ -284,7 +284,6 @@
               ],
               "jitterPoints": true,
               "locNames": [],
-              "searchProperties": [],
               "show": true,
               "showStat2": true,
               "startId": 0,
@@ -302,6 +301,9 @@
               },
               "vertices": {}
             },
+            "optional": {
+              "searchProps": []
+            },
             "displayProperties": ["city", "model", "metricReduced", "bps", "aggrType"],
             "edgeLabelField": "bps",
             "isShowBW": true,
@@ -316,7 +318,6 @@
             "name": "uni",
             "parField": "srcPath",
             "parentName": "parent",
-            "searchProperties": ["city"],
             "throughputField": "bps",
             "type": "markers"
           }

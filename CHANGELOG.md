@@ -1,5 +1,8 @@
 # Changelog Mapgl
 
+## 2.10.5
+- collapse optional edge identities config
+
 ## 2.10.4
 - fix: correct namespace boundaries to remove stale empty space
 - fix: fit-to-data view for node graph (maxZoom,padding,include root graph box)

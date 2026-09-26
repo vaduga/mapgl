@@ -336,7 +336,7 @@ const TooltipBase = ({
     hoverPayload.columnIndex = frame.fields.findIndex((v) =>
       graphInteraction?.kind === 'edge' ||
       ['edgesArcsBase', colTypes.Edges, colTypes.Edges + 'fallback'].includes(info?.layer?.id)
-        ? v.name === layer?.edgeIdField
+        ? v.name === (layer?.optional?.edgeId ?? layer?.edgeIdField)
         : v.name === layer?.locField
     );
     const all_annots = props?.all_annots ?? pickedFeature?.all_annots;

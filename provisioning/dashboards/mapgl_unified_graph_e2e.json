@@ -123,7 +123,6 @@
                 }
               },
               "groups": [],
-              "isWrapEdges": 0,
               "showStat2": false,
               "style": {
                 "arcs": [
@@ -150,6 +149,10 @@
               "vertexA_NS": "sourceNs",
               "vertexB_NS": "targetNs"
             },
+            "optional": {
+              "searchProps": ["label"],
+              "wrapEdges": 0
+            },
             "edgeIdField": "edgeId",
             "isShowTooltip": true,
             "locField": "source",
@@ -162,7 +165,6 @@
               "id": "byRefId",
               "options": "Graph"
             },
-            "searchProperties": ["label"],
             "type": "markers"
           }
         ],

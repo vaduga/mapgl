@@ -3,9 +3,18 @@ import type { Rule } from '../../editor/Groups/ruleTypes';
 import type { ExtendFrameGeometrySourceMode, ExtendMapLayerOptions } from '../../extension';
 import { defaultStyleConfig, type StyleConfig } from '../../style/types';
 
+export interface MarkersOptionalConfig {
+  edgeId?: string;
+  wrapEdges?: 0 | 1 | 2 | 3;
+  isNestEdges?: boolean;
+  vertexA_NS?: string;
+  vertexB_NS?: string;
+  nsSeparator?: string;
+  searchProps?: string[];
+}
+
 export interface MarkersConfig {
   graph?: Graph;
-  searchProperties?: string[];
   style: StyleConfig;
   edgeStyle: StyleConfig;
   arcStyle: {
@@ -19,16 +28,13 @@ export interface MarkersConfig {
   };
   groups?: Rule[];
   showStat2?: boolean;
-  isWrapEdges?: 0 | 1 | 2 | 3;
-  isNestEdges?: boolean;
-  vertexA_NS?: string;
-  vertexB_NS?: string;
-  nsSeparator?: string;
 }
+
+export type MarkersLayerOptions<TConfig = MarkersConfig> = ExtendMapLayerOptions<TConfig, MarkersOptionalConfig>;
 
 export const MARKERS_LAYER_ID = 'markers';
 
-export function createDefaultMarkersConfig(): ExtendMapLayerOptions<MarkersConfig> {
+export function createDefaultMarkersConfig(): MarkersLayerOptions<MarkersConfig> {
   const createStyle = (): StyleConfig => ({
     ...defaultStyleConfig,
     size: { ...defaultStyleConfig.size },
@@ -45,6 +51,9 @@ export function createDefaultMarkersConfig(): ExtendMapLayerOptions<MarkersConfi
   return {
     type: MARKERS_LAYER_ID,
     name: 'new markers layer',
+    optional: {
+      nsSeparator: '.',
+    },
     config: {
       style: markerStyle,
       edgeStyle: createStyle(),
@@ -58,9 +67,6 @@ export function createDefaultMarkersConfig(): ExtendMapLayerOptions<MarkersConfi
         capacity: { fixed: 1 },
       },
       showStat2: false,
-      isWrapEdges: 0,
-      isNestEdges: false,
-      nsSeparator: '.',
     },
     location: {
       mode: 'auto' as ExtendFrameGeometrySourceMode,
@@ -71,3 +77,4 @@ export function createDefaultMarkersConfig(): ExtendMapLayerOptions<MarkersConfi
 // Used by default when nothing is configured.
 export const defaultMarkersConfig = createDefaultMarkersConfig();
 export const defaultMarkersOptions = defaultMarkersConfig.config!;
+export const defaultMarkersOptional = defaultMarkersConfig.optional!;

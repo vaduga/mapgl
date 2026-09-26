@@ -4,7 +4,7 @@ import { colTypes } from '@mapgl/panel-core/types';
 
 import { getMapglFeatureServices } from '../../extension-points/featureContracts';
 import { ExtendMapLayerOptions, ExtendMapLayerRegistryItem } from '../../extension';
-import { NamespaceSeparatorEditor } from '../../editor/Other/nsSeparatorEditor';
+import { OptIdentityEditor } from '../../editor/Other/OptIdentityEditor';
 import { defaultMarkersOptions, MARKERS_LAYER_ID, type MarkersConfig } from './markersDefaults';
 import type { DataLayerEditorAdapters } from './types';
 
@@ -54,90 +54,16 @@ export function createMarkersLayer({
               },
               showIf: (opts) => opts.type === colTypes.Markers,
             })
-            .addFieldNamePicker({
-              path: 'edgeIdField',
-              name: 'Edge ID',
-              description: 'Optional. Used for parallel edges or as trace ID',
-              settings: {
-                filter: (f: Field) => {
-                  return f.type === FieldType.string;
-                },
-                isClearable: true,
-                noFieldsMessage: 'No string fields found',
-              },
-              showIf: (opts) => !!opts.parField,
-            });
-
-          if (isExtendedEdition) {
-            builder.addRadio({
-              path: 'isWrapEdges',
-              name: 'Reduce parallel edges to: ',
-              settings: {
-                options: [
-                  { label: 'Min', value: 1 },
-                  { label: 'Max', value: 2 },
-                  { label: 'Both', value: 3 },
-                  { label: 'No wrap', value: 0 },
-                ],
-              },
-              showIf: (opts) => true,
-              defaultValue: defaultOptions.isWrapEdges,
-            });
-            builder.addBooleanSwitch({
-              path: 'isNestEdges',
-              name: 'Nest edges',
-              description: 'Hide a multihop fragment when a dedicated edge connects its A–B vertices',
-              defaultValue: defaultOptions.isNestEdges ?? false,
-            });
-          }
-
-          builder
-            .addFieldNamePicker({
-              path: 'config.vertexA_NS',
-              name: 'Vertex A namespace',
-              description: 'Optional',
-              settings: {
-                filter: (f: Field) => {
-                  return f.type === FieldType.string;
-                },
-                isClearable: true,
-                noFieldsMessage: 'No string fields found',
-              },
-              showIf: (opts) => panel.isLogic && !!opts.locField,
-            })
-            .addFieldNamePicker({
-              path: 'config.vertexB_NS',
-              name: 'Vertex B namespace',
-              description: 'Optional',
-              settings: {
-                filter: (f: Field) => {
-                  return f.type === FieldType.string;
-                },
-                isClearable: true,
-                noFieldsMessage: 'No string fields found',
-              },
-              showIf: (opts) => panel.isLogic && !!opts.locField && !!opts.parField,
-            })
             .addCustomEditor({
-              id: 'config.nsSeparator',
-              path: 'config.nsSeparator',
-              name: 'Namespace layers separator',
-              editor: NamespaceSeparatorEditor,
-              showIf: (opts) => panel.isLogic && !!(opts.config?.vertexA_NS || opts.config?.vertexB_NS),
-              defaultValue: defaultOptions.nsSeparator,
-            })
-            .addMultiSelect({
-              path: 'searchProperties',
-              name: 'Search by',
-              description: 'Extra fields',
+              id: 'optional',
+              path: 'optional',
+              name: '',
+              editor: OptIdentityEditor,
               settings: {
-                allowCustomValue: false,
-                options: [],
-                placeholder: 'Search by location name',
-                getOptions: getQueryFields,
+                isLogic: panel.isLogic,
+                isExtendedEdition,
+                getQueryFields,
               },
-              showIf: (opts) => opts.type === colTypes.Markers,
-              defaultValue: '',
             })
             .addCustomEditor({
               id: 'config.style',

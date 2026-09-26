@@ -61,7 +61,7 @@ export interface ExtendMapLayerHandler<TConfig = any> {
   ) => void;
 }
 
-export interface ExtendMapLayerOptions<TConfig = any> {
+export interface ExtendMapLayerOptions<TConfig = any, TOptional = any> {
   [key: string]: unknown;
   isShowTooltip?: boolean;
   geojsonColor?: string;
@@ -73,13 +73,12 @@ export interface ExtendMapLayerOptions<TConfig = any> {
   value?: string; // for BaseMapChangeEvent
   locField?: string;
   parField?: string;
-  edgeIdField?: string;
   config?: TConfig;
+  optional?: TOptional;
   query?: MatcherConfig; //filterData
   location?: ExtendFrameGeometrySource;
   opacity?: number;
   displayProperties?: string[];
-  searchProperties?: string[];
   titleField?: string;
 }
 
