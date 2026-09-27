@@ -15,14 +15,13 @@ import type {
   NamespaceProjectionContext,
   NamespaceProjectionResult,
   NamespaceProjectionStrategy,
-  PointPositionStrategy,
-  PointPositionStrategyContext,
+  PointJitterStrategy,
+  PointJitterStrategyContext,
   ProjectedTerminalGeometryContext,
   ProjectedTerminalGeometryResult,
   ProjectedTerminalGeometryStrategy,
   TooltipEdgeRecord,
   TooltipEdgeSectionContributor,
-  ViewportFitStrategy,
 } from './contracts';
 import type { Edge, Graph, GraphEdgeIndex } from '@mapgl/panel-core/graph';
 import { inheritedShift } from '../graph/utils';
@@ -32,8 +31,7 @@ export function createDefaultFeatureRegistry(): MapglFeatureRegistry {
   return {
     tooltipEdgeSections: [adjacentEdgeTooltipSectionContributor],
     runtimeSubscriptionProviders: [annotationTimeRuntimeSubscriptionProvider, noopRuntimeSubscriptionProvider],
-    viewportFitStrategies: [defaultViewportFitStrategy],
-    pointPositionStrategies: [noopPointPositionStrategy],
+    pointJitterStrategies: [noopPointJitterStrategy],
     namespaceProjectionStrategies: [defaultNamespaceProjectionStrategy],
     namespaceBoundaryProviders: [defaultNamespaceBoundaryProvider],
     projectedTerminalGeometryStrategies: [],
@@ -102,131 +100,14 @@ function dedupeTooltipEdges(edges: Edge[]): Edge[] {
   });
 }
 
-export const defaultViewportFitStrategy: ViewportFitStrategy = {
-  id: 'core.default-viewport-fit',
-  fit: (context) => {
-    const namespaceBounds = combineBoundaryRecords(context.namespaceBoundaries ?? []);
-    if (namespaceBounds) {
-      return { bounds: namespaceBounds };
-    }
-
-    const layerFeatures = getLayerExtentFeatures(context.layers, context.options);
-    const layerBounds = getFeatureBounds(layerFeatures, context.projectedPositions);
-    return layerBounds ? { bounds: layerBounds } : undefined;
-  },
-};
-
-type ViewportFitOptionsLike = {
-  allLayers?: boolean;
-  lastOnly?: boolean;
-  layer?: string;
-};
-
-type LayerLike = {
-  isBasemap?: boolean;
-  options?: { name?: string };
-  layer?: {
-    features?: unknown[];
-  };
-};
-
-type FeatureLike = {
-  type?: string;
-  geometry?: { type?: string; coordinates?: unknown };
-  id?: number;
-};
-
-function combineBoundaryRecords(
-  records: NamespaceBoundaryRecord[]
-): [minX: number, minY: number, maxX: number, maxY: number] | undefined {
-  if (!records.length) {
-    return undefined;
-  }
-
-  return records.reduce(
-    (acc, record) => [
-      Math.min(acc[0], record.bounds[0]),
-      Math.min(acc[1], record.bounds[1]),
-      Math.max(acc[2], record.bounds[2]),
-      Math.max(acc[3], record.bounds[3]),
-    ],
-    [Infinity, Infinity, -Infinity, -Infinity] as [number, number, number, number]
-  );
-}
-
-function getLayerExtentFeatures(layers: unknown[] = [], options: unknown): FeatureLike[] {
-  const { allLayers = false, lastOnly = false, layer } = (options ?? {}) as ViewportFitOptionsLike;
-
-  return (layers as LayerLike[])
-    .filter((item) => !item.isBasemap)
-    .flatMap((item) => {
-      const features = item.layer?.features ?? [];
-      if (allLayers) {
-        return features as FeatureLike[];
-      }
-
-      if (lastOnly && layer === item.options?.name) {
-        const feature = features.at(-1);
-        return feature ? [feature as FeatureLike] : [];
-      }
-
-      if (!lastOnly && layer === item.options?.name) {
-        return features as FeatureLike[];
-      }
-
-      return [];
-    });
-}
-
-function getFeatureBounds(
-  features: FeatureLike[],
-  positions?: Float64Array
-): [minX: number, minY: number, maxX: number, maxY: number] | undefined {
-  const coords = features.flatMap((feature) => getFeatureCoordinates(feature, positions));
-  if (!coords.length) {
-    return undefined;
-  }
-
-  return coords.reduce(
-    (acc, [x, y]) => [Math.min(acc[0], x), Math.min(acc[1], y), Math.max(acc[2], x), Math.max(acc[3], y)],
-    [Infinity, Infinity, -Infinity, -Infinity] as [number, number, number, number]
-  );
-}
-
-function getFeatureCoordinates(feature: FeatureLike, positions?: Float64Array): Array<[number, number]> {
-  if (feature.geometry?.coordinates) {
-    return flattenCoordinates(feature.geometry.coordinates);
-  }
-
-  if (feature.id !== undefined && positions) {
-    const x = positions[feature.id * 2];
-    const y = positions[feature.id * 2 + 1];
-    return Number.isFinite(x) && Number.isFinite(y) ? [[x, y]] : [];
-  }
-
-  return [];
-}
-
-function flattenCoordinates(value: unknown): Array<[number, number]> {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-
-  if (typeof value[0] === 'number' && typeof value[1] === 'number') {
-    return Number.isFinite(value[0]) && Number.isFinite(value[1]) ? [[value[0], value[1]]] : [];
-  }
-
-  return value.flatMap((item) => flattenCoordinates(item));
-}
-
-export const noopPointPositionStrategy: PointPositionStrategy = {
-  id: 'core.noop-point-position',
+export const noopPointJitterStrategy: PointJitterStrategy = {
+  id: 'core.noop-point-jitter',
   apply: () => undefined,
 };
 
-export function applyPointPositionStrategies(
-  strategies: PointPositionStrategy[],
-  context: PointPositionStrategyContext
+export function applyPointJitterStrategies(
+  strategies: PointJitterStrategy[],
+  context: PointJitterStrategyContext
 ): Float64Array {
   let positions = context.positions;
 

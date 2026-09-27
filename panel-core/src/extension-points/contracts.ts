@@ -2,7 +2,7 @@ import type { EventBus, PanelData } from '@grafana/data';
 import type { Position } from 'geojson';
 import type { Edge, Graph, GraphEdgeIndex, Node } from '@mapgl/panel-core/graph';
 import type { GraphRowRef } from '@mapgl/panel-core/graph/frame';
-import type { CoordRef, DeckLine, Feature, ViewState } from '@mapgl/panel-core/types';
+import type { CoordRef, DeckLine, Feature } from '@mapgl/panel-core/types';
 
 export type MapglEdition = 'oss' | 'extended';
 
@@ -14,8 +14,7 @@ export interface MapglPanelFeature {
 export interface MapglFeatureRegistry {
   tooltipEdgeSections: TooltipEdgeSectionContributor[];
   runtimeSubscriptionProviders: RuntimeSubscriptionProvider[];
-  viewportFitStrategies: ViewportFitStrategy[];
-  pointPositionStrategies: PointPositionStrategy[];
+  pointJitterStrategies: PointJitterStrategy[];
   namespaceProjectionStrategies: NamespaceProjectionStrategy[];
   namespaceBoundaryProviders: NamespaceBoundaryProvider[];
   projectedTerminalGeometryStrategies: ProjectedTerminalGeometryStrategy[];
@@ -138,28 +137,7 @@ export interface RuntimeSubscriptionProvider {
   start(context: RuntimeSubscriptionContext): RuntimeSubscription | Promise<RuntimeSubscription>;
 }
 
-export interface ViewportFitContext {
-  width: number;
-  height: number;
-  graph?: Graph;
-  layers?: unknown[];
-  visibleNamespaces?: Set<string>;
-  namespaceBoundaries?: NamespaceBoundaryRecord[];
-  projectedPositions?: Float64Array;
-  options?: unknown;
-}
-
-export interface ViewportFitResult {
-  viewState?: ViewState;
-  bounds?: [minX: number, minY: number, maxX: number, maxY: number];
-}
-
-export interface ViewportFitStrategy {
-  id: string;
-  fit(context: ViewportFitContext): ViewportFitResult | undefined;
-}
-
-export interface PointPositionStrategyContext {
+export interface PointJitterStrategyContext {
   graph: Graph;
   positions: Float64Array;
   visibleNamespaces?: Set<string>;
@@ -169,9 +147,9 @@ export interface PointPositionStrategyContext {
   zoom?: number;
 }
 
-export interface PointPositionStrategy {
+export interface PointJitterStrategy {
   id: string;
-  apply(context: PointPositionStrategyContext): Float64Array | void;
+  apply(context: PointJitterStrategyContext): Float64Array | void;
 }
 
 export interface NamespaceProjectionContext {

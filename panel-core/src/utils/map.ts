@@ -6,13 +6,7 @@ import type { MapViewConfig, MapLayerState, ViewState } from '../types';
 import type { Graph } from '../graph/main';
 import type { handlerProps } from '../components/Selects/ReactSelectSearch';
 import { centerPointRegistry, MapCenterID } from '../view';
-import {
-  defaultNamespaceBoundaryProvider,
-  defaultViewportFitStrategy,
-  getMapglFeatureServices,
-  type ViewportFitContext,
-  type ViewportFitStrategy,
-} from '../extension-points/featureContracts';
+import { defaultNamespaceBoundaryProvider, type NamespaceBoundaryRecord } from '../extension-points/featureContracts';
 import { SelectNodeEvent } from './bus.events';
 
 export type Bounds = [number, number, number, number];
@@ -29,11 +23,15 @@ export interface CartesianFitResult {
   zoom: number;
 }
 
+type FeatureLike = {
+  geometry?: { coordinates?: unknown };
+  id?: number;
+};
+
 type ViewportFitPanel = {
-  featureServices?: import('../extension-points/contracts').MapglFeatureServices;
   graph: Graph;
   positions: Float64Array;
-  layers?: unknown[];
+  layers?: MapLayerState[];
   layoutGraphBounds?: Map<string, unknown>;
   layerShift?: Record<string, [number, number]>;
 };
@@ -82,74 +80,123 @@ export function fitCartesianBounds(
   };
 }
 
+function getViewportFitBounds(
+  layers: MapLayerState[],
+  positions: Float64Array,
+  options: Pick<MapViewConfig, 'allLayers' | 'lastOnly' | 'layer'>,
+  namespaceBoundaries: NamespaceBoundaryRecord[] = []
+): Bounds | undefined {
+  const namespaceBounds = combineBoundaryRecords(namespaceBoundaries);
+  if (namespaceBounds) {
+    return namespaceBounds;
+  }
+
+  const layerFeatures = getLayerExtentFeatures(layers, options);
+  return getFeatureBounds(layerFeatures, positions);
+}
+
+function combineBoundaryRecords(records: NamespaceBoundaryRecord[]): Bounds | undefined {
+  if (!records.length) {
+    return undefined;
+  }
+
+  return records.reduce(
+    (acc, record) => [
+      Math.min(acc[0], record.bounds[0]),
+      Math.min(acc[1], record.bounds[1]),
+      Math.max(acc[2], record.bounds[2]),
+      Math.max(acc[3], record.bounds[3]),
+    ],
+    [Infinity, Infinity, -Infinity, -Infinity] as Bounds
+  );
+}
+
+function getLayerExtentFeatures(
+  layers: MapLayerState[],
+  { allLayers = false, lastOnly = false, layer }: Pick<MapViewConfig, 'allLayers' | 'lastOnly' | 'layer'>
+): FeatureLike[] {
+  return layers
+    .filter((item) => !item.isBasemap)
+    .flatMap((item) => {
+      const source = item.layer;
+      const features = typeof source === 'object' && source !== null && 'features' in source ? source.features : [];
+      if (allLayers) {
+        return features as FeatureLike[];
+      }
+
+      if (lastOnly && layer === item.options?.name) {
+        const feature = features.at(-1);
+        return feature ? [feature as FeatureLike] : [];
+      }
+
+      if (!lastOnly && layer === item.options?.name) {
+        return features as FeatureLike[];
+      }
+
+      return [];
+    });
+}
+
+function getFeatureBounds(features: FeatureLike[], positions: Float64Array): Bounds | undefined {
+  const coords = features.flatMap((feature) => getFeatureCoordinates(feature, positions));
+  if (!coords.length) {
+    return undefined;
+  }
+
+  return coords.reduce(
+    (acc, [x, y]) => [Math.min(acc[0], x), Math.min(acc[1], y), Math.max(acc[2], x), Math.max(acc[3], y)],
+    [Infinity, Infinity, -Infinity, -Infinity] as Bounds
+  );
+}
+
+function getFeatureCoordinates(feature: FeatureLike, positions: Float64Array): Array<[number, number]> {
+  if (feature.geometry?.coordinates) {
+    return flattenCoordinates(feature.geometry.coordinates);
+  }
+
+  if (feature.id !== undefined) {
+    const x = positions[feature.id * 2];
+    const y = positions[feature.id * 2 + 1];
+    return Number.isFinite(x) && Number.isFinite(y) ? [[x, y]] : [];
+  }
+
+  return [];
+}
+
+function flattenCoordinates(value: unknown): Array<[number, number]> {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  if (typeof value[0] === 'number' && typeof value[1] === 'number') {
+    return Number.isFinite(value[0]) && Number.isFinite(value[1]) ? [[value[0], value[1]]] : [];
+  }
+
+  return value.flatMap((item) => flattenCoordinates(item));
+}
+
 export function getLayerFitBounds(
   panel: ViewportFitPanel,
   layers: MapLayerState[] = [],
-  config: MapViewConfig,
-  visNamespaces: string[],
-  width: number,
-  height: number
+  config: MapViewConfig
 ): Bounds | undefined {
-  return defaultViewportFitStrategy.fit({
-    width,
-    height,
-    graph: panel.graph,
-    layers,
-    visibleNamespaces: new Set(visNamespaces),
-    projectedPositions: panel.positions,
-    options: {
-      allLayers: config.allLayers,
-      lastOnly: config.lastOnly,
-      layer: config.layer,
-    },
-  })?.bounds;
+  return getViewportFitBounds(layers, panel.positions, config);
 }
 
-export function getLogicFitBounds(
-  panel: ViewportFitPanel,
-  visNamespaces: string[],
-  width: number,
-  height: number
-): Bounds | undefined {
-  const services = getMapglFeatureServices(panel);
+export function getLogicFitBounds(panel: ViewportFitPanel, visNamespaces: string[]): Bounds | undefined {
   const visibleNamespaces = new Set(visNamespaces);
-  const context: ViewportFitContext = {
-    width,
-    height,
+  const namespaceBoundaries = defaultNamespaceBoundaryProvider.getBoundaries({
     graph: panel.graph,
-    layers: panel.layers,
     visibleNamespaces,
-    namespaceBoundaries: defaultNamespaceBoundaryProvider.getBoundaries({
-      graph: panel.graph,
-      visibleNamespaces,
-      positions: panel.positions,
-      layoutGraphBounds: panel.layoutGraphBounds,
-      layerShift: panel.layerShift,
-      padding: 0,
-      includeRoot: true,
-      applyLayerShift: true,
-    }),
-    projectedPositions: panel.positions,
-    options: {
-      allLayers: true,
-    },
-  };
+    positions: panel.positions,
+    layoutGraphBounds: panel.layoutGraphBounds,
+    layerShift: panel.layerShift,
+    padding: 0,
+    includeRoot: true,
+    applyLayerShift: true,
+  });
 
-  return getViewportFitBounds(services.viewportFitStrategies, context);
-}
-
-export function getViewportFitBounds(
-  strategies: ViewportFitStrategy[],
-  context: ViewportFitContext
-): Bounds | undefined {
-  for (const strategy of [...strategies].reverse()) {
-    const bounds = strategy.fit(context)?.bounds;
-    if (bounds) {
-      return bounds;
-    }
-  }
-
-  return undefined;
+  return getViewportFitBounds(panel.layers ?? [], panel.positions, { allLayers: true }, namespaceBoundaries);
 }
 
 export function initViewExtent(
@@ -175,8 +222,8 @@ export function initViewExtent(
         const maxZoom = configuredZoom && configuredZoom > 0 ? configuredZoom : 18;
         const visibleNamespaces = visLayers?.getVisibleNamespaces() ?? [];
         const bounds = panel.isLogic
-          ? getLogicFitBounds(panel, visibleNamespaces, width, height)
-          : getLayerFitBounds(panel, layers, config, visibleNamespaces, width, height);
+          ? getLogicFitBounds(panel, visibleNamespaces)
+          : getLayerFitBounds(panel, layers, config);
 
         if (bounds) {
           const [minX, minY, maxX, maxY] = bounds;
