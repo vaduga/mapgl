@@ -30,6 +30,7 @@ export {
   getGraphNodes,
   getNodeData,
   resetGraph,
+  removeEdge,
   setEntityAttrProp,
   setGraphData,
   setNodeData,
@@ -38,3 +39,4 @@ export {
 
 export { FeatSource } from './FeatSource';
 export { AttributeRegistry } from './structs/attributeRegistry';
+export * from './GraphEdgeIndex';

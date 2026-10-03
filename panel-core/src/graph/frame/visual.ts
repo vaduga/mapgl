@@ -1,33 +1,15 @@
-import {
-  FieldColorModeId,
-  ThresholdsMode,
-  formattedValueToString,
-  getDisplayProcessor,
-  getFieldColorModeForField,
-  getFieldConfigWithMinMax,
-  getScaleCalculator,
-  type DataFrame,
-  type Field,
-  type GrafanaTheme2,
-  type ThresholdsConfig,
-} from '@grafana/data';
-
-import { cloneResolvedGroup, resolveFeatureGroup } from '../../editor/Groups/data/group-resolve';
-import type { Rule } from '../../editor/Groups/ruleTypes';
-import { findField } from '../../grafana_core/app/features/dimensions';
+import { sameMetricRow } from '../../data/metricOverlays';
+import type { SourceView } from '../../data/sources';
+import { cloneResolvedGroup, resolveFeatureGroup } from '../../style/groups/group-resolve';
+import type { Rule } from '../../style/groups/ruleTypes';
 import { FeatSource, getNodeData, type Graph } from '../main';
-import { isMetricDrivenArc, resolveArcOptions, type StyleConfig, type StyleConfigState } from '../../style/types';
-import { resolveStyleConfigState } from '../../style/utils';
 import { colTypes, type BiColProps, type RGBAColor } from '../../types';
-import { getStyleDimension } from '../../utils/geomap_utils';
 import { toRGB4Array } from '../../deckLayers/utils/color';
 import type {
-  GraphBuiltState,
+  GraphStyleChannels,
   GraphEdgeUnitVisualRecord,
   GraphEdgeVisualMetrics,
-  GraphFrameSnapshot,
   GraphNodeRecord,
-  GraphResolvedNodeGauge,
   GraphNodeVisualRecord,
   GraphResolvedArcStyle,
   GraphResolvedVisualGroup,
@@ -40,152 +22,22 @@ import type {
 } from './types';
 import { PACKED_INVALID_REF } from './packedRelations';
 
-const GAUGE_COLOR_SAMPLE_COUNT = 16;
-const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
-
-const toSingleLineGaugeText = (value: string): string => value.replace(/\s*[\r\n]+\s*/g, ' ').trim();
-
-function resolveGaugeDisplayText(field: Field, rowIndex: number, theme: GrafanaTheme2): string {
-  const display = field.display ?? getDisplayProcessor({ field, theme });
-  if (!field.display) {
-    field.display = display;
-  }
-  return toSingleLineGaugeText(formattedValueToString(display(field.values[rowIndex])));
-}
-
-function effectiveNumericField(field: Field): Field {
-  const config = getFieldConfigWithMinMax(field, true);
-  if (config === field.config) {
-    return field;
-  }
-  return getFieldColorModeForField(field).isByValue ? { ...field, config, state: undefined } : { ...field, config };
-}
-
-const finiteConfigNumber = (value: unknown): number | undefined =>
-  typeof value === 'number' && Number.isFinite(value) ? value : undefined;
-
-function resolveGaugeStops(field: Field, theme: GrafanaTheme2): GraphResolvedNodeGauge['stops'] {
-  const mode = getFieldColorModeForField(field);
-  const scale = getScaleCalculator(field, theme);
-  const min = finiteConfigNumber(field.config.min);
-  const max = finiteConfigNumber(field.config.max);
-  const delta = min !== undefined && max !== undefined ? max - min : Number.NaN;
-
-  if (min === undefined || max === undefined || delta <= 0) {
-    const color = toRGB4Array(scale(min ?? 0).color);
-    return [
-      { color, endFraction: 0 },
-      { color, endFraction: 1 },
-    ];
-  }
-
-  const colorAt = (fraction: number) => toRGB4Array(scale(min + delta * clamp01(fraction)).color);
-
-  if (mode.id !== FieldColorModeId.Thresholds) {
-    if (!mode.isByValue) {
-      const color = colorAt(0);
-      return [
-        { color, endFraction: 0 },
-        { color, endFraction: 1 },
-      ];
-    }
-    return Array.from({ length: GAUGE_COLOR_SAMPLE_COUNT }, (_, index) => {
-      const endFraction = index / (GAUGE_COLOR_SAMPLE_COUNT - 1);
-      return { color: colorAt(endFraction), endFraction };
-    });
-  }
-
-  const thresholds = field.config.thresholds;
-  const fractions = (thresholds?.steps ?? [])
-    .map((step, index) => {
-      if (index === 0 || step.value === null || !Number.isFinite(Number(step.value))) {
-        return 0;
-      }
-      return thresholds?.mode === ThresholdsMode.Percentage
-        ? clamp01(Number(step.value) / 100)
-        : clamp01((Number(step.value) - min) / delta);
-    })
-    .filter((fraction, index, values) => index === 0 || fraction !== values[index - 1]);
-  const positions = Array.from(new Set([0, ...fractions, 1])).sort((left, right) => left - right);
-  return positions.map((endFraction) => ({ color: colorAt(endFraction), endFraction }));
-}
-
-function resolveNodeGauge(
-  sourceField: Field | undefined,
-  rowIndex: number,
-  theme: GrafanaTheme2,
-  fallbackColor: string | undefined
-): GraphResolvedNodeGauge {
-  if (!sourceField) {
-    const color = toRGB4Array(fallbackColor ?? '#808080');
-    return {
-      colorMode: 'missing-field',
-      displayText: '',
-      fillFraction: -1,
-      stops: [
-        { color, endFraction: 0 },
-        { color, endFraction: 1 },
-      ],
-    };
-  }
-  const field = effectiveNumericField(sourceField);
-  const min = finiteConfigNumber(field.config.min);
-  const max = finiteConfigNumber(field.config.max);
-  const rawValue = sourceField.values[rowIndex];
-  const value = typeof rawValue === 'number' ? rawValue : Number.NaN;
-  const hasRange = min !== undefined && max !== undefined && max > min;
-  const fillFraction = hasRange && Number.isFinite(value) ? clamp01((value - min) / (max - min)) : -1;
-
-  return {
-    colorMode: getFieldColorModeForField(field).id,
-    displayText: resolveGaugeDisplayText(sourceField, rowIndex, theme),
-    fillFraction,
-    stops: resolveGaugeStops(field, theme),
-  };
-}
-
-interface PreparedStyle {
-  readonly state: StyleConfigState;
-  readonly dimensions: Map<number, ReturnType<typeof getStyleDimension>>;
-}
-
-interface PreparedVisuals {
-  readonly node: PreparedStyle;
-  readonly edge: PreparedStyle;
-  readonly nodeArcs: Map<number, Array<ReturnType<typeof getStyleDimension>>>;
-  readonly sideA: PreparedStyle;
-  readonly sideB: PreparedStyle;
-}
+type LayerVisualInput = Omit<GraphVisualInput, 'configs'> & { readonly config: GraphVisualConfig };
 
 interface PreparedLayerVisuals {
-  readonly input: GraphVisualInput;
-  readonly prepared: PreparedVisuals;
+  readonly input: LayerVisualInput;
+
   readonly featSource: FeatSource;
   readonly ruleFields: readonly string[];
 }
 
-function prepareStyle(style: StyleConfig, theme: GrafanaTheme2): PreparedStyle {
-  return {
-    state: resolveStyleConfigState(style, theme),
-    dimensions: new Map(),
-  };
+function rowFrame(input: LayerVisualInput, row: GraphRowRef): SourceView | undefined {
+  return input.sources.find(
+    (source) => source.index === row.sourceIndex && source.key === row.sourceKey && source.revision === row.revision
+  );
 }
-
-function dimensionsFor(prepared: PreparedStyle, frame: DataFrame, frameIndex: number, theme: GrafanaTheme2) {
-  let dimensions = prepared.dimensions.get(frameIndex);
-  if (!dimensions) {
-    dimensions = getStyleDimension(frame, prepared.state, theme);
-    prepared.dimensions.set(frameIndex, dimensions);
-  }
-  return dimensions;
-}
-
-function rowFrame(input: GraphVisualInput, row: GraphRowRef): DataFrame | undefined {
-  return input.data.series[row.frameIndex];
-}
-
-function rowValue(frame: DataFrame, rowIndex: number, fieldName?: string): unknown {
-  return fieldName ? findField(frame, fieldName)?.values[rowIndex] : undefined;
+function rowValue(source: SourceView, rowIndex: number, fieldName?: string): unknown {
+  return fieldName ? source.value(fieldName, rowIndex) : undefined;
 }
 
 function cloneRule(rule: Rule, groupIdx: number): Rule {
@@ -232,7 +84,7 @@ function configuredRuleFields(groups: readonly Rule[], locationField: string): r
   );
 }
 
-function rulePoint(frame: DataFrame, row: GraphRowRef, fields: readonly string[], thresholdColor?: string) {
+function rulePoint(frame: SourceView, row: GraphRowRef, fields: readonly string[], thresholdColor?: string) {
   const point: Record<string, unknown> = {};
   for (const field of fields) {
     point[field] = rowValue(frame, row.rowIndex, field);
@@ -243,20 +95,13 @@ function rulePoint(frame: DataFrame, row: GraphRowRef, fields: readonly string[]
   return point;
 }
 
-function resolveSymbol(style: StyleConfig, frame: DataFrame, row: GraphRowRef): string | undefined {
-  const value = rowValue(frame, row.rowIndex, style.symbol?.field);
-  return typeof value === 'string' && value.length ? value : style.symbol?.fixed;
-}
-
 function resolveGroup(args: {
-  frame: DataFrame;
+  frame: SourceView;
   row: GraphRowRef;
   fields: readonly string[];
-  style: StyleConfigState;
-  dimensions: ReturnType<typeof getStyleDimension>;
+  style: GraphStyleChannels;
   featSource: FeatSource;
   allGroups: Rule[];
-  theme: GrafanaTheme2;
   locationField: string;
   fallbackName: string;
 }): {
@@ -264,11 +109,17 @@ function resolveGroup(args: {
   color: RGBAColor;
   thresholdColor?: string;
 } {
-  const { field: metricField, fixed } = args.style.config.color ?? {};
-  const isFixed = !metricField && Boolean(fixed);
+  const scope = args.style.scope;
+  if (
+    scope.revision !== args.row.revision ||
+    scope.sourceIndex !== args.row.sourceIndex ||
+    scope.sourceKey !== args.row.sourceKey
+  ) {
+    throw new Error('Visual channel source revision does not match its row');
+  }
+  const isFixed = args.style.isFixed;
   const baseColor = args.style.base.color as string;
-  const fixedColor = fixed ? (args.theme.visualization.getColorByName(fixed) ?? baseColor) : baseColor;
-  const hexColor = args.dimensions.color?.get(args.row.rowIndex) ?? fixedColor;
+  const hexColor = args.style.color?.get(args.row.rowIndex) ?? baseColor;
   const thresholdColor = isFixed ? undefined : hexColor;
   const point = rulePoint(args.frame, args.row, args.fields, thresholdColor);
   const locName = String(rowValue(args.frame, args.row.rowIndex, args.locationField) ?? args.fallbackName);
@@ -277,7 +128,6 @@ function resolveGroup(args: {
     feature: point,
     featSource: args.featSource,
     allGroups: args.allGroups,
-    theme: args.theme,
     isFixed,
     locField: args.locationField,
     locName,
@@ -285,14 +135,14 @@ function resolveGroup(args: {
     rgba: color,
   });
   const cloned = cloneResolvedGroup(group);
-  const symbol = resolveSymbol(args.style.config, args.frame, args.row);
+  const symbol = args.style.symbol?.get(args.row.rowIndex);
   if (symbol && !cloned.iconName) {
     cloned.iconName = symbol;
   }
   return { group: cloned, color, thresholdColor };
 }
 
-function baseStyle(state: StyleConfigState): GraphResolvedVisualStyle {
+function baseStyle(state: GraphStyleChannels): GraphResolvedVisualStyle {
   return {
     ...state.base,
     color: toRGB4Array(state.base.color as string),
@@ -300,57 +150,25 @@ function baseStyle(state: StyleConfigState): GraphResolvedVisualStyle {
 }
 
 function resolvedNodeStyle(
-  input: GraphVisualInput,
-  prepared: PreparedVisuals,
-  frame: DataFrame,
+  channels: GraphStyleChannels,
   row: GraphRowRef,
-  dimensions: ReturnType<typeof dimensionsFor>,
   resolved: ReturnType<typeof resolveGroup>
 ): GraphResolvedVisualStyle {
-  const arcOptions = input.config.style.arcs?.length ? resolveArcOptions(input.config.style.arcOptions) : undefined;
-  const values: GraphResolvedVisualStyle = {
-    ...baseStyle(prepared.node.state),
+  return {
+    ...baseStyle(channels),
     color: resolved.color,
     group: resolved.group,
-    ...(arcOptions && { arcOptions }),
-    ...(dimensions.size && { size: dimensions.size.get(row.rowIndex) }),
-    ...(dimensions.text && { text: dimensions.text.get(row.rowIndex) }),
-  };
-  let style: GraphResolvedVisualStyle = {
-    ...values,
+    ...(channels.size && { size: channels.size.get(row.rowIndex) }),
+    ...(channels.text && { text: channels.text.get(row.rowIndex) }),
     ...(resolved.group.size !== undefined && { size: resolved.group.size }),
+    ...(channels.arcOptions && { arcOptions: channels.arcOptions }),
+    ...(channels.arcs && { arcs: channels.arcs.map((arc) => arc.get(row.rowIndex)) }),
+    ...(channels.gauge && { gauge: channels.gauge.get(row.rowIndex) }),
   };
-
-  if (input.config.style.arcs?.length) {
-    let arcDimensions = prepared.nodeArcs.get(row.frameIndex);
-    if (!arcDimensions) {
-      arcDimensions = input.config.style.arcs.map((arc) =>
-        getStyleDimension(frame, prepared.node.state, input.theme, { color: arc })
-      );
-      prepared.nodeArcs.set(row.frameIndex, arcDimensions);
-    }
-    style = {
-      ...style,
-      arcs: arcDimensions.map((arc) => arc.color?.get(row.rowIndex)),
-      ...(isMetricDrivenArc(input.config.style.arcs)
-        ? {
-            gauge: resolveNodeGauge(
-              arcDimensions[0].color?.field ?? findField(frame, input.config.style.arcs[0].field),
-              row.rowIndex,
-              input.theme,
-              arcDimensions[0].color?.get(row.rowIndex)
-            ),
-          }
-        : {}),
-    };
-  }
-
-  return style;
 }
 
 function nodeVisual(
-  input: GraphVisualInput,
-  prepared: PreparedVisuals,
+  input: LayerVisualInput,
   record: GraphNodeRecord,
   index: number,
   featSource: FeatSource,
@@ -362,20 +180,18 @@ function nodeVisual(
   if (!frame || !node) {
     return undefined;
   }
-  const dimensions = dimensionsFor(prepared.node, frame, record.primaryRow.frameIndex, input.theme);
+  const channels = input.config.node(record.primaryRow.sourceIndex);
   const resolved = resolveGroup({
     frame,
     row: record.primaryRow,
     fields: ruleFields,
-    style: prepared.node.state,
-    dimensions,
+    style: channels,
     featSource,
     allGroups,
-    theme: input.theme,
     locationField: input.config.locationField,
     fallbackName: record.id,
   });
-  const style = resolvedNodeStyle(input, prepared, frame, record.primaryRow, dimensions, resolved);
+  const style = resolvedNodeStyle(channels, record.primaryRow, resolved);
 
   const nodeData = getNodeData(node);
   const id = nodeData?.wasmId ?? index;
@@ -383,7 +199,7 @@ function nodeVisual(
     id,
     layerName: input.config.layerName,
     ...(input.config.layerIndex !== undefined && { layerIdx: input.config.layerIndex }),
-    frameRefId: record.primaryRow.frameRefId,
+    frameRefId: record.primaryRow.sourceKey,
     rowIndex: record.primaryRow.rowIndex,
     featSource,
     graph: node.parent as Graph,
@@ -402,36 +218,28 @@ function nodeVisual(
   });
 }
 
-function sideStyle(args: {
-  prepared: PreparedStyle;
-  frame: DataFrame;
-  row: GraphRowRef;
-  theme: GrafanaTheme2;
-  edge: GraphResolvedVisualStyle;
-  edgeMetricField?: string;
-  showStat2: boolean;
-}): GraphResolvedVisualStyle & { colorField?: string } {
-  if (!args.showStat2) {
-    return args.edge;
+function sideStyle(
+  channels: GraphStyleChannels,
+  row: GraphRowRef,
+  edge: GraphResolvedVisualStyle,
+  edgeMetricField: string | undefined,
+  showStat2: boolean
+): GraphResolvedVisualStyle & { colorField?: string } {
+  if (!showStat2) {
+    return edge;
   }
-  const dimensions = dimensionsFor(args.prepared, args.frame, args.row.frameIndex, args.theme);
-  const fixed = args.prepared.state.config.color?.fixed;
-  const colorName =
-    dimensions.color?.get(args.row.rowIndex) ?? (fixed && args.theme.visualization.getColorByName(fixed));
-  const colorField = args.prepared.state.config.color?.field;
   return {
-    ...baseStyle(args.prepared.state),
-    ...(colorName && { color: toRGB4Array(colorName) }),
-    ...(colorField && { colorField }),
-    ...(dimensions.size && { size: dimensions.size.get(args.row.rowIndex) }),
-    ...(dimensions.text && { text: dimensions.text.get(args.row.rowIndex) }),
-    ...(colorField === args.edgeMetricField && { group: args.edge.group }),
+    ...baseStyle(channels),
+    ...(channels.color && { color: toRGB4Array(channels.color.get(row.rowIndex)) }),
+    ...(channels.colorKey && { colorField: channels.colorKey }),
+    ...(channels.size && { size: channels.size.get(row.rowIndex) }),
+    ...(channels.text && { text: channels.text.get(row.rowIndex) }),
+    ...(channels.colorKey === edgeMetricField && { group: edge.group }),
   };
 }
 
 function edgeUnitVisual(
-  input: GraphVisualInput,
-  prepared: PreparedVisuals,
+  input: LayerVisualInput,
   index: number,
   unitRef: number,
   row: GraphRowRef,
@@ -446,31 +254,27 @@ function edgeUnitVisual(
   if (!frame || !sourceNode) {
     return undefined;
   }
-  const dimensions = dimensionsFor(prepared.edge, frame, row.frameIndex, input.theme);
-  const groupDimensions = dimensionsFor(prepared.node, frame, row.frameIndex, input.theme);
+  const dimensions = input.config.edge(row.sourceIndex);
+  const nodeChannels = input.config.node(row.sourceIndex);
+  const sideAChannels = input.config.sideA(row.sourceIndex);
+  const sideBChannels = input.config.sideB(row.sourceIndex);
   const resolvedGroup = resolveGroup({
     frame,
     row,
     fields: ruleFields,
-    style: prepared.node.state,
-    dimensions: groupDimensions,
+    style: nodeChannels,
     featSource,
     allGroups,
-    theme: input.theme,
     locationField: input.config.locationField,
     fallbackName: sourceId,
   });
   const group = resolvedGroup.group;
-  const sourceStyle = resolvedNodeStyle(input, prepared, frame, row, groupDimensions, resolvedGroup);
-  const fixed = prepared.edge.state.config.color?.fixed;
-  const colorName =
-    dimensions.color?.get(row.rowIndex) ??
-    (fixed && input.theme.visualization.getColorByName(fixed)) ??
-    (prepared.edge.state.base.color as string);
-  const edgeMetricField = prepared.edge.state.config.color?.field;
-  const nodeMetricField = prepared.node.state.config.color?.field;
+  const sourceStyle = resolvedNodeStyle(nodeChannels, row, resolvedGroup);
+  const colorName = dimensions.color?.get(row.rowIndex) ?? (dimensions.base.color as string);
+  const edgeMetricField = dimensions.colorKey;
+  const nodeMetricField = nodeChannels.colorKey;
   const style: GraphResolvedVisualStyle = {
-    ...baseStyle(prepared.edge.state),
+    ...baseStyle(dimensions),
     color: toRGB4Array(colorName),
     ...(edgeMetricField && edgeMetricField === nodeMetricField && { group }),
     ...(dimensions.size && { size: dimensions.size.get(row.rowIndex) }),
@@ -478,24 +282,8 @@ function edgeUnitVisual(
     ...(group.width !== undefined && { size: group.width }),
     ...(group.isDashed !== undefined && { isDashed: group.isDashed }),
   };
-  const sideA = sideStyle({
-    prepared: prepared.sideA,
-    frame,
-    row,
-    theme: input.theme,
-    edge: style,
-    edgeMetricField,
-    showStat2: Boolean(input.config.showStat2),
-  });
-  const sideB = sideStyle({
-    prepared: prepared.sideB,
-    frame,
-    row,
-    theme: input.theme,
-    edge: style,
-    edgeMetricField,
-    showStat2: Boolean(input.config.showStat2),
-  });
+  const sideA = sideStyle(sideAChannels, row, style, edgeMetricField, Boolean(input.config.showStat2));
+  const sideB = sideStyle(sideBChannels, row, style, edgeMetricField, Boolean(input.config.showStat2));
   const arcStyle: GraphResolvedArcStyle = {
     arcConfig: input.config.arcConfig,
     sideA,
@@ -503,19 +291,19 @@ function edgeUnitVisual(
   };
   const metrics: GraphEdgeVisualMetrics = {
     color: rowValue(frame, row.rowIndex, edgeMetricField),
-    sideA: rowValue(frame, row.rowIndex, prepared.sideA.state.config.color?.field),
-    sideB: rowValue(frame, row.rowIndex, prepared.sideB.state.config.color?.field),
+    sideA: rowValue(frame, row.rowIndex, sideAChannels.colorKey),
+    sideB: rowValue(frame, row.rowIndex, sideBChannels.colorKey),
     capacity: rowValue(
       frame,
       row.rowIndex,
-      input.config.showStat2 ? input.config.arcConfig.capacity.field : prepared.edge.state.config.capacity?.field
+      input.config.showStat2 ? input.config.arcConfig.capacity.field : dimensions.capacityKey
     ),
   };
   const feature: BiColProps = {
     id: index,
     layerName: input.config.layerName,
     ...(input.config.layerIndex !== undefined && { layerIdx: input.config.layerIndex }),
-    frameRefId: row.frameRefId,
+    frameRefId: row.sourceKey,
     rowIndex: row.rowIndex,
     featSource,
     graph: sourceNode.parent as Graph,
@@ -536,88 +324,59 @@ function edgeUnitVisual(
   });
 }
 
-function nodeThresholds(
-  input: GraphVisualInput,
-  prepared: PreparedStyle,
-  records: readonly GraphNodeRecord[]
-): ThresholdsConfig | undefined {
-  if (!prepared.state.config.color?.field && prepared.state.config.color?.fixed) {
-    return undefined;
-  }
-  for (const record of records) {
-    const frame = rowFrame(input, record.primaryRow);
-    if (!frame) {
-      continue;
-    }
-    const dimensions = dimensionsFor(prepared, frame, record.primaryRow.frameIndex, input.theme);
-    const fieldThresholds = dimensions.color?.field?.config.thresholds;
-    const configured = prepared.state.config.color?.thresholds;
-    if (configured || fieldThresholds) {
-      return (configured ?? fieldThresholds) as ThresholdsConfig;
-    }
-  }
-  return undefined;
-}
-
 function prepareLayerVisuals(
   input: GraphVisualInput,
   config: GraphVisualConfig,
   allGroups: Rule[]
 ): PreparedLayerVisuals {
-  const layerInput: GraphVisualInput = {
-    ...input,
-    config,
-    configs: undefined,
-  };
-  const edge = prepareStyle(config.edgeStyle, input.theme);
-  const prepared: PreparedVisuals = {
-    node: prepareStyle(config.style, input.theme),
-    edge,
-    nodeArcs: new Map(),
-    sideA: config.showStat2
-      ? prepareStyle(
-          {
-            ...config.arcStyle.sideA,
-            capacity: config.arcConfig.capacity,
-          },
-          input.theme
-        )
-      : edge,
-    sideB: config.showStat2
-      ? prepareStyle(
-          {
-            ...config.arcStyle.sideB,
-            capacity: config.arcConfig.capacity,
-          },
-          input.theme
-        )
-      : edge,
-  };
   const featSource = prepareGroups(config, allGroups);
   return {
-    input: layerInput,
-    prepared,
+    input: { ...input, config },
     featSource,
     ruleFields: configuredRuleFields(featSource.getGroups, config.locationField),
   };
 }
 
 export function resolveGraphVisuals(input: GraphVisualInput): GraphStageResult<GraphVisualState> {
-  const configs = input.configs?.length ? input.configs : [input.config];
-  const allGroups: Rule[] = [];
-  const layers = configs.map((config) => prepareLayerVisuals(input, config, allGroups));
+  const configs = input.configs;
+  const patch = input.metricPatch;
+  const allGroups: Rule[] = patch
+    ? patch.previous.groups.map((group, index) => cloneRule(group, group.groupIdx ?? index))
+    : [];
+  const layers = configs.map((config, index) => {
+    if (!patch) {
+      return prepareLayerVisuals(input, config, allGroups);
+    }
+    const featSource = new FeatSource(colTypes.Markers, config.layerName);
+    featSource.setGroups(
+      patch.previous.featureSources[index].getGroups.map((group) =>
+        allGroups.find((candidate) => candidate.groupIdx === group.groupIdx)!
+      )
+    );
+    featSource.useMockData = patch.previous.featureSources[index].useMockData;
+    return {
+      input: { ...input, config },
+      featSource,
+      ruleFields: configuredRuleFields(featSource.getGroups, config.locationField),
+    };
+  });
+  const updated = (row: GraphRowRef, propertyKey?: string) =>
+    !patch ||
+    patch.updates.some(
+      (update) => sameMetricRow(update.row, row) && (propertyKey === undefined || propertyKey === update.propertyKey)
+    );
+  const previousNodes = new Map(patch?.previous.nodes.map((record) => [record.key, record]));
   const getLayer = (row: GraphRowRef) => layers[row.layerIndex ?? 0] ?? layers[0];
   const nodes = input.snapshot.nodes.flatMap((record, index) => {
     const layer = getLayer(record.primaryRow);
-    const visual = nodeVisual(
-      layer.input,
-      layer.prepared,
-      record,
-      index,
-      layer.featSource,
-      allGroups,
-      layer.ruleFields
-    );
+    const previous = previousNodes.get(record.key);
+    if (patch && !updated(record.primaryRow)) {
+      return previous ? [previous] : [];
+    }
+    let visual = nodeVisual(layer.input, record, index, layer.featSource, allGroups, layer.ruleFields);
+    if (visual && previous) {
+      visual = Object.freeze({ ...visual, feature: { ...previous.feature, ...visual.feature } });
+    }
     return visual ? [visual] : [];
   });
   const edgeUnits: Array<GraphEdgeUnitVisualRecord | undefined> = Array.from({
@@ -633,22 +392,30 @@ export function resolveGraphVisuals(input: GraphVisualInput): GraphStageResult<G
       const row = input.snapshot.relations.getUnitRow(unitRef);
       const source = input.snapshot.nodes[input.snapshot.relations.getUnitSourceNodeRef(unitRef)];
       const layer = getLayer(row);
-      const visual = edgeUnitVisual(
-        layer.input,
-        layer.prepared,
-        index,
-        unitRef,
-        row,
-        source?.key ?? '',
-        source?.id ?? '',
-        layer.featSource,
-        allGroups,
-        layer.ruleFields
-      );
+      const nodeMetric = layer.input.config.node(row.sourceIndex).colorKey;
+      const edgeMetric = layer.input.config.edge(row.sourceIndex).colorKey;
+      const previous = patch?.previous.edgeUnits[unitRef];
+      const eligible = !patch || (Boolean(nodeMetric) && nodeMetric === edgeMetric && updated(row, nodeMetric));
+      let visual = eligible
+        ? edgeUnitVisual(
+            layer.input,
+            index,
+            unitRef,
+            row,
+            source?.key ?? '',
+            source?.id ?? '',
+            layer.featSource,
+            allGroups,
+            layer.ruleFields
+          )
+        : previous;
+      if (eligible && visual && previous) {
+        visual = Object.freeze({ ...visual, feature: { ...previous.feature, ...visual.feature } });
+      }
       edgeUnits[unitRef] = visual;
       if (
         visual &&
-        row.frameIndex === primaryRow.frameIndex &&
+        row.sourceIndex === primaryRow.sourceIndex &&
         row.rowIndex === primaryRow.rowIndex &&
         row.layerIndex === primaryRow.layerIndex
       ) {
@@ -657,11 +424,14 @@ export function resolveGraphVisuals(input: GraphVisualInput): GraphStageResult<G
     }
   }
 
-  const colors = new Uint8Array(input.snapshot.nodes.length * 4);
-  const muted = new Uint8Array(input.snapshot.nodes.length * 4);
-  const annotations = new Uint8Array(input.snapshot.nodes.length * 4);
-  const groupIndices = new Uint8Array(input.snapshot.nodes.length);
+  const colors = patch?.previous.colors.slice() ?? new Uint8Array(input.snapshot.nodes.length * 4);
+  const muted = patch?.previous.muted.slice() ?? new Uint8Array(input.snapshot.nodes.length * 4);
+  const annotations = patch?.previous.annotations.slice() ?? new Uint8Array(input.snapshot.nodes.length * 4);
+  const groupIndices = patch?.previous.groupIndices.slice() ?? new Uint8Array(input.snapshot.nodes.length);
   for (const node of nodes) {
+    if (patch && !updated(node.row)) {
+      continue;
+    }
     const group = node.style.group;
     if (!group) {
       continue;
@@ -681,11 +451,13 @@ export function resolveGraphVisuals(input: GraphVisualInput): GraphStageResult<G
   layers.forEach((layer, layerIndex) => {
     const layerNodes = nodes.filter((node) => (node.row.layerIndex ?? 0) === layerIndex);
     const layerRecords = input.snapshot.nodes.filter((node) => (node.primaryRow.layerIndex ?? 0) === layerIndex);
-    const thresholds = nodeThresholds(layer.input, layer.prepared.node, layerRecords);
-    layer.featSource.setThresholds(thresholds);
+    const sourceIndex = layerRecords[0]?.primaryRow.sourceIndex;
+    layer.featSource.setColorLegend(
+      sourceIndex === undefined ? undefined : layer.input.config.node(sourceIndex).colorLegend
+    );
     layer.featSource.setFeatures(
       layerNodes.map((node) => node.feature),
-      layerNodes[0]?.row.frameRefId
+      layerNodes[0]?.row.sourceKey
     );
     layer.featSource.setPositionRanges(layerNodes.map((node) => [node.index, node.index + 1]));
   });

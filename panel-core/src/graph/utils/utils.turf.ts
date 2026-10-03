@@ -1,11 +1,11 @@
 import { getNodeData } from '../structs/graphOps';
 
-function SingleCoordsConvert(pathItem: any, panel: any, mode2D = true) {
+function SingleCoordsConvert(pathItem: any, positions: Float64Array, mode2D = true) {
   if (pathItem.id) {
     // node
     const wasmId = getNodeData(pathItem)!.wasmId;
-    const lng = panel.positions[wasmId * 2];
-    const lat = panel.positions[wasmId * 2 + 1];
+    const lng = positions[wasmId * 2];
+    const lat = positions[wasmId * 2 + 1];
     if (lng !== undefined && !lat !== undefined) {
       return [lng, lat];
     }

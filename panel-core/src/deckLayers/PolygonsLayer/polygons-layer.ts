@@ -2,7 +2,7 @@ import { toRGB4Array } from '../utils/color';
 import { isVisible } from '../utils/visibility';
 import { PolygonLayer } from '@deck.gl/layers';
 import { DARK_HULL_HIGHLIGHT, LIGHT_HULL_HIGHLIGHT } from '../../types/defaults';
-import { colTypes } from '@mapgl/panel-core/types';
+import { colTypes } from '../../types/index';
 
 const ICON_MAPPING = {
   marker: { x: 0, y: 0, width: 128, height: 128, mask: true },
@@ -19,7 +19,7 @@ const MyPolygonsLayer = (props) => {
     setHoverInfo,
     setHoverCluster,
     setTooltipObject,
-    theme2,
+    isDark,
     panel,
     getVisLayers,
     index,
@@ -58,7 +58,7 @@ const MyPolygonsLayer = (props) => {
     stroked: colType !== colTypes.Hull,
     getFillColor: (d) => {
       if (colType === colTypes.Hull) {
-        return toRGB4Array(theme2.isDark ? DARK_HULL_HIGHLIGHT : LIGHT_HULL_HIGHLIGHT, 1);
+        return toRGB4Array(isDark ? DARK_HULL_HIGHLIGHT : LIGHT_HULL_HIGHLIGHT, 1);
       }
 
       const { style } = d.properties;

@@ -1,10 +1,15 @@
-import type { GrafanaTheme2 } from '@grafana/data';
-
-import type { Rule } from '../../editor';
-import type { ExtendMapLayerOptions } from '../../extension';
+import type { Rule } from '../../style/groups/ruleTypes';
+interface GraphLayoutConfig {
+  readonly config?: unknown;
+}
 import type { BiColProps, CommentsData, ComFeature } from '../../types';
 import type { FeatSource, Graph, GraphEdgeIndex } from '../main';
-import { requestGraphLayout, type AutolayoutOptions, type LayoutArrowTips } from '../utils/layout-worker-client';
+import {
+  type GraphLayoutRequestInput,
+  type GraphLayoutWorkerResult,
+  type AutolayoutOptions,
+  type LayoutArrowTips,
+} from '../utils/layout-worker-client';
 import type { LayoutCurveGroup, LayoutGraphResult } from '../utils/layout-worker-types';
 import type { GraphPipelineLayoutContext, GraphPipelineRenderContext, GraphPipelineState } from './pipeline';
 import type { GraphFrameSnapshot, GraphVisualState } from './types';
@@ -48,15 +53,16 @@ function unchangedLayoutState(positions: Float64Array): GraphPanelLayoutState {
 
 export async function resolveGraphPanelLayout(
   context: GraphPipelineLayoutContext,
-  basemap: ExtendMapLayerOptions | undefined
+  basemap: GraphLayoutConfig | undefined,
+  requestLayout: (input: GraphLayoutRequestInput) => Promise<GraphLayoutWorkerResult | undefined>
 ): Promise<GraphPanelLayoutState> {
-  if (!context.input.options.isLogic) {
+  applyGraphVisualState(context.graph, context.visual);
+
+  if (!context.input.layers[0].options.isLogic) {
     return unchangedLayoutState(context.graph.positions);
   }
 
-  applyGraphVisualState(context.graph, context.visual);
-
-  const result = await requestGraphLayout({
+  const result = await requestLayout({
     graph: context.graph.graph,
     positionsLength: context.graph.positions.length,
     autolayout: basemap?.config as AutolayoutOptions | undefined,
@@ -67,14 +73,14 @@ export async function resolveGraphPanelLayout(
 export function createGraphPanelRenderState(
   context: GraphPipelineRenderContext<GraphPanelLayoutState>
 ): GraphPanelRenderState {
-  const commentFeatures = context.input.options.isLogic
+  const commentFeatures = context.input.layers[0].options.isLogic
     ? []
     : createCommentFeatures({
         mode: 'frame',
         snapshot: context.snapshot,
         visual: context.visual,
         edgeIndex: context.graph.edgeIndex,
-        theme: context.input.theme,
+        resolveColor: context.input.resolveColor,
       });
 
   return Object.freeze({
@@ -97,7 +103,7 @@ export function createGraphPanelRenderState(
   });
 }
 
-export function createGraphLayoutSignature(basemap?: ExtendMapLayerOptions): string {
+export function createGraphLayoutSignature(basemap?: GraphLayoutConfig): string {
   const config = basemap?.config as
     | {
         edgeRouting?: unknown;
@@ -117,7 +123,7 @@ export function createGraphLayoutSignature(basemap?: ExtendMapLayerOptions): str
 export function createGraphViewportFitSignature(
   snapshot: GraphFrameSnapshot,
   isLogic: boolean,
-  basemap?: ExtendMapLayerOptions
+  basemap?: GraphLayoutConfig
 ): string {
   return JSON.stringify([
     isLogic,
@@ -133,7 +139,7 @@ type CommentFeatureInput =
       snapshot: GraphFrameSnapshot;
       visual: GraphVisualState;
       edgeIndex: GraphEdgeIndex;
-      theme?: GrafanaTheme2;
+      resolveColor?: (name: string) => string;
     }
   | {
       mode: 'live';
@@ -208,10 +214,7 @@ export function createCommentFeatures(input: CommentFeatureInput): ComFeature[] 
           graph,
           locName: visual.feature.locName,
           index: cursor.itemIndex,
-          iconColor:
-            typeof iconColor === 'string'
-              ? (input.theme?.visualization.getColorByName(iconColor) ?? '#4ec2fc')
-              : '#4ec2fc',
+          iconColor: typeof iconColor === 'string' ? (input.resolveColor?.(iconColor) ?? '#4ec2fc') : '#4ec2fc',
           style: visual.feature.style,
           coords: [
             input.snapshot.relations.getCoordinateLongitude(coordinateRef),

@@ -1,6 +1,5 @@
 import { GeoJsonLayer, TextLayer } from '@deck.gl/layers';
 import { CollisionFilterExtension, DataFilterExtension } from '@deck.gl/extensions';
-import { FieldColorModeId } from '@grafana/data';
 import { getNsPrefixes } from '../../graph/utils/utils.graph';
 
 import { getPackedSvgIcon } from './svgIconAtlas';
@@ -39,7 +38,7 @@ import {
   getResolvedUserIconBoxSize,
 } from './nodeGeometry';
 import { Matrix4 } from '@math.gl/core';
-import { colTypes } from '@mapgl/panel-core/types';
+import { colTypes } from '../../types/index';
 import { resolveArcOptions } from '../../style/types';
 
 type LogicTextDatum = {
@@ -272,7 +271,7 @@ const NodesGeojsonLayer = (props) => {
   const getNodeDonutGaugeOptions = (d: any, info?: { index?: number }) => {
     const arcOptions = resolveArcOptions(getResolvedNodeArcOptions(d, pointProperties, featureIds, info?.index));
     const gauge = getResolvedNodeGauge(d, pointProperties, featureIds, info?.index);
-    const gradient = gauge?.colorMode !== FieldColorModeId.Thresholds || arcOptions.gradient;
+    const gradient = gauge?.colorMode !== 'thresholds' || arcOptions.gradient;
     return [
       arcOptions.barWidthFactor,
       arcOptions.segments,
@@ -447,7 +446,7 @@ const PlaceholderTextLayer = (props) => {
     pickable,
     onHover,
     autoHighlight,
-    theme,
+    textColor,
     visRefresh,
     idSuffix = '',
   } = props;
@@ -458,9 +457,7 @@ const PlaceholderTextLayer = (props) => {
 
   const selectedNodeId = getSelectedNode?.id;
   const logicTextData = buildLogicTextLayerData(biCol, selectedNodeId, SVG);
-  const gaugeTextColor = theme?.colors?.text?.primary
-    ? toRGB4Array(theme.colors.text.primary, 1)
-    : ([240, 240, 240, 255] as const);
+  const gaugeTextColor = textColor ? toRGB4Array(textColor, 1) : ([240, 240, 240, 255] as const);
 
   const modelMatrix = new Matrix4();
   const srcGraphId = biCol.graph.id;
@@ -499,7 +496,7 @@ const PlaceholderTextLayer = (props) => {
     },
     updateTriggers: {
       getText: [biCol?.points?.properties, SVG, visRefresh],
-      getColor: [theme?.colors?.text?.primary],
+      getColor: [textColor],
       getContentBox: [selectedNodeId, biCol?.points?.properties, visRefresh],
       getSize: [selectedNodeId, biCol?.points?.properties, visRefresh],
     },

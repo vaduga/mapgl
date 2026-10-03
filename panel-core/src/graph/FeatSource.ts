@@ -1,5 +1,4 @@
-import { colTypes, Feature, BiColProps } from '@mapgl/panel-core/types';
-import type { ThresholdsConfig } from '@grafana/data';
+import { colTypes, Feature, BiColProps } from '../types/index';
 
 export class FeatSource {
   colType: colTypes;
@@ -7,7 +6,7 @@ export class FeatSource {
   frameRefId?: string;
   features: BiColProps[] | Feature[] = [];
   positionRanges: number[][] = [];
-  colorThresholds?: ThresholdsConfig;
+  colorLegend?: ReadonlyArray<{ color: string; value: number | null }>;
   useMockData = false;
 
   groups: any[] = [];
@@ -15,7 +14,7 @@ export class FeatSource {
   constructor(colType: any, layerName: string) {
     this.colType = colType;
     this.layerName = layerName;
-    this.setThresholds = this.setThresholds.bind(this);
+    this.setColorLegend = this.setColorLegend.bind(this);
     this.setFeatures = this.setFeatures.bind(this);
     this.setPositionRanges = this.setPositionRanges.bind(this);
   }
@@ -32,8 +31,8 @@ export class FeatSource {
     return this.groups;
   }
 
-  setThresholds = (colorThresholds: any | undefined): void => {
-    this.colorThresholds = colorThresholds ?? {};
+  setColorLegend = (colorLegend: ReadonlyArray<{ color: string; value: number | null }> | undefined): void => {
+    this.colorLegend = colorLegend;
   };
 
   setFeatures(features: BiColProps[] | Feature[], frameRefId: string | undefined) {

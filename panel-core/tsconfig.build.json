@@ -1,5 +1,4 @@
 {
-  "extends": "@grafana/tsconfig",
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
@@ -13,19 +12,24 @@
     "useDefineForClassFields": false,
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "customConditions": ["development"],
     "noImplicitAny": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "removeComments": false,
     "resolveJsonModule": true,
-    "paths": {
-      "@mapgl/panel-core": ["./src/index.ts"],
-      "@mapgl/panel-core/featureContracts": ["./src/extension-points/featureContracts.ts"],
-      "@mapgl/panel-core/graph": ["./src/graph/main.ts"],
-      "@mapgl/panel-core/graph/packed-relations": ["./src/graph/frame/packedRelationReaders.ts"],
-      "@mapgl/panel-core/*": ["./src/*"]
-    }
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["src"],
-  "exclude": ["src/**/*.test.*", "src/**/*.spec.*", "src/**/__tests__/**"]
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "src/**/*.test.*",
+    "src/**/*.spec.*",
+    "src/**/__tests__/**"
+  ]
 }

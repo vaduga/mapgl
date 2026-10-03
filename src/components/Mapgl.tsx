@@ -1,43 +1,43 @@
-import { MapglViewport } from '@mapgl/panel-core/render/MapglViewport';
-import {
-  LayerSwitcher,
-  Menu,
-  Tooltip,
-  GraphFrameDiagnostics,
-} from '@mapgl/panel-core/components';
+import { resolvePickingFocus } from '@vaduga/mapgl-core/runtime';
+import { LayerSwitcher, MapglViewport } from '@vaduga/mapgl-core/components';
+import { getStyles } from '@vaduga/mapgl-core/render';
+import { Menu, Tooltip, GraphFrameDiagnostics } from '@vaduga/mapgl-grafana-adapter/components';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useStyles2, useTheme2 } from '@grafana/ui';
 import { observer } from 'mobx-react-lite';
 import type { DeckGLRef } from '@deck.gl/react';
 
 import { genPrimaryLayers, expandTooltip } from '../utils';
-import { useRootStore } from '@mapgl/panel-core/store';
-import { getDimmedGraphLayers } from '@mapgl/panel-core/deckLayers';
-import { toRGB4Array } from '@mapgl/panel-core/deckLayers/utils';
-import { DARK_AUTO_HIGHLIGHT, LIGHT_AUTO_HIGHLIGHT } from '@mapgl/panel-core/types/defaults';
-import { colTypes, type ViewState, type ComFeature } from '@mapgl/panel-core/types';
-import { getEdgesGeometry } from '@mapgl/panel-core/graph/utils';
-import { getGraphVersion, type Graph } from '@mapgl/panel-core/graph';
+import { useRootStore } from '@vaduga/mapgl-core/store';
+import { getDimmedGraphLayers } from '@vaduga/mapgl-core/deckLayers';
+import { toRGB4Array } from '@vaduga/mapgl-core/deckLayers/utils';
+import { DARK_AUTO_HIGHLIGHT, LIGHT_AUTO_HIGHLIGHT } from '@vaduga/mapgl-core/types/defaults';
+import { colTypes, type ViewState, type ComFeature } from '@vaduga/mapgl-grafana-adapter/types';
+import { getEdgesGeometry } from '@vaduga/mapgl-core/graph/utils';
+import { getGraphVersion, type Graph } from '@vaduga/mapgl-core/graph/main';
 import { Layer } from '@deck.gl/core';
-import { selectGotoHandler } from '@mapgl/panel-core/utils';
+import { selectGotoHandler } from '@vaduga/mapgl-grafana-adapter/utils';
 import {
   buildGraphBinaryCollections,
   useNodeLegendClick,
   buildSecondaryLayers,
   composeRenderLayers,
-  getStyles,
+  getThemeVariables,
   LegendStack,
   PositionStatus,
   useDelayedHover,
   useLatestRenderCommit,
   useEventState,
+  createGroupLegend,
   useSvgIconRefresh,
   useFullscreenPortalBridge,
-} from '@mapgl/panel-core/render';
+  getMapLibreAssets,
+} from '@vaduga/mapgl-grafana-adapter/render';
 import { GraphDomObservability } from './GraphDomObservability';
 
 const Mapgl = ({
   panel,
+  subscriptions,
   annots,
   initMapRef,
   fieldConfig,
@@ -50,39 +50,36 @@ const Mapgl = ({
 }) => {
   const rootStore = useRootStore();
   const { pointStore, viewStore } = rootStore;
-  const { setVisRefresh: setMobxLegendRefresh } = viewStore;
+  const { setVisRefresh: setMobxLegendRefresh } = rootStore.viewStore;
 
   const { hideDiagnostics, isShowEdgeLegend, isShowLegend, isShowSwitcher } = options.common || {};
   const s = useStyles2(getStyles);
   const theme2 = useTheme2();
-  const {
-    //<editor-fold desc="store imports">
-    getTooltipObject,
-    setSelCoord,
-    getSelectedNode,
-    getSelectedIdxs,
-    getSelEdges,
-    setFocusedNodeFromPickingInfo,
-    refreshGraphHighlighter,
-    setTooltipObject,
-    getSelCoord,
-    isDefDir,
-    //</editor-fold>
-  } = pointStore;
+  const themeVars = useMemo(() => getThemeVariables(theme2), [theme2]);
+  const { getTooltipObject, setSelCoord, setTooltipObject, getSelCoord } = pointStore;
+  const { getSelectedNode, getSelectedIdxs, getSelEdges, refreshGraphHighlighter, isDefDir } = rootStore.pointStore;
 
-  const { getViewState, getTime, getGroupsLegend } = viewStore;
-  const { isLogic, visLayers } = panel;
+  const { getViewState } = rootStore.viewStore;
+  const { isLogic } = panel;
+  const visLayers = panel.scene.visibility;
   const graphRuntime = panel.graphFrameRuntime;
-  const committedRender = graphRuntime?.render.state;
-  const graph = committedRender?.graph ?? panel.graph;
+  const committedRender = panel.scene.render;
+  const graph = committedRender.graph;
+  const getGroupsLegend = createGroupLegend(
+    graph,
+    committedRender.groups,
+    panel.scene.visibility.getActiveGroups(),
+    Boolean(options.dataLayers.length),
+    Boolean(data.annotations?.length)
+  );
   const committedVersion = graphRuntime?.version ?? -1;
-  const positions = committedRender?.positions ?? panel.positions;
-  const features = committedRender?.features ?? panel.features;
-  const colors = committedRender?.colors ?? panel.colors;
-  const muted = committedRender?.muted ?? panel.muted;
-  const groupIndices = committedRender?.groupIndices ?? panel.groupIndices;
-  const annotationColors = panel.annots ?? committedRender?.annotations;
-  const hidePendingLogicLayout = isLogic && !panel.layoutReady && !panel.layoutDisplayReady;
+  const positions = committedRender.positions;
+  const features = committedRender.features;
+  const colors = committedRender.colors;
+  const muted = committedRender.muted;
+  const groupIndices = committedRender.groupIndices;
+  const annotationColors = committedRender.annotations;
+  const hidePendingLogicLayout = isLogic && !panel.scene.ready && !panel.scene.displayReady;
   const graphVersion = getGraphVersion(graph);
   const clusters = Array.from(graph.subgraphsBreadthFirst()) as Graph[];
   const graphs: Graph[] = [graph as Graph].concat(clusters);
@@ -99,10 +96,11 @@ const Mapgl = ({
   const [layers, setLayers] = useState<Layer[]>([]);
   const [localViewState, setLocalViewState] = useState<ViewState>(getViewState);
   const { time, edgeLegend } = useEventState({
+    data,
+    subscriptions,
     eventBus,
     fieldConfig,
     theme: theme2,
-    initialTime: getTime,
   });
   const hasAnnots = !!data.annotations?.length;
   const layerCount = panel.layers.length;
@@ -116,7 +114,7 @@ const Mapgl = ({
       time,
       annotationTables: annots,
       annotationGraphs: graphs,
-      annotationBuffer: panel.annots,
+      annotationBuffer: panel.scene.render.annotations,
       onAnnotationsApplied: () => setVisRefresh((refresh) => refresh + 1),
     });
   }, [time, annots, committedVersion, hasAnnots]);
@@ -145,19 +143,32 @@ const Mapgl = ({
     //</editor-fold>
   };
 
-  const focusHoveredElement = useDelayedHover(setFocusedNodeFromPickingInfo);
+  const focusHoveredElement = useDelayedHover((info) => {
+    rootStore.pointStore.focus(resolvePickingFocus(panel.scene, info));
+  });
   const onDeckHover = useCallback(
     (info: any) => {
       setHoverInfo(info);
       focusHoveredElement(info);
     },
-    [focusHoveredElement]
+    [focusHoveredElement, setHoverInfo]
   );
 
   const layerProps = {
     //<editor-fold desc="layerProps">
     ...dataClickProps,
     theme2,
+    isDark: theme2.isDark,
+    textColor: theme2.colors.text.primary,
+    featureServices: panel.featureServices,
+    usesRendererNamespaceFiltering: panel.scene.projection?.rendererFiltering !== 'none',
+    layoutGeometry: {
+      curveGroups: panel.scene.render.curveGroups,
+      edgeKeys: panel.scene.render.edgeKeys,
+      edgeIndexes: panel.scene.render.edgeIndexes,
+      edgeOffsetStrategies: panel.featureServices.edgeOffsetStrategies,
+    },
+    overlayEnabled: hasAnnots && !getGroupsLegend?.at(-1)?.disabled,
     graph,
     panel,
     pickable: true,
@@ -185,16 +196,16 @@ const Mapgl = ({
     //</editor-fold>
   };
 
-  const focusRevision = pointStore.getFocusRevision;
-  const hasFocusHighlight = pointStore.getHasFocusHighlight;
+  const focusRevision = rootStore.pointStore.getFocusRevision;
+  const hasFocusHighlight = rootStore.pointStore.getHasFocusHighlight;
   const canDimGraph = hasFocusHighlight && (isLogic || (!isLogic && !isRouted));
 
   const renderedLayers = useMemo(() => {
     return (
       canDimGraph
         ? getDimmedGraphLayers(layers, {
-            connectedNodeIds: pointStore.getFocusedConnectedNodeIds,
-            connectedEdgeIndexes: pointStore.getFocusedConnectedEdgeIndexes,
+            connectedNodeIds: rootStore.pointStore.getFocusedConnectedNodeIds,
+            connectedEdgeIndexes: rootStore.pointStore.getFocusedConnectedEdgeIndexes,
             isRouted,
           })
         : layers
@@ -215,7 +226,24 @@ const Mapgl = ({
   const commitLayerBuild = useLatestRenderCommit<Layer[]>(setLayers, (error) => console.error(error));
   const getLayers = () => {
     const secondary = buildSecondaryLayers({ isLogic, layers: panel.layers, layerProps });
-    const edgesGeometry = hidePendingLogicLayout ? [{}, {}] : getEdgesGeometry(panel);
+    const edgesGeometry = hidePendingLogicLayout
+      ? [{}, {}]
+      : getEdgesGeometry({
+          graph,
+          edgeIndex: committedRender.edgeIndex,
+          positions,
+          isLogic,
+          visibleNamespaces: visLayers.getVisibleNamespaces(),
+          layerShift: panel.scene.layerShift,
+          projection: panel.scene.projection,
+          layout: committedRender,
+          layoutReady: panel.scene.ready || panel.scene.displayReady,
+          layoutIncludesProjection: panel.scene.layoutIncludesProjection,
+          snapshot: graphRuntime?.snapshot,
+          resolveRoute: panel.graphRouteProvider ? (edge) => panel.graphRouteProvider.getEdgeRoute(edge) : undefined,
+          edgeOffsetStrategies: panel.featureServices.edgeOffsetStrategies,
+          terminalGeometryStrategies: panel.featureServices.projectedTerminalGeometryStrategies,
+        });
     const initLineFeatures: any = isRouted ? edgesGeometry[0] : edgesGeometry[1];
     refreshGraphHighlighter();
 
@@ -265,19 +293,22 @@ const Mapgl = ({
     return (
       <LayerSwitcher
         {...{
-          theme: theme2,
           label: 'layers',
           className: '',
-          panel,
-          commentFeatures: panel.commentFeatures,
+          bindings: {
+            visibility: visLayers,
+            readComments: () => panel.scene.render.commentFeatures,
+            setVisibility: (layer, visible, style) => panel.setVisibility(layer, visible, style),
+          },
+          commentFeatures: panel.scene.render.commentFeatures,
           setVisRefresh,
         }}
       />
     );
-  }, [visLayers, panel.commentFeatures]);
+  }, [visLayers, panel.scene.render.commentFeatures]);
 
   const memoMenu = useMemo(() => {
-    return <Menu eventBus={eventBus} {...{ options, data, panel, rootStore }} />;
+    return <Menu graph={graph} panelId={panel.props.id} eventBus={eventBus} {...{ options, data, panel, rootStore }} />;
   }, [options, panel.layers, graphVersion, data, rootStore]);
 
   const onLabelClick = useNodeLegendClick({
@@ -292,6 +323,7 @@ const Mapgl = ({
   return (
     <GraphDomObservability
       className={isLogic ? s.container : `${s.container} ${s.geoContainer}`}
+      style={themeVars}
       colors={colors}
       edgeRevision={committedVersion + graphVersion}
       features={features}
@@ -299,8 +331,8 @@ const Mapgl = ({
       isRouted={isRouted}
       layoutDirection={options.basemap?.config?.layoutDirection}
       nodes={panel.graphFrameInstanceState.snapshot?.nodes}
-      phase={panel.graphFrameView.phase}
-      summary={panel.graphFrameView.summary}
+      phase={panel.scene.view.phase}
+      summary={panel.scene.view.summary}
       visibleNamespaces={visLayers.getCategories()[1]}
       ref={containerRef}
       onInspectNode={(index, feature) => {
@@ -316,18 +348,19 @@ const Mapgl = ({
       }}
     >
       <MapglViewport
+        mapLibreAssets={getMapLibreAssets()}
         {...{ isLogic, localViewState, fullscreenContainer, deckRef, renderedLayers, source, onMapLoad }}
-        layoutInProgress={panel.layoutInProgress}
-        theme={theme2}
+        layoutInProgress={panel.scene.pending}
         classes={s}
         onClick={(info) => expandTooltip(info, panel, eventBus, dataClickProps, selectGotoHandler)}
       />
 
-      <div className={panel.graphFrameView.phase === 'empty' ? s.graphEmptyState : s.graphDiagnostics}>
-        <GraphFrameDiagnostics state={panel.graphFrameView} editing={editing} hideDiagnostics={hideDiagnostics} />
+      <div className={panel.scene.view.phase === 'empty' ? s.graphEmptyState : s.graphDiagnostics}>
+        <GraphFrameDiagnostics state={panel.scene.view} editing={editing} hideDiagnostics={hideDiagnostics} />
       </div>
 
       <Tooltip
+        panelId={panel.props.id}
         data={data}
         panel={panel}
         time={time}
@@ -350,7 +383,7 @@ const Mapgl = ({
         classes={s}
       />
 
-      {!panel.layoutInProgress && memoMenu}
+      {!panel.scene.pending && memoMenu}
       <PositionStatus
         className={s.timeNcoords}
         groupsLegend={getGroupsLegend}

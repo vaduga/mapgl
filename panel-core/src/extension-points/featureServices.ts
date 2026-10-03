@@ -29,7 +29,7 @@ export function validateMapglFeatureIds(features: readonly MapglPanelFeature[]):
   validateIds(features, 'features');
 }
 
-function validateIds(entries: readonly { id: string }[], group: string): void {
+function validateIds(entries: ReadonlyArray<{ id: string }>, group: string): void {
   const seen = new Set<string>();
   for (const entry of entries) {
     if (!entry.id || entry.id !== entry.id.trim() || seen.has(entry.id)) {

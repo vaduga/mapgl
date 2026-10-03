@@ -19,7 +19,7 @@ const nodeRefByKey = new Map(nodeIds.map((id, index) => [key(id), index] as cons
 const nodeIdAt = (nodeRef: number) => nodeIds[nodeRef];
 
 function row(rowIndex: number): GraphRowRef {
-  return { frameIndex: 0, frameRefId: 'Packed', rowIndex };
+  return { revision: 'packed-test', sourceIndex: 0, sourceKey: 'Packed', rowIndex };
 }
 
 function begin(
@@ -50,8 +50,8 @@ function begin(
     explicitId,
     diagnosticContext: {
       layerName: 'packed test',
-      frameIndex: 0,
-      frameRefId: 'Packed',
+      sourceIndex: 0,
+      sourceKey: 'Packed',
       fieldName: 'target',
       rowIndex,
     },

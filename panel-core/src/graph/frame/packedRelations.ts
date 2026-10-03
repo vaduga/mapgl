@@ -128,7 +128,7 @@ class RowInterner {
   constructor(private readonly maximum: number) {}
 
   intern(row: GraphRowRef): number {
-    const key = `${row.frameIndex}\u0000${row.frameRefId ?? ''}\u0000${row.rowIndex}\u0000${row.layerIndex ?? ''}`;
+    const key = `${row.revision}\u0000${row.sourceIndex}\u0000${row.sourceKey ?? ''}\u0000${row.rowIndex}\u0000${row.layerIndex ?? ''}`;
     const existing = this.refs.get(key);
     if (existing !== undefined) {
       return existing;

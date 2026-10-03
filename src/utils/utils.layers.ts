@@ -1,21 +1,21 @@
-import { isVisible, toRGB4Array } from '@mapgl/panel-core/deckLayers/utils';
-import { GeoJsonLayer, PathLayer, TextLayer } from '@deck.gl/layers';
 import type { Layer } from '@deck.gl/core';
-import { getGraphNsLabel, type Graph } from '@mapgl/panel-core/graph';
-import { getMapglFeatureServices, getNamespaceBoundaries } from '@mapgl/panel-core';
-import { BBOX_OUTLINE_COLOR, BBOX_OUTLINE_WIDTH } from '@mapgl/panel-core/types/defaults';
-import { type DeckLine, colTypes } from '@mapgl/panel-core/types';
+import { GeoJsonLayer, PathLayer, TextLayer } from '@deck.gl/layers';
+import type { RenderLayerBundle } from '@vaduga/mapgl-grafana-adapter/render';
+import { colTypes, type DeckLine } from '@vaduga/mapgl-grafana-adapter/types';
 import {
+  EdgeArrowLayer,
+  EdgesGeojsonLayer,
   LineTextLayer,
+  MainLabelTextLayer,
   MyArcLayer,
   MyIconLayer,
-  EdgesGeojsonLayer,
-  EdgeArrowLayer,
   NodesGeojsonLayer,
-  MainLabelTextLayer,
   PlaceholderTextLayer,
-} from '@mapgl/panel-core/deckLayers';
-import type { RenderLayerBundle } from '@mapgl/panel-core/render';
+} from '@vaduga/mapgl-core/deckLayers';
+import { isVisible, toRGB4Array } from '@vaduga/mapgl-core/deckLayers/utils';
+import { getGraphNsLabel, type Graph } from '@vaduga/mapgl-core/graph/main';
+import { getNamespaceBoundaries } from '@vaduga/mapgl-core';
+import { BBOX_OUTLINE_COLOR, BBOX_OUTLINE_WIDTH } from '@vaduga/mapgl-core/types/defaults';
 
 function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps }): RenderLayerBundle {
   let comments;
@@ -57,18 +57,19 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
     }
   }
 
-  const { visLayers, graph } = panel;
+  const visLayers = panel.scene.visibility;
+  const graph = panel.scene.render.graph;
   const clusters = Array.from(graph.subgraphsBreadthFirst()) as Graph[];
   const graphs: Graph[] = clusters.concat([graph as Graph]);
 
   /// Bboxes polygons
-  if (isLogic && panel.layoutReady) {
-    const boundaries = getNamespaceBoundaries(getMapglFeatureServices().namespaceBoundaryProviders, {
+  if (isLogic && panel.scene.ready) {
+    const boundaries = getNamespaceBoundaries(layerProps.featureServices.namespaceBoundaryProviders, {
       graph,
       visibleNamespaces: new Set(visLayers.getCategories()[1]),
-      positions: panel.positions,
-      layoutGraphBounds: panel.layoutGraphBounds,
-      layerShift: panel.layerShift,
+      positions: panel.scene.render.positions,
+      layoutGraphBounds: panel.scene.render.graphBounds,
+      layerShift: panel.scene.layerShift,
     });
     const graphById = new Map(clusters.map((cluster) => [cluster.id, cluster]));
     const features = boundaries.flatMap((boundary) => {
@@ -150,7 +151,7 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
           LineTextLayer({
             id: 'bbox-' + id,
             data,
-            theme,
+            isDark: theme.isDark,
             visible: true,
             baseLayer: layerProps.baseLayer,
             isLogic,
@@ -206,7 +207,7 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
             isLogic,
             options,
             baseLayer,
-            theme,
+            isDark: theme.isDark,
           })
         );
       } else {
@@ -219,7 +220,7 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
           ...layerProps,
           srcGraphId,
           linesCollection,
-          edgeIndex: panel.graphEdgeIndex,
+          edgeIndex: panel.scene.render.edgeIndex,
           visible,
         };
 
@@ -247,5 +248,5 @@ function genPrimaryLayers({ biCols, lineFeatures, commentFeatures, layerProps })
   };
 }
 
-export { genVisLayers, createDerivedLayers } from '@mapgl/panel-core/utils';
+export { createDerivedLayers, genVisLayers } from '@vaduga/mapgl-grafana-adapter/utils';
 export { genPrimaryLayers };

@@ -1,26 +1,21 @@
-import type { DataFrame, Field, GrafanaTheme2 } from '@grafana/data';
 import type { Node } from '@msagl/core';
 
-import type { Rule } from '../../editor/Groups/ruleTypes';
+import type { Rule } from '../../style/groups/ruleTypes';
 import type { GraphEdgeIndex } from '../GraphEdgeIndex';
 import type { FeatSource } from '../FeatSource';
 import type { Graph } from '../structs/graph';
-import type { ArcOptionsConfig, StyleConfig, StyleConfigValues } from '../../style/types';
+import type { ArcOptionsConfig, StyleConfigValues } from '../../style/types';
 import type { BiColProps, RGBAColor } from '../../types';
 import type { PackedGraphRelations } from './packedRelations';
 
 export type GraphPosition = readonly [number, number];
 
-export interface GraphRowRef {
-  readonly frameIndex: number;
-  readonly frameRefId?: string;
-  readonly rowIndex: number;
-  readonly layerIndex?: number;
-}
+export type GraphRowRef = import('../../data/sources').SourceRow;
 
 export interface GraphFrameRef {
-  readonly frameIndex: number;
-  readonly frameRefId?: string;
+  readonly revision: string;
+  readonly sourceIndex: number;
+  readonly sourceKey: string;
   readonly rowCount: number;
   readonly layerIndex?: number;
 }
@@ -28,8 +23,8 @@ export interface GraphFrameRef {
 export interface GraphFrameDiagnosticContext {
   readonly layerName?: string;
   readonly layerIndex?: number;
-  readonly frameIndex?: number;
-  readonly frameRefId?: string;
+  readonly sourceIndex?: number;
+  readonly sourceKey?: string;
   readonly fieldName?: string;
   readonly rowIndex?: number;
 }
@@ -63,31 +58,6 @@ export interface GraphFrameDiagnostic {
   readonly message: string;
   readonly count: number;
   readonly examples: readonly GraphFrameDiagnosticExample[];
-}
-
-export interface GraphFrameSelection {
-  readonly frame: DataFrame;
-  readonly frameIndex: number;
-}
-
-export interface GraphResolvedFrame {
-  readonly selection: GraphFrameSelection;
-  readonly nodeId: Field;
-  readonly target?: Field;
-  readonly edgeId?: Field;
-  readonly sourceNamespace?: Field;
-  readonly targetNamespace?: Field;
-  readonly location: GraphResolvedLocation;
-}
-
-export interface GraphResolvedLocation {
-  readonly geojson?: Field;
-  readonly geo?: Field;
-  readonly geohash?: Field;
-  readonly longitude?: Field;
-  readonly latitude?: Field;
-  readonly lookup?: Field;
-  readonly findLookup?: (value: string) => GraphPosition | undefined;
 }
 
 export interface GraphNodeRecord {
@@ -152,33 +122,9 @@ export interface GraphFrameInstanceState extends GraphFrameViewState {
   readonly render?: GraphFrameRenderInputs;
 }
 
-export interface GraphFrameMatcherConfig {
-  readonly id: string;
-  readonly options?: unknown;
-}
-
-export interface GraphFrameLocationOptions {
-  readonly mode?: string;
-  readonly geohash?: string;
-  readonly latitude?: string;
-  readonly longitude?: string;
-  readonly lookup?: string;
-  readonly gazetteer?: string;
-  readonly geojson?: string;
-  readonly h3?: string;
-  readonly wkt?: string;
-}
-
 export interface GraphFrameOptions {
   readonly layerName?: string;
-  readonly query?: GraphFrameMatcherConfig;
-  readonly nodeIdField: string;
-  readonly targetField?: string;
-  readonly edgeIdField?: string;
-  readonly sourceNamespaceField?: string;
-  readonly targetNamespaceField?: string;
   readonly namespaceSeparator?: string;
-  readonly location?: GraphFrameLocationOptions;
   readonly defaultNamespace?: string;
   readonly isLogic: boolean;
   readonly layoutSignature?: string;
@@ -198,19 +144,6 @@ export interface GraphStageSuccess<T> {
 }
 
 export type GraphStageResult<T> = GraphFatalResult | GraphStageSuccess<T>;
-
-export interface GraphNormalizationInput {
-  readonly data: {
-    readonly series: readonly DataFrame[];
-  };
-  readonly options: GraphFrameOptions;
-  readonly normalizationLayers?: readonly GraphNormalizationLayer[];
-}
-
-export interface GraphNormalizationLayer {
-  readonly layerIndex: number;
-  readonly options: GraphFrameOptions;
-}
 
 export interface GraphPositionRange {
   readonly namespaceId: string;
@@ -251,32 +184,50 @@ export interface GraphArcConfig {
   };
 }
 
+/** Compiled channels are bound to one source revision and contain no host configuration. */
+export interface GraphStyleChannels {
+  readonly scope: { readonly revision: string; readonly sourceIndex: number; readonly sourceKey: string };
+
+  readonly base: StyleConfigValues;
+  readonly colorKey?: string;
+  readonly capacityKey?: string;
+  readonly isFixed: boolean;
+  readonly color?: { get(rowIndex: number): string };
+  readonly size?: { get(rowIndex: number): number };
+  readonly text?: { get(rowIndex: number): string };
+  readonly symbol?: { get(rowIndex: number): string | undefined };
+  readonly arcs?: ReadonlyArray<{ get(rowIndex: number): string | undefined }>;
+  readonly arcOptions?: ArcOptionsConfig;
+  readonly gauge?: { get(rowIndex: number): GraphResolvedNodeGauge };
+  readonly colorLegend?: ReadonlyArray<{ color: string; value: number | null }>;
+}
+
 export interface GraphVisualConfig {
   readonly layerName: string;
   readonly layerIndex?: number;
   readonly locationField: string;
   readonly isLogic: boolean;
-  readonly style: StyleConfig;
-  readonly edgeStyle: StyleConfig;
-  readonly arcStyle: {
-    readonly sideA: StyleConfig;
-    readonly sideB: StyleConfig;
-  };
+  readonly node: (sourceIndex: number) => GraphStyleChannels;
+  readonly edge: (sourceIndex: number) => GraphStyleChannels;
+  readonly sideA: (sourceIndex: number) => GraphStyleChannels;
+  readonly sideB: (sourceIndex: number) => GraphStyleChannels;
   readonly arcConfig: GraphArcConfig;
   readonly groups?: readonly Rule[];
   readonly groupIndexOffset?: number;
   readonly showStat2?: boolean;
 }
 
+export interface GraphMetricVisualPatch {
+  readonly previous: GraphVisualState;
+  readonly updates: ReadonlyArray<import('../../data/metricOverlays').MetricUpdate>;
+}
+
 export interface GraphVisualInput {
-  readonly data: {
-    readonly series: readonly DataFrame[];
-  };
+  readonly metricPatch?: GraphMetricVisualPatch;
+  readonly sources: ReadonlyArray<import('../../data/sources').SourceView>;
   readonly snapshot: GraphFrameSnapshot;
   readonly graph: GraphBuiltState;
-  readonly config: GraphVisualConfig;
-  readonly configs?: readonly GraphVisualConfig[];
-  readonly theme: GrafanaTheme2;
+  readonly configs: readonly GraphVisualConfig[];
 }
 
 export type GraphResolvedVisualGroup = Omit<Rule, 'color'> & {

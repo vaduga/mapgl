@@ -1,4 +1,8 @@
-import { loadSvgIcons } from './plugin';
+export type SvgIconLoader = (
+  names: string[],
+  icons: Record<string, any>,
+  controller: AbortController
+) => Promise<unknown>;
 
 export type SvgIconRenderState = {
   revision: number;
@@ -14,7 +18,7 @@ export type SvgIconRequest = {
 export type SvgIconCache = Map<string, any>;
 
 export class SvgIconManager {
-  constructor(private readonly pluginId = 'vaduga-mapgl-panel') {}
+  constructor(private readonly load: SvgIconLoader) {}
   private icons: Record<string, any> = {};
   private revision = 0;
   private signature = '';
@@ -40,10 +44,11 @@ export class SvgIconManager {
     this.loadController = new AbortController();
     const controller = this.loadController;
 
-    const newNames = newUniqueIconNames(this.icons, request.requiredIconNames);
+    const candidateIcons = { ...this.icons };
+    const newNames = newUniqueIconNames(candidateIcons, request.requiredIconNames);
     try {
       if (newNames.length) {
-        await loadSvgIcons(newNames, this.icons, controller, this.pluginId);
+        await this.load(newNames, candidateIcons, controller);
       }
     } catch (ex: any) {
       if (ex?.name === 'AbortError') {
@@ -56,6 +61,7 @@ export class SvgIconManager {
       return undefined;
     }
 
+    this.icons = candidateIcons;
     if (newNames.length || request.signature !== this.signature) {
       this.revision++;
       this.signature = request.signature;

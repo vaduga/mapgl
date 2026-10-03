@@ -1,47 +1,30 @@
-import { locationService } from '@grafana/runtime';
-import MapLibre, { AttributionControl } from '@vis.gl/react-maplibre';
-import React, { type CSSProperties } from 'react';
+import React, { lazy, Suspense, type CSSProperties } from 'react';
+import type MapLibre from '@vis.gl/react-maplibre';
 
-declare const __webpack_public_path__: string;
+const GeoBasemapRenderer = lazy(() => import('./GeoBasemapRenderer'));
 
-type MapLibreModule = typeof import('maplibre-gl');
-
-function getMapLibreAssetUrl(fileName: string): string {
-  const location = locationService.getLocation();
-  const publicPath = typeof __webpack_public_path__ === 'undefined' ? location.href : __webpack_public_path__;
-  return new URL(fileName, new URL(publicPath, location.href)).href;
-}
-
-let mapLibrePromise: Promise<MapLibreModule> | undefined;
-
-function loadMapLibre(): Promise<MapLibreModule> {
-  mapLibrePromise ??= import(/* webpackIgnore: true */ getMapLibreAssetUrl('maplibre-gl.mjs'));
-  return mapLibrePromise;
-}
+const attributionStyle: CSSProperties = {
+  zIndex: 1000,
+  position: 'absolute',
+  right: 4,
+  bottom: 4,
+};
 
 type MapLibreProps = React.ComponentProps<typeof MapLibre>;
 
 export interface GeoBasemapProps {
-  attributionStyle: CSSProperties;
+  assets: { moduleUrl: string; workerUrl: string };
   mapStyle: MapLibreProps['mapStyle'];
   onLoad: NonNullable<MapLibreProps['onLoad']>;
   style?: MapLibreProps['style'];
   viewState?: MapLibreProps['viewState'];
 }
 
-function GeoBasemap({ attributionStyle, mapStyle, onLoad, style, viewState }: GeoBasemapProps) {
+function GeoBasemap(props: GeoBasemapProps) {
   return (
-    <MapLibre
-      mapLib={loadMapLibre()}
-      mapStyle={mapStyle}
-      onLoad={onLoad}
-      style={style}
-      viewState={viewState}
-      workerUrl={getMapLibreAssetUrl('maplibre-gl-worker.mjs')}
-      attributionControl={false}
-    >
-      <AttributionControl style={attributionStyle} />
-    </MapLibre>
+    <Suspense fallback={null}>
+      <GeoBasemapRenderer {...props} attributionStyle={attributionStyle} />
+    </Suspense>
   );
 }
 

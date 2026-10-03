@@ -1,4 +1,3 @@
-// GeoBasemap supplies MapLibre through a native import of the emitted ESM asset.
-// This placeholder prevents react-maplibre's unused fallback import from bundling
-// maplibre-gl or turning it into an unresolved AMD dependency.
+// Hosts supply the native ESM module through mapLib. Bundlers alias react-maplibre's
+// unused fallback import here to keep MapLibre's shared code out of plugin chunks.
 export const Map = undefined;

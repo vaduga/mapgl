@@ -36,7 +36,6 @@ jest.mock('../DonutCircleLayer', () => {
 });
 
 import { CollisionFilterExtension, DataFilterExtension } from '@deck.gl/extensions';
-import { createTheme } from '@grafana/data';
 
 import { NodesGeojsonLayer, PlaceholderTextLayer } from './nodes-geojson-layer';
 
@@ -126,7 +125,7 @@ function createPlaceholderLayer(
     },
     getSelectedNode: { id: 'gauge-no-icon' },
     options: { common: { isMeters: false } },
-    theme: createTheme(),
+    textColor: '#222222',
     isLogic,
     pickable: true,
     visible: true,

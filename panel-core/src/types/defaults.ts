@@ -33,27 +33,8 @@ export const LIGHT_HULL_HIGHLIGHT = '#42a4f533'; //'rgb(66, 164, 245, 0.2)'
 export const LINES_EDIT_HANDLE_COLOR = '#e6ca5ce6'; //'rgb(230, 202, 92, 0.9)'
 export const LINES_SNAP_SOURCE_COLOR = '#dfff7bcc'; // 'rgb(223,523,123, 0.8)'
 export const LINES_SNAP_TARGET_COLOR = '#2fa1deb3'; //'rgb(47, 161, 222, 0.7)'
-export const ALERTING_STATES = {
-  Alerting: '#e0226e',
-  Pending: '#ff9900',
-  Normal: '#1b855e',
-};
-
 export const BBOX_OUTLINE_COLOR = '#cfe3d4';
 export const BBOX_OUTLINE_WIDTH = 0.5;
-
-export const ALERT_MAP = {
-  '255': [ALERTING_STATES.Alerting, 'Alerting', [224, 34, 110, 254]],
-  '222': [ALERTING_STATES.Pending, 'Pending', [255, 153, 0, 254]],
-  '111': [ALERTING_STATES.Normal, 'Normal', [27, 133, 94, 254]],
-};
-
-export const ALERTING_NUMS = {
-  Alerting: ALERT_MAP['255'],
-  Pending: ALERT_MAP['222'],
-  Normal: ALERT_MAP['111'],
-};
-
 
 export const DEFAULT_ICON_NAME = '';
 export const SEL_LINE_WIDTH_MULTIPLIER = 2;
@@ -111,7 +92,5 @@ export const EDIT_STORAGE_NS_PREFIX = 'mapgl';
 export const EDIT_STORAGE_LOGIC_NAMESPACES = 'xy-namespaces';
 export const CMN_NAMESPACE_PREFIX = 'cmn';
 export const CMN_NAMESPACE = 'external';
-
-export const ANNOTS_LABEL = 'annots & alerts query (built-in)';
 
 export const MOC_LOC_FIELD = 'source';

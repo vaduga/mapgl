@@ -4,3 +4,6 @@ export * from './provider';
 export * from './RootStore';
 export * from './PointStore';
 export * from './ViewStore';
+
+export * from './visibility';
+export * from './legend';

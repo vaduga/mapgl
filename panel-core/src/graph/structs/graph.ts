@@ -18,7 +18,7 @@ export interface Graph extends Node {
   removeNode(node: Node | Graph): void;
   nodeCollection: any;
   getNodes: IterableIterator<Node | Graph>;
-};
+}
 
 const GraphCtor = MSGraph as unknown as {
   new (id?: string): Graph;

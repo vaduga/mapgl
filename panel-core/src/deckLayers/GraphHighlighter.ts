@@ -1,4 +1,4 @@
-import { getGraphVersion, type Edge, type Graph, type GraphEdgeIndex, type Node } from '@mapgl/panel-core/graph';
+import { getGraphVersion, type Edge, type Graph, type GraphEdgeIndex, type Node } from '../graph/main';
 
 export type ConnectedEdgeIndex = {
   graphId: string;

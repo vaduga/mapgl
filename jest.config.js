@@ -8,14 +8,17 @@ const { grafanaESModules, nodeModulesToTransform } = require('./.config/jest/uti
 module.exports = {
   // Jest configuration provided by Grafana scaffolding
   ...baseConfig,
+  testEnvironmentOptions: {
+    ...baseConfig.testEnvironmentOptions,
+    customExportConditions: ['development', 'browser'],
+  },
   moduleNameMapper: {
     ...baseConfig.moduleNameMapper,
-    '^@mapgl/panel-core$': '<rootDir>/panel-core/src',
-    '^@mapgl/panel-core/graph$': '<rootDir>/panel-core/src/graph/main.ts',
-    '^@mapgl/panel-core/(.*)$': '<rootDir>/panel-core/src/$1',
+    '^preact$': '<rootDir>/node_modules/preact/dist/preact.js',
   },
   testMatch: [
     ...baseConfig.testMatch,
+    '<rootDir>/grafana-adapter/src/**/*.{spec,test,jest}.{js,jsx,ts,tsx}',
     '<rootDir>/panel-core/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
     '<rootDir>/panel-core/src/**/*.{spec,test,jest}.{js,jsx,ts,tsx}',
   ],
@@ -23,6 +26,18 @@ module.exports = {
     nodeModulesToTransform([
       ...grafanaESModules,
       '@msagl/core',
+      '@deck.gl',
+      '@luma.gl',
+      '@math.gl',
+      '@loaders.gl',
+      '@probe.gl',
+      '@turf',
+      '@mapbox',
+      'preact',
+      'earcut',
+      'internmap',
+      'gl-matrix',
+      'wgsl_reflect',
       '@react-hookz/web',
       '@ver0/deep-equal',
       'queue-typescript',

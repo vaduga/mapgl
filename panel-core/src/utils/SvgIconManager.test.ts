@@ -1,17 +1,13 @@
-jest.mock('./plugin', () => ({
-  loadSvgIcons: async (names: string[], icons: Record<string, any>) => {
-    names.forEach((name) => {
-      icons[name] = { svgDataUrl: `data:${name}`, width: 10, height: 10 };
-    });
-    return icons;
-  },
-}));
-
+const loadIcons = async (names: string[], icons: Record<string, any>) => {
+  names.forEach((name) => {
+    icons[name] = { svgDataUrl: `data:${name}`, width: 10, height: 10 };
+  });
+};
 import { SvgIconManager } from './SvgIconManager';
 
 describe('SvgIconManager', () => {
   it('reuses one panel-scoped cache and replaces entries on a new generation', async () => {
-    const manager = new SvgIconManager();
+    const manager = new SvgIconManager(loadIcons);
     const cache = manager.cache;
     cache.set('stale', { id: 'stale' });
 
@@ -26,7 +22,7 @@ describe('SvgIconManager', () => {
   });
 
   it('clears panel-owned entries on dispose and ignores stale requests', async () => {
-    const manager = new SvgIconManager();
+    const manager = new SvgIconManager(loadIcons);
     await manager.resolve({ requiredIconNames: new Set(['router']), signature: 'first' });
     manager.cache.set('icon', { id: 'icon' });
 

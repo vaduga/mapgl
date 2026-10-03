@@ -1,8 +1,7 @@
 import { toRGB4Array, makeColorDarker, makeColorLighter } from '../utils/color';
 import type { Unit } from '@deck.gl/core';
-import { ALERTING_STATES } from '../../types/defaults';
 import { getNsPrefixes } from '../../graph/utils/utils.graph';
-import { colTypes, type RGBAColor } from '@mapgl/panel-core/types';
+import { colTypes, type RGBAColor } from '../../types/index';
 import AnimatedBlobsLayer from './animated-blobs-layer';
 import GradientArcLayer from './gradient-arc-layer';
 import { DataFilterExtension } from '@deck.gl/extensions';
@@ -20,10 +19,10 @@ export const MyArcLayer = (props) => {
     time,
     isBase,
     baseLayer,
-    theme,
+    isDark,
     options,
     getVisLayers,
-    getGroupsLegend,
+    overlayEnabled,
     panel,
     isLogic,
     visible,
@@ -41,31 +40,21 @@ export const MyArcLayer = (props) => {
     properties;
   };
 
-  const lTheme = baseLayer?.options?.config?.theme;
-  const isAuto = !lTheme || lTheme === 'auto';
-  const isDark = isAuto ? theme.isDark : lTheme === 'dark';
-
   const getColor = (dir: 'sideA' | 'sideB', d, opts?: { ignoreSkip?: boolean }): RGBAColor => {
     if (!opts?.ignoreSkip && !isBase && d.skip) {
       return [0, 0, 0, 0];
     }
 
     const { edgeStyle, arcStyle } = d.properties;
-    const all_annots = d.properties.all_annots;
+    const overlayColor = d.properties.overlayColor;
     const { group, color } = arcStyle[dir];
     const opacity = edgeStyle.opacity;
     const c = group?.color ?? color;
     let muted = [...c] as RGBAColor;
     muted[3] = opacity !== undefined ? Math.round(opacity * 255) : muted[3];
 
-    if (all_annots && !getGroupsLegend?.at(-1)?.disabled) {
-      const annotState = all_annots?.[0]?.newState;
-      const color = annotState?.startsWith('Normal')
-        ? ALERTING_STATES.Normal
-        : annotState === 'Alerting'
-          ? ALERTING_STATES.Alerting
-          : ALERTING_STATES.Pending;
-      return toRGB4Array(color, 1);
+    if (overlayColor && overlayEnabled) {
+      return overlayColor;
     }
 
     const alterColor = (color) => {

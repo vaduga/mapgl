@@ -1,6 +1,6 @@
-import { Icon } from '@grafana/ui';
 import React, { useCallback, useRef } from 'react';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import copy from 'copy-to-clipboard';
+import { DeckWidgetButton } from '../DeckWidgetButton';
 
 export const PositionTracker = ({ isLogic, selectedCoord }: { isLogic: boolean; selectedCoord?: any }) => {
   const coordinatesRef = useRef<HTMLSpanElement | null>(null);
@@ -40,9 +40,13 @@ export const PositionTracker = ({ isLogic, selectedCoord }: { isLogic: boolean; 
     <div>
       <span onDoubleClick={() => selectNode(coordinatesRef.current)}>
         {!isLogic && (
-          <CopyToClipboard text={JSON.stringify(selectedCoord)}>
-            <Icon name="copy" size="xs" title="Copy GeoJSON" />
-          </CopyToClipboard>
+          <DeckWidgetButton
+            icon="copy"
+            label="Copy GeoJSON"
+            onClick={() => {
+              copy(JSON.stringify(selectedCoord) ?? '');
+            }}
+          />
         )}
         &nbsp;
         <span ref={coordinatesRef}>

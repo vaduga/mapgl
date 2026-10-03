@@ -1,8 +1,8 @@
-import type { EventBus, PanelData } from '@grafana/data';
+import type { SourceView, SourceRevision } from '../data/sources';
 import type { Position } from 'geojson';
-import type { Edge, Graph, GraphEdgeIndex, Node } from '@mapgl/panel-core/graph';
-import type { GraphRowRef } from '@mapgl/panel-core/graph/frame';
-import type { CoordRef, DeckLine, Feature } from '@mapgl/panel-core/types';
+import type { Edge, Graph, GraphEdgeIndex, Node } from '../graph/main';
+import type { GraphRowRef } from '../graph/frame/index';
+import type { CoordRef, DeckLine, Feature } from '../types/index';
 
 export type MapglEdition = 'oss' | 'extended';
 
@@ -81,7 +81,7 @@ export interface TooltipEdgeSectionContext {
   edge?: Edge;
   feature?: Feature;
   adjacentEdges?: TooltipAdjacentEdges;
-  data?: PanelData;
+  sources?: readonly SourceView[];
   options?: unknown;
 }
 
@@ -115,26 +115,21 @@ export interface RuntimeSubscriptionContext {
   signal?: AbortSignal;
   graph: Graph;
   edgeIndex?: GraphEdgeIndex;
-  data?: PanelData;
+  sources?: readonly SourceView[];
   options?: unknown;
-  eventBus?: EventBus;
-  time?: number;
-  annotationTables?: Array<[any, any]>;
-  annotationGraphs?: Graph[];
-  annotationBuffer?: Uint8Array;
-  onAnnotationsApplied?: () => void;
+  revision?: SourceRevision;
   publish(event: RuntimeUpdateEvent): void;
 }
 
-export interface RuntimeSubscription {
+export interface RuntimeSubscription<C extends RuntimeSubscriptionContext = RuntimeSubscriptionContext> {
   dispose(): void;
-  onDataChange?(context: RuntimeSubscriptionContext): void;
+  onDataChange?(context: C): void;
 }
 
-export interface RuntimeSubscriptionProvider {
+export interface RuntimeSubscriptionProvider<C extends RuntimeSubscriptionContext = RuntimeSubscriptionContext> {
   id: string;
-  isEnabled?(context: RuntimeSubscriptionContext): boolean;
-  start(context: RuntimeSubscriptionContext): RuntimeSubscription | Promise<RuntimeSubscription>;
+  isEnabled?(context: C): boolean;
+  start(context: C): RuntimeSubscription<C> | Promise<RuntimeSubscription<C>>;
 }
 
 export interface PointJitterStrategyContext {
@@ -188,7 +183,7 @@ export interface NamespaceBoundaryContext {
   graph: Graph;
   visibleNamespaces: Set<string>;
   positions: Float64Array;
-  layoutGraphBounds?: Map<string, unknown>;
+  layoutGraphBounds?: ReadonlyMap<string, unknown>;
   layerShift?: Record<string, [number, number]>;
   padding?: number;
   includeRoot?: boolean;
@@ -278,7 +273,7 @@ export interface ClusterLayerProviderContext {
   projectedEdges?: ProjectedEdge[];
   namespaceProjection?: NamespaceProjectionResult;
   annotations?: unknown;
-  groupFilters?: unknown;
+  groupFilters?: { groupIndices: Uint8Array; activeGroups: Uint8Array; activeGroupIndexes: Uint8Array };
   layerProps?: unknown;
   graphLayers?: unknown[];
   layerShift?: Record<string, [number, number]>;

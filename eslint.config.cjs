@@ -4,12 +4,25 @@ module.exports = (async () => {
 
   return [
     {
-      ignores: ['dist/**', 'node_modules/**', 'docker_data/**', 'mapLib/dist/**', '.config/**', 'hidden-docs/**'],
+      ignores: [
+        'dist/**',
+        'panel-core/dist/**',
+        'grafana-adapter/dist/**',
+        'node_modules/**',
+        'docker_data/**',
+        'mapLib/dist/**',
+        '.config/**',
+        'hidden-docs/**',
+      ],
     },
     ...grafanaConfig,
     {
       name: 'mapgl/defaults',
-      files: ['src/**/*.{ts,tsx,js,jsx}', 'panel-core/src/**/*.{ts,tsx,js,jsx}'],
+      files: [
+        'src/**/*.{ts,tsx,js,jsx}',
+        'panel-core/src/**/*.{ts,tsx,js,jsx}',
+        'grafana-adapter/src/**/*.{ts,tsx,js,jsx}',
+      ],
       rules: {
         'react/prop-types': 'off',
         'react-hooks/exhaustive-deps': 'off',
@@ -18,7 +31,7 @@ module.exports = (async () => {
     },
     {
       name: 'mapgl/typescript',
-      files: ['src/**/*.{ts,tsx}', 'panel-core/src/**/*.{ts,tsx}'],
+      files: ['src/**/*.{ts,tsx}', 'panel-core/src/**/*.{ts,tsx}', 'grafana-adapter/src/**/*.{ts,tsx}'],
       languageOptions: {
         parserOptions: {
           project: './tsconfig.json',

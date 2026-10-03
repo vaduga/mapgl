@@ -1,0 +1,32 @@
+import React from 'react';
+import SVG, { type Props } from 'react-inlinesvg';
+
+import { textUtil } from '@grafana/data';
+
+import { svgStyleCleanup } from './utils';
+import { addSVGattributes } from '@vaduga/mapgl-core/deckLayers/utils';
+
+type SanitizedSVGProps = Props & { cleanStyle?: boolean };
+
+export const SanitizedSVG = (props: SanitizedSVGProps) => {
+  const { cleanStyle, ...inlineSvgProps } = props;
+  return <SVG {...inlineSvgProps} cacheRequests={true} preProcessor={getCleanSVGAndStyle} />;
+};
+
+let cache = new Map<string, string>();
+
+function getCleanSVGAndStyle(code: string): string {
+  let clean = cache.get(code);
+  if (!clean) {
+    const { svgText } = addSVGattributes(code, true);
+    clean = textUtil.sanitizeSVGContent(svgText);
+
+    if (clean.indexOf('<style type="text/css">') > -1) {
+      clean = svgStyleCleanup(clean);
+    }
+
+    cache.set(code, clean);
+  }
+
+  return clean;
+}

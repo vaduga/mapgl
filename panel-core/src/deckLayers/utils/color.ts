@@ -1,4 +1,4 @@
-import type { RGBAColor } from '@mapgl/panel-core/types';
+import type { RGBAColor } from '../../types/index';
 
 function expandShortHex(color: string): string {
   return color

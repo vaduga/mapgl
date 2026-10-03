@@ -1,6 +1,6 @@
 import { IconLayer, TextLayer } from '@deck.gl/layers';
 import type { Layer } from '@deck.gl/core';
-import type { RGBAColor } from '@mapgl/panel-core/types';
+import type { RGBAColor } from '../types/index';
 import { toRGB4Array } from './utils/color';
 import AnimatedBlobsLayer from './ArcLayer/animated-blobs-layer';
 import GradientArcLayer from './ArcLayer/gradient-arc-layer';

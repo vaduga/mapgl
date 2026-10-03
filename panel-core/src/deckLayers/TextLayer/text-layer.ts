@@ -4,7 +4,7 @@ import { toRGB4Array } from '../utils/color';
 import { isVisible } from '../utils/visibility';
 import { BBOX_OUTLINE_COLOR } from '../../types/defaults';
 import { getNsPrefixes } from '../../graph/utils/utils.graph';
-import { colTypes } from '@mapgl/panel-core/types';
+import { colTypes } from '../../types/index';
 import { Matrix4 } from '@math.gl/core';
 
 export const EDGE_LABEL_DIM_OPACITY = 0; //.18;
@@ -13,7 +13,7 @@ const LineTextLayer = ({
   id = '',
   data,
   baseLayer,
-  theme,
+  isDark,
   options,
   getVisLayers,
   visible,
@@ -47,9 +47,6 @@ const LineTextLayer = ({
       name: colTypes.Label,
       group: colTypes.Label,
     });
-  const lTheme = baseLayer?.options?.config?.theme;
-  const isAuto = !lTheme || lTheme === 'auto';
-  const isDark = isAuto ? theme.isDark : lTheme === 'dark';
 
   const extensions = ['nums', 'bbox'].includes(type) ? [] : [new DataFilterExtension({ categorySize })];
 

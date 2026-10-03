@@ -1,4 +1,4 @@
-import { colTypes } from '@mapgl/panel-core/types';
+import { colTypes } from '../../types/index';
 
 import { isVisible } from '../utils/visibility';
 

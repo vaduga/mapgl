@@ -1,0 +1,248 @@
+import { css } from '@emotion/css';
+import { getDeckWidgetSkin } from '../../render/deck-widget-skin';
+
+const colors = {
+  backgroundPrimary: 'var(--theme-background-primary, #fff)',
+  backgroundSecondary: 'var(--theme-background-secondary, #f4f5f5)',
+  textPrimary: 'var(--theme-text-primary, #1f1f20)',
+  borderWeak: 'var(--theme-border-weak, #d8d9da)',
+  accent: 'var(--theme-accent, #5794f2)',
+  contrastText: 'var(--theme-background-contrast, #1f1f20)',
+};
+
+const spacing = {
+  micro: 'var(--theme-spacing-0-125, 1px)',
+  quarter: 'var(--theme-spacing-0-25, 2px)',
+  threeEighths: 'var(--theme-spacing-0-375, 3px)',
+  half: 'var(--theme-spacing-0-5, 4px)',
+  fiveEighths: 'var(--theme-spacing-0-625, 5px)',
+  compact: 'var(--theme-spacing-0-75, 6px)',
+  regular: 'var(--theme-spacing-1, 8px)',
+  nested: 'var(--theme-spacing-1-5, 12px)',
+  two: 'var(--theme-spacing-2, 16px)',
+  twoAndHalf: 'var(--theme-spacing-2-5, 20px)',
+  four: 'var(--theme-spacing-4, 32px)',
+  five: 'var(--theme-spacing-5, 40px)',
+  labelLeft: 'var(--theme-spacing-3-375, 27px)',
+};
+
+export const getStyles = () => ({
+  root: css({
+    ...getDeckWidgetSkin(),
+    '&.layer-switcher': {
+      zIndex: 'var(--theme-z-index-dropdown, 1000)',
+      position: 'absolute',
+      top: 'calc(' + spacing.regular + ' + var(--button-size, 28px) + ' + spacing.nested + ')',
+      left: spacing.regular,
+      overflow: 'visible',
+      pointerEvents: 'all',
+    },
+    '&.ol-control': {
+      padding: 0,
+      backgroundColor: 'transparent',
+      borderRadius: 'var(--button-corner-radius, 8px)',
+    },
+    '&.ol-control:hover, &.shown.ol-control, &.shown.ol-control:hover': {
+      backgroundColor: 'transparent',
+    },
+    '& .bindings': {
+      margin: '0 0 0 ' + spacing.regular,
+      border: spacing.half + ' solid ' + colors.backgroundSecondary,
+      borderRadius: 'var(--theme-radius-default, 4px)',
+      backgroundColor: 'color-mix(in srgb, ' + colors.backgroundPrimary + ' 90%, transparent)',
+      color: colors.textPrimary,
+      display: 'none',
+      pointerEvents: 'all',
+      maxHeight: 'inherit',
+      height: '100%',
+      boxSizing: 'border-box',
+      overflowY: 'auto',
+    },
+    '&.shown .bindings': {
+      display: 'block',
+    },
+    '& ul': {
+      listStyle: 'none',
+      margin: spacing.two + ' ' + spacing.compact,
+      paddingLeft: 0,
+    },
+    '& ul ul': {
+      paddingLeft: spacing.nested,
+      margin: spacing.micro + ' 0 0',
+    },
+    '& li': {
+      position: 'relative',
+      marginTop: spacing.threeEighths,
+    },
+    '& li.group + li.group': {
+      marginTop: spacing.compact,
+    },
+    '& li.group > label': {
+      fontWeight: 'bold',
+    },
+    '& li input': {
+      position: 'absolute',
+      left: spacing.nested,
+      height: 'var(--theme-font-size-body, 14px)',
+      width: 'var(--theme-font-size-body, 14px)',
+      fontSize: 'var(--theme-font-size-body, 14px)',
+      accentColor: colors.accent,
+    },
+    '& li label': {
+      paddingLeft: 'calc(' + spacing.labelLeft + ' + ' + spacing.compact + ')',
+      paddingRight: spacing.nested,
+      display: 'inline-block',
+      marginTop: spacing.micro,
+    },
+    '& li label > select': {
+      display: 'inline-block',
+      height: 'var(--theme-spacing-1-75, 14px)',
+      lineHeight: 'var(--theme-spacing-1-75, 14px)',
+      verticalAlign: 'bottom',
+    },
+    '& .layer-switcher-inline-select': {
+      transform: 'translate(' + spacing.fiveEighths + ', -' + spacing.threeEighths + ')',
+      width: 'fit-content',
+      maxWidth: spacing.five,
+      outline: 'none',
+      WebkitTapHighlightColor: 'transparent',
+    },
+    '& .layer-switcher-cluster-select': {
+      height: spacing.twoAndHalf,
+      lineHeight: spacing.twoAndHalf,
+      minWidth: spacing.four,
+      fontSize: 'var(--theme-font-size-small, 12px)',
+      padding: '0 ' + spacing.half,
+      verticalAlign: 'middle',
+    },
+    '& .layer-switcher-inline-select:focus, & .layer-switcher-inline-select:focus-visible': {
+      outline: 'none',
+      boxShadow: 'none',
+    },
+    '& label.disabled': {
+      opacity: 0.4,
+    },
+    '& input': {
+      margin: 0,
+    },
+    '&.touch ::-webkit-scrollbar': {
+      width: spacing.half,
+    },
+    '&.touch ::-webkit-scrollbar-track': {
+      backgroundColor: colors.backgroundSecondary,
+      borderRadius: 'var(--theme-radius-default, 4px)',
+    },
+    '&.touch ::-webkit-scrollbar-thumb': {
+      borderRadius: 'var(--theme-radius-default, 4px)',
+      backgroundColor: colors.borderWeak,
+    },
+    '& .group button': {
+      position: 'absolute',
+      left: 0,
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 'var(--theme-font-size-body, 14px)',
+      height: 'var(--theme-font-size-body, 14px)',
+      margin: 0,
+      padding: 0,
+      borderRadius: 0,
+      border: 'none',
+      boxShadow: 'none',
+      background: colors.backgroundPrimary,
+      color: colors.contrastText,
+      fontSize: 'var(--theme-font-size-small, 12px)',
+      lineHeight: 1,
+    },
+    '& .group button:hover, & .group button:focus': {
+      background: colors.backgroundPrimary,
+    },
+    '& .layer-switcher-group-icon': {
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: colors.contrastText,
+      fontSize: 'var(--theme-font-size-body, 14px)',
+      lineHeight: 1,
+      fontWeight: 400,
+      transformOrigin: 'center',
+      transition: 'transform 0.2s ease-in-out',
+    },
+    '& .layer-switcher-close > button .layer-switcher-group-icon': {
+      transform: 'rotate(0deg)',
+    },
+    '& .layer-switcher-open > button .layer-switcher-group-icon': {
+      transform: 'rotate(90deg)',
+    },
+    '& .group.layer-switcher-fold.layer-switcher-close > ul': {
+      overflow: 'hidden',
+      height: 0,
+    },
+    '& .deck-widget-tooltip': {
+      zIndex: 'var(--tooltip-z-index, 1000)',
+      pointerEvents: 'none',
+      width: 'max-content',
+      maxWidth: 'var(--tooltip-max-width, 240px)',
+      padding: '4px 8px',
+      borderRadius: 'calc(var(--button-corner-radius, 8px) - 2px)',
+      boxShadow: 'var(--menu-shadow, 0 0 8px 0 rgb(0 0 0 / 25%))',
+      background: 'var(--menu-background, #fff)',
+      backdropFilter: 'var(--menu-backdrop-filter, unset)',
+      color: 'var(--menu-text, #18181a)',
+      fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif',
+      fontSize: '12px',
+      lineHeight: 1.4,
+      overflowWrap: 'anywhere',
+      whiteSpace: 'normal',
+    },
+  }),
+  toggleContent: css({
+    display: 'contents',
+  }),
+  toggleButton: css({
+    '&&': {
+      width: 'calc(var(--button-size, 28px) - ' + spacing.quarter + ')',
+      height: 'calc(var(--button-size, 28px) - ' + spacing.quarter + ')',
+      boxSizing: 'border-box',
+      borderRadius: 'calc(var(--button-corner-radius, 8px) - ' + spacing.micro + ')',
+      overflow: 'hidden',
+      appearance: 'none',
+      background: 'var(--button-background, #fff)',
+      color: 'var(--button-icon-idle, #616166)',
+      border: 'var(--button-inner-stroke, 1px solid transparent)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: 'var(--theme-font-size-h4, 20px)',
+      lineHeight: 1,
+      padding: 0,
+      margin: 0,
+      outline: 'none',
+      cursor: 'pointer',
+    },
+    '&&:hover, &&:focus': {
+      background: 'var(--button-background, #fff)',
+      color: 'var(--button-icon-hover, #18181a)',
+      outline: 'none',
+    },
+  }),
+  toggleButtonOpen: css({
+    '&&, &&:hover, &&:focus': {
+      background: 'var(--theme-background-secondary, #f4f5f5)',
+    },
+  }),
+  toggleIcon: css({
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    lineHeight: 1,
+    fontSize: 'var(--theme-font-size-h5, 16px)',
+    fontWeight: 100,
+    letterSpacing: '-0.125em',
+    transformOrigin: 'center',
+    color: 'currentColor',
+  }),
+  toggleIconClosed: css({
+    transform: 'rotate(90deg)',
+  }),
+});

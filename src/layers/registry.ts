@@ -4,13 +4,14 @@ import {
   getQueryFields,
   GroupsEditor,
   StyleEditor,
-} from '@mapgl/panel-core/editor';
+} from '@vaduga/mapgl-grafana-adapter/editor';
 import {
   createMapLayerRegistry,
   DEFAULT_BASEMAP_CONFIG,
   ORTHO_BASEMAP_CONFIG,
-} from '@mapgl/panel-core/layers';
-import { createDataLayers } from '@mapgl/panel-core/layers/data';
+  createDataLayers,
+} from '@vaduga/mapgl-grafana-adapter/layers';
+
 import { config, hasAlphaPanels } from '../config';
 
 const dataLayers = createDataLayers({

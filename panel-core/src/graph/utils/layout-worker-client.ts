@@ -1,20 +1,19 @@
-import { locationService } from '@grafana/runtime';
-
 import { Graph } from '../structs/graph';
 import { getNodeData } from '../structs/graphOps';
 import type { Edge } from '../structs/edge';
 import { getLayoutNodeRadius, resolveLayoutArrowLengths } from './layout-geometry';
-import { SOURCE_ARROW_FLAG, TARGET_ARROW_FLAG } from './layout-worker-types';
-import type {
-  EdgeRoutingConfig,
-  LayoutEdgeSnapshot,
-  LayoutCurveGroup,
-  LayoutDirectionConfig,
-  LayoutGraphResult,
-  LayoutGraphSnapshot,
-  LayoutNodeSnapshot,
-  LayoutRequest,
-  LayoutResult,
+import {
+  SOURCE_ARROW_FLAG,
+  TARGET_ARROW_FLAG,
+  type EdgeRoutingConfig,
+  type LayoutEdgeSnapshot,
+  type LayoutCurveGroup,
+  type LayoutDirectionConfig,
+  type LayoutGraphResult,
+  type LayoutGraphSnapshot,
+  type LayoutNodeSnapshot,
+  type LayoutRequest,
+  type LayoutResult,
 } from './layout-worker-types';
 
 export type LayoutArrowTips = {
@@ -23,6 +22,7 @@ export type LayoutArrowTips = {
 };
 
 export interface GraphLayoutRequestInput {
+  readonly signal?: AbortSignal;
   readonly graph: Graph;
   readonly positionsLength: number;
   readonly autolayout?: AutolayoutOptions;
@@ -37,8 +37,6 @@ export interface GraphLayoutWorkerResult {
   readonly arrowTips: ReadonlyMap<string, LayoutArrowTips>;
 }
 
-declare const __webpack_public_path__: string;
-
 const DEFAULT_LAYOUT_DIRECTION: LayoutDirectionConfig = 'RL';
 const DEFAULT_LAYER_SEPARATION = 60;
 const DEFAULT_NODE_SEPARATION = 40;
@@ -50,39 +48,109 @@ export type AutolayoutOptions = {
   nodeSeparation?: number;
 };
 
-let worker: Worker | undefined;
 let nextRequestId = 0;
-const pendingRequests = new Map<
-  number,
-  {
-    edgeIndexes: Map<string, number>;
-    edgeKeys: string[];
-    resolve: (result: GraphLayoutWorkerResult) => void;
-    reject: (error: Error) => void;
-  }
->();
-
-export function requestGraphLayout(input: GraphLayoutRequestInput): Promise<GraphLayoutWorkerResult | undefined> {
-  return postLayoutWorkerRequest(createLayoutRequest(input));
+export interface LayoutWorkerResource {
+  readonly worker: Worker;
+  dispose(): void;
 }
+export type LayoutWorkerFactory = () => LayoutWorkerResource | undefined;
 
-export function postLayoutWorkerRequest<T extends Pick<LayoutRequest, 'requestId' | 'edges'>>(
-  request: T
-): Promise<GraphLayoutWorkerResult | undefined> {
-  const layoutWorker = getWorker();
-  if (!layoutWorker) {
-    return Promise.resolve(undefined);
-  }
-  const edgeIndex = createEdgeIndex(request);
-  return new Promise((resolve, reject) => {
-    pendingRequests.set(request.requestId, { ...edgeIndex, resolve, reject });
-    try {
-      layoutWorker.postMessage(request);
-    } catch (error) {
-      pendingRequests.delete(request.requestId);
-      reject(error instanceof Error ? error : new Error(String(error)));
+/** One client owns one worker and all pending requests for a panel/controller. */
+export class LayoutWorkerClient {
+  private resource?: LayoutWorkerResource;
+  private disposed = false;
+  private readonly pending = new Map<
+    number,
+    {
+      edgeIndexes: Map<string, number>;
+      edgeKeys: string[];
+      resolve(result: GraphLayoutWorkerResult | undefined): void;
+      reject(error: Error): void;
     }
-  });
+  >();
+  constructor(private readonly createWorker: LayoutWorkerFactory) {}
+  requestLayout(input: GraphLayoutRequestInput): Promise<GraphLayoutWorkerResult | undefined> {
+    return this.post(createLayoutRequest(input), input.signal);
+  }
+  post<T extends Pick<LayoutRequest, 'requestId' | 'edges'>>(
+    request: T,
+    signal?: AbortSignal
+  ): Promise<GraphLayoutWorkerResult | undefined> {
+    if (this.disposed || signal?.aborted) {
+      return Promise.resolve(undefined);
+    }
+    if (!this.resource) {
+      this.resource = this.createWorker();
+      if (this.resource) {
+        this.resource.worker.onmessage = ({
+          data,
+        }: MessageEvent<LayoutResult | { type: 'error'; requestId: number; message: string }>) => {
+          const pending = this.pending.get(data.requestId);
+          this.pending.delete(data.requestId);
+          if (!pending) {
+            return;
+          }
+          if ('type' in data && data.type === 'error') {
+            pending.reject(new Error(`MSAGL layout worker failed: ${data.message}`));
+            return;
+          }
+          if ('positions' in data && 'arrows' in data) {
+            pending.resolve({
+              positions: data.positions,
+              graphBounds: new Map(data.graphs.map((graph) => [graph.id, graph])),
+              curveGroups: new Map((data.curveGroups ?? []).map((group) => [group.graphId, group])),
+              edgeIndexes: pending.edgeIndexes,
+              edgeKeys: Object.freeze([...pending.edgeKeys]),
+              arrowTips: createLayoutArrowTips(data, pending.edgeKeys),
+            });
+          }
+        };
+        this.resource.worker.onerror = (event) => {
+          for (const pending of this.pending.values()) {
+            pending.reject(new Error(event.message || 'Layout worker failed'));
+          }
+          this.pending.clear();
+          this.resource?.dispose();
+          this.resource = undefined;
+        };
+      }
+    }
+    if (!this.resource) {
+      return Promise.resolve(undefined);
+    }
+    const worker = this.resource.worker;
+    return new Promise((resolve, reject) => {
+      const cancel = () => {
+        this.pending.delete(request.requestId);
+        finish(undefined);
+      };
+      const finish = (result: GraphLayoutWorkerResult | undefined) => {
+        signal?.removeEventListener('abort', cancel);
+        resolve(result);
+      };
+      const fail = (error: Error) => {
+        signal?.removeEventListener('abort', cancel);
+        reject(error);
+      };
+      signal?.addEventListener('abort', cancel, { once: true });
+      this.pending.set(request.requestId, { ...createEdgeIndex(request), resolve: finish, reject: fail });
+      try {
+        worker.postMessage(request);
+      } catch (error) {
+        this.pending.delete(request.requestId);
+        fail(error instanceof Error ? error : new Error(String(error)));
+      }
+    });
+  }
+  dispose(): void {
+    this.disposed = true;
+    this.resource?.dispose();
+    this.resource = undefined;
+    for (const pending of this.pending.values()) {
+      pending.resolve(undefined);
+    }
+    this.pending.clear();
+  }
 }
 
 function createLayoutArrowTips(result: LayoutResult, edgeKeys: string[]): Map<string, LayoutArrowTips> {
@@ -109,52 +177,6 @@ function createLayoutArrowTips(result: LayoutResult, edgeKeys: string[]): Map<st
   });
 
   return tips;
-}
-
-function getWorker(): Worker | undefined {
-  if (typeof Worker === 'undefined') {
-    return undefined;
-  }
-  if (!worker) {
-    const publicPath = new URL(__webpack_public_path__, locationService.getLocation().href);
-    const workerUrl = new URL('layout-worker.js', publicPath);
-    const workerObjectUrl = URL.createObjectURL(
-      new Blob(
-        [
-          `
-self.define = function (factory) {
-  factory();
-};
-importScripts(${JSON.stringify(workerUrl.href)});
-`,
-        ],
-        { type: 'text/javascript' }
-      )
-    );
-    worker = new Worker(workerObjectUrl);
-    worker.onmessage = ({
-      data,
-    }: MessageEvent<LayoutResult | { type: 'error'; requestId: number; message: string }>) => {
-      const pending = pendingRequests.get(data.requestId);
-      pendingRequests.delete(data.requestId);
-
-      if ('type' in data && data.type === 'error') {
-        pending?.reject(new Error(`MSAGL layout worker failed: ${data.message}`));
-        return;
-      }
-      if (pending && 'positions' in data && 'arrows' in data) {
-        pending.resolve({
-          positions: data.positions,
-          graphBounds: new Map(data.graphs.map((graph) => [graph.id, graph])),
-          curveGroups: new Map((data.curveGroups ?? []).map((group) => [group.graphId, group])),
-          edgeIndexes: pending.edgeIndexes,
-          edgeKeys: Object.freeze([...pending.edgeKeys]),
-          arrowTips: createLayoutArrowTips(data, pending.edgeKeys),
-        });
-      }
-    };
-  }
-  return worker;
 }
 
 function createEdgeIndex(request: Pick<LayoutRequest, 'edges'>): {
