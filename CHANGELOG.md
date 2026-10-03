@@ -1,7 +1,8 @@
 # Changelog Mapgl
 
 ## 2.10.5
-- collapse optional edge identities config
+- editor: collapse optional edge identity config
+- refactor: decouple panel core from Grafana 
 
 ## 2.10.4
 - fix: correct namespace boundaries to remove stale empty space

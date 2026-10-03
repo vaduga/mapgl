@@ -22,19 +22,3 @@ export function syncGraphEdgeGroupOverrides(
     });
   }
 }
-
-export function syncGraphNodeAnnotationsToEdges(
-  edgeIndex: GraphEdgeIndex | undefined,
-  node: Node,
-  annotations: BiColProps['all_annots']
-): void {
-  if (!edgeIndex) {
-    return;
-  }
-
-  edgeIndex.forEachEdge((edge) => {
-    if (edge.source === node && edge.data?.dataRecord) {
-      edge.data.dataRecord.all_annots = annotations;
-    }
-  });
-}

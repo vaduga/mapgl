@@ -1,4 +1,5 @@
-import { getGraphVersion, type Edge, type Graph, type GraphEdgeIndex, type Node } from '@mapgl/panel-core/graph';
+import type { EdgeRenderIndex } from '../graph/utils/utils.graph-geom';
+import { getGraphVersion, type Edge, type Graph, type GraphEdgeIndex, type Node } from '../graph/main';
 
 export type ConnectedEdgeIndex = {
   graphId: string;
@@ -20,6 +21,7 @@ type EdgeHighlightItem = {
 
 export class GraphHighlighter {
   private graph?: Graph;
+  private mappings?: ReadonlyArray<EdgeRenderIndex | undefined>;
   private edgeIndex?: GraphEdgeIndex;
   private graphVersion?: number;
   private nodeMap = new Map<string, Node>();
@@ -37,13 +39,23 @@ export class GraphHighlighter {
   private connectedEdgeIndexes: ConnectedEdgeIndex[] = [];
   private connectedNodeDepths = new Map<string, number>();
 
-  setGraph(graph: Graph, opts?: { force?: boolean; edgeIndex?: GraphEdgeIndex }) {
+  setGraph(
+    graph: Graph,
+    opts?: { force?: boolean; edgeIndex?: GraphEdgeIndex; mappings?: ReadonlyArray<EdgeRenderIndex | undefined> }
+  ) {
     const edgeIndex = opts?.edgeIndex ?? this.edgeIndex;
     const graphVersion = getGraphVersion(graph);
-    if (!opts?.force && this.graph === graph && this.edgeIndex === edgeIndex && this.graphVersion === graphVersion) {
+    if (
+      !opts?.force &&
+      this.graph === graph &&
+      this.edgeIndex === edgeIndex &&
+      this.graphVersion === graphVersion &&
+      this.mappings === opts?.mappings
+    ) {
       return;
     }
 
+    this.mappings = opts?.mappings;
     this.graph = graph;
     this.edgeIndex = edgeIndex;
     this.graphVersion = graphVersion;
@@ -90,15 +102,14 @@ export class GraphHighlighter {
         const edgeKey = makeScopedKey(graphId, edge.id);
         this.addEdgeIndex(edge, {
           graphId,
-          lineId: edge.lineId,
-          arcId: firstEdge.arcId,
+          ...this.mapping(edge),
         });
         this.edgeHighlights.set(edgeKey, { nodeKeys, edgeKeys });
         this.addLookupKey(this.edgeKeysById, edge.id, edgeKey);
       }
     }
 
-    for (const edge of graph.deepEdges) {
+    for (const edge of edgeIndex ? [] : graph.deepEdges) {
       if (recordEdges.has(edge)) {
         continue;
       }
@@ -295,9 +306,13 @@ export class GraphHighlighter {
     }
   }
 
+  private mapping(edge: Edge): EdgeRenderIndex | undefined {
+    const ref = this.edgeIndex?.getEdgeRef(edge);
+    return ref === undefined ? undefined : this.mappings?.[ref];
+  }
+
   private addEdgeIndex(edge: Edge, opts?: { graphId?: string; lineId?: number; arcId?: number }) {
-    const lineId = opts?.lineId ?? edge.lineId;
-    const arcId = opts?.arcId ?? edge.arcId;
+    const { lineId, arcId } = opts ?? this.mapping(edge) ?? {};
 
     if (lineId === undefined && arcId === undefined) {
       return;

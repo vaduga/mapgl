@@ -65,28 +65,22 @@ class CoreIconCopyRspackPlugin {
   }
 }
 
-class MapLibreWorkerAssetsPlugin {
+class MapLibreAssetsPlugin {
   apply(compiler: Compiler): void {
-    compiler.hooks.thisCompilation.tap('MapLibreWorkerAssetsPlugin', (compilation) => {
+    compiler.hooks.thisCompilation.tap('MapLibreAssetsPlugin', (compilation) => {
       compilation.hooks.processAssets.tap(
         {
-          name: 'MapLibreWorkerAssetsPlugin',
-          stage: rspack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONS,
+          name: 'MapLibreAssetsPlugin',
+          // Preserve the already minified ESM distribution and its inline licenses.
+          stage: rspack.Compilation.PROCESS_ASSETS_STAGE_REPORT,
         },
         () => {
-          for (const [fileName, sourcePath] of [
-            ['maplibre-gl.mjs', path.resolve(process.cwd(), 'node_modules/maplibre-gl/dist/maplibre-gl.mjs')],
-            [
-              'maplibre-gl-worker.mjs',
-              path.resolve(process.cwd(), 'node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs'),
-            ],
-            [
-              'maplibre-gl-shared.mjs',
-              path.resolve(process.cwd(), 'node_modules/maplibre-gl/dist/maplibre-gl-shared.mjs'),
-            ],
-          ]) {
-            compilation.emitAsset(fileName, new rspack.sources.RawSource(fs.readFileSync(sourcePath)));
+          for (const filename of ['maplibre-gl.mjs', 'maplibre-gl-worker.mjs', 'maplibre-gl-shared.mjs']) {
+            const sourcePath = path.resolve(process.cwd(), 'node_modules/maplibre-gl/dist', filename);
+            compilation.emitAsset(filename, new rspack.sources.RawSource(fs.readFileSync(sourcePath)));
           }
+          const licensePath = path.resolve(process.cwd(), 'node_modules/maplibre-gl/LICENSE.txt');
+          compilation.emitAsset('maplibre-gl.LICENSE.txt', new rspack.sources.RawSource(fs.readFileSync(licensePath)));
         }
       );
     });
@@ -122,18 +116,15 @@ const config = async (env: Record<string, unknown>): Promise<Configuration> => {
   const coreSourcePath = path.resolve(process.cwd(), 'panel-core/src');
   const coreIconsPath = path.join(coreSourcePath, 'img/icons');
   patchRootCopyFiles(baseConfig, coreIconsPath);
-
-  baseConfig.plugins?.push(new MapLibreWorkerAssetsPlugin());
+  baseConfig.plugins?.push(new MapLibreAssetsPlugin());
 
   const extension: Configuration = {
-    ignoreWarnings: [
-      {
-        module: /maplibre-gl[\\/]dist[\\/]maplibre-gl\.mjs$/,
-        message: /Critical dependency: the request of a dependency is an expression/,
-      },
-    ],
     entry: {
-      'layout-worker': path.join(coreSourcePath, 'workers/layout-worker.ts'),
+      'layout-worker': {
+        import: path.join(coreSourcePath, 'workers/layout-worker.ts'),
+        filename: 'layout-worker.mjs',
+        library: { type: 'module' },
+      },
     },
     module: {
       rules: [
@@ -146,47 +137,20 @@ const config = async (env: Record<string, unknown>): Promise<Configuration> => {
       ],
     },
     resolve: {
-      conditionNames: ['visgl:webgl-only', '...'],
+      conditionNames: ['development', 'visgl:webgl-only', '...'],
       alias: {
-        '@mapgl/panel-core$': path.join(coreSourcePath, 'index.ts'),
-        '@mapgl/panel-core/featureContracts$': path.join(coreSourcePath, 'extension-points/featureContracts.ts'),
-        '@mapgl/panel-core/graph$': path.join(coreSourcePath, 'graph/main.ts'),
-        '@mapgl/panel-core/graph/frame$': path.join(coreSourcePath, 'graph/frame/index.ts'),
-        '@mapgl/panel-core/graph/packed-relations$': path.join(coreSourcePath, 'graph/frame/packedRelationReaders.ts'),
-        '@mapgl/panel-core/graph/utils$': path.join(coreSourcePath, 'graph/utils/index.ts'),
-        '@mapgl/panel-core/components$': path.join(coreSourcePath, 'components/index.ts'),
-        '@mapgl/panel-core/components/GeoBasemap$': path.join(coreSourcePath, 'components/GeoBasemap.tsx'),
-        '@mapgl/panel-core/render$': path.join(coreSourcePath, 'render/index.ts'),
-        '@mapgl/panel-core/render/MapglViewport$': path.join(coreSourcePath, 'render/MapglViewport.tsx'),
-        '@mapgl/panel-core/runtime$': path.join(coreSourcePath, 'runtime/index.ts'),
-        '@mapgl/panel-core/store$': path.join(coreSourcePath, 'store/index.ts'),
-        '@mapgl/panel-core/deckLayers$': path.join(coreSourcePath, 'deckLayers/index.ts'),
-        '@mapgl/panel-core/deckLayers/utils$': path.join(coreSourcePath, 'deckLayers/utils/index.ts'),
-        '@mapgl/panel-core/editor$': path.join(coreSourcePath, 'editor/index.ts'),
-        '@mapgl/panel-core/extension$': path.join(coreSourcePath, 'extension.ts'),
-        '@mapgl/panel-core/layers$': path.join(coreSourcePath, 'layers/index.ts'),
-        '@mapgl/panel-core/layers/data$': path.join(coreSourcePath, 'layers/data/index.ts'),
-        '@mapgl/panel-core/types$': path.join(coreSourcePath, 'types/index.ts'),
-        '@mapgl/panel-core/types/defaults$': path.join(coreSourcePath, 'types/defaults.ts'),
-        '@mapgl/panel-core/style/utils$': path.join(coreSourcePath, 'style/utils.ts'),
-        '@mapgl/panel-core/utils$': path.join(coreSourcePath, 'utils/index.ts'),
-        '@mapgl/panel-core/utils/geomap_utils$': path.join(coreSourcePath, 'utils/geomap_utils.ts'),
-        '@mapgl/panel-core/utils/i18n$': path.join(coreSourcePath, 'utils/i18n.tsx'),
-        '@mapgl/panel-core/utils/location$': path.join(coreSourcePath, 'utils/location.ts'),
-        '@mapgl/panel-core/view$': path.join(coreSourcePath, 'view.ts'),
-        '@mapgl/panel-core/grafana_core/app/features/dimensions$': path.join(
-          coreSourcePath,
-          'grafana_core/app/features/dimensions/index.ts'
-        ),
-        '@mapgl/panel-core/grafana_core/data/utils/valueMappings$': path.join(
-          coreSourcePath,
-          'grafana_core/data/utils/valueMappings.ts'
-        ),
         'maplibre-gl$': path.join(coreSourcePath, 'components/maplibre-gl-fallback.ts'),
       },
     },
   };
-  return merge(baseConfig, extension);
+  const config = merge(baseConfig, extension);
+  if (config.output) {
+    config.output.chunkFormat = 'array-push';
+    config.output.chunkLoading = 'jsonp';
+    config.output.scriptType = false;
+  }
+
+  return config;
 };
 
 export default config;

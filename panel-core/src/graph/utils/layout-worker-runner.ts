@@ -1,6 +1,13 @@
 import { EdgeRoutingMode, GeomEdge, GeomGraph, Graph, layoutGeomGraph } from '@msagl/core';
-import type { LayoutArrowResult, LayoutNodeSnapshot, LayoutRequest, LayoutResult } from './layout-worker-types';
-import { edgeKey, nodeKey } from './layout-worker-types';
+import {
+  type LayoutArrowResult,
+  type LayoutNodeSnapshot,
+  type LayoutRequest,
+  type LayoutResult,
+  edgeKey,
+  nodeKey,
+} from './layout-worker-types';
+
 import {
   addCurveSegments,
   addSnapshotEdge,

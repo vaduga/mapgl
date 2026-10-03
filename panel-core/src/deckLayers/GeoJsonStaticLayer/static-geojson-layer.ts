@@ -1,17 +1,17 @@
 import { toRGB4Array } from '../utils/color';
 import { isVisible } from '../utils/visibility';
 import { GeoJsonLayer } from '@deck.gl/layers';
-import { colTypes } from '@mapgl/panel-core/types';
+import { colTypes } from '../../types/index';
 
 const MyGeoJsonLayer = (props) => {
-  const { data, onHover, highlightColor, index, name, pickable, getVisLayers, options } = props;
+  const { data, onHover, highlightColor, index, name, pickable, getVisLayers, isMeters = false } = props;
 
   const Geo = isVisible(getVisLayers, {
     index: null,
     name,
     group: colTypes.GeoJson,
   });
-  const units = options.common?.isMeters ? 'meters' : 'pixels';
+  const units = isMeters ? 'meters' : 'pixels';
 
   return new GeoJsonLayer({
     id: colTypes.GeoJson + index,

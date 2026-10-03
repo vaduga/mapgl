@@ -3,10 +3,9 @@ import { DataFilterExtension } from '@deck.gl/extensions';
 import { Geometry } from 'geojson';
 import { getIconAtlasImage, iconMapping } from './arrow-atlas';
 import { toRGB4Array } from '../utils/color';
-import { ALERTING_STATES } from '../../types/defaults';
 import { getNsPrefixes } from '../../graph/utils/utils.graph';
-import { colTypes, type DeckLine, type PointFeatureProperties, type RGBAColor } from '@mapgl/panel-core/types';
-import { getEdgeArrowSize, getArrowAngle } from '@mapgl/panel-core/graph/utils';
+import { colTypes, type DeckLine, type PointFeatureProperties, type RGBAColor } from '../../types/index';
+import { getEdgeArrowSize, getArrowAngle } from '../../graph/utils/index';
 import { Matrix4 } from '@math.gl/core';
 import { getEdgeFilterCategories, getEdgeFilterCategory } from '../edgeFilterCategories';
 
@@ -90,18 +89,12 @@ export function getArrowSize(d: ArrowFeature): number {
   return getEdgeArrowSize(d?.properties?.edgeStyle?.size);
 }
 
-export function getArrowColor(d: ArrowFeature, getGroupsLegend?: any): RGBAColor {
-  const { edgeStyle, all_annots } = d.properties || {};
+export function getArrowColor(d: ArrowFeature, overlayEnabled = false): RGBAColor {
+  const { edgeStyle, overlayColor } = d.properties || {};
   const { color, group, opacity } = edgeStyle || {};
 
-  if (all_annots && !getGroupsLegend?.at(-1)?.disabled) {
-    const annotState = all_annots?.[0]?.newState;
-    const aColor = annotState?.startsWith('Normal')
-      ? ALERTING_STATES.Normal
-      : annotState === 'Alerting'
-        ? ALERTING_STATES.Alerting
-        : ALERTING_STATES.Pending;
-    return toRGB4Array(aColor, 1);
+  if (overlayColor && overlayEnabled) {
+    return overlayColor;
   }
 
   const c = group?.color ?? color ?? [0, 0, 0, 255];
@@ -150,21 +143,20 @@ export const EdgeArrowLayer = (props) => {
     layerShift = {},
     getSelectedIdxs,
     linesCollection,
-    options,
+    isMeters = false,
     visible,
-    panel,
+    isLogic,
+    usesRendererNamespaceFiltering = false,
     getVisLayers,
     getGroupsLegend,
     autoHighlight,
     highlightColor,
     onHover,
-    time,
+    presentationRevision,
   } = props;
 
   const selectedFeatureIndexes = getSelectedIdxs?.get(colTypes.Edges)?.[srcGraphId] ?? [];
 
-  const isLogic = panel.isLogic;
-  const usesRendererNamespaceFiltering = panel.namespaceProjection?.rendererFiltering !== 'none';
   const baseCategories = getVisLayers.getCategories();
   const { categories, categorySize } = getEdgeFilterCategories({
     baseCategories,
@@ -174,7 +166,7 @@ export const EdgeArrowLayer = (props) => {
 
   const baseData = Array.isArray(linesCollection) ? linesCollection : (linesCollection?.features ?? []);
   const arrowData = expandArrowItems(baseData);
-  const units = options.common?.isMeters ? 'meters' : 'pixels';
+  const units = isMeters ? 'meters' : 'pixels';
   const sizeUnits = isLogic ? 'common' : units;
   const sizeConstraintProps =
     sizeUnits === 'pixels'
@@ -218,7 +210,7 @@ export const EdgeArrowLayer = (props) => {
     },
     getAngle: (d: ArrowItem) => getFeatureArrowAngle(d.feature, d.placement, !isLogic),
     getSize: (d: ArrowItem) => getArrowSize(d.feature),
-    getColor: (d: ArrowItem) => (d.feature.skip ? [0, 0, 0, 0] : getArrowColor(d.feature, getGroupsLegend)),
+    getColor: (d: ArrowItem) => (d.feature.skip ? [0, 0, 0, 0] : getArrowColor(d.feature, props.overlayEnabled)),
 
     // Deck typings in this build are stricter than runtime support for HTMLImageElement.
     iconAtlas: getIconAtlasImage() as any,
@@ -240,9 +232,9 @@ export const EdgeArrowLayer = (props) => {
     extensions: [new DataFilterExtension({ categorySize })],
 
     updateTriggers: {
-      getColor: time,
-      getSize: [time, selectedFeatureIndexes],
-      getAngle: time,
+      getColor: presentationRevision,
+      getSize: [presentationRevision, selectedFeatureIndexes],
+      getAngle: presentationRevision,
     },
   });
 };

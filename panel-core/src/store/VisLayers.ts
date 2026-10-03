@@ -1,9 +1,29 @@
-import { colTypes } from '@mapgl/panel-core/types';
+import { colTypes } from '../types/index';
 import { type LayerInfo, type LayerTreeInfo, type VisLayerEntry, VisLayer } from './visLayer';
 
 export class VisLayers {
   visLayers: VisLayer[] = [];
   activeGroups: Uint8Array = new Uint8Array();
+
+  snapshot(): VisLayers {
+    const copy = new VisLayers();
+    const clone = (layer: VisLayer): VisLayer =>
+      new VisLayer(
+        layer.index,
+        layer.parentIndex,
+        layer.label,
+        layer.name,
+        layer.group,
+        layer.fold,
+        layer.visible,
+        layer.indeterminate,
+        layer.children.map(clone),
+        layer.combine
+      );
+    copy.visLayers = this.visLayers.map(clone);
+    copy.activeGroups = this.activeGroups.slice();
+    return copy;
+  }
 
   addLayer(
     label: string,
@@ -43,6 +63,25 @@ export class VisLayers {
     for (const layer of this.visLayers) {
       syncChildVisibility(layer, false);
     }
+  }
+
+  /** Carry selections into a rebuilt tree without retaining removed layers or positional indexes. */
+  preserveSelections(previous: VisLayers): void {
+    const oldEntries: VisLayerEntry[] = [];
+    const newEntries: VisLayerEntry[] = [];
+    flattenLayers(previous.visLayers, [], oldEntries);
+    flattenLayers(this.visLayers, [], newEntries);
+    const key = (layer: VisLayer) => JSON.stringify([layer.group, layer.name]);
+    const oldLayers = new Map(oldEntries.map(({ layer }) => [key(layer), layer]));
+    for (const { layer } of newEntries) {
+      const oldLayer = oldLayers.get(key(layer));
+      if (oldLayer) {
+        layer.visible = oldLayer.visible;
+        layer.fold = oldLayer.fold;
+      }
+    }
+    // Masks depend on the new ancestry, including newly added children of hidden groups.
+    this.setChildVisibility();
   }
 
   hasGraph(): boolean {

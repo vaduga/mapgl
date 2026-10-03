@@ -84,7 +84,7 @@ function createUnitEdges(
     edge.setAttr(AttributeRegistry.EdgeDataIndex, {
       edgeId: recordId,
       dataRecord: {
-        frameRefId: row.frameRefId,
+        frameRefId: row.sourceKey,
         rowIndex: row.rowIndex,
       },
       arrowPlacement:

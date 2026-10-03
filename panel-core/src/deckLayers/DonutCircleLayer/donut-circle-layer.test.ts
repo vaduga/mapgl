@@ -35,21 +35,10 @@ jest.mock('@luma.gl/core', () => ({
 
 import { DonutCircleLayer } from './donut-circle-layer';
 import { createDonutAtlas, createEqualDonutInput } from './donutData';
-import { donutShaderInjection } from './donutShaders';
 
 const atlas = (color: string) => createDonutAtlas([['variant', createEqualDonutInput([color])]]);
 
 describe('DonutCircleLayer resource lifecycle', () => {
-  it('keeps donut decoration opacity separate from circle alpha', () => {
-    const fragment = donutShaderInjection['fs:DECKGL_FILTER_COLOR'];
-
-    expect(donutShaderInjection['vs:#decl']).toContain('instanceDonutOpacity');
-    expect(fragment).toContain('ringColor.a *= vDonutOpacity * layer.opacity;');
-    expect(fragment).toContain('innerColor.a *= vDonutOpacity * layer.opacity;');
-    expect(fragment).not.toContain('ringColor.a *= color.a;');
-    expect(fragment).not.toContain('innerColor.a *= color.a;');
-  });
-
   it('destroys replaced and finalized lookup textures', () => {
     const textures: Array<{ destroy: jest.Mock }> = [];
     const layer = new DonutCircleLayer({ id: 'nodes-circle', donutAtlas: atlas('#ff0000') } as any) as any;

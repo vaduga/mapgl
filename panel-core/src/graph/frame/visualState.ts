@@ -25,7 +25,9 @@ export function applyGraphVisualState(graph: GraphBuiltState, visual: GraphVisua
     if (!node || !data) {
       continue;
     }
-    setNodeData(node, { ...data, feature: record.feature });
+    if (data.feature !== record.feature) {
+      setNodeData(node, { ...data, feature: record.feature });
+    }
     if (typeof record.style.group?.groupIdx === 'number') {
       markNodeGroupHasNodes(graph.graph, record.style.group.groupIdx);
     }
@@ -34,10 +36,9 @@ export function applyGraphVisualState(graph: GraphBuiltState, visual: GraphVisua
   for (let recordRef = 0; recordRef < graph.edgeIndex.recordCount; recordRef++) {
     graph.edgeIndex.forEachRecordEdge(recordRef, (edge, edgeRef) => {
       const unitVisual = visual.edgeUnits[graph.edgeIndex.getEdgeUnitRef(edgeRef)];
-      edge.setAttr(AttributeRegistry.EdgeDataIndex, {
-        ...edge.data,
-        ...(unitVisual && { dataRecord: unitVisual.feature }),
-      });
+      if (unitVisual && edge.data.dataRecord !== unitVisual.feature) {
+        edge.setAttr(AttributeRegistry.EdgeDataIndex, { ...edge.data, dataRecord: unitVisual.feature });
+      }
     });
     const primaryUnitRef = visual.edgePrimaryUnitRefs[recordRef];
     if (primaryUnitRef !== PACKED_INVALID_REF) {

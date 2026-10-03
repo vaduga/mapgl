@@ -1,9 +1,9 @@
-import type { GrafanaTheme2 } from '@grafana/data';
-
 import { LatestAsyncGate, type LatestAsyncGuard } from '../../utils/LatestAsyncGate';
 import { getLayoutNodeRadius, resolveLayoutArrowStyle } from '../utils/layout-geometry';
 import { buildGraphFromSnapshot } from './buildGraph';
-import { normalizeGraphFrames } from './normalize';
+import { normalizeGraphSources, type GraphSourceNormalizationInput, type GraphBoundLayer } from './normalizeSources';
+import type { MetricUpdate } from '../../data/metricOverlays';
+import type { SourceView } from '../../data/sources';
 import { PackedRelationFlags } from './packedRelations';
 import { createGraphBuildDataSignature } from './signature';
 import type {
@@ -11,29 +11,37 @@ import type {
   GraphBuiltState,
   GraphCommittedRuntimeState,
   GraphFatalResult,
-  GraphFrameOptions,
   GraphFrameSnapshot,
   GraphLayoutStage,
-  GraphNormalizationInput,
   GraphStageResult,
   GraphVisualConfig,
   GraphVisualState,
+  GraphVisualInput,
 } from './types';
 import { resolveGraphVisuals } from './visual';
 
 type Awaitable<T> = T | Promise<T>;
 
-export interface GraphPipelineInput extends GraphNormalizationInput {
-  readonly graphOptions?: GraphBuildOptions;
-  readonly visualConfig: GraphVisualConfig;
-  readonly layers?: readonly GraphPipelineLayerInput[];
-  readonly theme: GrafanaTheme2;
+export interface GraphPipelineInput {
+  readonly layers: readonly GraphPipelineLayerInput[];
+  readonly diagnostics?: GraphFrameSnapshot['diagnostics'];
+  readonly snapshot?: GraphFrameSnapshot;
+  readonly evaluateVisuals?: (sources: readonly SourceView[]) => readonly GraphVisualConfig[];
+  readonly resolveColor?: (name: string) => string;
 }
 
-export interface GraphPipelineLayerInput {
-  readonly options: GraphFrameOptions;
+export interface GraphPipelineLayerInput extends GraphBoundLayer {
   readonly graphOptions?: GraphBuildOptions;
   readonly visualConfig: GraphVisualConfig;
+}
+
+/** A source can participate in several configured layers while retaining one revision identity. */
+export function graphPipelineSources(input: GraphPipelineInput): ReadonlyArray<import('../../data').GraphSource> {
+  return [
+    ...new Map(
+      input.layers.flatMap((layer) => layer.sources.map((source) => [source.index, source] as const))
+    ).values(),
+  ];
 }
 
 export interface GraphPipelineLayoutContext {
@@ -42,6 +50,7 @@ export interface GraphPipelineLayoutContext {
   readonly graph: GraphBuiltState;
   readonly visual: GraphVisualState;
   readonly isCurrent: LatestAsyncGuard;
+  readonly signal?: AbortSignal;
 }
 
 export interface GraphPipelineRenderContext<TLayoutState> extends GraphPipelineLayoutContext {
@@ -49,23 +58,19 @@ export interface GraphPipelineRenderContext<TLayoutState> extends GraphPipelineL
 }
 
 export interface GraphPipelineStages<TLayoutState, TRenderState> {
-  readonly normalize?: (input: GraphNormalizationInput) => Awaitable<GraphStageResult<GraphFrameSnapshot>>;
+  readonly isolateGraph?: boolean;
+  readonly normalize?: (input: GraphSourceNormalizationInput) => Awaitable<GraphStageResult<GraphFrameSnapshot>>;
   readonly buildGraph?: (
     snapshot: GraphFrameSnapshot,
     options?: GraphBuildOptions
   ) => Awaitable<GraphStageResult<GraphBuiltState>>;
-  readonly resolveVisuals?: (input: {
-    readonly data: GraphPipelineInput['data'];
-    readonly snapshot: GraphFrameSnapshot;
-    readonly graph: GraphBuiltState;
-    readonly config: GraphVisualConfig;
-    readonly theme: GrafanaTheme2;
-  }) => Awaitable<GraphStageResult<GraphVisualState>>;
+  readonly resolveVisuals?: (input: GraphVisualInput) => Awaitable<GraphStageResult<GraphVisualState>>;
   readonly layout: (context: GraphPipelineLayoutContext) => Awaitable<TLayoutState>;
   readonly render: (context: GraphPipelineRenderContext<TLayoutState>) => Awaitable<TRenderState>;
   readonly commit?: (
     state: GraphCommittedRuntimeState<GraphBuiltState, GraphVisualState, TLayoutState, TRenderState>
   ) => void;
+  readonly commitVisuals?: (state: GraphPipelineState<TLayoutState, TRenderState>) => void;
   readonly notify?: (
     state: GraphCommittedRuntimeState<GraphBuiltState, GraphVisualState, TLayoutState, TRenderState>
   ) => Awaitable<void>;
@@ -95,23 +100,15 @@ export class GraphFramePipeline<TLayoutState, TRenderState> {
     input: GraphPipelineInput
   ): Promise<GraphStageResult<GraphPipelineState<TLayoutState, TRenderState>> | undefined> {
     return this.gate.run(async (isCurrent) => {
-      const normalize = this.stages.normalize ?? normalizeGraphFrames;
-      const layerInputs = input.layers?.length ? input.layers : undefined;
-      const graphOptions = layerInputs
-        ? {
-            layers: layerInputs.map((layer) => layer.graphOptions ?? {}),
-          }
-        : input.graphOptions;
-      const normalized = await normalize({
-        data: input.data,
-        options: input.options,
-        ...(layerInputs && {
-          normalizationLayers: layerInputs.map((layer, layerIndex) => ({
-            layerIndex,
-            options: layer.options,
-          })),
-        }),
-      });
+      const normalize = this.stages.normalize ?? normalizeGraphSources;
+      const layerInputs = input.layers;
+      const graphOptions = { layers: layerInputs.map((layer) => layer.graphOptions ?? {}) };
+      const normalized = input.snapshot
+        ? success(input.snapshot, input.snapshot.diagnostics, !input.snapshot.nodes.length)
+        : await normalize({
+            layers: input.layers.map((layer, layerIndex) => ({ ...layer, layerIndex })),
+            diagnostics: input.diagnostics,
+          });
       if (!normalized.ok) {
         return normalized;
       }
@@ -121,8 +118,9 @@ export class GraphFramePipeline<TLayoutState, TRenderState> {
 
       const snapshot = normalized.value;
       const buildSignature = graphBuildSignature(snapshot, graphOptions);
-      const reusableGraph = this.committedBuildSignature === buildSignature ? this.committed : undefined;
-      const graphResult = reusableGraph
+      const reusableGraph =
+        !this.stages.isolateGraph && this.committedBuildSignature === buildSignature ? this.committed : undefined;
+      let graphResult = reusableGraph
         ? success(reusableGraph.graph.state, normalized.diagnostics, normalized.empty)
         : await (this.stages.buildGraph ?? buildGraphFromSnapshot)(snapshot, graphOptions);
       if (!graphResult.ok) {
@@ -133,13 +131,11 @@ export class GraphFramePipeline<TLayoutState, TRenderState> {
       }
 
       const resolveVisuals = this.stages.resolveVisuals ?? resolveGraphVisuals;
-      const visualResult = await resolveVisuals({
-        data: input.data,
+      let visualResult = await resolveVisuals({
+        sources: graphPipelineSources(input),
         snapshot,
         graph: graphResult.value,
-        config: input.visualConfig,
-        ...(layerInputs && { configs: layerInputs.map((layer) => layer.visualConfig) }),
-        theme: input.theme,
+        configs: layerInputs.map((layer) => layer.visualConfig),
       });
       if (!visualResult.ok) {
         return visualResult;
@@ -150,6 +146,21 @@ export class GraphFramePipeline<TLayoutState, TRenderState> {
 
       const layoutSignature = graphLayoutSignature(snapshot, input, visualResult.value, graphOptions);
       const reusableLayout = this.committedLayoutSignature === layoutSignature ? this.committed : undefined;
+      if (reusableGraph && !reusableLayout) {
+        graphResult = await (this.stages.buildGraph ?? buildGraphFromSnapshot)(snapshot, graphOptions);
+        if (!graphResult.ok || !isCurrent()) {
+          return graphResult.ok ? undefined : graphResult;
+        }
+        visualResult = await resolveVisuals({
+          sources: graphPipelineSources(input),
+          snapshot,
+          graph: graphResult.value,
+          configs: layerInputs.map((layer) => layer.visualConfig),
+        });
+        if (!visualResult.ok || !isCurrent()) {
+          return visualResult.ok ? undefined : visualResult;
+        }
+      }
       const graph = Object.freeze({ snapshot, state: graphResult.value });
       const visual = Object.freeze({ snapshot, state: visualResult.value });
       const layout: GraphLayoutStage<TLayoutState> = reusableLayout
@@ -166,6 +177,7 @@ export class GraphFramePipeline<TLayoutState, TRenderState> {
               graph: graphResult.value,
               visual: visualResult.value,
               isCurrent,
+              signal: isCurrent.signal,
             }),
             reused: false,
           });
@@ -180,6 +192,7 @@ export class GraphFramePipeline<TLayoutState, TRenderState> {
         visual: visualResult.value,
         layout,
         isCurrent,
+        signal: isCurrent.signal,
       });
       if (!isCurrent()) {
         return undefined;
@@ -215,12 +228,75 @@ export class GraphFramePipeline<TLayoutState, TRenderState> {
     });
   }
 
+  /** Updates visual properties without graph construction, layout or full commit preparation. */
+  patchMetrics(input: GraphPipelineInput, updates: readonly MetricUpdate[]) {
+    return this.gate.run(async (isCurrent) => {
+      const previous = this.committed;
+      if (!previous) {
+        return undefined;
+      }
+      const snapshot = previous.snapshot;
+      const graph = previous.graph.state;
+      const visual = await (this.stages.resolveVisuals ?? resolveGraphVisuals)({
+        sources: graphPipelineSources(input),
+        snapshot,
+        graph,
+        configs: input.layers.map((layer) => layer.visualConfig),
+        metricPatch: { previous: previous.visual.state, updates },
+      });
+      if (!visual.ok || !isCurrent()) {
+        return visual.ok ? undefined : visual;
+      }
+      const layout = Object.freeze({ ...previous.layout, reused: true });
+      const render = await this.stages.render({
+        input,
+        snapshot,
+        graph,
+        visual: visual.value,
+        layout,
+        isCurrent,
+        signal: isCurrent.signal,
+      });
+      if (!isCurrent()) {
+        return undefined;
+      }
+      const committed = Object.freeze({
+        ...previous,
+        version: ++this.version,
+        layout,
+        visual: Object.freeze({ snapshot, state: visual.value }),
+        render: Object.freeze({ snapshot, state: render }),
+      });
+      this.committed = committed;
+      try {
+        this.stages.commitVisuals?.(committed);
+      } catch (error) {
+        this.committed = previous;
+        this.version--;
+        throw error;
+      }
+      return success(committed, committed.diagnostics, !snapshot.nodes.length);
+    });
+  }
+
+  invalidateGeometry(): void {
+    this.invalidate();
+    this.committedBuildSignature = undefined;
+    this.committedLayoutSignature = undefined;
+  }
+
+  clear(): void {
+    this.invalidateGeometry();
+    this.committed = undefined;
+  }
+
   invalidate(): void {
     this.gate.invalidate();
   }
 
   dispose(): void {
     this.gate.dispose();
+    this.committed = undefined;
   }
 }
 
@@ -243,7 +319,7 @@ function graphLayoutSignature(
   visual: GraphVisualState,
   graphOptions?: GraphBuildOptions
 ): string {
-  const layerOptions = input.layers?.length ? input.layers.map(({ options }) => options) : [input.options];
+  const layerOptions = input.layers.map(({ options }) => options);
   const hasGeoLayer = layerOptions.some(({ isLogic }) => !isLogic);
   const hasLogicLayer = layerOptions.some(({ isLogic }) => isLogic);
 

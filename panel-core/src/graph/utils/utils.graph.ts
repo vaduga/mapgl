@@ -233,7 +233,7 @@ function getMidpoint(sourcePosition: Position, targetPosition: Position, isLogic
   return point.geometry.coordinates as [number, number];
 }
 
-function getContractedGraph(graphId: string, visibleNamespaces: string[], allNameSpaces: string[]) {
+function getContractedGraph(graphId: string, visibleNamespaces: readonly string[], allNameSpaces: readonly string[]) {
   const currentParts = splitNsId(graphId);
 
   const eligibleIds = visibleNamespaces.filter((id) => {

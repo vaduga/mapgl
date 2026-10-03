@@ -1,56 +1,34 @@
+import type { GraphEdgeIndex } from '../graph/GraphEdgeIndex';
+import type { EdgeRenderIndex } from '../graph/utils/utils.graph-geom';
 import { makeAutoObservable } from 'mobx';
-import type { RootStore } from './RootStore';
-import { blankHoverInfo, FIXED_COLOR_LABEL } from '@mapgl/panel-core/types/defaults';
-import {
-  BiColProps,
-  colTypes,
-  QueryHost,
-  type Info,
-  type MapLayerState,
-  type ViewState,
-} from '@mapgl/panel-core/types';
-import type { MarkersConfig } from '@mapgl/panel-core/layers/data';
-import { Edge, findEdge, getGraphData, getNodeData, Graph, Node } from '@mapgl/panel-core/graph';
-import { inheritedShift } from '@mapgl/panel-core/graph/utils';
-import { DataFrame, dateTime } from '@grafana/data';
-import { findField } from '@mapgl/panel-core/grafana_core/app/features/dimensions';
-import { getStyleDimension } from '@mapgl/panel-core/utils/geomap_utils';
-import { getStyleConfigState } from '@mapgl/panel-core/style/utils';
-
-import { toRGB4Array } from '@mapgl/panel-core/deckLayers/utils';
-import { SelectNodeEvent } from '@mapgl/panel-core/utils';
-import type { Unsubscribable } from 'rxjs';
-import type { DeckGLRefWithViewManager } from '@mapgl/panel-core/types';
+import { findEdge, getGraphData, getNodeData, Graph, type Edge, type Node } from '../graph/main';
+import { colTypes, type QueryHost, type Info, type ViewState } from '../types';
+import { blankHoverInfo } from '../types/defaults';
+import type { GraphBuiltState } from '../graph/frame/types';
 import { GraphHighlighter } from '../deckLayers/GraphHighlighter';
-import { resolveFeatureGroup } from '@mapgl/panel-core/editor';
-import { resolvePanelGraphInteraction, syncGraphEdgeGroupOverrides } from '@mapgl/panel-core/graph/frame';
 
-export interface PointStoreHooks {
-  editable?: boolean;
-  allowUnindexedEdges?: boolean;
-  findEdge?: (graph: Graph, id: string) => Edge | undefined;
-  selectionView?: (view: ViewState, graphId?: string) => ViewState;
-  ignorePickingInfo?: (info: any) => boolean;
-  onLiveHostUpdate?: (store: PointStore, update: any, isCurrent: () => boolean) => Promise<boolean>;
+export interface ElementKey {
+  readonly id: string;
+  readonly namespaceId: string;
 }
+export type SelectedIndexes = Map<string, Record<string, number[]> | number[]>;
+export type FocusRef = ElementKey & { readonly kind: 'node' | 'edge' };
 
+const keyOfNode = (node: Node): ElementKey => ({
+  id: node.id,
+  namespaceId: String((node.parent as Graph | undefined)?.id ?? ''),
+});
+const keyOfEdge = (edge: Edge): ElementKey => ({
+  id: edge.id,
+  namespaceId: String((edge.source.parent as Graph | undefined)?.id ?? ''),
+});
+
+/** Selection and focus survive object replacement by retaining semantic keys. */
 export class PointStore {
-  root: RootStore;
   mode: 'modify' | 'view' = 'view';
   editable = false;
   isDrawerOpen = false;
-  isEdgeListed = false;
-  isReversed = false; /// node->edges paths direction reversed
-  selectedNode: Node | undefined | null = undefined;
   isShowCenter: ViewState | undefined = undefined;
-  selEdges: Edge[] = [];
-  focusedNodeId: string | null = null;
-  focusedNodeGraphId: string | null = null;
-  focusedEdgeId: string | null = null;
-  focusedEdgeGraphId: string | null = null;
-  focusedEdges: Edge[] = [];
-  focusRevision = 0;
-  graphHighlighter = new GraphHighlighter();
   commentOpenIdx = -1;
   selCoord:
     | {
@@ -62,142 +40,58 @@ export class PointStore {
 
   tooltipObject: Info = blankHoverInfo;
   logTooltipObject: Info = blankHoverInfo;
-  private eventSub?: Unsubscribable;
-  private subscribedEventBus?: RootStore['eventBus'];
-  private subscribe: () => Unsubscribable;
-  private disposed = false;
-  private liveUpdates = new Map<string, number>();
 
-  constructor(
-    root: RootStore,
-    private readonly hooks: PointStoreHooks = {}
-  ) {
-    this.root = root;
-    const { panel, graph } = this.root;
-    this.editable = hooks.editable ?? false;
-    const replaceVariables = root.replaceVariables;
-    const nodeId = replaceVariables('$nodeId');
-    //const edgeId = replaceVariables('$edgeId');
-    this.graphHighlighter.setGraph(graph, { edgeIndex: panel.graphEdgeIndex });
-    let node, edge;
-    if (nodeId !== '$nodeId') {
-      node = this.root.graph.findNodeRecursive(nodeId);
-    }
-    // if (node && edgeId !== '$edgeId') {
-    // for (const el of graph.deepEdges) {
-    //   if (el.id === edgeId) {
-    //     edge = el;
-    //     //break;
-    //   }
-    // }
-    if (node) {
-      this.setSelectedNode(node, edge ? [edge] : []);
-    }
-    //}
+  private selectedKey: ElementKey | undefined = undefined;
+  private selectedEdgeKeys: ElementKey[] = [];
+  private focusedEdgeKeys: ElementKey[] = [];
+  focusedNodeId: string | null = null;
+  focusedNodeGraphId: string | null = null;
+  focusedEdgeId: string | null = null;
+  focusedEdgeGraphId: string | null = null;
+  isEdgeListed = false;
+  isReversed = false;
+  focusRevision = 0;
+  graphRevision = 0;
+  readonly graphHighlighter = new GraphHighlighter();
+  private renderer?: {
+    edgeIndex: GraphEdgeIndex;
+    revision: number;
+    mappings: ReadonlyArray<EdgeRenderIndex | undefined>;
+    bounds: readonly string[];
+  };
 
-    this.subscribe = () =>
-      this.root.eventBus.subscribe(SelectNodeEvent, (evt) => {
-        if (this.root.pId !== evt.payload.pId) {
-          return;
-        } //  && !isLogic  . logic layer crosshair selection
-
-        const graph = this.root.graph;
-        const isLogic = this.root.panel.isLogic;
-        const { nodeId, edge: payloadEdge, edgeId, graphId, fly, coord, select, zoomIn } = evt.payload;
-
-        let wasmId;
-        if (nodeId || payloadEdge || edgeId || select) {
-          let node;
-          let edge = payloadEdge;
-          let subGraph = graphId && Array.from(graph.graphs()).find((el) => el.id === graphId);
-          if (subGraph) {
-            node = (nodeId && subGraph.findNode(nodeId)) ?? subGraph;
-            edge =
-              edge ?? (edgeId ? (this.hooks.findEdge?.(subGraph, edgeId) ?? findEdge(subGraph, edgeId)) : undefined);
-          } else {
-            node = nodeId && graph.findNodeRecursive(nodeId);
-            if (!edge && edgeId) {
-              for (const el of graph.deepEdges) {
-                if (el.id === edgeId) {
-                  edge = el;
-                  break;
-                }
-              }
-            }
-          }
-
-          if (select || edge) {
-            this.setSelectedNode(node ? node : undefined, edge ? [edge] : []);
-          }
-          wasmId = node && !(node instanceof Graph) ? getNodeData(node)?.wasmId : undefined;
-        }
-
-        if (wasmId !== undefined || coord) {
-          const pos = panel.positions;
-          const lng = pos[wasmId * 2];
-          const lat = pos[wasmId * 2 + 1];
-
-          const coordsFromValue = [lng, lat];
-
-          if (coord || (lng && lat)) {
-            const map = this.root.map;
-
-            const longitude = coord ? coord[0] : coordsFromValue[0];
-            const latitude = coord ? coord[1] : coordsFromValue[1];
-            const scene = (map as DeckGLRefWithViewManager)?.deck?.viewManager.viewState[
-              isLogic ? '3d-scene' : 'geo-view'
-            ];
-            const mapZoom = zoomIn ? (isLogic ? 1.5 : 18) : scene?.zoom;
-            const zoom = isNaN(mapZoom) ? 2 : (mapZoom ?? 18);
-
-            const initialViewState = {
-              longitude,
-              latitude,
-              transitionDuration: 250,
-
-              // bearing: 0,
-              // pitch: 0,
-              rotationX: -90,
-              zoom,
-              yZoom: zoom + 1,
-              target: [longitude, latitude, isLogic ? 0 : zoom],
-            };
-            const viewState = this.hooks.selectionView?.(initialViewState, graphId) ?? initialViewState;
-            if (select) {
-              this.setSelCoord({
-                type: 'Point',
-                coordinates: [viewState.longitude, viewState.latitude],
-              });
-            }
-            if (fly) {
-              this.root.viewStore.setViewState(viewState);
-              this.setIsShowCenter({ ...viewState });
-            }
-            this.setIsShowCenter({ ...viewState });
-          }
-        }
-      });
-
-    makeAutoObservable(this, {
-      root: false,
-      hooks: false,
-      subscribe: false,
-      eventSub: false,
-      subscribedEventBus: false,
-      liveUpdates: false,
-    } as any);
-    //autorun(() => console.log('getSelelectedNode', this.getSelectedNode))//, toJS(this.getSelFeature)));
+  setRenderIndexes(
+    edgeIndex: GraphEdgeIndex,
+    mappings: ReadonlyArray<EdgeRenderIndex | undefined>,
+    bounds: readonly string[] = []
+  ): void {
+    this.renderer = { edgeIndex, revision: edgeIndex.revision, mappings, bounds };
+    this.refreshGraphHighlighter();
   }
 
-  get isDefDir() {
-    return !this.isReversed;
+  renderIndex(edge: Edge): EdgeRenderIndex | undefined {
+    const index = this.readGraph()?.edgeIndex;
+    const ref = index?.getEdgeRef(edge);
+    return index === this.renderer?.edgeIndex && index?.revision === this.renderer?.revision && ref !== undefined
+      ? this.renderer?.mappings[ref]
+      : undefined;
   }
 
+  private get renderMappings() {
+    return this.readGraph()?.edgeIndex === this.renderer?.edgeIndex &&
+      this.renderer?.edgeIndex.revision === this.renderer?.revision
+      ? this.renderer?.mappings
+      : undefined;
+  }
+
+  constructor(private readonly readGraph: () => GraphBuiltState | undefined) {
+    makeAutoObservable(this, { readGraph: false, graphHighlighter: false, renderer: false } as any, { autoBind: true });
+  }
   get getIsShowCenter() {
     return this.isShowCenter;
   }
 
-  setIsShowCenter = (viewState: ViewState) => {
+  setIsShowCenter = (viewState: ViewState | undefined) => {
     this.isShowCenter = viewState;
   };
 
@@ -225,7 +119,7 @@ export class PointStore {
     return this.log;
   }
 
-  setLog = (payload) => {
+  setLog = (payload: QueryHost[]) => {
     this.log = payload;
     if (this.log.length > 10) {
       this.log.splice(10);
@@ -239,15 +133,15 @@ export class PointStore {
     }
   };
 
-  setMode = (mode) => {
+  setMode = (mode: 'modify' | 'view') => {
     this.mode = mode;
   };
 
-  setCommentOpenIdx = (i) => {
+  setCommentOpenIdx = (i: number) => {
     this.commentOpenIdx = i;
   };
 
-  setDrawerOpen = (flag) => {
+  setDrawerOpen = (flag: boolean) => {
     this.isDrawerOpen = flag;
   };
 
@@ -259,6 +153,61 @@ export class PointStore {
     };
   };
 
+  get getSelCoord() {
+    return this.selCoord;
+  }
+
+  setSelCoord = (newSelCoord: { coordinates: [number, number]; type: 'Point' } | undefined) => {
+    this.selCoord = newSelCoord;
+  };
+
+  get getTooltipObject() {
+    return this.tooltipObject;
+  }
+
+  setTooltipObject = (info: any) => {
+    this.tooltipObject = info;
+  };
+
+  private graph(namespaceId: string): Graph | undefined {
+    const root = this.readGraph()?.graph;
+    return (
+      root && ([root, ...root.subgraphsBreadthFirst()].find((graph) => graph.id === namespaceId) as Graph | undefined)
+    );
+  }
+  select(key?: ElementKey, pickedEdges: Edge[] = []): void {
+    const node = key ? this.graph(key.namespaceId)?.findNode(key.id) : undefined;
+    if (node || !key) {
+      this.setSelectedNode(node, pickedEdges);
+    } else {
+      this.selectedKey = key;
+    }
+  }
+  get getSelectedNode(): Node | null {
+    void this.graphRevision;
+    const key = this.selectedKey;
+    return key ? (this.graph(key.namespaceId)?.findNode(key.id) ?? null) : null;
+  }
+  private edges(keys: readonly ElementKey[]): Edge[] {
+    void this.graphRevision;
+    return keys.flatMap((key) => {
+      const graph = this.graph(key.namespaceId);
+      const edge = graph && findEdge(graph, key.id);
+      return edge ? [edge] : [];
+    });
+  }
+  get getSelEdges(): Edge[] {
+    return this.edges(this.selectedEdgeKeys);
+  }
+  get focusedEdges(): Edge[] {
+    return this.edges(this.focusedEdgeKeys);
+  }
+  set focusedEdges(edges: Edge[]) {
+    this.focusedEdgeKeys = edges.map(keyOfEdge);
+  }
+  get isDefDir() {
+    return !this.isReversed;
+  }
   setIsDefDir = (isDefDir: boolean) => {
     if (this.isDefDir === isDefDir) {
       return;
@@ -269,14 +218,6 @@ export class PointStore {
       this.refreshGraphHighlighter();
     }
   };
-
-  get getSelCoord() {
-    return this.selCoord;
-  }
-
-  get getSelEdges() {
-    return this.selEdges;
-  }
 
   get getHasFocusHighlight() {
     return Boolean(this.focusedNodeId || this.focusedEdgeId || this.focusedEdges.length);
@@ -296,16 +237,16 @@ export class PointStore {
     return this.graphHighlighter.getConnectedEdgeIndexes();
   }
 
-  setSelCoord = (newSelCoord) => {
-    this.selCoord = newSelCoord;
-  };
-
   setSelEdges = (edges: Edge[]) => {
-    this.selEdges = edges;
+    this.selectedEdgeKeys = edges.map(keyOfEdge);
   };
 
   setFocusedNodeId = (nodeId: string | null, graphId?: string | null) => {
-    this.graphHighlighter.setGraph(this.root.graph, { edgeIndex: this.root.panel.graphEdgeIndex });
+    const graph = this.readGraph();
+    if (!graph) {
+      return;
+    }
+    this.graphHighlighter.setGraph(graph.graph, { edgeIndex: graph.edgeIndex, mappings: this.renderMappings });
 
     const nextGraphId = graphId ?? null;
     if (this.focusedNodeId === nodeId && this.focusedNodeGraphId === nextGraphId && !this.focusedEdgeId) {
@@ -322,7 +263,11 @@ export class PointStore {
   };
 
   setFocusedEdgeId = (edgeId: string | null, graphId?: string | null) => {
-    this.graphHighlighter.setGraph(this.root.graph, { edgeIndex: this.root.panel.graphEdgeIndex });
+    const graph = this.readGraph();
+    if (!graph) {
+      return;
+    }
+    this.graphHighlighter.setGraph(graph.graph, { edgeIndex: graph.edgeIndex, mappings: this.renderMappings });
 
     const nextGraphId = graphId ?? null;
     if (this.focusedEdgeId === edgeId && this.focusedEdgeGraphId === nextGraphId && !this.focusedNodeId) {
@@ -339,7 +284,11 @@ export class PointStore {
   };
 
   setFocusedEdges = (edges: Edge[]) => {
-    this.graphHighlighter.setGraph(this.root.graph, { edgeIndex: this.root.panel.graphEdgeIndex });
+    const graph = this.readGraph();
+    if (!graph) {
+      return;
+    }
+    this.graphHighlighter.setGraph(graph.graph, { edgeIndex: graph.edgeIndex, mappings: this.renderMappings });
 
     this.focusedNodeId = null;
     this.focusedNodeGraphId = null;
@@ -351,7 +300,15 @@ export class PointStore {
   };
 
   refreshGraphHighlighter = () => {
-    this.graphHighlighter.setGraph(this.root.graph, { force: true, edgeIndex: this.root.panel.graphEdgeIndex });
+    const graph = this.readGraph();
+    if (!graph) {
+      return;
+    }
+    this.graphHighlighter.setGraph(graph.graph, {
+      force: true,
+      edgeIndex: graph.edgeIndex,
+      mappings: this.renderMappings,
+    });
     if (this.focusedEdges.length) {
       this.graphHighlighter.updateEdges(this.focusedEdges);
     } else if (this.focusedEdgeId) {
@@ -365,26 +322,6 @@ export class PointStore {
       });
     }
     this.focusRevision += 1;
-  };
-
-  setFocusedNodeFromPickingInfo = (info: any) => {
-    if (!info?.picked) {
-      this.setFocusedElement(null, null);
-      return;
-    }
-
-    if (this.hooks.ignorePickingInfo?.(info)) {
-      return;
-    }
-
-    const nodeRef = this.getNodeRefFromPickingInfo(info);
-    if (nodeRef) {
-      this.setFocusedNodeId(nodeRef.nodeId, nodeRef.graphId);
-      return;
-    }
-
-    const edgeRef = this.getEdgeRefFromPickingInfo(info);
-    this.setFocusedEdgeId(edgeRef?.edgeId ?? null, edgeRef?.graphId);
   };
 
   setFocusedElement = (nodeId: string | null, edgeId: string | null) => {
@@ -414,16 +351,12 @@ export class PointStore {
     return this.isEdgeListed ? this.isDefDir : null;
   }
 
-  get getTooltipObject() {
-    return this.tooltipObject;
+  get getSelectedIdxs(): SelectedIndexes {
+    return this.selectedIndexes();
   }
 
-  setTooltipObject = (info: any) => {
-    this.tooltipObject = info;
-  };
-
-  get getSelectedIdxs(): Map<string, Record<string, number[]>> | [] {
-    const selectedIds = new Map();
+  selectedIndexes(allowUnindexedEdges = true): SelectedIndexes {
+    const selectedIds: SelectedIndexes = new Map();
     const selectedNode = this.getSelectedNode;
     const dataRecord =
       selectedNode instanceof Graph ? getGraphData(selectedNode) : selectedNode ? getNodeData(selectedNode) : undefined;
@@ -432,14 +365,18 @@ export class PointStore {
     }
     const selFeatLayerName = (selectedNode?.parent as Graph).id;
     const index = dataRecord.idx;
-    const selEdges = this.selEdges;
+    const selEdges = this.getSelEdges;
 
+    if (selectedNode instanceof Graph) {
+      const boundIndex = this.renderer?.bounds.indexOf(selectedNode.id) ?? -1;
+      if (boundIndex >= 0) {
+        selectedIds.set(colTypes.Bboxes, [boundIndex]);
+      }
+    }
     if (index !== undefined) {
-      const prevNodes = selectedIds.get(colTypes.Nodes);
+      const prevNodes = selectedIds.get(colTypes.Nodes) as Record<string, number[]> | undefined;
 
-      if (dataRecord.feature?.type === 'Polygon') {
-        selectedIds.set(colTypes.Bboxes, [index]);
-      } else {
+      if (!(selectedNode instanceof Graph)) {
         selectedIds.set(colTypes.Nodes, {
           ...prevNodes,
           [selFeatLayerName]: [index],
@@ -452,14 +389,14 @@ export class PointStore {
             return acc;
           }
           const layerId = String((e.source.parent as Graph).id);
-          const edgeRef = this.root.panel.graphEdgeIndex.getEdgeRef(e);
-          if (edgeRef === undefined && this.hooks.allowUnindexedEdges === false) {
+          const edgeRef = this.readGraph()!.edgeIndex.getEdgeRef(e);
+          if (edgeRef === undefined && !allowUnindexedEdges) {
             return acc;
           }
           const recordRef =
-            edgeRef === undefined ? e.data.recordRef : this.root.panel.graphEdgeIndex.getEdgeRecordRef(edgeRef);
-          const lineIds = [...this.root.panel.graphEdgeIndex.recordEdges(recordRef)]
-            .map((x: any) => x?.lineId)
+            edgeRef === undefined ? e.data.recordRef : this.readGraph()!.edgeIndex.getEdgeRecordRef(edgeRef);
+          const lineIds = [...this.readGraph()!.edgeIndex.recordEdges(recordRef)]
+            .map((edge) => this.renderIndex(edge)?.lineId)
             .filter((id: any): id is number => typeof id === 'number');
 
           if (lineIds.length) {
@@ -473,18 +410,8 @@ export class PointStore {
     return selectedIds;
   }
 
-  get getSelectedNode() {
-    return this.selectedNode;
-  }
-
   setSelectedNode = (node: Node | undefined | null, pickedEdges: Edge[] = []) => {
-    // node === undefined with selIds sets line id
-    if (node === null || node === undefined) {
-      this.selectedNode = null;
-    }
-    if (node) {
-      this.selectedNode = node;
-    }
+    this.selectedKey = node ? keyOfNode(node) : undefined;
     if (pickedEdges.length > 1) {
       this.setFocusedEdges(pickedEdges);
     } else if (pickedEdges[0]) {
@@ -495,17 +422,13 @@ export class PointStore {
       this.setFocusedElement(null, null);
     }
 
-    if (node) {
-      const dataRecord = node instanceof Graph ? getGraphData(node) : getNodeData(node);
-      const feature = dataRecord?.feature;
-      if (!feature) {
-        return;
-      }
+    const selNode = this.getSelectedNode;
+
+    const graph = this.readGraph();
+    if (!graph) {
+      return;
     }
-
-    const selNode = this.selectedNode;
-
-    this.graphHighlighter.setGraph(this.root.graph, { edgeIndex: this.root.panel.graphEdgeIndex });
+    this.graphHighlighter.setGraph(graph.graph, { edgeIndex: graph.edgeIndex, mappings: this.renderMappings });
     const edgeGroups = this.isDefDir
       ? this.graphHighlighter.getOutEdgeGroups(selNode)
       : this.graphHighlighter.getInEdgeGroups(selNode);
@@ -519,93 +442,30 @@ export class PointStore {
     const selEdges = pickedEdges?.length ? pickedEdges : node && Array.isArray(edges) && edges.length ? edges : [];
     this.setSelEdges(selEdges);
   };
-  setUpdatedHost = (update: any): Promise<boolean> => {
-    if (this.disposed) {
-      return Promise.resolve(false);
-    }
-    const key = String(update.locName ?? '');
-    const version = (this.liveUpdates.get(key) ?? 0) + 1;
-    this.liveUpdates.set(key, version);
-    const graph = this.root.graph;
-    const data = this.root.data;
-    const isCurrent = () =>
-      !this.disposed && this.root.graph === graph && this.root.data === data && this.liveUpdates.get(key) === version;
-    return this.hooks.onLiveHostUpdate?.(this, update, isCurrent) ?? Promise.resolve(false);
-  };
 
-  connect = () => {
-    const eventBus = this.root.eventBus;
-    if (this.eventSub && this.subscribedEventBus === eventBus) {
+  focus(ref?: FocusRef): void {
+    if (ref?.kind === 'node') {
+      this.setFocusedNodeId(ref.id, ref.namespaceId);
+    } else {
+      this.setFocusedEdgeId(ref?.id ?? null, ref?.namespaceId);
+    }
+  }
+
+  onCommit(): void {
+    this.graphRevision++;
+    if (!this.readGraph()) {
+      this.clear();
+      this.graphHighlighter.updateEdges([]);
       return;
     }
-    this.eventSub?.unsubscribe();
-    this.disposed = false;
-    this.subscribedEventBus = eventBus;
-    this.eventSub = this.subscribe();
-  };
-
-  dispose = () => {
-    this.disposed = true;
-    this.liveUpdates.clear();
-    this.eventSub?.unsubscribe();
-    this.eventSub = undefined;
-    this.subscribedEventBus = undefined;
-  };
-
-  private getNodeRefFromPickingInfo(info: any): { nodeId: string; graphId: string | null } | null {
-    const interaction = resolvePanelGraphInteraction(this.root.panel, info);
-    if (interaction?.kind === 'node') {
-      return {
-        nodeId: interaction.record.id,
-        graphId: interaction.record.namespaceId,
-      };
-    }
-
-    let props = info.object?.properties ?? info.object;
-    const points = info.sourceLayer?.props?.data?.points ?? info.layer?.props?.data?.points;
-    let isNodePick = false;
-
-    if (points && (info.featureType === 'points' || info.viewport?.id === '3d-scene') && info.index !== -1) {
-      const idx = points.featureIds?.value?.[info.index];
-      props = this.root.panel.features?.[idx];
-      isNodePick = true;
-    } else if (info.object?.pointIndex !== undefined) {
-      isNodePick = true;
-    }
-
-    if (!isNodePick) {
-      return null;
-    }
-
-    const locName = props?.locName;
-    if (!locName) {
-      return null;
-    }
-
-    const graph = props.graph instanceof Graph ? props.graph : this.root.graph;
-    const node = graph.findNode(locName) ?? this.root.graph.findNodeRecursive(locName);
-    return node ? { nodeId: node.id, graphId: String((node.parent as Graph)?.id ?? graph.id ?? '') } : null;
+    this.refreshGraphHighlighter();
   }
-
-  private getEdgeRefFromPickingInfo(info: any): { edgeId: string; graphId: string | null } | null {
-    const interaction = resolvePanelGraphInteraction(this.root.panel, info);
-    if (interaction?.kind === 'edge') {
-      return {
-        edgeId: interaction.runtimeId ?? interaction.record.id,
-        graphId: interaction.record.sourceNamespaceId,
-      };
-    }
-
-    const object = info.object;
-    const edgeId = object?.edgeId ?? object?.properties?.edgeId;
-    if (!edgeId) {
-      return null;
-    }
-
-    const graph = object?.properties?.graph ?? object?.feature?.properties?.graph;
-    const graphId = graph instanceof Graph ? graph.id : (graph?.id ?? null);
-    return { edgeId, graphId: graphId ? String(graphId) : null };
+  clear(): void {
+    this.selectedKey = undefined;
+    this.selectedEdgeKeys = [];
+    this.focusedEdgeKeys = [];
+    this.focusedNodeId = this.focusedEdgeId = null;
+    this.focusedNodeGraphId = this.focusedEdgeGraphId = null;
+    this.focusRevision++;
   }
 }
-
-export default PointStore;

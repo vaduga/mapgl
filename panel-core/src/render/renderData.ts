@@ -1,7 +1,9 @@
 import type { BinaryPointFeature } from '@loaders.gl/schema';
-import { MyGeoJsonLayer, MyPathLayer, MyPolygonsLayer } from '../deckLayers';
+import { MyGeoJsonLayer } from '../deckLayers/GeoJsonStaticLayer/static-geojson-layer';
+import { MyPathLayer } from '../deckLayers/PathLayer/path-layer';
+import { MyPolygonsLayer } from '../deckLayers/PolygonsLayer/polygons-layer';
 import { getGraphPositionRanges, type Graph } from '../graph/main';
-import { packGraphNodeBinaryRanges, selectGraphNodeFillColors } from '../utils';
+import { packGraphNodeBinaryRanges, selectGraphNodeFillColors } from '../utils/binaryRanges';
 import { emptyBiCol } from '../types/defaults';
 import { splitNsId } from '../graph/utils/utils.graph';
 import type { GraphBiFeatCol } from '../types';
@@ -79,55 +81,42 @@ export function buildGraphBinaryCollections({
     });
 }
 
-interface SecondaryLayerState {
-  layer: { colType?: string; features?: unknown[] };
-  options: { type?: string; name?: string; isShowTooltip?: boolean };
+export interface SecondaryRenderDescriptor {
+  readonly kind: 'polygons' | 'path' | 'geojson';
+  readonly name?: string;
+  readonly features: readonly unknown[];
+  readonly pickable: boolean;
+}
+export interface SecondaryPresentation {
+  readonly isMeters?: boolean;
+  readonly isDark?: boolean;
+  readonly onHover?: (info: any) => void;
+  readonly highlightColor?: import('@deck.gl/core').Color;
+  readonly getVisLayers: import('../store/VisLayers').VisLayers;
 }
 
-export function buildSecondaryLayers({
-  isLogic,
-  layers,
-  layerProps,
-}: {
-  isLogic: boolean;
-  layers: readonly SecondaryLayerState[];
-  layerProps: Record<string, unknown>;
-}): RenderLayer[] {
-  if (isLogic) {
-    return [];
-  }
-
-  const result: RenderLayer[] = [];
-  let polygonIndex = 0;
-  let pathIndex = 0;
-  let geoJsonIndex = 0;
-
-  for (const state of layers.slice(1)) {
-    const features = state.layer.features;
-    if (state.layer.colType === 'markers' || !features?.length) {
-      continue;
+export function buildSecondaryLayers(
+  descriptors: readonly SecondaryRenderDescriptor[],
+  presentation: SecondaryPresentation
+): RenderLayer[] {
+  const counts = { polygons: 0, path: 0, geojson: 0 };
+  return descriptors.flatMap<RenderLayer>((descriptor) => {
+    if (!descriptor.features.length) {
+      return [];
     }
-
-    const pickable = Boolean(state.options.isShowTooltip);
-    const common = { ...layerProps, pickable, name: state.options.name };
-    switch (state.options.type) {
+    const common = {
+      ...presentation,
+      pickable: descriptor.pickable,
+      name: descriptor.name,
+      index: counts[descriptor.kind]++,
+    };
+    switch (descriptor.kind) {
       case 'polygons':
-        result.push(MyPolygonsLayer({ ...common, index: polygonIndex++, data: features }));
-        break;
+        return [MyPolygonsLayer({ ...common, data: descriptor.features })];
       case 'path':
-        result.push(MyPathLayer({ ...common, index: pathIndex++, data: features, type: 'path' }));
-        break;
+        return [MyPathLayer({ ...common, data: descriptor.features, type: 'path' })];
       case 'geojson':
-        result.push(
-          MyGeoJsonLayer({
-            ...common,
-            index: geoJsonIndex++,
-            data: { type: 'FeatureCollection', features },
-          })
-        );
-        break;
+        return [MyGeoJsonLayer({ ...common, data: { type: 'FeatureCollection', features: descriptor.features } })];
     }
-  }
-
-  return result;
+  });
 }

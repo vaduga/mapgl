@@ -1,6 +1,5 @@
 import { GeoJsonLayer, TextLayer } from '@deck.gl/layers';
 import { CollisionFilterExtension, DataFilterExtension } from '@deck.gl/extensions';
-import { FieldColorModeId } from '@grafana/data';
 import { getNsPrefixes } from '../../graph/utils/utils.graph';
 
 import { getPackedSvgIcon } from './svgIconAtlas';
@@ -39,7 +38,7 @@ import {
   getResolvedUserIconBoxSize,
 } from './nodeGeometry';
 import { Matrix4 } from '@math.gl/core';
-import { colTypes } from '@mapgl/panel-core/types';
+import { colTypes } from '../../types/index';
 import { resolveArcOptions } from '../../style/types';
 
 type LogicTextDatum = {
@@ -141,14 +140,13 @@ const NodesGeojsonLayer = (props) => {
     getSelectedNode,
     onHover,
     highlightColor,
-    options,
+    isMeters = false,
     svgIconState,
-    visRefresh,
+    resourceRevision,
     isLogic,
     isRouted,
     onSvgIconReady,
     getVisLayers,
-    panel,
     autoHighlight,
     visible,
     logicTextMode = 'single',
@@ -158,7 +156,7 @@ const NodesGeojsonLayer = (props) => {
 
   const { circle: Circle, svg: SVG, labels: Labels } = getNodeLayerVisibility(getVisLayers);
 
-  const units = isLogic ? 'common' : options.common?.isMeters ? 'meters' : 'pixels';
+  const units = isLogic ? 'common' : isMeters ? 'meters' : 'pixels';
   const categories = getVisLayers.getCategories();
   const categorySize = 2;
   const isPlaceholderTextMode = logicTextMode === 'placeholder';
@@ -272,7 +270,7 @@ const NodesGeojsonLayer = (props) => {
   const getNodeDonutGaugeOptions = (d: any, info?: { index?: number }) => {
     const arcOptions = resolveArcOptions(getResolvedNodeArcOptions(d, pointProperties, featureIds, info?.index));
     const gauge = getResolvedNodeGauge(d, pointProperties, featureIds, info?.index);
-    const gradient = gauge?.colorMode !== FieldColorModeId.Thresholds || arcOptions.gradient;
+    const gradient = gauge?.colorMode !== 'thresholds' || arcOptions.gradient;
     return [
       arcOptions.barWidthFactor,
       arcOptions.segments,
@@ -357,7 +355,7 @@ const NodesGeojsonLayer = (props) => {
     },
     updateTriggers: {
       getPointRadius: [selectedNodeId],
-      getIcon: [svgIconRevision, visRefresh],
+      getIcon: [svgIconRevision, resourceRevision],
       getIconSize: [selectedNodeId],
       getTextPixelOffset: [selectedNodeId],
       getTextSize: [selectedNodeId],
@@ -395,7 +393,7 @@ const NodesGeojsonLayer = (props) => {
         alphaCutoff: -1,
         autoHighlight: false,
         updateTriggers: {
-          getIcon: [svgIconRevision, visRefresh],
+          getIcon: [svgIconRevision, resourceRevision],
           getSize: [selectedNodeId],
         },
       },
@@ -420,9 +418,9 @@ const NodesGeojsonLayer = (props) => {
         },
         updateTriggers: {
           getRadius: [selectedNodeId],
-          getDonutRecord: [donutAtlas, visRefresh],
-          getDonutGaugeValue: [visRefresh],
-          getDonutGaugeOptions: [visRefresh],
+          getDonutRecord: [donutAtlas, resourceRevision],
+          getDonutGaugeValue: [resourceRevision],
+          getDonutGaugeOptions: [resourceRevision],
         },
       },
     },
@@ -442,25 +440,23 @@ const PlaceholderTextLayer = (props) => {
     getVisLayers,
     visible,
     getSelectedNode,
-    options,
+    isMeters = false,
     isLogic,
     pickable,
     onHover,
     autoHighlight,
-    theme,
-    visRefresh,
+    textColor,
+    resourceRevision,
     idSuffix = '',
   } = props;
   const { svg: SVG, labels: Labels } = getNodeLayerVisibility(getVisLayers);
   const categories = getVisLayers.getCategories();
   const categorySize = 2;
-  const units = isLogic ? 'common' : options.common?.isMeters ? 'meters' : 'pixels';
+  const units = isLogic ? 'common' : isMeters ? 'meters' : 'pixels';
 
   const selectedNodeId = getSelectedNode?.id;
   const logicTextData = buildLogicTextLayerData(biCol, selectedNodeId, SVG);
-  const gaugeTextColor = theme?.colors?.text?.primary
-    ? toRGB4Array(theme.colors.text.primary, 1)
-    : ([240, 240, 240, 255] as const);
+  const gaugeTextColor = textColor ? toRGB4Array(textColor, 1) : ([240, 240, 240, 255] as const);
 
   const modelMatrix = new Matrix4();
   const srcGraphId = biCol.graph.id;
@@ -486,6 +482,11 @@ const PlaceholderTextLayer = (props) => {
     getColor: (d: any) => (d.properties?.style?.gauge ? gaugeTextColor : [240, 240, 240, 50]),
     getPosition: (d: any) => d.coordinates,
     getContentBox: (d: any) => {
+      // Deck's content box uses world units even when glyph sizes use pixels.
+      // Pixel-sized values already fit the opening through getSize.
+      if (!isLogic && !isMeters) {
+        return [0, 0, -1, -1];
+      }
       const side = logicTextData.placeholderBoxSide[d.pointIndex] ?? 0;
       return [-side / 2, -side / 2, side, side];
     },
@@ -498,10 +499,10 @@ const PlaceholderTextLayer = (props) => {
       return [style?.group?.groupIdx, layerName];
     },
     updateTriggers: {
-      getText: [biCol?.points?.properties, SVG, visRefresh],
-      getColor: [theme?.colors?.text?.primary],
-      getContentBox: [selectedNodeId, biCol?.points?.properties, visRefresh],
-      getSize: [selectedNodeId, biCol?.points?.properties, visRefresh],
+      getText: [biCol?.points?.properties, SVG, resourceRevision],
+      getColor: [textColor],
+      getContentBox: [selectedNodeId, biCol?.points?.properties, resourceRevision],
+      getSize: [selectedNodeId, biCol?.points?.properties, resourceRevision],
     },
     filterCategories: categories,
     extensions: [new DataFilterExtension({ categorySize })],
@@ -516,7 +517,7 @@ const MainLabelTextLayer = (props) => {
     getVisLayers,
     visible,
     getSelectedNode,
-    options,
+    isMeters = false,
     isLogic,
     pickable,
     onHover,
@@ -531,7 +532,7 @@ const MainLabelTextLayer = (props) => {
   });
   const categories = getVisLayers.getCategories();
   const categorySize = 2;
-  const units = isLogic ? 'common' : options.common?.isMeters ? 'meters' : 'pixels';
+  const units = isLogic ? 'common' : isMeters ? 'meters' : 'pixels';
 
   const selectedNodeId = getSelectedNode?.id;
   const logicTextData = buildLogicTextLayerData(biCol, selectedNodeId);

@@ -1,7 +1,7 @@
 import { Edge } from './edge';
 import { Graph } from './graph';
 import type { Node } from '@msagl/core';
-import type { NodeData } from '@mapgl/panel-core/types';
+import type { NodeData } from '../../types/index';
 import { resetGraphState } from './graphState';
 import { AttributeRegistry } from './attributeRegistry';
 
@@ -49,7 +49,12 @@ export function setNodeData(node: Node, data: NodeData): void {
   node.setAttr(AttributeRegistry.NodeDataIndex, data);
 }
 
-export function setEntityAttrProp(entity: { getAttr(position: number): any }, position: number, key: string, val: any): void {
+export function setEntityAttrProp(
+  entity: { getAttr(position: number): any },
+  position: number,
+  key: string,
+  val: any
+): void {
   const attributes = entity.getAttr(position);
   if (attributes) {
     attributes[key] = val;
@@ -81,6 +86,21 @@ export function setEdge(
   const edge = new Edge(id, source, target);
   getEdgeMap(graph)[id] = edge;
   return edge;
+}
+
+export function removeEdge(edge: Edge): void {
+  const graph = edge.source.parent as Graph | undefined;
+  const edgeMap = graph && edgeMaps.get(graph);
+  if (edgeMap?.[edge.id] === edge) {
+    delete edgeMap[edge.id];
+  }
+
+  if (edge.source === edge.target) {
+    (edge.source.selfEdges as Set<unknown>).delete(edge);
+  } else {
+    (edge.source.outEdges as Set<unknown>).delete(edge);
+    (edge.target.inEdges as Set<unknown>).delete(edge);
+  }
 }
 
 function resetGraphNodes(graph: Graph): void {

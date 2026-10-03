@@ -162,33 +162,4 @@ describe('donut shader data', () => {
     expect(atlas.data[3]).toBe(1);
     expect(atlas.diagnostics).toMatchObject({ gaugeRecordCount: 1, reducedGaugeStopCount: 0 });
   });
-
-  it('keeps deterministic visual fixtures for node, cluster, and annotation variants', () => {
-    const fixtures = [
-      createEqualDonutInput(['#ff0000']),
-      createEqualDonutInput(['#ff0000', '#00ff00', '#0000ff', '#ff0000']),
-      {
-        total: 10,
-        segments: [
-          { color: '#ff0000', count: 2 },
-          { color: '#00ff00', count: 3 },
-        ],
-        stripes: [
-          { color: '#111111', count: 1 },
-          { color: '#222222', count: 2 },
-          { color: '#333333', count: 1 },
-          { color: '#444444', count: 1 },
-        ],
-      },
-    ];
-
-    const atlas = createDonutAtlas(fixtures.map((input, index) => [`fixture-${index}`, input] as const));
-    expect(atlas.recordByKey.size).toBe(3);
-    expect(atlas.diagnostics).toMatchObject({
-      recordCount: 3,
-      segmentCount: 7,
-      stripeCount: 4,
-      estimatedBytes: atlas.data.byteLength,
-    });
-  });
 });

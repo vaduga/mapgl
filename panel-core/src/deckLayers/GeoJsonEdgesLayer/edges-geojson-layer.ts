@@ -2,14 +2,13 @@ import { toRGB4Array } from '../utils/color';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import type { Color } from '@deck.gl/core';
 import type { Feature, Geometry } from 'geojson';
-import { ALERTING_STATES } from '../../types/defaults';
 import { getNsPrefixes } from '../../graph/utils/utils.graph';
-import { type DeckLine, colTypes, type PointFeatureProperties, type RGBAColor } from '@mapgl/panel-core/types';
+import { type DeckLine, colTypes, type PointFeatureProperties, type RGBAColor } from '../../types/index';
 import { DataFilterExtension, PathStyleExtension } from '@deck.gl/extensions';
 import { Matrix4 } from '@math.gl/core';
 import { CurveEdgeBinaryData, CurveEdgeLayer, type CurveEdgeSegment } from './curve-edge-layer';
 import { getEdgeFilterCategories, getEdgeFilterCategory } from '../edgeFilterCategories';
-import { getCurveSegmentHidden, getMapglFeatureServices } from '../../extension-points/featureContracts';
+import { getCurveSegmentHidden } from '../../extension-points/featureContracts';
 import type { GraphEdgeIndex } from '../../graph/GraphEdgeIndex';
 
 type EdgePathStyleLayerProps = {
@@ -67,10 +66,13 @@ function getLayoutCurveSegments(
   srcGraphId: string,
   features: DeckLine[],
   edgeIndex: GraphEdgeIndex | undefined,
-  panel
+  geometry
 ): CurveEdgeBinaryData<DeckLine> | undefined {
-  const group = panel.layoutCurveGroups?.get(srcGraphId);
-  const edgeKeys = panel.layoutEdgeKeys;
+  if (!geometry) {
+    return undefined;
+  }
+  const group = geometry.curveGroups?.get(srcGraphId);
+  const edgeKeys = geometry.edgeKeys;
   if (!group || !edgeKeys?.length) {
     return undefined;
   }
@@ -82,11 +84,11 @@ function getLayoutCurveSegments(
 
   features.forEach((feature, featureIndex) => {
     for (const edge of getFeatureGeomEdges(feature, edgeIndex)) {
-      const layoutEdgeIndex = panel.layoutEdgeIndexes?.get(
+      const layoutEdgeIndex = geometry.edgeIndexes?.get(
         `${(edge.source?.parent as { id?: string } | undefined)?.id ?? ''}:${edge.id}`
       );
       if (layoutEdgeIndex !== undefined) {
-        const lineId = typeof edge.lineId === 'number' ? edge.lineId : featureIndex;
+        const lineId = featureIndex;
         lineIdsByEdgeIndex[layoutEdgeIndex] = lineId;
         featuresByLineId[lineId] = feature;
       }
@@ -106,7 +108,7 @@ function getLayoutCurveSegments(
       segmentFeatureIndexes[segmentIndex] = featureIndex;
     }
   });
-  const hiddenSegments = getCurveSegmentHidden(getMapglFeatureServices(panel).edgeOffsetStrategies, {
+  const hiddenSegments = getCurveSegmentHidden(geometry.edgeOffsetStrategies, {
     segmentFeatureIndexes,
     features: featuresByLineId,
   });
@@ -134,20 +136,22 @@ export const EdgesGeojsonLayer = (props) => {
     pickable,
     autoHighlight,
     highlightColor,
-    time,
-    options,
+    presentationRevision,
+    isMeters = false,
     visible,
     getVisLayers,
-    getGroupsLegend,
-    panel,
+    overlayEnabled,
+    layoutGeometry,
+    isLogic,
+    usesRendererNamespaceFiltering = false,
     edgeIndex,
   } = props;
 
-  const isLogic = panel.isLogic;
-  const usesRendererNamespaceFiltering = panel.namespaceProjection?.rendererFiltering !== 'none';
   const selectedFeatureIndexes = getSelectedIdxs?.get(colTypes.Edges)?.[srcGraphId] ?? [];
   const lineFeatures = linesCollection?.features ?? [];
-  const curveSegments = isLogic ? getLayoutCurveSegments(srcGraphId, lineFeatures, edgeIndex, panel) : undefined;
+  const curveSegments = isLogic
+    ? getLayoutCurveSegments(srcGraphId, lineFeatures, edgeIndex, layoutGeometry)
+    : undefined;
   const baseCategories = getVisLayers.getCategories();
   const filterIncludesSkip = !isLogic || !curveSegments?.length;
   const { categories, categorySize } = getEdgeFilterCategories({
@@ -184,20 +188,14 @@ export const EdgesGeojsonLayer = (props) => {
     if (!feature?.properties) {
       return [0, 0, 0, 0];
     }
-    const { edgeStyle, all_annots } = feature.properties as any;
+    const { edgeStyle, overlayColor } = feature.properties as any;
     if (!edgeStyle) {
       return [0, 0, 0, 0];
     }
     const { color, group, opacity } = edgeStyle;
 
-    if (all_annots && !getGroupsLegend?.at(-1)?.disabled) {
-      const annotState = all_annots?.[0]?.newState;
-      const color = annotState?.startsWith('Normal')
-        ? ALERTING_STATES.Normal
-        : annotState === 'Alerting'
-          ? ALERTING_STATES.Alerting
-          : ALERTING_STATES.Pending;
-      return toRGB4Array(color, 1) as [number, number, number];
+    if (overlayColor && overlayEnabled) {
+      return overlayColor;
     }
 
     // group is defined only if nodes/edge metric field match
@@ -215,7 +213,7 @@ export const EdgesGeojsonLayer = (props) => {
     return edgeStyle?.isDashed ? EDGE_DASH_ARRAY : SOLID_EDGE_DASH_ARRAY;
   };
 
-  const units = options.common?.isMeters ? 'meters' : 'pixels';
+  const units = isMeters ? 'meters' : 'pixels';
   const sizeUnits = isLogic ? 'common' : units;
   const commonLayerProps = {
     visible,
@@ -224,10 +222,10 @@ export const EdgesGeojsonLayer = (props) => {
     id: colTypes.Edges + '-view' + srcGraphId,
     modelMatrix,
     updateTriggers: {
-      getLineColor: time,
-      getColor: time,
-      getTextColor: time,
-      getFillColor: time,
+      getLineColor: presentationRevision,
+      getColor: presentationRevision,
+      getTextColor: presentationRevision,
+      getFillColor: presentationRevision,
       getLineWidth: selectedFeatureIndexes,
       getWidth: selectedFeatureIndexes,
     },

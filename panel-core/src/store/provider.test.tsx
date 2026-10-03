@@ -1,61 +1,46 @@
-import { render, screen } from '@testing-library/react';
 import React from 'react';
-
+import { act, render, screen } from '@testing-library/react';
+import { observer } from 'mobx-react-lite';
+import { PanelController } from '../runtime/PanelController';
 import { RootStoreProvider, useRootStore } from './provider';
 
-interface TestStore {
-  value: string;
-}
-
-function StoreValue() {
-  const store = useRootStore<TestStore>();
-  return <div data-testid="store-value">{store.value}</div>;
-}
-
-describe('RootStoreProvider', () => {
-  it('retains the root store and updates its inputs across parent renders', () => {
-    const createRootStore = jest.fn((props: TestStore) => ({ ...props }));
-    const updateRootStore = jest.fn((root: TestStore, props: TestStore) => {
-      root.value = props.value;
-    });
-    const { rerender } = render(
-      <RootStoreProvider props={{ value: 'first' }} createRootStore={createRootStore} updateRootStore={updateRootStore}>
-        <StoreValue />
-      </RootStoreProvider>
+it('provides the controller stores to observers and switches identity when the controller changes', () => {
+  const first = new PanelController();
+  const second = new PanelController();
+  const seen = jest.fn();
+  const Reader = observer(() => {
+    const store = useRootStore();
+    seen(store);
+    return (
+      <output>
+        {store.viewStore.getViewState.zoom}:{store.pointStore.getTooltipObject.object?.locName ?? 'none'}
+      </output>
     );
-
-    expect(screen.getByTestId('store-value')).toHaveTextContent('first');
-
-    rerender(
-      <RootStoreProvider
-        props={{ value: 'second' }}
-        createRootStore={createRootStore}
-        updateRootStore={updateRootStore}
-      >
-        <StoreValue />
-      </RootStoreProvider>
-    );
-
-    expect(createRootStore).toHaveBeenCalledTimes(1);
-    expect(updateRootStore).toHaveBeenCalledTimes(2);
-    expect(screen.getByTestId('store-value')).toHaveTextContent('second');
   });
-
-  it('preserves recreate-on-render behavior when no updater is supplied', () => {
-    const createRootStore = jest.fn((props: TestStore) => ({ ...props }));
-    const { rerender } = render(
-      <RootStoreProvider props={{ value: 'first' }} createRootStore={createRootStore}>
-        <StoreValue />
-      </RootStoreProvider>
-    );
-
-    rerender(
-      <RootStoreProvider props={{ value: 'second' }} createRootStore={createRootStore}>
-        <StoreValue />
-      </RootStoreProvider>
-    );
-
-    expect(createRootStore).toHaveBeenCalledTimes(2);
-    expect(screen.getByTestId('store-value')).toHaveTextContent('second');
+  const { rerender, unmount } = render(
+    <RootStoreProvider store={first.stores}>
+      <Reader />
+    </RootStoreProvider>
+  );
+  expect(seen).toHaveBeenLastCalledWith(first.stores);
+  act(() => {
+    first.stores.viewStore.setViewState({ ...first.stores.viewStore.getViewState, zoom: 4 });
+    first.stores.pointStore.setTooltipObject({ object: { locName: 'A' } });
   });
+  expect(screen.getByRole('status')).toHaveTextContent('4:A');
+  rerender(
+    <RootStoreProvider store={second.stores}>
+      <Reader />
+    </RootStoreProvider>
+  );
+  expect(seen).toHaveBeenLastCalledWith(second.stores);
+  expect(screen.getByRole('status')).toHaveTextContent(':none');
+  act(() => first.stores.pointStore.setTooltipObject({ object: { locName: 'old-store' } }));
+  expect(seen).toHaveBeenLastCalledWith(second.stores);
+  expect(screen.getByRole('status')).toHaveTextContent(':none');
+  const dispose = jest.spyOn(second, 'dispose');
+  unmount();
+  expect(dispose).not.toHaveBeenCalled();
+  first.dispose();
+  second.dispose();
 });

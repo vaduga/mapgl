@@ -5,7 +5,6 @@ import type { Graph } from '../graph/structs/graph';
 import type { FeatSource } from '../graph/FeatSource';
 import type { BinaryFeatureCollection } from '@loaders.gl/schema';
 
-export * from './panel';
 export * from './deck';
 
 export type ViewState = {
@@ -75,13 +74,8 @@ export type BiColProps = {
   graph?: Graph;
   rxPtId?: string;
   restoreCoords?: Position;
-  all_annots?: Array<{
-    alertName: string;
-    newState: string;
-    instance: string;
-    timeEnd: number;
-    data: unknown;
-  }>;
+  metadata?: Record<string, unknown>;
+  overlayColor?: RGBAColor;
   thrColor?: string; /// injected to get style group from props
   style: any; // StyleConfig
   edgeStyle: any; // StyleConfig
@@ -89,6 +83,7 @@ export type BiColProps = {
   segrPath?: CoordsGuided[][];
   tilt?: number;
   liveUpd?: string;
+  liveMetric?: number;
   ack?: boolean;
   msg?: string;
   arrowAngles?: {

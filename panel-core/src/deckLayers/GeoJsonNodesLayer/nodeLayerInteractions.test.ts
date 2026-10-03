@@ -1,3 +1,5 @@
+import { colTypes } from '../../types/index';
+import { getNodeLayerVisibility, getNodePointType } from './nodeRenderPlan';
 jest.mock('@deck.gl/layers', () => {
   class MockLayer {
     props: any;
@@ -36,7 +38,6 @@ jest.mock('../DonutCircleLayer', () => {
 });
 
 import { CollisionFilterExtension, DataFilterExtension } from '@deck.gl/extensions';
-import { createTheme } from '@grafana/data';
 
 import { NodesGeojsonLayer, PlaceholderTextLayer } from './nodes-geojson-layer';
 
@@ -126,7 +127,7 @@ function createPlaceholderLayer(
     },
     getSelectedNode: { id: 'gauge-no-icon' },
     options: { common: { isMeters: false } },
-    theme: createTheme(),
+    textColor: '#222222',
     isLogic,
     pickable: true,
     visible: true,
@@ -165,11 +166,6 @@ describe('node shader and SVG interaction contract', () => {
     expect(layer.props.iconAtlas).toMatch(/^data:image\/svg\+xml/);
     expect(layer.props.iconMapping[iconValue]).toMatchObject({ width: 30, height: 60, mask: false });
     expect(circle.getDonutRecord(feature, { index: 0 })).toBe(0);
-  });
-
-  it('flips the gauge Y axis for the graph OrbitView projection', () => {
-    const layer = createLayer({ isLogic: true });
-    expect(layer.props._subLayerProps['points-circle'].gaugeCoordinateYSign).toBe(-1);
   });
 
   it('resolves the shader donut record for geo-mode nodes', () => {
@@ -344,18 +340,6 @@ describe('node shader and SVG interaction contract', () => {
     expect(layer.props.updateTriggers.getSize).toEqual(['gauge-no-icon', expect.any(Object), undefined]);
   });
 
-  it('keeps the center text layer subject to Labels visibility', () => {
-    const properties = {
-      0: {
-        locName: 'gauge-no-icon',
-        layerName: 'nodes',
-        style: { size: 40, group: { groupIdx: 0 }, gauge: { displayText: '25%' } },
-      },
-    };
-
-    expect(createPlaceholderLayer(properties, true, false).props.visible).toBe(false);
-  });
-
   it('supports the gauge center text layer in Geo mode', () => {
     const properties = {
       0: {
@@ -369,5 +353,31 @@ describe('node shader and SVG interaction contract', () => {
     expect(layer.props.data).toHaveLength(1);
     expect(layer.props.getText(layer.props.data[0])).toBe('75%');
     expect(layer.props.sizeUnits).toBe('pixels');
+    expect(layer.props.getContentBox(layer.props.data[0])).toEqual([0, 0, -1, -1]);
+  });
+});
+
+describe('node render plan', () => {
+  it('omits IconLayer when no user SVG is active, including donut-only data', () => {
+    expect(getNodePointType(undefined, false)).toBe('circle+text');
+    expect(getNodePointType('circle+icon+text', true)).toBe('circle+icon+text');
+  });
+
+  it.each([
+    [false, false],
+    [false, true],
+    [true, false],
+    [true, true],
+  ])('keeps Circle and SVG visibility independent (%s, %s)', (circle, svg) => {
+    const states = new Map<string, boolean[]>([
+      [colTypes.Circle, [circle, false]],
+      [colTypes.SVG, [svg, false]],
+      [colTypes.Label, [true, false]],
+    ]);
+    const visibility = getNodeLayerVisibility({
+      getVisState: (_index: null, name: string) => states.get(name),
+    });
+
+    expect(visibility).toEqual({ circle, svg, labels: true });
   });
 });

@@ -9,24 +9,6 @@ export class Edge extends Entity {
     return this._id;
   }
 
-  private _lineId: number | undefined;
-  private _arcId: number | undefined;
-  private _tiltDist?: number | undefined;
-  private _isOutgoing?: boolean | undefined;
-
-  public get lineId(): number | undefined {
-    return this._lineId;
-  }
-  public get arcId(): number | undefined {
-    return this._arcId;
-  }
-  public get tiltDist(): number | undefined {
-    return this._tiltDist;
-  }
-  public get isOutgoing(): boolean | undefined {
-    return this._isOutgoing;
-  }
-
   source: Node;
   target: Node;
   constructor(id: string, s: Node, t: Node) {
@@ -40,18 +22,6 @@ export class Edge extends Entity {
     } else {
       (s.selfEdges as Set<any>).add(this);
     }
-  }
-
-  setLineId(lineId: number) {
-    this._lineId = lineId;
-  }
-  setArcId(arcId: number) {
-    this._arcId = arcId;
-  }
-
-  setTiltDist(dist: number, isOutgoing: boolean) {
-    this._tiltDist = dist;
-    this._isOutgoing = isOutgoing;
   }
 
   get data() {

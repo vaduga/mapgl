@@ -1,5 +1,5 @@
 {
-  "name": "@mapgl/panel-core",
+  "name": "@vaduga/mapgl-core",
   "version": "2.10.5",
   "type": "module",
   "main": "./dist/index.js",
@@ -7,258 +7,223 @@
   "license": "GPL-3.0",
   "files": [
     "dist",
+    "src",
     "LICENSE"
   ],
   "scripts": {
-    "build": "node scripts/build.mjs",
+    "build": "node ../scripts/build-esm-package.mjs",
     "typecheck": "tsc -p tsconfig.build.json --noEmit"
   },
   "exports": {
     ".": {
+      "development": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
-    "./featureContracts": {
-      "types": "./dist/extension-points/featureContracts.d.ts",
-      "import": "./dist/extension-points/featureContracts.js",
-      "default": "./dist/extension-points/featureContracts.js"
-    },
-    "./graph": {
-      "types": "./dist/graph/main.d.ts",
-      "import": "./dist/graph/main.js",
-      "default": "./dist/graph/main.js"
-    },
-    "./graph/frame": {
-      "types": "./dist/graph/frame/index.d.ts",
-      "import": "./dist/graph/frame/index.js",
-      "default": "./dist/graph/frame/index.js"
-    },
-    "./graph/packed-relations": {
-      "types": "./dist/graph/frame/packedRelationReaders.d.ts",
-      "import": "./dist/graph/frame/packedRelationReaders.js",
-      "default": "./dist/graph/frame/packedRelationReaders.js"
-    },
-    "./graph/layout-worker-helpers": {
-      "types": "./dist/graph/utils/layout-worker-helpers.d.ts",
-      "import": "./dist/graph/utils/layout-worker-helpers.js",
-      "default": "./dist/graph/utils/layout-worker-helpers.js"
-    },
-    "./graph/layout-worker-runner": {
-      "types": "./dist/graph/utils/layout-worker-runner.d.ts",
-      "import": "./dist/graph/utils/layout-worker-runner.js",
-      "default": "./dist/graph/utils/layout-worker-runner.js"
-    },
-    "./graph/utils": {
-      "types": "./dist/graph/utils/index.d.ts",
-      "import": "./dist/graph/utils/index.js",
-      "default": "./dist/graph/utils/index.js"
-    },
     "./components": {
+      "development": "./src/components/index.ts",
       "types": "./dist/components/index.d.ts",
       "import": "./dist/components/index.js",
       "default": "./dist/components/index.js"
     },
-    "./components/GeoBasemap": {
-      "types": "./dist/components/GeoBasemap.d.ts",
-      "import": "./dist/components/GeoBasemap.js",
-      "default": "./dist/components/GeoBasemap.js"
-    },
-    "./render": {
-      "types": "./dist/render/index.d.ts",
-      "import": "./dist/render/index.js",
-      "default": "./dist/render/index.js"
-    },
-    "./deckLayers/edgeFilterCategories": {
-      "types": "./dist/deckLayers/edgeFilterCategories.d.ts",
-      "import": "./dist/deckLayers/edgeFilterCategories.js",
-      "default": "./dist/deckLayers/edgeFilterCategories.js"
-    },
-    "./extension": {
-      "types": "./dist/extension.d.ts",
-      "import": "./dist/extension.js",
-      "default": "./dist/extension.js"
-    },
-    "./layers": {
-      "types": "./dist/layers/index.d.ts",
-      "import": "./dist/layers/index.js",
-      "default": "./dist/layers/index.js"
-    },
-    "./layers/basemaps": {
-      "types": "./dist/layers/basemaps/index.d.ts",
-      "import": "./dist/layers/basemaps/index.js",
-      "default": "./dist/layers/basemaps/index.js"
-    },
-    "./layers/data": {
-      "types": "./dist/layers/data/index.d.ts",
-      "import": "./dist/layers/data/index.js",
-      "default": "./dist/layers/data/index.js"
+    "./data": {
+      "development": "./src/data/index.ts",
+      "types": "./dist/data/index.d.ts",
+      "import": "./dist/data/index.js",
+      "default": "./dist/data/index.js"
     },
     "./deckLayers": {
+      "development": "./src/deckLayers/index.ts",
       "types": "./dist/deckLayers/index.d.ts",
       "import": "./dist/deckLayers/index.js",
       "default": "./dist/deckLayers/index.js"
     },
-    "./editor": {
-      "types": "./dist/editor/index.d.ts",
-      "import": "./dist/editor/index.js",
-      "default": "./dist/editor/index.js"
+    "./deckLayers/utils": {
+      "development": "./src/deckLayers/utils/index.ts",
+      "types": "./dist/deckLayers/utils/index.d.ts",
+      "import": "./dist/deckLayers/utils/index.js",
+      "default": "./dist/deckLayers/utils/index.js"
+    },
+    "./featureContracts": {
+      "development": "./src/extension-points/featureContracts.ts",
+      "types": "./dist/extension-points/featureContracts.d.ts",
+      "import": "./dist/extension-points/featureContracts.js",
+      "default": "./dist/extension-points/featureContracts.js"
+    },
+    "./graph/frame": {
+      "development": "./src/graph/frame/index.ts",
+      "types": "./dist/graph/frame/index.d.ts",
+      "import": "./dist/graph/frame/index.js",
+      "default": "./dist/graph/frame/index.js"
+    },
+    "./graph/main": {
+      "development": "./src/graph/main.ts",
+      "types": "./dist/graph/main.d.ts",
+      "import": "./dist/graph/main.js",
+      "default": "./dist/graph/main.js"
+    },
+    "./graph/utils": {
+      "development": "./src/graph/utils/index.ts",
+      "types": "./dist/graph/utils/index.d.ts",
+      "import": "./dist/graph/utils/index.js",
+      "default": "./dist/graph/utils/index.js"
+    },
+    "./graph/utils/layout-worker-client": {
+      "development": "./src/graph/utils/layout-worker-client.ts",
+      "types": "./dist/graph/utils/layout-worker-client.d.ts",
+      "import": "./dist/graph/utils/layout-worker-client.js",
+      "default": "./dist/graph/utils/layout-worker-client.js"
+    },
+    "./graph/utils/layout-worker-helpers": {
+      "development": "./src/graph/utils/layout-worker-helpers.ts",
+      "types": "./dist/graph/utils/layout-worker-helpers.d.ts",
+      "import": "./dist/graph/utils/layout-worker-helpers.js",
+      "default": "./dist/graph/utils/layout-worker-helpers.js"
+    },
+    "./graph/utils/layout-worker-runner": {
+      "development": "./src/graph/utils/layout-worker-runner.ts",
+      "types": "./dist/graph/utils/layout-worker-runner.d.ts",
+      "import": "./dist/graph/utils/layout-worker-runner.js",
+      "default": "./dist/graph/utils/layout-worker-runner.js"
+    },
+    "./package.json": "./package.json",
+    "./render": {
+      "development": "./src/render/index.ts",
+      "types": "./dist/render/index.d.ts",
+      "import": "./dist/render/index.js",
+      "default": "./dist/render/index.js"
+    },
+    "./render/runtime": {
+      "development": "./src/render/runtime.ts",
+      "types": "./dist/render/runtime.d.ts",
+      "import": "./dist/render/runtime.js",
+      "default": "./dist/render/runtime.js"
+    },
+    "./runtime": {
+      "development": "./src/runtime/index.ts",
+      "types": "./dist/runtime/index.d.ts",
+      "import": "./dist/runtime/index.js",
+      "default": "./dist/runtime/index.js"
     },
     "./store": {
+      "development": "./src/store/index.ts",
       "types": "./dist/store/index.d.ts",
       "import": "./dist/store/index.js",
       "default": "./dist/store/index.js"
     },
+    "./style": {
+      "development": "./src/style/index.ts",
+      "types": "./dist/style/index.d.ts",
+      "import": "./dist/style/index.js",
+      "default": "./dist/style/index.js"
+    },
     "./types": {
+      "development": "./src/types/index.ts",
       "types": "./dist/types/index.d.ts",
       "import": "./dist/types/index.js",
       "default": "./dist/types/index.js"
     },
     "./types/defaults": {
+      "development": "./src/types/defaults.ts",
       "types": "./dist/types/defaults.d.ts",
       "import": "./dist/types/defaults.js",
       "default": "./dist/types/defaults.js"
     },
-    "./types/deck": {
-      "types": "./dist/types/deck.d.ts",
-      "import": "./dist/types/deck.js",
-      "default": "./dist/types/deck.js"
-    },
-    "./types/panel": {
-      "types": "./dist/types/panel.d.ts",
-      "import": "./dist/types/panel.js",
-      "default": "./dist/types/panel.js"
-    },
-    "./view": {
-      "types": "./dist/view.d.ts",
-      "import": "./dist/view.js",
-      "default": "./dist/view.js"
-    },
-    "./style/types": {
-      "types": "./dist/style/types.d.ts",
-      "import": "./dist/style/types.js",
-      "default": "./dist/style/types.js"
-    },
-    "./style/utils": {
-      "types": "./dist/style/utils.d.ts",
-      "import": "./dist/style/utils.js",
-      "default": "./dist/style/utils.js"
-    },
-    "./utils/location": {
-      "types": "./dist/utils/location.d.ts",
-      "import": "./dist/utils/location.js",
-      "default": "./dist/utils/location.js"
-    },
-    "./utils/geomap_utils": {
-      "types": "./dist/utils/geomap_utils.d.ts",
-      "import": "./dist/utils/geomap_utils.js",
-      "default": "./dist/utils/geomap_utils.js"
-    },
-    "./utils/i18n": {
-      "types": "./dist/utils/i18n.d.ts",
-      "import": "./dist/utils/i18n.js",
-      "default": "./dist/utils/i18n.js"
-    },
-    "./utils/normalizeOptions": {
-      "types": "./dist/utils/normalizeOptions.d.ts",
-      "import": "./dist/utils/normalizeOptions.js",
-      "default": "./dist/utils/normalizeOptions.js"
-    },
     "./utils": {
+      "development": "./src/utils/index.ts",
       "types": "./dist/utils/index.d.ts",
       "import": "./dist/utils/index.js",
       "default": "./dist/utils/index.js"
     },
-    "./grafana_core/*": {
-      "types": "./dist/grafana_core/*.d.ts",
-      "import": "./dist/grafana_core/*.js",
-      "default": "./dist/grafana_core/*.js"
+    "./utils/i18n": {
+      "development": "./src/utils/i18n.tsx",
+      "types": "./dist/utils/i18n.d.ts",
+      "import": "./dist/utils/i18n.js",
+      "default": "./dist/utils/i18n.js"
     },
     "./workers/layout-worker": {
+      "development": "./src/workers/layout-worker.ts",
       "types": "./dist/workers/layout-worker.d.ts",
       "import": "./dist/workers/layout-worker.js",
       "default": "./dist/workers/layout-worker.js"
     },
-    "./deckLayers/utils": {
-      "types": "./dist/deckLayers/utils/index.d.ts",
-      "import": "./dist/deckLayers/utils/index.js",
-      "default": "./dist/deckLayers/utils/index.js"
+    "./workers/layoutWorker": {
+      "development": "./src/workers/layoutWorker.ts",
+      "types": "./dist/workers/layoutWorker.d.ts",
+      "import": "./dist/workers/layoutWorker.js",
+      "default": "./dist/workers/layoutWorker.js"
     },
-    "./components/maplibre-gl-fallback": {
-      "types": "./dist/components/maplibre-gl-fallback.d.ts",
-      "import": "./dist/components/maplibre-gl-fallback.js",
-      "default": "./dist/components/maplibre-gl-fallback.js"
+    "./graph/packed-relations": {
+      "development": "./src/graph/frame/packedRelationReaders.ts",
+      "types": "./dist/graph/frame/packedRelationReaders.d.ts",
+      "import": "./dist/graph/frame/packedRelationReaders.js",
+      "default": "./dist/graph/frame/packedRelationReaders.js"
     },
-    "./package.json": "./package.json",
-    "./assets/*": "./dist/img/*",
-    "./grafana_core/app/features/dimensions": {
-      "types": "./dist/grafana_core/app/features/dimensions/index.d.ts",
-      "import": "./dist/grafana_core/app/features/dimensions/index.js",
-      "default": "./dist/grafana_core/app/features/dimensions/index.js"
+    "./components/DeckWidgetButton": {
+      "development": "./src/components/DeckWidgetButton.tsx",
+      "types": "./dist/components/DeckWidgetButton.d.ts",
+      "import": "./dist/components/DeckWidgetButton.js",
+      "default": "./dist/components/DeckWidgetButton.js"
     },
-    "./deckLayers/donutData": {
-      "types": "./dist/deckLayers/DonutCircleLayer/donutData.d.ts",
-      "import": "./dist/deckLayers/DonutCircleLayer/donutData.js",
-      "default": "./dist/deckLayers/DonutCircleLayer/donutData.js"
+    "./components/Menu/LayerSwitcher": {
+      "development": "./src/components/Menu/LayerSwitcher.tsx",
+      "types": "./dist/components/Menu/LayerSwitcher.d.ts",
+      "import": "./dist/components/Menu/LayerSwitcher.js",
+      "default": "./dist/components/Menu/LayerSwitcher.js"
     },
-    "./runtime": {
-      "types": "./dist/runtime/index.d.ts",
-      "import": "./dist/runtime/index.js",
-      "default": "./dist/runtime/index.js"
+    "./components/Tooltips/tooltipEdgeSections": {
+      "development": "./src/components/Tooltips/tooltipEdgeSections.tsx",
+      "types": "./dist/components/Tooltips/tooltipEdgeSections.d.ts",
+      "import": "./dist/components/Tooltips/tooltipEdgeSections.js",
+      "default": "./dist/components/Tooltips/tooltipEdgeSections.js"
     },
-    "./render/MapglViewport": {
-      "types": "./dist/render/MapglViewport.d.ts",
-      "import": "./dist/render/MapglViewport.js",
-      "default": "./dist/render/MapglViewport.js"
+    "./render/graph": {
+      "development": "./src/render/graph.ts",
+      "types": "./dist/render/graph.d.ts",
+      "import": "./dist/render/graph.js",
+      "default": "./dist/render/graph.js"
+    },
+    "./render/session": {
+      "development": "./src/render/session.ts",
+      "types": "./dist/render/session.d.ts",
+      "import": "./dist/render/session.js",
+      "default": "./dist/render/session.js"
+    },
+    "./render/react": {
+      "development": "./src/render/react.ts",
+      "types": "./dist/render/react.d.ts",
+      "import": "./dist/render/react.js",
+      "default": "./dist/render/react.js"
     }
   },
   "peerDependencies": {
     "@deck.gl/core": "^9.4.0",
-    "@deck.gl/extensions": "^9.4.0",
     "@deck.gl/layers": "^9.4.0",
     "@deck.gl/react": "^9.4.0",
     "@emotion/css": "11.13.5",
-    "@emotion/react": "11.14.0",
-    "@grafana/data": ">=11.6.0",
-    "@grafana/runtime": ">=11.6.0",
-    "@grafana/schema": ">=11.6.0",
-    "@grafana/ui": ">=11.6.0",
-    "@luma.gl/core": "^9.4.0",
-    "@luma.gl/engine": "^9.4.0",
-    "@luma.gl/shadertools": "^9.4.0",
-    "@math.gl/core": "^4.1.0",
-    "mobx": "7.0.3",
-    "mobx-react-lite": "5.0.3",
+    "mobx": "^7.0.5",
     "react": "^18.0.0 || ^19.0.0",
-    "react-dom": "^18.0.0 || ^19.0.0",
-    "rxjs": "7.8.2",
-    "maplibre-gl": "^6.9.0",
-    "@deck.gl/widgets": "^9.4.0"
+    "maplibre-gl": "^6.11.2"
   },
   "dependencies": {
-    "@grafana/e2e-selectors": "13.2.2",
-    "@hello-pangea/dnd": "18.0.1",
-    "@loaders.gl/schema": "4.4.5",
+    "@deck.gl/extensions": "9.4.0",
+    "@deck.gl/widgets": "9.4.0",
+    "@loaders.gl/schema": "4.5.1",
+    "@luma.gl/core": "9.4.2",
+    "@luma.gl/engine": "9.4.2",
+    "@luma.gl/shadertools": "9.4.2",
+    "@math.gl/core": "^4.1.0",
     "@msagl/core": "1.1.24",
-    "@rc-component/slider": "1.1.1",
-    "@react-aria/dialog": "3.6.1",
-    "@react-aria/focus": "3.22.1",
-    "@react-aria/overlays": "3.32.1",
     "@turf/distance": "7.4.0",
     "@turf/helpers": "7.4.0",
     "@turf/midpoint": "7.4.0",
+    "@types/geojson": "7946.0.16",
     "@vis.gl/react-maplibre": "8.1.3",
-    "arquero": "8.0.3",
-    "lodash": "4.18.1",
-    "react-copy-to-clipboard": "5.1.1",
-    "react-inlinesvg": "4.5.0",
-    "react-virtualized-auto-sizer": "2.0.3",
-    "react-window": "1.8.11",
-    "uuid": "14.0.2",
-    "@types/geojson": "7946.0.16"
+    "copy-to-clipboard": "4.0.2",
+    "preact": "^10.17.0"
   },
   "devDependencies": {
-    "typescript": "6.0.3",
-    "@grafana/tsconfig": "2.2.0"
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
   }
 }

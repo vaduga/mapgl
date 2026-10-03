@@ -1,5 +1,3 @@
-import type { DataFrame, ScopedVars } from '@grafana/data';
-
 import type { BiColProps } from '../../types';
 import type { GraphBuiltState, GraphFrameSnapshot, GraphNodeRecord, GraphRowRef } from './types';
 
@@ -54,28 +52,6 @@ export interface GraphInteractionState {
   readonly features?: readonly BiColProps[];
 }
 
-export interface GraphInteractionRow {
-  readonly frame: DataFrame;
-  readonly frameIndex: number;
-  readonly rowIndex: number;
-  readonly row: GraphRowRef;
-}
-
-type GraphInteractionPanel = {
-  readonly features?: readonly BiColProps[];
-  readonly graphFrameRuntime?: {
-    readonly snapshot?: GraphFrameSnapshot;
-    readonly graph?: {
-      readonly state?: GraphBuiltState;
-    };
-    readonly render?: {
-      readonly state?: {
-        readonly features?: readonly BiColProps[];
-      };
-    };
-  };
-};
-
 function integer(value: unknown): number | undefined {
   return typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : undefined;
 }
@@ -86,7 +62,7 @@ function rowRef(value: unknown): GraphRowRef | undefined {
   }
 
   const candidate = value as Partial<GraphRowRef>;
-  return integer(candidate.frameIndex) !== undefined && integer(candidate.rowIndex) !== undefined
+  return integer(candidate.sourceIndex) !== undefined && integer(candidate.rowIndex) !== undefined
     ? (value as GraphRowRef)
     : undefined;
 }
@@ -266,15 +242,32 @@ function resolveNodeInteraction(
   });
 }
 
+function currentRow(state: GraphInteractionState, row: GraphRowRef): boolean {
+  return Boolean(
+    state.snapshot?.frames.some(
+      (frame) =>
+        frame.revision === row.revision &&
+        frame.sourceIndex === row.sourceIndex &&
+        frame.sourceKey === row.sourceKey &&
+        row.rowIndex < frame.rowCount
+    )
+  );
+}
+
 export function resolveGraphInteraction(state: GraphInteractionState, info: any): GraphInteraction | undefined {
   const existing = existingInteraction(info);
   if (existing) {
-    return existing;
+    return currentRow(state, existing.row) ? existing : undefined;
   }
 
   const object = info?.object;
   const properties = object?.properties ?? object;
   const feature = object?.feature;
+  const metadata =
+    graphMetadata(object) ?? graphMetadata(properties) ?? graphMetadata(feature) ?? graphMetadata(feature?.properties);
+  if (metadata?.primaryRow && !currentRow(state, metadata.primaryRow)) {
+    return undefined;
+  }
   const looksLikeEdge =
     object?.edgeId !== undefined ||
     feature?.edgeId !== undefined ||
@@ -284,51 +277,4 @@ export function resolveGraphInteraction(state: GraphInteractionState, info: any)
   return looksLikeEdge
     ? resolveEdgeInteraction(state, info, object, properties)
     : resolveNodeInteraction(state, info, object, properties);
-}
-
-export function resolvePanelGraphInteraction(
-  panel: GraphInteractionPanel | undefined,
-  info: any
-): GraphInteraction | undefined {
-  const runtime = panel?.graphFrameRuntime;
-  return resolveGraphInteraction(
-    {
-      snapshot: runtime?.snapshot,
-      graph: runtime?.graph?.state,
-      features: panel?.features ?? runtime?.render?.state?.features,
-    },
-    info
-  );
-}
-
-export function resolveGraphInteractionRow(
-  series: readonly DataFrame[],
-  interaction: GraphInteraction
-): GraphInteractionRow | undefined {
-  const row = interaction.row;
-  let frame: DataFrame | undefined = series[row.frameIndex];
-  const matchesRef = (candidate: DataFrame | undefined) =>
-    Boolean(candidate && (!row.frameRefId || candidate.refId === row.frameRefId || candidate.name === row.frameRefId));
-
-  if (!matchesRef(frame) && row.frameRefId) {
-    frame = series.find((candidate) => candidate.refId === row.frameRefId || candidate.name === row.frameRefId);
-  }
-  if (!frame || row.rowIndex < 0 || row.rowIndex >= frame.length) {
-    return undefined;
-  }
-
-  return {
-    frame,
-    frameIndex: series.indexOf(frame),
-    rowIndex: row.rowIndex,
-    row,
-  };
-}
-
-export function getGraphInteractionScopedVars(interaction: GraphInteraction): ScopedVars {
-  return Object.fromEntries(
-    Object.entries(interaction.values)
-      .filter((entry): entry is [string, string] => entry[1] !== undefined)
-      .map(([name, value]) => [name, { text: value, value }])
-  );
 }

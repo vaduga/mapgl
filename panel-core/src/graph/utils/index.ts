@@ -10,9 +10,10 @@ export {
   getNsPrefixes,
 } from './utils.graph';
 export {
-  requestGraphLayout,
+  LayoutWorkerClient,
+  type LayoutWorkerFactory,
+  type LayoutWorkerResource,
   createLayoutRequest,
-  postLayoutWorkerRequest,
   type AutolayoutOptions,
   type GraphLayoutWorkerResult,
   type LayoutArrowTips,
@@ -23,5 +24,9 @@ export { getEdgesGeometry } from './utils.graph-geom';
 export { CoordsConvert, SingleCoordsConvert } from './utils.turf';
 
 export * from '../../types/defaults';
-export type * from '@mapgl/panel-core/types';
-export { colTypes, defViewState } from '@mapgl/panel-core/types';
+export type * from '../../types/index';
+export { colTypes, defViewState } from '../../types/index';
+export * from './layout-geometry';
+export * from './utils.graph-geom';
+export * from './utils.graph';
+export * from './utils.turf';

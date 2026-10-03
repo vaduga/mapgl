@@ -17,16 +17,18 @@ import {
   Polyline,
   SugiyamaLayoutSettings,
 } from '@msagl/core';
-import type {
-  EdgeRoutingConfig,
-  LayoutDirectionConfig,
-  LayoutEdgeSnapshot,
-  LayoutGraphResult,
-  LayoutGraphSnapshot,
-  LayoutNodeSnapshot,
-  LayoutCurveGroup,
+import {
+  type EdgeRoutingConfig,
+  type LayoutDirectionConfig,
+  type LayoutEdgeSnapshot,
+  type LayoutGraphResult,
+  type LayoutGraphSnapshot,
+  type LayoutNodeSnapshot,
+  type LayoutCurveGroup,
+  edgeKey,
+  nodeKey,
 } from './layout-worker-types';
-import { edgeKey, nodeKey } from './layout-worker-types';
+
 export { edgeKey, nodeKey } from './layout-worker-types';
 import { DEFAULT_LAYOUT_NODE_RADIUS } from './layout-geometry';
 

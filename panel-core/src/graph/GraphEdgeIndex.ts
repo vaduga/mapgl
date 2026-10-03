@@ -42,6 +42,30 @@ export class GraphEdgeIndex {
   private metrics = new Float64Array();
   private edgeRefs = new WeakMap<Edge, number>();
   private finalized = false;
+  private _revision = 0;
+  private captured?: GraphEdgeIndex;
+  private metricsShared = false;
+  get revision() {
+    return this._revision;
+  }
+
+  /** Stable read header sharing unchanged packed arrays. Mutations copy only changed tables. */
+  snapshot(): GraphEdgeIndex {
+    this.ensureFinalized();
+    if (!this.captured) {
+      this.metricsShared = true;
+      const copy = Object.assign(new GraphEdgeIndex(), this);
+      copy.captured = undefined;
+      Object.freeze(copy);
+      this.captured = copy;
+    }
+    return this.captured;
+  }
+
+  private changed(): void {
+    this._revision++;
+    this.captured = undefined;
+  }
 
   get recordCount(): number {
     return (this.finalized ? this.recordUnitOffsets : this.stagedRecordUnitOffsets).length - 1;
@@ -204,6 +228,8 @@ export class GraphEdgeIndex {
     next.set(replacement, start);
     next.set(this.vertexRefs.subarray(end), start + replacement.length);
     const delta = replacement.length - (end - start);
+    this.vertexOffsets = this.vertexOffsets.slice();
+    this.changed();
     for (let nextRecordRef = recordRef + 1; nextRecordRef < this.vertexOffsets.length; nextRecordRef++) {
       this.vertexOffsets[nextRecordRef] += delta;
     }
@@ -232,6 +258,8 @@ export class GraphEdgeIndex {
       end,
       replacement.map(() => unitRef)
     );
+    this.unitOffsets = this.unitOffsets.slice();
+    this.changed();
     for (let nextUnitRef = unitRef + 1; nextUnitRef < this.unitOffsets.length; nextUnitRef++) {
       this.unitOffsets[nextUnitRef] += delta;
     }
@@ -269,6 +297,11 @@ export class GraphEdgeIndex {
     this.ensureFinalized();
     this.assertRecordRef(recordRef);
     const offset = recordRef * 3;
+    if (this.metricsShared) {
+      this.metrics = this.metrics.slice();
+      this.metricsShared = false;
+    }
+    this.changed();
     this.metrics[offset] = primary;
     this.metrics[offset + 1] = sideA ?? Number.NaN;
     this.metrics[offset + 2] = sideB ?? Number.NaN;
@@ -293,6 +326,8 @@ export class GraphEdgeIndex {
   }
 
   reset(): void {
+    this.changed();
+    this.metricsShared = false;
     this.edgePool = [];
     this.stagedRecordUnitOffsets = [0];
     this.stagedUnitOffsets = [0];

@@ -3,7 +3,7 @@ import { isVisible } from '../utils/visibility';
 import { PathLayer } from '@deck.gl/layers';
 import type { Color } from '@deck.gl/core';
 import { BBOX_OUTLINE_COLOR, BBOX_OUTLINE_WIDTH, SEL_LINE_WIDTH_MULTIPLIER } from '../../types/defaults';
-import { colTypes } from '@mapgl/panel-core/types';
+import { colTypes } from '../../types/index';
 import { PathStyleExtension } from '@deck.gl/extensions';
 
 type PathStyleLayerProps = {
@@ -15,7 +15,7 @@ type PathStyleLayerProps = {
 function MyPathLayer(props) {
   const {
     onHover,
-    options,
+    isMeters = false,
     highlightColor,
     data,
     index,
@@ -23,12 +23,12 @@ function MyPathLayer(props) {
     name,
     pickable = false,
     type,
-    theme2,
+    isDark,
     getVisLayers,
   } = props;
   const Path = name ? isVisible(getVisLayers, { index: null, name, group: colTypes.Path }) : true;
 
-  const units = options.common?.isMeters ? 'meters' : 'pixels';
+  const units = isMeters ? 'meters' : 'pixels';
   return new PathLayer<any, PathStyleLayerProps>({
     visible: ['par-path-extension', 'par-path-line'].includes(type) ? true : Path,
     id: id ?? colTypes.Path + '-' + type + index,
@@ -60,11 +60,11 @@ function MyPathLayer(props) {
     getColor: (d: any): Color => {
       switch (type) {
         case 'par-path-extension':
-          const ecolor = theme2.isDark ? makeColorLighter(d[1]) : makeColorDarker(d[1]);
+          const ecolor = isDark ? makeColorLighter(d[1]) : makeColorDarker(d[1]);
           return ecolor;
           break;
         case 'par-path-line':
-          const pcolor = theme2.isDark ? makeColorLighter(d[1]) : makeColorDarker(d[1]);
+          const pcolor = isDark ? makeColorLighter(d[1]) : makeColorDarker(d[1]);
           return pcolor;
           break;
         case 'bbox':

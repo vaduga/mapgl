@@ -61,7 +61,14 @@ export function replaceRenderLayers(
   );
   const removed = new Set(removeIds);
 
-  return current.filter((layer) => !removed.has(layer.id)).map((layer) => replacementById.get(layer.id) ?? layer);
+  const result = current
+    .filter((layer) => !removed.has(layer.id))
+    .map((layer) => {
+      const replacement = replacementById.get(layer.id);
+      replacementById.delete(layer.id);
+      return replacement ?? layer;
+    });
+  return [...result, ...replacementById.values()];
 }
 
 export function withTransientLayers(

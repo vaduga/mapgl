@@ -5,15 +5,15 @@
   "id": "vaduga-mapgl-panel",
   "info": {
     "keywords": [
-      "nodegraph",
       "node graph",
-      "service graph",
-      "service dependency graph",
+      "network map",
+      "service map",
+      "dependency graph",
       "topology",
-      "network graph",
+      "relations",
       "map",
       "geomap",
-      "zabbix",
+      "nodegraph",
       "deckgl"
     ],
     "description": "Node Graph and Network Geomap",

@@ -6,10 +6,6 @@ describe('getResolvedNodeArcColors', () => {
   it('resolves binary placeholder objects by feature index', () => {
     expect(getResolvedNodeArcColors(undefined, properties, new Uint16Array([0]), 0)).toEqual(['#ff0000', '#00ff00']);
   });
-
-  it('resolves arc colors for geo-mode nodes', () => {
-    expect(getResolvedNodeArcColors(undefined, properties, new Uint16Array([0]), 0)).toEqual(['#ff0000', '#00ff00']);
-  });
 });
 
 describe('gauge center value geometry', () => {

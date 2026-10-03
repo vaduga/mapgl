@@ -23,14 +23,14 @@ import type {
   TooltipEdgeRecord,
   TooltipEdgeSectionContributor,
 } from './contracts';
-import type { Edge, Graph, GraphEdgeIndex } from '@mapgl/panel-core/graph';
+import type { Edge, Graph, GraphEdgeIndex } from '../graph/main';
 import { inheritedShift } from '../graph/utils';
-import { annotationTimeRuntimeSubscriptionProvider, noopRuntimeSubscriptionProvider } from './runtimeSubscriptions';
+import { noopRuntimeSubscriptionProvider } from './runtimeSubscriptions';
 
 export function createDefaultFeatureRegistry(): MapglFeatureRegistry {
   return {
     tooltipEdgeSections: [adjacentEdgeTooltipSectionContributor],
-    runtimeSubscriptionProviders: [annotationTimeRuntimeSubscriptionProvider, noopRuntimeSubscriptionProvider],
+    runtimeSubscriptionProviders: [noopRuntimeSubscriptionProvider],
     pointJitterStrategies: [noopPointJitterStrategy],
     namespaceProjectionStrategies: [defaultNamespaceProjectionStrategy],
     namespaceBoundaryProviders: [defaultNamespaceBoundaryProvider],
@@ -191,7 +191,7 @@ export function getNamespaceBoundaries(
 }
 
 export function getProjectedTerminalGeometry(
-  strategies: ProjectedTerminalGeometryStrategy[],
+  strategies: readonly ProjectedTerminalGeometryStrategy[],
   context: ProjectedTerminalGeometryContext
 ): ProjectedTerminalGeometryResult | null | undefined {
   for (const strategy of strategies) {
@@ -205,7 +205,7 @@ export function getProjectedTerminalGeometry(
 }
 
 export function getCurveSegmentHidden(
-  strategies: EdgeOffsetStrategy[],
+  strategies: readonly EdgeOffsetStrategy[],
   context: CurveSegmentVisibilityContext
 ): Uint8Array | undefined {
   for (const strategy of strategies) {
@@ -223,7 +223,7 @@ export const defaultEdgeOffsetStrategy: EdgeOffsetStrategy = {
 };
 
 export function getEdgeRenderDecisions(
-  strategies: EdgeOffsetStrategy[],
+  strategies: readonly EdgeOffsetStrategy[],
   context: EdgeOffsetStrategyContext
 ): EdgeRenderDecision[] {
   return strategies.flatMap((strategy) => strategy.decide(context));

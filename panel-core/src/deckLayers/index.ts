@@ -49,11 +49,7 @@ export type {
 export { CurveEdgeLayer, CurveType } from './GeoJsonEdgesLayer/curve-edge-layer';
 export type { CurveEdgeBinaryData, CurveEdgeLayerData, CurveEdgeSegment } from './GeoJsonEdgesLayer/curve-edge-layer';
 export { EdgesGeojsonLayer } from './GeoJsonEdgesLayer/edges-geojson-layer';
-export {
-  MainLabelTextLayer,
-  PlaceholderTextLayer,
-  NodesGeojsonLayer,
-} from './GeoJsonNodesLayer/nodes-geojson-layer';
+export { MainLabelTextLayer, PlaceholderTextLayer, NodesGeojsonLayer } from './GeoJsonNodesLayer/nodes-geojson-layer';
 export { getNodeIconAtlasSourceSize, getPackedSvgIcon, svgToDataURL } from './GeoJsonNodesLayer/svgIconAtlas';
 export {
   createUserSvgAtlasPlan,
@@ -84,3 +80,30 @@ export { MyIconLayer } from './IconLayer/icon-layer';
 export { MyPathLayer } from './PathLayer/path-layer';
 export { MyPolygonsLayer } from './PolygonsLayer/polygons-layer';
 export { LineTextLayer } from './TextLayer/text-layer';
+export * from './ArcLayer/animated-blobs-layer';
+export * from './ArcLayer/arc-layer-uniforms';
+export * from './ArcLayer/arc-layer-vertex.glsl';
+export * from './ArcLayer/arc-layer';
+export * from './ArcLayer/float32-arc-layer';
+export * from './ArcLayer/gradient-arc-layer';
+export * from './ArrowLayer/arrow-atlas';
+export * from './ArrowLayer/edge-arrow-layer';
+export * from './DonutCircleLayer/donut-circle-layer';
+export * from './DonutCircleLayer/donutData';
+export * from './DonutCircleLayer/donutShaders';
+export * from './DonutCircleLayer/index';
+export * from './GeoJsonEdgesLayer/curve-edge-layer';
+export * from './GeoJsonEdgesLayer/edges-geojson-layer';
+export * from './GeoJsonNodesLayer/nodeGeometry';
+export * from './GeoJsonNodesLayer/nodeRenderPlan';
+export * from './GeoJsonNodesLayer/nodes-geojson-layer';
+export * from './GeoJsonNodesLayer/svgIconAtlas';
+export * from './GeoJsonNodesLayer/userSvgAtlas';
+export * from './GeoJsonStaticLayer/static-geojson-layer';
+export * from './GraphHighlighter';
+export * from './IconLayer/icon-layer';
+export * from './PathLayer/path-layer';
+export * from './PolygonsLayer/polygons-layer';
+export * from './TextLayer/text-layer';
+export * from './edgeFilterCategories';
+export * from './focus-layers';

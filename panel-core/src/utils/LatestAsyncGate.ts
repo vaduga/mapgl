@@ -1,4 +1,4 @@
-export type LatestAsyncGuard = () => boolean;
+export type LatestAsyncGuard = (() => boolean) & { readonly signal?: AbortSignal };
 
 /**
  * Serializes async panel rebuilds while letting the newest request invalidate any
@@ -7,9 +7,12 @@ export type LatestAsyncGuard = () => boolean;
 export class LatestAsyncGate {
   private requestId = 0;
   private disposed = false;
+  private abort?: AbortController;
   private queue: Promise<void> = Promise.resolve();
 
   run<T>(task: (isCurrent: LatestAsyncGuard) => Promise<T>): Promise<T | undefined> {
+    this.abort?.abort();
+    const abort = (this.abort = new AbortController());
     const requestId = ++this.requestId;
     const previous = this.queue;
     let release!: () => void;
@@ -25,12 +28,13 @@ export class LatestAsyncGate {
           return undefined;
         }
 
-        return task(() => this.isCurrent(requestId));
+        return task(Object.assign(() => this.isCurrent(requestId), { signal: abort.signal }));
       })
       .finally(release);
   }
 
   invalidate() {
+    this.abort?.abort();
     this.requestId++;
   }
 

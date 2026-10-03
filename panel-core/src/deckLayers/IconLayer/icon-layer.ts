@@ -1,12 +1,12 @@
 import { toRGB4Array } from '../utils/color';
 import { isVisible } from '../utils/visibility';
 import { IconLayer } from '@deck.gl/layers';
-import { colTypes } from '@mapgl/panel-core/types';
+import { colTypes } from '../../types/index';
 import { svgToDataURL } from '../utils/svg';
 import { DataFilterExtension } from '@deck.gl/extensions';
 
 const MyIconLayer = (props) => {
-  const { data, onHover, highlightColor, panel, getVisLayers, showGraph } = props;
+  const { data, onHover, highlightColor, getVisLayers, showGraph } = props;
 
   const visible =
     showGraph &&

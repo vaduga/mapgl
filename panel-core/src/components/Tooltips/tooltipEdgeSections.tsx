@@ -1,10 +1,15 @@
 import React, { type ReactNode } from 'react';
-import { IconButton } from '@grafana/ui';
+import { DeckWidgetButton, type DeckWidgetIcon } from '../DeckWidgetButton';
 
-import type { TooltipEdgeRecord, TooltipEdgeSection, TooltipEdgeSectionContributor, TooltipEdgeSectionContext } from '../../extension-points/featureContracts';
+import type {
+  TooltipEdgeRecord,
+  TooltipEdgeSection,
+  TooltipEdgeSectionContributor,
+  TooltipEdgeSectionContext,
+} from '../../extension-points/featureContracts';
 
 export type TooltipEdgeDirection = 'incoming' | 'outgoing';
-type TooltipEdgeIconName = React.ComponentProps<typeof IconButton>['name'];
+type TooltipEdgeIconName = Exclude<DeckWidgetIcon, 'copy'>;
 
 export interface TooltipEdgeSectionListClassNames {
   header?: string;
@@ -123,13 +128,12 @@ function renderDirectionTrigger({
 
   return (
     <span className={classNames?.header}>
-      <IconButton
+      <DeckWidgetButton
         className={`${classNames?.trigger ?? ''} ${listed ? (classNames?.triggerActive ?? '') : ''}`}
-        size="sm"
-        aria-label={`${listed ? 'hide' : 'show'} ${label} edges`}
-        aria-pressed={listed}
-        variant="secondary"
-        name={getIconName(section, direction)}
+        label={`${listed ? 'hide' : 'show'} ${label} edges`}
+        pressed={listed}
+        icon={getIconName(section, direction)}
+        iconSize={12}
         onClick={() => onToggle(section, direction)}
         tooltip={getTooltip(section, direction)}
       />

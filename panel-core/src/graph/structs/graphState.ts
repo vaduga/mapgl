@@ -1,5 +1,5 @@
 import { action, observable } from 'mobx';
-import { CommentsData } from '@mapgl/panel-core/types';
+import { CommentsData } from '../../types/index';
 
 export type GraphState = {
   comments: CommentsData;

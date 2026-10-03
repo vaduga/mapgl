@@ -37,6 +37,11 @@ test('keeps the committed topology when an unrelated dashboard variable refreshe
   await variable.click();
   await dashboardPage.ctx.page.getByRole('option', { name: 'two', exact: true }).click();
 
+  const queried = dashboardPage.ctx.page.waitForResponse(
+    (response) => response.url().includes('/api/ds/query') && response.request().method() === 'POST'
+  );
+  await dashboardPage.refreshDashboard();
+  expect((await queried).ok()).toBe(true);
   await waitForGraph(panel);
   const after = await readGraphSummary(panel);
   expect(after.topologySignature).toBe(before.topologySignature);

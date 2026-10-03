@@ -1,10 +1,15 @@
-import { createMapglPanelPlugin } from '@mapgl/panel-core';
+import { createMapglPanelPlugin } from '@vaduga/mapgl-grafana-adapter';
 
 import { PLUGIN_ID } from './constants/plugin';
-import { createGetLayerEditor, createLayersEditor, MapViewEditor } from '@mapgl/panel-core/editor';
+import { createGetLayerEditor, createLayersEditor, MapViewEditor } from '@vaduga/mapgl-grafana-adapter/editor';
 import { MapPanel } from './MapPanel';
-import { defaultMapViewConfig, type MapInstanceState, type MapLayerState, type Options } from '@mapgl/panel-core/types';
-import { initPluginTranslations } from '@mapgl/panel-core/utils/i18n';
+import {
+  defaultMapViewConfig,
+  type MapInstanceState,
+  type MapLayerState,
+  type Options,
+} from '@vaduga/mapgl-grafana-adapter/types';
+import { initPluginTranslations } from '@vaduga/mapgl-core/utils/i18n';
 import { mapLayerRegistry, getLayersOptions } from './layers/registry';
 
 const LayersEditor = createLayersEditor({ getLayersOptions });

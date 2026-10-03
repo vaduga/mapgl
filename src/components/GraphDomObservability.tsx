@@ -1,7 +1,7 @@
 import { css } from '@emotion/css';
 import { locationService } from '@grafana/runtime';
-import type { GraphFrameSnapshotSummary, GraphNodeRecord } from '@mapgl/panel-core/graph/frame';
-import { getGraphEdges, type Graph } from '@mapgl/panel-core/graph';
+import type { GraphFrameSnapshotSummary, GraphNodeRecord } from '@vaduga/mapgl-core/graph/frame';
+import { getGraphEdges, type Graph } from '@vaduga/mapgl-core/graph/main';
 import React, { useMemo } from 'react';
 
 const GRAPH_DOM_SAMPLE_LIMIT = 32;
@@ -10,6 +10,7 @@ const GRAPH_E2E_QUERY_FLAG = 'mapglE2E';
 export interface GraphDomObservabilityProps {
   children: React.ReactNode;
   className: string;
+  style?: React.CSSProperties;
   colors: Uint8Array;
   edgeRevision: number;
   features: readonly any[];
@@ -31,7 +32,7 @@ export const GraphDomObservability = React.forwardRef<HTMLDivElement, GraphDomOb
   function GraphDomObservability(props, ref) {
     if (!isEnabled()) {
       return (
-        <div className={props.className} ref={ref}>
+        <div className={props.className} ref={ref} style={props.style}>
           {props.children}
         </div>
       );
@@ -56,6 +57,7 @@ const EnabledGraphDomObservability = React.forwardRef<HTMLDivElement, GraphDomOb
       onInspectNode,
       phase,
       summary,
+      style,
       visibleNamespaces,
     },
     ref
@@ -91,6 +93,7 @@ const EnabledGraphDomObservability = React.forwardRef<HTMLDivElement, GraphDomOb
       <div
         className={className}
         ref={ref}
+        style={style}
         data-testid="mapgl-graph"
         data-graph-phase={phase}
         data-graph-node-count={summary?.nodeCount ?? 0}
