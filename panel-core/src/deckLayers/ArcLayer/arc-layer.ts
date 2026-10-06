@@ -63,16 +63,9 @@ export const MyArcLayer = (props) => {
   };
   const units: Unit = isMeters ? 'meters' : 'pixels';
 
-  const getWidth = (d) => {
+  const getWidths = (d): [number, number] => {
     const { arcStyle } = d.properties;
-    const getLineWidth = (dir) => {
-      const { size } = arcStyle[dir];
-      return size;
-    };
-    const lineWidthA = getLineWidth('sideA');
-    const lineWidthB = getLineWidth('sideB');
-    const size = Math.max(lineWidthA, lineWidthB);
-    return size;
+    return [arcStyle.sideA.size, arcStyle.sideB.size];
   };
   const getHeight = (d: BartSegment) => {
     const arcStyle = d?.properties.arcStyle;
@@ -94,7 +87,7 @@ export const MyArcLayer = (props) => {
     highlightColor,
     onHover,
     data: lineFeatures,
-    getWidth,
+    getWidths,
     getHeight,
     getTilt: (d: BartSegment) => d.properties.tilt,
     getSourceColor: (d: BartSegment) => getColor('sideA', d),
@@ -116,6 +109,7 @@ export const MyArcLayer = (props) => {
       getFillColor: presentationRevision,
       getSourceColor: presentationRevision,
       getTargetColor: presentationRevision,
+      getWidths: presentationRevision,
     },
     filterCategories: categories,
     extensions: [new DataFilterExtension({ categorySize })],

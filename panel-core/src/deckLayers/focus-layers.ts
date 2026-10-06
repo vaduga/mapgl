@@ -143,38 +143,25 @@ function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<
     });
   }
 
-  if ((layer as any) instanceof AnimatedBlobsLayer) {
-    const blobLayer = layer as any;
-    return blobLayer.clone({
-      getHighlightDepth: (_d: any, info: any) => (connectedFeatureDepths.has(info.index) ? 0 : 1),
-      getHighlightDimOpacity: 0.18,
-      getWidth: (d: any, info: any) => {
-        const width = getAccessorValue(blobLayer.props.getWidth, d, info, 1);
-        return connectedFeatureDepths.has(info.index) ? Math.max(3, width * widthMultiplier) : width;
-      },
-      updateTriggers: {
-        ...layer.props.updateTriggers,
-        getHighlightDepth: highlightDepthTrigger,
-        getHighlightDimOpacity: highlightDepthTrigger,
-        getWidth: [blobLayer.props.updateTriggers?.getWidth, highlightDepthTrigger],
-      },
-    } as any);
-  }
-
   if (isArcLayer(layer)) {
     const arcLayer = layer as any;
     return layer.clone({
       getHighlightDepth: (_d: any, info: any) => (connectedFeatureDepths.has(info.index) ? 0 : 1),
       getHighlightDimOpacity: 0.18,
-      getWidth: (d: any, info: any) => {
-        const width = getAccessorValue(arcLayer.props.getWidth, d, info, 1);
-        return connectedFeatureDepths.has(info.index) ? Math.max(3, width * widthMultiplier) : width;
+      getWidths: (d: any, info: any): [number, number] => {
+        const widths = getAccessorResult(arcLayer.props.getWidths, d, info, [1, 1]);
+        if (!connectedFeatureDepths.has(info.index)) {
+          return widths;
+        }
+        const maxWidth = Math.max(widths[0], widths[1]);
+        const scale = maxWidth > 0 ? Math.max(widthMultiplier, 3 / maxWidth) : 1;
+        return [widths[0] * scale, widths[1] * scale];
       },
       updateTriggers: {
         ...layer.props.updateTriggers,
         getHighlightDepth: highlightDepthTrigger,
         getHighlightDimOpacity: highlightDepthTrigger,
-        getWidth: [arcLayer.props.updateTriggers?.getWidth, highlightDepthTrigger],
+        getWidths: [arcLayer.props.updateTriggers?.getWidths, highlightDepthTrigger],
       },
     } as any);
   }

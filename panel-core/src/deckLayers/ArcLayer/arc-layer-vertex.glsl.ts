@@ -10,7 +10,7 @@ in vec4 instanceSourceColors;
 in vec4 instanceTargetColors;
 in vec3 instanceSourcePositions;
 in vec3 instanceTargetPositions;
-in float instanceWidths;
+in vec2 instanceWidths;
 in float instanceHeights;
 in float instanceTilts;
 
@@ -211,12 +211,16 @@ void main(void) {
     geometry.position = vec4(currPos, 1.0);
   }
 
-  // Multiply out width and clamp to limits
-  // mercator pixels are interpreted as screen pixels
-  float widthPixels = clamp(
-    project_size_to_pixel(instanceWidths * arc.widthScale, arc.widthUnits),
+  // Convert and clamp each side independently before tapering along the arc.
+  float sourceWidthPixels = clamp(
+    project_size_to_pixel(instanceWidths.x * arc.widthScale, arc.widthUnits),
     arc.widthMinPixels, arc.widthMaxPixels
   );
+  float targetWidthPixels = clamp(
+    project_size_to_pixel(instanceWidths.y * arc.widthScale, arc.widthUnits),
+    arc.widthMinPixels, arc.widthMaxPixels
+  );
+  float widthPixels = mix(sourceWidthPixels, targetWidthPixels, segmentRatio);
 
   // extrude
   vec3 offset = vec3(

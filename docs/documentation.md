@@ -251,6 +251,8 @@ Use **Edge Styles** when `Vertex B` is configured:
 
 If you enable **Arc styles**, Mapgl can style side A and side B independently and use a capacity field for metric normalization.
 
+An Arc link tapers continuously from side A's line width at the source to side B's line width at the target. The animated flow follows the same width profile. Equal side widths produce a constant-width arc.
+
 Field-driven line width uses the same endpoint semantics as node size: Min is rendered at the normalized low end and Max at the normalized high end. A Min value greater than Max creates a descending scale.
 
 ## Other panel options

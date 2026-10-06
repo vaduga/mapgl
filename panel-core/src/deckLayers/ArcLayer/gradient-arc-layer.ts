@@ -2,7 +2,8 @@ import vs from './arc-layer-vertex.glsl';
 import type { Accessor, DefaultProps } from '@deck.gl/core';
 import Float32ArcLayer from './float32-arc-layer';
 
-type HighlightMaskProps<DataT = any> = {
+type GradientArcLayerProps<DataT = any> = {
+  getWidths?: Accessor<DataT, [number, number]>;
   getHighlightDepth?: Accessor<DataT, number>;
   getHighlightDimOpacity?: Accessor<DataT, number>;
   getSkip?: Accessor<DataT, boolean | number>;
@@ -10,6 +11,7 @@ type HighlightMaskProps<DataT = any> = {
 
 const defaultProps: DefaultProps = {
   ...Float32ArcLayer.defaultProps,
+  getWidths: { type: 'accessor', value: [1, 1] },
   getHighlightDepth: { type: 'accessor', value: 0 },
   getHighlightDimOpacity: { type: 'accessor', value: 1 },
   getSkip: { type: 'accessor', value: (d: any) => Number(Boolean(d?.skip)) },
@@ -17,7 +19,7 @@ const defaultProps: DefaultProps = {
 
 export default class GradientArcLayer<DataT = any, ExtraPropsT extends {} = {}> extends Float32ArcLayer<
   DataT,
-  ExtraPropsT & HighlightMaskProps<DataT>
+  ExtraPropsT & GradientArcLayerProps<DataT>
 > {
   static layerName = 'GradientArcLayer';
   static defaultProps = defaultProps;
@@ -64,7 +66,16 @@ if (vHighlightDepth > 0.5) {
   initializeState() {
     super.initializeState();
 
-    this.getAttributeManager()?.addInstanced({
+    const attributeManager = this.getAttributeManager()!;
+    attributeManager.remove(['instanceWidths']);
+    attributeManager.addInstanced({
+      // Pack both side widths into one attribute to preserve the WebGL attribute budget.
+      instanceWidths: {
+        size: 2,
+        transition: true,
+        accessor: 'getWidths',
+        defaultValue: [1, 1],
+      },
       instanceHighlightDepth: {
         size: 1,
         accessor: 'getHighlightDepth',

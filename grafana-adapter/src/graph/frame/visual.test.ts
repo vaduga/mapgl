@@ -15,6 +15,7 @@ import type {
   GraphVisualState,
 } from './types';
 import { resolveGraphVisuals } from './visual';
+import { MyArcLayer } from '@vaduga/mapgl-core/deckLayers';
 
 const theme = createTheme();
 
@@ -522,5 +523,14 @@ describe('graph visual stage', () => {
     expect(edge.arcStyle.sideA).toMatchObject({ size: 6, arrow: 1, colorField: 'sideA' });
     expect(edge.arcStyle.sideB).toMatchObject({ size: 4, arrow: -1, colorField: 'sideB' });
     expect(edge.metrics).toMatchObject({ sideA: 50, sideB: 25, capacity: 100 });
+    for (const isBase of [true, false]) {
+      const layer = MyArcLayer({
+        srcGraphId: 'external',
+        isBase,
+        lineFeatures: [{ properties: edge.feature }],
+        getVisLayers: { getCategories: () => [[], ['external']] },
+      });
+      expect((layer.props.getWidths as Function)({ properties: edge.feature })).toEqual([6, 4]);
+    }
   });
 });
