@@ -148,6 +148,11 @@ const config = async (env: Record<string, unknown>): Promise<Configuration> => {
     config.output.chunkFormat = 'array-push';
     config.output.chunkLoading = 'jsonp';
     config.output.scriptType = false;
+    config.output.devtoolModuleFilenameTemplate = ({ namespace, resourcePath, loaders }) => {
+      // Grafana's validator recognizes dependencies only under ../node_modules/.
+      const sourcePath = resourcePath.replace(/^(?:.*?\/)?node_modules\//, '../node_modules/');
+      return `webpack://${namespace}/${sourcePath}${loaders ? `?${loaders}` : ''}`;
+    };
   }
 
   return config;
