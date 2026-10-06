@@ -4,6 +4,8 @@ import {
   createGraphPanelRenderState,
   type GraphPanelLayoutState,
   type GraphPanelRenderState,
+  type GraphPipelineLayoutContext,
+  type GraphPipelineRenderContext,
   buildGraphFromSnapshot,
   type GraphPipelineState,
 } from '@vaduga/mapgl-core/graph/frame';
@@ -97,12 +99,8 @@ function createPipeline(
   overrides: {
     bind?: typeof bindGraphFrames;
     buildGraph?: typeof buildGraphFromSnapshot;
-    layout?: (
-      context: import('@vaduga/mapgl-core/graph/frame').GraphPipelineLayoutContext
-    ) => Promise<LayoutState> | LayoutState;
-    render?: (
-      context: import('@vaduga/mapgl-core/graph/frame').GraphPipelineRenderContext<LayoutState>
-    ) => Promise<RenderState> | RenderState;
+    layout?: (context: GraphPipelineLayoutContext) => Promise<LayoutState> | LayoutState;
+    render?: (context: GraphPipelineRenderContext<LayoutState>) => Promise<RenderState> | RenderState;
     commit?: (state: GraphPipelineState<LayoutState, RenderState>) => void;
     notify?: (state: GraphPipelineState<LayoutState, RenderState>) => Promise<void> | void;
   } = {}

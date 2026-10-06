@@ -1,6 +1,11 @@
 import { PanelController } from '../runtime/PanelController';
 import { metricGraphInput, metricGraphSource } from '../../examples/neutral';
-import { PanelRenderSession, type RenderExtension, type InstantRenderPatch } from './session';
+import {
+  PanelRenderSession,
+  type DisplayedRenderFrame,
+  type RenderExtension,
+  type InstantRenderPatch,
+} from './session';
 import * as mobx from 'mobx';
 import { prepareGraphRender, captureRenderInput, buildPrimaryLayers } from './graph';
 import { replaceRenderLayers, composeRenderLayers } from './layers';
@@ -43,7 +48,7 @@ function deferred<T>() {
   return { promise, resolve };
 }
 
-function checkPatchOwnership(base: import('./session').DisplayedRenderFrame, extension: RenderExtension) {
+function checkPatchOwnership(base: DisplayedRenderFrame, extension: RenderExtension) {
   const ambiguous = { base, extension, dispose: () => {} };
   // @ts-expect-error cleanup belongs solely to the extension, even through an intermediate variable
   const patch: InstantRenderPatch = ambiguous;
@@ -238,7 +243,7 @@ it('orders instant and full requests together and preserves consecutive bucket i
   const session = new PanelRenderSession(controller, { presentation });
   await session.build();
   const base = session.frame!;
-  const pending = deferred<import('./session').InstantRenderPatch>();
+  const pending = deferred<InstantRenderPatch>();
   const edit = session.instant(() => pending.promise);
   await session.build();
   pending.resolve({ base, buckets: { nodes: [] } });
@@ -495,7 +500,7 @@ it('assembles instant contributions in core and owns their acceptance and reject
   expect(session.frame!.bundle.nodes).toEqual([node]);
   expect(session.frame!.bundle.secondary).toEqual([secondary]);
   expect(accept).toHaveBeenCalledTimes(1);
-  const rejected = deferred<import('./session').InstantRenderPatch>();
+  const rejected = deferred<InstantRenderPatch>();
   const base = session.frame!;
   const pending = session.instant(() => rejected.promise);
   session.invalidate();

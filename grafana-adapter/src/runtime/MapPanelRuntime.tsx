@@ -1,9 +1,11 @@
 import { GrafanaTheme2, PanelData, PanelProps } from '@grafana/data';
+import type { Registry } from '@grafana/data';
 import { config, locationService } from '@grafana/runtime';
 import { PanelContext, PanelContextProvider, PanelContextRoot } from '@grafana/ui';
+import type { ExtendMapLayerOptions, ExtendMapLayerRegistryItem } from '../extension';
 import { GrafanaGraphPipeline } from '../graph/frame/pipeline';
 import { updateThresholdColor } from '../render/index';
-import { RootStoreProvider } from '@vaduga/mapgl-core/store';
+import { RootStoreProvider, type LayerTreeInfo } from '@vaduga/mapgl-core/store';
 import { type ViewState, MapLayerState, MapViewConfig, Options, type DeckGLRefWithViewManager } from '../types/index';
 
 import {
@@ -147,16 +149,10 @@ export abstract class MapPanelRuntime<
 
   theme2: GrafanaTheme2 = config.theme2;
   readonly byName = new Map<string, MapLayerState>();
-  abstract readonly mapLayerRegistry: import('@grafana/data').Registry<
-    import('../extension').ExtendMapLayerRegistryItem
-  >;
-  abstract readonly orthoBasemapConfig: import('../extension').ExtendMapLayerOptions;
+  abstract readonly mapLayerRegistry: Registry<ExtendMapLayerRegistryItem>;
+  abstract readonly orthoBasemapConfig: ExtendMapLayerOptions;
 
-  setVisibility(
-    layer: import('@vaduga/mapgl-core/store').LayerTreeInfo,
-    visible: boolean,
-    style: 'children' | 'group' | 'none'
-  ): void {
+  setVisibility(layer: LayerTreeInfo, visible: boolean, style: 'children' | 'group' | 'none'): void {
     this.scene.setVisibility(layer, visible, style, this.featureServices.namespaceProjectionStrategies);
   }
 
