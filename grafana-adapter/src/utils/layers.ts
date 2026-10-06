@@ -7,7 +7,11 @@ import { MapLayerState, colTypes } from '../types/index';
 import { ExtendMapLayerHandler, ExtendMapLayerOptions } from '../extension';
 import { getNextLayerName } from './geomap_utils';
 import { Graph } from '@vaduga/mapgl-core/graph/main';
-import { getDerivedVisLayers, getMapglFeatureServices } from '@vaduga/mapgl-core/featureContracts';
+import {
+  getDerivedVisLayers,
+  getMapglFeatureServices,
+  type MapglFeatureServices,
+} from '@vaduga/mapgl-core/featureContracts';
 import { VisLayers, createVisibility, createDerivedLayers as buildDerivedLayers } from '@vaduga/mapgl-core/store';
 
 interface VisibilityDataLayer {
@@ -16,7 +20,7 @@ interface VisibilityDataLayer {
 }
 
 interface GenVisLayersPanel {
-  featureServices?: import('@vaduga/mapgl-core/featureContracts').MapglFeatureServices;
+  featureServices?: MapglFeatureServices;
   groups: unknown[];
   isLogic: boolean;
   graph: Graph;

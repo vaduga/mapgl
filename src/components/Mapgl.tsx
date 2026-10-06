@@ -1,7 +1,7 @@
 import { LayerSwitcher, MapglViewport } from '@vaduga/mapgl-core/components';
 import { getStyles, buildSecondaryLayers, useDelayedHover, useSvgIconRefresh } from '@vaduga/mapgl-core/render';
 import { usePanelRenderSession } from '@vaduga/mapgl-core/render/react';
-import type { PanelRenderOptions } from '@vaduga/mapgl-core/render/session';
+import type { DisplayedRenderFrame, PanelRenderOptions, PanelRenderSession } from '@vaduga/mapgl-core/render/session';
 import { Menu, Tooltip, GraphFrameDiagnostics, RenderDiagnostics } from '@vaduga/mapgl-grafana-adapter/components';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useStyles2, useTheme2 } from '@grafana/ui';
@@ -121,12 +121,11 @@ const Mapgl = ({
     }
   }, [isLogic]);
 
-  const rendererRef = useRef<import('@vaduga/mapgl-core/render/session').PanelRenderSession | undefined>(undefined);
+  const rendererRef = useRef<PanelRenderSession | undefined>(undefined);
   const dataClickProps = {
     //<editor-fold desc="dataClickProps">
     pId: panel.pId,
-    readRenderFrame: (): import('@vaduga/mapgl-core/render/session').DisplayedRenderFrame | undefined =>
-      rendererRef.current?.frame,
+    readRenderFrame: (): DisplayedRenderFrame | undefined => rendererRef.current?.frame,
     setSelCoord,
     isDefDir,
     setTooltipObject,

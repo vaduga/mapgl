@@ -489,7 +489,7 @@ export abstract class MapPanelRuntime<
       createGraphFrameViewState({ phase: 'loading', pending: true, runtime: this.graphFrameRuntime })
     );
 
-    let result: Awaited<ReturnType<(typeof this.graphPipeline)['run']>>;
+    let result: Awaited<ReturnType<GrafanaGraphPipeline['run']>>;
     try {
       result = await this.graphPipeline.run(
         createMarkersLayersPipelineInput({
