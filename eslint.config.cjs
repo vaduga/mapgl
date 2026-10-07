@@ -42,6 +42,30 @@ module.exports = (async () => {
       rules: {
         '@typescript-eslint/no-deprecated': 'warn',
         'no-duplicate-imports': ['error', { allowSeparateTypeImports: true }],
+        'no-restricted-syntax': [
+          'error',
+          {
+            selector:
+              'TSPropertySignature[optional=true] > TSTypeAnnotation > TSImportType[source.value=/^@vaduga\\/mapgl-core\\//]',
+            message:
+              'Use a named type import here; Grafana Semgrep 1.84.1 fails to parse inline imports on optional core feature fields.',
+          },
+          {
+            selector: 'CallExpression > TSTypeParameterInstantiation TSImportType',
+            message:
+              'Use a named type import here; Grafana Semgrep 1.84.1 fails to parse inline imports in generic call types.',
+          },
+          {
+            selector: 'Property > ArrowFunctionExpression > TSTypeAnnotation TSImportType',
+            message:
+              'Use a named type import here; Grafana Semgrep 1.84.1 fails to parse inline imports in object callback return types.',
+          },
+          {
+            selector: 'TSIndexedAccessType > TSTypeQuery[exprName.left.type="ThisExpression"]',
+            message:
+              'Use an explicit named type instead of indexing a `typeof this.member` query; Grafana Semgrep 1.84.1 fails to parse this form.',
+          },
+        ],
       },
     },
     {

@@ -208,6 +208,12 @@ const TooltipBase = ({
     pinned = true;
   }
 
+  if (graphInteraction?.kind === 'node') {
+    const node = panel.scene.baseline?.graph.state.nodeByKey.get(graphInteraction.key);
+    const currentFeature = node ? getNodeData(node)?.feature : undefined;
+    props = currentFeature ?? props;
+  }
+
   const edgeId =
     object?.edgeId ??
     (graphInteraction?.kind === 'edge' ? (graphInteraction.runtimeId ?? graphInteraction.record.id) : undefined);

@@ -196,6 +196,9 @@ function nodeVisual(
   const nodeData = getNodeData(node);
   const id = nodeData?.wasmId ?? index;
   const feature: BiColProps = {
+    ...Object.fromEntries(
+      Array.from(frame.overlaidProperties ?? [], (key) => [key, rowValue(frame, record.primaryRow.rowIndex, key)])
+    ),
     id,
     layerName: input.config.layerName,
     ...(input.config.layerIndex !== undefined && { layerIdx: input.config.layerIndex }),

@@ -295,6 +295,7 @@ const Mapgl = ({
       </div>
 
       <Tooltip
+        tooltipReactionKey={panel.scene.renderRevision}
         panelId={panel.props.id}
         data={data}
         panel={panel}
