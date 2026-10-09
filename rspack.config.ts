@@ -75,7 +75,8 @@ class MapLibreAssetsPlugin {
           stage: rspack.Compilation.PROCESS_ASSETS_STAGE_REPORT,
         },
         () => {
-          for (const filename of ['maplibre-gl.mjs', 'maplibre-gl-worker.mjs', 'maplibre-gl-shared.mjs']) {
+          // MapLibre 6.13 makes the worker self-contained and leaves the shared file empty.
+          for (const filename of ['maplibre-gl.mjs', 'maplibre-gl-worker.mjs']) {
             const sourcePath = path.resolve(process.cwd(), 'node_modules/maplibre-gl/dist', filename);
             compilation.emitAsset(filename, new rspack.sources.RawSource(fs.readFileSync(sourcePath)));
           }
