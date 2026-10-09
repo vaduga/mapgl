@@ -17,6 +17,7 @@ import {
   Polyline,
   SugiyamaLayoutSettings,
 } from '@msagl/core';
+import { NS_PADDING } from '../../types/defaults';
 import {
   type EdgeRoutingConfig,
   type LayoutDirectionConfig,
@@ -131,6 +132,12 @@ export function addSnapshotEdge(item: LayoutEdgeSnapshot, source: SnapshotNode, 
 export function refreshGraphBoundsAfterLayout(rootGraph: GeomGraph): void {
   const graphs = [rootGraph, ...Array.from(rootGraph.subgraphs())];
   for (let index = graphs.length - 1; index >= 0; index--) {
+    graphs[index].margins = {
+      left: NS_PADDING,
+      top: NS_PADDING,
+      bottom: NS_PADDING,
+      right: NS_PADDING,
+    };
     graphs[index].pumpTheBoxToTheGraphWithMargins();
   }
 }

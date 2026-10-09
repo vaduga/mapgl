@@ -395,18 +395,15 @@ export function buildPrimaryLayers(
       )
     );
     if (p.boundLabels) {
-      for (const feature of prepared.bounds.features) {
+      // Match the displayed polygons, including namespaces that remain as contracted boundaries.
+      const data = prepared.bounds.features.map((feature) => {
         const [[minX, minY], [maxX], [, maxY]] = feature.geometry.coordinates[0];
-        bounds.push(
-          LineTextLayer({
-            ...common,
-            id: 'bbox-' + feature.properties.id,
-            data: [{ text: feature.properties.namespaceLabel, coordinates: [(minX + maxX) / 2, Math.max(minY, maxY)] }],
-            visible: true,
-            type: 'bbox',
-          })
-        );
-      }
+        return {
+          text: feature.properties.namespaceLabel,
+          coordinates: [(minX + maxX) / 2, Math.max(minY, maxY)],
+        };
+      });
+      bounds.push(LineTextLayer({ ...common, id: '-labels', data, visible: true, type: 'bbox' }));
     }
   }
   return {

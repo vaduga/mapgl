@@ -60,7 +60,7 @@
         "basemap": {
           "config": {
             "edgeRouting": "Splines",
-            "layoutDirection": "LR"
+            "layoutDirection": "BT"
           },
           "name": "Logic layout",
           "type": "blank"
