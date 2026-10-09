@@ -25,6 +25,7 @@ export interface TooltipEdgeSectionListProps {
   isListed(section: TooltipEdgeSection, direction: TooltipEdgeDirection): boolean;
   onToggle(section: TooltipEdgeSection, direction: TooltipEdgeDirection): void;
   onFocus?(records: TooltipEdgeRecord[]): void;
+  onFocusEnd?(): void;
   renderEdge(
     record: TooltipEdgeRecord,
     index: number,
@@ -50,6 +51,7 @@ export function TooltipEdgeSectionList({
   isListed,
   onToggle,
   onFocus,
+  onFocusEnd,
   renderEdge,
   getIconName = defaultIconName,
   getTooltip = defaultTooltip,
@@ -73,6 +75,7 @@ export function TooltipEdgeSectionList({
               isListed,
               onToggle,
               onFocus,
+              onFocusEnd,
               getIconName,
               getTooltip,
             })}
@@ -84,6 +87,7 @@ export function TooltipEdgeSectionList({
               isListed,
               onToggle,
               onFocus,
+              onFocusEnd,
               getIconName,
               getTooltip,
             })}
@@ -104,6 +108,7 @@ interface RenderDirectionTriggerOptions {
   isListed(section: TooltipEdgeSection, direction: TooltipEdgeDirection): boolean;
   onToggle(section: TooltipEdgeSection, direction: TooltipEdgeDirection): void;
   onFocus?(records: TooltipEdgeRecord[]): void;
+  onFocusEnd?(): void;
   getIconName(section: TooltipEdgeSection, direction: TooltipEdgeDirection): TooltipEdgeIconName;
   getTooltip(section: TooltipEdgeSection, direction: TooltipEdgeDirection): string;
 }
@@ -116,6 +121,7 @@ function renderDirectionTrigger({
   isListed,
   onToggle,
   onFocus,
+  onFocusEnd,
   getIconName,
   getTooltip,
 }: RenderDirectionTriggerOptions): ReactNode {
@@ -142,6 +148,7 @@ function renderDirectionTrigger({
         className={classNames?.countButton}
         aria-label={`${label} edges count`}
         onMouseEnter={() => onFocus?.(records)}
+        onMouseLeave={onFocusEnd}
         onClick={() => onToggle(section, direction)}
       >
         {`(${records.length})`}

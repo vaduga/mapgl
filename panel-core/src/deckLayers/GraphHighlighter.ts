@@ -131,7 +131,12 @@ export class GraphHighlighter {
   update(opts: { sourceId: string | null; graphId?: string | null; maxDepth?: number; isDefDir?: boolean | null }) {
     const { sourceId, graphId, maxDepth = 1, isDefDir = true } = opts;
     const sourceKey = sourceId ? this.resolveNodeKey(sourceId, graphId) : null;
-    if (sourceKey === this.lastSourceKey && maxDepth === this.lastMaxDepth && isDefDir === this.lastIsDefDir) {
+    if (
+      sourceKey !== null &&
+      sourceKey === this.lastSourceKey &&
+      maxDepth === this.lastMaxDepth &&
+      isDefDir === this.lastIsDefDir
+    ) {
       return;
     }
 
@@ -200,7 +205,7 @@ export class GraphHighlighter {
   updateEdge(opts: { edgeId: string | null; graphId?: string | null }) {
     const { edgeId, graphId } = opts;
     const edgeKey = edgeId ? this.resolveEdgeKey(edgeId, graphId) : null;
-    if (edgeKey === this.lastEdgeKey) {
+    if (edgeKey !== null && edgeKey === this.lastEdgeKey) {
       return;
     }
 

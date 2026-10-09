@@ -136,7 +136,7 @@ const Mapgl = ({
   };
 
   const focusHoveredElement = useDelayedHover((info) => {
-    rootStore.pointStore.focus(rendererRef.current?.resolvePick(info));
+    rendererRef.current?.focusHover(info);
   });
   const onDeckHover = useCallback(
     (info: any) => {

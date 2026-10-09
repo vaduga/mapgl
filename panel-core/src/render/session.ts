@@ -477,6 +477,11 @@ export class PanelRenderSession {
     }
     return layers;
   }
+  focusHover(info: any): void {
+    const store = this.controller.stores.pointStore;
+    store.focus(this.resolvePick(info?.picked ? info : store.getTooltipObject));
+  }
+
   resolvePick(info: any): FocusRef | undefined {
     const frame = this.frame;
     if (!frame) {

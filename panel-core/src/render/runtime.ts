@@ -58,6 +58,7 @@ export function useDelayedHover(action: (info: any) => void, delayMs = 100) {
         timeoutRef.current = null;
       }
       if (!info?.picked) {
+        actionRef.current(info);
         return;
       }
       timeoutRef.current = setTimeout(() => {

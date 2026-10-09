@@ -1,6 +1,7 @@
 # Changelog Mapgl
 
 ## 2.10.5
+- UX: clear/restore highlight for pinned object on hover away
 - rendering: taper arc widths continuously between Side A and Side B
 - editor: collapse optional edge identity config
 - refactor: decouple panel core from Grafana 

@@ -39,6 +39,7 @@ export class PointStore {
   log: QueryHost[] = [];
 
   tooltipObject: Info = blankHoverInfo;
+  tooltipEdgeIndex = -1;
   logTooltipObject: Info = blankHoverInfo;
 
   private selectedKey: ElementKey | undefined = undefined;
@@ -167,6 +168,11 @@ export class PointStore {
 
   setTooltipObject = (info: any) => {
     this.tooltipObject = info;
+    this.tooltipEdgeIndex = -1;
+  };
+
+  setTooltipEdgeIndex = (index: number) => {
+    this.tooltipEdgeIndex = index;
   };
 
   private graph(namespaceId: string): Graph | undefined {

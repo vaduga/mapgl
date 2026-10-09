@@ -96,16 +96,21 @@ const TooltipBase = ({
   const s = useStyles2(getStyles);
   const theme = useTheme2();
   const tooltipOffset = Number.parseFloat(theme.spacing(TOOLTIP_OFFSET_SCALE));
-  const [selIdx, setSelIdx] = useState(-1);
   const [extraEdgeSectionDirection, setExtraEdgeSectionDirection] = useState<TooltipEdgeDirection | undefined>();
   const rootStore = useRootStore();
   const { pointStore } = rootStore;
+  const {
+    getTooltipObject,
+    setTooltipObject,
+    getisDrawerOpen,
+    tooltipEdgeIndex: selIdx,
+    setTooltipEdgeIndex: setSelIdx,
+  } = pointStore;
 
   if (!info || !Object.entries(info).length) {
     return null;
   }
 
-  const { getTooltipObject, setTooltipObject, getisDrawerOpen } = pointStore;
   const { isDefDir, setIsDefDir, setEdgeListed, setFocusedEdgeId, setFocusedEdges, getisEdgeListed } =
     rootStore.pointStore;
 
@@ -153,7 +158,6 @@ const TooltipBase = ({
       return;
     }
 
-    setSelIdx(-1);
     setFocusedEdges(focusableEdges);
   };
   const handleExtraEdgeSectionListed = (direction: TooltipEdgeDirection) => {
@@ -228,6 +232,15 @@ const TooltipBase = ({
   const findNode = graph ? (id: string) => graph.findNode(id) : undefined;
   const pickedNode: Node = eNode ?? findNode?.(locName);
   const pickedFeature = pickedNode ? getNodeData(pickedNode)?.feature : props;
+  const restoreTooltipFocus = () => {
+    pointStore.focus(
+      edge
+        ? { kind: 'edge', id: edge.id, namespaceId: String((edge.source.parent as Graph).id) }
+        : pickedNode
+          ? { kind: 'node', id: pickedNode.id, namespaceId: String((pickedNode.parent as Graph).id) }
+          : undefined
+    );
+  };
 
   const layer: any = dataLayers.length && layerName && dataLayers.find((l) => l.name === layerName);
   const isShowTooltip = layer?.isShowTooltip ?? layerProps?.isShowTooltip ?? true;
@@ -396,7 +409,11 @@ const TooltipBase = ({
 
       //&& parent === getSelectedNode --- would need pinned tooltip rerender
       return (
-        <li key={edgeId} onMouseEnter={() => edge.id && setFocusedEdgeId(edge.id, edgeGraphId)}>
+        <li
+          key={edgeId}
+          onMouseEnter={() => edge.id && setFocusedEdgeId(edge.id, edgeGraphId)}
+          onMouseLeave={restoreTooltipFocus}
+        >
           <div
             style={{
               display: 'flex',
@@ -406,7 +423,6 @@ const TooltipBase = ({
           >
             <a
               onClick={() => {
-                setSelIdx(i);
                 const node = rootStore.pointStore.getSelectedNode;
                 panel.controller.select(
                   node ? { id: node.id, namespaceId: String((node.parent as Graph | undefined)?.id ?? '') } : undefined,
@@ -439,6 +455,7 @@ const TooltipBase = ({
                     },
                   },
                 });
+                setSelIdx(i);
               }}
               style={{
                 display: 'flex',
@@ -556,6 +573,7 @@ const TooltipBase = ({
             isListed={isSectionListed}
             onToggle={handleSectionToggle}
             onFocus={(records) => handleEdgeListFocus(records.map((record) => record.edge))}
+            onFocusEnd={restoreTooltipFocus}
             renderEdge={renderSectionEdge}
             getIconName={getSectionIconName}
             getTooltip={getSectionTooltip}
