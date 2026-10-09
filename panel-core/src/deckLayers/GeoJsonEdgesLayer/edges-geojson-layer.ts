@@ -62,7 +62,7 @@ function getFeatureGeomEdges(feature: DeckLine, edgeIndex: GraphEdgeIndex | unde
     : [];
 }
 
-function getLayoutCurveSegments(
+export function getLayoutCurveSegments(
   srcGraphId: string,
   features: DeckLine[],
   edgeIndex: GraphEdgeIndex | undefined,
@@ -80,7 +80,8 @@ function getLayoutCurveSegments(
   const lineIdsByEdgeIndex = new Int32Array(edgeKeys.length);
   lineIdsByEdgeIndex.fill(-1);
   const hiddenFeature = { skip: true, properties: {} } as DeckLine;
-  const featuresByLineId: DeckLine[] = [hiddenFeature];
+  const hiddenFeatureIndex = features.length;
+  const featuresByLineId: DeckLine[] = [...features, hiddenFeature];
 
   features.forEach((feature, featureIndex) => {
     for (const edge of getFeatureGeomEdges(feature, edgeIndex)) {
@@ -100,7 +101,7 @@ function getLayoutCurveSegments(
   segmentFeatureIndexes.fill(-1);
 
   group.edgeIndexes.forEach((edgeIndex, localEdgeIndex) => {
-    const featureIndex = lineIdsByEdgeIndex[edgeIndex] < 0 ? 0 : lineIdsByEdgeIndex[edgeIndex];
+    const featureIndex = lineIdsByEdgeIndex[edgeIndex] < 0 ? hiddenFeatureIndex : lineIdsByEdgeIndex[edgeIndex];
     const start = group.edgeSegmentOffsets[localEdgeIndex];
     const end = group.edgeSegmentOffsets[localEdgeIndex + 1];
 
