@@ -12,6 +12,11 @@ Read these project docs before making documentation changes or changing panel co
 `docs/documentation.md` is the user-facing configuration guide.
 `docs/reference.md` is the exact behavior and data-model reference.
 
+## File search
+
+- **Use the fff MCP tools** for all file search operations instead of default tools.
+
+
 ## Local build validation
 
 - **Must restart the Grafana container after every frontend rebuild** before browser validation. Rebuilding the plugin entry module changes its hash, and Grafana can fail to load the rebuilt module until restarted. For this repository, run `docker restart mapgl`.

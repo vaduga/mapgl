@@ -5,7 +5,7 @@
 - rendering: taper arc widths continuously between Side A and Side B
 - editor: collapse optional edge identity config
 - refactor: decouple panel core from Grafana
-- fix: prevent corrupted SVG and transparent icons by ignoring stale async icon atlas loads before they can release the active texture
+- fix: prevent corrupted SVG icons by ignoring stale async icon atlas loads before they can release the active texture
 
 ## 2.10.4
 - fix: correct namespace boundaries to remove stale empty space

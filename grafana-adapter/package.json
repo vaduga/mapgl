@@ -104,13 +104,13 @@
     "typescript": "npm:@typescript/typescript6@^6.0.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "@types/lodash": "^4.17.25",
+    "@types/lodash": "^4.17.26",
     "@types/geojson": "7946.0.16"
   },
   "dependencies": {
     "@grafana/e2e-selectors": "13.2.3",
     "@hello-pangea/dnd": "18.0.1",
-    "@rc-component/slider": "1.1.1",
+    "@rc-component/slider": "1.2.1",
     "@react-aria/dialog": "3.6.1",
     "@react-aria/focus": "3.22.1",
     "@react-aria/overlays": "3.32.1",
@@ -119,6 +119,6 @@
     "react-inlinesvg": "4.5.0",
     "react-virtualized-auto-sizer": "2.0.3",
     "react-window": "1.8.11",
-    "uuid": "14.0.2"
+    "uuid": "14.0.3"
   }
 }
