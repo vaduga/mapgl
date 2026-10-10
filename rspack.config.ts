@@ -4,6 +4,8 @@ import path from 'path';
 import grafanaConfig from './.config/rspack/rspack.config';
 import { merge } from 'webpack-merge';
 
+const { modulePattern: deckAsyncResourceModulePattern } = require('./scripts/deck-core-async-resource-loader.cjs');
+
 const rootCopyFiles = new Map([
   ['../LICENSE', 'LICENSE'],
   ['../CHANGELOG.md', 'CHANGELOG.md'],
@@ -129,6 +131,10 @@ const config = async (env: Record<string, unknown>): Promise<Configuration> => {
     },
     module: {
       rules: [
+        {
+          test: deckAsyncResourceModulePattern,
+          use: path.resolve(process.cwd(), 'scripts/deck-core-async-resource-loader.cjs'),
+        },
         {
           test: /node_modules\/@msagl\/core\/dist\/.*\.js$/,
           resolve: {
