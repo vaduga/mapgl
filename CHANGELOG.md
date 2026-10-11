@@ -1,11 +1,10 @@
 # Changelog Mapgl
 
-## 2.10.7
+## 2.11.0
 - UX: clear/restore highlight for pinned object on hover away
 - rendering: taper arc widths continuously between Side A and Side B
-- editor: collapse optional edge identity config
 - refactor: decouple panel core from Grafana
-- fix: prevent corrupted SVG icons by ignoring stale async icon atlas loads before they can release the active texture
+- fix: prevent corrupted SVG icons by ignoring stale async icon atlas load
 
 ## 2.10.4
 - fix: correct namespace boundaries to remove stale empty space
