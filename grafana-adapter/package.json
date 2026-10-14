@@ -84,7 +84,7 @@
     }
   },
   "peerDependencies": {
-    "@vaduga/mapgl-core": "2.10.7",
+    "@vaduga/mapgl-core": "^2.11.0",
     "@msagl/core": "1.1.24",
     "@grafana/data": ">=11.6.0",
     "@grafana/runtime": ">=11.6.0",
