@@ -8,11 +8,10 @@ import { useStyles2, useTheme2 } from '@grafana/ui';
 import { observer } from 'mobx-react-lite';
 import type { DeckGLRef } from '@deck.gl/react';
 
-import { expandTooltip } from '../utils';
 import { useRootStore } from '@vaduga/mapgl-core/store';
 import { colTypes, type ViewState, type ComFeature } from '@vaduga/mapgl-grafana-adapter/types';
 import { getGraphVersion, type Graph } from '@vaduga/mapgl-core/graph/main';
-import { selectGotoHandler } from '@vaduga/mapgl-grafana-adapter/utils';
+import { expandTooltip, selectGotoHandler } from '@vaduga/mapgl-grafana-adapter/utils';
 import {
   useNodeLegendClick,
   getThemeVariables,
