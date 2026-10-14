@@ -56,7 +56,6 @@ describe('graph runtime commit helpers', () => {
 
     expect(getNodeData(graph.nodeByKey.get(visual.nodes[0].key)!)?.feature).toBe(visual.nodes[0].feature);
     expect(graph.edgeIndex.getFirstRecordEdge(0)?.data.dataRecord).toBe(visual.edgeUnits[0]!.feature);
-    expect(graph.edgeIndex.getRecordMetrics(0)).toEqual({ primary: 42, sideA: 42, sideB: 42 });
     expect(getNodeGroupsWithNodes(graph.graph)).not.toContain(99);
   });
 

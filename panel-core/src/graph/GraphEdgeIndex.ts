@@ -14,11 +14,6 @@ export interface GraphEdgeIndexRecordInput {
   readonly layerIndex: number;
   readonly wrap: number;
   readonly nest: boolean;
-  readonly metrics?: {
-    readonly primary?: number;
-    readonly sideA?: number;
-    readonly sideB?: number;
-  };
 }
 
 export class GraphEdgeIndex {
@@ -30,7 +25,6 @@ export class GraphEdgeIndex {
   private stagedVertexOffsets: number[] = [0];
   private stagedVertexRefs: number[] = [];
   private stagedLayoutValues: number[] = [];
-  private stagedMetrics: number[] = [];
 
   private recordUnitOffsets = new Uint32Array([0]);
   private unitOffsets = new Uint32Array([0]);
@@ -39,12 +33,10 @@ export class GraphEdgeIndex {
   private vertexOffsets = new Uint32Array([0]);
   private vertexRefs = new Int32Array();
   private layoutValues = new Int32Array();
-  private metrics = new Float64Array();
   private edgeRefs = new WeakMap<Edge, number>();
   private finalized = false;
   private _revision = 0;
   private captured?: GraphEdgeIndex;
-  private metricsShared = false;
   get revision() {
     return this._revision;
   }
@@ -53,7 +45,6 @@ export class GraphEdgeIndex {
   snapshot(): GraphEdgeIndex {
     this.ensureFinalized();
     if (!this.captured) {
-      this.metricsShared = true;
       const copy = Object.assign(new GraphEdgeIndex(), this);
       copy.captured = undefined;
       Object.freeze(copy);
@@ -105,11 +96,6 @@ export class GraphEdgeIndex {
     }
     this.stagedVertexOffsets.push(this.stagedVertexRefs.length);
     this.stagedLayoutValues.push(input.layerIndex, input.wrap, input.nest ? 1 : 0);
-    this.stagedMetrics.push(
-      input.metrics?.primary ?? 0,
-      input.metrics?.sideA ?? Number.NaN,
-      input.metrics?.sideB ?? Number.NaN
-    );
   }
 
   finalize(): this {
@@ -123,7 +109,6 @@ export class GraphEdgeIndex {
     this.vertexOffsets = Uint32Array.from(this.stagedVertexOffsets);
     this.vertexRefs = Int32Array.from(this.stagedVertexRefs);
     this.layoutValues = Int32Array.from(this.stagedLayoutValues);
-    this.metrics = Float64Array.from(this.stagedMetrics);
     this.edgeRefs = new WeakMap(this.edgePool.map((edge, edgeRef) => [edge, edgeRef] as const));
     this.releaseStaging();
     this.finalized = true;
@@ -282,31 +267,6 @@ export class GraphEdgeIndex {
     return Boolean((this.finalized ? this.layoutValues : this.stagedLayoutValues)[recordRef * 3 + 2]);
   }
 
-  getRecordMetrics(recordRef: number): Readonly<{ primary: number; sideA?: number; sideB?: number }> {
-    this.assertRecordRef(recordRef);
-    const metrics = this.finalized ? this.metrics : this.stagedMetrics;
-    const offset = recordRef * 3;
-    return Object.freeze({
-      primary: metrics[offset],
-      ...(!Number.isNaN(metrics[offset + 1]) && { sideA: metrics[offset + 1] }),
-      ...(!Number.isNaN(metrics[offset + 2]) && { sideB: metrics[offset + 2] }),
-    });
-  }
-
-  setRecordMetrics(recordRef: number, primary: number, sideA?: number, sideB?: number): void {
-    this.ensureFinalized();
-    this.assertRecordRef(recordRef);
-    const offset = recordRef * 3;
-    if (this.metricsShared) {
-      this.metrics = this.metrics.slice();
-      this.metricsShared = false;
-    }
-    this.changed();
-    this.metrics[offset] = primary;
-    this.metrics[offset + 1] = sideA ?? Number.NaN;
-    this.metrics[offset + 2] = sideB ?? Number.NaN;
-  }
-
   clone(): GraphEdgeIndex {
     this.ensureFinalized();
     const clone = new GraphEdgeIndex();
@@ -318,7 +278,6 @@ export class GraphEdgeIndex {
     clone.vertexOffsets = this.vertexOffsets.slice();
     clone.vertexRefs = this.vertexRefs.slice();
     clone.layoutValues = this.layoutValues.slice();
-    clone.metrics = this.metrics.slice();
     clone.edgeRefs = new WeakMap(clone.edgePool.map((edge, edgeRef) => [edge, edgeRef] as const));
     clone.releaseStaging();
     clone.finalized = true;
@@ -327,7 +286,6 @@ export class GraphEdgeIndex {
 
   reset(): void {
     this.changed();
-    this.metricsShared = false;
     this.edgePool = [];
     this.stagedRecordUnitOffsets = [0];
     this.stagedUnitOffsets = [0];
@@ -336,7 +294,6 @@ export class GraphEdgeIndex {
     this.stagedVertexOffsets = [0];
     this.stagedVertexRefs = [];
     this.stagedLayoutValues = [];
-    this.stagedMetrics = [];
     this.recordUnitOffsets = new Uint32Array([0]);
     this.unitOffsets = new Uint32Array([0]);
     this.edgeRecordRefs = new Uint32Array();
@@ -344,7 +301,6 @@ export class GraphEdgeIndex {
     this.vertexOffsets = new Uint32Array([0]);
     this.vertexRefs = new Int32Array();
     this.layoutValues = new Int32Array();
-    this.metrics = new Float64Array();
     this.edgeRefs = new WeakMap();
     this.finalized = false;
   }
@@ -395,7 +351,6 @@ export class GraphEdgeIndex {
     this.stagedVertexOffsets = [];
     this.stagedVertexRefs = [];
     this.stagedLayoutValues = [];
-    this.stagedMetrics = [];
   }
 }
 

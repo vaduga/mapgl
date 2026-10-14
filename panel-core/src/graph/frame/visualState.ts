@@ -8,13 +8,8 @@ import type {
   GraphFrameViewState,
   GraphVisualState,
 } from './types';
-import { PACKED_INVALID_REF } from './packedRelations';
 
 const EMPTY_DIAGNOSTICS: readonly GraphFrameDiagnostic[] = Object.freeze([]);
-
-function numericMetric(value: unknown): number {
-  return typeof value === 'number' && Number.isFinite(value) ? value : 0;
-}
 
 export function applyGraphVisualState(graph: GraphBuiltState, visual: GraphVisualState): void {
   clearNodeGroupsWithNodes(graph.graph);
@@ -40,18 +35,6 @@ export function applyGraphVisualState(graph: GraphBuiltState, visual: GraphVisua
         edge.setAttr(AttributeRegistry.EdgeDataIndex, { ...edge.data, dataRecord: unitVisual.feature });
       }
     });
-    const primaryUnitRef = visual.edgePrimaryUnitRefs[recordRef];
-    if (primaryUnitRef !== PACKED_INVALID_REF) {
-      const primary = visual.edgeUnits[primaryUnitRef];
-      if (primary) {
-        graph.edgeIndex.setRecordMetrics(
-          recordRef,
-          numericMetric(primary.metrics.sideA),
-          numericMetric(primary.metrics.sideB),
-          numericMetric(primary.metrics.color)
-        );
-      }
-    }
   }
 }
 

@@ -114,15 +114,3 @@ it('waits for edition integration and ignores a mount disposed while integration
   expect(initialize).toHaveBeenCalledTimes(1);
   panel.componentWillUnmount();
 });
-
-it('prepares consumers after resolved metrics are attached', async () => {
-  class ConsumerPanel extends TestPanel {
-    protected prepareGraphCommit(state: any) {
-      expect(state.graph.state.edgeIndex.getRecordMetrics(0).sideB).toBe(8);
-      return super.prepareGraphCommit(state);
-    }
-  }
-  const panel = new ConsumerPanel(panelProps());
-  await panel.controller.update(metricGraphInput(metricGraphSource('prepared', [8, 21])));
-  panel.componentWillUnmount();
-});

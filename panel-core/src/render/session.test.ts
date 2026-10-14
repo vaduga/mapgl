@@ -190,7 +190,7 @@ it.each(['visibility', 'projection', 'resource', 'edge-index'])(
     } else if (change === 'resource') {
       controller.scene.invalidatePresentation();
     } else {
-      controller.scene.render.edgeIndex.setRecordMetrics(0, 500);
+      controller.scene.render.edgeIndex.replaceRecordVertexRefs(0, [1, 0]);
     }
     pending.resolve({ accept, dispose: release });
     await request;
@@ -300,7 +300,7 @@ it.each(['edge-index revision', 'edge-index replacement', 'scene generation'])(
       dispose = jest.fn();
     const request = session.instant(() => pending.promise);
     if (change === 'edge-index revision') {
-      controller.scene.render.edgeIndex.setRecordMetrics(0, 500);
+      controller.scene.render.edgeIndex.replaceRecordVertexRefs(0, [1, 0]);
     } else if (change === 'edge-index replacement') {
       controller.scene.update({ edgeIndex: new GraphEdgeIndex() });
     } else {
@@ -526,12 +526,10 @@ it('shares immutable index tables until an edit replaces a table, including shif
   expect(index.getRecordVertexView(0).buffer).toBe(vertexBuffer);
   index.replaceUnitEdges(0, []);
   index.replaceRecordVertexRefs(0, [0, 2, 1]);
-  index.setRecordMetrics(0, 500);
   expect(index.getEdge(0)).toBe(secondEdge);
   expect(before.getEdge(1)).toBe(secondEdge);
   expect(before.edgeCount).toBe(2);
   expect([...before.getRecordVertexView(0)]).toEqual([0, 1]);
-  expect(before.getRecordMetrics(0).primary).not.toBe(500);
   expect(index.snapshot()).not.toBe(before);
   controller.dispose();
 });
