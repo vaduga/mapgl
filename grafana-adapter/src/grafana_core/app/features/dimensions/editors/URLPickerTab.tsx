@@ -23,7 +23,7 @@ export const URLPickerTab = (props: Props) => {
   const { pluginId } = useMapglPlugin();
   const imgSrc = getPublicOrAbsoluteUrl(newValue!, pluginId);
 
-  let shortName = newValue?.substring(newValue.lastIndexOf('/') + 1, newValue.lastIndexOf('./index'));
+  let shortName = newValue?.substring(newValue.lastIndexOf('/') + 1, newValue.lastIndexOf('.'));
   if (shortName.length > 20) {
     shortName = shortName.substring(0, 20) + '...';
   }

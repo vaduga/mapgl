@@ -52,7 +52,7 @@ export function createDefaultMarkersConfig(): MarkersLayerOptions<MarkersConfig>
     type: MARKERS_LAYER_ID,
     name: 'new markers layer',
     optional: {
-      nsSeparator: './index',
+      nsSeparator: '.',
     },
     config: {
       style: markerStyle,

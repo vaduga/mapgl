@@ -32,13 +32,13 @@ const legacyLayerKeyByIdentity: Partial<Record<IdentityKey, string>> = {
   edgeId: 'edgeIdField',
   isNestEdges: 'isNestEdges',
 };
-const legacyLayerKeys = ['edgeIdField', 'isNestEdges', 'isWrapEdges'];
+const legacyLayerKeys = ['edgeIdField', 'isNestEdges', 'isWrapEdges', 'searchProperties'];
 const legacyConfigKeys = ['isNestEdges', 'vertexA_NS', 'vertexB_NS', 'nsSeparator'];
 
 const getIdentityOption = (options: Record<string, any>, key: IdentityKey) => {
   const identity = options.optional;
   if (key === 'searchProps') {
-    return identity?.searchProps;
+    return identity?.searchProps ?? options.searchProperties;
   }
   if (key === 'wrapEdges') {
     return identity?.wrapEdges ?? options.isWrapEdges;

@@ -149,7 +149,7 @@ export const FolderPickerTab = (props: Props) => {
               const cards: ResourceItem[] = [];
               frame.forEach((item) => {
                 if (filter(item)) {
-                  const idx = item.name.lastIndexOf('./index');
+                  const idx = item.name.lastIndexOf('.');
                   cards.push({
                     value: `${folder}/${item.name}`,
                     label: item.name,
