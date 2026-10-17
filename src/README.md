@@ -64,6 +64,7 @@ Use Grafana’s built-in transformations to prepare and merge data from:
 - Postgres
 - Prometheus
 - Zabbix
+- [Netbox](https://grafana.com/grafana/plugins/netboxlabs-netbox-datasource/) datasource ('Topology edges' query)
 - Infinity (JSON API)
 - Any other datasource
 
