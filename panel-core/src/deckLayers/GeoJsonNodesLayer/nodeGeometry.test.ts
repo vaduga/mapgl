@@ -31,12 +31,20 @@ describe('gauge center value geometry', () => {
   });
 
   it('shrinks longer single-line values and handles empty content', () => {
-    const side = 50;
-    const shortTextSize = getFittedGaugeValueTextSize('8', side);
-    const longTextSize = getFittedGaugeValueTextSize('123.45 GiB', side);
+    // Use consistent monospace metrics at the measurement font's 100px size.
+    const getContext = jest.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
+      measureText: (text: string) => ({ width: text.length * 62 }),
+    } as CanvasRenderingContext2D);
+    try {
+      const side = 50;
+      const shortTextSize = getFittedGaugeValueTextSize('8', side);
+      const longTextSize = getFittedGaugeValueTextSize('123.45 GiB', side);
 
-    expect(shortTextSize).toBeLessThanOrEqual(side * 0.88);
-    expect(longTextSize).toBeLessThan(shortTextSize);
-    expect(getFittedGaugeValueTextSize('', side)).toBe(0);
+      expect(shortTextSize).toBeLessThanOrEqual(side * 0.88);
+      expect(longTextSize).toBeLessThan(shortTextSize);
+      expect(getFittedGaugeValueTextSize('', side)).toBe(0);
+    } finally {
+      getContext.mockRestore();
+    }
   });
 });

@@ -1,5 +1,8 @@
 # Changelog Mapgl
 
+## 2.11.1
+- fix(Grafana Cloud): prevent node graph failure when loading the layout worker from the plugin CDN
+
 ## 2.11.0
 - UX: clear/restore highlight for pinned object on hover away
 - rendering: taper arc widths continuously between Side A and Side B

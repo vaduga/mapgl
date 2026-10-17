@@ -1,5 +1,5 @@
 {
-  "version": "2.11.0",
+  "version": "2.11.1",
   "type": "module",
   "license": "GPL-3.0",
   "files": [
@@ -84,7 +84,7 @@
     }
   },
   "peerDependencies": {
-    "@vaduga/mapgl-core": "^2.11.0",
+    "@vaduga/mapgl-core": "^2.11.1",
     "@msagl/core": "1.1.24",
     "@grafana/data": ">=11.6.0",
     "@grafana/runtime": ">=11.6.0",
