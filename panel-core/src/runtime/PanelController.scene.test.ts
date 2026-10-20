@@ -13,16 +13,18 @@ it('reconciles visibility before a refreshed graph is projected or published', a
     {
       layout: (context) => emptyGraphLayout(context.graph.positions),
       render: createGraphPanelRenderState,
-      prepareCommit: (state) => ({
-        visibility: createVisibility({
-          graph: state.render.state.graph,
-          groupCount: 1,
-          isLogic: false,
-          isRouted: true,
-          dataLayers: [{ name: 'nodes', type: colTypes.Markers }],
-        }),
-        project,
-      }),
+      commitGraph: (state, commitScene) => {
+        commitScene({
+          visibility: createVisibility({
+            graph: state.render.state.graph,
+            groupCount: 1,
+            isLogic: false,
+            isRouted: true,
+            dataLayers: [{ name: 'nodes', type: colTypes.Markers }],
+          }),
+        });
+        project();
+      },
     },
     scene
   );
@@ -54,15 +56,16 @@ it('coordinates loading, effective commit, retained failure and reconnect withou
         return emptyGraphLayout(context.graph.positions);
       },
       render: createGraphPanelRenderState,
-      prepareCommit: (state) => ({
-        visibility: createVisibility({
-          graph: state.render.state.graph,
-          groupCount: 1,
-          isLogic: true,
-          isRouted: true,
-          dataLayers: [],
+      commitGraph: (state, commitScene) =>
+        commitScene({
+          visibility: createVisibility({
+            graph: state.render.state.graph,
+            groupCount: 1,
+            isLogic: true,
+            isRouted: true,
+            dataLayers: [],
+          }),
         }),
-      }),
     },
     scene
   );
@@ -107,21 +110,23 @@ it.each([true, false])(
   async (matchingMetric) => {
     const scene = new GraphScene();
     const layout = jest.fn((context) => emptyGraphLayout(context.graph.positions));
-    const prepare = jest.fn((state) => ({
-      visibility: createVisibility({
-        graph: state.render.state.graph,
-        groupCount: state.render.state.groups.length + 1,
-        isLogic: true,
-        isRouted: true,
-        dataLayers: [],
-      }),
-    }));
+    const prepare = jest.fn((state, commitScene) =>
+      commitScene({
+        visibility: createVisibility({
+          graph: state.render.state.graph,
+          groupCount: state.render.state.groups.length + 1,
+          isLogic: true,
+          isRouted: true,
+          dataLayers: [],
+        }),
+      })
+    );
     const controller = new PanelController(
       {
         isolateGraph: true,
         layout,
         render: createGraphPanelRenderState,
-        prepareCommit: prepare,
+        commitGraph: prepare,
       },
       scene
     );

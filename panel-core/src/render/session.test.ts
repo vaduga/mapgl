@@ -27,7 +27,7 @@ const presentation = {
 };
 async function fixture(input: GraphPipelineInput = metricGraphInput(metricGraphSource('first', [0, 50, 100]))) {
   const controller = new PanelController({
-    prepareCommit: (state) => {
+    commitGraph: (state, commitScene) => {
       const visibility = new VisLayers();
       for (const graph of [state.graph.state.graph, ...state.graph.state.graph.subgraphsBreadthFirst()]) {
         visibility.addLayer(graph.id, graph.id, 'graph', false, true, false, null, false);
@@ -36,7 +36,7 @@ async function fixture(input: GraphPipelineInput = metricGraphInput(metricGraphS
         visibility.addLayer(type, type, type, false, true, false, null, false);
       }
       visibility.setActiveGroups(new Uint8Array(20).fill(1));
-      return { visibility };
+      commitScene({ visibility });
     },
   });
   await controller.update(input);

@@ -121,7 +121,7 @@ describe('graph runtime commit helpers', () => {
     const view = createGraphFrameViewState({
       phase: 'loading',
       pending: true,
-      runtime: { version: 3, snapshot },
+      acceptedState: { version: 3, snapshot },
     });
 
     expect(view.summary).toEqual({

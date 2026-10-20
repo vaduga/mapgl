@@ -96,3 +96,22 @@ it('cleans up replaced bindings once and ignores releases belonging to old ident
   expect(cleanups[0]).toHaveBeenCalledTimes(1);
   expect(cleanups[1]).toHaveBeenCalledTimes(1);
 });
+
+it('stops graph subscriptions while retaining panel bindings and transports', async () => {
+  const graphDispose = jest.fn();
+  const transportDispose = jest.fn();
+  const bindingDispose = jest.fn();
+  const owner = new GrafanaRuntimeSubscriptions([
+    { id: 'graph-provider', start: () => ({ dispose: graphDispose }) },
+    { id: 'panel-provider', lifetime: 'panel', start: () => ({ dispose: transportDispose }) },
+  ]);
+  owner.bindPanel({ id: 'panel-binding', keys: [], start: () => bindingDispose });
+  await owner.start(context('first'));
+  owner.stopGraphSubscriptions();
+  expect(graphDispose).toHaveBeenCalledTimes(1);
+  expect(bindingDispose).not.toHaveBeenCalled();
+  expect(transportDispose).not.toHaveBeenCalled();
+  owner.dispose();
+  expect(bindingDispose).toHaveBeenCalledTimes(1);
+  expect(transportDispose).toHaveBeenCalledTimes(1);
+});

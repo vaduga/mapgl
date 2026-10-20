@@ -26,15 +26,16 @@ import {
 export interface SceneCommit {
   readonly render?: Partial<EffectiveRenderState>;
   readonly visibility?: VisLayers;
-  readonly apply?: () => void;
-  readonly project?: () => void;
 }
+
+export type CommitScene = (changes?: SceneCommit) => void;
 
 export interface PanelControllerStages extends Omit<
   GraphPipelineStages<GraphPanelLayoutState, GraphPanelRenderState>,
   'commit'
 > {
-  readonly prepareCommit?: (state: GraphPanelPipelineState) => SceneCommit;
+  /** Synchronous: commit the scene exactly once, without retaining the callback. */
+  readonly commitGraph?: (state: GraphPanelPipelineState, commitScene: CommitScene) => void;
 }
 
 export type PanelNotification =
@@ -70,14 +71,18 @@ export class PanelController {
           }
           this.scene.patchVisuals(state);
         } else {
-          const prepared = stages.prepareCommit?.(state);
-          applyGraphVisualState(state.graph.state, state.visual.state);
-          this.scene.commit(state, prepared?.render);
-          if (prepared?.visibility) {
-            this.scene.replaceVisibility(prepared.visibility);
+          const commitScene: CommitScene = (changes = {}) => {
+            applyGraphVisualState(state.graph.state, state.visual.state);
+            this.scene.commit(state, changes.render);
+            if (changes.visibility) {
+              this.scene.replaceVisibility(changes.visibility);
+            }
+          };
+          if (stages.commitGraph) {
+            stages.commitGraph(state, commitScene);
+          } else {
+            commitScene();
           }
-          prepared?.apply?.();
-          prepared?.project?.();
         }
         this.stores.onCommit();
         bumpGraphVersion(this.scene.render.graph);
@@ -261,7 +266,7 @@ export class PanelController {
       return undefined;
     }
     const request = ++this.request;
-    this.setStatus(createGraphFrameViewState({ phase: 'loading', pending: true, runtime: this.state }));
+    this.setStatus(createGraphFrameViewState({ phase: 'loading', pending: true, acceptedState: this.state }));
     try {
       const result = await this.pipeline.run(input);
       if (request === this.request && result && !result.ok) {
@@ -269,7 +274,7 @@ export class PanelController {
           createGraphFrameViewState({
             phase: 'fatal',
             pending: false,
-            runtime: this.state,
+            acceptedState: this.state,
             diagnostics: result.diagnostics,
           })
         );
@@ -277,7 +282,7 @@ export class PanelController {
       return result;
     } catch (error) {
       if (request === this.request && !this.disposed) {
-        this.setStatus(createGraphFrameViewState({ phase: 'fatal', pending: false, runtime: this.state }));
+        this.setStatus(createGraphFrameViewState({ phase: 'fatal', pending: false, acceptedState: this.state }));
       }
       throw error;
     }

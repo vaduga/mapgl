@@ -53,7 +53,7 @@ export function createGraphFrameViewState(input: {
   readonly phase: GraphFrameViewPhase;
   readonly pending: boolean;
   readonly diagnostics?: readonly GraphFrameDiagnostic[];
-  readonly runtime?: {
+  readonly acceptedState?: {
     readonly version: number;
     readonly snapshot: GraphFrameSnapshot;
   };
@@ -61,9 +61,9 @@ export function createGraphFrameViewState(input: {
   return Object.freeze({
     phase: input.phase,
     pending: input.pending,
-    hasCommittedState: Boolean(input.runtime),
-    committedVersion: input.runtime?.version,
-    summary: input.runtime ? summarizeGraphFrame(input.runtime.snapshot) : undefined,
+    hasCommittedState: Boolean(input.acceptedState),
+    committedVersion: input.acceptedState?.version,
+    summary: input.acceptedState ? summarizeGraphFrame(input.acceptedState.snapshot) : undefined,
     diagnostics: input.diagnostics ?? EMPTY_DIAGNOSTICS,
   });
 }

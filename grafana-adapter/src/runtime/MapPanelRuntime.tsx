@@ -43,7 +43,7 @@ import {
 } from '@vaduga/mapgl-core/graph/frame';
 import { bumpGraphVersion, Graph, GraphEdgeIndex, resetGraph } from '@vaduga/mapgl-core/graph/main';
 import { LayoutWorkerClient } from '@vaduga/mapgl-core/graph/utils/layout-worker-client';
-import { GraphScene, type SceneCommit } from '@vaduga/mapgl-core/runtime';
+import { GraphScene, type CommitScene } from '@vaduga/mapgl-core/runtime';
 import { defViewState } from '@vaduga/mapgl-core/types/defaults';
 import * as React from 'react';
 import { Component } from 'react';
@@ -90,7 +90,7 @@ export abstract class MapPanelRuntime<
             this.layoutWorker.requestLayout({ ...input, signal: context.signal })
           ),
         render: createGraphPanelRenderState,
-        prepareCommit: (state) => this.prepareGraphPipelineCommit(state),
+        commitGraph: (state, commitScene) => this.commitGraphState(state, commitScene),
         commitVisuals: (state) => this.bindMarkerFeatureSources(state),
       },
       this.scene
@@ -126,9 +126,7 @@ export abstract class MapPanelRuntime<
   }
 
   protected get runtimeSubscriptions(): GrafanaRuntimeSubscriptions {
-    return (this.panelRuntimeSubscriptions ??= new GrafanaRuntimeSubscriptions(
-      this.featureServices.runtimeSubscriptionProviders
-    ));
+    return (this.panelRuntimeSubscriptions ??= new GrafanaRuntimeSubscriptions(this.featureServices.runtimeSubscriptionProviders));
   }
 
   pId: number | undefined;
@@ -143,7 +141,7 @@ export abstract class MapPanelRuntime<
   isLogic = true;
   hasAnnots = false;
   useMockData;
-  get graphFrameRuntime(): GraphPanelPipelineState | undefined {
+  get graphState(): GraphPanelPipelineState | undefined {
     return this.scene.baseline;
   }
 
@@ -232,6 +230,7 @@ export abstract class MapPanelRuntime<
       );
       this.subs = new Subscription();
       this.panelRuntimeSubscriptions = undefined;
+      this.panelFeatureServices = undefined;
       this.layerInitialization = undefined;
     }
     this.syncStoreBindings();
@@ -352,13 +351,13 @@ export abstract class MapPanelRuntime<
   }
 
   get graphFrameInstanceState(): GraphFrameInstanceState {
-    const runtime = this.graphFrameRuntime;
+    const graphState = this.graphState;
     return {
       ...this.scene.view,
-      snapshot: runtime?.snapshot,
-      render: runtime
+      snapshot: graphState?.snapshot,
+      render: graphState
         ? {
-            version: runtime.version,
+            version: graphState.version,
             graph: this.scene.render.graph,
             edgeIndex: this.scene.render.edgeIndex,
             positions: this.scene.render.positions,
@@ -389,8 +388,8 @@ export abstract class MapPanelRuntime<
     this.controller.setStatus(view);
   }
 
-  protected clearGraphFrameRuntime(): void {
-    if (!this.graphFrameRuntime) {
+  protected clearGraphState(): void {
+    if (!this.graphState) {
       return;
     }
 
@@ -403,19 +402,29 @@ export abstract class MapPanelRuntime<
     } as unknown as PanelContext;
   }
 
-  protected prepareGraphCommit(state: GraphPanelPipelineState): {
-    edgeIndex: GraphEdgeIndex;
-    positions: Float64Array;
-    commit?: () => void;
-    project?: () => void;
-  } {
-    return { edgeIndex: state.render.state.edgeIndex, positions: state.render.state.positions };
+  protected commitGraph(state: GraphPanelPipelineState, commitScene: CommitScene): void {
+    commitScene();
   }
 
-  protected prepareGraphPipelineCommit(state: GraphPanelPipelineState): SceneCommit {
+  protected commitGraphState(state: GraphPanelPipelineState, commitScene: CommitScene): void {
     const render = state.render.state;
     applyGraphVisualState(state.graph.state, state.visual.state);
-    const prepared = this.prepareGraphCommit(state);
+    const visibility = genVisLayers(
+      {
+        graph: render.graph,
+        groups: [...render.groups],
+        isLogic: this.isLogic,
+        hasAnnots: this.hasAnnots,
+        useMockData: this.useMockData,
+        featureServices: this.featureServices,
+      },
+      this.normalizedProps
+    );
+    this.commitGraph(state, (changes) => {
+      commitScene({ ...changes, visibility });
+      this.bindMarkerFeatureSources(state);
+      this.panelContext = { ...this.panelContext, graph: this.scene.render.graph } as unknown as PanelContext;
+    });
     const viewportFitSignature = createGraphViewportFitSignature(
       state.snapshot,
       this.isLogic,
@@ -423,31 +432,6 @@ export abstract class MapPanelRuntime<
     );
     this.graphViewportRefitRequired = this.graphViewportFitSignature !== viewportFitSignature;
     this.graphViewportFitSignature = viewportFitSignature;
-
-    return {
-      render: { edgeIndex: prepared.edgeIndex, positions: prepared.positions },
-      visibility: genVisLayers(
-        {
-          graph: render.graph,
-          groups: [...render.groups],
-          isLogic: this.isLogic,
-          hasAnnots: this.hasAnnots,
-          useMockData: this.useMockData,
-          featureServices: this.featureServices,
-        },
-        this.normalizedProps
-      ),
-      apply: () => {
-        this.bindMarkerFeatureSources(state);
-
-        prepared.commit?.();
-        this.panelContext = {
-          ...this.panelContext,
-          graph: this.scene.render.graph,
-        } as unknown as PanelContext;
-      },
-      project: prepared.project,
-    };
   }
 
   private bindMarkerFeatureSources(state: GraphPanelPipelineState): void {
@@ -465,7 +449,7 @@ export abstract class MapPanelRuntime<
       createGraphFrameViewState({
         phase: 'fatal',
         pending: false,
-        runtime: this.graphFrameRuntime,
+        acceptedState: this.graphState,
         diagnostics,
       })
     );
@@ -480,13 +464,13 @@ export abstract class MapPanelRuntime<
     const markerLayers = this.getMarkersLayers(layers);
     const markerLayer = markerLayers[0];
     if (!markerLayer) {
-      this.clearGraphFrameRuntime();
+      this.clearGraphState();
       this.updateGraphFrameView(createGraphFrameViewState({ phase: 'idle', pending: false }));
       return false;
     }
 
     this.controller.setStatus(
-      createGraphFrameViewState({ phase: 'loading', pending: true, runtime: this.graphFrameRuntime })
+      createGraphFrameViewState({ phase: 'loading', pending: true, acceptedState: this.graphState })
     );
 
     let result: Awaited<ReturnType<GrafanaGraphPipeline['run']>>;
@@ -881,9 +865,7 @@ export abstract class MapPanelRuntime<
   private syncStoreBindings(): void {
     this.syncStoreInputs();
     const previous = this.releaseStoreBindings;
-    this.releaseStoreBindings = this.createPanelBindings().map((binding) =>
-      this.runtimeSubscriptions.bindPanel(binding)
-    );
+    this.releaseStoreBindings = this.createPanelBindings().map((binding) => this.runtimeSubscriptions.bindPanel(binding));
     previous.filter((release) => !this.releaseStoreBindings.includes(release)).forEach((release) => release());
   }
 

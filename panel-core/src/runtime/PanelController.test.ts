@@ -147,11 +147,11 @@ describe('neutral panel controller', () => {
     let fail = false;
     const runtime = new PanelController({
       render: createGraphPanelRenderState,
-      prepareCommit: () => {
+      commitGraph: (_state, commitScene) => {
         if (fail) {
           throw new Error('feature preparation failed');
         }
-        return {};
+        commitScene();
       },
     });
     await runtime.update(metricGraphInput(metricGraphSource('first', [0, 100])));

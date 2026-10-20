@@ -216,7 +216,7 @@ export class GraphScene {
     this._view = createGraphFrameViewState({
       phase: state.snapshot.nodes.length ? 'ready' : 'empty',
       pending: false,
-      runtime: state,
+      acceptedState: state,
       diagnostics: state.diagnostics,
     });
     this.changed();
@@ -251,7 +251,7 @@ export class GraphScene {
     this._view = createGraphFrameViewState({
       phase: state.snapshot.nodes.length ? 'ready' : 'empty',
       pending: false,
-      runtime: state,
+      acceptedState: state,
       diagnostics: state.diagnostics,
     });
     this.changed();

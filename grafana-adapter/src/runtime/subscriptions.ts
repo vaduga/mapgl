@@ -131,8 +131,11 @@ export class GrafanaRuntimeSubscriptions {
     this.syncTransports(context);
     this.controller.onDataChange(context);
   }
-  dispose(): void {
+  stopGraphSubscriptions(): void {
     this.controller.dispose();
+  }
+  dispose(): void {
+    this.stopGraphSubscriptions();
     this.transports.forEach((entry) => entry.controller.dispose());
     this.transports.clear();
     const bindings = [...this.bindings.values()];

@@ -110,11 +110,11 @@ function createPipeline(
     buildGraph: overrides.buildGraph,
     layout: overrides.layout ?? ((context) => layoutState(context.graph.positions)),
     render: overrides.render ?? createGraphPanelRenderState,
-    prepareCommit:
+    commitGraph:
       overrides.commit &&
-      ((state) => {
+      ((state, commitScene) => {
         overrides.commit!(state);
-        return {};
+        commitScene();
       }),
     notify: overrides.notify,
   });

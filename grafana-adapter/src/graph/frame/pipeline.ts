@@ -1,4 +1,9 @@
-import { PanelController, type PanelControllerStages, type GraphScene } from '@vaduga/mapgl-core/runtime';
+import {
+  PanelController,
+  type CommitScene,
+  type PanelControllerStages,
+  type GraphScene,
+} from '@vaduga/mapgl-core/runtime';
 import type { GrafanaTheme2 } from '@grafana/data';
 import {
   type GraphPipelineInput,
@@ -44,15 +49,16 @@ export class GrafanaGraphPipeline {
     this.controller = new PanelController(
       {
         ...stages,
-        prepareCommit: (state) => {
-          const prepared = stages.prepareCommit?.(state);
-          return {
-            ...prepared,
-            apply: () => {
-              this.sourceResolver = this.candidateResolver;
-              prepared?.apply?.();
-            },
+        commitGraph: (state, commitScene) => {
+          const commit: CommitScene = (changes) => {
+            commitScene(changes);
+            this.sourceResolver = this.candidateResolver;
           };
+          if (stages.commitGraph) {
+            stages.commitGraph(state, commit);
+          } else {
+            commit(undefined);
+          }
         },
       },
       scene
