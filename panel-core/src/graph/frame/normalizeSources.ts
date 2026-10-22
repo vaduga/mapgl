@@ -307,6 +307,32 @@ export async function normalizeGraphSources(
           continue;
         }
 
+        const namespaceValues = options.isLogic ? fieldValue(resolved.routeNamespaces, rowIndex) : undefined;
+        const pathNamespaces = Array.isArray(namespaceValues)
+          ? namespaceValues.map((value) => normalizeNamespace(value, defaultNamespace, options.namespaceSeparator))
+          : undefined;
+        if (
+          namespaceValues !== undefined &&
+          (!Array.isArray(namespaceValues) ||
+            !pathNamespaces ||
+            pathNamespaces.length !== normalizedPath.rawPath.length ||
+            !namespaceValues.every((value: unknown) => normalizeId(value) !== undefined) ||
+            pathNamespaces[0]?.id !== sourceNamespaceId ||
+            pathNamespaces.at(-1)?.id !== targetNamespaceId)
+        ) {
+          diagnostics.add(
+            'invalid-path',
+            'warning',
+            'Route namespaces must match every path node and both endpoint namespaces',
+            { ...context, fieldName: resolved.routeNamespaces?.key },
+            namespaceValues
+          );
+          continue;
+        }
+        for (const namespace of pathNamespaces ?? []) {
+          for (const [id, label] of namespace.labels) namespaceLabels.set(id, label);
+        }
+
         const explicitValue = normalizeId(fieldValue(resolved.edgeId, rowIndex));
         const edgeId = explicitValue ?? `${nodeId}-${normalizedPath.targetId}`;
         if (!packedCapacityError) {
@@ -327,7 +353,9 @@ export async function normalizeGraphSources(
             normalizedPath.rawPath.forEach((item, index) => {
               const id = normalizeId(item);
               if (id) {
-                const namespaceId = index === normalizedPath.rawPath.length - 1 ? targetNamespaceId : sourceNamespaceId;
+                const namespaceId =
+                  pathNamespaces?.[index].id ??
+                  (index === normalizedPath.rawPath.length - 1 ? targetNamespaceId : sourceNamespaceId);
                 relationBuilder.pushNodeKey(graphNodeKey(namespaceId, id), id);
                 return;
               }

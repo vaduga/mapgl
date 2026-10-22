@@ -79,6 +79,7 @@ export interface EdgeRenderIndex {
   readonly graphId: string;
   readonly lineId?: number;
   readonly arcId?: number;
+  readonly arcGraphId?: string;
 }
 
 /** Packed edge references map to indexes in this candidate, never to graph metadata. */
@@ -103,10 +104,10 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
 
   const positions = input.positions;
   const layerShift = input.layerShift;
-  const allNamespaces = [
-    input.graph.id,
-    ...(Array.from(input.graph.subgraphsBreadthFirst()) as Graph[]).map((graph) => graph.id),
-  ];
+  const namespaceGraphs = new Map(
+    [input.graph, ...(Array.from(input.graph.subgraphsBreadthFirst()) as Graph[])].map((graph) => [graph.id, graph])
+  );
+  const allNamespaces = [...namespaceGraphs.keys()];
 
   applyEdgeRenderDecisions({
     decisions: getEdgeRenderDecisions(input.edgeOffsetStrategies, {
@@ -135,8 +136,6 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
     const { target } = graphEdgeIndex.getEdge(edgeEnd - 1);
     const srcGraph = source.parent as Graph;
     const tarGraph = target.parent as Graph;
-    const findNodeA = (id: string) => srcGraph.findNode(id);
-    const findNodeB = (id: string) => tarGraph.findNode(id);
 
     if (!edge.data?.dataRecord) {
       // console.log('!!edgeData.dataRecord', edges[0]);
@@ -160,6 +159,16 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
         continue;
       }
       const parPath = indexedRoute.path;
+      const findRouteNode = (id: string, index: number) => {
+        const record = input.snapshot?.nodes[indexedRoute.vertexRefs[index]];
+        const graph =
+          record?.id === id
+            ? namespaceGraphs.get(record.namespaceId)
+            : index === parPath.length - 1
+              ? tarGraph
+              : srcGraph;
+        return graph?.findNode(id);
+      };
       const edgeSrcGraph = edge.source.parent as Graph;
       const edgeTarGraph = edge.target.parent as Graph;
       const locName = typeof parPath[0] === 'string' ? parPath[0] : undefined;
@@ -233,7 +242,7 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
       }
 
       const [segrPath, segrCoords] = subPath.length
-        ? segregatePath(subPath, pathsCoords, findNodeA, findNodeB)
+        ? segregatePath(subPath, pathsCoords, findRouteNode, findRouteNode)
         : [[], []];
 
       const override = geomOverride.get(edgeRef);
@@ -294,7 +303,7 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
         ? undefined
         : getArrowAngles(coordinates, !input.isLogic, hasStartArrow, hasEndArrow, arrowTips);
       const skip = skippedEdges.has(edgeRef);
-      const graphFeatures = (features[srcGraph.id] ??= []);
+      const graphFeatures = (features[edgeSrcGraph.id] ??= []);
       const lineId = graphFeatures.length;
 
       const newFeature: DeckLine = {
@@ -327,7 +336,7 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
       };
 
       graphFeatures.push(newFeature);
-      mappings[edgeRef] = { graphId: srcGraph.id, lineId };
+      mappings[edgeRef] = { graphId: edgeSrcGraph.id, lineId };
 
       if (isFirst) {
         srcFeatureProps = newFeature.properties;
@@ -351,7 +360,13 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
     );
     if (arcId !== undefined) {
       for (let edgeRef = edgeStart; edgeRef < edgeEnd; edgeRef++) {
-        mappings[edgeRef] = { ...mappings[edgeRef], graphId: srcGraph.id, arcId };
+        const lineMapping = mappings[edgeRef];
+        mappings[edgeRef] = {
+          ...lineMapping,
+          graphId: lineMapping?.graphId ?? srcGraph.id,
+          arcId,
+          ...(lineMapping && lineMapping.graphId !== srcGraph.id ? { arcGraphId: srcGraph.id } : {}),
+        };
       }
     }
   }

@@ -31,6 +31,10 @@ export interface GraphSource extends SourceView {
   readonly edgeId?: ValueColumn;
   readonly sourceNamespace?: ValueColumn;
   readonly targetNamespace?: ValueColumn;
+  /** Optional logical-route override: one namespace per full path node, including both endpoints.
+   * Endpoints must match sourceNamespace and targetNamespace. When absent, all nodes except
+   * the final target use sourceNamespace; the final target uses targetNamespace. */
+  readonly routeNamespaces?: ValueColumn<readonly string[] | undefined>;
   position(rowIndex: number): readonly [number, number] | undefined;
 }
 

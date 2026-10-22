@@ -20,10 +20,14 @@ export function resolvePickingFocus(
     return { kind: 'node', id: interaction.record.id, namespaceId: interaction.record.namespaceId };
   }
   if (interaction?.kind === 'edge') {
+    const runtimeEdge =
+      interaction.edgeRef === undefined ? undefined : scene.render.edgeIndex.getEdge(interaction.edgeRef);
     return {
       kind: 'edge',
-      id: interaction.runtimeId ?? interaction.record.id,
-      namespaceId: interaction.record.sourceNamespaceId,
+      id: runtimeEdge?.id ?? interaction.runtimeId ?? interaction.record.id,
+      namespaceId: String(
+        (runtimeEdge?.source.parent as Graph | undefined)?.id ?? interaction.record.sourceNamespaceId
+      ),
     };
   }
   // A frame-backed pick that failed resolution belongs to an obsolete snapshot.

@@ -5,6 +5,7 @@ export type ConnectedEdgeIndex = {
   graphId: string;
   lineId?: number;
   arcId?: number;
+  arcGraphId?: string;
   depth?: number;
 };
 
@@ -88,8 +89,7 @@ export class GraphHighlighter {
 
       const firstEdge = edges[0];
       const lastEdge = edges[edges.length - 1];
-      const graphId = String((firstEdge.source.parent as Graph)?.id ?? '');
-      const edgeKeys = edges.map((edge) => makeScopedKey(graphId, edge.id));
+      const edgeKeys = edges.map(getEdgeKey);
       const nodeKeys = [getNodeKey(firstEdge.source), getNodeKey(lastEdge.target)];
 
       for (const edge of edges) {
@@ -99,11 +99,8 @@ export class GraphHighlighter {
       this.addDirectedAdjacent(firstEdge.source, lastEdge.target, edges, edgeKeys);
 
       for (const edge of edges) {
-        const edgeKey = makeScopedKey(graphId, edge.id);
-        this.addEdgeIndex(edge, {
-          graphId,
-          ...this.mapping(edge),
-        });
+        const edgeKey = getEdgeKey(edge);
+        this.addEdgeIndex(edge, this.mapping(edge));
         this.edgeHighlights.set(edgeKey, { nodeKeys, edgeKeys });
         this.addLookupKey(this.edgeKeysById, edge.id, edgeKey);
       }
@@ -316,15 +313,20 @@ export class GraphHighlighter {
     return ref === undefined ? undefined : this.mappings?.[ref];
   }
 
-  private addEdgeIndex(edge: Edge, opts?: { graphId?: string; lineId?: number; arcId?: number }) {
-    const { lineId, arcId } = opts ?? this.mapping(edge) ?? {};
+  private addEdgeIndex(edge: Edge, opts?: { graphId?: string; lineId?: number; arcId?: number; arcGraphId?: string }) {
+    const { lineId, arcId, arcGraphId } = opts ?? this.mapping(edge) ?? {};
 
     if (lineId === undefined && arcId === undefined) {
       return;
     }
 
     const graphId = opts?.graphId ?? getEdgeGraphId(edge);
-    this.edgeIndexes.set(makeScopedKey(graphId, edge.id), { graphId, lineId, arcId });
+    this.edgeIndexes.set(makeScopedKey(graphId, edge.id), {
+      graphId,
+      lineId,
+      arcId,
+      ...(arcGraphId && { arcGraphId }),
+    });
   }
 
   private addLookupKey(map: Map<string, string[]>, id: string, key: string) {

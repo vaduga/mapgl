@@ -176,7 +176,7 @@ function segregatePath(path: any[], pathCoords: Position[], findNodeA: any, find
   }
   const pathConverted = path
     .map((item, index) =>
-      typeof item === 'string' ? (index !== path.length - 1 ? findNodeA(item) : findNodeB(item)) : item
+      typeof item === 'string' ? (index !== path.length - 1 ? findNodeA(item, index) : findNodeB(item, index)) : item
     )
     .filter((item) => item);
 

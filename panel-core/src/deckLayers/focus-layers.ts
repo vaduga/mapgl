@@ -92,20 +92,23 @@ function isCloneableLayer(layer: unknown): layer is Layer {
 }
 
 function getEdgeDepthsByGraph(connectedEdgeIndexes: ConnectedEdgeIndex[], isRouted: boolean) {
-  return connectedEdgeIndexes.reduce<Record<string, Map<number, number>>>((acc, { graphId, lineId, arcId, depth }) => {
-    const index = isRouted ? lineId : arcId;
-    if (index === undefined) {
-      return acc;
-    }
+  return connectedEdgeIndexes.reduce<Record<string, Map<number, number>>>(
+    (acc, { graphId, lineId, arcId, arcGraphId, depth }) => {
+      const index = isRouted ? lineId : arcId;
+      if (index === undefined) {
+        return acc;
+      }
 
-    const depths = (acc[graphId] ??= new Map<number, number>());
-    const nextDepth = depth ?? 0;
-    const prevDepth = depths.get(index);
-    if (prevDepth === undefined || nextDepth < prevDepth) {
-      depths.set(index, nextDepth);
-    }
-    return acc;
-  }, {});
+      const depths = (acc[isRouted ? graphId : (arcGraphId ?? graphId)] ??= new Map<number, number>());
+      const nextDepth = depth ?? 0;
+      const prevDepth = depths.get(index);
+      if (prevDepth === undefined || nextDepth < prevDepth) {
+        depths.set(index, nextDepth);
+      }
+      return acc;
+    },
+    {}
+  );
 }
 
 function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<number, number>>) {
