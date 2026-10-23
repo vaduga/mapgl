@@ -117,15 +117,10 @@ function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<
     return null;
   }
 
-  const connectedFeatureDepths = edgeDepthsByGraph[graphId];
-  if (!connectedFeatureDepths?.size) {
-    if (isEdgeTextLayer(layer)) {
-      return layer.clone({ opacity: EDGE_LABEL_DIM_OPACITY });
-    }
-    return layer.clone({ opacity: 0.18 });
-  }
-
-  const highlightDepthTrigger = Array.from(connectedFeatureDepths.entries());
+  // Keep shader dimming consistent across namespaces; Deck's layer opacity applies gamma correction.
+  const connectedFeatureDepths = edgeDepthsByGraph[graphId] ?? new Map<number, number>();
+  // Deck treats an empty trigger like an absent one; invalidate even when every edge is unrelated.
+  const highlightDepthTrigger = [connectedFeatureDepths.size, ...connectedFeatureDepths.entries()];
   if ((layer as any) instanceof CurveEdgeLayer) {
     const curveLayer = layer as any;
     return curveLayer.clone({

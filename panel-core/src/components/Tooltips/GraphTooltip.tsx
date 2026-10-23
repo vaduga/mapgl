@@ -225,7 +225,7 @@ export function GraphTooltip({
         }
         store.setGraphTooltip(undefined);
         store.setTooltipObject(blankHoverInfo);
-        store.focus();
+        restoreFocus();
         onClose?.();
       }}
     />
