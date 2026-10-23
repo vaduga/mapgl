@@ -1,602 +1,240 @@
-import { getGrafanaAnnotations } from '../../types/annotations';
-import React, { type ReactNode, useState } from 'react';
+import React, { type ReactNode } from 'react';
 import { observer } from 'mobx-react-lite';
+import { SeriesIcon, TextLink, useStyles2, useTheme2, VizTooltipContainer } from '@grafana/ui';
 import { css } from '@emotion/css';
-import { IconButton, SeriesIcon, useStyles2, useTheme2, VizTooltipContainer } from '@grafana/ui';
-import { DataFrame, EventBus, Field, FieldType, GrafanaTheme2, type InterpolateFunction } from '@grafana/data';
-import { colTypes, type BiColProps } from '../../types/index';
-import { clearTooltipInteraction, selectGotoHandler } from '../../utils/index';
-import { useRootStore } from '@vaduga/mapgl-core/store';
+import type { GrafanaTheme2 } from '@grafana/data';
+import { getThemeVariables } from '../../render/grafanaThemeVars';
 import { toRgbaString } from '@vaduga/mapgl-core/deckLayers/utils';
-import {
-  getGraphInteractionScopedVars,
-  resolveGraphInteractionRow,
-  resolvePanelGraphInteraction,
-} from '../../graph/frame/interaction';
-import { type GraphInteraction } from '@vaduga/mapgl-core/graph/frame';
-import { DataHoverView } from './DataHoverView';
+import { type DataFrame, type Field, FieldType, type InterpolateFunction } from '@grafana/data';
 import { SortOrder, TooltipDisplayMode } from '@grafana/schema';
 import {
-  getTooltipEdgeSections,
-  TooltipEdgeSectionList,
-  type TooltipEdgeDirection,
-} from '@vaduga/mapgl-core/components';
-import {
-  getMapglFeatureServices,
-  type TooltipEdgeRecord,
-  type TooltipEdgeSection,
-} from '@vaduga/mapgl-core/featureContracts';
+  GraphTooltip,
+  TooltipView,
+  type TooltipContent,
+  type TooltipInspection,
+  type TooltipFrameProps,
+} from '@vaduga/mapgl-core/components/Tooltips/GraphTooltip';
+import type { PanelController } from '@vaduga/mapgl-core/runtime';
+import type { DisplayedRenderFrame } from '@vaduga/mapgl-core/render/session';
+import type { MapglFeatureServices } from '@vaduga/mapgl-core/featureContracts';
+import { blankHoverInfo } from '@vaduga/mapgl-core/types/defaults';
+import { colTypes } from '@vaduga/mapgl-core/types';
+import { getGrafanaAnnotations } from '../../types/annotations';
+import type { GrafanaSourceResolver } from '../../data';
+import { getGraphInteractionScopedVars, resolveGraphInteractionRow } from '../../graph/frame/interaction';
+import { getDisplayValuesAndLinks } from './DataHoverView';
 
-import { Node, Edge, findEdge, getNodeData, Graph, type GraphEdgeIndex } from '@vaduga/mapgl-core/graph/main';
-
-const includes = ['ack', 'msg', 'all_annots', 'liveUpd', 'liveMetric']; //liveStat
-const TOOLTIP_OFFSET_SCALE = 1.25;
-
-export interface CoreTooltipPointStore {
-  getMode?: string;
-  getTooltipObject: any;
-  setTooltipObject(info: any): void;
-  setSelectedNode(node: Node | Graph | undefined | null, pickedEdges?: Edge[]): void;
-  getisDrawerOpen?: boolean;
-  setDrawerOpen?(value: boolean): void;
+interface TooltipAlternateContext {
+  readonly properties: Readonly<Record<string, unknown>>;
 }
 
-export interface CoreTooltipExtraEdgeSectionContext {
-  graph?: Graph;
-  edgeIndex?: GraphEdgeIndex;
-  edge?: Edge;
-  node?: Node;
-  feature: any;
-  panel: any;
-  object: any;
-  isRouted?: boolean;
-  layerIdx?: number;
-  data?: any;
-}
+const baseProps = ['ack', 'msg', 'all_annots', 'liveUpd', 'liveMetric'];
 
-export interface CoreTooltipProps {
-  data: any;
-  panel: any;
-  panelId: number;
+export interface GrafanaTooltipProps {
+  controller: PanelController;
+  frame?: DisplayedRenderFrame;
+  sourceResolver?: Pick<GrafanaSourceResolver, 'resolve'>;
+  featureServices?: Pick<MapglFeatureServices, 'tooltipEdgeSections'>;
+  data: { series: DataFrame[] };
   info: any;
-  eventBus?: EventBus;
   setHoverInfo(info: any): void;
   time: number;
   isClosed?: boolean;
   isRouted?: boolean;
   dataLayers: any[];
   replaceVariables?: InterpolateFunction;
-  renderClusterTooltip?(info: any, props: any, x: number, y: number, isClosed: boolean): ReactNode;
-  getExtraEdgeSections?(context: CoreTooltipExtraEdgeSectionContext): TooltipEdgeSection[];
-  isEditHandle?(object: any, pointStore: CoreTooltipPointStore): boolean;
-  showDrawerOpenButton?: boolean;
-  tooltipReactionKey?: unknown;
+  renderAlternateContent?(context: TooltipAlternateContext): ReactNode;
+  renderActions?(): ReactNode;
+  isEditHandle?(object: any): boolean;
 }
 
-const TooltipBase = ({
+function TooltipBase({
+  controller,
+  frame,
+  sourceResolver,
+  featureServices,
   data,
-  panel,
-  panelId: pId,
   info,
-  eventBus,
   setHoverInfo,
   time,
   isClosed = false,
   isRouted,
   dataLayers,
   replaceVariables,
-  renderClusterTooltip,
-  getExtraEdgeSections,
+  renderAlternateContent,
+  renderActions,
   isEditHandle,
-  showDrawerOpenButton = false,
-  tooltipReactionKey,
-}: CoreTooltipProps) => {
-  void tooltipReactionKey;
-
-  const s = useStyles2(getStyles);
+}: GrafanaTooltipProps) {
   const theme = useTheme2();
-  const tooltipOffset = Number.parseFloat(theme.spacing(TOOLTIP_OFFSET_SCALE));
-  const [extraEdgeSectionDirection, setExtraEdgeSectionDirection] = useState<TooltipEdgeDirection | undefined>();
-  const rootStore = useRootStore();
-  const { pointStore } = rootStore;
-  const {
-    getTooltipObject,
-    setTooltipObject,
-    getisDrawerOpen,
-    tooltipEdgeIndex: selIdx,
-    setTooltipEdgeIndex: setSelIdx,
-  } = pointStore;
-
-  if (!info || !Object.entries(info).length) {
-    return null;
-  }
-
-  const { isDefDir, setIsDefDir, setEdgeListed, setFocusedEdgeId, setFocusedEdges, getisEdgeListed } =
-    rootStore.pointStore;
-
-  const handleDrawerOpen = () => {
-    pointStore.setDrawerOpen?.(!getisDrawerOpen);
+  const styles = useStyles2(getStyles);
+  const store = controller.stores.pointStore;
+  const pinned = store.getTooltipObject;
+  const activeInfo = info?.object && info.index !== -1 ? info : pinned;
+  const props = activeInfo?.object?.properties ?? activeInfo?.object;
+  const close = () => {
+    store.setTooltipObject(blankHoverInfo);
+    setHoverInfo({});
   };
-
-  const handleEdgeListed = (nextIsDefDir?: boolean) => {
-    if (nextIsDefDir === undefined) {
-      setEdgeListed(!getisEdgeListed);
-      return;
-    }
-
-    if (getisEdgeListed && isDefDir === nextIsDefDir) {
-      setEdgeListed(false);
-      return;
-    }
-
-    setIsDefDir(nextIsDefDir);
-    setEdgeListed(true);
-  };
-  const handleEdgeCountClick = (nextIsDefDir: boolean) => {
-    if (!graph) {
-      return;
-    }
-
-    setIsDefDir(nextIsDefDir);
-    setSelIdx(-1);
-    selectGotoHandler({
-      pId,
-      value: props.locName,
-      graphId: graph.id,
-      eventBus,
-      select: true,
-    });
-  };
-  const handleEdgeTriggerClick = (nextIsDefDir: boolean) => {
-    handleEdgeListed(nextIsDefDir);
-    handleEdgeCountClick(nextIsDefDir);
-  };
-
-  const handleEdgeListFocus = (edges: Edge[]) => {
-    const focusableEdges = edges.filter((edge) => edge?.id && edge.source && edge.target);
-    if (!focusableEdges.length) {
-      return;
-    }
-
-    setFocusedEdges(focusableEdges);
-  };
-  const handleExtraEdgeSectionListed = (direction: TooltipEdgeDirection) => {
-    if (getisEdgeListed && extraEdgeSectionDirection === direction) {
-      setEdgeListed(false);
-      return;
-    }
-
-    setExtraEdgeSectionDirection(direction);
-    setEdgeListed(true);
-  };
-
-  let { x, y, object, coordinate, featureType, index, layer: deckLayer } = info;
-  let graphInteraction: GraphInteraction | undefined = resolvePanelGraphInteraction(panel, info);
-
-  let props = object?.properties ?? object;
-  let rowIndex;
-
-  if (!x && !y && !coordinate) {
-    return;
-  }
-
-  if (props?.cluster || info?.properties?.cluster) {
-    return renderClusterTooltip?.(info, props, x, y, isClosed) ?? null;
-  }
-
-  const points = deckLayer?.props?.data?.points;
-  if (points && (featureType === 'points' || info.viewport?.id === '3d-scene') && index !== -1) {
-    const featureIds = points.featureIds;
-    const features = panel.scene.render.features;
-    const idx = featureIds?.value[index];
-
-    props = (features as BiColProps[])[idx];
-    rowIndex = props?.rowIndex;
-  }
-
-  let pinned = Boolean(info.mapglPinned);
-  const editHandle = isEditHandle?.(object, pointStore) ?? false;
-  if (!props || editHandle || (index === -1 && !pinned)) {
-    if (isClosed) {
-      return null;
-    }
-    ({ x, y, object } = getTooltipObject); // pinned object
-    graphInteraction = resolvePanelGraphInteraction(panel, getTooltipObject) ?? graphInteraction;
-    if (!x && !y) {
-      return;
-    }
-    props = object?.properties;
-    if (!props) {
-      return null;
-    }
-    pinned = true;
-  }
-
-  if (graphInteraction?.kind === 'node') {
-    const node = panel.scene.baseline?.graph.state.nodeByKey.get(graphInteraction.key);
-    const currentFeature = node ? getNodeData(node)?.feature : undefined;
-    props = currentFeature ?? props;
-  }
-
-  const edgeId =
-    object?.edgeId ??
-    (graphInteraction?.kind === 'edge' ? (graphInteraction.runtimeId ?? graphInteraction.record.id) : undefined);
-
-  const graphRow = graphInteraction ? resolveGraphInteractionRow(panel?.sourceResolver, graphInteraction) : undefined;
-  rowIndex = graphRow?.rowIndex ?? rowIndex ?? object?.rowIndex ?? object?.properties?.rowIndex; // pinned && lines && other collections
-
-  const layerProps = info.layer?.props;
-  const { frameRefId, locName, layerName, layerIdx, graph } = props || {};
-  const edge: Edge | undefined = edgeId !== undefined && graph ? findEdge(graph, edgeId) : undefined;
-  const eNode = edge?.[isDefDir ? 'source' : 'target'];
-  const findNode = graph ? (id: string) => graph.findNode(id) : undefined;
-  const pickedNode: Node = eNode ?? findNode?.(locName);
-  const pickedFeature = pickedNode ? getNodeData(pickedNode)?.feature : props;
-  const restoreTooltipFocus = () => {
-    pointStore.focus(
-      edge
-        ? { kind: 'edge', id: edge.id, namespaceId: String((edge.source.parent as Graph).id) }
-        : pickedNode
-          ? { kind: 'node', id: pickedNode.id, namespaceId: String((pickedNode.parent as Graph).id) }
-          : undefined
-    );
-  };
-
-  const layer: any = dataLayers.length && layerName && dataLayers.find((l) => l.name === layerName);
-  const isShowTooltip = layer?.isShowTooltip ?? layerProps?.isShowTooltip ?? true;
-  if (!isShowTooltip) {
-    return null;
-  }
-
-  const DP = layer?.displayProperties ?? layerProps?.displayProperties;
-  const baseProps = includes;
-  let displayProps = DP?.length ? DP.concat(baseProps) : baseProps;
-
-  const isComment = props?.['isComment'];
-  if (isComment) {
-    displayProps = [...displayProps, 'text'];
-  }
-
-  const segrPath = props?.segrPath;
-  const hasTrespassAnchor = Boolean(edge && segrPath);
-  const isTrespass = hasTrespassAnchor || Boolean(props.isTrespass);
-  const extraEdgeAnchor = props?.extraEdgeAnchor as
-    | {
-        edge?: Edge;
-        node?: Node;
-        locName?: unknown;
-      }
-    | undefined;
-  const displayEdge = extraEdgeAnchor?.edge ?? edge;
-  const displayNode = extraEdgeAnchor?.node ?? pickedNode;
-  const displayLocName = extraEdgeAnchor?.locName ?? props?.locName;
-  const preservedEdgeSections = Array.isArray(props?.edgeSections) ? (props.edgeSections as TooltipEdgeSection[]) : [];
-  const showTopEdge = Boolean(extraEdgeAnchor?.edge) || !preservedEdgeSections.length;
-  let adjacentIncomingEdges: Edge[] = [];
-  let adjacentOutgoingEdges: Edge[] = [];
-  let extraEdgeSections: TooltipEdgeSection[] = [];
-
-  if (isTrespass && getExtraEdgeSections) {
-    extraEdgeSections = getExtraEdgeSections({
-      graph,
-      edgeIndex: panel.scene.render.edgeIndex,
-      edge,
-      node: pickedNode,
-      feature: props,
-      panel,
-      object,
-      isRouted,
-      layerIdx,
-      data,
-    });
-  } else if (!edge) {
-    rootStore.pointStore.graphHighlighter.setGraph(panel.scene.render.graph, {
-      edgeIndex: panel.scene.render.edgeIndex,
-    });
-
-    adjacentIncomingEdges = rootStore.pointStore.graphHighlighter.getInEdges(pickedNode);
-    adjacentOutgoingEdges = rootStore.pointStore.graphHighlighter.getOutEdges(pickedNode);
-  }
-
-  const tooltipEdgeSections =
-    graph && !extraEdgeSections.length
-      ? getTooltipEdgeSections(getMapglFeatureServices(panel).tooltipEdgeSections, {
-          graph,
-          edgeIndex: panel.scene.render.edgeIndex,
-          node: pickedNode,
-          edge,
-          feature: props,
-          adjacentEdges: {
-            incoming: adjacentIncomingEdges,
-            outgoing: adjacentOutgoingEdges,
-          },
-        })
-      : [];
-  const displayedEdgeSections = extraEdgeSections.length
-    ? extraEdgeSections
-    : tooltipEdgeSections.length
-      ? tooltipEdgeSections
-      : preservedEdgeSections;
-
-  /// geojson static or comment icon entries
-  const entries = isComment ? Object.entries(props) : props['geoJsonProps'] && Object.entries(props['geoJsonProps']);
-  const hoverPayload: any = {
-    mode: TooltipDisplayMode.Single,
-    sortOrder: SortOrder.None,
-    time,
-    displayProps,
-    baseProps,
-  };
-
-  const frame: DataFrame | undefined = graphInteraction
-    ? graphRow?.frame
-    : frameRefId
-      ? (data.series.find((el) => el.refId === frameRefId || el.name === frameRefId) ?? data.series[0])
-      : data.series[0];
-
-  if (frame) {
-    hoverPayload.data = frame;
-    hoverPayload.rowIndex = rowIndex;
-    if (graphInteraction && replaceVariables) {
-      hoverPayload.scopedVars = getGraphInteractionScopedVars(graphInteraction);
-      hoverPayload.replaceVariables = replaceVariables;
-    }
-    hoverPayload.columnIndex = frame.fields.findIndex((v) =>
-      graphInteraction?.kind === 'edge' ||
-      ['edgesArcsBase', colTypes.Edges, colTypes.Edges + 'fallback'].includes(info?.layer?.id)
-        ? v.name === (layer?.optional?.edgeId ?? layer?.edgeIdField)
-        : v.name === layer?.locField
-    );
-    const all_annots = getGrafanaAnnotations(props) ?? getGrafanaAnnotations(pickedFeature);
-    hoverPayload.all_annots = all_annots;
-  }
-  /// geojson static entries & comments
-  if (Array.isArray(entries)) {
-    const frame: any = { fields: [] };
-    entries.forEach(([key, value]) => {
-      frame.fields.push({
-        name: key,
-        values: [value],
-        type: FieldType.string,
-        config: { description: isComment ? 'CommentField' : 'GeoJson' },
-      });
-    });
-    hoverPayload.data = frame;
-    hoverPayload.rowIndex = 0; /// must be passed
-  }
-
-  const extraFields: Field[] = [];
-
-  baseProps.forEach((name) => {
-    if (name === 'all_annots') {
-      return;
-    }
-    const value = props?.[name];
-    if (value !== undefined) {
-      extraFields.push({
-        name,
-        values: [value],
-        type: FieldType.string,
-        config: {},
-      });
-    }
-  });
-
-  hoverPayload.extraFields = extraFields;
-
-  const renderConnectedEdges = () => {
-    const genLi = (node, edge: Edge | undefined, i?, record?: TooltipEdgeRecord) => {
-      if (!edge) {
-        return null;
-      }
-
-      const dataRecord = edge.data?.dataRecord ?? record?.properties;
-      const arcStyle = dataRecord?.arcStyle;
-      const { sideB, sideA } = arcStyle || {};
-      const aField = sideA?.colorField;
-      const bField = sideB?.colorField;
-      const edgeId = edge.data?.edgeId ?? record?.id ?? edge.id;
-      const targetNode = node ?? record?.target ?? edge.target;
-      const edgeGraphId = String((edge.source?.parent as Graph | undefined)?.id ?? graph?.id ?? '');
-      const pinnedGraph = dataRecord?.graph ?? edge.source?.parent ?? graph;
-      const edgeGraphInteraction = resolvePanelGraphInteraction(panel, {
-        object: {
-          edgeId: edge.id,
-          edgeRef: record?.edgeRef ?? edge.data?.edgeRef,
-          properties: dataRecord,
-        },
-      });
-
-      //&& parent === getSelectedNode --- would need pinned tooltip rerender
-      return (
-        <li
-          key={edgeId}
-          onMouseEnter={() => edge.id && setFocusedEdgeId(edge.id, edgeGraphId)}
-          onMouseLeave={restoreTooltipFocus}
-        >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              backgroundColor: i === selIdx ? theme.colors.secondary.shade : undefined,
-            }}
-          >
-            <a
-              onClick={() => {
-                const node = rootStore.pointStore.getSelectedNode;
-                panel.controller.select(
-                  node ? { id: node.id, namespaceId: String((node.parent as Graph | undefined)?.id ?? '') } : undefined,
-                  'user',
-                  [edge]
-                );
-                setTooltipObject({
-                  ...getTooltipObject,
-                  ...(edgeGraphInteraction && { graphInteraction: edgeGraphInteraction }),
-                  object: {
-                    edgeId: edge.id,
-                    ...(edgeGraphInteraction && { graphInteraction: edgeGraphInteraction }),
-                    edgeRef: record?.edgeRef ?? edge.data?.edgeRef,
-                    properties: {
-                      ...dataRecord,
-                      edgeId,
-                      graph: pinnedGraph,
-                      locName: props?.locName,
-                      ...(isTrespass && { isTrespass: true }),
-                      ...(extraEdgeSections.length && { extraEdgeSections }),
-                      ...(!extraEdgeSections.length &&
-                        displayedEdgeSections.length && { edgeSections: displayedEdgeSections }),
-                      ...(extraEdgeSections.length && {
-                        extraEdgeAnchor: {
-                          edge: displayEdge,
-                          node: displayNode,
-                          locName: displayLocName,
-                        },
-                      }),
-                    },
-                  },
-                });
-                setSelIdx(i);
-              }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                textDecoration: 'none',
-              }}
-            >
-              <span>{edgeId}</span>
-              <div className={s.seriesIcons}>
-                {sideA?.color && <SeriesIcon title={aField} color={toRgbaString(sideA.color)} />}
-                {sideB?.color && <SeriesIcon title={bField} color={toRgbaString(sideB.color)} />}
-              </div>
-            </a>
-          </div>
-        </li>
-      );
-    };
-    const { parents } = props;
-    const adjacentEdges = showTopEdge
-      ? ((displayEdge ? [displayEdge] : parents)?.map((e, i) => genLi(displayNode, e, parents?.length > 1 && i)) ?? [])
-      : [];
-    const getSectionDirection = (direction: TooltipEdgeDirection) => direction === 'outgoing';
-    const hasExtraEdgeSections = Boolean(extraEdgeSections.length);
-    const isSectionListed = (_section: TooltipEdgeSection, direction: TooltipEdgeDirection) =>
-      hasExtraEdgeSections
-        ? getisEdgeListed && extraEdgeSectionDirection === direction
-        : getisEdgeListed && isDefDir === getSectionDirection(direction);
-    const handleSectionToggle = (_section: TooltipEdgeSection, direction: TooltipEdgeDirection) =>
-      hasExtraEdgeSections
-        ? handleExtraEdgeSectionListed(direction)
-        : handleEdgeTriggerClick(getSectionDirection(direction));
-    const renderSectionEdge = (
-      record: TooltipEdgeRecord,
-      index: number,
-      direction: TooltipEdgeDirection,
-      section: TooltipEdgeSection
-    ) => {
-      const offset = direction === 'outgoing' ? section.incoming.length : 0;
-      return genLi(direction === 'outgoing' ? record.target : record.source, record.edge, index + offset, record);
-    };
-    const getSectionIconName = (_section: TooltipEdgeSection, direction: TooltipEdgeDirection) =>
-      hasExtraEdgeSections
-        ? direction === 'outgoing'
-          ? 'angle-left'
-          : 'angle-right'
-        : direction === 'outgoing'
-          ? 'arrow-up'
-          : 'arrow-down';
-    const getSectionTooltip = (section: TooltipEdgeSection, direction: TooltipEdgeDirection) =>
-      direction === 'outgoing' ? section.outgoingLabel : section.incomingLabel;
-
-    return (
-      <>
-        <ul style={{ listStyle: 'none' }}>
-          {displayLocName && (
-            <li key="locName">
-              {pinned && (
-                <>
-                  <IconButton
-                    key="closeHint"
-                    variant="destructive"
-                    name="x"
-                    size="sm"
-                    tooltip={'close'}
-                    tooltipPlacement="left"
-                    onClick={() => {
-                      clearTooltipInteraction({ setTooltipObject, setHoverInfo });
-                    }}
-                  />
-                </>
-              )}
-
-              {/*{'name: '}*/}
-              <span>{displayLocName}</span>
-              {showDrawerOpenButton && !getisDrawerOpen && (
-                <IconButton
-                  className={s.fab}
-                  size="sm"
-                  aria-label={'open drawer'}
-                  key="nodeInfoFab"
-                  onClick={handleDrawerOpen}
-                  variant="primary"
-                  name={'angle-right'}
-                  tooltip="open drawer"
-                />
-              )}
-            </li>
-          )}
-
-          {adjacentEdges.length > 1 && (
-            <span>
-              {`(${adjacentEdges.length})`}
-              <IconButton
-                className={s.fab}
-                size="sm"
-                aria-label={'show nested edges'}
-                key="nestedEdgesWrap"
-                onClick={() => handleEdgeListed()}
-                variant="primary"
-                name={getisEdgeListed ? 'angle-up' : 'angle-down'}
-                {...(!getisEdgeListed && { tooltip: `${isDefDir ? 'outgoing' : 'incoming'} edges` })}
-              />
-            </span>
-          )}
-
-          {(adjacentEdges.length === 1 || getisEdgeListed) && adjacentEdges}
-          <TooltipEdgeSectionList
-            sections={displayedEdgeSections}
-            classNames={{
-              header: s.edgeListHeader,
-              headerRow: s.edgeListHeaderRow,
-              countButton: s.edgeListCountText,
-              trigger: s.edgeListTrigger,
-            }}
-            isListed={isSectionListed}
-            onToggle={handleSectionToggle}
-            onFocus={(records) => handleEdgeListFocus(records.map((record) => record.edge))}
-            onFocusEnd={restoreTooltipFocus}
-            renderEdge={renderSectionEdge}
-            getIconName={getSectionIconName}
-            getTooltip={getSectionTooltip}
-          />
-        </ul>
-      </>
-    );
-  };
-
-  return (
-    /// onClick={() => setHoverInfo({})}
+  const renderFrame = ({ anchor, pinned, children }: TooltipFrameProps) => (
     <VizTooltipContainer
-      className={s.viz}
-      data-testid="graph-tooltip"
+      className={styles.viz}
       allowPointerEvents={pinned}
-      position={{ x, y }}
-      offset={{ x: tooltipOffset, y: tooltipOffset }}
+      position={anchor}
+      offset={{ x: Number.parseFloat(theme.spacing(1.25)), y: Number.parseFloat(theme.spacing(1.25)) }}
     >
-      {renderConnectedEdges()}
-      <DataHoverView {...hoverPayload} />
+      <div style={getThemeVariables(theme)}>{children}</div>
     </VizTooltipContainer>
   );
-};
+  const content = (feature: Record<string, any>, inspection?: TooltipInspection): TooltipContent | undefined => {
+    const interaction = inspection?.interaction;
+    const row =
+      interaction && sourceResolver
+        ? resolveGraphInteractionRow(sourceResolver as GrafanaSourceResolver, interaction)
+        : undefined;
+    const layerName = feature.layerName ?? feature.featSource?.layerName;
+    const layer = dataLayers.find((layer) => layer.name === layerName);
+    if ((layer?.isShowTooltip ?? activeInfo?.layer?.props?.isShowTooltip) === false) {
+      return undefined;
+    }
+    const visibleFields = layer?.displayProperties ?? activeInfo?.layer?.props?.displayProperties;
+    const displayProps = visibleFields?.length ? [...visibleFields, ...baseProps] : [...baseProps];
+    if (feature.isComment) {
+      displayProps.push('text');
+    }
+    const frameRefId = feature.frameRefId ?? feature.featSource?.frameRefId;
+    let source = interaction
+      ? row?.frame
+      : (data.series.find((source) => source.refId === frameRefId || source.name === frameRefId) ?? data.series[0]);
+    let rowIndex = row?.rowIndex ?? feature.rowIndex ?? activeInfo?.object?.rowIndex;
+    const entries = feature.isComment
+      ? Object.entries(feature)
+      : feature.geoJsonProps && Object.entries(feature.geoJsonProps);
+    if (entries) {
+      source = {
+        fields: entries.map(([name, value]) => ({
+          name,
+          values: [value],
+          type: FieldType.string,
+          config: { description: 'GeoJson' },
+        })),
+        length: 1,
+      };
+      rowIndex = 0;
+    }
+    if (!source || rowIndex === undefined) {
+      return {};
+    }
+    const extraFields: Field[] = baseProps
+      .filter((key) => key !== 'all_annots' && feature[key] !== undefined)
+      .map((name) => ({ name, values: [feature[name]], type: FieldType.string, config: {} }));
+    const columnIndex = source.fields.findIndex(
+      (field) =>
+        field.name ===
+        (interaction?.kind === 'edge' ? (layer?.optional?.edgeId ?? layer?.edgeIdField) : layer?.locField)
+    );
+    const result = getDisplayValuesAndLinks(
+      source,
+      displayProps,
+      baseProps,
+      extraFields,
+      getGrafanaAnnotations(feature),
+      time,
+      rowIndex,
+      columnIndex,
+      SortOrder.None,
+      TooltipDisplayMode.Single,
+      interaction ? getGraphInteractionScopedVars(interaction) : undefined,
+      replaceVariables
+    );
+    return result
+      ? {
+          properties: result.displayValues.map((value, index) => ({
+            key: `${index}/${value.name}`,
+            label: value.name,
+            text: value.valueString,
+            highlight: value.highlight,
+          })),
+          links: result.links.map((link, index) => ({
+            key: String(index),
+            label: link.title,
+            href: link.href,
+            target: link.target,
+            onClick: link.onClick,
+          })),
+        }
+      : {};
+  };
+  if (isClosed || isEditHandle?.(activeInfo?.object)) {
+    return null;
+  }
+  const alternate = renderAlternateContent?.({ properties: props ?? {} });
+  if (alternate) {
+    return renderFrame({ anchor: { x: activeInfo.x, y: activeInfo.y }, pinned: false, children: alternate });
+  }
+  // Native non-graph overlays reuse the portable table without inventing graph identity.
+  if (
+    props?.isComment ||
+    props?.geoJsonProps ||
+    (activeInfo?.object?.geometry?.type === 'Polygon' && props?.namespaceLabel !== undefined) ||
+    [colTypes.Path, colTypes.Polygons].includes(props?.featSource?.colType)
+  ) {
+    const prepared = content(props);
+    return prepared ? (
+      <TooltipView
+        title={String(props.locName ?? (props.isComment ? 'Comment' : 'Properties'))}
+        anchor={{ x: activeInfo.x, y: activeInfo.y }}
+        pinned={activeInfo === pinned || Boolean(activeInfo.mapglPinned)}
+        dark={theme.isDark}
+        {...prepared}
+        actions={renderActions?.()}
+        isListed={() => false}
+        onToggle={() => {}}
+        onSelect={() => {}}
+        onClose={close}
+        renderFrame={renderFrame}
+      />
+    ) : null;
+  }
+  return (
+    <GraphTooltip
+      controller={controller}
+      scene={
+        frame
+          ? { snapshot: frame.input.snapshot, render: frame.input.render, isRouted: frame.input.presentation.isRouted }
+          : undefined
+      }
+      isRouted={isRouted}
+      info={info}
+      dark={theme.isDark}
+      featureServices={featureServices}
+      getContent={(inspection) => content(inspection.feature, inspection)}
+      presentation={{
+        renderLink: (link) => (
+          <TextLink
+            href={link.href}
+            external={link.target === '_blank'}
+            weight="medium"
+            inline={false}
+            onClick={link.onClick}
+          >
+            {link.label}
+          </TextLink>
+        ),
+        renderEdgeDecorations: (record) => (
+          <span className={styles.seriesIcons}>
+            {[record.edge.data?.dataRecord?.arcStyle?.sideA, record.edge.data?.dataRecord?.arcStyle?.sideB].map(
+              (side, index) =>
+                side?.color && <SeriesIcon key={index} title={side.colorField} color={toRgbaString(side.color)} />
+            )}
+          </span>
+        ),
+      }}
+      renderFrame={renderFrame}
+      renderActions={renderActions}
+      onClose={close}
+    />
+  );
+}
 
 export const Tooltip = observer(TooltipBase);
 
@@ -608,40 +246,21 @@ const getStyles = (theme: GrafanaTheme2) => ({
     ul {
       list-style-type: none;
     }
+    .mapgl-tooltip-title-row {
+      line-height: 1;
+      display: flex;
+      align-items: center;
+    }
+    .mapgl-tooltip-sections,
+    .mapgl-tooltip-heading > li:not(.mapgl-tooltip-title-row) {
+      padding-block: ${theme.spacing(0.25)};
+      line-height: 1;
+    }
   `,
   seriesIcons: css`
     margin-left: ${theme.spacing(0.5)};
     display: flex;
     align-items: center;
     gap: ${theme.spacing(0.5)};
-  `,
-  fab: css`
-    margin-left: ${theme.spacing(0.625)};
-  `,
-  edgeListHeader: css`
-    display: inline-flex;
-    align-items: center;
-    gap: ${theme.spacing(0.5)};
-  `,
-  edgeListHeaderRow: css`
-    display: flex;
-    align-items: center;
-    gap: ${theme.spacing(1)};
-    margin-top: ${theme.spacing(0.25)};
-  `,
-  edgeListCountText: css`
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: ${theme.colors.text.secondary};
-    cursor: pointer;
-
-    &:hover {
-      color: ${theme.colors.text.primary};
-      text-decoration: underline;
-    }
-  `,
-  edgeListTrigger: css`
-    margin-left: 0;
   `,
 });

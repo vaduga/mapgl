@@ -16,6 +16,7 @@ import {
 } from '@grafana/data';
 import { SortOrder, TooltipDisplayMode } from '@grafana/schema';
 import { TextLink, useStyles2 } from '@grafana/ui';
+import { TooltipPropertyTable } from '@vaduga/mapgl-core/components/Tooltips/GraphTooltip';
 import { getFieldDisplayLinksCompat } from '../Compat/getFieldDisplayLinksCompat';
 
 export interface Props {
@@ -40,20 +41,6 @@ export interface DisplayValue {
   value: unknown;
   valueString: string;
   highlight: boolean;
-}
-
-const Trans = ({ children }: { i18nKey?: string; children?: React.ReactNode }) => <>{children}</>;
-
-function renderValue(value: string): string | React.ReactNode {
-  if (/^https?:\/\//.test(value)) {
-    return (
-      <a href={value} target="_blank" className="external-link" rel="noreferrer">
-        {value}
-      </a>
-    );
-  }
-
-  return value;
 }
 
 function sortAnnotations(annotations: any[]) {
@@ -116,7 +103,7 @@ export function getDisplayValuesAndLinks(
     config: {},
   };
   if (all_annots) {
-    const sortedAnnots: any = all_annots.length > 1 ? sortAnnotations(all_annots) : all_annots;
+    const sortedAnnots: any = all_annots.length > 1 ? sortAnnotations([...all_annots]) : all_annots;
     if (sortedAnnots?.length) {
       sortedAnnots?.forEach((annot) => {
         if (!annot) {
@@ -249,28 +236,32 @@ export const DataHoverView = ({
           <span className={styles.title}>{header}</span>
         </div>
       )}
-      <table className={styles.infoWrap}>
-        <tbody>
-          {displayValues.map((displayValue, i) => (
-            <tr key={`${i}/${rowIndex}`}>
-              <th>{displayValue.name}</th>
-              <td>{renderValue(displayValue.valueString)}</td>
-            </tr>
-          ))}
-          {links.map((link, i) => (
-            <tr key={i}>
-              <th>
-                <Trans i18nKey="visualization.data-hover-view.link">Link</Trans>
-              </th>
-              <td colSpan={2}>
-                <TextLink href={link.href} external={link.target === '_blank'} weight={'medium'} inline={false}>
-                  {link.title}
-                </TextLink>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <TooltipPropertyTable
+        renderLink={(link) => (
+          <TextLink
+            href={link.href}
+            external={link.target === '_blank'}
+            weight="medium"
+            inline={false}
+            onClick={link.onClick}
+          >
+            {link.label}
+          </TextLink>
+        )}
+        properties={displayValues.map((value, index) => ({
+          key: `${index}/${value.name}`,
+          label: value.name,
+          text: value.valueString,
+          highlight: value.highlight,
+        }))}
+        links={links.map((link, index) => ({
+          key: String(index),
+          label: link.title,
+          href: link.href,
+          target: link.target,
+          onClick: link.onClick,
+        }))}
+      />
     </div>
   );
 };

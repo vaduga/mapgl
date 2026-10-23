@@ -60,7 +60,7 @@ export function createDerivedLayers(
     const parentId = segments.length > 1 ? joinNsParts(segments.slice(0, -1)) : 'graph';
     const parentIdx = parentId !== 'graph' ? idToLayerIdx.get(parentId) : graphIdx;
 
-    const layerIdx = visLayers.addLayer(label, id, parentId, false, true, false, parentIdx ?? null, false);
+    const layerIdx = visLayers.addLayer(label, id, parentId, true, true, false, parentIdx ?? null, false);
 
     idToLayerIdx.set(id, layerIdx);
   }
@@ -71,7 +71,7 @@ export function createDerivedLayers(
       layer.label,
       layer.name,
       layer.group,
-      layer.fold ?? false,
+      layer.fold ?? true,
       layer.visible,
       layer.indeterminate ?? false,
       layer.parentIndex ?? parentIdx,

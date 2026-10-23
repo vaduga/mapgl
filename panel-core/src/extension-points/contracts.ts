@@ -2,7 +2,7 @@ import type { SourceView, SourceRevision } from '../data/sources';
 import type { Position } from 'geojson';
 import type { Edge, Graph, GraphEdgeIndex, Node } from '../graph/main';
 import type { GraphRowRef } from '../graph/frame/index';
-import type { CoordRef, DeckLine, Feature } from '../types/index';
+import type { CoordRef, DeckLine } from '../types/index';
 
 export type MapglEdition = 'oss' | 'extended';
 
@@ -79,7 +79,7 @@ export interface TooltipEdgeSectionContext {
   edgeIndex?: GraphEdgeIndex;
   node?: Node;
   edge?: Edge;
-  feature?: Feature;
+  feature?: Record<string, any>;
   adjacentEdges?: TooltipAdjacentEdges;
   sources?: readonly SourceView[];
   options?: unknown;

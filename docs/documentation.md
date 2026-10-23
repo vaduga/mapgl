@@ -255,6 +255,12 @@ An Arc link tapers continuously from side A's line width at the source to side B
 
 Field-driven line width uses the same endpoint semantics as node size: Min is rendered at the normalized low end and Max at the normalized high end. A Min value greater than Max creates a descending scale.
 
+## Inspect nodes and links
+
+Hover a node or link to read its displayed data properties. Click it to pin the tooltip so you can copy values, follow configured data links or expand its incoming/outgoing connection lists. Selecting a listed connection inspects that link; hovering it temporarily highlights the relation. Close the tooltip or click empty canvas to dismiss pinned inspection.
+
+Tooltip values keep Grafana's native field display names, units, decimals, mappings and visibility settings. A picked route portion shows that portion's data; a whole-link arc shows the link's primary row.
+
 ## Other panel options
 
 Outside the layer editor:

@@ -178,6 +178,12 @@
       "import": "./dist/components/Tooltips/tooltipEdgeSections.js",
       "default": "./dist/components/Tooltips/tooltipEdgeSections.js"
     },
+    "./components/Tooltips/GraphTooltip": {
+      "development": "./src/components/Tooltips/GraphTooltip.tsx",
+      "types": "./dist/components/Tooltips/GraphTooltip.d.ts",
+      "import": "./dist/components/Tooltips/GraphTooltip.js",
+      "default": "./dist/components/Tooltips/GraphTooltip.js"
+    },
     "./render/graph": {
       "development": "./src/render/graph.ts",
       "types": "./dist/render/graph.d.ts",

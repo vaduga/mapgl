@@ -1,5 +1,5 @@
 import React, { type ReactNode } from 'react';
-import { DeckWidgetButton, type DeckWidgetIcon } from '../DeckWidgetButton';
+import { TooltipIconButton } from './TooltipIcon';
 
 import type {
   TooltipEdgeRecord,
@@ -9,7 +9,7 @@ import type {
 } from '../../extension-points/featureContracts';
 
 export type TooltipEdgeDirection = 'incoming' | 'outgoing';
-type TooltipEdgeIconName = Exclude<DeckWidgetIcon, 'copy'>;
+export type TooltipEdgeIconName = React.ComponentProps<typeof TooltipIconButton>['icon'];
 
 export interface TooltipEdgeSectionListClassNames {
   header?: string;
@@ -56,130 +56,67 @@ export function TooltipEdgeSectionList({
   getIconName = defaultIconName,
   getTooltip = defaultTooltip,
 }: TooltipEdgeSectionListProps): React.ReactElement | null {
-  const visibleSections = sections.filter((section) => section.incoming.length || section.outgoing.length);
-
-  if (!visibleSections.length) {
-    return null;
-  }
-
+  const directionTrigger = (section: TooltipEdgeSection, direction: TooltipEdgeDirection) => {
+    const records = section[direction];
+    if (!records.length) {
+      return null;
+    }
+    const listed = isListed(section, direction);
+    const label = direction === 'incoming' ? section.incomingLabel : section.outgoingLabel;
+    const toggle = () => onToggle(section, direction);
+    return (
+      <span className={classNames?.header}>
+        <TooltipIconButton
+          icon={getIconName(section, direction)}
+          className={`${classNames?.trigger ?? ''} ${listed ? (classNames?.triggerActive ?? '') : ''}`}
+          aria-label={label}
+          aria-pressed={listed}
+          title={getTooltip(section, direction)}
+          onClick={toggle}
+        />
+        <button
+          type="button"
+          className={classNames?.countButton}
+          aria-label={`${label} edges count`}
+          onMouseEnter={() => onFocus?.(records)}
+          onMouseLeave={onFocusEnd}
+          onClick={toggle}
+        >
+          {`(${records.length})`}
+        </button>
+      </span>
+    );
+  };
+  const directions: TooltipEdgeDirection[] = ['incoming', 'outgoing'];
   return (
     <>
-      {visibleSections.map((section) => (
-        <React.Fragment key={section.id}>
-          <span className={classNames?.headerRow}>
-            {renderDirectionTrigger({
-              section,
-              direction: 'incoming',
-              records: section.incoming,
-              classNames,
-              isListed,
-              onToggle,
-              onFocus,
-              onFocusEnd,
-              getIconName,
-              getTooltip,
-            })}
-            {renderDirectionTrigger({
-              section,
-              direction: 'outgoing',
-              records: section.outgoing,
-              classNames,
-              isListed,
-              onToggle,
-              onFocus,
-              onFocusEnd,
-              getIconName,
-              getTooltip,
-            })}
-          </span>
-          {renderDirectionLines(section, 'incoming', section.incoming, isListed, renderEdge)}
-          {renderDirectionLines(section, 'outgoing', section.outgoing, isListed, renderEdge)}
-        </React.Fragment>
-      ))}
+      {sections
+        .filter((section) => section.incoming.length || section.outgoing.length)
+        .map((section) => (
+          <React.Fragment key={section.id}>
+            <span className={classNames?.headerRow}>
+              {directionTrigger(section, 'incoming')}
+              {directionTrigger(section, 'outgoing')}
+            </span>
+            {directions.map(
+              (direction) =>
+                section[direction].length > 0 &&
+                isListed(section, direction) && (
+                  <ul
+                    key={direction}
+                    className="mapgl-tooltip-edge-list"
+                    aria-label={direction === 'incoming' ? section.incomingLabel : section.outgoingLabel}
+                    tabIndex={section[direction].length > 10 ? 0 : undefined}
+                  >
+                    {section[direction].map((record, index) => (
+                      <React.Fragment key={record.id}>{renderEdge(record, index, direction, section)}</React.Fragment>
+                    ))}
+                  </ul>
+                )
+            )}
+          </React.Fragment>
+        ))}
     </>
-  );
-}
-
-interface RenderDirectionTriggerOptions {
-  section: TooltipEdgeSection;
-  direction: TooltipEdgeDirection;
-  records: TooltipEdgeRecord[];
-  classNames?: TooltipEdgeSectionListClassNames;
-  isListed(section: TooltipEdgeSection, direction: TooltipEdgeDirection): boolean;
-  onToggle(section: TooltipEdgeSection, direction: TooltipEdgeDirection): void;
-  onFocus?(records: TooltipEdgeRecord[]): void;
-  onFocusEnd?(): void;
-  getIconName(section: TooltipEdgeSection, direction: TooltipEdgeDirection): TooltipEdgeIconName;
-  getTooltip(section: TooltipEdgeSection, direction: TooltipEdgeDirection): string;
-}
-
-function renderDirectionTrigger({
-  section,
-  direction,
-  records,
-  classNames,
-  isListed,
-  onToggle,
-  onFocus,
-  onFocusEnd,
-  getIconName,
-  getTooltip,
-}: RenderDirectionTriggerOptions): ReactNode {
-  if (!records.length) {
-    return null;
-  }
-
-  const listed = isListed(section, direction);
-  const label = direction === 'incoming' ? section.incomingLabel : section.outgoingLabel;
-
-  return (
-    <span className={classNames?.header}>
-      <DeckWidgetButton
-        className={`${classNames?.trigger ?? ''} ${listed ? (classNames?.triggerActive ?? '') : ''}`}
-        label={`${listed ? 'hide' : 'show'} ${label} edges`}
-        pressed={listed}
-        icon={getIconName(section, direction)}
-        iconSize={12}
-        onClick={() => onToggle(section, direction)}
-        tooltip={getTooltip(section, direction)}
-      />
-      <button
-        type="button"
-        className={classNames?.countButton}
-        aria-label={`${label} edges count`}
-        onMouseEnter={() => onFocus?.(records)}
-        onMouseLeave={onFocusEnd}
-        onClick={() => onToggle(section, direction)}
-      >
-        {`(${records.length})`}
-      </button>
-    </span>
-  );
-}
-
-function renderDirectionLines(
-  section: TooltipEdgeSection,
-  direction: TooltipEdgeDirection,
-  records: TooltipEdgeRecord[],
-  isListed: (section: TooltipEdgeSection, direction: TooltipEdgeDirection) => boolean,
-  renderEdge: (
-    record: TooltipEdgeRecord,
-    index: number,
-    direction: TooltipEdgeDirection,
-    section: TooltipEdgeSection
-  ) => ReactNode
-): ReactNode {
-  if (!records.length || !isListed(section, direction)) {
-    return null;
-  }
-
-  return (
-    <ul>
-      {records.map((record, index) => {
-        const edgeNode = renderEdge(record, index, direction, section);
-        return edgeNode ? <React.Fragment key={record.id}>{edgeNode}</React.Fragment> : null;
-      })}
-    </ul>
   );
 }
 
@@ -188,5 +125,5 @@ function defaultIconName(_section: TooltipEdgeSection, direction: TooltipEdgeDir
 }
 
 function defaultTooltip(section: TooltipEdgeSection, direction: TooltipEdgeDirection): string {
-  return `${direction === 'incoming' ? section.incomingLabel : section.outgoingLabel} edges`;
+  return direction === 'incoming' ? section.incomingLabel : section.outgoingLabel;
 }

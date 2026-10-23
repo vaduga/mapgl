@@ -6,6 +6,7 @@ import { colTypes, type QueryHost, type Info, type ViewState } from '../types';
 import { blankHoverInfo } from '../types/defaults';
 import type { GraphBuiltState } from '../graph/frame/types';
 import { GraphHighlighter } from '../deckLayers/GraphHighlighter';
+import type { GraphTooltipState } from '../components/Tooltips/graphTooltipModel';
 
 export interface ElementKey {
   readonly id: string;
@@ -40,6 +41,7 @@ export class PointStore {
 
   tooltipObject: Info = blankHoverInfo;
   tooltipEdgeIndex = -1;
+  graphTooltip: GraphTooltipState | undefined = undefined;
   logTooltipObject: Info = blankHoverInfo;
 
   private selectedKey: ElementKey | undefined = undefined;
@@ -169,6 +171,11 @@ export class PointStore {
   setTooltipObject = (info: any) => {
     this.tooltipObject = info;
     this.tooltipEdgeIndex = -1;
+    this.graphTooltip = undefined;
+  };
+
+  setGraphTooltip = (state: GraphTooltipState | undefined) => {
+    this.graphTooltip = state;
   };
 
   setTooltipEdgeIndex = (index: number) => {
@@ -417,6 +424,9 @@ export class PointStore {
   }
 
   setSelectedNode = (node: Node | undefined | null, pickedEdges: Edge[] = []) => {
+    if (!node && !pickedEdges.length) {
+      this.graphTooltip = undefined;
+    }
     this.selectedKey = node ? keyOfNode(node) : undefined;
     if (pickedEdges.length > 1) {
       this.setFocusedEdges(pickedEdges);
@@ -467,6 +477,8 @@ export class PointStore {
     this.refreshGraphHighlighter();
   }
   clear(): void {
+    this.graphTooltip = undefined;
+    this.tooltipObject = blankHoverInfo;
     this.selectedKey = undefined;
     this.selectedEdgeKeys = [];
     this.focusedEdgeKeys = [];

@@ -5,6 +5,7 @@ import { findEdge, type Graph } from '../graph/main';
 import type { FocusRef } from '../store/PointStore';
 import { GraphHighlighter } from '../deckLayers/GraphHighlighter';
 import { getDimmedGraphLayers } from '../deckLayers/focus-layers';
+import { rebindGraphTooltip, tooltipFocus } from '../components/Tooltips/graphTooltipModel';
 import {
   captureRenderInput,
   prepareGraphRender,
@@ -479,7 +480,29 @@ export class PanelRenderSession {
   }
   focusHover(info: any): void {
     const store = this.controller.stores.pointStore;
-    store.focus(this.resolvePick(info?.picked ? info : store.getTooltipObject));
+    if (info?.picked) {
+      store.focus(this.resolvePick(info));
+      return;
+    }
+
+    const retained = store.graphTooltip;
+    const frame = this.frame;
+    if (retained && frame) {
+      const inspection = rebindGraphTooltip(
+        {
+          snapshot: frame.input.snapshot,
+          render: frame.input.render,
+          isRouted: frame.input.presentation.isRouted,
+        },
+        retained.target
+      );
+      if (inspection) {
+        store.focus(tooltipFocus(inspection));
+        return;
+      }
+    }
+
+    store.focus(this.resolvePick(store.getTooltipObject));
   }
 
   resolvePick(info: any): FocusRef | undefined {

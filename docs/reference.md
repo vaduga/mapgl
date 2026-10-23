@@ -401,3 +401,11 @@ Result:
 
 - one logical link is created
 - link properties come from record `1`
+
+## Graph inspection
+
+- Hover inspection is transient; clicking pins interactive content, and closing or blank-canvas clearing dismisses it.
+- Node tooltips list incoming/outgoing logical adjacency with separate parallel connection identities. The count matches the corresponding list. A route's intermediate nodes do not introduce an additional transitive-neighbor query.
+- Hovering a relation temporarily focuses it; leaving restores the inspected focus. Selecting it shows its own properties.
+- The property view retains Grafana field names, units, value mappings, tooltip visibility, native data links and annotation formatting.
+- A selected displayed route portion retains its corresponding row data. Whole-connection arc inspection uses the primary row. Removed or ambiguous pinned targets are cleared when the graph changes.

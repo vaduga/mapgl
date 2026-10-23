@@ -98,13 +98,17 @@ try {
     .readFileSync(path.join(core, 'examples/neutral.ts'), 'utf8')
     .replaceAll("from '../src/", "from '@vaduga/mapgl-core/");
   fs.writeFileSync(path.join(work, 'example.ts'), example);
+  const tooltipExample = fs
+    .readFileSync(path.join(core, 'examples/tooltip.ts'), 'utf8')
+    .replaceAll("from '../src/", "from '@vaduga/mapgl-core/");
+  fs.writeFileSync(path.join(work, 'tooltip-example.ts'), tooltipExample);
   fs.writeFileSync(
     path.join(work, 'consumer.ts'),
     allExports +
       '\n' +
       `import { PanelController } from '@vaduga/mapgl-core/runtime';\nimport { metricGraphSource, metricGraphInput } from './example';\nconst runtime = new PanelController();\nvoid runtime.update(metricGraphInput(metricGraphSource('source', [0, 100])));\n`
   );
-  const program = ts.createProgram([path.join(work, 'consumer.ts')], {
+  const program = ts.createProgram([path.join(work, 'consumer.ts'), path.join(work, 'tooltip-example.ts')], {
     strict: true,
     skipLibCheck: false,
     customConditions: ['visgl:webgl-only'],

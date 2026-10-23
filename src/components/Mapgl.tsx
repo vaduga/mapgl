@@ -194,6 +194,7 @@ const Mapgl = ({
   );
   const {
     session: renderer,
+    frame,
     layers: renderedLayers,
     error: renderError,
   } = usePanelRenderSession(panel.controller, renderOptions);
@@ -294,12 +295,12 @@ const Mapgl = ({
       </div>
 
       <Tooltip
-        tooltipReactionKey={panel.scene.renderRevision}
-        panelId={panel.props.id}
+        controller={panel.controller}
+        frame={frame}
+        sourceResolver={panel.sourceResolver}
+        featureServices={panel.featureServices}
         data={data}
-        panel={panel}
         time={time}
-        eventBus={eventBus}
         isRouted={isRouted}
         info={hoverInfo}
         setHoverInfo={setHoverInfo}
