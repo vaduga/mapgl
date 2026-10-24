@@ -28,6 +28,8 @@ export interface GraphTooltipTarget {
 export interface GraphTooltipState {
   readonly target: GraphTooltipTarget;
   readonly anchor: TooltipAnchor;
+  /** Hide the tooltip while retaining its target for hover restoration. */
+  readonly closed?: boolean;
   readonly context?: GraphTooltipTarget;
   readonly section?: { readonly id: string; readonly direction: 'incoming' | 'outgoing' };
 }

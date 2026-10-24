@@ -84,6 +84,7 @@ export function GraphTooltip({
       : inspectGraphTooltip(scene, pinnedPick);
   const retained = store.graphTooltip;
   const pinnedInspection = retained ? rebindGraphTooltip(scene, retained.target) : seed;
+  const visiblePin = retained?.closed ? undefined : pinnedInspection;
   const hoverPick = info as any;
   const hovered =
     hoverPick &&
@@ -93,9 +94,9 @@ export function GraphTooltip({
     !(typeof hoverPick === 'object' && dismissed.has(hoverPick))
       ? inspectGraphTooltip(scene, hoverPick)
       : undefined;
-  const hoverOverride = hovered && (!pinnedInspection || !sameTarget(hovered.target, pinnedInspection.target));
-  const inspection = hoverOverride ? hovered : pinnedInspection;
-  const pinned = !hoverOverride && Boolean(retained || seed);
+  const hoverOverride = hovered && (!visiblePin || !sameTarget(hovered.target, visiblePin.target));
+  const inspection = hoverOverride ? hovered : visiblePin;
+  const pinned = !hoverOverride && Boolean(visiblePin);
   const dismissCurrentHover = () => {
     if (info && typeof info === 'object') {
       dismissed.add(info);
@@ -104,7 +105,7 @@ export function GraphTooltip({
   const point: any = pinned ? (retained?.anchor ?? pinnedPick) : info;
   const anchor = { x: Number(point?.x ?? 0), y: Number(point?.y ?? 0) };
   useEffect(() => {
-    if (!store.graphTooltip && seed) {
+    if ((!store.graphTooltip || store.graphTooltip.closed) && seed) {
       store.setGraphTooltip({ target: seed.target, anchor });
     }
     // A native pin event is a seed; subsequent frames rebind its stable target.
@@ -223,8 +224,9 @@ export function GraphTooltip({
         if (pinnedPick && typeof pinnedPick === 'object') {
           dismissed.add(pinnedPick);
         }
-        store.setGraphTooltip(undefined);
+        const pin = store.graphTooltip ?? { target: inspection.target, anchor };
         store.setTooltipObject(blankHoverInfo);
+        store.setGraphTooltip({ ...pin, closed: true });
         restoreFocus();
         onClose?.();
       }}

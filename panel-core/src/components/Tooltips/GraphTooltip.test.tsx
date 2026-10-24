@@ -57,7 +57,7 @@ it('renders chosen plain values and host links as text in the supplied order', (
   expect(activate).toHaveBeenCalledTimes(1);
 });
 
-it('selects adjacency, previews another object, restores the pin and clears it', async () => {
+it('selects adjacency, previews another object, restores the pin and closes its view', async () => {
   await controller.update(metricGraphInput(metricGraphSource('first', [1, 2, 3])));
   const feature = controller.scene.render.features[1];
   const info = { x: 20, y: 30, index: 1, picked: true, object: { properties: feature } };
@@ -114,8 +114,16 @@ it('selects adjacency, previews another object, restores the pin and clears it',
   expect(controller.stores.pointStore.graphTooltip?.anchor).toEqual({ x: 20, y: 30 });
   expect(document.querySelector('[data-selected="true"]')).not.toBeNull();
   fireEvent.click(screen.getByRole('button', { name: 'close' }));
-  expect(controller.stores.pointStore.graphTooltip).toBeUndefined();
+  expect(controller.stores.pointStore.graphTooltip).toEqual({ ...pin, closed: true });
   expect(screen.queryByTestId('graph-tooltip')).not.toBeInTheDocument();
+  rerender(
+    <GraphTooltip
+      controller={controller}
+      info={{ x: 40, y: 50, mapglPinned: true, object: { properties: controller.scene.render.features[2] } }}
+      getContent={content}
+    />
+  );
+  expect(screen.getByRole('dialog', { name: 'node-2' })).toBeInTheDocument();
 });
 
 it('keeps the canvas-picked edge at the top while an adjacent edge supplies the details', async () => {

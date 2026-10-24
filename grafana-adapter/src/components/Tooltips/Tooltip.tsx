@@ -231,7 +231,7 @@ function TooltipBase({
       }}
       renderFrame={renderFrame}
       renderActions={renderActions}
-      onClose={close}
+      onClose={() => setHoverInfo({})}
     />
   );
 }
