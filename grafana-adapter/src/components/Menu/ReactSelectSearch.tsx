@@ -1,24 +1,12 @@
 import React, { FC } from 'react';
 import { observer } from 'mobx-react-lite';
-import { DataFrame, EventBus, GrafanaTheme2, SelectableValue } from '@grafana/data';
+import { DataFrame, GrafanaTheme2 } from '@grafana/data';
 import { css } from '@emotion/css';
 import { Combobox, type ComboboxOption, useStyles2 } from '@grafana/ui';
 import { Graph, Edge, getGraphNodes, getNodeData } from '@vaduga/mapgl-core/graph/main';
 import { colTypes } from '../../types/index';
+import type { SelectionRequest } from '@vaduga/mapgl-core/runtime';
 
-export type handlerProps = {
-  pId: number;
-  value: string;
-  graphId: string;
-  eventBus?: EventBus;
-  edge?: Edge;
-  edgeId?: string;
-  coord?: any;
-  select: boolean;
-  fly: boolean;
-  zoomIn?: boolean;
-  lineId?: number | null;
-};
 type SearchOption = ComboboxOption<string> & { graphId: string; nodeId: string };
 type ReactSelectSearchRootStore = {
   pointStore: {
@@ -27,11 +15,10 @@ type ReactSelectSearchRootStore = {
 };
 type MapRefProps = {
   wait?: number;
-  selectHandler?: (a: Partial<handlerProps>) => Promise<void> | undefined; // custom handler, for drawer
-  selectGotoHandler?: (a: Partial<handlerProps>) => Promise<void> | undefined;
+  selectHandler?: (a: { value: string }) => void | Promise<void>;
+  onSelect?: (request: SelectionRequest) => void;
   rootStore: ReactSelectSearchRootStore;
   graph: Graph;
-  panelId: number;
   value?: string;
   placeholder?: string;
   isMainLocSearch?: boolean;
@@ -39,7 +26,6 @@ type MapRefProps = {
   options: any;
   data: any;
   subGraph?: Graph;
-  eventBus?: EventBus;
 };
 
 const ReactSelectSearch: FC<MapRefProps> = ({
@@ -47,11 +33,9 @@ const ReactSelectSearch: FC<MapRefProps> = ({
   options,
   subGraph,
   selectHandler,
-  selectGotoHandler,
+  onSelect,
   rootStore,
   graph,
-  panelId: pId,
-  eventBus,
   wait = 300,
   placeholder = 'Search',
   isMainLocSearch = false,
@@ -134,11 +118,9 @@ const ReactSelectSearch: FC<MapRefProps> = ({
             return;
           }
 
-          void selectGotoHandler?.({
-            pId,
-            value: selected.nodeId,
-            eventBus,
-            graphId: selected.graphId,
+          onSelect?.({
+            nodeId: selected.nodeId,
+            namespaceId: selected.graphId,
             select: true,
             fly: true,
             zoomIn: true,

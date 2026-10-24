@@ -55,7 +55,7 @@ import { initViewExtent, type ViewExtentCenter, areMapViewConfigsEqual } from '@
 import { loadSvgIcons } from '../utils/plugin';
 
 import type { GrafanaRuntimeSubscriptionContext, GrafanaPanelBinding, SelectionHooks } from './contracts';
-import { selectionBinding } from './selectionBinding';
+import { viewportBinding } from './viewportBinding';
 import { buildGrafanaFeatureServices } from './featureServices';
 import { createLayoutWorker } from '@vaduga/mapgl-core/workers/layoutWorker';
 import { centerPointRegistry, MapCenterID } from '../view';
@@ -85,6 +85,12 @@ export abstract class MapPanelRuntime<
     new GrafanaGraphPipeline(
       {
         isolateGraph: (this.props.mapglPlugin ?? defaultPluginConfiguration).edition === 'extended',
+        selectionNavigation: () => ({
+          isLogic: this.isLogic,
+          zoom: this.map?.deck?.viewManager?.viewState[this.isLogic ? '3d-scene' : 'geo-view']?.zoom,
+          findEdge: this.createSelectionHooks().findEdge,
+          transformView: this.createSelectionHooks().selectionView,
+        }),
         layout: (context) =>
           resolveGraphPanelLayout(context, this.normalizedOptions.basemap, (input) =>
             this.layoutWorker.requestLayout({ ...input, signal: context.signal })
@@ -126,7 +132,9 @@ export abstract class MapPanelRuntime<
   }
 
   protected get runtimeSubscriptions(): GrafanaRuntimeSubscriptions {
-    return (this.panelRuntimeSubscriptions ??= new GrafanaRuntimeSubscriptions(this.featureServices.runtimeSubscriptionProviders));
+    return (this.panelRuntimeSubscriptions ??= new GrafanaRuntimeSubscriptions(
+      this.featureServices.runtimeSubscriptionProviders
+    ));
   }
 
   pId: number | undefined;
@@ -824,18 +832,10 @@ export abstract class MapPanelRuntime<
   }
   protected createPanelBindings(): GrafanaPanelBinding[] {
     return [
-      selectionBinding(
-        {
-          eventBus: this.props.eventBus,
-          panelId: this.props.id,
-          controller: this.controller,
-          scene: this.scene,
-          readIsLogic: () => this.isLogic,
-          readZoom: () => this.map?.deck?.viewManager?.viewState[this.isLogic ? '3d-scene' : 'geo-view']?.zoom,
-          applyViewport: (view) => this.applyViewport(view),
-        },
-        this.createSelectionHooks()
-      ),
+      viewportBinding({
+        controller: this.controller,
+        applyViewport: (view) => this.applyViewport(view),
+      }),
     ];
   }
   private syncStoreInputs(): void {
@@ -865,7 +865,9 @@ export abstract class MapPanelRuntime<
   private syncStoreBindings(): void {
     this.syncStoreInputs();
     const previous = this.releaseStoreBindings;
-    this.releaseStoreBindings = this.createPanelBindings().map((binding) => this.runtimeSubscriptions.bindPanel(binding));
+    this.releaseStoreBindings = this.createPanelBindings().map((binding) =>
+      this.runtimeSubscriptions.bindPanel(binding)
+    );
     previous.filter((release) => !this.releaseStoreBindings.includes(release)).forEach((release) => release());
   }
 

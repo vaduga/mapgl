@@ -6,8 +6,8 @@ import type { ViewState, BiColProps } from '@vaduga/mapgl-core/types';
 
 import { getMapglFeatureServices } from '@vaduga/mapgl-core/featureContracts';
 
-export const expandTooltip = (info: any, panel: any, eventBus: any, dataClickProps: any, selectGotoHandler: any) => {
-  const { setSelCoord, setTooltipObject, setLocalViewState, pId } = dataClickProps;
+export const expandTooltip = (info: any, panel: any, dataClickProps: any) => {
+  const { setSelCoord, setTooltipObject, setLocalViewState } = dataClickProps;
   const isExtended = getMapglFeatureServices(panel).edition === 'extended';
   const position = info.coordinate;
   if (position) {
@@ -31,7 +31,7 @@ export const expandTooltip = (info: any, panel: any, eventBus: any, dataClickPro
     let props = object?.properties ?? wrappedFeature?.properties ?? object;
     let rowIndex;
 
-    const points = !props?.cluster && (info.sourceLayer?.props.data.points ?? deckLayer?.props.data.points);
+    const points = !props?.cluster && (info.sourceLayer?.props?.data?.points ?? deckLayer?.props?.data?.points);
     if (points && (featureType === 'points' || info.viewport?.id === '3d-scene') && index !== -1) {
       const featureIds = points.featureIds;
       const features = render.features;
@@ -58,6 +58,16 @@ export const expandTooltip = (info: any, panel: any, eventBus: any, dataClickPro
           { snapshot: frame.input.snapshot, graph: { edgeIndex: render.edgeIndex }, features: render.features },
           { ...info, object }
         );
+    const currentSnapshot = graphInteraction && panel.controller.state?.snapshot;
+    if (currentSnapshot && graphInteraction) {
+      const current =
+        graphInteraction.kind === 'node'
+          ? currentSnapshot.nodeByKey.has(graphInteraction.key)
+          : currentSnapshot.relations.findRecordByKey(graphInteraction.key) !== undefined;
+      if (!current) {
+        return;
+      }
+    }
     const edgeRef = graphInteraction?.kind === 'edge' ? graphInteraction.edgeRef : undefined;
     const indexedEdge =
       edgeRef !== undefined && edgeRef < (render.edgeIndex?.edgeCount ?? 0)
@@ -84,14 +94,12 @@ export const expandTooltip = (info: any, panel: any, eventBus: any, dataClickPro
 
     if (comId !== undefined && edge) {
       const { index } = props;
-      selectGotoHandler({
-        pId,
-        value: locName,
-        graphId: (edge.source.parent as Graph).id,
-        eventBus,
+      panel.controller.selectAndNavigate({
+        nodeId: locName,
+        namespaceId: (edge.source.parent as Graph).id,
         select: true,
         fly: false,
-        edge,
+        edgeId: edge.id,
       });
       if (isExtended) {
         dataClickProps.setCommentOpenIdx(index);
@@ -119,15 +127,12 @@ export const expandTooltip = (info: any, panel: any, eventBus: any, dataClickPro
       }); // this pins tooltip
 
       if (node) {
-        selectGotoHandler({
-          pId,
-          value: node.id,
-          graphId: subGraph?.id,
-          eventBus,
+        panel.controller.selectAndNavigate({
+          nodeId: node.id,
+          namespaceId: subGraph?.id,
           select: true,
           fly: false,
-          edge,
-          edgeId,
+          edgeId: edge?.id ?? edgeId,
         });
       }
     } else if (!props?.isHull) {
@@ -157,7 +162,7 @@ export const expandTooltip = (info: any, panel: any, eventBus: any, dataClickPro
       dataClickProps.setHoverInfo({});
       dataClickProps.setIsShowCenter(null);
     }
-    selectGotoHandler({ pId, eventBus, select: true });
+    panel.controller.selectAndNavigate({ select: true });
     clearTooltipInteraction({
       setTooltipObject,
       setHoverInfo: dataClickProps.setHoverInfo,

@@ -2,7 +2,6 @@ export * from '@vaduga/mapgl-core/utils';
 export * from './actions';
 export * from './bus.events';
 export * from './layers';
-export * from './selectGotoHandler';
 export * from './plugin';
 export * from './normalizeOptions';
 export { expandTooltip } from './data-click';

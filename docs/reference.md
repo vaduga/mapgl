@@ -404,6 +404,10 @@ Result:
 
 ## Graph inspection
 
+- Internal selection, clearing, direction changes and navigation use controller commands without a Grafana event-bus round trip.
+- The former custom Grafana `selectNode` protocol is removed. External publishers of that event no longer control Mapgl selection; no replacement external selection protocol or field-mapping configuration is provided.
+- Grafana `DataSelectEvent` publishing and receiving are deferred. Other panels do not automatically follow Mapgl selections.
+
 - Hover inspection is transient; clicking pins interactive content, and closing or blank-canvas clearing dismisses it.
 - Node tooltips list incoming/outgoing logical adjacency with separate parallel connection identities. The count matches the corresponding list. A route's intermediate nodes do not introduce an additional transitive-neighbor query.
 - Hovering a relation temporarily focuses it; leaving restores the inspected focus. Selecting it shows its own properties.

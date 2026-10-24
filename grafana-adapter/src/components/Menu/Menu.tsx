@@ -5,7 +5,7 @@ import { observer } from 'mobx-react-lite';
 import React, { useState } from 'react';
 
 import type { Graph } from '@vaduga/mapgl-core/graph/main';
-import { selectGotoHandler } from '../../utils/index';
+import type { SelectionRequest } from '@vaduga/mapgl-core/runtime';
 import ReactSelectSearch from './ReactSelectSearch';
 
 export interface MenuActionContext<TRootStore = unknown, TPanel = unknown, TOptions = unknown> {
@@ -22,6 +22,7 @@ export interface MenuAction<TRootStore = unknown, TPanel = unknown, TOptions = u
 }
 
 export interface MenuProps<TRootStore = unknown, TPanel = unknown, TOptions = unknown> {
+  onSelect: (request: SelectionRequest) => void;
   actions?: Array<MenuAction<TRootStore, TPanel, TOptions>>;
   data: PanelData;
   eventBus?: EventBus;
@@ -29,7 +30,6 @@ export interface MenuProps<TRootStore = unknown, TPanel = unknown, TOptions = un
   panel: TPanel;
   rootStore: TRootStore;
   graph: Graph;
-  panelId: number;
 }
 
 interface RootStoreWithSelection {
@@ -44,13 +44,13 @@ const Menu = <
   TOptions = unknown,
 >({
   graph,
-  panelId,
   actions = [],
   data,
   eventBus,
   options,
   panel,
   rootStore,
+  onSelect,
 }: MenuProps<TRootStore, TPanel, TOptions>) => {
   const s = useStyles2(getStyles);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -83,13 +83,11 @@ const Menu = <
             {isSearchVisible && (
               <ReactSelectSearch
                 isMainLocSearch={true}
-                eventBus={eventBus}
                 data={data}
                 options={options}
                 rootStore={rootStore}
                 graph={graph}
-                panelId={panelId}
-                selectGotoHandler={selectGotoHandler}
+                onSelect={onSelect}
               />
             )}
           </div>

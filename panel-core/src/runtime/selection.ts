@@ -11,6 +11,14 @@ export interface SelectionRequest {
   readonly coordinates?: readonly number[];
 }
 
+/** Hosts supply presentation geometry, never a transport for local commands. */
+export interface SelectionNavigation {
+  readonly isLogic: boolean;
+  readonly zoom?: number;
+  readonly findEdge?: (graph: Graph, id: string) => Edge | undefined;
+  readonly transformView?: (view: ViewState, namespaceId?: string) => ViewState;
+}
+
 export function resolveSelection(
   graph: Graph,
   request: SelectionRequest,

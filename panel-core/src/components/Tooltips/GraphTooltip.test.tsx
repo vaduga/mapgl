@@ -91,7 +91,10 @@ it('selects adjacency, previews another object, restores the pin and closes its 
   fireEvent.click(connection);
   expect(store.getSelectedNode?.id).toBe(node.id);
   expect(store.getSelEdges).toEqual([controller.scene.render.edgeIndex.getEdge(0)]);
-  expect(notifications).not.toHaveBeenCalled();
+  expect(notifications).toHaveBeenCalledTimes(1);
+  expect(notifications).toHaveBeenCalledWith(
+    expect.objectContaining({ type: 'selection', node: expect.objectContaining({ id: node.id }) })
+  );
   expect(selected).toHaveBeenCalledWith(
     expect.objectContaining({ interaction: expect.objectContaining({ kind: 'edge' }) })
   );
@@ -116,6 +119,21 @@ it('selects adjacency, previews another object, restores the pin and closes its 
   fireEvent.click(screen.getByRole('button', { name: 'close' }));
   expect(controller.stores.pointStore.graphTooltip).toEqual({ ...pin, closed: true });
   expect(screen.queryByTestId('graph-tooltip')).not.toBeInTheDocument();
+  expect(store.getSelectedNode?.id).toBe(node.id);
+  expect(store.getSelEdges).toEqual([controller.scene.render.edgeIndex.getEdge(0)]);
+  expect(store.focusedEdgeId).toBe(controller.scene.render.edgeIndex.getEdge(0).id);
+  rerender(
+    <GraphTooltip
+      controller={controller}
+      info={{ x: 200, y: 100, picked: true, index: 2, object: { properties: controller.scene.render.features[2] } }}
+      getContent={content}
+    />
+  );
+  expect(screen.getByRole('tooltip', { name: 'node-2' })).toBeInTheDocument();
+  rerender(<GraphTooltip controller={controller} info={{ picked: false, index: -1 }} getContent={content} />);
+  expect(screen.queryByTestId('graph-tooltip')).not.toBeInTheDocument();
+  expect(store.graphTooltip).toEqual({ ...pin, closed: true });
+  expect(store.getSelectedNode?.id).toBe(node.id);
   rerender(
     <GraphTooltip
       controller={controller}

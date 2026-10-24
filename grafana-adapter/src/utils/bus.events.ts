@@ -1,20 +1,5 @@
 import { BusEventWithPayload } from '@grafana/data';
-import type { Edge } from '@vaduga/mapgl-core/graph/main';
 import type { RuntimeUpdateEvent } from '@vaduga/mapgl-core/featureContracts';
-
-export class SelectNodeEvent extends BusEventWithPayload<{
-  pId: number;
-  nodeId?: string;
-  edge?: Edge;
-  edgeId?: string;
-  graphId?: string;
-  fly?: boolean;
-  select?: boolean;
-  zoomIn?: boolean;
-  coord?: number[];
-}> {
-  static type = 'selectNode';
-}
 
 export class BasemapChangeEvent extends BusEventWithPayload<number> {
   static type = 'mapType';

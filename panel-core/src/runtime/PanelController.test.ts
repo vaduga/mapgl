@@ -270,3 +270,65 @@ it('navigates to zero coordinates and rejects missing positions', () => {
   });
   expect(selectionViewport({}, undefined, [], true)).toBeUndefined();
 });
+
+it('selects and navigates directly with projection before notifying observers', async () => {
+  const runtime = new PanelController({
+    selectionNavigation: () => ({
+      isLogic: true,
+      transformView: (view) => ({ ...view, longitude: view.longitude + 5, latitude: view.latitude + 10 }),
+    }),
+  });
+  await runtime.update(metricGraphInput(metricGraphSource('direct', [0, 10, 20])));
+  const node = runtime.state!.snapshot.nodes[1];
+  const observe = jest.fn((event) => ({
+    type: event.type,
+    nodeId: runtime.stores.pointStore.getSelectedNode?.id,
+    view: runtime.stores.viewStore.getViewState,
+  }));
+  runtime.subscribe(observe);
+  runtime.selectAndNavigate({
+    nodeId: node.id,
+    namespaceId: node.namespaceId,
+    coordinates: [0, 0],
+    select: true,
+    fly: true,
+    zoomIn: true,
+  });
+  expect(observe.mock.calls.filter(([event]) => event.type === 'selection')).toHaveLength(1);
+  expect(observe.mock.results.find(({ value }) => value.type === 'selection')?.value).toMatchObject({
+    nodeId: node.id,
+    view: { longitude: 5, latitude: 10, zoom: 1.5 },
+  });
+  expect(runtime.stores.pointStore.getSelCoord).toEqual({ type: 'Point', coordinates: [5, 10] });
+  expect(runtime.stores.pointStore.getIsShowCenter).toMatchObject({ longitude: 5, latitude: 10 });
+  const edge = [...runtime.scene.render.graph.deepEdges][0];
+  runtime.selectAndNavigate({
+    nodeId: edge.source.id,
+    namespaceId: (edge.source.parent as Graph).id,
+    edgeId: edge.id,
+    select: true,
+  });
+  expect(runtime.stores.pointStore.getSelEdges).toEqual([edge]);
+  const selected = runtime.stores.pointStore.getSelectedNode;
+  runtime.selectAndNavigate({ coordinates: [1, 2], fly: true });
+  expect(runtime.stores.pointStore.getSelectedNode).toBe(selected);
+  expect(runtime.stores.viewStore.getViewState).toMatchObject({ longitude: 6, latitude: 12 });
+  observe.mockClear();
+  runtime.selectAndNavigate(
+    {
+      nodeId: node.id,
+      namespaceId: node.namespaceId,
+      coordinates: [3, 4],
+      select: true,
+      fly: true,
+    },
+    'host'
+  );
+  expect(runtime.stores.pointStore.getSelectedNode?.id).toBe(node.id);
+  expect(runtime.stores.viewStore.getViewState).toMatchObject({ longitude: 8, latitude: 14 });
+  expect(observe).not.toHaveBeenCalled();
+  runtime.selectAndNavigate({ select: true }, 'host');
+  expect(runtime.stores.pointStore.getSelectedNode).toBeNull();
+  expect(observe).not.toHaveBeenCalled();
+  runtime.dispose();
+});

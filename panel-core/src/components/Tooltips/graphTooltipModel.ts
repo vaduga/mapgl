@@ -218,5 +218,17 @@ export function tooltipFocus(inspection: TooltipInspection): FocusRef {
 
 export function inspectTooltipEdge(scene: TooltipScene, edge: Edge) {
   const edgeRef = scene.render.edgeIndex.getEdgeRef(edge);
-  return inspectGraphTooltip(scene, { object: { edgeRef, edgeId: edge.id, properties: edge.data?.dataRecord } });
+  const recordRef = edgeRef === undefined ? undefined : scene.render.edgeIndex.getEdgeRecordRef(edgeRef);
+  return inspectGraphTooltip(scene, {
+    object: {
+      edgeRef: scene.isRouted === false ? undefined : edgeRef,
+      edgeId: edge.id,
+      properties: {
+        ...edge.data?.dataRecord,
+        ...(recordRef !== undefined && scene.snapshot
+          ? { graphFrame: { key: scene.snapshot.relations.getRecordKey(recordRef) } }
+          : {}),
+      },
+    },
+  });
 }

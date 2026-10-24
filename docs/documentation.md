@@ -24,6 +24,12 @@ Most panel-specific topology work happens inside the **Markers and links** layer
 
 Fresh panels initialize with one **Markers and links** data layer so its configuration is available immediately in the panel editor.
 
+## Selection
+
+Click nodes or links to select and inspect them. Node search selects a node and moves the view to it. Clicking empty map space clears the selection and pinned inspection.
+
+Selection is local to the Mapgl panel and requires no event-bus configuration. Mapgl does not publish or receive Grafana `DataSelectEvent` selections, and selecting a marker does not automatically select a row in another panel. The former custom `selectNode` event integration has been removed.
+
 ## Quick setup
 
 1. Choose the mode in **Basemap layer**.

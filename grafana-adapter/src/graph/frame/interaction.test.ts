@@ -179,6 +179,7 @@ describe('graph frame interaction identity', () => {
     const setHoverInfo = jest.fn();
     const select = jest.fn();
     const panel = {
+      controller: { selectAndNavigate: select },
       scene: {
         render: { graph: state.graph.graph, features: state.features, edgeIndex: state.graph.edgeIndex },
         baseline: { snapshot: state.snapshot, graph: { state: state.graph } },
@@ -193,7 +194,7 @@ describe('graph frame interaction identity', () => {
       setLocalViewState: jest.fn(),
     };
 
-    expandTooltip(binaryNodeInfo(0), panel, {}, props, select);
+    expandTooltip(binaryNodeInfo(0), panel, props);
     expect(setTooltipObject).toHaveBeenLastCalledWith(
       expect.objectContaining({
         graphInteraction: expect.objectContaining({
@@ -222,9 +223,7 @@ describe('graph frame interaction identity', () => {
         object: edgeObject,
       },
       panel,
-      {},
-      props,
-      select
+      props
     );
     expect(setTooltipObject).toHaveBeenLastCalledWith(
       expect.objectContaining({
@@ -245,15 +244,12 @@ describe('graph frame interaction identity', () => {
         object: { feature: edgeObject },
       },
       panel,
-      {},
-      props,
-      select
+      props
     );
     expect(select).toHaveBeenCalledWith(
       expect.objectContaining({
-        value: edge.source.id,
-        graphId: state.graph.graph.id,
-        edge,
+        nodeId: edge.source.id,
+        namespaceId: state.graph.graph.id,
         edgeId: edge.id,
       })
     );

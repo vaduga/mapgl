@@ -14,6 +14,7 @@ import type { GraphFrameViewState } from '../graph/frame/types';
 import { RootStore } from '../store/RootStore';
 import { GraphScene, type EffectiveRenderState } from './GraphScene';
 import type { VisLayers } from '../store/VisLayers';
+import { resolveSelection, selectionViewport, type SelectionRequest, type SelectionNavigation } from './selection';
 
 import {
   createGraphPanelRenderState,
@@ -34,6 +35,7 @@ export interface PanelControllerStages extends Omit<
   GraphPipelineStages<GraphPanelLayoutState, GraphPanelRenderState>,
   'commit'
 > {
+  readonly selectionNavigation?: () => SelectionNavigation;
   /** Synchronous: commit the scene exactly once, without retaining the callback. */
   readonly commitGraph?: (state: GraphPanelPipelineState, commitScene: CommitScene) => void;
 }
@@ -56,8 +58,10 @@ export class PanelController {
   readonly stores: RootStore;
   private disposed = false;
   private request = 0;
+  private readonly selectionNavigation?: () => SelectionNavigation;
   readonly scene: GraphScene;
   constructor(stages: Partial<PanelControllerStages> = {}, scene = new GraphScene()) {
+    this.selectionNavigation = stages.selectionNavigation;
     this.scene = scene;
     this.stores = new RootStore(() => this.scene.readGraph());
     const publish = (state: GraphPanelPipelineState, visualOnly: boolean) =>
@@ -135,9 +139,41 @@ export class PanelController {
       return;
     }
     runInAction(() => this.stores.pointStore.select(node, pickedEdges));
+    this.navigateSelection({ nodeId: node?.id, namespaceId: node?.namespaceId, select: true }, origin);
     if (origin === 'user') {
       this.emit({ type: 'selection', node });
     }
+  }
+  /** Applies local selection and navigation before notifying observers. */
+  selectAndNavigate(request: SelectionRequest, origin: 'host' | 'user' = 'user'): void {
+    if (this.disposed) {
+      return;
+    }
+    const { node, edge } = resolveSelection(this.scene.render.graph, request, this.selectionNavigation?.().findEdge);
+    const key = node ? { id: node.id, namespaceId: String((node.parent as Graph | undefined)?.id ?? '') } : undefined;
+    if (request.select || edge) {
+      runInAction(() => this.stores.pointStore.select(key, edge ? [edge] : []));
+    }
+    this.navigateSelection(request, origin);
+    if ((request.select || edge) && origin === 'user') {
+      this.emit({ type: 'selection', node: key });
+    }
+  }
+  private navigateSelection(request: SelectionRequest, origin: 'host' | 'user'): void {
+    const context = this.selectionNavigation?.() ?? { isLogic: true, zoom: this.stores.viewStore.getViewState?.zoom };
+    const { node } = resolveSelection(this.scene.render.graph, request, context.findEdge);
+    const resolved = selectionViewport(request, node, this.scene.render.positions, context.isLogic, context.zoom);
+    if (!resolved) {
+      return;
+    }
+    const view = context.transformView?.(resolved, request.namespaceId) ?? resolved;
+    if (request.select) {
+      this.stores.pointStore.setSelCoord({ type: 'Point', coordinates: [view.longitude, view.latitude] });
+    }
+    if (request.fly) {
+      this.setViewport(view, origin);
+    }
+    this.stores.pointStore.setIsShowCenter(view);
   }
   /** Select a semantic pick; every hop selects its logical record's source. */
   selectElement(key: FocusRef): void {

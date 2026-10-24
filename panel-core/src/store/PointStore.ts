@@ -227,6 +227,10 @@ export class PointStore {
     }
 
     this.isReversed = !isDefDir;
+    const selected = this.getSelectedNode;
+    if (selected) {
+      this.setSelectedNode(selected);
+    }
     if (this.focusedNodeId || this.focusedEdgeId) {
       this.refreshGraphHighlighter();
     }

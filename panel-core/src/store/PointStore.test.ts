@@ -21,8 +21,9 @@ it('owns direction, semantic focus, selected indexes and graph replacement witho
   expect(store.getSelectedIdxs.get(colTypes.Nodes)).toEqual({ [String((node.parent as Graph).id)]: [1] });
   store.setEdgeListed(true);
   store.setIsDefDir(false);
-  store.setSelectedNode(node);
   expect(store.getSelEdges[0].target.id).toBe(node.id);
+  expect(store.getSelectedIdxs.get(colTypes.Edges)).toEqual({ [String((node.parent as Graph).id)]: [10] });
+  expect(store.focusedNodeId).toBe(node.id);
   const edgeId = store.getSelEdges[0].id;
   store.focus({ kind: 'edge', id: edgeId, namespaceId: String((node.parent as Graph).id) });
   expect(store.focusedEdgeId).toBe(edgeId);

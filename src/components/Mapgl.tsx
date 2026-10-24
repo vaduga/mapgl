@@ -11,7 +11,7 @@ import type { DeckGLRef } from '@deck.gl/react';
 import { useRootStore } from '@vaduga/mapgl-core/store';
 import { colTypes, type ViewState, type ComFeature } from '@vaduga/mapgl-grafana-adapter/types';
 import { getGraphVersion, type Graph } from '@vaduga/mapgl-core/graph/main';
-import { expandTooltip, selectGotoHandler } from '@vaduga/mapgl-grafana-adapter/utils';
+import { expandTooltip } from '@vaduga/mapgl-grafana-adapter/utils';
 import {
   useNodeLegendClick,
   getThemeVariables,
@@ -123,7 +123,6 @@ const Mapgl = ({
   const rendererRef = useRef<PanelRenderSession | undefined>(undefined);
   const dataClickProps = {
     //<editor-fold desc="dataClickProps">
-    pId: panel.pId,
     readRenderFrame: (): DisplayedRenderFrame | undefined => rendererRef.current?.frame,
     setSelCoord,
     isDefDir,
@@ -200,8 +199,7 @@ const Mapgl = ({
   } = usePanelRenderSession(panel.controller, renderOptions);
 
   useEffect(() => {
-    // Native event callbacks borrow this ref; commit-phase binding changes no render inputs.
-
+    // Picking callbacks read the displayed frame after React commits.
     rendererRef.current = renderer;
   }, [renderer]);
 
@@ -213,18 +211,6 @@ const Mapgl = ({
     setLocalViewState(getViewState);
     setSelCoord({ type: 'Point', coordinates: [longitude, latitude] });
   }, [getViewState]);
-
-  /// refresh selIds for edges
-  useEffect(() => {
-    selectGotoHandler({
-      pId: panel.pId,
-      value: getSelectedNode?.id,
-      graphId: (getSelectedNode?.parent as Graph)?.id,
-      eventBus,
-      select: true,
-      fly: false,
-    });
-  }, [isDefDir]);
 
   const memoLayerSwitcher = useMemo(() => {
     return (
@@ -244,7 +230,14 @@ const Mapgl = ({
   }, [visLayers, panel.scene.render.commentFeatures]);
 
   const memoMenu = useMemo(() => {
-    return <Menu graph={graph} panelId={panel.props.id} eventBus={eventBus} {...{ options, data, panel, rootStore }} />;
+    return (
+      <Menu
+        onSelect={(request) => panel.controller.selectAndNavigate(request)}
+        graph={graph}
+        eventBus={eventBus}
+        {...{ options, data, panel, rootStore }}
+      />
+    );
   }, [options, panel.layers, graphVersion, data, rootStore]);
 
   const onLabelClick = useNodeLegendClick({
@@ -277,7 +270,7 @@ const Mapgl = ({
           index,
           object: { index, rowIndex: feature?.rowIndex, properties: feature },
         };
-        expandTooltip(pickingInfo, panel, eventBus, dataClickProps, selectGotoHandler);
+        expandTooltip(pickingInfo, panel, dataClickProps);
         setHoverInfo({ ...pickingInfo, mapglPinned: true });
       }}
     >
@@ -286,7 +279,7 @@ const Mapgl = ({
         {...{ isLogic, localViewState, fullscreenContainer, deckRef, renderedLayers, source, onMapLoad }}
         layoutInProgress={panel.scene.pending}
         classes={s}
-        onClick={(info) => expandTooltip(info, panel, eventBus, dataClickProps, selectGotoHandler)}
+        onClick={(info) => expandTooltip(info, panel, dataClickProps)}
       />
 
       <div className={panel.scene.view.phase === 'empty' ? s.graphEmptyState : s.graphDiagnostics}>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, type ReactNode } from 'react';
 import { reaction } from 'mobx';
 import type { PanelController } from '../../runtime/PanelController';
+import type { Graph } from '../../graph/main';
 import { getMapglFeatureServices } from '../../extension-points/featureServices';
 import type {
   MapglFeatureServices,
@@ -137,9 +138,7 @@ export function GraphTooltip({
   );
   const listDirection = context?.edge ? retained?.section?.direction : store.isDefDir ? 'outgoing' : 'incoming';
   const isListed = (section: TooltipEdgeSection, direction: TooltipEdgeDirection) =>
-    store.getisEdgeListed &&
-    (!retained?.section || retained.section.id === section.id) &&
-    listDirection === direction;
+    store.getisEdgeListed && (!retained?.section || retained.section.id === section.id) && listDirection === direction;
   const restoreFocus = () => {
     const retainedTarget = store.graphTooltip?.target;
     const retainedInspection = retainedTarget ? rebindGraphTooltip(scene, retainedTarget) : pinnedInspection;
@@ -164,6 +163,12 @@ export function GraphTooltip({
       context: retained?.context ?? context?.target,
       section: retained?.section,
     });
+    const selected = store.getSelectedNode;
+    controller.select(
+      selected ? { id: selected.id, namespaceId: String((selected.parent as Graph).id) } : undefined,
+      'user',
+      [next.edge]
+    );
     store.focus(tooltipFocus(next));
     onSelect?.(next);
   };
