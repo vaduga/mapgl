@@ -51,16 +51,25 @@ export function getLayoutResult(request: LayoutRequest): LayoutResult {
 }
 
 function createIntegratedLayoutGraphWithFallback(request: LayoutRequest): GeomGraph {
-  let routingMode = getRoutingMode(request.routing);
-  let rootGraph = createAndLayoutGraph(request, routingMode);
-  if (!rootGraph && request.routing === 'Rectilinear') {
-    routingMode = EdgeRoutingMode.SugiyamaSplines;
-    rootGraph = createAndLayoutGraph(request, routingMode);
+  const preferred = getRoutingMode(request.routing);
+  // Some graph topologies make MSAGL fail while constructing route geometry (for
+  // example, when the spline router cannot create a sleeve). Try the other
+  // router before failing the whole view.
+  const fallback =
+    preferred === EdgeRoutingMode.Rectilinear
+      ? EdgeRoutingMode.SugiyamaSplines
+      : EdgeRoutingMode.Rectilinear;
+  let lastError: unknown;
+  for (const routingMode of [preferred, fallback]) {
+    try {
+      const rootGraph = createAndLayoutGraph(request, routingMode);
+      if (rootGraph) return rootGraph;
+    } catch (error) {
+      lastError = error;
+    }
   }
-  if (!rootGraph) {
-    throw new Error('MSAGL graph layout failed');
-  }
-  return rootGraph;
+  if (lastError) throw lastError;
+  throw new Error('MSAGL graph layout failed');
 }
 
 function createAndLayoutGraph(request: LayoutRequest, routingMode: EdgeRoutingMode): GeomGraph | undefined {
