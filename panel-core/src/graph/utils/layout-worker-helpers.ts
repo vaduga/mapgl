@@ -17,6 +17,9 @@ import {
   Polyline,
   SugiyamaLayoutSettings,
 } from '@msagl/core';
+// Consumers reconstructing a layout graph must use the same MSAGL runtime as
+// these helpers; separate checkout dependencies otherwise break instanceof checks.
+export { CancelToken, EdgeRoutingMode, GeomEdge, GeomGraph, Graph, LineSegment, Point, routeEdges } from '@msagl/core';
 import { NS_PADDING } from '../../types/defaults';
 import {
   type EdgeRoutingConfig,

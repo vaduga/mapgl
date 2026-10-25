@@ -28,7 +28,7 @@ const SOURCE_ARROW_FLAG = 1;
 const TARGET_ARROW_FLAG = 2;
 
 export function getLayoutResult(request: LayoutRequest): LayoutResult {
-  const layoutGraph = createIntegratedLayoutGraphWithFallback(request);
+  const { graph: layoutGraph, routing } = createIntegratedLayoutGraphWithFallback(request);
   const edgeIndexes = createEdgeIndexes(request.edges);
   const segmentsByEdge: CurveSegment[][] = request.edges.map(() => []);
   for (const geomEdge of layoutGraph.deepEdges as Iterable<GeomEdge>) {
@@ -43,6 +43,7 @@ export function getLayoutResult(request: LayoutRequest): LayoutResult {
   }
   return {
     requestId: request.requestId,
+    routing,
     graphs: extractGraphBounds(layoutGraph),
     positions: extractNodePositions(layoutGraph, request.positionsLength, request.nodes),
     arrows: extractArrowTips(layoutGraph, edgeIndexes),
@@ -50,17 +51,28 @@ export function getLayoutResult(request: LayoutRequest): LayoutResult {
   };
 }
 
-function createIntegratedLayoutGraphWithFallback(request: LayoutRequest): GeomGraph {
-  let routingMode = getRoutingMode(request.routing);
-  let rootGraph = createAndLayoutGraph(request, routingMode);
-  if (!rootGraph && request.routing === 'Rectilinear') {
-    routingMode = EdgeRoutingMode.SugiyamaSplines;
-    rootGraph = createAndLayoutGraph(request, routingMode);
+function createIntegratedLayoutGraphWithFallback(request: LayoutRequest): {
+  graph: GeomGraph;
+  routing: LayoutRequest['routing'];
+} {
+  const preferred = getRoutingMode(request.routing);
+  // Some graph topologies make MSAGL fail while constructing route geometry (for
+  // example, when the spline router cannot create a sleeve). Try the other
+  // router before failing the whole view.
+  const fallback =
+    preferred === EdgeRoutingMode.Rectilinear ? EdgeRoutingMode.SugiyamaSplines : EdgeRoutingMode.Rectilinear;
+  let lastError: unknown;
+  for (const routingMode of [preferred, fallback]) {
+    try {
+      const rootGraph = createAndLayoutGraph(request, routingMode);
+      if (rootGraph)
+        return { graph: rootGraph, routing: routingMode === EdgeRoutingMode.Rectilinear ? 'Rectilinear' : 'Splines' };
+    } catch (error) {
+      lastError = error;
+    }
   }
-  if (!rootGraph) {
-    throw new Error('MSAGL graph layout failed');
-  }
-  return rootGraph;
+  if (lastError) throw lastError;
+  throw new Error('MSAGL graph layout failed');
 }
 
 function createAndLayoutGraph(request: LayoutRequest, routingMode: EdgeRoutingMode): GeomGraph | undefined {

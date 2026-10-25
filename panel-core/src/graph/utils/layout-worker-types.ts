@@ -68,6 +68,7 @@ export type LayoutArrowResult = {
 
 export type LayoutResult = {
   requestId: number;
+  routing: EdgeRoutingConfig;
   graphs: LayoutGraphResult[];
   positions: Float64Array;
   arrows: LayoutArrowResult;

@@ -29,6 +29,7 @@ export interface GraphLayoutRequestInput {
 }
 
 export interface GraphLayoutWorkerResult {
+  readonly routing: EdgeRoutingConfig;
   readonly positions: Float64Array;
   readonly graphBounds: ReadonlyMap<string, LayoutGraphResult>;
   readonly curveGroups: ReadonlyMap<string, LayoutCurveGroup>;
@@ -96,6 +97,7 @@ export class LayoutWorkerClient {
           }
           if ('positions' in data && 'arrows' in data) {
             pending.resolve({
+              routing: data.routing,
               positions: data.positions,
               graphBounds: new Map(data.graphs.map((graph) => [graph.id, graph])),
               curveGroups: new Map((data.curveGroups ?? []).map((group) => [group.graphId, group])),
