@@ -1,5 +1,9 @@
 # Changelog Mapgl
 
+## 2.11.2
+- fix: recover layout; dim unrelated cross-namespace edges
+- refactor: host-neutral selection and graph tooltip, commit graph synchronous hook
+
 ## 2.11.1
 - fix(Grafana Cloud): prevent node graph failure when loading the layout worker from the plugin CDN
 

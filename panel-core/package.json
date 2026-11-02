@@ -1,6 +1,6 @@
 {
   "name": "@vaduga/mapgl-core",
-  "version": "2.11.1",
+  "version": "2.11.2",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -213,8 +213,8 @@
     "maplibre-gl": "^6.11.2"
   },
   "dependencies": {
-    "@deck.gl/extensions": "9.4.0",
-    "@deck.gl/widgets": "9.4.0",
+    "@deck.gl/extensions": "9.4.1",
+    "@deck.gl/widgets": "9.4.1",
     "@loaders.gl/schema": "4.5.4",
     "@luma.gl/core": "9.4.2",
     "@luma.gl/engine": "9.4.2",

@@ -1,5 +1,5 @@
 {
-  "version": "2.11.1",
+  "version": "2.11.2",
   "type": "module",
   "license": "GPL-3.0",
   "files": [
@@ -84,7 +84,7 @@
     }
   },
   "peerDependencies": {
-    "@vaduga/mapgl-core": "^2.11.1",
+    "@vaduga/mapgl-core": "^2.11.2",
     "@msagl/core": "1.1.24",
     "@grafana/data": ">=11.6.0",
     "@grafana/runtime": ">=11.6.0",
@@ -104,11 +104,11 @@
     "typescript": "npm:@typescript/typescript6@^6.0.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "@types/lodash": "^4.17.26",
+    "@types/lodash": "^4.17.27",
     "@types/geojson": "7946.0.16"
   },
   "dependencies": {
-    "@grafana/e2e-selectors": "13.2.4",
+    "@grafana/e2e-selectors": "13.3.0",
     "@hello-pangea/dnd": "18.0.1",
     "@rc-component/slider": "1.2.1",
     "@react-aria/dialog": "3.6.1",
