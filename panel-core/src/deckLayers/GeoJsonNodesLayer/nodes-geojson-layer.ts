@@ -469,6 +469,7 @@ const PlaceholderTextLayer = (props) => {
 
   return new TextLayer({
     id: `${biCol.graph.id}-view-placeholder-text${idSuffix}`,
+    characterSet: 'auto',
     data: logicTextData.placeholderData,
     visible: visible && Labels,
     modelMatrix,
@@ -552,6 +553,7 @@ const MainLabelTextLayer = (props) => {
 
   return new TextLayer({
     id: `${biCol.graph.id}-view-label-text${idSuffix}`,
+    characterSet: 'auto',
     data: labelData,
     visible: visible && Labels,
     modelMatrix,

@@ -59,6 +59,7 @@ const LineTextLayer = ({
 
   return new TextLayer({
     data,
+    characterSet: 'auto',
     visible: ['nums', 'bbox'].includes(type) || Labels,
     ...(type === 'arcLabels' ? { modelMatrix } : {}),
     ...(type === 'arcLabels' ? { parameters: { depthTest: false } } : {}),
