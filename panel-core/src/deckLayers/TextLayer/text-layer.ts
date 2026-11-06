@@ -15,7 +15,7 @@ const LineTextLayer = ({
   isDark,
   isMeters = false,
   getVisLayers,
-  visible,
+  visible = true,
   type = 'nums',
   isLogic = false,
   layerShift = {},
@@ -60,7 +60,7 @@ const LineTextLayer = ({
   return new TextLayer({
     data,
     characterSet: 'auto',
-    visible: ['nums', 'bbox'].includes(type) || Labels,
+    visible: Labels,
     ...(type === 'arcLabels' ? { modelMatrix } : {}),
     ...(type === 'arcLabels' ? { parameters: { depthTest: false } } : {}),
     ...(type === 'arcLabels' ? { opacity: EDGE_LABEL_DIM_OPACITY } : {}),

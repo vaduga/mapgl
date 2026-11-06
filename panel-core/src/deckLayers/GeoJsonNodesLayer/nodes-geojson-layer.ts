@@ -369,7 +369,7 @@ const NodesGeojsonLayer = (props) => {
     extensions: [new DataFilterExtension({ categorySize })],
     _subLayerProps: {
       'points-text': {
-        visible: Labels,
+        visible: isPlaceholderTextMode || Labels,
         highlightColor,
         extensions: [new DataFilterExtension({ categorySize })],
         sizeUnits: units,
@@ -449,7 +449,7 @@ const PlaceholderTextLayer = (props) => {
     resourceRevision,
     idSuffix = '',
   } = props;
-  const { svg: SVG, labels: Labels } = getNodeLayerVisibility(getVisLayers);
+  const { svg: SVG } = getNodeLayerVisibility(getVisLayers);
   const categories = getVisLayers.getCategories();
   const categorySize = 2;
   const units = isLogic ? 'common' : isMeters ? 'meters' : 'pixels';
@@ -471,7 +471,7 @@ const PlaceholderTextLayer = (props) => {
     id: `${biCol.graph.id}-view-placeholder-text${idSuffix}`,
     characterSet: 'auto',
     data: logicTextData.placeholderData,
-    visible: visible && Labels,
+    visible,
     modelMatrix,
     pickable,
     onHover,
