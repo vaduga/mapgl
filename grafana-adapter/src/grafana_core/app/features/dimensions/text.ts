@@ -22,8 +22,25 @@ export function getTextDimension(
   config: TextDimensionConfig,
   theme: GrafanaTheme2
 ): DimensionSupplier<string> {
+  if (config.mode === TextDimensionMode.Template && frame) {
+    return getTemplateTextDimension(frame, theme, config.fixed ?? '');
+  }
   const field = config.field ? findField(frame, config.field) : frame?.fields.find((f) => f.type === FieldType.string);
   return getTextDimensionForField(field, theme, config);
+}
+
+/** Template text: each ${field name} becomes that field's formatted value in the row (unit, decimals, mappings). */
+function getTemplateTextDimension(frame: DataFrame, theme: GrafanaTheme2, template: string): DimensionSupplier<string> {
+  const fill = (i: number) =>
+    template.replace(/\$\{([^}]+)\}/g, (_, name: string) => {
+      const field = findField(frame, name);
+      if (!field) {
+        return '';
+      }
+      const display = field.display ?? getDisplayProcessor({ field, theme });
+      return formattedValueToString(display(field.values[i]));
+    });
+  return { get: fill, value: () => fill(frame.length - 1) };
 }
 
 export function getTextDimensionForField(

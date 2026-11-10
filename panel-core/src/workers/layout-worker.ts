@@ -1,5 +1,6 @@
 import type { LayoutRequest, LayoutResult } from '../graph/utils/layout-worker-types';
 import { getLayoutResult } from '../graph/utils/layout-worker-runner';
+import { getElkLayoutResult } from '../graph/utils/elk-layout';
 
 interface LayoutWorkerOnMessage {
   (event: MessageEvent<LayoutRequest>): void;
@@ -12,9 +13,9 @@ type LayoutWorkerScope = {
 
 const workerScope = self as unknown as LayoutWorkerScope;
 
-workerScope.onmessage = ({ data }: MessageEvent<LayoutRequest>) => {
+workerScope.onmessage = async ({ data }: MessageEvent<LayoutRequest>) => {
   try {
-    const result = getLayoutResult(data);
+    const result = data.engine === 'ELK' ? await getElkLayoutResult(data) : getLayoutResult(data);
     workerScope.postMessage(result, getLayoutTransferables(result));
   } catch (error) {
     workerScope.postMessage({

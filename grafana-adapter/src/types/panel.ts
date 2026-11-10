@@ -46,6 +46,7 @@ import { ExtendMapLayerHandler, ExtendMapLayerOptions } from '../extension';
 import type { libreSource } from './index';
 
 export type EdgeRoutingConfig = 'Splines' | 'Rectilinear';
+export type LayoutEngineConfig = 'MSAGL' | 'ELK';
 export type LayoutDirectionConfig = 'TB' | 'LR' | 'BT' | 'RL';
 
 export interface Options {
@@ -63,6 +64,8 @@ export interface Options {
     locLabelName: string;
     isShowLegend: boolean;
     isShowEdgeLegend: boolean;
+    isShowEdgeLabels?: boolean;
+    focusNamespace?: string;
     isShowSwitcher: boolean;
     isMeters?: boolean;
     hideDiagnostics?: boolean;

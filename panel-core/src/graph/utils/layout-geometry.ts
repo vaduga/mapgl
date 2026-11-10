@@ -17,8 +17,68 @@ export function getLayoutNodeRadius(nodeSize: number | undefined): number {
   return typeof nodeSize === 'number' ? nodeSize / 2 : DEFAULT_LAYOUT_NODE_RADIUS;
 }
 
+// The node label sits under the node and shares its layout units, so the layout box must hold it
+// too, or nodes packed side by side (e.g. lone nodes inside a namespace box) overlap their labels.
+const LABEL_CHAR_WIDTH = 0.6; // average glyph width per font size unit
+const LABEL_LINE_HEIGHT = 1.2;
+const LABEL_GAP = 2;
+const DEFAULT_LABEL_FONT_SIZE = 12;
+
+export interface LayoutNodeBox {
+  readonly width: number;
+  readonly height: number;
+}
+
+/** Layout box of a node with its label, or undefined when the node has no label (circle of getLayoutNodeRadius). */
+export function getLayoutNodeBox(
+  style: { size?: number; text?: string; textConfig?: { fontSize?: number } } | undefined
+): LayoutNodeBox | undefined {
+  const lines = style?.text?.trim().split('\n');
+  if (!lines?.[0]) {
+    return undefined;
+  }
+  const diameter = getLayoutNodeRadius(style?.size) * 2;
+  const fontSize = style?.textConfig?.fontSize ?? DEFAULT_LABEL_FONT_SIZE;
+  const label = LABEL_GAP + lines.length * fontSize * LABEL_LINE_HEIGHT;
+  const longest = Math.max(...lines.map((line) => line.length));
+  // Symmetric around the node centre: MSAGL boxes are centred on the node.
+  return { width: Math.max(diameter, longest * fontSize * LABEL_CHAR_WIDTH), height: diameter + 2 * label };
+}
+
+// Node card: the label on a filled box centred on the node, in place of the circle.
+export const CARD_PADDING_X = 10;
+export const CARD_PADDING_Y = 5;
+// Glyphs outside ASCII (arrows) come from a fallback font, wider than the monospace advance.
+const WIDE_GLYPH = 1.7;
+
+/** Text width in font-size units: monospace advance per character, wide for non-ASCII glyphs. */
+export function measureText(text: string): number {
+  let chars = 0;
+  for (const ch of text) {
+    chars += ch.charCodeAt(0) > 0x7f ? WIDE_GLYPH : 1;
+  }
+  return chars * LABEL_CHAR_WIDTH;
+}
+
+/** Layout box of a node drawn as a card (its label in a box), or undefined when the node has no label. */
+export function getLayoutCardBox(
+  style: { text?: string; textConfig?: { fontSize?: number } } | undefined
+): LayoutNodeBox | undefined {
+  const lines = style?.text?.trim().split('\n');
+  if (!lines?.[0]) {
+    return undefined;
+  }
+  const fontSize = style?.textConfig?.fontSize ?? DEFAULT_LABEL_FONT_SIZE;
+  const longest = Math.max(...lines.map(measureText));
+  return {
+    width: longest * fontSize + 2 * CARD_PADDING_X,
+    height: lines.length * fontSize * LABEL_LINE_HEIGHT + 2 * CARD_PADDING_Y,
+  };
+}
+
 export function getEdgeArrowSize(edgeSize: number | undefined): number {
-  return typeof edgeSize === 'number' ? Math.max(2, edgeSize * 4) : 12;
+  // Capped: arrows on thick (busy) lines would cover the node they point at.
+  return typeof edgeSize === 'number' ? Math.min(16, Math.max(2, edgeSize * 4)) : 12;
 }
 
 export function getEdgeArrowLength(edgeSize: number | undefined): number {

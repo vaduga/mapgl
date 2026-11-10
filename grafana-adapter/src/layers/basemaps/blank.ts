@@ -1,8 +1,10 @@
 import { ExtendMapLayerOptions, ExtendMapLayerRegistryItem } from '../../extension';
 import { GrafanaTheme2 } from '@grafana/data';
-import type { EdgeRoutingConfig, LayoutDirectionConfig } from '../../types/index';
+import type { EdgeRoutingConfig, LayoutDirectionConfig, LayoutEngineConfig } from '../../types/index';
 
 export interface OrthoConfig {
+  layoutEngine?: LayoutEngineConfig;
+  nodeCards?: boolean;
   edgeRouting?: EdgeRoutingConfig;
   layoutDirection?: LayoutDirectionConfig;
   layerSeparation?: number;
@@ -10,6 +12,8 @@ export interface OrthoConfig {
 }
 
 export const defaultOrthoConfig: Required<OrthoConfig> = {
+  layoutEngine: 'MSAGL',
+  nodeCards: false,
   edgeRouting: 'Splines',
   layoutDirection: 'RL',
   layerSeparation: 60,
@@ -48,6 +52,24 @@ export const orthoLayer: ExtendMapLayerRegistryItem<OrthoConfig> = {
     },
     registerOptionsUI: (builder) => {
       builder
+        .addRadio({
+          path: 'config.layoutEngine',
+          name: 'Layout engine',
+          description: 'ELK: one layered layout across namespace boxes (nodes inside boxes follow the flow)',
+          settings: {
+            options: [
+              { label: 'MSAGL', value: 'MSAGL' },
+              { label: 'ELK', value: 'ELK' },
+            ],
+          },
+          defaultValue: defaultOrthoConfig.layoutEngine,
+        })
+        .addBooleanSwitch({
+          path: 'config.nodeCards',
+          name: 'Node cards',
+          description: 'Draw each node as a card holding its label (multi-line with a template text)',
+          defaultValue: defaultOrthoConfig.nodeCards,
+        })
         .addRadio({
           path: 'config.edgeRouting',
           name: 'Edge routing',

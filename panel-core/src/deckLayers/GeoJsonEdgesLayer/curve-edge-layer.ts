@@ -63,6 +63,8 @@ type CurveEdgeLayerProps<DataT> = {
   getSkip?: Accessor<CurveEdgeSegment<DataT>, boolean | number>;
   dashJustified?: boolean;
   dashGapPickable?: boolean;
+  /** Animate pulses along each edge, source to target (redraws every frame). */
+  animate?: boolean;
 } & LayerProps;
 
 const DEFAULT_COLOR = [0, 0, 0, 255] as const;
@@ -77,6 +79,7 @@ const defaultProps: DefaultProps<CurveEdgeLayerProps<any>> = {
   highlightMaxDepth: { type: 'number', min: 0, value: Number.MAX_SAFE_INTEGER },
   highlightDimOpacity: { type: 'number', min: 0, max: 1, value: 1 },
   skipVisibleMaxDepth: { type: 'number', value: -1 },
+  animate: false,
   getControlPoints: { type: 'accessor', value: (d: CurveEdgeSegment) => d.controlPoints },
   getCurveType: { type: 'accessor', value: (d: CurveEdgeSegment) => d.type },
   getSegment: { type: 'accessor', value: (d: CurveEdgeSegment) => d.segment },
@@ -98,6 +101,7 @@ layout(std140) uniform curveUniforms {
   float skipVisibleMaxDepth;
   highp int widthUnits;
   highp int highlightOnly;
+  float flowTime;
 } curve;
 `,
   fs: `\
@@ -110,6 +114,7 @@ layout(std140) uniform curveUniforms {
   float skipVisibleMaxDepth;
   highp int widthUnits;
   highp int highlightOnly;
+  float flowTime;
 } curve;
 `,
   uniformTypes: {
@@ -121,6 +126,7 @@ layout(std140) uniform curveUniforms {
     skipVisibleMaxDepth: 'f32',
     widthUnits: 'i32',
     highlightOnly: 'i32',
+    flowTime: 'f32',
   },
 } as const satisfies ShaderModule<{
   widthScale: number;
@@ -131,6 +137,7 @@ layout(std140) uniform curveUniforms {
   skipVisibleMaxDepth: number;
   widthUnits: number;
   highlightOnly: number;
+  flowTime: number;
 }>;
 
 const pathStyleCompatUniforms = {
@@ -202,6 +209,7 @@ out vec4 vColor;
 out vec2 uv;
 out vec2 vPathPosition;
 out float vPathLength;
+out float vAlongPixels;
 out float vHighlightDepth;
 out float vSkip;
 
@@ -267,6 +275,8 @@ void main(void) {
   float segmentLengthPixels = length((nextNdc - currNdc) * project.viewportSize * 0.5);
   vPathLength = segmentLengthPixels / halfWidthPixels;
   vPathPosition = vec2(positions.y, positions.x * vPathLength);
+  // Distance from the start of the curve: Bézier pieces are equal steps of t, so earlier steps count whole.
+  vAlongPixels = (instanceSegments.x / max(instanceSegments.y, 0.0001) + positions.x) * segmentLengthPixels;
 
   vec3 offset = vec3(getExtrusionOffset(next.xy - curr.xy, positions.y, widthPixels), 0.0);
 
@@ -285,12 +295,15 @@ void main(void) {
 const fs = `\
 #version 300 es
 #define SHADER_NAME curve-edge-layer-fragment-shader
+#define FLOW_SPEED 30.0
+#define FLOW_PERIOD 28.0
 precision highp float;
 
 in vec4 vColor;
 in vec2 uv;
 in vec2 vPathPosition;
 in float vPathLength;
+in float vAlongPixels;
 in float vHighlightDepth;
 in float vSkip;
 out vec4 fragColor;
@@ -308,6 +321,11 @@ void main(void) {
   fragColor = vColor;
   if (curve.highlightOnly == 0 && vHighlightDepth > curve.highlightMaxDepth) {
     fragColor.a *= curve.highlightDimOpacity;
+  }
+  if (curve.flowTime >= 0.0) {
+    // Bright pulses moving from source to target over a dimmer line.
+    float phase = fract((vAlongPixels - curve.flowTime * FLOW_SPEED) / FLOW_PERIOD);
+    fragColor.a *= mix(0.45, 1.0, smoothstep(0.0, 0.25, phase) * (1.0 - smoothstep(0.45, 0.7, phase)));
   }
   DECKGL_FILTER_COLOR(fragColor, geometry);
 }
@@ -446,6 +464,7 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
       highlightMaxDepth,
       highlightDimOpacity,
       skipVisibleMaxDepth,
+      animate,
     } = this.props;
     const model = this.state.model!;
 
@@ -459,6 +478,7 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
         highlightMaxDepth,
         highlightDimOpacity,
         skipVisibleMaxDepth,
+        flowTime: animate ? (performance.now() / 1000) % 3600 : -1,
       },
       path: {
         widthScale: 1,
@@ -472,6 +492,9 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
       },
     });
     model.draw(this.context.renderPass);
+    if (animate) {
+      this.setNeedsRedraw();
+    }
   }
 
   protected _getModel(): Model {

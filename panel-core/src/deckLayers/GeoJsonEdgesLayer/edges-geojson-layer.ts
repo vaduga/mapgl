@@ -272,6 +272,7 @@ export const EdgesGeojsonLayer = (props) => {
       widthScale: 1,
       widthMinPixels: 0.1,
       skipVisibleMaxDepth: -1,
+      animate: true,
       getDashArray: getEdgeDashArray,
       dashGapPickable: true,
       pickable,

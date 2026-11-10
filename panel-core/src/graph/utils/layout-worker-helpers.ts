@@ -44,7 +44,14 @@ const MIN_CURVE_RESOLUTION = 12;
 const DEFAULT_LAYER_SEPARATION = 60;
 const DEFAULT_NODE_SEPARATION = 40;
 
-export type SnapshotNode = Node & { parent?: Graph; id: string; wasmId?: number; graphId?: string };
+export type SnapshotNode = Node & {
+  parent?: Graph;
+  id: string;
+  wasmId?: number;
+  graphId?: string;
+  /** Set when layout used a label box: the circle the node is drawn as. */
+  circleRadius?: number;
+};
 export type SnapshotEdge = CoreEdge & { id?: string; sourceGraphId?: string; targetGraphId?: string };
 export type CurveSegment = { type: number; controlPoints: number[]; segment: [number, number] };
 
@@ -96,7 +103,10 @@ export function createGraphHierarchy(
     const graph = graphs.get(item.id);
     const parent = graphs.get(item.parentId);
     if (graph && parent) {
-      GeomGraph.getGeom(parent).addNode(new GeomGraph(graph));
+      const box = new GeomGraph(graph);
+      // Same margins as refreshGraphBoundsAfterLayout, so layout spaces boxes at their drawn size.
+      box.margins = { left: NS_PADDING, top: NS_PADDING, bottom: NS_PADDING, right: NS_PADDING };
+      GeomGraph.getGeom(parent).addNode(box);
     }
   }
   return { rootGraph, graphs };
@@ -113,7 +123,12 @@ export function addSnapshotNode(
   node.graphId = item.graphId;
   parent.addNode(node);
   const geomNode = new GeomNode(node);
-  geomNode.boundaryCurve = CurveFactory.mkCircle(radius, center);
+  if (item.width && item.height) {
+    node.circleRadius = radius;
+    geomNode.boundaryCurve = CurveFactory.createRectangle(item.width, item.height, center);
+  } else {
+    geomNode.boundaryCurve = CurveFactory.mkCircle(radius, center);
+  }
   return node;
 }
 
@@ -130,6 +145,43 @@ export function addSnapshotEdge(item: LayoutEdgeSnapshot, source: SnapshotNode, 
     geomEdge.targetArrowhead = Object.assign(new Arrowhead(), { length: item.targetArrowLength });
   }
   return edge;
+}
+
+/**
+ * After a layout with label boxes, give nodes their drawn circle back and make edges reach it:
+ * extend each edge from where it met the box to the node centre, then trim it at the circle.
+ */
+export function restoreNodeCircles(rootGraph: GeomGraph): void {
+  const restored = new Set<Node>();
+  for (const geomNode of rootGraph.nodesBreadthFirst) {
+    const node = geomNode.node as SnapshotNode;
+    if (node.circleRadius !== undefined && !(geomNode instanceof GeomGraph)) {
+      geomNode.boundaryCurve = CurveFactory.mkCircle(node.circleRadius, geomNode.center);
+      restored.add(node);
+    }
+  }
+  if (!restored.size) {
+    return;
+  }
+  for (const geomEdge of rootGraph.deepEdges as Iterable<GeomEdge>) {
+    const { source, target, curve } = geomEdge;
+    if (!curve || source === target || (!restored.has(source.node) && !restored.has(target.node))) {
+      continue;
+    }
+    const start = geomEdge.sourceArrowhead?.tipPosition ?? curve.start;
+    const end = geomEdge.targetArrowhead?.tipPosition ?? curve.end;
+    const extended = new Curve();
+    if (restored.has(source.node) && !start.equal(source.center)) {
+      extended.addSegment(LineSegment.mkPP(source.center, start));
+    }
+    extended.addSegment(curve);
+    if (restored.has(target.node) && !end.equal(target.center)) {
+      extended.addSegment(LineSegment.mkPP(end, target.center));
+    }
+    if (!Arrowhead.trimSplineAndCalculateArrowheads(geomEdge, extended, true)) {
+      Arrowhead.createBigEnoughSpline(geomEdge);
+    }
+  }
 }
 
 export function refreshGraphBoundsAfterLayout(rootGraph: GeomGraph): void {

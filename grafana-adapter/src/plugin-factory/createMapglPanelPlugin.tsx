@@ -9,7 +9,11 @@ import { config } from '@grafana/runtime';
 import { commonOptionsBuilder } from '@grafana/ui';
 import React from 'react';
 
-import { type MapglEdition, type MapglPanelFeature, validateMapglFeatureIds } from '@vaduga/mapgl-core/featureContracts';
+import {
+  type MapglEdition,
+  type MapglPanelFeature,
+  validateMapglFeatureIds,
+} from '@vaduga/mapgl-core/featureContracts';
 import { MapglPluginContext, type MapglPanelProps } from './pluginRuntime';
 import { isNestedPanelOptionsCompat } from './nestedPanelOptions';
 
@@ -190,6 +194,20 @@ export function createMapglPanelPlugin<
           name: 'Edge legend',
           description: 'Default thresholds',
           defaultValue: true,
+        })
+        .addTextInput({
+          category: ['Other'],
+          path: 'common.focusNamespace',
+          name: 'Highlighted namespace',
+          description: 'Namespace box drawn highlighted; dashboard variables work, e.g. $namespace',
+          defaultValue: '',
+        })
+        .addBooleanSwitch({
+          category: ['Other'],
+          path: 'common.isShowEdgeLabels',
+          name: 'Edge labels always on',
+          description: 'Show edge text without focusing a node',
+          defaultValue: false,
         })
         .addBooleanSwitch({
           category: ['Other'],

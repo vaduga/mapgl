@@ -1,0 +1,711 @@
+{
+  "title": "Network map with node cards (demo)",
+  "uid": "mapgl-network-cards",
+  "schemaVersion": 41,
+  "panels": [
+    {
+      "type": "vaduga-mapgl-panel",
+      "title": "Network map (demo data)",
+      "description": "Demo: TestData CSV in the shape of the Prometheus queries C, A, B, D-G. Boxes are namespaces, and regions outside the cluster. Each card shows ↑ sent and ↓ received on its lines. Lines run from the side that opened the connection, with moving pulses; width = bit/s. The number at each end of a line is what that end sent. A red badge mid-line counts 15 s windows with Calico denied traffic in the time range.",
+      "datasource": {
+        "type": "grafana-testdata-datasource",
+        "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
+      },
+      "pluginVersion": "2.11.1",
+      "targets": [
+        {
+          "refId": "C",
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
+          },
+          "scenarioId": "csv_content",
+          "csvContent": "src_id,src_label,src_kind,src_box,src_namespace,src_zone,Value #C\nshop/frontend,frontend,here,shop,shop,,22400000.0\nshop/api,api,here,shop,shop,,36900000.0\nshop/payments,payments,here,shop,shop,,1800000.0\nshop/worker,worker,here,shop,shop,,9700000.0\ndata/postgres,postgres,pod,data,data,,12300000.0\ndata/redis,redis,pod,data,data,,4000000.0\nobject-storage,object-storage,networkset,outside.EU,,EU,6700000.0\npartner-api,partner-api,networkset,outside.EU,,EU,600000.0"
+        },
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
+          },
+          "scenarioId": "csv_content",
+          "csvContent": "src_id,dst_id,edge_id,src_box,dst_box,Value #A\nshop/worker,object-storage,shop/worker > object-storage,shop,outside.EU,6700000.0\nshop/frontend,shop/api,shop/frontend > shop/api,shop,shop,22400000.0\nshop/api,data/postgres,shop/api > data/postgres,shop,data,9300000.0\nshop/api,data/redis,shop/api > data/redis,shop,data,4000000.0\nshop/api,shop/payments,shop/api > shop/payments,shop,shop,1200000.0\nshop/payments,partner-api,shop/payments > partner-api,shop,outside.EU,600000.0\nshop/worker,data/postgres,shop/worker > data/postgres,shop,data,3000000.0\nshop/worker,partner-api,shop/worker > partner-api,shop,outside.EU,0"
+        },
+        {
+          "refId": "B",
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
+          },
+          "scenarioId": "csv_content",
+          "csvContent": "src_id,dst_id,edge_id,src_box,dst_box,Value #B\nshop/worker,object-storage,shop/worker > object-storage,shop,outside.EU,0\nshop/frontend,shop/api,shop/frontend > shop/api,shop,shop,0\nshop/api,data/postgres,shop/api > data/postgres,shop,data,0\nshop/api,data/redis,shop/api > data/redis,shop,data,0\nshop/api,shop/payments,shop/api > shop/payments,shop,shop,0\nshop/payments,partner-api,shop/payments > partner-api,shop,outside.EU,0\nshop/worker,data/postgres,shop/worker > data/postgres,shop,data,0\nshop/worker,partner-api,shop/worker > partner-api,shop,outside.EU,12"
+        },
+        {
+          "refId": "D",
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
+          },
+          "scenarioId": "csv_content",
+          "csvContent": "src_id,dst_id,edge_id,src_box,dst_box,Value #D\nshop/worker,object-storage,shop/worker > object-storage,shop,outside.EU,6500000.0\nshop/frontend,shop/api,shop/frontend > shop/api,shop,shop,3400000.0\nshop/api,data/postgres,shop/api > data/postgres,shop,data,1100000.0\nshop/api,data/redis,shop/api > data/redis,shop,data,400000.0\nshop/api,shop/payments,shop/api > shop/payments,shop,shop,300000.0\nshop/payments,partner-api,shop/payments > partner-api,shop,outside.EU,250000.0\nshop/worker,data/postgres,shop/worker > data/postgres,shop,data,600000.0\nshop/worker,partner-api,shop/worker > partner-api,shop,outside.EU,0"
+        },
+        {
+          "refId": "E",
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
+          },
+          "scenarioId": "csv_content",
+          "csvContent": "src_id,dst_id,edge_id,src_box,dst_box,Value #E\nshop/worker,object-storage,shop/worker > object-storage,shop,outside.EU,200000.0\nshop/frontend,shop/api,shop/frontend > shop/api,shop,shop,19000000.0\nshop/api,data/postgres,shop/api > data/postgres,shop,data,8199999.999999999\nshop/api,data/redis,shop/api > data/redis,shop,data,3600000.0\nshop/api,shop/payments,shop/api > shop/payments,shop,shop,900000.0\nshop/payments,partner-api,shop/payments > partner-api,shop,outside.EU,350000.0\nshop/worker,data/postgres,shop/worker > data/postgres,shop,data,2400000.0\nshop/worker,partner-api,shop/worker > partner-api,shop,outside.EU,0"
+        },
+        {
+          "refId": "F",
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
+          },
+          "scenarioId": "csv_content",
+          "csvContent": "src_id,Value #F\nshop/frontend,3400000.0\nshop/api,20800000.0\nshop/payments,1150000.0\nshop/worker,7100000.0\ndata/postgres,10600000.0\ndata/redis,3600000.0\nobject-storage,200000.0\npartner-api,350000.0"
+        },
+        {
+          "refId": "G",
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
+          },
+          "scenarioId": "csv_content",
+          "csvContent": "src_id,Value #G\nshop/frontend,19000000.0\nshop/api,16100000.0\nshop/payments,650000.0\nshop/worker,2600000.0\ndata/postgres,1700000.0\ndata/redis,400000.0\nobject-storage,6500000.0\npartner-api,250000.0"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #B"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "denied (15 s windows)"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "suffix: denied"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": " "
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 1e-09
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #A"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "link bit/s"
+              },
+              {
+                "id": "unit",
+                "value": "bps"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #C"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "node total"
+              },
+              {
+                "id": "unit",
+                "value": "bps"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #D"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "sent by source"
+              },
+              {
+                "id": "unit",
+                "value": "bps"
+              },
+              {
+                "id": "noValue",
+                "value": "0 b/s"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "text",
+                      "value": null
+                    },
+                    {
+                      "color": "green",
+                      "value": 1000000.0
+                    },
+                    {
+                      "color": "orange",
+                      "value": 100000000.0
+                    },
+                    {
+                      "color": "purple",
+                      "value": 1000000000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 0,
+                      "to": 1,
+                      "result": {
+                        "text": " "
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #E"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "sent by destination"
+              },
+              {
+                "id": "unit",
+                "value": "bps"
+              },
+              {
+                "id": "noValue",
+                "value": "0 b/s"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "text",
+                      "value": null
+                    },
+                    {
+                      "color": "green",
+                      "value": 1000000.0
+                    },
+                    {
+                      "color": "orange",
+                      "value": 100000000.0
+                    },
+                    {
+                      "color": "purple",
+                      "value": 1000000000.0
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 0,
+                      "to": 1,
+                      "result": {
+                        "text": " "
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #F"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "sent"
+              },
+              {
+                "id": "unit",
+                "value": "bps"
+              },
+              {
+                "id": "noValue",
+                "value": "0 b/s"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "text",
+                      "value": null
+                    },
+                    {
+                      "color": "green",
+                      "value": 1000000.0
+                    },
+                    {
+                      "color": "orange",
+                      "value": 100000000.0
+                    },
+                    {
+                      "color": "purple",
+                      "value": 1000000000.0
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #G"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "received"
+              },
+              {
+                "id": "unit",
+                "value": "bps"
+              },
+              {
+                "id": "noValue",
+                "value": "0 b/s"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "text",
+                      "value": null
+                    },
+                    {
+                      "color": "green",
+                      "value": 1000000.0
+                    },
+                    {
+                      "color": "orange",
+                      "value": 100000000.0
+                    },
+                    {
+                      "color": "purple",
+                      "value": 1000000000.0
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "src_label"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "name"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "src_namespace"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "namespace"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "src_zone"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "region"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "isEditable": true,
+        "basemap": {
+          "type": "blank",
+          "name": "Basemap",
+          "config": {
+            "layoutEngine": "ELK",
+            "nodeCards": true,
+            "edgeRouting": "Rectilinear",
+            "layoutDirection": "LR",
+            "layerSeparation": 150,
+            "nodeSeparation": 20
+          }
+        },
+        "controls": {},
+        "tooltip": {
+          "mode": "details"
+        },
+        "view": {
+          "id": "fit",
+          "allLayers": true,
+          "lon": 0,
+          "lat": 0,
+          "zoom": 15
+        },
+        "common": {
+          "nsPrefix": "cmn",
+          "jitterPoints": false,
+          "locLabelName": "",
+          "isShowLegend": true,
+          "isShowEdgeLegend": false,
+          "isShowEdgeLabels": true,
+          "focusNamespace": "shop",
+          "isShowSwitcher": true,
+          "isMeters": false,
+          "hideDiagnostics": false
+        },
+        "dataLayers": [
+          {
+            "type": "markers",
+            "name": "flows",
+            "locField": "src_id",
+            "parField": "dst_id",
+            "optional": {
+              "edgeId": "edge_id",
+              "wrapEdges": 0,
+              "isNestEdges": false,
+              "searchProps": [
+                "src_label"
+              ],
+              "vertexA_NS": "src_box",
+              "vertexB_NS": "dst_box",
+              "nsSeparator": "."
+            },
+            "location": {
+              "mode": "auto"
+            },
+            "isShowTooltip": true,
+            "displayProperties": [
+              "src_label",
+              "src_namespace",
+              "src_zone",
+              "Value #F",
+              "Value #G"
+            ],
+            "config": {
+              "style": {
+                "size": {
+                  "fixed": 20,
+                  "min": 5,
+                  "max": 20
+                },
+                "color": {
+                  "fixed": "dark-green"
+                },
+                "opacity": 0.4,
+                "text": {
+                  "mode": "template",
+                  "field": "",
+                  "fixed": "${src_label}\n↑ ${Value #F}  ↓ ${Value #G}"
+                },
+                "textConfig": {
+                  "fontSize": 12
+                },
+                "useGroups": true,
+                "arcs": [
+                  {
+                    "fixed": "blue",
+                    "field": "Value #C"
+                  }
+                ],
+                "arcOptions": {
+                  "barWidthFactor": 0.5,
+                  "segments": 48,
+                  "segmentSpacing": 0.3,
+                  "showThresholds": false,
+                  "gradient": true
+                }
+              },
+              "edgeStyle": {
+                "size": {
+                  "fixed": 2,
+                  "min": 1,
+                  "max": 10,
+                  "field": "Value #A"
+                },
+                "color": {
+                  "fixed": "green",
+                  "field": "Value #B"
+                },
+                "opacity": 0.8,
+                "arrow": 1,
+                "text": {
+                  "mode": "field",
+                  "field": "Value #B",
+                  "fixed": ""
+                },
+                "textConfig": {
+                  "fontSize": 10
+                }
+              },
+              "arcStyle": {
+                "sideA": {
+                  "size": {
+                    "fixed": 2,
+                    "min": 1,
+                    "max": 10
+                  },
+                  "color": {
+                    "fixed": "text",
+                    "field": "Value #D"
+                  },
+                  "opacity": 0.8,
+                  "arrow": 0,
+                  "text": {
+                    "mode": "field",
+                    "field": "Value #D",
+                    "fixed": ""
+                  },
+                  "textConfig": {
+                    "fontSize": 10
+                  }
+                },
+                "sideB": {
+                  "size": {
+                    "fixed": 2,
+                    "min": 1,
+                    "max": 10
+                  },
+                  "color": {
+                    "fixed": "text",
+                    "field": "Value #E"
+                  },
+                  "opacity": 0.8,
+                  "arrow": 0,
+                  "text": {
+                    "mode": "field",
+                    "field": "Value #E",
+                    "fixed": ""
+                  },
+                  "textConfig": {
+                    "fontSize": 10
+                  }
+                }
+              },
+              "showStat2": true,
+              "groups": [
+                {
+                  "label": "In this namespace",
+                  "color": "blue",
+                  "iconName": "networking/server",
+                  "svgTintMode": "none",
+                  "overrides": [
+                    {
+                      "name": "src_kind",
+                      "type": "string",
+                      "value": "here"
+                    }
+                  ]
+                },
+                {
+                  "label": "Other namespaces",
+                  "color": "green",
+                  "iconName": "networking/server",
+                  "svgTintMode": "none",
+                  "overrides": [
+                    {
+                      "name": "src_kind",
+                      "type": "string",
+                      "value": "pod"
+                    }
+                  ]
+                },
+                {
+                  "label": "Outside the cluster",
+                  "color": "purple",
+                  "iconName": "networking/cloud",
+                  "svgTintMode": "none",
+                  "overrides": [
+                    {
+                      "name": "src_kind",
+                      "type": "string",
+                      "value": "networkset"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 20
+      },
+      "id": 1
+    }
+  ],
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "tags": [
+    "mapgl",
+    "demo"
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "routed",
+        "label": "routed",
+        "type": "constant",
+        "hide": 2,
+        "query": "1",
+        "current": {
+          "text": "1",
+          "value": "1"
+        },
+        "options": [],
+        "description": "mapgl edge mode: 1 = routed (lines follow the layout), 0 = arcs."
+      }
+    ]
+  }
+}

@@ -19,6 +19,7 @@ import {
   extractGraphBounds,
   getRoutingMode,
   refreshGraphBoundsAfterLayout,
+  restoreNodeCircles,
   type CurveSegment,
   type SnapshotEdge,
   type SnapshotNode,
@@ -81,7 +82,10 @@ function createAndLayoutGraph(request: LayoutRequest, routingMode: EdgeRoutingMo
   configureLayout(rootGraph, request, routingMode);
   try {
     layoutGeomGraph(rootGraph);
-    refreshGraphBoundsAfterLayout(rootGraph);
+    refreshGraphBoundsAfterLayout(rootGraph); // boxes keep room for the labels
+    if (!request.cards) {
+      restoreNodeCircles(rootGraph);
+    }
     return rootGraph;
   } catch (error) {
     if (routingMode !== EdgeRoutingMode.Rectilinear) {
