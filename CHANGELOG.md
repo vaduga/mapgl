@@ -1,6 +1,7 @@
 # Changelog Mapgl
 
 ## 2.11.2
+- non-EN characterSet in Text layers
 - fix: recover layout; dim unrelated cross-namespace edges
 - refactor: host-neutral selection and graph tooltip, commit graph synchronous hook
 
