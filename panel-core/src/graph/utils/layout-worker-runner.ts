@@ -19,6 +19,7 @@ import {
   extractGraphBounds,
   getRoutingMode,
   refreshGraphBoundsAfterLayout,
+  restoreNodeCircles,
   type CurveSegment,
   type SnapshotEdge,
   type SnapshotNode,
@@ -43,6 +44,7 @@ export function getLayoutResult(request: LayoutRequest): LayoutResult {
   }
   return {
     requestId: request.requestId,
+    engine: 'MSAGL',
     routing,
     graphs: extractGraphBounds(layoutGraph),
     positions: extractNodePositions(layoutGraph, request.positionsLength, request.nodes),
@@ -81,7 +83,10 @@ function createAndLayoutGraph(request: LayoutRequest, routingMode: EdgeRoutingMo
   configureLayout(rootGraph, request, routingMode);
   try {
     layoutGeomGraph(rootGraph);
-    refreshGraphBoundsAfterLayout(rootGraph);
+    refreshGraphBoundsAfterLayout(rootGraph); // boxes keep room for the labels
+    if (!request.cards) {
+      restoreNodeCircles(rootGraph);
+    }
     return rootGraph;
   } catch (error) {
     if (routingMode !== EdgeRoutingMode.Rectilinear) {

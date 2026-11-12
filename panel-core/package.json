@@ -1,6 +1,6 @@
 {
   "name": "@vaduga/mapgl-core",
-  "version": "2.11.2",
+  "version": "2.12.0",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -201,6 +201,18 @@
       "types": "./dist/render/react.d.ts",
       "import": "./dist/render/react.js",
       "default": "./dist/render/react.js"
+    },
+    "./graph/utils/layout-result": {
+      "development": "./src/graph/utils/layout-result.ts",
+      "types": "./dist/graph/utils/layout-result.d.ts",
+      "import": "./dist/graph/utils/layout-result.js",
+      "default": "./dist/graph/utils/layout-result.js"
+    },
+    "./graph/utils/layout-dispatch": {
+      "development": "./src/graph/utils/layout-dispatch.ts",
+      "types": "./dist/graph/utils/layout-dispatch.d.ts",
+      "import": "./dist/graph/utils/layout-dispatch.js",
+      "default": "./dist/graph/utils/layout-dispatch.js"
     }
   },
   "peerDependencies": {
@@ -227,6 +239,7 @@
     "@types/geojson": "7946.0.16",
     "@vis.gl/react-maplibre": "8.1.3",
     "copy-to-clipboard": "4.0.2",
+    "elkjs": "0.12.0",
     "preact": "^10.17.0"
   },
   "devDependencies": {

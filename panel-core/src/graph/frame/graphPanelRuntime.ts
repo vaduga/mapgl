@@ -106,6 +106,8 @@ export function createGraphPanelRenderState(
 export function createGraphLayoutSignature(basemap?: GraphLayoutConfig): string {
   const config = basemap?.config as
     | {
+        layoutEngine?: unknown;
+        nodeCards?: unknown;
         edgeRouting?: unknown;
         layoutDirection?: unknown;
         layerSeparation?: unknown;
@@ -113,6 +115,8 @@ export function createGraphLayoutSignature(basemap?: GraphLayoutConfig): string 
       }
     | undefined;
   return JSON.stringify({
+    layoutEngine: config?.layoutEngine ?? null,
+    nodeCards: config?.nodeCards ?? null,
     edgeRouting: config?.edgeRouting ?? null,
     layoutDirection: config?.layoutDirection ?? null,
     layerSeparation: config?.layerSeparation ?? null,

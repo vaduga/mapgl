@@ -1,4 +1,5 @@
 export type EdgeRoutingConfig = 'Splines' | 'Rectilinear';
+export type LayoutEngineConfig = 'MSAGL' | 'ELK';
 export type LayoutDirectionConfig = 'TB' | 'LR' | 'BT' | 'RL';
 
 export type LayoutNodeSnapshot = {
@@ -6,6 +7,9 @@ export type LayoutNodeSnapshot = {
   graphId: string;
   wasmId: number;
   radius?: number;
+  /** Box holding node and label; replaces the circle when set. */
+  width?: number;
+  height?: number;
 };
 
 export type LayoutGraphSnapshot = {
@@ -25,6 +29,9 @@ export type LayoutEdgeSnapshot = {
 
 type LayoutRequestBase = {
   requestId: number;
+  engine?: LayoutEngineConfig;
+  /** Nodes are cards: their width/height box, edges end on its border (no circle). */
+  cards?: boolean;
   routing: EdgeRoutingConfig;
   direction: LayoutDirectionConfig;
   layerSeparation: number;
@@ -68,6 +75,8 @@ export type LayoutArrowResult = {
 
 export type LayoutResult = {
   requestId: number;
+  /** Implementation that produced these routes, including operation-specific reroutes. */
+  engine?: LayoutEngineConfig;
   routing: EdgeRoutingConfig;
   graphs: LayoutGraphResult[];
   positions: Float64Array;

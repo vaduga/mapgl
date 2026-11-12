@@ -161,6 +161,9 @@ const Mapgl = ({
           options.common?.isMeters,
           hasAnnots && !getGroupsLegend.at(-1)?.disabled
         ),
+        edgeLabels: options.common?.isShowEdgeLabels ?? false,
+        focusNamespace: replaceVariables(options.common?.focusNamespace ?? ''),
+        nodeCards: Boolean((options.basemap?.config as { nodeCards?: boolean } | undefined)?.nodeCards),
         onHover: onDeckHover,
         svgIconState: panel.svgIconState,
         onSvgIconReady,
@@ -185,6 +188,7 @@ const Mapgl = ({
       onSvgIconReady,
       renderPreparation,
       options,
+      replaceVariables,
       theme2,
       time,
       panel.layers,

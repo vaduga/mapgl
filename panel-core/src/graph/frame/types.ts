@@ -256,6 +256,7 @@ export type GraphResolvedVisualStyle = Omit<StyleConfigValues, 'color'> & {
 };
 
 export interface GraphResolvedArcStyle {
+  readonly showStat2?: boolean;
   readonly arcConfig: GraphArcConfig;
   readonly sideA: GraphResolvedVisualStyle & {
     readonly colorField?: string;

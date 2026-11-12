@@ -28,7 +28,6 @@ import {
   type LayoutGraphResult,
   type LayoutGraphSnapshot,
   type LayoutNodeSnapshot,
-  type LayoutCurveGroup,
   edgeKey,
   nodeKey,
 } from './layout-worker-types';
@@ -44,9 +43,17 @@ const MIN_CURVE_RESOLUTION = 12;
 const DEFAULT_LAYER_SEPARATION = 60;
 const DEFAULT_NODE_SEPARATION = 40;
 
-export type SnapshotNode = Node & { parent?: Graph; id: string; wasmId?: number; graphId?: string };
+export type SnapshotNode = Node & {
+  parent?: Graph;
+  id: string;
+  wasmId?: number;
+  graphId?: string;
+  /** Set when layout used a label box: the circle the node is drawn as. */
+  circleRadius?: number;
+};
 export type SnapshotEdge = CoreEdge & { id?: string; sourceGraphId?: string; targetGraphId?: string };
-export type CurveSegment = { type: number; controlPoints: number[]; segment: [number, number] };
+import type { CurveSegment } from './layout-result';
+export { createCurveGroups, type CurveSegment } from './layout-result';
 
 export type LayoutSettings = {
   routing: EdgeRoutingConfig;
@@ -96,7 +103,10 @@ export function createGraphHierarchy(
     const graph = graphs.get(item.id);
     const parent = graphs.get(item.parentId);
     if (graph && parent) {
-      GeomGraph.getGeom(parent).addNode(new GeomGraph(graph));
+      const box = new GeomGraph(graph);
+      // Same margins as refreshGraphBoundsAfterLayout, so layout spaces boxes at their drawn size.
+      box.margins = { left: NS_PADDING, top: NS_PADDING, bottom: NS_PADDING, right: NS_PADDING };
+      GeomGraph.getGeom(parent).addNode(box);
     }
   }
   return { rootGraph, graphs };
@@ -113,7 +123,12 @@ export function addSnapshotNode(
   node.graphId = item.graphId;
   parent.addNode(node);
   const geomNode = new GeomNode(node);
-  geomNode.boundaryCurve = CurveFactory.mkCircle(radius, center);
+  if (item.width && item.height) {
+    node.circleRadius = radius;
+    geomNode.boundaryCurve = CurveFactory.createRectangle(item.width, item.height, center);
+  } else {
+    geomNode.boundaryCurve = CurveFactory.mkCircle(radius, center);
+  }
   return node;
 }
 
@@ -130,6 +145,45 @@ export function addSnapshotEdge(item: LayoutEdgeSnapshot, source: SnapshotNode, 
     geomEdge.targetArrowhead = Object.assign(new Arrowhead(), { length: item.targetArrowLength });
   }
   return edge;
+}
+
+/**
+ * After a layout with label boxes, give nodes their drawn circle back and make edges reach it:
+ * extend each edge from where it met the box to the node centre, then trim it at the circle.
+ */
+export function restoreNodeCircles(rootGraph: GeomGraph): void {
+  const restored = new Set<Node>();
+  for (const geomNode of rootGraph.nodesBreadthFirst) {
+    const node = geomNode.node as SnapshotNode;
+    if (node.circleRadius !== undefined && !(geomNode instanceof GeomGraph)) {
+      geomNode.boundaryCurve = CurveFactory.mkCircle(node.circleRadius, geomNode.center);
+      restored.add(node);
+    }
+  }
+  if (!restored.size) {
+    return;
+  }
+  for (const geomEdge of rootGraph.deepEdges as Iterable<GeomEdge>) {
+    const { source, target, curve } = geomEdge;
+    if (!curve || source === target || (!restored.has(source.node) && !restored.has(target.node))) {
+      continue;
+    }
+    // The routed curve is already shortened at arrow bases. Connect to its
+    // actual ends, restoring even unchanged terminals before trimming once.
+    const start = restored.has(source.node) ? source.center : (geomEdge.sourceArrowhead?.tipPosition ?? curve.start);
+    const end = restored.has(target.node) ? target.center : (geomEdge.targetArrowhead?.tipPosition ?? curve.end);
+    const extended = new Curve();
+    if (!start.equal(curve.start)) {
+      extended.addSegment(LineSegment.mkPP(start, curve.start));
+    }
+    extended.addSegment(curve);
+    if (!end.equal(curve.end)) {
+      extended.addSegment(LineSegment.mkPP(curve.end, end));
+    }
+    if (!Arrowhead.trimSplineAndCalculateArrowheads(geomEdge, extended, true)) {
+      Arrowhead.createBigEnoughSpline(geomEdge);
+    }
+  }
 }
 
 export function refreshGraphBoundsAfterLayout(rootGraph: GeomGraph): void {
@@ -163,44 +217,6 @@ export function createEdgeIndexes(sourceEdges: readonly LayoutEdgeSnapshot[]): M
   const indexes = new Map<string, number>();
   sourceEdges.forEach((edge, index) => indexes.set(edgeKey(edge.sourceGraphId, edge.id), index));
   return indexes;
-}
-
-export function createCurveGroups(
-  sourceEdges: readonly LayoutEdgeSnapshot[],
-  segmentsByEdge: readonly CurveSegment[][]
-): LayoutCurveGroup[] {
-  const edgeIndexesByGraph = new Map<string, number[]>();
-  sourceEdges.forEach((edge, index) => {
-    if (!segmentsByEdge[index].length) {
-      return;
-    }
-    const indexes = edgeIndexesByGraph.get(edge.sourceGraphId) ?? [];
-    indexes.push(index);
-    edgeIndexesByGraph.set(edge.sourceGraphId, indexes);
-  });
-
-  return Array.from(edgeIndexesByGraph, ([graphId, edgeIndexes]) => {
-    const edgeSegmentOffsets = new Int32Array(edgeIndexes.length + 1);
-    let segmentCount = 0;
-    edgeIndexes.forEach((edgeIndex, localIndex) => {
-      edgeSegmentOffsets[localIndex] = segmentCount;
-      segmentCount += segmentsByEdge[edgeIndex].length;
-    });
-    edgeSegmentOffsets[edgeIndexes.length] = segmentCount;
-    const types = new Uint8Array(segmentCount);
-    const controlPoints = new Float32Array(segmentCount * 8);
-    const segments = new Float32Array(segmentCount * 2);
-    let segmentIndex = 0;
-    for (const edgeIndex of edgeIndexes) {
-      for (const segment of segmentsByEdge[edgeIndex]) {
-        types[segmentIndex] = segment.type;
-        controlPoints.set(segment.controlPoints, segmentIndex * 8);
-        segments.set(segment.segment, segmentIndex * 2);
-        segmentIndex++;
-      }
-    }
-    return { graphId, edgeIndexes: Int32Array.from(edgeIndexes), edgeSegmentOffsets, types, controlPoints, segments };
-  });
 }
 
 export function addCurveSegments(segments: CurveSegment[], curve, originX = 0, originY = 0): void {

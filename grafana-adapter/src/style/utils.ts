@@ -16,6 +16,9 @@ export function styleUsesText(config: StyleConfig): boolean {
   if (text.mode === TextDimensionMode.Field && text.field?.length) {
     return true;
   }
+  if (text.mode === TextDimensionMode.Template && text.fixed?.length) {
+    return true;
+  }
   return false;
 }
 
@@ -58,8 +61,13 @@ export function resolveStyleConfigState(cfg: StyleConfig | undefined, theme: Gra
 
     if (cfg.text?.field?.length) {
       fields.text = cfg.text.field;
+    } else if (cfg.text?.mode === TextDimensionMode.Template) {
+      fields.text = cfg.text.fixed; // per-row text: the template's fields
+      state.base.text = undefined;
     }
   }
+
+  state.base.animate = cfg.animate ?? false;
 
   if (cfg.arrow !== undefined) {
     state.base.arrow = cfg.arrow;

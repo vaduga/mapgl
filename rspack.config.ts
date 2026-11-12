@@ -114,7 +114,7 @@ const patchRootCopyFiles = (baseConfig: Configuration, coreIconsPath: string): v
   baseConfig.plugins?.push(new RootFileCopyPlugin(), new CoreIconCopyRspackPlugin(coreIconsPath));
 };
 
-const config = async (env: Record<string, unknown>): Promise<Configuration> => {
+const config = async (env: Record<string, unknown>): Promise<Configuration[]> => {
   const baseConfig = await grafanaConfig(env);
   const coreSourcePath = path.resolve(process.cwd(), 'panel-core/src');
   const coreIconsPath = path.join(coreSourcePath, 'img/icons');
@@ -122,13 +122,6 @@ const config = async (env: Record<string, unknown>): Promise<Configuration> => {
   baseConfig.plugins?.push(new MapLibreAssetsPlugin());
 
   const extension: Configuration = {
-    entry: {
-      'layout-worker': {
-        import: path.join(coreSourcePath, 'workers/layout-worker.ts'),
-        filename: 'layout-worker.mjs',
-        library: { type: 'module' },
-      },
-    },
     module: {
       rules: [
         {
@@ -162,7 +155,32 @@ const config = async (env: Record<string, unknown>): Promise<Configuration> => {
     };
   }
 
-  return config;
+  // Grafana's AMD/JSONP runtime needs document; module workers need native
+  // ESM chunk loading. Build them separately while sharing source transforms.
+  config.name = 'panel';
+  const workerConfig: Configuration = {
+    name: 'layout',
+    dependencies: ['panel'],
+    mode: config.mode,
+    target: 'webworker',
+    devtool: 'source-map',
+    entry: { 'layout-worker': path.join(coreSourcePath, 'workers/layout-worker.ts') },
+    module: config.module,
+    resolve: config.resolve,
+    experiments: { outputModule: true },
+    optimization: { minimize: Boolean(env.production), chunkIds: 'named' },
+    output: {
+      path: config.output?.path,
+      filename: '[name].mjs',
+      chunkFilename: '[name].[contenthash].mjs',
+      module: true,
+      chunkFormat: 'module',
+      chunkLoading: 'import',
+      publicPath: 'auto',
+      clean: false,
+    },
+  };
+  return [config, workerConfig];
 };
 
 export default config;

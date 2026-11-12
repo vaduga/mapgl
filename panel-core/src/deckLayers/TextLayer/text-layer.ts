@@ -19,6 +19,7 @@ const LineTextLayer = ({
   type = 'nums',
   isLogic = false,
   layerShift = {},
+  edgeLabels = false,
 }) => {
   let units: any = 'pixels';
   switch (type) {
@@ -47,6 +48,8 @@ const LineTextLayer = ({
       group: colTypes.Label,
     });
 
+  const isEdgeText = type === 'arcLabels' || type === 'routeLabels';
+  const isRoute = type === 'routeLabels';
   const extensions = ['nums', 'bbox'].includes(type) ? [] : [new DataFilterExtension({ categorySize })];
 
   const modelMatrix = new Matrix4();
@@ -61,9 +64,9 @@ const LineTextLayer = ({
     data,
     characterSet: 'auto',
     visible: Labels,
-    ...(type === 'arcLabels' ? { modelMatrix } : {}),
-    ...(type === 'arcLabels' ? { parameters: { depthTest: false } } : {}),
-    ...(type === 'arcLabels' ? { opacity: EDGE_LABEL_DIM_OPACITY } : {}),
+    ...(isEdgeText ? { modelMatrix } : {}),
+    ...(isEdgeText ? { parameters: { depthTest: false } } : {}),
+    ...(isEdgeText ? { opacity: edgeLabels ? 1 : EDGE_LABEL_DIM_OPACITY } : {}),
     pickable: false,
     id: colTypes.Text + '-' + type + id,
     getText: (d: any) => {
@@ -72,6 +75,7 @@ const LineTextLayer = ({
           return d.text;
           break;
         case 'nums':
+        case 'routeLabels':
           return d.text;
           break;
         default: // arcLabels
@@ -90,13 +94,16 @@ const LineTextLayer = ({
         case 'nums':
           return [d.coordinates[0], d.coordinates[1] - 0.00005];
           break;
+        case 'routeLabels':
+          return d.position;
+          break;
         default: // arcLabels
           return d.midPoint;
           break;
       }
     },
     getFilterCategory: (d) => {
-      const { style, layerName, graph, featSource } = d.properties || {};
+      const { style, layerName, graph, featSource } = (d.feature ?? d).properties || {};
       const groupIdx = style?.group?.groupIdx;
       return [groupIdx, layerName, graph?.id ?? featSource?.layerName];
     },
@@ -105,13 +112,25 @@ const LineTextLayer = ({
     getAngle: (d: any) => {
       return d.angle ?? 0;
     }, //,
-    background: true,
+    background: type !== 'bbox',
     backgroundBorderRadius: [3, 3, 3, 3],
-    getBackgroundColor:
-      type === 'bbox' ? toRGB4Array(BBOX_OUTLINE_COLOR) : isDark ? [0, 0, 0, 100] : [255, 255, 255, 100],
+    getBackgroundColor: isRoute
+      ? (d: any): [number, number, number, number] =>
+          d.kind === 'middle' ? opaque(d.color) : isDark ? [24, 27, 31, 235] : [255, 255, 255, 235]
+      : type === 'bbox'
+        ? toRGB4Array(BBOX_OUTLINE_COLOR)
+        : isDark
+          ? [0, 0, 0, 100]
+          : [255, 255, 255, 100],
+    ...(isRoute && {
+      backgroundPadding: [4, 1],
+      getBorderColor: (d: any) => (d.kind === 'middle' ? [0, 0, 0, 0] : opaque(d.color)),
+      getBorderWidth: 1,
+      fontWeight: 600,
+    }),
     getAlignmentBaseline: type === 'bbox' ? 'top' : 'center', //isList ? dir === 'to'? 'top' : 'bottom' : 'center',
     //anchor: top,
-    getTextAnchor: 'middle', //isList ? 'start':'middle',
+    getTextAnchor: type === 'bbox' ? 'start' : 'middle',
     sizeUnits: units,
     // sizeScale: isList ? 1 : 1.1,
     //extensions: [new CollisionFilterExtension()],
@@ -121,13 +140,16 @@ const LineTextLayer = ({
     getSize: (d: any) => {
       switch (type) {
         case 'bbox':
-          return 25;
+          return 12;
           break;
         case 'unames':
           return 5;
           break;
         case 'nums':
           return 3;
+          break;
+        case 'routeLabels':
+          return d.fontSize ?? 10;
           break;
         default:
           const edgeStyle = d.properties?.edgeStyle;
@@ -138,10 +160,13 @@ const LineTextLayer = ({
     getColor: (d: any) => {
       switch (type) {
         case 'bbox':
-          return isDark ? [0, 0, 0, 200] : [0, 0, 0, 200];
+          return d.color ?? (isDark ? [220, 220, 220, 255] : [60, 60, 60, 255]);
           break;
         case 'nums':
           return toRGB4Array(d.color);
+          break;
+        case 'routeLabels':
+          return d.kind === 'middle' || isDark ? [255, 255, 255, 255] : [30, 30, 30, 255];
           break;
         default: // arc labels
           return isDark ? [255, 255, 255, 200] : [0, 0, 0, 200];
@@ -149,5 +174,7 @@ const LineTextLayer = ({
     },
   });
 };
+
+const opaque = (c: number[] = [128, 128, 128]): [number, number, number, number] => [c[0], c[1], c[2], 255];
 
 export { LineTextLayer };

@@ -1,11 +1,12 @@
 import { Graph } from '../structs/graph';
 import { getNodeData } from '../structs/graphOps';
 import type { Edge } from '../structs/edge';
-import { getLayoutNodeRadius, resolveLayoutArrowLengths } from './layout-geometry';
+import { getLayoutCardBox, getLayoutNodeBox, getLayoutNodeRadius, resolveLayoutArrowLengths } from './layout-geometry';
 import {
   SOURCE_ARROW_FLAG,
   TARGET_ARROW_FLAG,
   type EdgeRoutingConfig,
+  type LayoutEngineConfig,
   type LayoutEdgeSnapshot,
   type LayoutCurveGroup,
   type LayoutDirectionConfig,
@@ -29,6 +30,7 @@ export interface GraphLayoutRequestInput {
 }
 
 export interface GraphLayoutWorkerResult {
+  readonly engine?: LayoutEngineConfig;
   readonly routing: EdgeRoutingConfig;
   readonly positions: Float64Array;
   readonly graphBounds: ReadonlyMap<string, LayoutGraphResult>;
@@ -43,6 +45,8 @@ const DEFAULT_LAYER_SEPARATION = 60;
 const DEFAULT_NODE_SEPARATION = 40;
 
 export type AutolayoutOptions = {
+  layoutEngine?: LayoutEngineConfig;
+  nodeCards?: boolean;
   edgeRouting?: EdgeRoutingConfig;
   layoutDirection?: LayoutDirectionConfig;
   layerSeparation?: number;
@@ -92,11 +96,12 @@ export class LayoutWorkerClient {
             return;
           }
           if ('type' in data && data.type === 'error') {
-            pending.reject(new Error(`MSAGL layout worker failed: ${data.message}`));
+            pending.reject(new Error(`Layout worker failed: ${data.message}`));
             return;
           }
           if ('positions' in data && 'arrows' in data) {
             pending.resolve({
+              engine: data.engine,
               routing: data.routing,
               positions: data.positions,
               graphBounds: new Map(data.graphs.map((graph) => [graph.id, graph])),
@@ -198,13 +203,15 @@ function createEdgeIndex(request: Pick<LayoutRequest, 'edges'>): {
 export function createLayoutRequest(input: GraphLayoutRequestInput): LayoutRequest {
   const graph = input.graph;
   const graphs = collectGraphs(graph);
-  const nodes = collectNodes(graph);
-  const edges = collectEdges(graph);
   const autolayout = input.autolayout ?? {};
+  const nodes = collectNodes(graph, autolayout.nodeCards ?? false);
+  const edges = collectEdges(graph);
 
   return {
     requestId: ++nextRequestId,
     operation: 'layout',
+    engine: autolayout.layoutEngine ?? 'MSAGL',
+    cards: autolayout.nodeCards ?? false,
     routing: autolayout.edgeRouting ?? 'Splines',
     direction: autolayout.layoutDirection ?? DEFAULT_LAYOUT_DIRECTION,
     layerSeparation: getPositiveNumber(autolayout.layerSeparation, DEFAULT_LAYER_SEPARATION),
@@ -228,7 +235,7 @@ function collectGraphs(root: Graph): LayoutGraphSnapshot[] {
   }));
 }
 
-function collectNodes(root: Graph): LayoutNodeSnapshot[] {
+function collectNodes(root: Graph, cards: boolean): LayoutNodeSnapshot[] {
   const nodes: LayoutNodeSnapshot[] = [];
   for (const graph of [root].concat(Array.from(root.subgraphsBreadthFirst() as Iterable<Graph>))) {
     for (const node of graph.shallowNodes as Iterable<any>) {
@@ -244,6 +251,7 @@ function collectNodes(root: Graph): LayoutNodeSnapshot[] {
         graphId: graph.id,
         wasmId: nodeData.wasmId,
         radius: getLayoutNodeRadius(nodeData.feature?.style?.size),
+        ...(cards ? getLayoutCardBox(nodeData.feature?.style) : getLayoutNodeBox(nodeData.feature?.style)),
       });
     }
   }

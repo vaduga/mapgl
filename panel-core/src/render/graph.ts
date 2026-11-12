@@ -1,5 +1,6 @@
 import type { Color, PickingInfo } from '@deck.gl/core';
 import { GeoJsonLayer } from '@deck.gl/layers';
+import { PathStyleExtension } from '@deck.gl/extensions';
 import type { PanelController } from '../runtime/PanelController';
 import type { EffectiveRenderState } from '../runtime/GraphScene';
 import type { GraphFrameSnapshot } from '../graph/frame/types';
@@ -13,14 +14,21 @@ import {
 import type { VisLayers } from '../store/VisLayers';
 import type { SelectedIndexes } from '../store/PointStore';
 import { colTypes, type GraphBiFeatCol, type LayerDragShift } from '../types';
-import { BBOX_OUTLINE_COLOR, BBOX_OUTLINE_WIDTH } from '../types/defaults';
+import { BBOX_OUTLINE_WIDTH } from '../types/defaults';
 import { isVisible, toRGB4Array } from '../deckLayers/utils';
 import {
   NodesGeojsonLayer,
   PlaceholderTextLayer,
   MainLabelTextLayer,
+  NodeCardLayer,
+  getNodeCards,
 } from '../deckLayers/GeoJsonNodesLayer/nodes-geojson-layer';
-import { EdgesGeojsonLayer } from '../deckLayers/GeoJsonEdgesLayer/edges-geojson-layer';
+import { EdgesGeojsonLayer, getLayoutCurveSegments } from '../deckLayers/GeoJsonEdgesLayer/edges-geojson-layer';
+import {
+  createRouteLabelDataByGraph,
+  getRouteLabelCandidates,
+  type RouteLabelCandidate,
+} from '../deckLayers/GeoJsonEdgesLayer/route-labels';
 import { EdgeArrowLayer } from '../deckLayers/ArrowLayer/edge-arrow-layer';
 import { MyArcLayer } from '../deckLayers/ArcLayer/arc-layer';
 import { LineTextLayer } from '../deckLayers/TextLayer/text-layer';
@@ -41,6 +49,12 @@ export interface RenderPresentation {
   readonly nodeIdSuffix?: string;
   readonly placeholders?: boolean;
   readonly labels?: boolean;
+  /** Edge text stays visible without a focused node. */
+  readonly edgeLabels?: boolean;
+  /** Namespace box drawn highlighted (matched against the box's last label segment). */
+  readonly focusNamespace?: string;
+  /** Nodes drawn as cards holding their label (the layout sized them so). */
+  readonly nodeCards?: boolean;
   readonly labelsInNodes?: boolean;
   readonly bounds?: boolean;
   readonly boundLabels?: boolean;
@@ -122,6 +136,27 @@ export interface BoundaryFeature {
 export interface BoundaryCollection {
   type: 'FeatureCollection';
   features: BoundaryFeature[];
+}
+
+/** Last segment of a nested namespace ("outside.EMEA" -> "EMEA"): the parent box shows the rest. */
+function boxTitle(feature: BoundaryFeature): string {
+  const label = feature.properties.namespaceLabel ?? '';
+  return label.slice(label.lastIndexOf('.') + 1);
+}
+
+function isFocusBox(feature: BoundaryFeature, p: RenderPresentation): boolean {
+  return !!p.focusNamespace && boxTitle(feature) === p.focusNamespace;
+}
+
+const FOCUS_BOX = [50, 116, 217] as const; // Grafana blue
+
+function boxStyle(feature: BoundaryFeature, p: RenderPresentation) {
+  if (isFocusBox(feature, p)) {
+    return { fill: [...FOCUS_BOX, p.isDark ? 40 : 20], line: [...FOCUS_BOX, 255], title: [...FOCUS_BOX, 255] };
+  }
+  return p.isDark
+    ? { fill: [255, 255, 255, 8], line: [140, 146, 160, 200], title: [170, 176, 190, 255] }
+    : { fill: [120, 130, 140, 10], line: [120, 130, 140, 200], title: [90, 100, 110, 255] };
 }
 
 export function createBoundaryCollection(
@@ -326,8 +361,12 @@ export function buildPrimaryLayers(
     edges: RenderLayer[] = [],
     baseEdges: RenderLayer[] = [],
     bounds: RenderLayer[] = [];
+  const cardObstacles: ReturnType<typeof getNodeCards> = [];
   for (const biCol of prepared.collections) {
+    const nodeCardData = p.labels && p.nodeCards ? getNodeCards(biCol) : [];
+    cardObstacles.push(...nodeCardData);
     const props = {
+      nodeCardData,
       ...common,
       biCol,
       visible:
@@ -340,6 +379,10 @@ export function buildPrimaryLayers(
     nodes.push(...normalizeLayers((factories.node ?? NodesGeojsonLayer)(props)));
     if (p.placeholders) {
       nodes.push(PlaceholderTextLayer(props));
+    }
+    if (p.labels && p.nodeCards) {
+      // Same group as the label, so the label draws on top.
+      (p.labelsInNodes ? nodes : labels).push(NodeCardLayer({ ...props, pickable: p.labelPickable ?? p.pickable }));
     }
     if (p.labels) {
       (p.labelsInNodes ? nodes : labels).push(
@@ -357,23 +400,41 @@ export function buildPrimaryLayers(
   const visible =
     showGraph && isVisible(input.visibility, { index: null, name: colTypes.Edges, group: colTypes.Edges });
   const geometry = p.isRouted ? prepared.geometry.routed : prepared.geometry.arcs;
+  const routeLabels: Array<RouteLabelCandidate & { srcGraphId: string }> = [];
   for (const [srcGraphId, features] of Object.entries(geometry)) {
     if (!features.length) {
       continue;
     }
     if (p.isRouted) {
+      const segments = p.isLogic
+        ? getLayoutCurveSegments(srcGraphId, features, common.edgeIndex, common.layoutGeometry)
+        : undefined;
       const props = {
         ...common,
         srcGraphId,
         visible,
         linesCollection: { type: 'FeatureCollection' as const, features },
+        curveSegments: segments,
       };
       edges.push(...normalizeLayers((factories.edge ?? EdgesGeojsonLayer)(props)), EdgeArrowLayer(props));
+      if (
+        segments?.length &&
+        visible &&
+        isVisible(input.visibility, { index: null, name: colTypes.Label, group: colTypes.Label })
+      ) {
+        routeLabels.push(...getRouteLabelCandidates(segments).map((c) => ({ ...c, srcGraphId })));
+      }
     } else {
       const props = { ...common, srcGraphId, visible, lineFeatures: features };
       edges.push(MyArcLayer(props));
       baseEdges.push(MyArcLayer({ ...props, isBase: true }));
       labels.push(LineTextLayer({ ...common, id: srcGraphId, data: features, visible, type: 'arcLabels' }));
+    }
+  }
+  if (routeLabels.length) {
+    // All lines at once, so labels of lines from different boxes do not pile up either.
+    for (const [srcGraphId, data] of createRouteLabelDataByGraph(routeLabels, cardObstacles)) {
+      labels.push(LineTextLayer({ ...common, id: srcGraphId, data, visible, type: 'routeLabels' }));
     }
   }
   if (p.bounds && prepared.bounds.features.length) {
@@ -386,21 +447,35 @@ export function buildPrimaryLayers(
               id: props.id,
               data: prepared.bounds as any,
               pickable: false,
-              filled: false,
+              filled: true,
               stroked: true,
-              getLineColor: toRGB4Array(BBOX_OUTLINE_COLOR),
-              getLineWidth: BBOX_OUTLINE_WIDTH,
+              getFillColor: (f: any) => boxStyle(f, p).fill,
+              getLineColor: (f: any) => boxStyle(f, p).line,
+              getLineWidth: (f: any) => (isFocusBox(f, p) ? 2 : BBOX_OUTLINE_WIDTH * 2),
               lineWidthUnits: 'pixels',
-            })
+              getDashArray: (f: any) => (isFocusBox(f, p) ? [0, 0] : [4, 3]),
+              dashUnits: 'pixels',
+              dashJustified: true,
+              extensions: [new PathStyleExtension({ dash: true })],
+              // Fill must not hide the lines drawn over it.
+              parameters: { depthWriteEnabled: false },
+              updateTriggers: {
+                getFillColor: [p.focusNamespace, p.isDark],
+                getLineColor: [p.focusNamespace, p.isDark],
+                getLineWidth: [p.focusNamespace],
+                getDashArray: [p.focusNamespace],
+              },
+            } as any)
       )
     );
     if (p.boundLabels) {
-      // Match the displayed polygons, including namespaces that remain as contracted boundaries.
+      // Title at the top-left corner, inside the box (layouts leave room for it above the nodes).
       const data = prepared.bounds.features.map((feature) => {
         const [[minX, minY], [maxX], [, maxY]] = feature.geometry.coordinates[0];
         return {
-          text: feature.properties.namespaceLabel,
-          coordinates: [(minX + maxX) / 2, Math.max(minY, maxY)],
+          text: boxTitle(feature),
+          coordinates: [Math.min(minX, maxX) + 8, Math.min(minY, maxY) + 6], // y points down
+          color: boxStyle(feature, p).title,
         };
       });
       bounds.push(LineTextLayer({ ...common, id: '-labels', data, visible: true, type: 'bbox' }));

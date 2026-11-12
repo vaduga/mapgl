@@ -9,6 +9,8 @@ Mapgl is a **dual-mode topology panel**:
 
 The selected **Basemap layer** controls the mode. **Node Graph ortho** means graph mode with no geographic basemap. Any real basemap means Geo mode.
 
+For the new Kubernetes-aligned network map and its node cards, see [Network map cards](network-map-cards.md).
+
 For exact dataframe semantics, deduplication, path handling, namespaces, and precedence rules, see [Reference](reference.md).
 
 ## Editor layout
@@ -250,12 +252,16 @@ Result:
 
 Use **Edge Styles** when `Vertex B` is configured:
 
-- arrow direction
+- arrow direction and optional **Animate** flow (off by default)
 - line width
 - color
 - text for edge labels
 
-If you enable **Arc styles**, Mapgl can style side A and side B independently and use a capacity field for metric normalization.
+**Animate** applies independently to each Markers and links layer's routed curves. Forward moves from source to target, Reverse moves toward the source, and Both moves from the complete curve's midpoint toward both ends. None remains static.
+
+If you enable **Arc styles**, Mapgl can style side A and side B independently and use a capacity field for metric normalization. Each side has its own **Text label** and **Font size** controls: side A labels the source end and side B the target end. Fixed, Field and Template text can use a different field from the side's color. Grafana units, mappings and decimals still apply. **Edge Styles -> Text label** supplies the middle label in routed and non-routed modes.
+
+Focusing an edge reveals and emphasizes its configured labels even when **Other -> Edge labels always on** is off. Enabling that setting also shows labels without focus. The Label layer and graph/group/edge visibility still apply. Dense focused labels can move or stack to stay visible; blank labels are omitted.
 
 An Arc link tapers continuously from side A's line width at the source to side B's line width at the target.
 
@@ -282,6 +288,8 @@ Outside the layer editor:
 
 These settings are shown in **Basemap layer** when **Node Graph ortho** is selected:
 
+- **Layout engine**: MSAGL (default) or ELK. The selected engine loads on demand.
+- **Node cards**: draw labels as cards above node circles, with edges attached to the card borders. Off by default.
 - **Edge routing**: choose **Splines** for `SugiyamaSplines` or **Rectilinear**.
 - **Layout direction**: choose the layer flow direction: right-to-left, left-to-right, top-to-bottom, or bottom-to-top.
 - **Layer separation**: distance between adjacent layout layers. In the default right-to-left layout this mostly changes horizontal spacing and edge length.

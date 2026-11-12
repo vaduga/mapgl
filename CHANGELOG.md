@@ -1,7 +1,12 @@
 # Changelog Mapgl
 
+## 2.12.0
+- Node cards and edge labels on route ends
+- ELK autolayout option for a cross namespace flow. 
+Shout-out to [Emin Aktaş](https://github.com/eminaktas) for contributing!
+
 ## 2.11.2
-- non-EN characterSet in Text layers
+- auto characterSet in Text layers (support non-EN)
 - fix: recover layout; dim unrelated cross-namespace edges
 - refactor: host-neutral selection and graph tooltip, commit graph synchronous hook
 

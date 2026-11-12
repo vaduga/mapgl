@@ -38,7 +38,7 @@ export const TextDimensionEditor = ({ value, context, onChange }: Props) => {
       value: TextDimensionMode.Field,
       description: t('dimensions.text-dimension-editor.description-field', 'Display field value'),
     },
-    //  { label: 'Template', value: TextDimensionMode.Template, description: 'use template text' },
+    { label: 'Template', value: TextDimensionMode.Template, description: 'use template text' },
   ];
   const labelWidth = 7;
 
@@ -95,7 +95,7 @@ export const TextDimensionEditor = ({ value, context, onChange }: Props) => {
           </div>
         </InlineField>
       </InlineFieldRow>
-      {mode !== TextDimensionMode.Fixed && (
+      {mode === TextDimensionMode.Field && (
         <InlineFieldRow>
           <InlineField
             className={styles.field}

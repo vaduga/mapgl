@@ -1,5 +1,5 @@
 import { LatestAsyncGate, type LatestAsyncGuard } from '../../utils/LatestAsyncGate';
-import { getLayoutNodeRadius, resolveLayoutArrowStyle } from '../utils/layout-geometry';
+import { getLayoutNodeBox, getLayoutNodeRadius, resolveLayoutArrowStyle } from '../utils/layout-geometry';
 import { buildGraphFromSnapshot } from './buildGraph';
 import { normalizeGraphSources, type GraphSourceNormalizationInput, type GraphBoundLayer } from './normalizeSources';
 import type { MetricUpdate } from '../../data/metricOverlays';
@@ -336,7 +336,11 @@ function graphLayoutSignature(
 function graphLogicLayoutGeometrySignature(snapshot: GraphFrameSnapshot, visual: GraphVisualState): unknown {
   const nodeVisuals = new Map(visual.nodes.map((record) => [record.key, record] as const));
   return [
-    snapshot.nodes.map(({ key }) => [key, getLayoutNodeRadius(nodeVisuals.get(key)?.style.size)]),
+    snapshot.nodes.map(({ key }) => {
+      const style = nodeVisuals.get(key)?.style;
+      const box = getLayoutNodeBox(style);
+      return [key, getLayoutNodeRadius(style?.size), box?.width ?? null, box?.height ?? null];
+    }),
     Array.from({ length: snapshot.relations.recordCount }, (_, index) => {
       const unitStart = snapshot.relations.getRecordUnitStart(index);
       const unitCount = snapshot.relations.getRecordUnitCount(index);

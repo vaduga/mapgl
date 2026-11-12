@@ -46,6 +46,7 @@ export function normalizeOptions(options: PartialMapglOptions | undefined | null
       locLabelName: common.locLabelName ?? '',
       isShowLegend: common.isShowLegend ?? true,
       isShowEdgeLegend: common.isShowEdgeLegend ?? true,
+      isShowEdgeLabels: common.isShowEdgeLabels ?? false,
       isShowSwitcher: common.isShowSwitcher ?? true,
       isMeters: common.isMeters ?? false,
       hideDiagnostics: common.hideDiagnostics ?? false,

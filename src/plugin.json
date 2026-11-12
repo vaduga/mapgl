@@ -42,20 +42,24 @@
     ],
     "screenshots": [
       {
-        "name": "Service graph",
+        "name": "Kubernetes",
         "path": "img/screenshots/screenshot1.png"
       },
       {
-        "name": "Node graph",
+        "name": "Service graph",
         "path": "img/screenshots/screenshot2.png"
       },
       {
-        "name": "Geomap",
+        "name": "Node graph",
         "path": "img/screenshots/screenshot3.png"
       },
       {
-        "name": "Namespaces",
+        "name": "Geomap",
         "path": "img/screenshots/screenshot4.png"
+      },
+      {
+        "name": "Namespaces",
+        "path": "img/screenshots/screenshot5.png"
       }
     ],
     "version": "%VERSION%",

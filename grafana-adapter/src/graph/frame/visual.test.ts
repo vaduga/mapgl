@@ -66,6 +66,51 @@ async function visuals(
 }
 
 describe('graph visual stage', () => {
+  it.each([
+    { mode: TextDimensionMode.Field, animate: false, arrow: -1, expected: '1.2 kb/s' },
+    { mode: TextDimensionMode.Field, animate: true, arrow: -1, expected: '1.2 kb/s' },
+    { mode: TextDimensionMode.Template, animate: true, arrow: 2, expected: 'sent 1.2 kb/s' },
+  ])(
+    'retains independent $mode side text and color after JSON round-trip (Animate=$animate)',
+    async ({ mode, animate, arrow, expected }) => {
+      const frame = testFrame('FlowLabels', {
+        source: ['A', 'B'],
+        target: ['B', null],
+        rate: [1234, 0],
+        load: [75, 0],
+      });
+      frame.fields.find((field) => field.name === 'rate')!.config = { unit: 'bps', decimals: 1 };
+      const config = JSON.parse(
+        JSON.stringify(
+          visualConfig({
+            showStat2: true,
+            edgeStyle: { ...visualConfig().edgeStyle, animate, arrow },
+            arcStyle: {
+              sideA: {
+                color: { field: 'load', fixed: 'green' },
+                text:
+                  mode === TextDimensionMode.Template
+                    ? { mode, fixed: 'sent ${rate}' }
+                    : { mode, field: 'rate', fixed: '' },
+                textConfig: { fontSize: 18 },
+              },
+              sideB: { color: { fixed: 'blue' }, text: { mode: TextDimensionMode.Fixed, fixed: 'received' } },
+            },
+          })
+        )
+      );
+      const { state } = await visuals(frame, config);
+      expect(state.edgeUnits[0]!.style).toMatchObject({ animate, arrow });
+      expect(state.edgeUnits[0]!.arcStyle).toMatchObject({
+        showStat2: true,
+        sideA: { text: expected, colorField: 'load', textConfig: { fontSize: 18 } },
+        sideB: { text: 'received' },
+      });
+      if (!animate) {
+        expect((await visuals(frame, visualConfig())).state.edgeUnits[0]!.style.animate).toBe(false);
+      }
+    }
+  );
   it('resolves fixed node and edge channels into stage-owned records and buffers', async () => {
     const frame = testFrame('Fixed', { source: ['A', 'B'], target: ['B', null] });
     const config = visualConfig({

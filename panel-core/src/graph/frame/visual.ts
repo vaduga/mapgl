@@ -288,6 +288,7 @@ function edgeUnitVisual(
   const sideA = sideStyle(sideAChannels, row, style, edgeMetricField, Boolean(input.config.showStat2));
   const sideB = sideStyle(sideBChannels, row, style, edgeMetricField, Boolean(input.config.showStat2));
   const arcStyle: GraphResolvedArcStyle = {
+    showStat2: Boolean(input.config.showStat2),
     arcConfig: input.config.arcConfig,
     sideA,
     sideB,

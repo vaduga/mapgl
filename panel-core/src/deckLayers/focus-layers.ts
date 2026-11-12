@@ -1,3 +1,4 @@
+import { createRouteLabelDataByGraph, type RouteLabelData } from './GeoJsonEdgesLayer/route-labels';
 import { IconLayer, TextLayer } from '@deck.gl/layers';
 import type { Layer } from '@deck.gl/core';
 import type { RGBAColor } from '../types/index';
@@ -22,12 +23,13 @@ export function getDimmedGraphLayers(layers: Layer[], opts: DimmedGraphLayerOpti
   const edgeDepthsByGraph =
     opts instanceof Set ? {} : getEdgeDepthsByGraph(opts.connectedEdgeIndexes ?? [], Boolean(opts.isRouted));
 
+  const routePlacements = new Map<RouteLabelData['routeLabels']['candidates'], Map<string, RouteLabelData>>();
   return flattenDeckLayers(layers).map((layer) => {
     if ((layer?.id ?? '').startsWith('icon-cluster')) {
       return layer.clone({ opacity: 0.18 });
     }
 
-    const dimmedEdgeLayer = getDimmedEdgeLayer(layer, edgeDepthsByGraph);
+    const dimmedEdgeLayer = getDimmedEdgeLayer(layer, edgeDepthsByGraph, routePlacements);
     if (dimmedEdgeLayer) {
       return dimmedEdgeLayer;
     }
@@ -35,6 +37,27 @@ export function getDimmedGraphLayers(layers: Layer[], opts: DimmedGraphLayerOpti
     const dimmedNodeTextLayer = getDimmedNodeTextLayer(layer, connectedNodeIds);
     if (dimmedNodeTextLayer) {
       return dimmedNodeTextLayer;
+    }
+
+    if (layer.id.includes('-view-node-card')) {
+      const props = layer.props as any;
+      const dim = (accessor: any) => (d: any, info: any) => {
+        const value = getAccessorResult(accessor, d, info, [0, 0, 0, 255]);
+        return isConnectedNode(d.properties, connectedNodeIds) ? value : getDimmedRgba(value, 0.18);
+      };
+      return layer.clone({
+        // Reveal highlighted circles; opaque idle cards cover their dimmed circles.
+        getFillColor: (d: any, info: any) => {
+          const value = getAccessorResult(props.getFillColor, d, info, [0, 0, 0, 255]);
+          return isConnectedNode(d.properties, connectedNodeIds) ? getDimmedRgba(value, 0.18) : value;
+        },
+        getLineColor: dim(props.getLineColor),
+        updateTriggers: {
+          ...props.updateTriggers,
+          getFillColor: [...connectedNodeIds],
+          getLineColor: [...connectedNodeIds],
+        },
+      } as any);
     }
 
     const data = layer?.props?.data as any;
@@ -111,7 +134,11 @@ function getEdgeDepthsByGraph(connectedEdgeIndexes: ConnectedEdgeIndex[], isRout
   );
 }
 
-function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<number, number>>) {
+function getDimmedEdgeLayer(
+  layer: Layer,
+  edgeDepthsByGraph: Record<string, Map<number, number>>,
+  routePlacements: Map<RouteLabelData['routeLabels']['candidates'], Map<string, RouteLabelData>>
+) {
   const graphId = getGraphIdFromEdgeLayer(layer);
   if (graphId === undefined) {
     return null;
@@ -160,6 +187,39 @@ function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<
         getHighlightDepth: highlightDepthTrigger,
         getHighlightDimOpacity: highlightDepthTrigger,
         getWidths: [arcLayer.props.updateTriggers?.getWidths, highlightDepthTrigger],
+      },
+    } as any);
+  }
+
+  if (layer instanceof TextLayer && layer.id.startsWith('text-routeLabels')) {
+    const original = layer.props.data as RouteLabelData;
+    const metadata = original.routeLabels;
+    const focused = (d: any) => edgeDepthsByGraph[d.srcGraphId]?.has(d.featureIndex) ?? false;
+    if (!layer.props.visible) {
+      return layer;
+    }
+    let placements = routePlacements.get(metadata.candidates);
+    if (!placements) {
+      placements = createRouteLabelDataByGraph(metadata.candidates, metadata.obstacles, focused);
+      routePlacements.set(metadata.candidates, placements);
+    }
+    const data = placements.get(metadata.graphId) ?? original;
+    const text = layer as any;
+    const color = (accessor: any, fallback: number[]) => (d: any, info: any) => {
+      const value = getAccessorResult(accessor, d, info, fallback);
+      return focused(d) ? value : getDimmedRgba(value, EDGE_LABEL_DIM_OPACITY);
+    };
+    return layer.clone({
+      data,
+      opacity: 1,
+      getColor: color(text.props.getColor, [255, 255, 255, 255]),
+      getBackgroundColor: color(text.props.getBackgroundColor, [0, 0, 0, 235]),
+      getBorderColor: color(text.props.getBorderColor, [0, 0, 0, 0]),
+      updateTriggers: {
+        ...layer.props.updateTriggers,
+        getColor: highlightDepthTrigger,
+        getBackgroundColor: highlightDepthTrigger,
+        getBorderColor: highlightDepthTrigger,
       },
     } as any);
   }
@@ -232,6 +292,9 @@ function getGraphIdFromEdgeLayer(layer: Layer): string | undefined {
   }
   if (id.startsWith('edges-arrow-')) {
     return id.slice('edges-arrow-'.length);
+  }
+  if (id.startsWith('text-routeLabels')) {
+    return id.slice('text-routeLabels'.length);
   }
   if (id.startsWith('text-arcLabels')) {
     return id.slice('text-arcLabels'.length);

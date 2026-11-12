@@ -1,4 +1,4 @@
-import { GeoJsonLayer, TextLayer } from '@deck.gl/layers';
+import { GeoJsonLayer, PolygonLayer, TextLayer } from '@deck.gl/layers';
 import { CollisionFilterExtension, DataFilterExtension } from '@deck.gl/extensions';
 import { getNsPrefixes } from '../../graph/utils/utils.graph';
 
@@ -21,6 +21,7 @@ import {
   type UserSvgAtlasEntry,
 } from './userSvgAtlas';
 import { isVisible } from '../utils/visibility';
+import { getLayoutCardBox } from '../../graph/utils/layout-geometry';
 import { toRGB4Array, toRgbaString } from '../utils/color';
 import { getNodeLayerVisibility, getNodePointType } from './nodeRenderPlan';
 import {
@@ -525,6 +526,8 @@ const MainLabelTextLayer = (props) => {
     autoHighlight,
     highlightColor,
     idSuffix = '',
+    nodeCards = false,
+    isDark = false,
   } = props;
   const Labels = isVisible(getVisLayers, {
     index: null,
@@ -538,9 +541,11 @@ const MainLabelTextLayer = (props) => {
   const selectedNodeId = getSelectedNode?.id;
   const logicTextData = buildLogicTextLayerData(biCol, selectedNodeId);
   const labelData = logicTextData.labelData as LogicTextDatum[] & { attributes?: Record<string, any> };
-  labelData.attributes = {
-    getColor: biCol?.points?.attributes?.getColor,
-  };
+  if (!nodeCards) {
+    labelData.attributes = {
+      getColor: biCol?.points?.attributes?.getColor,
+    };
+  }
 
   const modelMatrix = new Matrix4();
   const srcGraphId = biCol.graph.id;
@@ -564,7 +569,7 @@ const MainLabelTextLayer = (props) => {
     sizeUnits: units,
     getText: (d: any) => d.properties?.style?.text ?? ' ',
     getPosition: (d: any) => {
-      const yOffset = logicTextData.labelYOffset[d.pointIndex] ?? 0;
+      const yOffset = nodeCards ? 0 : (logicTextData.labelYOffset[d.pointIndex] ?? 0);
       return [d.coordinates[0], d.coordinates[1] + yOffset];
     },
     getSize: (d: any) => {
@@ -572,7 +577,13 @@ const MainLabelTextLayer = (props) => {
       return size ?? 12;
     },
     getTextAnchor: 'middle',
-    getAlignmentBaseline: 'top',
+    getAlignmentBaseline: nodeCards ? 'center' : 'top',
+    ...(nodeCards && {
+      // On the NodeCardLayer box.
+      getColor: isDark ? [230, 230, 230, 255] : [30, 30, 30, 255],
+      lineHeight: 1.2,
+      parameters: { depthTest: false },
+    }),
     getFilterCategory: (d: any) => {
       const { style, layerName } = d.properties || {};
       return [style?.group?.groupIdx, layerName];
@@ -591,4 +602,88 @@ const MainLabelTextLayer = (props) => {
   });
 };
 
-export { NodesGeojsonLayer, MainLabelTextLayer };
+/** Card boxes of a graph's nodes (centre, half sizes; layout units), as NodeCardLayer draws them. */
+export function getNodeCards(biCol: any): Array<{ d: LogicTextDatum; x: number; y: number; hw: number; hh: number }> {
+  const cards: ReturnType<typeof getNodeCards> = [];
+  const points = biCol?.points;
+  const ids = points?.featureIds?.value;
+  const positions = points?.positions?.value;
+  if (!ids || !positions) {
+    return cards;
+  }
+  for (let i = 0; i < ids.length; i++) {
+    const properties = points.properties?.[ids[i]];
+    const box = getLayoutCardBox(properties?.style);
+    if (box) {
+      const x = positions[i * 2],
+        y = positions[i * 2 + 1];
+      cards.push({
+        d: { coordinates: [x, y], properties, pointIndex: i },
+        x,
+        y,
+        hw: box.width / 2,
+        hh: box.height / 2,
+      });
+    }
+  }
+  return cards;
+}
+
+/** Node cards: the box the layout sized for each label (layout-geometry getLayoutCardBox), edged in the node's kind colour. */
+const NodeCardLayer = (props) => {
+  const {
+    biCol,
+    getVisLayers,
+    visible,
+    isDark = false,
+    idSuffix = '',
+    pickable,
+    onHover,
+    autoHighlight,
+    highlightColor,
+  } = props;
+  const cards: ReturnType<typeof getNodeCards> = props.nodeCardData ?? getNodeCards(biCol);
+  const data = cards.map(({ d, x, y, hw: w, hh: h }) => ({
+    ...d,
+    polygon: [
+      [x - w, y - h],
+      [x + w, y - h],
+      [x + w, y + h],
+      [x - w, y + h],
+    ],
+  }));
+  const modelMatrix = new Matrix4();
+  for (const path of getNsPrefixes(biCol.graph.id)) {
+    const shift = props.layerShift?.[path];
+    if (shift) {
+      modelMatrix.translate([shift[0], shift[1], 0]);
+    }
+  }
+  return new PolygonLayer({
+    id: `${biCol.graph.id}-view-node-card${idSuffix}`,
+    data,
+    visible: visible && isVisible(getVisLayers, { index: null, name: colTypes.Label, group: colTypes.Label }),
+    modelMatrix,
+    pickable,
+    onHover,
+    autoHighlight,
+    highlightColor,
+    getPolygon: (d: any) => d.polygon,
+    getFillColor: isDark ? [24, 27, 31, 255] : [255, 255, 255, 255],
+    getLineColor: (d: any) => {
+      const c = d.properties?.style?.group?.color ?? d.properties?.style?.color; // kind (group) colour first
+      return Array.isArray(c) ? [c[0], c[1], c[2], 255] : c ? toRGB4Array(c) : [128, 128, 128, 255];
+    },
+    getLineWidth: 2,
+    lineWidthUnits: 'pixels',
+    parameters: { depthTest: false },
+    getFilterCategory: (d: any) => {
+      const { style, layerName } = d.properties || {};
+      return [style?.group?.groupIdx, layerName];
+    },
+    filterCategories: getVisLayers.getCategories(),
+    extensions: [new DataFilterExtension({ categorySize: 2 })],
+  });
+};
+
+export { NodesGeojsonLayer, MainLabelTextLayer, NodeCardLayer };
