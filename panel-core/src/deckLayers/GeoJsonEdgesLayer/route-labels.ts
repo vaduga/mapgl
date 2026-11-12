@@ -63,10 +63,21 @@ export function declutterRouteLabels(
     let spot = spots.find(([x, y]) => !taken.some((box) => overlaps(box, { x, y, hw, hh })));
     if (!spot && isFocused(item) && spots.length) {
       const [x, y] = spots[0];
-      let step = 1;
-      do {
-        spot = [x, y + step++ * (2 * hh + LABEL_GAP)];
-      } while (taken.some((box) => overlaps(box, { x: spot![0], y: spot![1], hw, hh })));
+      spot = [x, y];
+      // Each jump clears at least one obstacle permanently; tall cards do not
+      // require a row-by-row search through their full height.
+      while (true) {
+        let nextY = spot[1];
+        for (const box of taken) {
+          if (overlaps(box, { x, y: spot[1], hw, hh })) {
+            nextY = Math.max(nextY, box.y + box.hh + hh + LABEL_GAP);
+          }
+        }
+        if (nextY === spot[1]) {
+          break;
+        }
+        spot = [x, nextY];
+      }
     }
     if (spot) {
       taken.push({ x: spot[0], y: spot[1], hw, hh });
@@ -84,10 +95,17 @@ function overlaps(a: LabelBox, b: LabelBox): boolean {
 export function getRouteLabelCandidates(segments: CurveEdgeBinaryData<DeckLine>): RouteLabelCandidate[] {
   const paths = new Map<number, number[][]>();
   const { getControlPoints, getSegment, getCurveType } = segments.attributes;
+  const hasText = (text: unknown) => typeof text === 'string' && Boolean(text.trim());
+  const labeled = segments.features.map((feature) => {
+    const { edgeStyle, arcStyle } = feature?.properties ?? {};
+    return (
+      hasText(edgeStyle?.text) ||
+      (arcStyle?.showStat2 === true && (hasText(arcStyle.sideA?.text) || hasText(arcStyle.sideB?.text)))
+    );
+  });
   for (let i = 0; i < segments.length; i++) {
     const featureIndex = segments.segmentFeatureIndexes[i];
-    const feature = segments.features[featureIndex];
-    if (featureIndex < 0 || !feature) {
+    if (!labeled[featureIndex]) {
       continue;
     }
     const cp = getControlPoints.value.subarray(i * 8, i * 8 + 8);
@@ -248,8 +266,27 @@ export function createRouteLabelData(
   graphId: string,
   isFocused: (label: ScopedRouteLabelCandidate) => boolean = () => false
 ): RouteLabelData {
+  return (
+    createRouteLabelDataByGraph(candidates, obstacles, isFocused).get(graphId) ??
+    Object.assign([], { routeLabels: { candidates, obstacles, graphId } })
+  );
+}
+
+/** Run global collision placement once, then partition without repeating it per namespace. */
+export function createRouteLabelDataByGraph(
+  candidates: readonly ScopedRouteLabelCandidate[],
+  obstacles: readonly LabelBox[],
+  isFocused: (label: ScopedRouteLabelCandidate) => boolean = () => false
+): Map<string, RouteLabelData> {
+  const byGraph = new Map<string, RouteLabelData>();
+  for (const { srcGraphId } of candidates) {
+    if (!byGraph.has(srcGraphId)) {
+      byGraph.set(srcGraphId, Object.assign([], { routeLabels: { candidates, obstacles, graphId: srcGraphId } }));
+    }
+  }
   const eligible = candidates.filter((c) => !c.feature.skip || isFocused(c));
-  const placed = declutterRouteLabels(eligible, obstacles, (c) => isFocused(c as ScopedRouteLabelCandidate));
-  const data = placed.filter((c) => (c as RouteLabel & { srcGraphId: string }).srcGraphId === graphId);
-  return Object.assign(data, { routeLabels: { candidates, obstacles, graphId } });
+  for (const label of declutterRouteLabels(eligible, obstacles, (c) => isFocused(c as ScopedRouteLabelCandidate))) {
+    byGraph.get((label as RouteLabel & { srcGraphId: string }).srcGraphId)!.push(label);
+  }
+  return byGraph;
 }

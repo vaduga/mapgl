@@ -126,7 +126,9 @@ export function getLayoutCurveSegments(
     features: featuresByLineId,
     segmentFeatureIndexes,
   });
-  result.attributes.getFlow = { value: getCurveFlowRanges(result), size: 4 };
+  if (result.features.some((feature) => getCurveFlowDirection(feature) !== 0)) {
+    result.attributes.getFlow = { value: getCurveFlowRanges(result), size: 4 };
+  }
   return result;
 }
 
@@ -154,7 +156,7 @@ export const EdgesGeojsonLayer = (props) => {
   const selectedFeatureIndexes = getSelectedIdxs?.get(colTypes.Edges)?.[srcGraphId] ?? [];
   const lineFeatures = linesCollection?.features ?? [];
   const curveSegments = isLogic
-    ? getLayoutCurveSegments(srcGraphId, lineFeatures, edgeIndex, layoutGeometry)
+    ? (props.curveSegments ?? getLayoutCurveSegments(srcGraphId, lineFeatures, edgeIndex, layoutGeometry))
     : undefined;
   const baseCategories = getVisLayers.getCategories();
   const filterIncludesSkip = !isLogic || !curveSegments?.length;
@@ -282,7 +284,9 @@ export const EdgesGeojsonLayer = (props) => {
             return false;
           }
           const feature = curveSegments.features[featureIndex];
-          if (feature.skip || !getCurveFlowDirection(feature)) {return false;}
+          if (feature.skip || !getCurveFlowDirection(feature)) {
+            return false;
+          }
           const category = getEdgeFilterCategory({
             feature,
             baseCategories,

@@ -104,3 +104,36 @@ describe('route labels', () => {
     expect(both.filter((l) => l.kind === 'middle')).toHaveLength(2);
   });
 });
+
+it('skips sampling edges without configured text', () => {
+  const subarray = jest.fn(() => {
+    throw new Error('unnecessary curve sampling');
+  });
+  expect(
+    getRouteLabelCandidates({
+      length: 1,
+      features: [{ properties: { edgeStyle: { text: '  ' } } }],
+      segmentFeatureIndexes: [0],
+      attributes: { getControlPoints: { value: { subarray } }, getSegment: {}, getCurveType: {} },
+    } as any)
+  ).toEqual([]);
+  expect(subarray).not.toHaveBeenCalled();
+});
+
+it('jumps past tall obstacles while retaining every focused label', () => {
+  const candidate: any = {
+    text: 'focused',
+    fontSize: 10,
+    featureIndex: 0,
+    kind: 'middle',
+    spots: [[0, 0]],
+    hw: 10,
+    hh: 7,
+    color: [1, 2, 3, 255],
+    feature: { properties: {} },
+  };
+  const labels = declutterRouteLabels([candidate, candidate], [{ x: 0, y: 0, hw: 100, hh: 1e9 }], () => true);
+  expect(labels).toHaveLength(2);
+  expect(labels[0].position[1]).toBeGreaterThan(1e9 + 7);
+  expect(labels[1].position[1] - labels[0].position[1]).toBeGreaterThanOrEqual(14);
+});

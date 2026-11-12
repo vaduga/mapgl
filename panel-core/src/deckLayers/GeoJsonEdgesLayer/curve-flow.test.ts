@@ -44,7 +44,7 @@ function fixture() {
 it('measures a complete edge across pieces independently of another layer', () => {
   const { features, geometry, edgeIndex } = fixture();
   const data = getLayoutCurveSegments('ns', features, edgeIndex, geometry)!;
-  expect(Array.from(getCurveFlowRanges(data))).toEqual([0, 40, 100, 2, 40, 100, 100, 2, 0, 50, 50, 0]);
+  expect(Array.from(getCurveFlowRanges(data))).toEqual([0, 40, 100, 2, 40, 100, 100, 2, 0, 0, 0, 0]);
   for (const arrow of [-1, 0, 1, 2]) {
     expect(getCurveFlowDirection({ properties: { edgeStyle: { animate: true, arrow } } })).toBe(arrow);
     expect(getCurveFlowDirection({ properties: { edgeStyle: { arrow } } })).toBe(0);
@@ -72,16 +72,36 @@ it('stops requesting animation for hidden layers and disabled flow', () => {
 
 it('accumulates line, Bezier and elliptical pieces without restarting at piece boundaries', () => {
   const data: any = {
-    length: 3, segmentFeatureIndexes: Int32Array.from([0, 0, 1]),
+    length: 3,
+    segmentFeatureIndexes: Int32Array.from([0, 0, 1]),
     features: [1, -1].map((arrow) => ({ properties: { edgeStyle: { arrow, animate: true } } })),
     attributes: {
       getCurveType: { value: Uint8Array.from([0, 1, 2]) },
       getSegment: { value: Float32Array.from([0, 1, 0, 1, 0, Math.PI]) },
-      getControlPoints: { value: Float32Array.from([0,0,40,0,0,0,0,0, 40,0,60,0,80,0,100,0, 0,0,10,0,0,10,0,0]) },
+      getControlPoints: {
+        value: Float32Array.from([0, 0, 40, 0, 0, 0, 0, 0, 40, 0, 60, 0, 80, 0, 100, 0, 0, 0, 10, 0, 0, 10, 0, 0]),
+      },
     },
   };
   const ranges = getCurveFlowRanges(data);
   expect(Array.from(ranges.slice(0, 8))).toEqual([0, 40, 100, 1, 40, 100, 100, 1]);
   expect(ranges[9]).toBeCloseTo(Math.PI * 10, 0);
   expect(ranges[11]).toBe(-1);
+});
+
+it('omits the flow buffer for static geometry and reuses captured curve data', () => {
+  const { features, geometry, edgeIndex } = fixture();
+  features[0].properties.edgeStyle.animate = false;
+  const data = getLayoutCurveSegments('ns', features, edgeIndex, geometry)!;
+  expect(data.attributes.getFlow).toBeUndefined();
+  const layer = EdgesGeojsonLayer({
+    srcGraphId: 'ns',
+    isLogic: true,
+    curveSegments: data,
+    linesCollection: { features },
+    visible: true,
+    getVisLayers: { getCategories: () => [[0], ['a', 'b']] },
+  }) as any;
+  expect(layer.props.data).toBe(data);
+  expect(layer.props.animate).toBe(false);
 });

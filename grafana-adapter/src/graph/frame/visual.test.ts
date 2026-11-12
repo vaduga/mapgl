@@ -66,68 +66,51 @@ async function visuals(
 }
 
 describe('graph visual stage', () => {
-  it('formats side templates independently of color fields after saving and reloading', async () => {
-    const frame = testFrame('SideTemplate', {
-      source: ['A', 'B'],
-      target: ['B', null],
-      rate: [1234, 0],
-      load: [75, 0],
-    });
-    frame.fields.find((field) => field.name === 'rate')!.config = { unit: 'bps', decimals: 1 };
-    const config = JSON.parse(
-      JSON.stringify(
-        visualConfig({
-          showStat2: true,
-          edgeStyle: { ...visualConfig().edgeStyle, animate: true, arrow: 2 },
-          arcStyle: {
-            sideA: {
-              color: { field: 'load', fixed: 'green' },
-              text: { mode: TextDimensionMode.Template, fixed: 'sent ${rate}' },
+  it.each([
+    { mode: TextDimensionMode.Field, animate: false, arrow: -1, expected: '1.2 kb/s' },
+    { mode: TextDimensionMode.Field, animate: true, arrow: -1, expected: '1.2 kb/s' },
+    { mode: TextDimensionMode.Template, animate: true, arrow: 2, expected: 'sent 1.2 kb/s' },
+  ])(
+    'retains independent $mode side text and color after JSON round-trip (Animate=$animate)',
+    async ({ mode, animate, arrow, expected }) => {
+      const frame = testFrame('FlowLabels', {
+        source: ['A', 'B'],
+        target: ['B', null],
+        rate: [1234, 0],
+        load: [75, 0],
+      });
+      frame.fields.find((field) => field.name === 'rate')!.config = { unit: 'bps', decimals: 1 };
+      const config = JSON.parse(
+        JSON.stringify(
+          visualConfig({
+            showStat2: true,
+            edgeStyle: { ...visualConfig().edgeStyle, animate, arrow },
+            arcStyle: {
+              sideA: {
+                color: { field: 'load', fixed: 'green' },
+                text:
+                  mode === TextDimensionMode.Template
+                    ? { mode, fixed: 'sent ${rate}' }
+                    : { mode, field: 'rate', fixed: '' },
+                textConfig: { fontSize: 18 },
+              },
+              sideB: { color: { fixed: 'blue' }, text: { mode: TextDimensionMode.Fixed, fixed: 'received' } },
             },
-            sideB: { color: { fixed: 'blue' }, text: { mode: TextDimensionMode.Fixed, fixed: 'received' } },
-          },
-        })
-      )
-    );
-    const { state } = await visuals(frame, config);
-    expect(state.edgeUnits[0]!.style).toMatchObject({ animate: true, arrow: 2 });
-    expect(state.edgeUnits[0]!.arcStyle).toMatchObject({
-      showStat2: true,
-      sideA: { text: 'sent 1.2 kb/s', colorField: 'load' },
-      sideB: { text: 'received' },
-    });
-    expect((await visuals(frame, visualConfig())).state.edgeUnits[0]!.style.animate).toBe(false);
-  });
-  it('retains Animate independently of arrow and side text/color fields', async () => {
-    const frame = testFrame('FlowLabels', {
-      source: ['A', 'B'],
-      target: ['B', null],
-      throughput: [42, 0],
-      utilization: [10, 0],
-    });
-    for (const animate of [false, true]) {
-      const config = visualConfig({
-        showStat2: true,
-        edgeStyle: { ...visualConfig().edgeStyle, arrow: -1, animate },
-        arcStyle: {
-          sideA: {
-            color: { field: 'utilization', fixed: 'green' },
-            text: { mode: TextDimensionMode.Field, field: 'throughput', fixed: '' },
-            textConfig: { fontSize: 18 },
-          },
-          sideB: { color: { fixed: 'blue' }, text: { mode: TextDimensionMode.Fixed, fixed: 'receive' } },
-        },
-      });
+          })
+        )
+      );
       const { state } = await visuals(frame, config);
-      expect(state.edgeUnits[0]!.style).toMatchObject({ animate, arrow: -1 });
-      expect(state.edgeUnits[0]!.arcStyle.sideA).toMatchObject({
-        text: '42',
-        textConfig: { fontSize: 18 },
-        colorField: 'utilization',
+      expect(state.edgeUnits[0]!.style).toMatchObject({ animate, arrow });
+      expect(state.edgeUnits[0]!.arcStyle).toMatchObject({
+        showStat2: true,
+        sideA: { text: expected, colorField: 'load', textConfig: { fontSize: 18 } },
+        sideB: { text: 'received' },
       });
-      expect(state.edgeUnits[0]!.arcStyle.sideB.text).toBe('receive');
+      if (!animate) {
+        expect((await visuals(frame, visualConfig())).state.edgeUnits[0]!.style.animate).toBe(false);
+      }
     }
-  });
+  );
   it('resolves fixed node and edge channels into stage-owned records and buffers', async () => {
     const frame = testFrame('Fixed', { source: ['A', 'B'], target: ['B', null] });
     const config = visualConfig({

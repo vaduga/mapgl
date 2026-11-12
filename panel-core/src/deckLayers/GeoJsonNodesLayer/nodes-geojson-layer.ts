@@ -604,19 +604,53 @@ const MainLabelTextLayer = (props) => {
 
 /** Card boxes of a graph's nodes (centre, half sizes; layout units), as NodeCardLayer draws them. */
 export function getNodeCards(biCol: any): Array<{ d: LogicTextDatum; x: number; y: number; hw: number; hh: number }> {
-  return buildLogicTextLayerData(biCol).labelData.flatMap((d) => {
-    const box = getLayoutCardBox(d.properties?.style);
-    return box ? [{ d, x: d.coordinates[0], y: d.coordinates[1], hw: box.width / 2, hh: box.height / 2 }] : [];
-  });
+  const cards: ReturnType<typeof getNodeCards> = [];
+  const points = biCol?.points;
+  const ids = points?.featureIds?.value;
+  const positions = points?.positions?.value;
+  if (!ids || !positions) {
+    return cards;
+  }
+  for (let i = 0; i < ids.length; i++) {
+    const properties = points.properties?.[ids[i]];
+    const box = getLayoutCardBox(properties?.style);
+    if (box) {
+      const x = positions[i * 2],
+        y = positions[i * 2 + 1];
+      cards.push({
+        d: { coordinates: [x, y], properties, pointIndex: i },
+        x,
+        y,
+        hw: box.width / 2,
+        hh: box.height / 2,
+      });
+    }
+  }
+  return cards;
 }
 
 /** Node cards: the box the layout sized for each label (layout-geometry getLayoutCardBox), edged in the node's kind colour. */
 const NodeCardLayer = (props) => {
-  const { biCol, getVisLayers, visible, isDark = false, idSuffix = '', pickable, onHover, autoHighlight, highlightColor } =
-    props;
-  const data = getNodeCards(biCol).map(({ d, x, y, hw: w, hh: h }) => ({
+  const {
+    biCol,
+    getVisLayers,
+    visible,
+    isDark = false,
+    idSuffix = '',
+    pickable,
+    onHover,
+    autoHighlight,
+    highlightColor,
+  } = props;
+  const cards: ReturnType<typeof getNodeCards> = props.nodeCardData ?? getNodeCards(biCol);
+  const data = cards.map(({ d, x, y, hw: w, hh: h }) => ({
     ...d,
-    polygon: [[x - w, y - h], [x + w, y - h], [x + w, y + h], [x - w, y + h]],
+    polygon: [
+      [x - w, y - h],
+      [x + w, y - h],
+      [x + w, y + h],
+      [x - w, y + h],
+    ],
   }));
   const modelMatrix = new Matrix4();
   for (const path of getNsPrefixes(biCol.graph.id)) {

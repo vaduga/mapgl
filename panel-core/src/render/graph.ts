@@ -25,7 +25,7 @@ import {
 } from '../deckLayers/GeoJsonNodesLayer/nodes-geojson-layer';
 import { EdgesGeojsonLayer, getLayoutCurveSegments } from '../deckLayers/GeoJsonEdgesLayer/edges-geojson-layer';
 import {
-  createRouteLabelData,
+  createRouteLabelDataByGraph,
   getRouteLabelCandidates,
   type RouteLabelCandidate,
 } from '../deckLayers/GeoJsonEdgesLayer/route-labels';
@@ -361,8 +361,12 @@ export function buildPrimaryLayers(
     edges: RenderLayer[] = [],
     baseEdges: RenderLayer[] = [],
     bounds: RenderLayer[] = [];
+  const cardObstacles: ReturnType<typeof getNodeCards> = [];
   for (const biCol of prepared.collections) {
+    const nodeCardData = p.labels && p.nodeCards ? getNodeCards(biCol) : [];
+    cardObstacles.push(...nodeCardData);
     const props = {
+      nodeCardData,
       ...common,
       biCol,
       visible:
@@ -402,17 +406,22 @@ export function buildPrimaryLayers(
       continue;
     }
     if (p.isRouted) {
+      const segments = p.isLogic
+        ? getLayoutCurveSegments(srcGraphId, features, common.edgeIndex, common.layoutGeometry)
+        : undefined;
       const props = {
         ...common,
         srcGraphId,
         visible,
         linesCollection: { type: 'FeatureCollection' as const, features },
+        curveSegments: segments,
       };
       edges.push(...normalizeLayers((factories.edge ?? EdgesGeojsonLayer)(props)), EdgeArrowLayer(props));
-      const segments = p.isLogic
-        ? getLayoutCurveSegments(srcGraphId, features, common.edgeIndex, common.layoutGeometry)
-        : undefined;
-      if (segments?.length) {
+      if (
+        segments?.length &&
+        visible &&
+        isVisible(input.visibility, { index: null, name: colTypes.Label, group: colTypes.Label })
+      ) {
         routeLabels.push(...getRouteLabelCandidates(segments).map((c) => ({ ...c, srcGraphId })));
       }
     } else {
@@ -424,9 +433,7 @@ export function buildPrimaryLayers(
   }
   if (routeLabels.length) {
     // All lines at once, so labels of lines from different boxes do not pile up either.
-    const cards = p.nodeCards ? prepared.collections.flatMap((biCol) => getNodeCards(biCol)) : [];
-    for (const srcGraphId of new Set(routeLabels.map((c) => c.srcGraphId))) {
-      const data = createRouteLabelData(routeLabels, cards, srcGraphId);
+    for (const [srcGraphId, data] of createRouteLabelDataByGraph(routeLabels, cardObstacles)) {
       labels.push(LineTextLayer({ ...common, id: srcGraphId, data, visible, type: 'routeLabels' }));
     }
   }

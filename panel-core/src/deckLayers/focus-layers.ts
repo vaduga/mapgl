@@ -1,4 +1,4 @@
-import { createRouteLabelData, type RouteLabelData } from './GeoJsonEdgesLayer/route-labels';
+import { createRouteLabelDataByGraph, type RouteLabelData } from './GeoJsonEdgesLayer/route-labels';
 import { IconLayer, TextLayer } from '@deck.gl/layers';
 import type { Layer } from '@deck.gl/core';
 import type { RGBAColor } from '../types/index';
@@ -23,12 +23,13 @@ export function getDimmedGraphLayers(layers: Layer[], opts: DimmedGraphLayerOpti
   const edgeDepthsByGraph =
     opts instanceof Set ? {} : getEdgeDepthsByGraph(opts.connectedEdgeIndexes ?? [], Boolean(opts.isRouted));
 
+  const routePlacements = new Map<RouteLabelData['routeLabels']['candidates'], Map<string, RouteLabelData>>();
   return flattenDeckLayers(layers).map((layer) => {
     if ((layer?.id ?? '').startsWith('icon-cluster')) {
       return layer.clone({ opacity: 0.18 });
     }
 
-    const dimmedEdgeLayer = getDimmedEdgeLayer(layer, edgeDepthsByGraph);
+    const dimmedEdgeLayer = getDimmedEdgeLayer(layer, edgeDepthsByGraph, routePlacements);
     if (dimmedEdgeLayer) {
       return dimmedEdgeLayer;
     }
@@ -133,7 +134,11 @@ function getEdgeDepthsByGraph(connectedEdgeIndexes: ConnectedEdgeIndex[], isRout
   );
 }
 
-function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<number, number>>) {
+function getDimmedEdgeLayer(
+  layer: Layer,
+  edgeDepthsByGraph: Record<string, Map<number, number>>,
+  routePlacements: Map<RouteLabelData['routeLabels']['candidates'], Map<string, RouteLabelData>>
+) {
   const graphId = getGraphIdFromEdgeLayer(layer);
   if (graphId === undefined) {
     return null;
@@ -190,7 +195,15 @@ function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<
     const original = layer.props.data as RouteLabelData;
     const metadata = original.routeLabels;
     const focused = (d: any) => edgeDepthsByGraph[d.srcGraphId]?.has(d.featureIndex) ?? false;
-    const data = createRouteLabelData(metadata.candidates, metadata.obstacles, metadata.graphId, focused);
+    if (!layer.props.visible) {
+      return layer;
+    }
+    let placements = routePlacements.get(metadata.candidates);
+    if (!placements) {
+      placements = createRouteLabelDataByGraph(metadata.candidates, metadata.obstacles, focused);
+      routePlacements.set(metadata.candidates, placements);
+    }
+    const data = placements.get(metadata.graphId) ?? original;
     const text = layer as any;
     const color = (accessor: any, fallback: number[]) => (d: any, info: any) => {
       const value = getAccessorResult(accessor, d, info, fallback);
@@ -280,7 +293,9 @@ function getGraphIdFromEdgeLayer(layer: Layer): string | undefined {
   if (id.startsWith('edges-arrow-')) {
     return id.slice('edges-arrow-'.length);
   }
-  if (id.startsWith('text-routeLabels')) {return id.slice('text-routeLabels'.length);}
+  if (id.startsWith('text-routeLabels')) {
+    return id.slice('text-routeLabels'.length);
+  }
   if (id.startsWith('text-arcLabels')) {
     return id.slice('text-arcLabels'.length);
   }

@@ -5,7 +5,7 @@
   "panels": [
     {
       "type": "vaduga-mapgl-panel",
-      "title": "Network map (demo data). ELK flow layout",
+      "title": "Network map. ELK flow layout",
       "description": "Demo: TestData CSV in the shape of the Prometheus queries C, A, B, D-G. Boxes are namespaces, and regions outside the cluster. Each card shows \u2191 sent and \u2193 received on its lines. Lines run from the side that opened the connection, with moving pulses; width = bit/s. The number at each end of a line is what that end sent. A red badge mid-line counts 15 s windows with Calico denied traffic in the time range.",
       "datasource": {
         "type": "grafana-testdata-datasource",
@@ -680,7 +680,7 @@
     "from": "now-15m",
     "to": "now"
   },
-  "tags": ["kubernetes"],
+  "tags": ["kubernetes", "demo"],
   "templating": {
     "list": [
       {

@@ -3,7 +3,8 @@ import { pointOnCurve } from './curve-geometry';
 
 export function getCurveFlowDirection(feature: any): number {
   const style = feature?.properties?.edgeStyle;
-  return style?.animate && [-1, 1, 2].includes(style.arrow) ? style.arrow : 0;
+  const arrow = style?.arrow;
+  return style?.animate && (arrow === -1 || arrow === 1 || arrow === 2) ? arrow : 0;
 }
 
 /** Cumulative distance for each tessellated piece, measured over its entire edge. */
@@ -12,6 +13,9 @@ export function getCurveFlowRanges(data: CurveEdgeBinaryData): Float32Array {
   const totals = new Map<number, number>();
   for (let i = 0; i < data.length; i++) {
     const featureIndex = data.segmentFeatureIndexes[i];
+    if (!getCurveFlowDirection(data.features[featureIndex])) {
+      continue;
+    }
     const cp = data.attributes.getControlPoints.value.subarray(i * 8, i * 8 + 8);
     const [t, dt] = data.attributes.getSegment.value.subarray(i * 2, i * 2 + 2);
     const type = data.attributes.getCurveType.value[i];

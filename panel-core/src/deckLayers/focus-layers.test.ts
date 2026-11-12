@@ -1,7 +1,11 @@
 import { TextLayer, PolygonLayer } from '@deck.gl/layers';
 import { getDimmedGraphLayers } from './focus-layers';
 import { makeScopedKey } from './GraphHighlighter';
-import { createRouteLabelData, type ScopedRouteLabelCandidate } from './GeoJsonEdgesLayer/route-labels';
+import {
+  createRouteLabelData,
+  createRouteLabelDataByGraph,
+  type ScopedRouteLabelCandidate,
+} from './GeoJsonEdgesLayer/route-labels';
 
 it('promotes every focused label by edge index, including labels dropped by idle declutter', () => {
   const candidates = [7, 7, 2].map((featureIndex, i) => ({
@@ -45,4 +49,30 @@ it('reveals focused circles and covers unfocused circles while dimming card bord
   expect(border({ properties: { graph: { id: 'ns' }, locName: 'a' } })).toEqual([1, 2, 3, 255]);
   expect(border({ properties: { graph: { id: 'ns' }, locName: 'b' } })[3]).toBe(46);
   expect(base.props.getFillColor).toEqual([255, 255, 255, 255]);
+});
+
+it('runs global placement once for namespace layers on a focus update', () => {
+  const candidates = ['a', 'b'].map((srcGraphId, i) => ({
+    text: srcGraphId,
+    fontSize: 10,
+    featureIndex: 0,
+    srcGraphId,
+    kind: 'middle',
+    spots: [[i * 100, 0]],
+    hw: 10,
+    hh: 7,
+    color: [1, 2, 3, 255],
+    feature: { properties: {} },
+  })) as ScopedRouteLabelCandidate[];
+  const baseline = createRouteLabelDataByGraph(candidates, []);
+  const layers = [...baseline].map(([id, data]) => new TextLayer({ id: `text-routeLabels${id}`, data }));
+  const traversal = jest.fn(() => Array.prototype.values.call(candidates));
+  Object.defineProperty(candidates, Symbol.iterator, { value: traversal });
+  const focused = getDimmedGraphLayers(layers, {
+    connectedNodeIds: new Set(),
+    isRouted: true,
+    connectedEdgeIndexes: [{ graphId: 'a', lineId: 0 }],
+  });
+  expect(traversal).toHaveBeenCalledTimes(1);
+  expect(focused.map((layer) => (layer.props.data as any[]).map((label) => label.srcGraphId))).toEqual([['a'], ['b']]);
 });
