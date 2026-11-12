@@ -2,8 +2,26 @@ import { declutterRouteLabels, getRouteLabelCandidates, getRouteLabels, pointAlo
 
 describe('route labels', () => {
   it('finds the point at a fraction of a polyline', () => {
-    expect(pointAlong([[0, 0], [10, 0], [10, 10]], 0.5)).toEqual([10, 0]);
-    expect(pointAlong([[0, 0], [10, 0], [10, 10]], 0.75)).toEqual([10, 5]);
+    expect(
+      pointAlong(
+        [
+          [0, 0],
+          [10, 0],
+          [10, 10],
+        ],
+        0.5
+      )
+    ).toEqual([10, 0]);
+    expect(
+      pointAlong(
+        [
+          [0, 0],
+          [10, 0],
+          [10, 10],
+        ],
+        0.75
+      )
+    ).toEqual([10, 5]);
   });
 
   const line = (x2: number, feature: any) =>
@@ -20,7 +38,7 @@ describe('route labels', () => {
   const feature = {
     properties: {
       edgeStyle: { text: '3 denied', color: [255, 0, 0, 255], textConfig: { fontSize: 10 } },
-      arcStyle: { sideA: { text: '10 Mb/s', color: [0, 0, 255, 255] }, sideB: { text: '1 Mb/s' } },
+      arcStyle: { showStat2: true, sideA: { text: '10 Mb/s', color: [0, 0, 255, 255] }, sideB: { text: '1 Mb/s' } },
     },
   };
 
@@ -40,6 +58,12 @@ describe('route labels', () => {
     expect(labels[2].color).toEqual([255, 0, 0, 255]); // no side colour: the line's
   });
 
+  it('does not invent side labels when the middle style is copied by a consumer', () => {
+    const middle = { text: 'authored hop' };
+    const copied = { properties: { edgeStyle: { ...middle }, arcStyle: { sideA: middle, sideB: middle } } };
+    expect(getRouteLabels(line(400, copied)).map((label) => label.text)).toEqual(['authored hop']);
+  });
+
   it('stacks the labels mid-line, with direction arrows, when the line is short', () => {
     const labels = getRouteLabels(line(80, feature));
     expect(labels.map((l) => [l.text, l.position[0], Math.round(l.position[1])])).toEqual([
@@ -49,7 +73,21 @@ describe('route labels', () => {
     ]);
   });
 
-  it('moves a label off a card or another line\'s label, and drops it when no spot is clear', () => {
+  it('uses independent side font sizes and ignores blank text', () => {
+    const styled = {
+      properties: {
+        ...feature.properties,
+        arcStyle: { showStat2: true, sideA: { text: 'large', textConfig: { fontSize: 20 } }, sideB: { text: '  ' } },
+      },
+    };
+    const candidates = getRouteLabelCandidates(line(500, styled));
+    expect(candidates.map((c) => [c.text, c.fontSize, c.hh])).toEqual([
+      ['large', 20, 13],
+      ['3 denied', 10, 6.5],
+    ]);
+  });
+
+  it("moves a label off a card or another line's label, and drops it when no spot is clear", () => {
     const [a] = getRouteLabelCandidates(line(400, feature));
     // A card over the first spot of the source label: it moves along the line.
     const [moved] = declutterRouteLabels([a], [{ x: 31, y: 0, hw: 10, hh: 10 }]);

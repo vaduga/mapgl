@@ -1,9 +1,12 @@
+import { pointOnCurve } from './curve-geometry';
 import type { DeckLine } from '../../types/index';
 import type { CurveEdgeBinaryData } from './curve-edge-layer';
 import { measureText } from '../../graph/utils/layout-geometry';
 
 export type RouteLabel = {
   text: string;
+  fontSize: number;
+  featureIndex: number;
   position: [number, number];
   /** Border (end labels) or background (middle badge) colour. */
   color: number[];
@@ -47,13 +50,24 @@ export function getRouteLabels(segments: CurveEdgeBinaryData<DeckLine>): RouteLa
  */
 export function declutterRouteLabels(
   candidates: readonly RouteLabelCandidate[],
-  obstacles: readonly LabelBox[]
+  obstacles: readonly LabelBox[],
+  isFocused: (candidate: RouteLabelCandidate) => boolean = () => false
 ): RouteLabel[] {
   const taken: LabelBox[] = [...obstacles];
   const placed: RouteLabel[] = [];
-  const ordered = [...candidates].sort((a, b) => Number(b.kind === 'middle') - Number(a.kind === 'middle'));
-  for (const { spots, hw, hh, ...label } of ordered) {
-    const spot = spots.find(([x, y]) => !taken.some((box) => overlaps(box, { x, y, hw, hh })));
+  const ordered = [...candidates].sort(
+    (a, b) => Number(isFocused(b)) - Number(isFocused(a)) || Number(b.kind === 'middle') - Number(a.kind === 'middle')
+  );
+  for (const item of ordered) {
+    const { spots, hw, hh, ...label } = item;
+    let spot = spots.find(([x, y]) => !taken.some((box) => overlaps(box, { x, y, hw, hh })));
+    if (!spot && isFocused(item) && spots.length) {
+      const [x, y] = spots[0];
+      let step = 1;
+      do {
+        spot = [x, y + step++ * (2 * hh + LABEL_GAP)];
+      } while (taken.some((box) => overlaps(box, { x: spot![0], y: spot![1], hw, hh })));
+    }
     if (spot) {
       taken.push({ x: spot[0], y: spot[1], hw, hh });
       placed.push({ ...label, position: spot });
@@ -73,7 +87,7 @@ export function getRouteLabelCandidates(segments: CurveEdgeBinaryData<DeckLine>)
   for (let i = 0; i < segments.length; i++) {
     const featureIndex = segments.segmentFeatureIndexes[i];
     const feature = segments.features[featureIndex];
-    if (featureIndex < 0 || !feature || (feature as { skip?: boolean }).skip) {
+    if (featureIndex < 0 || !feature) {
       continue;
     }
     const cp = getControlPoints.value.subarray(i * 8, i * 8 + 8);
@@ -87,31 +101,46 @@ export function getRouteLabelCandidates(segments: CurveEdgeBinaryData<DeckLine>)
 
   const labels: RouteLabelCandidate[] = [];
   for (const [featureIndex, path] of paths) {
-    labels.push(...placeLabels(segments.features[featureIndex], path));
+    labels.push(...placeLabels(segments.features[featureIndex], path, featureIndex));
   }
   return labels;
 }
 
-type Pending = { text: string; kind: RouteLabel['kind']; color: number[]; width: number };
+type Pending = { text: string; kind: RouteLabel['kind']; color: number[]; width: number; fontSize: number };
 
-function placeLabels(feature: DeckLine, path: number[][]): RouteLabelCandidate[] {
+function placeLabels(feature: DeckLine, path: number[][], featureIndex: number): RouteLabelCandidate[] {
   const { edgeStyle, arcStyle } = (feature.properties ?? {}) as any;
   const fontSize = edgeStyle?.textConfig?.fontSize ?? DEFAULT_FONT_SIZE;
   const lineColor = edgeStyle?.group?.color ?? edgeStyle?.color ?? [128, 128, 128, 255];
-  const pending = (text: unknown, kind: RouteLabel['kind'], color: number[]): Pending | undefined =>
+  const pending = (text: unknown, kind: RouteLabel['kind'], color: number[], size = fontSize): Pending | undefined =>
     typeof text === 'string' && text.trim()
-      ? { text, kind, color, width: measureText(text) * fontSize + 2 * LABEL_PADDING }
+      ? { text, kind, color, fontSize: size, width: measureText(text) * size + 2 * LABEL_PADDING }
       : undefined;
-  const sides = arcStyle?.sideA !== edgeStyle;
-  const a = sides ? pending(arcStyle?.sideA?.text, 'end', arcStyle?.sideA?.color ?? lineColor) : undefined;
-  const b = sides ? pending(arcStyle?.sideB?.text, 'end', arcStyle?.sideB?.color ?? lineColor) : undefined;
+  const sides = arcStyle?.showStat2 === true;
+  const a = sides
+    ? pending(
+        arcStyle?.sideA?.text,
+        'end',
+        arcStyle?.sideA?.color ?? lineColor,
+        arcStyle?.sideA?.textConfig?.fontSize ?? fontSize
+      )
+    : undefined;
+  const b = sides
+    ? pending(
+        arcStyle?.sideB?.text,
+        'end',
+        arcStyle?.sideB?.color ?? lineColor,
+        arcStyle?.sideB?.textConfig?.fontSize ?? fontSize
+      )
+    : undefined;
   const m = pending(edgeStyle?.text, 'middle', lineColor);
-  const hh = (fontSize * LABEL_HEIGHT) / 2;
   const candidate = (p: Pending, spots: Array<[number, number]>, text = p.text): RouteLabelCandidate => ({
     text,
+    fontSize: p.fontSize,
+    featureIndex,
     spots,
-    hw: measureText(text) * fontSize / 2 + LABEL_PADDING,
-    hh,
+    hw: (measureText(text) * p.fontSize) / 2 + LABEL_PADDING,
+    hh: (p.fontSize * LABEL_HEIGHT) / 2,
     color: p.color,
     kind: p.kind,
     feature,
@@ -138,19 +167,27 @@ function placeLabels(feature: DeckLine, path: number[][]): RouteLabelCandidate[]
       const to = b ? length - END_GAP - wb - LABEL_GAP : length;
       const c = (from + to) / 2;
       const spots = [c, c - wm, c + wm, c - 2 * wm].filter((d, i) => i === 0 || (d >= wm / 2 && d <= length - wm / 2));
-      out.push(candidate(m, spots.map((d) => pointAt(path, d).point)));
+      out.push(
+        candidate(
+          m,
+          spots.map((d) => pointAt(path, d).point)
+        )
+      );
     }
     return out;
   }
   // Too short: stack them at the middle (or a third along), source side's number first.
   const centres = [0.5, 0.35, 0.65].map((at) => pointAt(path, length * at));
   const direction = centres[0].direction;
-  const stack = [a && { p: a, text: `${arrow(direction)} ${a.text}` }, m && { p: m, text: m.text },
-    b && { p: b, text: `${arrow([-direction[0], -direction[1]])} ${b.text}` }].filter(Boolean) as Array<{
+  const stack = [
+    a && { p: a, text: `${arrow(direction)} ${a.text}` },
+    m && { p: m, text: m.text },
+    b && { p: b, text: `${arrow([-direction[0], -direction[1]])} ${b.text}` },
+  ].filter(Boolean) as Array<{
     p: Pending;
     text: string;
   }>;
-  const step = fontSize * LINE_HEIGHT;
+  const step = Math.max(...stack.map(({ p }) => p.fontSize)) * LINE_HEIGHT;
   return stack.map(({ p, text }, i) =>
     candidate(
       p,
@@ -163,21 +200,6 @@ function placeLabels(feature: DeckLine, path: number[][]): RouteLabelCandidate[]
 /** Arrow for a direction in the graph view (y points down). */
 function arrow([dx, dy]: number[]): string {
   return Math.abs(dx) >= Math.abs(dy) ? (dx >= 0 ? '→' : '←') : dy >= 0 ? '↓' : '↑';
-}
-
-function pointOnCurve(type: number, p: ArrayLike<number>, t: number): number[] {
-  if (type === 1) {
-    const u = 1 - t;
-    const a = u * u * u,
-      b = 3 * u * u * t,
-      c = 3 * u * t * t,
-      d = t * t * t;
-    return [a * p[0] + b * p[2] + c * p[4] + d * p[6], a * p[1] + b * p[3] + c * p[5] + d * p[7]];
-  }
-  if (type === 2) {
-    return [p[0] + Math.cos(t) * p[2] + Math.sin(t) * p[4], p[1] + Math.cos(t) * p[3] + Math.sin(t) * p[5]];
-  }
-  return [p[0] + (p[2] - p[0]) * t, p[1] + (p[3] - p[1]) * t];
 }
 
 function pathLength(path: number[][]): number {
@@ -208,4 +230,26 @@ export function pointAt(path: number[][], distance: number): { point: [number, n
 /** Point at fraction <at> of the polyline's length. */
 export function pointAlong(path: number[][], at: number): [number, number] {
   return pointAt(path, pathLength(path) * at).point;
+}
+
+export type ScopedRouteLabelCandidate = RouteLabelCandidate & { srcGraphId: string };
+export type RouteLabelData = RouteLabel[] & {
+  routeLabels: {
+    candidates: readonly ScopedRouteLabelCandidate[];
+    obstacles: readonly LabelBox[];
+    graphId: string;
+  };
+};
+
+/** Keep unplaced candidates in captured metadata so focus can reveal them without layout. */
+export function createRouteLabelData(
+  candidates: readonly ScopedRouteLabelCandidate[],
+  obstacles: readonly LabelBox[],
+  graphId: string,
+  isFocused: (label: ScopedRouteLabelCandidate) => boolean = () => false
+): RouteLabelData {
+  const eligible = candidates.filter((c) => !c.feature.skip || isFocused(c));
+  const placed = declutterRouteLabels(eligible, obstacles, (c) => isFocused(c as ScopedRouteLabelCandidate));
+  const data = placed.filter((c) => (c as RouteLabel & { srcGraphId: string }).srcGraphId === graphId);
+  return Object.assign(data, { routeLabels: { candidates, obstacles, graphId } });
 }

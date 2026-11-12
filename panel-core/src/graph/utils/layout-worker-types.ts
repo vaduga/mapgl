@@ -75,6 +75,8 @@ export type LayoutArrowResult = {
 
 export type LayoutResult = {
   requestId: number;
+  /** Implementation that produced these routes, including operation-specific reroutes. */
+  engine?: LayoutEngineConfig;
   routing: EdgeRoutingConfig;
   graphs: LayoutGraphResult[];
   positions: Float64Array;

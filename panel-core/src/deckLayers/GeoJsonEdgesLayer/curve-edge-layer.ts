@@ -35,6 +35,7 @@ export type CurveEdgeBinaryData<DataT = any> = {
     getSegment: { value: Float32Array; size: 2 };
     getCurveType: { value: Uint8Array; size: 1 };
     getSkip?: { value: Uint8Array; size: 1 };
+    getFlow?: { value: Float32Array; size: 4 };
   };
   features: DataT[];
   segmentFeatureIndexes: Int32Array;
@@ -61,9 +62,10 @@ type CurveEdgeLayerProps<DataT> = {
   getDashArray?: Accessor<CurveEdgeSegment<DataT>, Readonly<[number, number]>>;
   getHighlightDepth?: Accessor<CurveEdgeSegment<DataT>, number>;
   getSkip?: Accessor<CurveEdgeSegment<DataT>, boolean | number>;
+  getFlow?: Accessor<CurveEdgeSegment<DataT>, ArrayLike<number>>;
   dashJustified?: boolean;
   dashGapPickable?: boolean;
-  /** Animate pulses along each edge, source to target (redraws every frame). */
+  /** Redraw while at least one visible edge has effective directional flow. */
   animate?: boolean;
 } & LayerProps;
 
@@ -80,6 +82,7 @@ const defaultProps: DefaultProps<CurveEdgeLayerProps<any>> = {
   highlightDimOpacity: { type: 'number', min: 0, max: 1, value: 1 },
   skipVisibleMaxDepth: { type: 'number', value: -1 },
   animate: false,
+  getFlow: { type: 'accessor', value: [0, 0, 0, 0] },
   getControlPoints: { type: 'accessor', value: (d: CurveEdgeSegment) => d.controlPoints },
   getCurveType: { type: 'accessor', value: (d: CurveEdgeSegment) => d.type },
   getSegment: { type: 'accessor', value: (d: CurveEdgeSegment) => d.segment },
@@ -204,12 +207,15 @@ in vec4 instanceColors;
 in vec3 instancePickingColors;
 in float instanceHighlightDepth;
 in float instanceSkip;
+in vec4 instanceFlow;
 
 out vec4 vColor;
 out vec2 uv;
 out vec2 vPathPosition;
 out float vPathLength;
 out float vAlongPixels;
+out float vMidPixels;
+flat out float vFlowDirection;
 out float vHighlightDepth;
 out float vSkip;
 
@@ -275,8 +281,9 @@ void main(void) {
   float segmentLengthPixels = length((nextNdc - currNdc) * project.viewportSize * 0.5);
   vPathLength = segmentLengthPixels / halfWidthPixels;
   vPathPosition = vec2(positions.y, positions.x * vPathLength);
-  // Distance from the start of the curve: Bézier pieces are equal steps of t, so earlier steps count whole.
-  vAlongPixels = (instanceSegments.x / max(instanceSegments.y, 0.0001) + positions.x) * segmentLengthPixels;
+  vAlongPixels = project_size_to_pixel(mix(instanceFlow.x, instanceFlow.y, positions.x), curve.widthUnits);
+  vMidPixels = project_size_to_pixel(instanceFlow.z * 0.5, curve.widthUnits);
+  vFlowDirection = instanceFlow.w;
 
   vec3 offset = vec3(getExtrusionOffset(next.xy - curr.xy, positions.y, widthPixels), 0.0);
 
@@ -304,6 +311,8 @@ in vec2 uv;
 in vec2 vPathPosition;
 in float vPathLength;
 in float vAlongPixels;
+in float vMidPixels;
+flat in float vFlowDirection;
 in float vHighlightDepth;
 in float vSkip;
 out vec4 fragColor;
@@ -322,9 +331,9 @@ void main(void) {
   if (curve.highlightOnly == 0 && vHighlightDepth > curve.highlightMaxDepth) {
     fragColor.a *= curve.highlightDimOpacity;
   }
-  if (curve.flowTime >= 0.0) {
-    // Bright pulses moving from source to target over a dimmer line.
-    float phase = fract((vAlongPixels - curve.flowTime * FLOW_SPEED) / FLOW_PERIOD);
+  if (curve.flowTime >= 0.0 && vFlowDirection != 0.0) {
+    float distance = vFlowDirection == 2.0 ? abs(vAlongPixels - vMidPixels) : vAlongPixels * vFlowDirection;
+    float phase = fract((distance - curve.flowTime * FLOW_SPEED) / FLOW_PERIOD);
     fragColor.a *= mix(0.45, 1.0, smoothstep(0.0, 0.25, phase) * (1.0 - smoothstep(0.45, 0.7, phase)));
   }
   DECKGL_FILTER_COLOR(fragColor, geometry);
@@ -374,6 +383,7 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
           },
         },
       },
+      instanceFlow: { size: 4, accessor: 'getFlow', defaultValue: [0, 0, 0, 0] },
       instanceSegments: {
         size: 2,
         accessor: 'getSegment',
@@ -492,7 +502,7 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
       },
     });
     model.draw(this.context.renderPass);
-    if (animate) {
+    if (animate && this.props.visible) {
       this.setNeedsRedraw();
     }
   }

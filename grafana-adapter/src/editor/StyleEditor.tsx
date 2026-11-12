@@ -15,6 +15,7 @@ import {
   InlineField,
   InlineFieldRow,
   InlineLabel,
+  InlineSwitch,
   RadioButtonGroup,
   useStyles2,
 } from '@grafana/ui';
@@ -39,6 +40,7 @@ export interface StyleEditorOptions {
   hideSymbol?: boolean;
   hideText?: boolean;
   hideOpacity?: boolean;
+  showAnimate?: boolean;
   isEdge?: boolean;
   arrowOptions?: Array<{ label: string; value: NonNullable<StyleConfig['arrow']> }>;
   sectionStyle?: boolean;
@@ -152,6 +154,15 @@ export const StyleEditor = (props: Props) => {
               onChange={onArrowChange}
             />
           </InlineField>
+          {settings.showAnimate && (
+            <InlineField label="Animate">
+              <InlineSwitch
+                label="Animate"
+                value={value?.animate ?? false}
+                onChange={(event) => onChange({ ...value, animate: event.currentTarget.checked })}
+              />
+            </InlineField>
+          )}
         </InlineFieldRow>
       )}
 
@@ -204,7 +215,16 @@ export const StyleEditor = (props: Props) => {
         </Field>
       )}
       {!isAuxLayer && !hideText && (
-        <Field label={'Text label'} description={isEdge ? 'For non-routed mode only (arcs)' : ''}>
+        <Field
+          label={'Text label'}
+          description={
+            isEdge
+              ? sectionStyle
+              ? 'Routed edge end'
+                : 'Middle label for routed edges and arcs'
+              : ''
+          }
+        >
           <TextDimensionEditor
             value={value?.text ?? defaultTextConfig}
             context={context}

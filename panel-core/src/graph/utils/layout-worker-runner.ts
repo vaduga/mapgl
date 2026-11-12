@@ -44,6 +44,7 @@ export function getLayoutResult(request: LayoutRequest): LayoutResult {
   }
   return {
     requestId: request.requestId,
+    engine: 'MSAGL',
     routing,
     graphs: extractGraphBounds(layoutGraph),
     positions: extractNodePositions(layoutGraph, request.positionsLength, request.nodes),

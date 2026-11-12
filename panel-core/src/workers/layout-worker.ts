@@ -1,6 +1,6 @@
-import type { LayoutRequest, LayoutResult } from '../graph/utils/layout-worker-types';
-import { getLayoutResult } from '../graph/utils/layout-worker-runner';
-import { getElkLayoutResult } from '../graph/utils/elk-layout';
+import type { LayoutRequest } from '../graph/utils/layout-worker-types';
+import { dispatchLayout } from '../graph/utils/layout-dispatch';
+import { getLayoutTransferables } from '../graph/utils/layout-result';
 
 interface LayoutWorkerOnMessage {
   (event: MessageEvent<LayoutRequest>): void;
@@ -15,7 +15,7 @@ const workerScope = self as unknown as LayoutWorkerScope;
 
 workerScope.onmessage = async ({ data }: MessageEvent<LayoutRequest>) => {
   try {
-    const result = data.engine === 'ELK' ? await getElkLayoutResult(data) : getLayoutResult(data);
+    const result = await dispatchLayout(data);
     workerScope.postMessage(result, getLayoutTransferables(result));
   } catch (error) {
     workerScope.postMessage({
@@ -25,20 +25,3 @@ workerScope.onmessage = async ({ data }: MessageEvent<LayoutRequest>) => {
     });
   }
 };
-
-export function getLayoutTransferables(result: LayoutResult): Transferable[] {
-  return [
-    result.positions.buffer,
-    result.arrows.edgeIndexes.buffer,
-    result.arrows.flags.buffer,
-    result.arrows.sourceTips.buffer,
-    result.arrows.targetTips.buffer,
-    ...(result.curveGroups ?? []).flatMap((group) => [
-      group.edgeIndexes.buffer,
-      group.edgeSegmentOffsets.buffer,
-      group.types.buffer,
-      group.controlPoints.buffer,
-      group.segments.buffer,
-    ]),
-  ];
-}

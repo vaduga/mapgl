@@ -116,5 +116,6 @@ export interface StyleConfigValues {
   // Pass through (not value dependant)
   textConfig?: TextStyleConfig;
   arrow?: 0 | 1 | -1 | 2;
+  animate?: boolean;
   useGroups?: boolean;
 }

@@ -67,6 +67,8 @@ export function resolveStyleConfigState(cfg: StyleConfig | undefined, theme: Gra
     }
   }
 
+  state.base.animate = cfg.animate ?? false;
+
   if (cfg.arrow !== undefined) {
     state.base.arrow = cfg.arrow;
   }

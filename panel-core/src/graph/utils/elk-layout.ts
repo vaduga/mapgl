@@ -2,7 +2,7 @@ import ELK from 'elkjs/lib/elk.bundled.js';
 import type { ElkExtendedEdge, ElkNode, ElkPoint } from 'elkjs/lib/elk-api';
 import { NS_PADDING } from '../../types/defaults';
 import { DEFAULT_LAYOUT_NODE_RADIUS } from './layout-geometry';
-import { createCurveGroups, type CurveSegment } from './layout-worker-helpers';
+import { createCurveGroups, type CurveSegment } from './layout-result';
 import {
   nodeKey,
   type LayoutArrowResult,
@@ -87,7 +87,11 @@ export function buildElkGraph(request: LayoutRequest): ElkNode {
       continue;
     }
     // Spacing is read per box, not inherited from the root.
-    const box: ElkNode = { id: graphElkId(graph.id), layoutOptions: { 'elk.padding': padding, ...spacing }, children: [] };
+    const box: ElkNode = {
+      id: graphElkId(graph.id),
+      layoutOptions: { 'elk.padding': padding, ...spacing },
+      children: [],
+    };
     graphs.set(graph.id, box);
   }
   // Parents may come after children in the snapshot: attach once all boxes exist.
@@ -166,7 +170,9 @@ function toLayoutResult(request: LayoutRequest, laid: ElkNode): LayoutResult {
     })
     .filter((box): box is LayoutGraphResult => !!box);
 
-  const radius = new Map(request.nodes.map((node) => [nodeElkId(node.graphId, node.id), node.radius ?? DEFAULT_LAYOUT_NODE_RADIUS]));
+  const radius = new Map(
+    request.nodes.map((node) => [nodeElkId(node.graphId, node.id), node.radius ?? DEFAULT_LAYOUT_NODE_RADIUS])
+  );
   const laidEdges = new Map<string, ElkExtendedEdge>();
   const collect = (node: ElkNode) => {
     node.edges?.forEach((edge) => laidEdges.set(edge.id, edge));
@@ -222,6 +228,7 @@ function toLayoutResult(request: LayoutRequest, laid: ElkNode): LayoutResult {
   };
   return {
     requestId: request.requestId,
+    engine: 'ELK',
     routing: request.routing,
     graphs,
     positions,

@@ -32,6 +32,7 @@ export interface StyleConfig {
   arcOptions?: ArcOptionsConfig;
   opacity?: number;
   arrow?: 0 | 1 | -1 | 2;
+  animate?: boolean;
   capacity?: BaseDimensionConfig;
   useGroups?: boolean;
 

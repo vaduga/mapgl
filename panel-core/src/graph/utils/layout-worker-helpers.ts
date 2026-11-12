@@ -28,7 +28,6 @@ import {
   type LayoutGraphResult,
   type LayoutGraphSnapshot,
   type LayoutNodeSnapshot,
-  type LayoutCurveGroup,
   edgeKey,
   nodeKey,
 } from './layout-worker-types';
@@ -53,7 +52,8 @@ export type SnapshotNode = Node & {
   circleRadius?: number;
 };
 export type SnapshotEdge = CoreEdge & { id?: string; sourceGraphId?: string; targetGraphId?: string };
-export type CurveSegment = { type: number; controlPoints: number[]; segment: [number, number] };
+import type { CurveSegment } from './layout-result';
+export { createCurveGroups, type CurveSegment } from './layout-result';
 
 export type LayoutSettings = {
   routing: EdgeRoutingConfig;
@@ -168,15 +168,17 @@ export function restoreNodeCircles(rootGraph: GeomGraph): void {
     if (!curve || source === target || (!restored.has(source.node) && !restored.has(target.node))) {
       continue;
     }
-    const start = geomEdge.sourceArrowhead?.tipPosition ?? curve.start;
-    const end = geomEdge.targetArrowhead?.tipPosition ?? curve.end;
+    // The routed curve is already shortened at arrow bases. Connect to its
+    // actual ends, restoring even unchanged terminals before trimming once.
+    const start = restored.has(source.node) ? source.center : (geomEdge.sourceArrowhead?.tipPosition ?? curve.start);
+    const end = restored.has(target.node) ? target.center : (geomEdge.targetArrowhead?.tipPosition ?? curve.end);
     const extended = new Curve();
-    if (restored.has(source.node) && !start.equal(source.center)) {
-      extended.addSegment(LineSegment.mkPP(source.center, start));
+    if (!start.equal(curve.start)) {
+      extended.addSegment(LineSegment.mkPP(start, curve.start));
     }
     extended.addSegment(curve);
-    if (restored.has(target.node) && !end.equal(target.center)) {
-      extended.addSegment(LineSegment.mkPP(end, target.center));
+    if (!end.equal(curve.end)) {
+      extended.addSegment(LineSegment.mkPP(curve.end, end));
     }
     if (!Arrowhead.trimSplineAndCalculateArrowheads(geomEdge, extended, true)) {
       Arrowhead.createBigEnoughSpline(geomEdge);
@@ -215,44 +217,6 @@ export function createEdgeIndexes(sourceEdges: readonly LayoutEdgeSnapshot[]): M
   const indexes = new Map<string, number>();
   sourceEdges.forEach((edge, index) => indexes.set(edgeKey(edge.sourceGraphId, edge.id), index));
   return indexes;
-}
-
-export function createCurveGroups(
-  sourceEdges: readonly LayoutEdgeSnapshot[],
-  segmentsByEdge: readonly CurveSegment[][]
-): LayoutCurveGroup[] {
-  const edgeIndexesByGraph = new Map<string, number[]>();
-  sourceEdges.forEach((edge, index) => {
-    if (!segmentsByEdge[index].length) {
-      return;
-    }
-    const indexes = edgeIndexesByGraph.get(edge.sourceGraphId) ?? [];
-    indexes.push(index);
-    edgeIndexesByGraph.set(edge.sourceGraphId, indexes);
-  });
-
-  return Array.from(edgeIndexesByGraph, ([graphId, edgeIndexes]) => {
-    const edgeSegmentOffsets = new Int32Array(edgeIndexes.length + 1);
-    let segmentCount = 0;
-    edgeIndexes.forEach((edgeIndex, localIndex) => {
-      edgeSegmentOffsets[localIndex] = segmentCount;
-      segmentCount += segmentsByEdge[edgeIndex].length;
-    });
-    edgeSegmentOffsets[edgeIndexes.length] = segmentCount;
-    const types = new Uint8Array(segmentCount);
-    const controlPoints = new Float32Array(segmentCount * 8);
-    const segments = new Float32Array(segmentCount * 2);
-    let segmentIndex = 0;
-    for (const edgeIndex of edgeIndexes) {
-      for (const segment of segmentsByEdge[edgeIndex]) {
-        types[segmentIndex] = segment.type;
-        controlPoints.set(segment.controlPoints, segmentIndex * 8);
-        segments.set(segment.segment, segmentIndex * 2);
-        segmentIndex++;
-      }
-    }
-    return { graphId, edgeIndexes: Int32Array.from(edgeIndexes), edgeSegmentOffsets, types, controlPoints, segments };
-  });
 }
 
 export function addCurveSegments(segments: CurveSegment[], curve, originX = 0, originY = 0): void {

@@ -25,7 +25,7 @@ import {
 } from '../deckLayers/GeoJsonNodesLayer/nodes-geojson-layer';
 import { EdgesGeojsonLayer, getLayoutCurveSegments } from '../deckLayers/GeoJsonEdgesLayer/edges-geojson-layer';
 import {
-  declutterRouteLabels,
+  createRouteLabelData,
   getRouteLabelCandidates,
   type RouteLabelCandidate,
 } from '../deckLayers/GeoJsonEdgesLayer/route-labels';
@@ -409,10 +409,9 @@ export function buildPrimaryLayers(
         linesCollection: { type: 'FeatureCollection' as const, features },
       };
       edges.push(...normalizeLayers((factories.edge ?? EdgesGeojsonLayer)(props)), EdgeArrowLayer(props));
-      const segments =
-        p.isLogic && p.edgeLabels
-          ? getLayoutCurveSegments(srcGraphId, features, common.edgeIndex, common.layoutGeometry)
-          : undefined;
+      const segments = p.isLogic
+        ? getLayoutCurveSegments(srcGraphId, features, common.edgeIndex, common.layoutGeometry)
+        : undefined;
       if (segments?.length) {
         routeLabels.push(...getRouteLabelCandidates(segments).map((c) => ({ ...c, srcGraphId })));
       }
@@ -426,12 +425,8 @@ export function buildPrimaryLayers(
   if (routeLabels.length) {
     // All lines at once, so labels of lines from different boxes do not pile up either.
     const cards = p.nodeCards ? prepared.collections.flatMap((biCol) => getNodeCards(biCol)) : [];
-    const byGraph = new Map<string, ReturnType<typeof declutterRouteLabels>>();
-    for (const label of declutterRouteLabels(routeLabels, cards)) {
-      const id = (label as typeof label & { srcGraphId: string }).srcGraphId;
-      byGraph.set(id, [...(byGraph.get(id) ?? []), label]);
-    }
-    for (const [srcGraphId, data] of byGraph) {
+    for (const srcGraphId of new Set(routeLabels.map((c) => c.srcGraphId))) {
+      const data = createRouteLabelData(routeLabels, cards, srcGraphId);
       labels.push(LineTextLayer({ ...common, id: srcGraphId, data, visible, type: 'routeLabels' }));
     }
   }
@@ -452,6 +447,7 @@ export function buildPrimaryLayers(
               getLineWidth: (f: any) => (isFocusBox(f, p) ? 2 : BBOX_OUTLINE_WIDTH * 2),
               lineWidthUnits: 'pixels',
               getDashArray: (f: any) => (isFocusBox(f, p) ? [0, 0] : [4, 3]),
+              dashUnits: 'pixels',
               dashJustified: true,
               extensions: [new PathStyleExtension({ dash: true })],
               // Fill must not hide the lines drawn over it.

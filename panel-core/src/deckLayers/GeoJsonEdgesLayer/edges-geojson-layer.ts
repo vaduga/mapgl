@@ -1,3 +1,4 @@
+import { getCurveFlowDirection, getCurveFlowRanges } from './curve-flow';
 import { toRGB4Array } from '../utils/color';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import type { Color } from '@deck.gl/core';
@@ -114,7 +115,7 @@ export function getLayoutCurveSegments(
     features: featuresByLineId,
   });
 
-  return createCurveBinaryData({
+  const result = createCurveBinaryData({
     length: segmentCount,
     attributes: {
       getControlPoints: { value: group.controlPoints, size: 8 },
@@ -125,6 +126,8 @@ export function getLayoutCurveSegments(
     features: featuresByLineId,
     segmentFeatureIndexes,
   });
+  result.attributes.getFlow = { value: getCurveFlowRanges(result), size: 4 };
+  return result;
 }
 
 export const EdgesGeojsonLayer = (props) => {
@@ -272,7 +275,22 @@ export const EdgesGeojsonLayer = (props) => {
       widthScale: 1,
       widthMinPixels: 0.1,
       skipVisibleMaxDepth: -1,
-      animate: true,
+      animate:
+        visible &&
+        curveSegments.segmentFeatureIndexes.some((featureIndex, segmentIndex) => {
+          if (curveSegments.attributes.getSkip?.value[segmentIndex]) {
+            return false;
+          }
+          const feature = curveSegments.features[featureIndex];
+          if (feature.skip || !getCurveFlowDirection(feature)) {return false;}
+          const category = getEdgeFilterCategory({
+            feature,
+            baseCategories,
+            filterIncludesSkip,
+            usesRendererNamespaceFiltering,
+          });
+          return category.every((value, index) => (categories[index] as unknown[]).includes(value));
+        }),
       getDashArray: getEdgeDashArray,
       dashGapPickable: true,
       pickable,

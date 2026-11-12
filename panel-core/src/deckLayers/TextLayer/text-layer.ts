@@ -50,9 +50,7 @@ const LineTextLayer = ({
 
   const isEdgeText = type === 'arcLabels' || type === 'routeLabels';
   const isRoute = type === 'routeLabels';
-  const extensions = ['nums', 'bbox'].includes(type)
-    ? []
-    : [new DataFilterExtension({ categorySize })];
+  const extensions = ['nums', 'bbox'].includes(type) ? [] : [new DataFilterExtension({ categorySize })];
 
   const modelMatrix = new Matrix4();
   for (const path of getNsPrefixes(id)) {
@@ -68,7 +66,7 @@ const LineTextLayer = ({
     visible: Labels,
     ...(isEdgeText ? { modelMatrix } : {}),
     ...(isEdgeText ? { parameters: { depthTest: false } } : {}),
-    ...(type === 'arcLabels' ? { opacity: edgeLabels ? 1 : EDGE_LABEL_DIM_OPACITY } : {}),
+    ...(isEdgeText ? { opacity: edgeLabels ? 1 : EDGE_LABEL_DIM_OPACITY } : {}),
     pickable: false,
     id: colTypes.Text + '-' + type + id,
     getText: (d: any) => {
@@ -151,7 +149,7 @@ const LineTextLayer = ({
           return 3;
           break;
         case 'routeLabels':
-          return d.feature?.properties?.edgeStyle?.textConfig?.fontSize ?? 10;
+          return d.fontSize ?? 10;
           break;
         default:
           const edgeStyle = d.properties?.edgeStyle;

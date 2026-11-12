@@ -30,6 +30,7 @@ export interface GraphLayoutRequestInput {
 }
 
 export interface GraphLayoutWorkerResult {
+  readonly engine?: LayoutEngineConfig;
   readonly routing: EdgeRoutingConfig;
   readonly positions: Float64Array;
   readonly graphBounds: ReadonlyMap<string, LayoutGraphResult>;
@@ -95,11 +96,12 @@ export class LayoutWorkerClient {
             return;
           }
           if ('type' in data && data.type === 'error') {
-            pending.reject(new Error(`MSAGL layout worker failed: ${data.message}`));
+            pending.reject(new Error(`Layout worker failed: ${data.message}`));
             return;
           }
           if ('positions' in data && 'arrows' in data) {
             pending.resolve({
+              engine: data.engine,
               routing: data.routing,
               positions: data.positions,
               graphBounds: new Map(data.graphs.map((graph) => [graph.id, graph])),
@@ -249,9 +251,7 @@ function collectNodes(root: Graph, cards: boolean): LayoutNodeSnapshot[] {
         graphId: graph.id,
         wasmId: nodeData.wasmId,
         radius: getLayoutNodeRadius(nodeData.feature?.style?.size),
-        ...(cards
-          ? getLayoutCardBox(nodeData.feature?.style)
-          : getLayoutNodeBox(nodeData.feature?.style)),
+        ...(cards ? getLayoutCardBox(nodeData.feature?.style) : getLayoutNodeBox(nodeData.feature?.style)),
       });
     }
   }

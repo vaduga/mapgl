@@ -95,7 +95,7 @@ export const TextDimensionEditor = ({ value, context, onChange }: Props) => {
           </div>
         </InlineField>
       </InlineFieldRow>
-      {mode !== TextDimensionMode.Fixed && (
+      {mode === TextDimensionMode.Field && (
         <InlineFieldRow>
           <InlineField
             className={styles.field}

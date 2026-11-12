@@ -109,6 +109,7 @@ export function createMarkersLayer({
               settings: {
                 hideSymbol: true,
                 isEdge: true,
+                showAnimate: true,
                 arrowOptions: [
                   { label: 'None', value: 0 },
                   { label: 'Forward', value: 1 },
@@ -135,7 +136,7 @@ export function createMarkersLayer({
               settings: {
                 hideSymbol: true,
                 hideOpacity: true,
-                hideText: true,
+                hideText: false,
                 isEdge: true,
                 arrowOptions: [
                   { label: 'None', value: 0 },
@@ -156,7 +157,7 @@ export function createMarkersLayer({
               settings: {
                 hideSymbol: true,
                 hideOpacity: true,
-                hideText: true,
+                hideText: false,
                 isEdge: true,
                 arrowOptions: [
                   { label: 'None', value: 0 },

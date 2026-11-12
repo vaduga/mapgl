@@ -201,6 +201,18 @@
       "types": "./dist/render/react.d.ts",
       "import": "./dist/render/react.js",
       "default": "./dist/render/react.js"
+    },
+    "./graph/utils/layout-result": {
+      "development": "./src/graph/utils/layout-result.ts",
+      "types": "./dist/graph/utils/layout-result.d.ts",
+      "import": "./dist/graph/utils/layout-result.js",
+      "default": "./dist/graph/utils/layout-result.js"
+    },
+    "./graph/utils/layout-dispatch": {
+      "development": "./src/graph/utils/layout-dispatch.ts",
+      "types": "./dist/graph/utils/layout-dispatch.d.ts",
+      "import": "./dist/graph/utils/layout-dispatch.js",
+      "default": "./dist/graph/utils/layout-dispatch.js"
     }
   },
   "peerDependencies": {
