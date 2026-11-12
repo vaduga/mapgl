@@ -2,7 +2,8 @@
 
 ## 2.12.0
 - Node cards and edge labels on route ends
-- ELK autolayout option for a cross namespace flow. Shout-out to [Emin Aktaş](https://github.com/eminaktas) for contributing!
+- ELK autolayout option for a cross namespace flow. 
+Shout-out to [Emin Aktaş](https://github.com/eminaktas) for contributing!
 
 ## 2.11.2
 - auto characterSet in Text layers (support non-EN)
