@@ -48,8 +48,6 @@ export type SnapshotNode = Node & {
   id: string;
   wasmId?: number;
   graphId?: string;
-  /** Set when layout used a label box: the circle the node is drawn as. */
-  circleRadius?: number;
 };
 export type SnapshotEdge = CoreEdge & { id?: string; sourceGraphId?: string; targetGraphId?: string };
 import type { CurveSegment } from './layout-result';
@@ -115,6 +113,7 @@ export function createGraphHierarchy(
 export function addSnapshotNode(
   item: LayoutNodeSnapshot,
   parent: Graph,
+  cards: boolean,
   center: Point = new Point(0, 0),
   radius: number = item.radius ?? DEFAULT_LAYOUT_NODE_RADIUS
 ): SnapshotNode {
@@ -123,8 +122,7 @@ export function addSnapshotNode(
   node.graphId = item.graphId;
   parent.addNode(node);
   const geomNode = new GeomNode(node);
-  if (item.width && item.height) {
-    node.circleRadius = radius;
+  if (cards && item.width && item.height) {
     geomNode.boundaryCurve = CurveFactory.createRectangle(item.width, item.height, center);
   } else {
     geomNode.boundaryCurve = CurveFactory.mkCircle(radius, center);
@@ -145,45 +143,6 @@ export function addSnapshotEdge(item: LayoutEdgeSnapshot, source: SnapshotNode, 
     geomEdge.targetArrowhead = Object.assign(new Arrowhead(), { length: item.targetArrowLength });
   }
   return edge;
-}
-
-/**
- * After a layout with label boxes, give nodes their drawn circle back and make edges reach it:
- * extend each edge from where it met the box to the node centre, then trim it at the circle.
- */
-export function restoreNodeCircles(rootGraph: GeomGraph): void {
-  const restored = new Set<Node>();
-  for (const geomNode of rootGraph.nodesBreadthFirst) {
-    const node = geomNode.node as SnapshotNode;
-    if (node.circleRadius !== undefined && !(geomNode instanceof GeomGraph)) {
-      geomNode.boundaryCurve = CurveFactory.mkCircle(node.circleRadius, geomNode.center);
-      restored.add(node);
-    }
-  }
-  if (!restored.size) {
-    return;
-  }
-  for (const geomEdge of rootGraph.deepEdges as Iterable<GeomEdge>) {
-    const { source, target, curve } = geomEdge;
-    if (!curve || source === target || (!restored.has(source.node) && !restored.has(target.node))) {
-      continue;
-    }
-    // The routed curve is already shortened at arrow bases. Connect to its
-    // actual ends, restoring even unchanged terminals before trimming once.
-    const start = restored.has(source.node) ? source.center : (geomEdge.sourceArrowhead?.tipPosition ?? curve.start);
-    const end = restored.has(target.node) ? target.center : (geomEdge.targetArrowhead?.tipPosition ?? curve.end);
-    const extended = new Curve();
-    if (!start.equal(curve.start)) {
-      extended.addSegment(LineSegment.mkPP(start, curve.start));
-    }
-    extended.addSegment(curve);
-    if (!end.equal(curve.end)) {
-      extended.addSegment(LineSegment.mkPP(curve.end, end));
-    }
-    if (!Arrowhead.trimSplineAndCalculateArrowheads(geomEdge, extended, true)) {
-      Arrowhead.createBigEnoughSpline(geomEdge);
-    }
-  }
 }
 
 export function refreshGraphBoundsAfterLayout(rootGraph: GeomGraph): void {

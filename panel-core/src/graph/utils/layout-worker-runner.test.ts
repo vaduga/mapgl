@@ -1,13 +1,13 @@
 import { getLayoutResult } from './layout-worker-runner';
 import type { LayoutRequest } from './layout-worker-types';
 
-// Three workloads in one namespace box that only talk to a peer outside the box. MSAGL lays each of
-// them out as a separate component and packs them; the layout box must hold the label so they don't overlap.
-function request(width?: number, height?: number): LayoutRequest {
+// Three nodes inside a namespace, each connected to a peer outside it.
+function request(width?: number, height?: number, cards = false): LayoutRequest {
   const lone = ['a', 'b', 'c'].map((id, wasmId) => ({ id, graphId: 'ns', wasmId, radius: 10, width, height }));
   return {
     requestId: 1,
     operation: 'layout',
+    cards,
     routing: 'Splines',
     direction: 'LR',
     layerSeparation: 60,
@@ -34,12 +34,15 @@ function overlaps(positions: Float64Array, width: number, height: number): boole
 }
 
 describe('layout worker runner', () => {
-  it('keeps labelled lone nodes in a box apart by their label box', () => {
-    const { positions } = getLayoutResult(request(200, 50));
+  it('keeps cards apart by their drawn rectangles', () => {
+    const { positions } = getLayoutResult(request(200, 50, true));
     expect(overlaps(positions, 200, 50)).toBe(false);
   });
 
-  it('starts edges at the drawn circle, not at the label box', () => {
+  it('lays circles out independently of label boxes and relayouts when cards change', () => {
+    const circle = getLayoutResult(request(200, 50));
+    expect(circle).toEqual(getLayoutResult(request()));
+    expect(getLayoutResult(request(200, 50, true)).positions).not.toEqual(circle.positions);
     const { positions, curveGroups } = getLayoutResult(request(200, 50));
     const group = curveGroups!.find((g) => g.graphId === 'ns')!;
     group.edgeIndexes.forEach((edgeIndex, local) => {

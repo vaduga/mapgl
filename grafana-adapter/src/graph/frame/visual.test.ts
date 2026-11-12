@@ -70,7 +70,7 @@ describe('graph visual stage', () => {
     { mode: TextDimensionMode.Field, animate: false, arrow: -1, expected: '1.2 kb/s' },
     { mode: TextDimensionMode.Field, animate: true, arrow: -1, expected: '1.2 kb/s' },
     { mode: TextDimensionMode.Template, animate: true, arrow: 2, expected: 'sent 1.2 kb/s' },
-  ])(
+  ] as const)(
     'retains independent $mode side text and color after JSON round-trip (Animate=$animate)',
     async ({ mode, animate, arrow, expected }) => {
       const frame = testFrame('FlowLabels', {

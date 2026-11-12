@@ -7,7 +7,7 @@ export type LayoutNodeSnapshot = {
   graphId: string;
   wasmId: number;
   radius?: number;
-  /** Box holding node and label; replaces the circle when set. */
+  /** Card dimensions, or the label envelope used by ELK. MSAGL uses these only with cards enabled. */
   width?: number;
   height?: number;
 };

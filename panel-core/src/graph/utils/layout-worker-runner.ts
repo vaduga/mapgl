@@ -19,7 +19,6 @@ import {
   extractGraphBounds,
   getRoutingMode,
   refreshGraphBoundsAfterLayout,
-  restoreNodeCircles,
   type CurveSegment,
   type SnapshotEdge,
   type SnapshotNode,
@@ -67,13 +66,16 @@ function createIntegratedLayoutGraphWithFallback(request: LayoutRequest): {
   for (const routingMode of [preferred, fallback]) {
     try {
       const rootGraph = createAndLayoutGraph(request, routingMode);
-      if (rootGraph)
+      if (rootGraph) {
         return { graph: rootGraph, routing: routingMode === EdgeRoutingMode.Rectilinear ? 'Rectilinear' : 'Splines' };
+      }
     } catch (error) {
       lastError = error;
     }
   }
-  if (lastError) throw lastError;
+  if (lastError) {
+    throw lastError;
+  }
   throw new Error('MSAGL graph layout failed');
 }
 
@@ -83,10 +85,7 @@ function createAndLayoutGraph(request: LayoutRequest, routingMode: EdgeRoutingMo
   configureLayout(rootGraph, request, routingMode);
   try {
     layoutGeomGraph(rootGraph);
-    refreshGraphBoundsAfterLayout(rootGraph); // boxes keep room for the labels
-    if (!request.cards) {
-      restoreNodeCircles(rootGraph);
-    }
+    refreshGraphBoundsAfterLayout(rootGraph);
     return rootGraph;
   } catch (error) {
     if (routingMode !== EdgeRoutingMode.Rectilinear) {
@@ -102,7 +101,7 @@ function buildGraphFromSnapshot(request: LayoutRequest): Graph {
   for (const item of request.nodes) {
     const parent = graphs.get(item.graphId);
     if (parent) {
-      nodes.set(nodeKey(item.graphId, item.id), addSnapshotNode(item, parent));
+      nodes.set(nodeKey(item.graphId, item.id), addSnapshotNode(item, parent, request.cards ?? false));
     }
   }
   for (const item of request.edges) {
