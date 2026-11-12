@@ -413,3 +413,11 @@ Result:
 - Hovering a relation temporarily focuses it; leaving restores the inspected focus. Selecting it shows its own properties.
 - The property view retains Grafana field names, units, value mappings, tooltip visibility, native data links and annotation formatting.
 - A selected displayed route portion retains its corresponding row data. Whole-connection arc inspection uses the primary row. Removed or ambiguous pinned targets are cleared when the graph changes.
+
+## Routed curve flow, labels and node cards
+
+- `config.edgeStyle.animate` is a per-layer boolean, default false. Existing `arrow` values remain None `0`, Forward `1`, Reverse `-1`, Both `2`. Animated Both flows outward from the rendered curve's arc-length midpoint; other directions follow logical endpoints, independently of layout orientation. None and hidden/static layers do not request flow redraw.
+- `config.arcStyle.sideA.text` and `.sideB.text` provide source/target label text when `config.showStat2` is enabled. Each side uses its own `textConfig.fontSize` and color; text and color field selections are independent. `config.edgeStyle.text` and its font settings provide the middle label.
+- Focused labels remain visible regardless of `common.isShowEdgeLabels`. That flag controls idle labels; master Label, edge, layer, group and namespace visibility remain authoritative. Focus follows logical edge/hop identity, including parallel connections, without relayout. Focused labels receive declutter priority and a stacked fallback.
+- `basemap.config.layoutEngine` defaults to `MSAGL`; `ELK` selects the independent optional engine. Worker dispatch/transfer utilities do not eagerly execute either engine.
+- `basemap.config.nodeCards` defaults to false and determines both the layout envelope and card rendering. With cards off, label-aware spacing retains circular terminal boundaries. Curve pieces and arrow bases join continuously after restoration.

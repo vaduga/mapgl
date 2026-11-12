@@ -7,6 +7,8 @@
 
 Mapgl Panel plugin dev environment
 
+![Network map with node cards](src/img/screenshots/screenshot1.png)
+
 ### Get started with provisioned dashboards
 
 1. Install dependencies

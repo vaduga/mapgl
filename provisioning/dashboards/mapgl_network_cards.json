@@ -1,12 +1,12 @@
 {
-  "title": "Network map with node cards (demo)",
+  "title": "Mapgl Network map with node cards",
   "uid": "mapgl-network-cards",
   "schemaVersion": 41,
   "panels": [
     {
       "type": "vaduga-mapgl-panel",
-      "title": "Network map (demo data)",
-      "description": "Demo: TestData CSV in the shape of the Prometheus queries C, A, B, D-G. Boxes are namespaces, and regions outside the cluster. Each card shows ↑ sent and ↓ received on its lines. Lines run from the side that opened the connection, with moving pulses; width = bit/s. The number at each end of a line is what that end sent. A red badge mid-line counts 15 s windows with Calico denied traffic in the time range.",
+      "title": "Network map (demo data). ELK flow layout",
+      "description": "Demo: TestData CSV in the shape of the Prometheus queries C, A, B, D-G. Boxes are namespaces, and regions outside the cluster. Each card shows \u2191 sent and \u2193 received on its lines. Lines run from the side that opened the connection, with moving pulses; width = bit/s. The number at each end of a line is what that end sent. A red badge mid-line counts 15 s windows with Calico denied traffic in the time range.",
       "datasource": {
         "type": "grafana-testdata-datasource",
         "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
@@ -156,7 +156,7 @@
                     },
                     {
                       "color": "red",
-                      "value": 1e-09
+                      "value": 1e-9
                     }
                   ]
                 }
@@ -510,9 +510,7 @@
               "edgeId": "edge_id",
               "wrapEdges": 0,
               "isNestEdges": false,
-              "searchProps": [
-                "src_label"
-              ],
+              "searchProps": ["src_label"],
               "vertexA_NS": "src_box",
               "vertexB_NS": "dst_box",
               "nsSeparator": "."
@@ -521,13 +519,7 @@
               "mode": "auto"
             },
             "isShowTooltip": true,
-            "displayProperties": [
-              "src_label",
-              "src_namespace",
-              "src_zone",
-              "Value #F",
-              "Value #G"
-            ],
+            "displayProperties": ["src_label", "src_namespace", "src_zone", "Value #F", "Value #G"],
             "config": {
               "style": {
                 "size": {
@@ -542,7 +534,7 @@
                 "text": {
                   "mode": "template",
                   "field": "",
-                  "fixed": "${src_label}\n↑ ${Value #F}  ↓ ${Value #G}"
+                  "fixed": "${src_label}\n\u2191 ${Value #F}  \u2193 ${Value #G}"
                 },
                 "textConfig": {
                   "fontSize": 12
@@ -582,7 +574,8 @@
                 },
                 "textConfig": {
                   "fontSize": 10
-                }
+                },
+                "animate": true
               },
               "arcStyle": {
                 "sideA": {
@@ -687,10 +680,7 @@
     "from": "now-15m",
     "to": "now"
   },
-  "tags": [
-    "mapgl",
-    "demo"
-  ],
+  "tags": ["kubernetes"],
   "templating": {
     "list": [
       {
