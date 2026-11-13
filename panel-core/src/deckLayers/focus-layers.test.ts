@@ -1,4 +1,5 @@
-import { TextLayer, PolygonLayer } from '@deck.gl/layers';
+import { EdgeLabelLayer } from './TextLayer/edge-label-layer';
+import { PolygonLayer } from '@deck.gl/layers';
 import { getDimmedGraphLayers } from './focus-layers';
 import { makeScopedKey } from './GraphHighlighter';
 import {
@@ -21,17 +22,30 @@ it('promotes every focused label by edge index, including labels dropped by idle
     feature: { properties: {} },
   })) as ScopedRouteLabelCandidate[];
   const data = createRouteLabelData(candidates, [{ x: 0, y: 0, hw: 100, hh: 50 }], 'ns');
-  expect(data).toHaveLength(0);
-  const base = new TextLayer({ id: 'text-routeLabelsns', data, opacity: 0, getColor: [255, 255, 255, 255] });
+  expect(data).toHaveLength(3);
+  expect(data.every((d) => d.idleVisible === false)).toBe(true);
+  const base = new EdgeLabelLayer({
+    id: 'text-routeLabelsns',
+    data,
+    edgeLabelsAlwaysOn: false,
+    getColor: [255, 255, 255, 255],
+  });
   const [focused] = getDimmedGraphLayers([base], {
     connectedNodeIds: new Set(),
     connectedEdgeIndexes: [{ graphId: 'ns', lineId: 7 }],
     isRouted: true,
   });
-  expect((focused.props.data as any[]).map((d) => d.text)).toEqual(['label-0', 'label-1']);
-  expect(focused.props.opacity).toBe(1);
-  expect(base.props.opacity).toBe(0);
-  expect(base.props.data).toHaveLength(0);
+  expect(focused.props.data).toBe(base.props.data);
+  const props = focused.props as any;
+  expect(props.getHighlightDepth(data[0])).toBe(0);
+  expect(props.getHighlightDepth(data[1])).toBe(0);
+  expect(props.getHighlightDepth(data[2])).toBe(Number.MAX_SAFE_INTEGER);
+  expect(props.highlightMaxDepth).toBe(0);
+  expect(props.highlightDimOpacity).toBe(0.18);
+  expect(props.getPosition(data[0])[1]).toBeGreaterThan(50);
+  expect(props.getIdleVisible(data[2])).toBe(false);
+  expect(data[0].position).toEqual([0, 0]);
+  expect(base.props.data).toBe(data);
 });
 
 it('reveals focused circles and covers unfocused circles while dimming card borders', () => {
@@ -51,7 +65,7 @@ it('reveals focused circles and covers unfocused circles while dimming card bord
   expect(base.props.getFillColor).toEqual([255, 255, 255, 255]);
 });
 
-it('runs global placement once for namespace layers on a focus update', () => {
+it('reuses text data and coordinates global placement across namespace layers on focus', () => {
   const candidates = ['a', 'b'].map((srcGraphId, i) => ({
     text: srcGraphId,
     fontSize: 10,
@@ -65,7 +79,7 @@ it('runs global placement once for namespace layers on a focus update', () => {
     feature: { properties: {} },
   })) as ScopedRouteLabelCandidate[];
   const baseline = createRouteLabelDataByGraph(candidates, []);
-  const layers = [...baseline].map(([id, data]) => new TextLayer({ id: `text-routeLabels${id}`, data }));
+  const layers = [...baseline].map(([id, data]) => new EdgeLabelLayer({ id: `text-routeLabels${id}`, data }));
   const traversal = jest.fn(() => Array.prototype.values.call(candidates));
   Object.defineProperty(candidates, Symbol.iterator, { value: traversal });
   const focused = getDimmedGraphLayers(layers, {
@@ -73,6 +87,26 @@ it('runs global placement once for namespace layers on a focus update', () => {
     isRouted: true,
     connectedEdgeIndexes: [{ graphId: 'a', lineId: 0 }],
   });
-  expect(traversal).toHaveBeenCalledTimes(1);
+  expect(traversal).not.toHaveBeenCalled();
+  expect(focused[0].props.data).toBe(layers[0].props.data);
+  expect(focused[1].props.data).toBe(layers[1].props.data);
   expect(focused.map((layer) => (layer.props.data as any[]).map((label) => label.srcGraphId))).toEqual([['a'], ['b']]);
+});
+
+it('retains skipped arc text for GPU focus promotion and marks it idle-hidden', () => {
+  const arc: any = {
+    skip: true,
+    sourcePosition: [0, 0, 0],
+    targetPosition: [20, 0, 0],
+    properties: { edgeStyle: { text: 'arc' }, arcStyle: {} },
+  };
+  const base = new EdgeLabelLayer({ id: 'text-arcLabelsns', data: [arc], edgeLabelsAlwaysOn: true });
+  const [focused] = getDimmedGraphLayers([base], {
+    connectedNodeIds: new Set(),
+    connectedEdgeIndexes: [{ graphId: 'ns', arcId: 0 }],
+    isRouted: false,
+  });
+  expect(focused.props.data).toBe(base.props.data);
+  const props = (focused as EdgeLabelLayer).getSubLayerProps({ id: 'characters' });
+  expect(props.getLabelHighlight(arc, { index: 0 })).toEqual([0, 0]);
 });

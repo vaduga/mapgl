@@ -199,7 +199,7 @@ export function createMapglPanelPlugin<
           category: ['Other'],
           path: 'common.focusNamespace',
           name: 'Highlighted namespace',
-          description: 'Namespace box drawn highlighted; dashboard variables work, e.g. $namespace',
+          description: 'Dashboard variables work, e.g. $namespace',
           defaultValue: '',
         })
         .addBooleanSwitch({

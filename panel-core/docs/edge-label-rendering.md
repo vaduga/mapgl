@@ -1,0 +1,17 @@
+# Edge label rendering
+
+Core owns cached CPU label positions, global scene declutter and GPU focus. Hosts supply neutral edge styles and visibility; private projections continue through the existing geometry contracts. Positioning and highlighting are independent.
+
+Routed labels use a cached whole-route cumulative-distance lookup: one interval per line piece, eight per nonlinear piece, shared with curve flow. Immutable geometry-buffer keys preserve samples across appearance-frame wrappers; replacing control points, parameter ranges or types invalidates sampling. Feature-to-piece mappings remain frame-owned. Candidate points and final stack/fallback positions are evaluated on the CPU.
+
+A bounded AABB grid caches card obstacles and prepares idle placement only when labels are always on. Curve candidates remain cached by canonical graph/edge identity. On focus, declutter uses focused candidates plus the visible idle baseline, giving focused labels priority. Hidden labels do not reserve space. Namespace shifts enter collision coordinates once. Repeating the same focused identity set reuses its placement map; clearing focus restores the idle map. Only the latest focus map is retained. Category visibility participates in cache invalidation and obstacle eligibility.
+
+EdgeLabelLayer uses native deck.gl TextLayer character/background sublayers, shaders and position attributes. A small LayerExtension contributes a vec2 highlight attribute and focus uniforms. GraphHighlighter supplies canonical focus identity, visibility and GPU dimming for glyphs, fills and borders. Changed focused sets update position and idle-eligibility accessors without replacing text data or resampling curves. Always-on false places only focused text; always-on true also declutters the visibly dim idle baseline. Category/master visibility remains authoritative.
+
+Arc middle labels use parameter 0.5, including altitude, height coefficient, tilt and model transforms. The CPU evaluator mirrors arc drawing in common space for logical, Mercator and globe views. Cached positions are keyed by viewport, immutable feature and model-matrix identity. Projection/camera changes may refresh arc position attributes; they do not rebuild routed metrics or global collision placement. This preserves height-aware geometry rather than reverting to the former flat or degree-based midpoint approximation.
+
+No copied text vertex shaders, GPU curve descriptor attributes, runtime shader rewriting, per-frame readback or production alternate positioning backend is needed. GPU positioning was removed after the isolated 500/2,000-edge experiment showed no meaningful separate benefit in the available software renderer.
+
+Grafana frontend rebuilds require `docker restart mapgl` before host browser validation. Development consumes checkout sources without vendor sync or packaging.
+
+Selection and deselection also trigger primary-layer builds for native selection presentation and edition-owned contributions. Those builds reuse card boxes, prepared curve buffers and placed label data when effective geometry, binary collections, layout indexes, offset strategies, label/card visibility and namespace shifts remain compatible. A weak geometry-owned cache keeps these values revision-scoped. Reusing label data also avoids regenerating TextLayer glyph buffers. Changed geometry/text inputs, transforms, card mode or visibility invalidate the cache; Pro can still rebuild its private selection/path contributions independently.

@@ -1,23 +1,14 @@
-import distance from '@turf/distance';
-import { Units } from '@turf/helpers';
 import { Position } from 'geojson';
 import { Graph } from '../structs/graph';
 import type { GraphEdgeIndex } from '../GraphEdgeIndex';
 import { BiColProps, CoordRef, DeckLine } from '../../types/index';
-import { CoordsConvert, distance2D } from './utils.turf';
+import { CoordsConvert } from './utils.turf';
 import {
   getEdgeRenderDecisions,
   getProjectedTerminalGeometry,
   type EdgeRenderDecision,
 } from '../../extension-points/featureContracts';
-import {
-  getArrowAngles,
-  getEdgeTerminals,
-  getMidpoint,
-  getContractedGraph,
-  paraboloid,
-  segregatePath,
-} from './utils.graph';
+import { getArrowAngles, getEdgeTerminals, getContractedGraph, segregatePath } from './utils.graph';
 import { resolveLayoutArrowLengths } from './layout-geometry';
 import { isCoordinateToken } from '../frame/packedRelations';
 
@@ -431,20 +422,9 @@ const pushArcFeature = (
 
   const tiltDist = tiltDecision?.tiltDistance;
   const isOutgoing = tiltDecision?.isOutgoingTilt ?? false;
-  const { arcStyle } = properties;
-  const heightCoef = arcStyle?.arcConfig?.height;
-  const options = { units: 'meters' as Units };
-  const d = input.isLogic
-    ? distance2D(sourcePosition, targetPosition)
-    : distance(sourcePosition, targetPosition, options);
-  const peakHeight = paraboloid(d, 0, 0, 0.5, heightCoef !== undefined ? heightCoef : 0.5);
-  const mid = getMidpoint(sourcePosition, targetPosition, input.isLogic);
-  const midPoint = [...mid, peakHeight];
-
   const arcData = {
     sourcePosition,
     targetPosition,
-    midPoint,
     properties: { ...properties },
     edgeId: edge.id,
     skip: false,
@@ -455,21 +435,9 @@ const pushArcFeature = (
       arcData.skip = true;
     } else if (!input.isLogic) {
       const dist = tiltDist / 1;
-      const tiltIncrement = arcStyle?.arcConfig.tiltIncrement;
+      const tiltIncrement = properties.arcStyle?.arcConfig.tiltIncrement;
       const tilt = dist * tiltIncrement * (isOutgoing ? 1 : -1);
       arcData.properties.tilt = tilt;
-
-      const tiltAngle = (tilt * Math.PI) / 180;
-      const tiltFactor = input.isLogic ? 1 : 0.00002;
-      const tiltDirection = [targetPosition[0] - sourcePosition[0], targetPosition[1] - sourcePosition[1]];
-      const norm = Math.sqrt(tiltDirection[0] * tiltDirection[0] + tiltDirection[1] * tiltDirection[1]);
-      const unitTiltDirection = [tiltDirection[0] / norm, tiltDirection[1] / norm];
-      const peakHeight = midPoint[2];
-      const tiltX = -unitTiltDirection[1] * peakHeight * Math.sin(tiltAngle) * tiltFactor;
-      const tiltY = unitTiltDirection[0] * peakHeight * Math.sin(tiltAngle) * tiltFactor;
-
-      midPoint[0] += tiltX;
-      midPoint[1] += tiltY;
     }
   }
 

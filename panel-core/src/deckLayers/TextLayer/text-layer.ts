@@ -1,4 +1,5 @@
 import { TextLayer } from '@deck.gl/layers';
+import { EdgeLabelLayer } from './edge-label-layer';
 import { DataFilterExtension } from '@deck.gl/extensions';
 import { toRGB4Array } from '../utils/color';
 import { isVisible } from '../utils/visibility';
@@ -6,8 +7,6 @@ import { BBOX_OUTLINE_COLOR } from '../../types/defaults';
 import { getNsPrefixes } from '../../graph/utils/utils.graph';
 import { colTypes } from '../../types/index';
 import { Matrix4 } from '@math.gl/core';
-
-export const EDGE_LABEL_DIM_OPACITY = 0; //.18;
 
 const LineTextLayer = ({
   id = '',
@@ -60,13 +59,14 @@ const LineTextLayer = ({
     }
   }
 
-  return new TextLayer({
+  const LabelLayer = isEdgeText ? EdgeLabelLayer : TextLayer;
+  return new LabelLayer({
     data,
     characterSet: 'auto',
     visible: Labels,
     ...(isEdgeText ? { modelMatrix } : {}),
     ...(isEdgeText ? { parameters: { depthTest: false } } : {}),
-    ...(isEdgeText ? { opacity: edgeLabels ? 1 : EDGE_LABEL_DIM_OPACITY } : {}),
+    ...(isEdgeText ? { edgeLabelsAlwaysOn: edgeLabels, arcLabels: !isRoute } : {}),
     pickable: false,
     id: colTypes.Text + '-' + type + id,
     getText: (d: any) => {
@@ -79,9 +79,6 @@ const LineTextLayer = ({
           return d.text;
           break;
         default: // arcLabels
-          if (d.skip) {
-            return '';
-          }
           return d.properties?.edgeStyle.text;
           break;
       }
@@ -98,7 +95,7 @@ const LineTextLayer = ({
           return d.position;
           break;
         default: // arcLabels
-          return d.midPoint;
+          return d.sourcePosition;
           break;
       }
     },

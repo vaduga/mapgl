@@ -739,3 +739,81 @@ it('clears graph picks and retains valid secondary output when empty-scene secon
   session.dispose();
   controller.dispose();
 });
+
+it('reuses routed label and curve data across selection builds and invalidates actual geometry inputs', async () => {
+  const controller = await fixture();
+  const initial = captureRenderInput(controller, presentation);
+  const index = initial.render.edgeIndex;
+  const edgeKeys = Array.from({ length: index.edgeCount }, (_, ref) => `external:${index.getEdge(ref).id}`);
+  const group = {
+    types: new Uint8Array(index.edgeCount),
+    controlPoints: Float32Array.from(edgeKeys.flatMap((_, i) => [0, i * 100, 400, i * 100, 0, 0, 0, 0])),
+    segments: Float32Array.from(edgeKeys.flatMap(() => [0, 1])),
+    edgeIndexes: Int32Array.from(edgeKeys.map((_, i) => i)),
+    edgeSegmentOffsets: Int32Array.from([...edgeKeys.map((_, i) => i), edgeKeys.length]),
+  };
+  const render = {
+    ...initial.render,
+    curveGroups: new Map([['external', group]]),
+    edgeKeys,
+    edgeIndexes: new Map(edgeKeys.map((key, i) => [key, i])),
+  } as any;
+  const input = { ...initial, render };
+  const prepared = prepareGraphRender(initial);
+  const geometry = {
+    ...prepared.geometry,
+    routed: {
+      external: prepared.geometry.routed.external.map((feature) => ({
+        ...feature,
+        properties: { ...feature.properties, edgeStyle: { ...feature.properties.edgeStyle, text: 'middle' } },
+      })),
+    },
+  };
+  const captured = { ...prepared, geometry };
+  const base = buildPrimaryLayers(input, captured);
+  const route = (bundle: typeof base) => bundle.labels!.find((layer) => layer.id === 'text-routeLabelsexternal');
+  const curve = (bundle: typeof base) => bundle.edges!.find((layer) => layer.id === 'edges-viewexternal');
+  expect((route(base)!.props.data as any[]).length).toBeGreaterThan(0);
+  controller.select({ id: 'node-0', namespaceId: 'external' });
+  const selected = { ...input, selectedNode: controller.stores.pointStore.getSelectedNode };
+  expect(selected.selectedNode).not.toBeNull();
+  const focused = buildPrimaryLayers(selected, captured);
+  expect(route(focused)!.props.data).toBe(route(base)!.props.data);
+  expect(curve(focused)!.props.data).toBe(curve(base)!.props.data);
+  expect(route(buildPrimaryLayers(input, captured))!.props.data).toBe(route(base)!.props.data);
+  expect(
+    route(buildPrimaryLayers({ ...input, presentation: { ...input.presentation, isDark: true } }, captured))!.props.data
+  ).toBe(route(base)!.props.data);
+  const shifted = buildPrimaryLayers({ ...input, layerShift: { external: [100, 50] } }, captured);
+  expect(route(shifted)!.props.data).not.toBe(route(base)!.props.data);
+  const cardMode = buildPrimaryLayers({ ...input, presentation: { ...input.presentation, nodeCards: true } }, captured);
+  expect(route(cardMode)!.props.data).not.toBe(route(shifted)!.props.data);
+  const changedGroup = {
+    ...group,
+    controlPoints: Float32Array.from(edgeKeys.flatMap((_, i) => [0, 50 + i * 100, 400, 50 + i * 100, 0, 0, 0, 0])),
+  };
+  const changed = buildPrimaryLayers(
+    { ...input, render: { ...render, curveGroups: new Map([['external', changedGroup]]) } },
+    captured
+  );
+  expect((route(changed)!.props.data as any[])[0].position[1]).toBe(50);
+  expect(route(changed)!.props.data).not.toBe(route(base)!.props.data);
+  const refreshed = {
+    ...captured,
+    geometry: {
+      ...geometry,
+      routed: {
+        external: geometry.routed.external.map((feature) => ({
+          ...feature,
+          properties: { ...feature.properties, edgeStyle: { ...feature.properties.edgeStyle, text: 'new label' } },
+        })),
+      },
+    },
+  };
+  expect((route(buildPrimaryLayers(input, refreshed))!.props.data as any[])[0].text).toBe('new label');
+  const labelVisibility = controller.scene.visibility.getLayerTree().find((layer) => layer.name === colTypes.Label)!;
+  controller.scene.setVisibility(labelVisibility, false, 'none', []);
+  const hidden = { ...captureRenderInput(controller, presentation), render };
+  expect(route(buildPrimaryLayers(hidden, captured))).toBeUndefined();
+  controller.dispose();
+});

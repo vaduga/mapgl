@@ -1,9 +1,11 @@
-import { pointOnCurve } from './curve-geometry';
+import { curveAnchorAt, getCurveMetrics, type CurveMetric } from './curve-metrics';
+import { LabelBoxIndex } from './label-box-index';
 import type { DeckLine } from '../../types/index';
 import type { CurveEdgeBinaryData } from './curve-edge-layer';
 import { measureText } from '../../graph/utils/layout-geometry';
 
 export type RouteLabel = {
+  idleVisible?: boolean;
   text: string;
   fontSize: number;
   featureIndex: number;
@@ -16,7 +18,7 @@ export type RouteLabel = {
 
 // Weathermap style: what each end sends, near that end, and the edge text in the middle.
 // Sizes are layout units: labels scale with the graph (text-layer sizeUnits 'common').
-const SAMPLES_PER_SEGMENT = 4;
+type Spot = [number, number];
 const END_GAP = 6; // between a line's end and its label
 const LABEL_GAP = 6; // between labels on one line
 const LABEL_PADDING = 4; // text-layer background padding, both sides
@@ -29,8 +31,10 @@ const TRIES = 4; // spots tried per label before it is dropped
 export type LabelBox = { x: number; y: number; hw: number; hh: number };
 
 /** A label with the spots it may take, best first. */
+const obstacleIndexes = new WeakMap<readonly LabelBox[], LabelBoxIndex>();
+
 export type RouteLabelCandidate = Omit<RouteLabel, 'position'> & {
-  spots: Array<[number, number]>;
+  spots: Spot[];
   hw: number;
   hh: number;
 };
@@ -53,14 +57,21 @@ export function declutterRouteLabels(
   obstacles: readonly LabelBox[],
   isFocused: (candidate: RouteLabelCandidate) => boolean = () => false
 ): RouteLabel[] {
-  const taken: LabelBox[] = [...obstacles];
+  const taken = new LabelBoxIndex();
+  let obstacleIndex = obstacleIndexes.get(obstacles);
+  if (!obstacleIndex) {
+    obstacleIndex = new LabelBoxIndex();
+    obstacles.forEach((box) => obstacleIndex!.insert(box));
+    obstacleIndexes.set(obstacles, obstacleIndex);
+  }
+  const findOverlaps = (box: LabelBox) => [...obstacleIndex!.overlaps(box), ...taken.overlaps(box)];
   const placed: RouteLabel[] = [];
   const ordered = [...candidates].sort(
     (a, b) => Number(isFocused(b)) - Number(isFocused(a)) || Number(b.kind === 'middle') - Number(a.kind === 'middle')
   );
   for (const item of ordered) {
     const { spots, hw, hh, ...label } = item;
-    let spot = spots.find(([x, y]) => !taken.some((box) => overlaps(box, { x, y, hw, hh })));
+    let spot = spots.find(([x, y]) => !findOverlaps({ x, y, hw, hh }).length);
     if (!spot && isFocused(item) && spots.length) {
       const [x, y] = spots[0];
       spot = [x, y];
@@ -68,7 +79,7 @@ export function declutterRouteLabels(
       // require a row-by-row search through their full height.
       while (true) {
         let nextY = spot[1];
-        for (const box of taken) {
+        for (const box of findOverlaps({ x, y: spot[1], hw, hh })) {
           if (overlaps(box, { x, y: spot[1], hw, hh })) {
             nextY = Math.max(nextY, box.y + box.hh + hh + LABEL_GAP);
           }
@@ -80,7 +91,7 @@ export function declutterRouteLabels(
       }
     }
     if (spot) {
-      taken.push({ x: spot[0], y: spot[1], hw, hh });
+      taken.insert({ x: spot[0], y: spot[1], hw, hh });
       placed.push({ ...label, position: spot });
     }
   }
@@ -93,46 +104,48 @@ function overlaps(a: LabelBox, b: LabelBox): boolean {
 
 /** Labels of each routed edge with the spots they may take (see getRouteLabels). */
 export function getRouteLabelCandidates(segments: CurveEdgeBinaryData<DeckLine>): RouteLabelCandidate[] {
-  const paths = new Map<number, number[][]>();
-  const { getControlPoints, getSegment, getCurveType } = segments.attributes;
+  const labels: RouteLabelCandidate[] = [];
+  const widths = new Map<string, number>();
+  const width = (text: string) => {
+    let value = widths.get(text);
+    if (value === undefined) {
+      value = measureText(text);
+      widths.set(text, value);
+    }
+    return value;
+  };
   const hasText = (text: unknown) => typeof text === 'string' && Boolean(text.trim());
-  const labeled = segments.features.map((feature) => {
+  for (let featureIndex = 0; featureIndex < segments.features.length; featureIndex++) {
+    const feature = segments.features[featureIndex];
     const { edgeStyle, arcStyle } = feature?.properties ?? {};
-    return (
-      hasText(edgeStyle?.text) ||
-      (arcStyle?.showStat2 === true && (hasText(arcStyle.sideA?.text) || hasText(arcStyle.sideB?.text)))
-    );
-  });
-  for (let i = 0; i < segments.length; i++) {
-    const featureIndex = segments.segmentFeatureIndexes[i];
-    if (!labeled[featureIndex]) {
+    if (
+      !hasText(edgeStyle?.text) &&
+      !(arcStyle?.showStat2 === true && (hasText(arcStyle.sideA?.text) || hasText(arcStyle.sideB?.text)))
+    ) {
       continue;
     }
-    const cp = getControlPoints.value.subarray(i * 8, i * 8 + 8);
-    const [t0, dt] = getSegment.value.subarray(i * 2, i * 2 + 2);
-    const path = paths.get(featureIndex) ?? [];
-    for (let step = path.length ? 1 : 0; step <= SAMPLES_PER_SEGMENT; step++) {
-      path.push(pointOnCurve(getCurveType.value[i], cp, t0 + (dt * step) / SAMPLES_PER_SEGMENT));
+    const metric = getCurveMetrics(segments, featureIndex);
+    if (metric.intervals.length) {
+      labels.push(...placeLabels(feature, metric, featureIndex, width));
     }
-    paths.set(featureIndex, path);
-  }
-
-  const labels: RouteLabelCandidate[] = [];
-  for (const [featureIndex, path] of paths) {
-    labels.push(...placeLabels(segments.features[featureIndex], path, featureIndex));
   }
   return labels;
 }
 
 type Pending = { text: string; kind: RouteLabel['kind']; color: number[]; width: number; fontSize: number };
 
-function placeLabels(feature: DeckLine, path: number[][], featureIndex: number): RouteLabelCandidate[] {
+function placeLabels(
+  feature: DeckLine,
+  metric: CurveMetric,
+  featureIndex: number,
+  width: (text: string) => number
+): RouteLabelCandidate[] {
   const { edgeStyle, arcStyle } = (feature.properties ?? {}) as any;
   const fontSize = edgeStyle?.textConfig?.fontSize ?? DEFAULT_FONT_SIZE;
   const lineColor = edgeStyle?.group?.color ?? edgeStyle?.color ?? [128, 128, 128, 255];
   const pending = (text: unknown, kind: RouteLabel['kind'], color: number[], size = fontSize): Pending | undefined =>
     typeof text === 'string' && text.trim()
-      ? { text, kind, color, fontSize: size, width: measureText(text) * size + 2 * LABEL_PADDING }
+      ? { text, kind, color, fontSize: size, width: width(text) * size + 2 * LABEL_PADDING }
       : undefined;
   const sides = arcStyle?.showStat2 === true;
   const a = sides
@@ -152,12 +165,12 @@ function placeLabels(feature: DeckLine, path: number[][], featureIndex: number):
       )
     : undefined;
   const m = pending(edgeStyle?.text, 'middle', lineColor);
-  const candidate = (p: Pending, spots: Array<[number, number]>, text = p.text): RouteLabelCandidate => ({
+  const candidate = (p: Pending, spots: Spot[], text = p.text): RouteLabelCandidate => ({
     text,
     fontSize: p.fontSize,
     featureIndex,
     spots,
-    hw: (measureText(text) * p.fontSize) / 2 + LABEL_PADDING,
+    hw: (width(text) * p.fontSize) / 2 + LABEL_PADDING,
     hh: (p.fontSize * LABEL_HEIGHT) / 2,
     color: p.color,
     kind: p.kind,
@@ -167,9 +180,13 @@ function placeLabels(feature: DeckLine, path: number[][], featureIndex: number):
   const along = (first: number, step: number, min: number, max: number) =>
     Array.from({ length: TRIES }, (_, i) => first + step * i)
       .filter((d, i) => i === 0 || (d >= min && d <= max))
-      .map((d) => pointAt(path, d).point);
+      .map((d) => spotAt(d));
 
-  const length = pathLength(path);
+  const spotAt = (d: number, dy = 0): Spot => {
+    const { point } = curveAnchorAt(metric, d);
+    return [point[0], point[1] + dy];
+  };
+  const length = metric.length;
   const [wa, wb, wm] = [a?.width ?? 0, b?.width ?? 0, m?.width ?? 0];
   if (length >= 2 * END_GAP + wa + wb + wm + 2 * LABEL_GAP) {
     const out: RouteLabelCandidate[] = [];
@@ -188,14 +205,14 @@ function placeLabels(feature: DeckLine, path: number[][], featureIndex: number):
       out.push(
         candidate(
           m,
-          spots.map((d) => pointAt(path, d).point)
+          spots.map((d) => spotAt(d))
         )
       );
     }
     return out;
   }
   // Too short: stack them at the middle (or a third along), source side's number first.
-  const centres = [0.5, 0.35, 0.65].map((at) => pointAt(path, length * at));
+  const centres = [0.5, 0.35, 0.65].map((at) => curveAnchorAt(metric, length * at));
   const direction = centres[0].direction;
   const stack = [
     a && { p: a, text: `${arrow(direction)} ${a.text}` },
@@ -209,7 +226,7 @@ function placeLabels(feature: DeckLine, path: number[][], featureIndex: number):
   return stack.map(({ p, text }, i) =>
     candidate(
       p,
-      centres.map(({ point }) => [point[0], point[1] + (i - (stack.length - 1) / 2) * step] as [number, number]),
+      [0.5, 0.35, 0.65].map((at) => spotAt(length * at, (i - (stack.length - 1) / 2) * step)),
       text
     )
   );
@@ -250,43 +267,117 @@ export function pointAlong(path: number[][], at: number): [number, number] {
   return pointAt(path, pathLength(path) * at).point;
 }
 
-export type ScopedRouteLabelCandidate = RouteLabelCandidate & { srcGraphId: string };
-export type RouteLabelData = RouteLabel[] & {
-  routeLabels: {
-    candidates: readonly ScopedRouteLabelCandidate[];
-    obstacles: readonly LabelBox[];
-    graphId: string;
-  };
+export type ScopedRouteLabelCandidate = RouteLabelCandidate & {
+  srcGraphId: string;
+  shift?: readonly [number, number];
+  eligible?: boolean;
 };
+export type FocusedRouteEdges = Readonly<Record<string, ReadonlyMap<number, number>>>;
+type LabelPositions = ReadonlyMap<RouteLabel, [number, number]>;
+export type RouteLabelData = RouteLabel[] & { placement?: { resolve(focused: FocusedRouteEdges): LabelPositions } };
 
-/** Keep unplaced candidates in captured metadata so focus can reveal them without layout. */
 export function createRouteLabelData(
   candidates: readonly ScopedRouteLabelCandidate[],
   obstacles: readonly LabelBox[],
-  graphId: string,
-  isFocused: (label: ScopedRouteLabelCandidate) => boolean = () => false
+  graphId: string
 ): RouteLabelData {
-  return (
-    createRouteLabelDataByGraph(candidates, obstacles, isFocused).get(graphId) ??
-    Object.assign([], { routeLabels: { candidates, obstacles, graphId } })
-  );
+  return createRouteLabelDataByGraph(candidates, obstacles).get(graphId) ?? [];
 }
 
-/** Run global collision placement once, then partition without repeating it per namespace. */
+const placements = new WeakMap<
+  readonly ScopedRouteLabelCandidate[],
+  {
+    obstacles: readonly LabelBox[];
+    alwaysOn: boolean;
+    result: Map<string, RouteLabelData>;
+  }
+>();
+
+/** Cache candidate anchors once; resolve collisions only against currently visible labels. */
 export function createRouteLabelDataByGraph(
   candidates: readonly ScopedRouteLabelCandidate[],
   obstacles: readonly LabelBox[],
-  isFocused: (label: ScopedRouteLabelCandidate) => boolean = () => false
+  alwaysOn = true
 ): Map<string, RouteLabelData> {
-  const byGraph = new Map<string, RouteLabelData>();
-  for (const { srcGraphId } of candidates) {
-    if (!byGraph.has(srcGraphId)) {
-      byGraph.set(srcGraphId, Object.assign([], { routeLabels: { candidates, obstacles, graphId: srcGraphId } }));
+  const cached = placements.get(candidates);
+  if (cached?.obstacles === obstacles && cached.alwaysOn === alwaysOn) {return cached.result;}
+  const result = new Map<string, RouteLabelData>();
+  const byEdge = new Map<string, Map<number, SceneCandidate[]>>();
+  type SceneCandidate = ScopedRouteLabelCandidate & { label: RouteLabel };
+  const global: SceneCandidate[] = candidates.map((candidate) => {
+    const { spots, hw, hh, ...rest } = candidate;
+    const label: RouteLabel = { ...rest, position: spots[0], idleVisible: false };
+    let data = result.get(candidate.srcGraphId);
+    if (!data) {
+      data = [];
+      result.set(candidate.srcGraphId, data);
     }
+    data.push(label);
+    const [dx, dy] = candidate.shift ?? [0, 0];
+    const item = { ...candidate, label, spots: spots.map(([x, y]) => [x + dx, y + dy] as [number, number]) };
+    if (candidate.eligible !== false) {
+      let edges = byEdge.get(candidate.srcGraphId);
+      if (!edges) {
+        edges = new Map();
+        byEdge.set(candidate.srcGraphId, edges);
+      }
+      let labels = edges.get(candidate.featureIndex);
+      if (!labels) {
+        labels = [];
+        edges.set(candidate.featureIndex, labels);
+      }
+      labels.push(item);
+    }
+    return item;
+  });
+  const toPositions = (placed: RouteLabel[]): Map<RouteLabel, [number, number]> =>
+    new Map(
+      placed.map((value) => {
+        const item = value as RouteLabel & SceneCandidate;
+        const [dx, dy] = item.shift ?? [0, 0];
+        return [item.label, [value.position[0] - dx, value.position[1] - dy]];
+      })
+    );
+  const idle = alwaysOn
+    ? toPositions(
+        declutterRouteLabels(
+          global.filter((c) => c.eligible !== false && !c.feature.skip),
+          obstacles
+        )
+      )
+    : new Map<RouteLabel, [number, number]>();
+  const baseline = global.filter((c) => idle.has(c.label));
+  for (const [label, position] of idle) {
+    label.position = position;
+    label.idleVisible = true;
   }
-  const eligible = candidates.filter((c) => !c.feature.skip || isFocused(c));
-  for (const label of declutterRouteLabels(eligible, obstacles, (c) => isFocused(c as ScopedRouteLabelCandidate))) {
-    byGraph.get((label as RouteLabel & { srcGraphId: string }).srcGraphId)!.push(label);
-  }
-  return byGraph;
+  let lastKey = '';
+  let lastPositions: LabelPositions = idle;
+  const placement = {
+    resolve(focused: FocusedRouteEdges): LabelPositions {
+      const key = JSON.stringify(
+        Object.keys(focused)
+          .sort()
+          .map((graph) => [graph, [...focused[graph].keys()].sort((a, b) => a - b)])
+      );
+      if (lastKey === key) {return lastPositions;}
+      const selected = new Set<SceneCandidate>();
+      for (const graph of Object.keys(focused).sort())
+        {for (const index of [...focused[graph].keys()].sort((a, b) => a - b))
+          {for (const candidate of byEdge.get(graph)?.get(index) ?? []) {selected.add(candidate);}}}
+      lastKey = key;
+      if (!selected.size) {
+        lastPositions = idle;
+        return lastPositions;
+      }
+      const visible = [...selected, ...baseline.filter((candidate) => !selected.has(candidate))];
+      lastPositions = toPositions(
+        declutterRouteLabels(visible, obstacles, (candidate) => selected.has(candidate as SceneCandidate))
+      );
+      return lastPositions;
+    },
+  };
+  for (const data of result.values()) {Object.defineProperty(data, 'placement', { value: placement });}
+  placements.set(candidates, { obstacles, alwaysOn, result });
+  return result;
 }

@@ -55,7 +55,7 @@ export const orthoLayer: ExtendMapLayerRegistryItem<OrthoConfig> = {
         .addRadio({
           path: 'config.layoutEngine',
           name: 'Layout engine',
-          description: 'ELK: one layered layout across namespace boxes (nodes inside boxes follow the flow)',
+          description: 'MSAGL: default. ELK: layered layout across namespace boxes, nodes follow the flow',
           settings: {
             options: [
               { label: 'MSAGL', value: 'MSAGL' },
@@ -67,7 +67,8 @@ export const orthoLayer: ExtendMapLayerRegistryItem<OrthoConfig> = {
         .addBooleanSwitch({
           path: 'config.nodeCards',
           name: 'Node cards',
-          description: 'Draw each node as a card holding its label (multi-line with a template text)',
+          description:
+            'For multi-line template text labels',
           defaultValue: defaultOrthoConfig.nodeCards,
         })
         .addRadio({

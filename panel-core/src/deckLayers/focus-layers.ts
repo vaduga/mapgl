@@ -1,4 +1,5 @@
-import { createRouteLabelDataByGraph, type RouteLabelData } from './GeoJsonEdgesLayer/route-labels';
+import type { RouteLabelData } from './GeoJsonEdgesLayer/route-labels';
+import { EdgeLabelLayer } from './TextLayer/edge-label-layer';
 import { IconLayer, TextLayer } from '@deck.gl/layers';
 import type { Layer } from '@deck.gl/core';
 import type { RGBAColor } from '../types/index';
@@ -8,7 +9,6 @@ import GradientArcLayer from './ArcLayer/gradient-arc-layer';
 import { getArrowColor } from './ArrowLayer/edge-arrow-layer';
 import { CurveEdgeLayer } from './GeoJsonEdgesLayer/curve-edge-layer';
 import { makeScopedKey, type ConnectedEdgeIndex } from './GraphHighlighter';
-import { EDGE_LABEL_DIM_OPACITY } from './TextLayer/text-layer';
 
 type DimmedGraphLayerOptions = {
   connectedNodeIds: Set<string>;
@@ -23,13 +23,12 @@ export function getDimmedGraphLayers(layers: Layer[], opts: DimmedGraphLayerOpti
   const edgeDepthsByGraph =
     opts instanceof Set ? {} : getEdgeDepthsByGraph(opts.connectedEdgeIndexes ?? [], Boolean(opts.isRouted));
 
-  const routePlacements = new Map<RouteLabelData['routeLabels']['candidates'], Map<string, RouteLabelData>>();
   return flattenDeckLayers(layers).map((layer) => {
     if ((layer?.id ?? '').startsWith('icon-cluster')) {
       return layer.clone({ opacity: 0.18 });
     }
 
-    const dimmedEdgeLayer = getDimmedEdgeLayer(layer, edgeDepthsByGraph, routePlacements);
+    const dimmedEdgeLayer = getDimmedEdgeLayer(layer, edgeDepthsByGraph);
     if (dimmedEdgeLayer) {
       return dimmedEdgeLayer;
     }
@@ -134,11 +133,7 @@ function getEdgeDepthsByGraph(connectedEdgeIndexes: ConnectedEdgeIndex[], isRout
   );
 }
 
-function getDimmedEdgeLayer(
-  layer: Layer,
-  edgeDepthsByGraph: Record<string, Map<number, number>>,
-  routePlacements: Map<RouteLabelData['routeLabels']['candidates'], Map<string, RouteLabelData>>
-) {
+function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<number, number>>) {
   const graphId = getGraphIdFromEdgeLayer(layer);
   if (graphId === undefined) {
     return null;
@@ -191,64 +186,29 @@ function getDimmedEdgeLayer(
     } as any);
   }
 
-  if (layer instanceof TextLayer && layer.id.startsWith('text-routeLabels')) {
-    const original = layer.props.data as RouteLabelData;
-    const metadata = original.routeLabels;
-    const focused = (d: any) => edgeDepthsByGraph[d.srcGraphId]?.has(d.featureIndex) ?? false;
-    if (!layer.props.visible) {
-      return layer;
-    }
-    let placements = routePlacements.get(metadata.candidates);
-    if (!placements) {
-      placements = createRouteLabelDataByGraph(metadata.candidates, metadata.obstacles, focused);
-      routePlacements.set(metadata.candidates, placements);
-    }
-    const data = placements.get(metadata.graphId) ?? original;
-    const text = layer as any;
-    const color = (accessor: any, fallback: number[]) => (d: any, info: any) => {
-      const value = getAccessorResult(accessor, d, info, fallback);
-      return focused(d) ? value : getDimmedRgba(value, EDGE_LABEL_DIM_OPACITY);
-    };
+  if (layer instanceof EdgeLabelLayer) {
+    const routed = layer.id.startsWith('text-routeLabels');
+    const positions =
+      routed && layer.props.visible
+        ? (layer.props.data as RouteLabelData).placement?.resolve(edgeDepthsByGraph)
+        : undefined;
     return layer.clone({
-      data,
-      opacity: 1,
-      getColor: color(text.props.getColor, [255, 255, 255, 255]),
-      getBackgroundColor: color(text.props.getBackgroundColor, [0, 0, 0, 235]),
-      getBorderColor: color(text.props.getBorderColor, [0, 0, 0, 0]),
+      ...(positions
+        ? {
+            getPosition: (d: any) => positions.get(d) ?? d.position,
+            getIdleVisible: (d: any) => positions.has(d),
+          }
+        : {}),
+      highlightMaxDepth: getMaxMapValue(connectedFeatureDepths),
+      highlightDimOpacity: 0.18,
+      getHighlightDepth: (d: any, info: any) =>
+        connectedFeatureDepths.get(routed ? d.featureIndex : info.index) ?? Number.MAX_SAFE_INTEGER,
       updateTriggers: {
         ...layer.props.updateTriggers,
-        getColor: highlightDepthTrigger,
-        getBackgroundColor: highlightDepthTrigger,
-        getBorderColor: highlightDepthTrigger,
+        getHighlightDepth: highlightDepthTrigger,
+        ...(positions ? { getPosition: [positions], getIdleVisible: [positions] } : {}),
       },
-    } as any);
-  }
-
-  if (isEdgeTextLayer(layer)) {
-    const textLayer = layer as any;
-    return layer.clone({
-      opacity: 1,
-      getText: (d: any, info: any) => {
-        if (d?.skip) {
-          return connectedFeatureDepths.has(info.index) ? (d.properties?.edgeStyle?.text ?? '') : '';
-        }
-        return getAccessorResult(textLayer.props.getText, d, info, '');
-      },
-      getColor: (d: any, info: any) => {
-        const color = getAccessorResult(textLayer.props.getColor, d, info, [0, 0, 0, 200]);
-        return connectedFeatureDepths.has(info.index) ? color : getDimmedRgba(color, EDGE_LABEL_DIM_OPACITY);
-      },
-      getBackgroundColor: (d: any, info: any) => {
-        const color = getAccessorResult(textLayer.props.getBackgroundColor, d, info, [255, 255, 255, 100]);
-        return connectedFeatureDepths.has(info.index) ? color : getDimmedRgba(color, EDGE_LABEL_DIM_OPACITY);
-      },
-      updateTriggers: {
-        ...layer.props.updateTriggers,
-        getText: highlightDepthTrigger,
-        getColor: [textLayer.props.updateTriggers?.getColor, highlightDepthTrigger],
-        getBackgroundColor: [textLayer.props.updateTriggers?.getBackgroundColor, highlightDepthTrigger],
-      },
-    } as any);
+    });
   }
 
   if (isArrowLayer(layer)) {
@@ -308,10 +268,6 @@ function isArcLayer(layer: Layer): boolean {
 
 function isArrowLayer(layer: Layer): boolean {
   return layer instanceof IconLayer && (layer?.id ?? '').startsWith('edges-arrow-');
-}
-
-function isEdgeTextLayer(layer: Layer): boolean {
-  return layer instanceof TextLayer && (layer?.id ?? '').startsWith('text-arcLabels');
 }
 
 function getAccessorResult(accessor: any, object: any, info: any, fallback: any) {

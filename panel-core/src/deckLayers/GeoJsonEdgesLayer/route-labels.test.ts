@@ -1,4 +1,10 @@
-import { declutterRouteLabels, getRouteLabelCandidates, getRouteLabels, pointAlong } from './route-labels';
+import {
+  createRouteLabelDataByGraph,
+  declutterRouteLabels,
+  getRouteLabelCandidates,
+  getRouteLabels,
+  pointAlong,
+} from './route-labels';
 
 describe('route labels', () => {
   it('finds the point at a fraction of a polyline', () => {
@@ -136,4 +142,125 @@ it('jumps past tall obstacles while retaining every focused label', () => {
   expect(labels).toHaveLength(2);
   expect(labels[0].position[1]).toBeGreaterThan(1e9 + 7);
   expect(labels[1].position[1] - labels[0].position[1]).toBeGreaterThanOrEqual(14);
+});
+
+it('prepares candidate anchors once and applies namespace shifts once', () => {
+  const feature: any = { properties: {} };
+  const candidates: any[] = ['a', 'b'].map((srcGraphId, i) => ({
+    srcGraphId,
+    feature,
+    featureIndex: 0,
+    text: srcGraphId,
+    kind: 'middle',
+    fontSize: 10,
+    hw: 10,
+    hh: 7,
+    spots: [[0, 0]],
+    color: [0, 0, 0, 255],
+    shift: [i * 100, 0],
+  }));
+  const obstacles: any[] = [];
+  const baseline = createRouteLabelDataByGraph(candidates, obstacles);
+  expect(baseline.get('a')).toHaveLength(1);
+  expect(baseline.get('b')).toHaveLength(1);
+  expect(baseline.get('b')![0].position).toEqual([0, 0]);
+  expect(createRouteLabelDataByGraph(candidates, obstacles)).toBe(baseline);
+  expect(baseline.get('a')![0].idleVisible).toBe(true);
+  const blocked = [{ x: 0, y: 0, hw: 200, hh: 200 }];
+  const reserved = createRouteLabelDataByGraph(candidates, blocked);
+  expect(reserved.get('a')).toHaveLength(1);
+  expect(reserved.get('b')).toHaveLength(1);
+  expect(reserved.get('a')![0].idleVisible).toBe(false);
+  expect(reserved.get('a')![0].position[1]).toBe(0);
+  const focused = reserved.get('a')!.placement!.resolve({ a: new Map([[0, 0]]) });
+  expect(focused.get(reserved.get('a')![0])![1]).toBeGreaterThan(200);
+  expect(createRouteLabelDataByGraph(candidates, blocked)).toBe(reserved);
+});
+it('indexed placement matches a linear reference across deterministic crowded fixtures', () => {
+  let seed = 42;
+  const random = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 2 ** 32;
+  const candidates: any[] = Array.from({ length: 300 }, (_, featureIndex) => ({
+    feature: { properties: {} },
+    featureIndex,
+    text: String(featureIndex),
+    fontSize: 10,
+    kind: featureIndex % 3 ? 'end' : 'middle',
+    hw: 5 + random() * 25,
+    hh: 7,
+    spots: Array.from({ length: 4 }, () => [Math.floor(random() * 500), Math.floor(random() * 300)]),
+    color: [0, 0, 0, 255],
+  }));
+  const obstacles = [{ x: 250, y: 150, hw: 50, hh: 100 }];
+  const taken = [...obstacles],
+    expected: string[] = [];
+  for (const c of [...candidates].sort((a, b) => Number(b.kind === 'middle') - Number(a.kind === 'middle'))) {
+    const spot = c.spots.find(
+      ([x, y]: number[]) => !taken.some((b) => Math.abs(x - b.x) < c.hw + b.hw && Math.abs(y - b.y) < c.hh + b.hh)
+    );
+    if (spot) {
+      taken.push({ x: spot[0], y: spot[1], hw: c.hw, hh: c.hh });
+      expected.push(`${c.text}:${spot}`);
+    }
+  }
+  expect(declutterRouteLabels(candidates, obstacles).map((c) => `${c.text}:${c.position}`)).toEqual(expected);
+});
+
+it('declutters only focused labels when idle labels are hidden, without resampling candidates', () => {
+  const candidates = Array.from({ length: 1000 }, (_, featureIndex) => ({
+    srcGraphId: 'ns',
+    featureIndex,
+    text: String(featureIndex),
+    fontSize: 10,
+    kind: 'middle' as const,
+    color: [0, 0, 0, 255],
+    feature: { properties: {} } as any,
+    spots: [[0, 0]] as [number, number][],
+    hw: 10,
+    hh: 7,
+  }));
+  const data = createRouteLabelDataByGraph(candidates, [], false).get('ns')!;
+  const placement = data.placement!;
+  expect(data.every((label) => !label.idleVisible && label.position[1] === 0)).toBe(true);
+  const one = placement.resolve({ ns: new Map([[999, 0]]) });
+  expect(one.size).toBe(1);
+  expect(one.get(data[999])).toEqual([0, 0]);
+  expect(placement.resolve({ ns: new Map([[999, 1]]) })).toBe(one);
+  const two = placement.resolve({
+    ns: new Map([
+      [998, 0],
+      [999, 0],
+    ]),
+  });
+  expect(two.size).toBe(2);
+  expect(two.get(data[998])).toEqual([0, 0]);
+  expect(two.get(data[999])![1]).toBeGreaterThanOrEqual(14);
+  expect(placement.resolve({}).size).toBe(0);
+  expect(data.every((label) => label.position[1] === 0)).toBe(true);
+});
+it('prioritizes focused text over visible idle text and ignores prohibited labels', () => {
+  const candidate = (featureIndex: number, eligible = true): any => ({
+    srcGraphId: 'ns',
+    featureIndex,
+    eligible,
+    text: String(featureIndex),
+    fontSize: 10,
+    kind: 'middle',
+    color: [0, 0, 0, 255],
+    feature: { properties: {} },
+    spots: [[0, 0]],
+    hw: 10,
+    hh: 7,
+  });
+  const data = createRouteLabelDataByGraph([candidate(0), candidate(1), candidate(2, false)], [], true).get('ns')!;
+  expect(data.map((label) => label.idleVisible)).toEqual([true, false, false]);
+  const focused = data.placement!.resolve({
+    ns: new Map([
+      [1, 0],
+      [2, 0],
+    ]),
+  });
+  expect(focused.get(data[1])).toEqual([0, 0]);
+  expect(focused.has(data[0])).toBe(false);
+  expect(focused.has(data[2])).toBe(false);
+  expect(data.placement!.resolve({}).get(data[0])).toEqual([0, 0]);
 });

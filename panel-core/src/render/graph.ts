@@ -1,3 +1,4 @@
+import { getNsPrefixes } from '../graph/utils/utils.graph';
 import type { Color, PickingInfo } from '@deck.gl/core';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import { PathStyleExtension } from '@deck.gl/extensions';
@@ -28,6 +29,7 @@ import {
   createRouteLabelDataByGraph,
   getRouteLabelCandidates,
   type RouteLabelCandidate,
+  type LabelBox,
 } from '../deckLayers/GeoJsonEdgesLayer/route-labels';
 import { EdgeArrowLayer } from '../deckLayers/ArrowLayer/edge-arrow-layer';
 import { MyArcLayer } from '../deckLayers/ArcLayer/arc-layer';
@@ -300,13 +302,119 @@ export interface PrimaryFactories {
 export const normalizeLayers = (result: LayerFactoryResult): RenderLayer[] =>
   result ? (Array.isArray(result) ? [...result] : [result as RenderLayer]) : [];
 
+const noEdgeOffsetStrategies: NonNullable<EdgeGeometryInput['edgeOffsetStrategies']> = [];
+interface PrimaryGeometryData {
+  cards: Map<GraphBiFeatCol, ReturnType<typeof getNodeCards>>;
+  curves: Map<string, ReturnType<typeof getLayoutCurveSegments>>;
+  labels: ReturnType<typeof createRouteLabelDataByGraph>;
+}
+// Selection rebuilds primary presentation, but does not change label geometry.
+// Weak geometry ownership also covers private contributions without retaining old frames.
+const primaryGeometryData = new WeakMap<
+  PreparedEdgeGeometry,
+  { inputs: readonly unknown[]; data: PrimaryGeometryData }
+>();
+function preparePrimaryGeometryData(
+  input: CapturedRenderInput,
+  prepared: PreparedGraphRender,
+  strategies: EdgeGeometryInput['edgeOffsetStrategies'],
+  visible: boolean
+): PrimaryGeometryData {
+  const p = input.presentation;
+  const labelsVisible = isVisible(input.visibility, { index: null, name: colTypes.Label, group: colTypes.Label });
+  const [activeGroups, visibleNamespaces] = input.visibility.getCategories();
+  const groups = new Set(activeGroups),
+    namespaces = new Set(visibleNamespaces);
+  const eligible = (properties: any, includeGraph = true) => {
+    const group = properties?.style?.group?.groupIdx;
+    const layer = properties?.layerName;
+    const graph = properties?.graph?.id ?? properties?.featSource?.layerName;
+    return (
+      (group === undefined || groups.has(group)) &&
+      (layer === undefined || namespaces.has(layer)) &&
+      (!includeGraph || graph === undefined || namespaces.has(graph))
+    );
+  };
+  const inputs = [
+    prepared.collections,
+    input.render.curveGroups,
+    input.render.edgeKeys,
+    input.render.edgeIndexes,
+    input.edgeIndexRevision,
+    strategies,
+    p.isLogic,
+    p.isRouted,
+    p.labels,
+    p.nodeCards,
+    p.edgeLabels,
+    JSON.stringify([[...activeGroups], visibleNamespaces]),
+    visible,
+    labelsVisible,
+    JSON.stringify(input.layerShift),
+  ];
+  const cached = primaryGeometryData.get(prepared.geometry);
+  if (cached && cached.inputs.every((value, index) => value === inputs[index])) {
+    return cached.data;
+  }
+  const cards: PrimaryGeometryData['cards'] = new Map();
+  const curves: PrimaryGeometryData['curves'] = new Map();
+  const obstacles: LabelBox[] = [];
+  const shift = (id: string): [number, number] =>
+    getNsPrefixes(id).reduce<[number, number]>(
+      (sum, path) => {
+        const value = input.layerShift[path];
+        return value ? [sum[0] + value[0], sum[1] + value[1]] : sum;
+      },
+      [0, 0]
+    );
+  for (const collection of prepared.collections) {
+    const data = p.labels && p.nodeCards ? getNodeCards(collection) : [];
+    cards.set(collection, data);
+    const [dx, dy] = shift(collection.graph.id);
+    obstacles.push(
+      ...data
+        .filter((box) => eligible(box.d.properties, false))
+        .map((box) => ({ ...box, x: box.x + dx, y: box.y + dy }))
+    );
+  }
+  const candidates: Array<RouteLabelCandidate & { srcGraphId: string }> = [];
+  if (p.isRouted && p.isLogic) {
+    for (const [srcGraphId, features] of Object.entries(prepared.geometry.routed)) {
+      if (!features.length) {
+        continue;
+      }
+      const segments = getLayoutCurveSegments(srcGraphId, features, input.render.edgeIndex, {
+        curveGroups: input.render.curveGroups,
+        edgeKeys: input.render.edgeKeys,
+        edgeIndexes: input.render.edgeIndexes,
+        edgeOffsetStrategies: strategies,
+      });
+      curves.set(srcGraphId, segments);
+      if (segments?.length && visible && labelsVisible) {
+        candidates.push(
+          ...getRouteLabelCandidates(segments).map((c) => ({
+            ...c,
+            srcGraphId,
+            eligible: eligible(c.feature.properties),
+            shift: shift(srcGraphId),
+          }))
+        );
+      }
+    }
+  }
+  const labels = createRouteLabelDataByGraph(candidates, obstacles, Boolean(p.edgeLabels));
+  const data = { cards, curves, labels };
+  primaryGeometryData.set(prepared.geometry, { inputs, data });
+  return data;
+}
+
 export function buildPrimaryLayers(
   input: CapturedRenderInput,
   prepared: PreparedGraphRender,
   {
     factories = {},
     contributions = {},
-    edgeOffsetStrategies = [],
+    edgeOffsetStrategies = noEdgeOffsetStrategies,
     presentationRevision = 0,
   }: {
     factories?: PrimaryFactories;
@@ -355,16 +463,20 @@ export function buildPrimaryLayers(
       edgeOffsetStrategies,
     },
   };
+  const showGraph =
+    p.graphVisibilityName === null ||
+    isVisible(input.visibility, { index: null, name: p.graphVisibilityName ?? 'graph', group: 'graph' });
+  const visible =
+    showGraph && isVisible(input.visibility, { index: null, name: colTypes.Edges, group: colTypes.Edges });
+  const primaryData = preparePrimaryGeometryData(input, prepared, edgeOffsetStrategies, visible);
   const bundle: RenderLayerBundle = { nodes: [], bounds: [], edges: [], baseEdges: [], labels: [] };
   const nodes: RenderLayer[] = [],
     labels: RenderLayer[] = [],
     edges: RenderLayer[] = [],
     baseEdges: RenderLayer[] = [],
     bounds: RenderLayer[] = [];
-  const cardObstacles: ReturnType<typeof getNodeCards> = [];
   for (const biCol of prepared.collections) {
-    const nodeCardData = p.labels && p.nodeCards ? getNodeCards(biCol) : [];
-    cardObstacles.push(...nodeCardData);
+    const nodeCardData = primaryData.cards.get(biCol) ?? [];
     const props = {
       nodeCardData,
       ...common,
@@ -394,21 +506,13 @@ export function buildPrimaryLayers(
       );
     }
   }
-  const showGraph =
-    p.graphVisibilityName === null ||
-    isVisible(input.visibility, { index: null, name: p.graphVisibilityName ?? 'graph', group: 'graph' });
-  const visible =
-    showGraph && isVisible(input.visibility, { index: null, name: colTypes.Edges, group: colTypes.Edges });
   const geometry = p.isRouted ? prepared.geometry.routed : prepared.geometry.arcs;
-  const routeLabels: Array<RouteLabelCandidate & { srcGraphId: string }> = [];
   for (const [srcGraphId, features] of Object.entries(geometry)) {
     if (!features.length) {
       continue;
     }
     if (p.isRouted) {
-      const segments = p.isLogic
-        ? getLayoutCurveSegments(srcGraphId, features, common.edgeIndex, common.layoutGeometry)
-        : undefined;
+      const segments = primaryData.curves.get(srcGraphId);
       const props = {
         ...common,
         srcGraphId,
@@ -417,13 +521,6 @@ export function buildPrimaryLayers(
         curveSegments: segments,
       };
       edges.push(...normalizeLayers((factories.edge ?? EdgesGeojsonLayer)(props)), EdgeArrowLayer(props));
-      if (
-        segments?.length &&
-        visible &&
-        isVisible(input.visibility, { index: null, name: colTypes.Label, group: colTypes.Label })
-      ) {
-        routeLabels.push(...getRouteLabelCandidates(segments).map((c) => ({ ...c, srcGraphId })));
-      }
     } else {
       const props = { ...common, srcGraphId, visible, lineFeatures: features };
       edges.push(MyArcLayer(props));
@@ -431,11 +528,8 @@ export function buildPrimaryLayers(
       labels.push(LineTextLayer({ ...common, id: srcGraphId, data: features, visible, type: 'arcLabels' }));
     }
   }
-  if (routeLabels.length) {
-    // All lines at once, so labels of lines from different boxes do not pile up either.
-    for (const [srcGraphId, data] of createRouteLabelDataByGraph(routeLabels, cardObstacles)) {
-      labels.push(LineTextLayer({ ...common, id: srcGraphId, data, visible, type: 'routeLabels' }));
-    }
+  for (const [srcGraphId, data] of primaryData.labels) {
+    labels.push(LineTextLayer({ ...common, id: srcGraphId, data, visible, type: 'routeLabels' }));
   }
   if (p.bounds && prepared.bounds.features.length) {
     const props = { ...common, id: 'bbox-polygons', rects: prepared.bounds, biCols: prepared.collections };
