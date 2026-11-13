@@ -158,6 +158,7 @@ These rows form one supported ordered route because they are consecutive and con
 
 ## Auto-layout options
 
+- **Layout engine** defaults to **MSAGL**. **ELK** uses layered layout with `INCLUDE_CHILDREN`, Coffman–Graham layering, and Brandes–Köpf node placement. This preserves coordinated flow across namespaces while avoiding the expensive Network Simplex placement pass. Some graphs may have longer edges or more whitespace than with the former placement strategy; see [ELK layout tradeoffs](documentation.md#elk-layout-tradeoffs).
 - **Basemap layer -> Node Graph ortho -> Edge routing -> Splines** maps to `SugiyamaSplines`.
 - **Basemap layer -> Node Graph ortho -> Edge routing -> Rectilinear** maps to `Rectilinear`.
 - **Basemap layer -> Node Graph ortho -> Layout direction** maps to the MSAGL layer direction values `RL`, `LR`, `TB`, or `BT`.

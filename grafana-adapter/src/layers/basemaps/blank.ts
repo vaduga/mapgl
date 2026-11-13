@@ -55,7 +55,7 @@ export const orthoLayer: ExtendMapLayerRegistryItem<OrthoConfig> = {
         .addRadio({
           path: 'config.layoutEngine',
           name: 'Layout engine',
-          description: 'MSAGL: default. ELK: layered layout across namespace boxes, nodes follow the flow',
+          description: 'MSAGL: default. ELK: for coordinated cross-namespace flow',
           settings: {
             options: [
               { label: 'MSAGL', value: 'MSAGL' },

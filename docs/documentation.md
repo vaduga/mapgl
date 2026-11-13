@@ -295,6 +295,14 @@ These settings are shown in **Basemap layer** when **Node Graph ortho** is selec
 - **Layer separation**: distance between adjacent layout layers. In the default right-to-left layout this mostly changes horizontal spacing and edge length.
 - **Node separation**: distance between nodes within the same layout layer. In the default right-to-left layout this mostly changes vertical spacing.
 
+### ELK layout tradeoffs
+
+Choose **ELK** when you need coordinated flow across namespace boundaries. It lays out namespace children together using `INCLUDE_CHILDREN`; MSAGL remains the default engine.
+
+ELK uses Brandes–Köpf node placement with Coffman–Graham layering to reduce layout time while retaining bounded columns and cross-namespace flow. Compared with the former Network Simplex placement, some topologies may have longer edges, more whitespace, or a taller layout, especially with many edges spanning several layers, differently sized cards, or converging and diverging branches. These are potential visual tradeoffs, not guaranteed regressions; layout quality and runtime depend on the graph.
+
+If an ELK layout looks too spread out, try **Layer separation** and **Node separation**, or compare the same graph with **MSAGL**. Changing spacing does not restore Network Simplex optimization; the placement strategy is internal and is not an editor option.
+
 ## Practical advice
 
 - Start with one **Markers and links** layer and get **Vertex A** and **Vertex B** working first.

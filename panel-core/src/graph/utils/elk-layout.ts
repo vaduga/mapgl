@@ -75,8 +75,9 @@ export function buildElkGraph(request: LayoutRequest): ElkNode {
       // cap a column's height so they spread over a few columns.
       'elk.layered.layering.strategy': 'COFFMAN_GRAHAM',
       'elk.layered.layering.coffmanGraham.layerBound': String(layerBound(request.nodes.length)),
-      // Brandes-Köpf aligns long edges and stretches such columns back to full height.
-      'elk.layered.nodePlacement.strategy': 'NETWORK_SIMPLEX',
+      // Network simplex becomes very expensive with the dummy nodes introduced by bounded layers.
+      // Brandes-Köpf keeps the global namespace flow without that optimization cost.
+      'elk.layered.nodePlacement.strategy': 'BRANDES_KOEPF',
     },
     children: [],
     edges: [],

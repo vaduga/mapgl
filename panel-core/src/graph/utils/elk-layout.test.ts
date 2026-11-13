@@ -21,6 +21,25 @@ function request(): LayoutRequest {
 }
 
 describe('ELK layout', () => {
+  it.each(['LR', 'RL', 'TB', 'BT'] as const)('preserves flow through sibling namespaces in %s', async (direction) => {
+    const input: LayoutRequest = {
+      ...request(),
+      direction,
+      positionsLength: 6,
+      graphs: [{ id: 'root' }, ...['left', 'middle', 'right'].map((id) => ({ id, parentId: 'root' }))],
+      nodes: ['left', 'middle', 'right'].map((graphId, wasmId) => ({ id: 'node', graphId, wasmId, radius: 10 })),
+      edges: [
+        { id: 'first', sourceId: 'node', sourceGraphId: 'left', targetId: 'node', targetGraphId: 'middle' },
+        { id: 'second', sourceId: 'node', sourceGraphId: 'middle', targetId: 'node', targetGraphId: 'right' },
+      ],
+    };
+    const result = await getElkLayoutResult(input);
+    const axis = direction === 'LR' || direction === 'RL' ? 0 : 1;
+    const sign = direction === 'RL' || direction === 'BT' ? -1 : 1;
+    expect(sign * (result.positions[2 + axis] - result.positions[axis])).toBeGreaterThan(0);
+    expect(sign * (result.positions[4 + axis] - result.positions[2 + axis])).toBeGreaterThan(0);
+  });
+
   it('stacks a box in the flow: callers left of the peer, labels apart, nodes inside their box', async () => {
     const { positions, graphs } = await getElkLayoutResult(request());
     const xy = (i: number) => [positions[i * 2], positions[i * 2 + 1]];
@@ -71,7 +90,13 @@ describe('ELK layout of a hub', () => {
       positionsLength: 52,
       graphs: [{ id: 'root' }, ...callers.map((c) => ({ id: c.graphId, parentId: 'root' }))],
       nodes: [...callers, { id: 'hub', graphId: 'root', wasmId: 25, radius: 10 }],
-      edges: callers.map((c) => ({ id: c.id, sourceId: c.id, sourceGraphId: c.graphId, targetId: 'hub', targetGraphId: 'root' })),
+      edges: callers.map((c) => ({
+        id: c.id,
+        sourceId: c.id,
+        sourceGraphId: c.graphId,
+        targetId: 'hub',
+        targetGraphId: 'root',
+      })),
     };
     const { graphs } = await getElkLayoutResult(req);
     const xs = graphs.filter((g) => g.id.startsWith('ns')).map((g) => g.minX);
