@@ -235,6 +235,7 @@ export function prepareGraphRender(
         getNamespaceBoundaries([...(options.boundaryProviders ?? [])], {
           graph: render.graph,
           positions: render.positions,
+          nodeCards: p.nodeCards,
           visibleNamespaces: new Set(visibility.getVisibleNamespaces()),
           layoutGraphBounds: render.graphBounds,
           layerShift: input.layerShift,

@@ -180,6 +180,7 @@ export interface NamespaceProjectionStrategy {
 }
 
 export interface NamespaceBoundaryContext {
+  nodeCards?: boolean;
   graph: Graph;
   visibleNamespaces: Set<string>;
   positions: Float64Array;
