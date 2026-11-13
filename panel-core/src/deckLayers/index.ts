@@ -107,3 +107,5 @@ export * from './PolygonsLayer/polygons-layer';
 export * from './TextLayer/text-layer';
 export * from './edgeFilterCategories';
 export * from './focus-layers';
+
+export { getArcLabelPosition } from './TextLayer/arc-label-position';
