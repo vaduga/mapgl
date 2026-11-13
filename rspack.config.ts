@@ -168,11 +168,12 @@ const config = async (env: Record<string, unknown>): Promise<Configuration[]> =>
     module: config.module,
     resolve: config.resolve,
     experiments: { outputModule: true },
-    optimization: { minimize: Boolean(env.production), chunkIds: 'named' },
+    // Keep each explicit engine import self-contained instead of extracting vendor chunks.
+    optimization: { minimize: Boolean(env.production), chunkIds: 'named', splitChunks: false },
     output: {
       path: config.output?.path,
       filename: '[name].mjs',
-      chunkFilename: '[name].[contenthash].mjs',
+      chunkFilename: '[name].mjs',
       module: true,
       chunkFormat: 'module',
       chunkLoading: 'import',
