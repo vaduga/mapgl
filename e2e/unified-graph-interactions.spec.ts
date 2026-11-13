@@ -21,8 +21,9 @@ test('toggles namespace and routed-edge visibility in the layer switcher', async
 
   const root = graphRoot(panel);
   await root.getByRole('button', { name: 'layers' }).click();
+  await root.getByRole('checkbox', { name: 'site', exact: true }).locator('..').getByRole('button').click();
   const siteOne = root.getByRole('checkbox', { name: 'one', exact: true });
-  await expect(siteOne).toBeChecked();
+  await expect.poll(() => siteOne.isChecked()).toBe(true);
   await siteOne.uncheck();
   await expect.poll(async () => (await readGraphSummary(panel)).visibleNamespaces).not.toContain('site.one');
 
@@ -31,7 +32,7 @@ test('toggles namespace and routed-edge visibility in the layer switcher', async
   await expect.poll(async () => (await readGraphSummary(panel)).routedVisible).toBe(false);
   await dashboardPage.refreshDashboard();
   await waitForGraph(panel);
-  await expect(siteOne).not.toBeChecked();
+  await expect.poll(() => siteOne.isChecked()).toBe(false);
   expect((await readGraphSummary(panel)).visibleNamespaces).not.toContain('site.one');
 });
 

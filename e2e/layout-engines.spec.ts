@@ -66,3 +66,88 @@ for (const engine of ['MSAGL', 'ELK'] as const) {
     expect(assets.some((url) => url.includes(engine === 'ELK' ? 'msagl' : 'elk'))).toBe(false);
   });
 }
+
+test('MSAGL worker routes both terminal shapes and arrow modes in all orientations', async ({
+  dashboardPage,
+  page,
+}) => {
+  test.setTimeout(120_000);
+  await dashboardPage.goto();
+  const failures = await page.evaluate(async () => {
+    const worker = new Worker('/public/plugins/vaduga-mapgl-panel/layout-worker.mjs', { type: 'module' });
+    const errors: string[] = [];
+    let id = 0;
+    try {
+      for (const routing of ['Splines', 'Rectilinear'])
+        for (const direction of ['LR', 'RL', 'TB', 'BT'])
+          for (const cards of [false, true])
+            for (const arrow of [0, 1, -1, 2]) {
+              const requestId = ++id;
+              const request = {
+                requestId,
+                operation: 'layout',
+                engine: 'MSAGL',
+                routing,
+                direction,
+                cards,
+                layerSeparation: 100,
+                nodeSeparation: 40,
+                rootGraphId: 'root',
+                positionsLength: 4,
+                graphs: [{ id: 'root' }],
+                nodes: [
+                  { id: 'a', graphId: 'root', wasmId: 0, radius: 15, width: 80, height: 40 },
+                  { id: 'b', graphId: 'root', wasmId: 1, radius: 15, width: 80, height: 40 },
+                ],
+                edges: [
+                  {
+                    id: 'ab',
+                    sourceId: 'a',
+                    sourceGraphId: 'root',
+                    targetId: 'b',
+                    targetGraphId: 'root',
+                    sourceArrowLength: arrow === -1 || arrow === 2 ? 8 : undefined,
+                    targetArrowLength: arrow === 1 || arrow === 2 ? 8 : undefined,
+                  },
+                ],
+              };
+              const result: any = await new Promise((resolve, reject) => {
+                const timeout = setTimeout(() => reject(Error('worker timeout')), 10000);
+                worker.onmessage = ({ data }) => {
+                  clearTimeout(timeout);
+                  resolve(data);
+                };
+                worker.onerror = (event) => {
+                  clearTimeout(timeout);
+                  reject(Error(event.message));
+                };
+                worker.postMessage(request);
+              });
+              const label = `${routing}/${direction}/cards=${cards}/arrow=${arrow}`;
+              if (result.type === 'error' || result.routing !== routing || !result.curveGroups?.[0]?.types.length) {
+                errors.push(`${label}: missing requested route`);
+                continue;
+              }
+              const flag = result.arrows.flags[0] ?? 0;
+              const expected = (arrow === -1 || arrow === 2 ? 1 : 0) | (arrow === 1 || arrow === 2 ? 2 : 0);
+              if (flag !== expected) errors.push(`${label}: arrow flags ${flag}`);
+              for (const [bit, tips, index] of [
+                [1, result.arrows.sourceTips, 0],
+                [2, result.arrows.targetTips, 1],
+              ] as const) {
+                if (!(flag & bit)) continue;
+                const dx = Math.abs(tips[0] - result.positions[index * 2]);
+                const dy = Math.abs(tips[1] - result.positions[index * 2 + 1]);
+                const distance = cards
+                  ? Math.min(Math.abs(dx - 40), Math.abs(dy - 20))
+                  : Math.abs(Math.hypot(dx, dy) - 15);
+                if (distance > 0.1) errors.push(`${label}: terminal ${bit} is ${distance} from boundary`);
+              }
+            }
+    } finally {
+      worker.terminate();
+    }
+    return errors;
+  });
+  expect(failures).toEqual([]);
+});
