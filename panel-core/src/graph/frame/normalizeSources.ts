@@ -214,6 +214,7 @@ export async function normalizeGraphSources(
 
     for (const resolved of layer.sources) {
       const rowCount = resolved.rowCount;
+      let previousRoute: { id: string; key: string; targetKey: string; rowIndex: number } | undefined;
 
       for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
         const row: GraphRowRef = Object.freeze({
@@ -363,12 +364,19 @@ export async function normalizeGraphSources(
 
         const explicitValue = normalizeId(fieldValue(resolved.edgeId, rowIndex));
         const edgeId = explicitValue ?? `${nodeId}-${normalizedPath.targetId}`;
+        const edgeKey =
+          explicitValue !== undefined &&
+          previousRoute?.id === explicitValue &&
+          previousRoute.rowIndex === rowIndex - 1 &&
+          previousRoute.targetKey === nodeKey
+            ? previousRoute.key
+            : graphEdgeKey(sourceNamespaceId, edgeId);
         if (!packedCapacityError) {
           try {
             relationBuilder.beginUnit({
               explicitId: explicitValue !== undefined,
               id: edgeId,
-              key: graphEdgeKey(sourceNamespaceId, edgeId),
+              key: edgeKey,
               sourceKey: nodeKey,
               targetKey: normalizedPath.targetKey,
               targetId: normalizedPath.targetId,
@@ -398,6 +406,10 @@ export async function normalizeGraphSources(
               }
             });
             relationBuilder.finishUnit();
+            previousRoute =
+              explicitValue === undefined
+                ? undefined
+                : { id: explicitValue, key: edgeKey, targetKey: normalizedPath.targetKey, rowIndex };
           } catch (error) {
             if (!isPackedRelationCapacityError(error)) {
               throw error;

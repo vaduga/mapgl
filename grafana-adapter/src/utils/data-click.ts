@@ -80,7 +80,7 @@ export const expandTooltip = (info: any, panel: any, dataClickProps: any) => {
       wrappedFeature?.edgeId ??
       (graphInteraction?.kind === 'edge' ? graphInteraction.runtimeId : undefined);
     const pickedGraph: Graph | undefined =
-      props.graph ?? wrappedFeature?.properties?.graph ?? (indexedEdge?.source.parent as Graph | undefined);
+      (indexedEdge?.source.parent as Graph | undefined) ?? props.graph ?? wrappedFeature?.properties?.graph;
     const currentGraph: Graph = panel.scene.render.graph;
     const subGraph = ([currentGraph, ...currentGraph.subgraphsBreadthFirst()] as Graph[]).find(
       (graph) => graph.id === pickedGraph?.id
@@ -107,6 +107,24 @@ export const expandTooltip = (info: any, panel: any, dataClickProps: any) => {
         dataClickProps.setCommentOpenIdx(index);
         dataClickProps.setDrawerOpen(true);
       }
+      return;
+    }
+
+    if (graphInteraction?.kind === 'edge' && edge) {
+      if (isExtended) {
+        dataClickProps.setCommentOpenIdx(-1);
+      }
+      // Keep the picked hop for inspection; selection resolves the logical route's source.
+      panel.controller.selectElement({
+        kind: 'edge',
+        id: edge.id,
+        namespaceId: (edge.source.parent as Graph).id,
+      });
+      setTooltipObject({
+        ...info,
+        graphInteraction,
+        object: { ...object, graphInteraction },
+      });
       return;
     }
 
