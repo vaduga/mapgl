@@ -44,7 +44,7 @@ export function createMarkersLayer({
             .addFieldNamePicker({
               path: 'parField',
               name: 'Vertex B',
-              description: 'Node ID or path array of node IDs and [lon, lat]',
+              description: 'Node ID, or path array of node IDs and [lon, lat]',
               settings: {
                 filter: (f: Field) => {
                   return f.type === FieldType.string;
@@ -109,7 +109,6 @@ export function createMarkersLayer({
               settings: {
                 hideSymbol: true,
                 isEdge: true,
-                showAnimate: true,
                 arrowOptions: [
                   { label: 'None', value: 0 },
                   { label: 'Forward', value: 1 },

@@ -3,6 +3,8 @@ import { getGraphVersion, type Edge, type Graph, type GraphEdgeIndex, type Node 
 
 export type ConnectedEdgeIndex = {
   graphId: string;
+  lineBatchIndex?: number;
+  arcBatchIndex?: number;
   lineId?: number;
   arcId?: number;
   arcGraphId?: string;
@@ -313,8 +315,8 @@ export class GraphHighlighter {
     return ref === undefined ? undefined : this.mappings?.[ref];
   }
 
-  private addEdgeIndex(edge: Edge, opts?: { graphId?: string; lineId?: number; arcId?: number; arcGraphId?: string }) {
-    const { lineId, arcId, arcGraphId } = opts ?? this.mapping(edge) ?? {};
+  private addEdgeIndex(edge: Edge, opts?: EdgeRenderIndex) {
+    const { lineId, arcId, arcGraphId, lineBatchIndex, arcBatchIndex } = opts ?? this.mapping(edge) ?? {};
 
     if (lineId === undefined && arcId === undefined) {
       return;
@@ -325,6 +327,8 @@ export class GraphHighlighter {
       graphId,
       lineId,
       arcId,
+      ...(lineBatchIndex !== undefined && { lineBatchIndex }),
+      ...(arcBatchIndex !== undefined && { arcBatchIndex }),
       ...(arcGraphId && { arcGraphId }),
     });
   }

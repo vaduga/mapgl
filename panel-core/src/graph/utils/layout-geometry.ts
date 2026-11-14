@@ -60,20 +60,26 @@ export function measureText(text: string): number {
   return chars * LABEL_CHAR_WIDTH;
 }
 
+const cardBoxes = new WeakMap<object, { text: string | undefined; fontSize: number; box: LayoutNodeBox | undefined }>();
+
 /** Layout box of a node drawn as a card (its label in a box), or undefined when the node has no label. */
 export function getLayoutCardBox(
   style: { text?: string; textConfig?: { fontSize?: number } } | undefined
 ): LayoutNodeBox | undefined {
-  const lines = style?.text?.trim().split('\n');
-  if (!lines?.[0]) {
-    return undefined;
-  }
-  const fontSize = style?.textConfig?.fontSize ?? DEFAULT_LABEL_FONT_SIZE;
-  const longest = Math.max(...lines.map(measureText));
-  return {
-    width: longest * fontSize + 2 * CARD_PADDING_X,
-    height: lines.length * fontSize * LABEL_LINE_HEIGHT + 2 * CARD_PADDING_Y,
-  };
+  if (!style) return undefined;
+  const text = style.text;
+  const fontSize = style.textConfig?.fontSize ?? DEFAULT_LABEL_FONT_SIZE;
+  const cached = cardBoxes.get(style);
+  if (cached && cached.text === text && cached.fontSize === fontSize) return cached.box;
+  const lines = text?.trim().split('\n');
+  const box = lines?.[0]
+    ? {
+        width: Math.max(...lines.map(measureText)) * fontSize + 2 * CARD_PADDING_X,
+        height: lines.length * fontSize * LABEL_LINE_HEIGHT + 2 * CARD_PADDING_Y,
+      }
+    : undefined;
+  cardBoxes.set(style, { text, fontSize, box });
+  return box;
 }
 
 export function getEdgeArrowSize(edgeSize: number | undefined): number {

@@ -1,6 +1,9 @@
+import type { PositionTransform } from '../positionTransform';
 import { _GlobeViewport, project, type ProjectUniforms, type Viewport } from '@deck.gl/core';
 
 export interface ArcLabelGeometry {
+  namespaceSource?: string;
+  namespaceTarget?: string;
   sourcePosition: number[];
   targetPosition: number[];
   properties: { arcStyle?: { arcConfig?: { height?: number } }; tilt?: number };
@@ -9,6 +12,7 @@ const positions = new WeakMap<
   Viewport,
   WeakMap<ArcLabelGeometry, { modelMatrix: ArrayLike<number> | null; position: [number, number, number] }>
 >();
+const transformed = new WeakMap<PositionTransform, WeakMap<ArcLabelGeometry, ArcLabelGeometry>>();
 const radians = Math.PI / 180;
 const EARTH_RADIUS = 6370972;
 
@@ -26,8 +30,22 @@ export function arcMiddleHeight(distance: number, sourceZ: number, targetZ: numb
 export function getArcLabelPosition(
   feature: ArcLabelGeometry,
   viewport: Viewport,
-  modelMatrix: ArrayLike<number> | null = null
+  modelMatrix: ArrayLike<number> | null = null,
+  positionTransform?: PositionTransform
 ): [number, number, number] {
+  if (positionTransform) {
+    let byFeature = transformed.get(positionTransform);
+    if (!byFeature) transformed.set(positionTransform, byFeature = new WeakMap());
+    let shifted = byFeature.get(feature);
+    if (!shifted) {
+      shifted = { ...feature,
+        sourcePosition: positionTransform.point(feature.sourcePosition, feature.namespaceSource),
+        targetPosition: positionTransform.point(feature.targetPosition, feature.namespaceTarget),
+      };
+      byFeature.set(feature, shifted);
+    }
+    feature = shifted;
+  }
   let cache = positions.get(viewport);
   if (!cache) {
     cache = new WeakMap();

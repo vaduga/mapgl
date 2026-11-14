@@ -4,7 +4,7 @@ import { getCurveMetrics } from './curve-metrics';
 export function getCurveFlowDirection(feature: any): number {
   const style = feature?.properties?.edgeStyle;
   const arrow = style?.arrow;
-  return style?.animate && (arrow === -1 || arrow === 1 || arrow === 2) ? arrow : 0;
+  return arrow === -1 || arrow === 1 || arrow === 2 ? arrow : 0;
 }
 
 /** Cumulative distance for each tessellated piece, measured over its entire edge. */

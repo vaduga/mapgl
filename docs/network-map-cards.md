@@ -16,7 +16,7 @@ datasource needed). It has the same seven frames a Prometheus-backed map returns
 | ELK layered layout | Basemap: **Layout engine** = ELK (`basemap.config.layoutEngine: "ELK"`) | MSAGL |
 | Node cards | Basemap: **Node cards** (`basemap.config.nodeCards: true`) | off |
 | Template text | Style text: **Template** (`text.mode: "template"`, `text.fixed: "${field}…"`) | — |
-| Moving pulses on routed lines | Edge Styles **Animate** (`edgeStyle.animate: true`), following Arrow | off |
+| Moving pulses on routed lines | Focused edges animate by default; **Edge labels and animation always on** animates all visible arrowed edges without focus, then narrows to focused edges | focused only |
 | Labels at both ends and in the middle of routed lines | arcStyle sideA / sideB text with `showStat2: true`, edgeStyle text | — |
 
 ### ELK layout
@@ -57,7 +57,7 @@ With the `$routed` dashboard variable set to 1, lines follow the layout. Each li
   (`showStat2: true` turns on the per-side style), for example what each end sent;
 - edgeStyle text in the middle, drawn as a badge in the line colour (for example a deny count).
 
-Configure each side through **Arc Styles -> Side A / Side B -> Text label** and **Font size**. Text may use a different field from Color. Focus reveals all configured labels regardless of **Edge labels always on**; that option controls idle labels.
+Configure each side through **Arc Styles -> Side A / Side B -> Text label** and **Font size**. Text may use a different field from Color. Focus reveals all configured labels regardless of **Edge labels and animation always on**; that option controls idle labels and animation on all arrowed edges until focus narrows animation to focused edges.
 
 A line too short for three labels side by side gets them stacked at its middle; the end labels
 then get an arrow for their direction (`→ 3.40 Mb/s`, `← 19 Mb/s`). All labels are then placed
@@ -94,7 +94,7 @@ nodes in C, or merge makes a new node for each extra row.
   "config": {
     "style": {"text": {"mode": "template", "fixed": "${src_label}\n↑ ${Value #F}  ↓ ${Value #G}"},
               "textConfig": {"fontSize": 12}, "useGroups": true},
-    "edgeStyle": {"animate": true, "arrow": 1, "size": {"field": "Value #A", "min": 1, "max": 10},
+    "edgeStyle": {"arrow": 1, "size": {"field": "Value #A", "min": 1, "max": 10},
                   "color": {"field": "Value #B"}, "text": {"mode": "field", "field": "Value #B"}},
     "arcStyle": {
       "sideA": {"text": {"mode": "field", "field": "Value #D"}, "color": {"field": "Value #D"}},

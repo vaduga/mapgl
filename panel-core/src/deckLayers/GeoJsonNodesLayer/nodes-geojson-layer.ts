@@ -1,6 +1,15 @@
-import { GeoJsonLayer, PolygonLayer, TextLayer } from '@deck.gl/layers';
+import {
+  GeoJsonLayer,
+  PolygonLayer,
+  TextLayer,
+  IconLayer,
+  PathLayer,
+  _MultiIconLayer,
+  _TextBackgroundLayer,
+  SolidPolygonLayer,
+} from '@deck.gl/layers';
 import { CollisionFilterExtension, DataFilterExtension } from '@deck.gl/extensions';
-import { getNsPrefixes } from '../../graph/utils/utils.graph';
+import { positionTransformProps, withPositionTransform } from '../positionTransform';
 
 import { getPackedSvgIcon } from './svgIconAtlas';
 import {
@@ -38,9 +47,20 @@ import {
   getResolvedTextPixelOffset,
   getResolvedUserIconBoxSize,
 } from './nodeGeometry';
-import { Matrix4 } from '@math.gl/core';
 import { colTypes } from '../../types/index';
 import { resolveArcOptions } from '../../style/types';
+
+const PositionDonutLayer = withPositionTransform(DonutCircleLayer);
+const PositionMultiIconLayer = withPositionTransform(_MultiIconLayer);
+const PositionTextBackgroundLayer = withPositionTransform(_TextBackgroundLayer);
+const PositionIconLayer = withPositionTransform(IconLayer);
+const PositionSolidPolygonLayer = withPositionTransform(SolidPolygonLayer, ['vertexPositions', 'nextVertexPositions']);
+const PositionPathLayer = withPositionTransform(PathLayer, [
+  'instanceLeftPositions',
+  'instanceStartPositions',
+  'instanceEndPositions',
+  'instanceRightPositions',
+]);
 
 type LogicTextDatum = {
   coordinates: [number, number];
@@ -73,7 +93,19 @@ const getPlaceholderTextSize = (properties: any) => {
   return Math.round(r0 * 0.5);
 };
 
-const buildLogicTextLayerData = (biCol: any, selectedNodeId?: string, iconLayerVisible = true): LogicTextLayerData => {
+const logicTextCache = new WeakMap<object, { key: string; data: LogicTextLayerData }>();
+const labelDataCache = new WeakMap<LogicTextLayerData, { colors: unknown; data: LogicTextDatum[] }>();
+const cardPolygonCache = new WeakMap<object, any[]>();
+
+const buildLogicTextLayerData = (
+  biCol: any,
+  selectedNodeId?: string,
+  iconLayerVisible = true,
+  selectedNamespace?: string
+): LogicTextLayerData => {
+  const key = JSON.stringify([selectedNodeId, selectedNamespace, iconLayerVisible]);
+  const cached = logicTextCache.get(biCol);
+  if (cached?.key === key) return cached.data;
   const featureIds = biCol?.points?.featureIds?.value;
   const positions = biCol?.points?.positions?.value;
   const properties = biCol?.points?.properties;
@@ -87,12 +119,13 @@ const buildLogicTextLayerData = (biCol: any, selectedNodeId?: string, iconLayerV
   if (featureIds && positions && properties) {
     for (let i = 0; i < count; i++) {
       const featureProps = properties[featureIds[i]];
+      const selected = featureProps?.graph?.id === selectedNamespace ? selectedNodeId : undefined;
 
-      labelYOffset[i] = getLabelYOffset(featureProps, selectedNodeId);
+      labelYOffset[i] = getLabelYOffset(featureProps, selected);
       const gauge = featureProps?.style?.gauge;
       const boxSide = gauge
-        ? getGaugeValueContentBoxSide(getFeatureWrapper(featureProps), selectedNodeId)
-        : getPlaceholderBoxSide(featureProps, selectedNodeId);
+        ? getGaugeValueContentBoxSide(getFeatureWrapper(featureProps), selected)
+        : getPlaceholderBoxSide(featureProps, selected);
       placeholderBoxSide[i] = boxSide;
       placeholderTextSize[i] = gauge
         ? getFittedGaugeValueTextSize(gauge.displayText ?? '', boxSide)
@@ -112,13 +145,9 @@ const buildLogicTextLayerData = (biCol: any, selectedNodeId?: string, iconLayerV
     }
   }
 
-  return {
-    labelData,
-    placeholderData,
-    labelYOffset,
-    placeholderBoxSide,
-    placeholderTextSize,
-  };
+  const data = { labelData, placeholderData, labelYOffset, placeholderBoxSide, placeholderTextSize };
+  logicTextCache.set(biCol, { key, data });
+  return data;
 };
 
 const isCanvasTintPending = (
@@ -134,7 +163,7 @@ const isCanvasTintPending = (
   return !svgIcon.colorVariants?.[`canvasTint:${tintColor}:${renderSize}`];
 };
 
-const NodesGeojsonLayer = (props) => {
+const NodesGeojsonLayer = (props: any): GeoJsonLayer<any> => {
   const {
     biCol,
     pickable,
@@ -158,11 +187,13 @@ const NodesGeojsonLayer = (props) => {
   const { circle: Circle, svg: SVG, labels: Labels } = getNodeLayerVisibility(getVisLayers);
 
   const units = isLogic ? 'common' : isMeters ? 'meters' : 'pixels';
-  const categories = getVisLayers.getCategories();
-  const categorySize = 2;
+  const categories = props.effectiveVisibility?.groupCategories ?? [1];
+  const categorySize = 1;
   const isPlaceholderTextMode = logicTextMode === 'placeholder';
   const isLabelTextMode = logicTextMode === 'label';
   const selectedNodeId = getSelectedNode?.id;
+  const selectedNamespace = getSelectedNode?.parent?.id;
+  const selectedIdFor = (d) => (d.properties?.graph?.id === selectedNamespace ? selectedNodeId : undefined);
   const svgIcons = svgIconState?.icons ?? {};
   const svgIconRevision = svgIconState?.revision ?? 0;
 
@@ -281,7 +312,7 @@ const NodesGeojsonLayer = (props) => {
   };
 
   const getNodeIconSize = (d) => {
-    const targetBoxSize = getResolvedUserIconBoxSize(d, selectedNodeId);
+    const targetBoxSize = getResolvedUserIconBoxSize(d, selectedIdFor(d));
     const { group } = d.properties?.style || {};
     const iconName = group?.iconName;
     const svgIcon = iconName && svgIcons[iconName];
@@ -303,26 +334,17 @@ const NodesGeojsonLayer = (props) => {
     }
 
     if (isLogic) {
-      return getResolvedTextPixelOffset(d, selectedNodeId, { gap: 2 });
+      return getResolvedTextPixelOffset(d, selectedIdFor(d), { gap: 2 });
     }
 
-    return getResolvedTextPixelOffset(d, selectedNodeId, { gap: 0 });
+    return getResolvedTextPixelOffset(d, selectedIdFor(d), { gap: 0 });
   };
 
-  const modelMatrix = new Matrix4();
-  const srcGraphId = biCol.graph.id;
-  for (const path of getNsPrefixes(srcGraphId)) {
-    const shift = props.layerShift?.[path];
-    if (shift) {
-      modelMatrix.translate([shift[0], shift[1], 0]);
-    }
-  }
-
   return new GeoJsonLayer({
-    id: biCol.graph.id + `-view${idSuffix}`,
+    id: `graph-nodes-view${idSuffix}`,
     visible,
     highlightColor,
-    modelMatrix,
+    ...nodePresentationProps(props),
     onHover,
     data: biCol,
     // parameters: {
@@ -344,7 +366,7 @@ const NodesGeojsonLayer = (props) => {
     },
     stroked: false,
     getPointRadius: (d) => {
-      return getResolvedPointRadius(d, selectedNodeId);
+      return getResolvedPointRadius(d, selectedIdFor(d));
     },
     getIcon: (d) => resolveUserSvgVariant(d.properties).key ?? BLANK_USER_SVG_ICON,
     iconSizeScale: 1,
@@ -355,36 +377,41 @@ const NodesGeojsonLayer = (props) => {
       depthTest: false,
     },
     updateTriggers: {
-      getPointRadius: [selectedNodeId],
+      getFilterValue: props.effectiveVisibility?.key ?? props.getVisLayers.getVisibleNamespaces(),
+      getFilterCategory: props.effectiveVisibility?.groupTrigger ?? props.getVisLayers.getCategories(),
+      getPointRadius: [selectedNodeId, selectedNamespace],
       getIcon: [svgIconRevision, resourceRevision],
-      getIconSize: [selectedNodeId],
-      getTextPixelOffset: [selectedNodeId],
-      getTextSize: [selectedNodeId],
+      getIconSize: [selectedNodeId, selectedNamespace],
+      getTextPixelOffset: [selectedNodeId, selectedNamespace],
+      getTextSize: [selectedNodeId, selectedNamespace],
     },
-    getFilterCategory: (d) => {
-      const { style, layerName } = d.properties || {};
-      const groupIdx = style?.group.groupIdx;
-      return [groupIdx, layerName];
-    },
+    getFilterCategory: nodePresentationProps(props).getFilterCategory,
     filterCategories: categories,
-    extensions: [new DataFilterExtension({ categorySize })],
+    extensions: [new DataFilterExtension({ categorySize }), ...(props.positionTransform?.extensions ?? [])],
     _subLayerProps: {
       'points-text': {
         visible: isPlaceholderTextMode || Labels,
         highlightColor,
-        extensions: [new DataFilterExtension({ categorySize })],
+        extensions: [new DataFilterExtension({ categorySize }), ...(props.positionTransform?.extensions ?? [])],
         sizeUnits: units,
         updateTriggers: {
-          getPixelOffset: [selectedNodeId],
-          getSize: [selectedNodeId],
+          getFilterValue: props.effectiveVisibility?.key ?? props.getVisLayers.getVisibleNamespaces(),
+          getFilterCategory: props.effectiveVisibility?.groupTrigger ?? props.getVisLayers.getCategories(),
+          getPixelOffset: [selectedNodeId, selectedNamespace],
+          getSize: [selectedNodeId, selectedNamespace],
         },
         // unexpected effect with this on - some text invisible
         // fontSettings: {sdf: true},
       },
       'points-icon': {
+        type: PositionIconLayer,
         visible: SVG,
         highlightColor,
-        extensions: [new CollisionFilterExtension(), new DataFilterExtension({ categorySize })],
+        extensions: [
+          new CollisionFilterExtension(),
+          new DataFilterExtension({ categorySize }),
+          ...(props.positionTransform?.extensions ?? []),
+        ],
         collisionGroup: 'nodes-icon',
         sizeUnits: units,
         // looks like props are shared across the group
@@ -394,15 +421,16 @@ const NodesGeojsonLayer = (props) => {
         alphaCutoff: -1,
         autoHighlight: false,
         updateTriggers: {
+          getFilterValue: props.effectiveVisibility?.key ?? props.getVisLayers.getVisibleNamespaces(),
+          getFilterCategory: props.effectiveVisibility?.groupTrigger ?? props.getVisLayers.getCategories(),
           getIcon: [svgIconRevision, resourceRevision],
-          getSize: [selectedNodeId],
+          getSize: [selectedNodeId, selectedNamespace],
         },
       },
       'points-circle': {
-        type: DonutCircleLayer,
+        type: PositionDonutLayer,
         donutAtlas,
-        getDonutRecord: getNodeDonutRecord,
-        getDonutGaugeValue: getNodeDonutGaugeValue,
+        getDonutState: (d, info) => [getNodeDonutRecord(d, info), 1, getNodeDonutGaugeValue(d, info)],
         getDonutGaugeOptions: getNodeDonutGaugeOptions,
         // OrbitView rotates the graph plane so its local +Y points down on
         // screen; MapView keeps local +Y pointing toward screen 12 o'clock.
@@ -411,16 +439,21 @@ const NodesGeojsonLayer = (props) => {
         radiusUnits: units,
         visible: Circle,
         highlightColor,
-        extensions: [new CollisionFilterExtension(), new DataFilterExtension({ categorySize })],
+        extensions: [
+          new CollisionFilterExtension(),
+          new DataFilterExtension({ categorySize }),
+          ...(props.positionTransform?.extensions ?? []),
+        ],
         collisionGroup: 'nodes-circle',
         pickable: true,
         collisionTestProps: {
           sizeScale: 1,
         },
         updateTriggers: {
-          getRadius: [selectedNodeId],
-          getDonutRecord: [donutAtlas, resourceRevision],
-          getDonutGaugeValue: [resourceRevision],
+          getFilterValue: props.effectiveVisibility?.key ?? props.getVisLayers.getVisibleNamespaces(),
+          getFilterCategory: props.effectiveVisibility?.groupTrigger ?? props.getVisLayers.getCategories(),
+          getRadius: [selectedNodeId, selectedNamespace],
+          getDonutState: [donutAtlas, resourceRevision],
           getDonutGaugeOptions: [resourceRevision],
         },
       },
@@ -451,29 +484,23 @@ const PlaceholderTextLayer = (props) => {
     idSuffix = '',
   } = props;
   const { svg: SVG } = getNodeLayerVisibility(getVisLayers);
-  const categories = getVisLayers.getCategories();
-  const categorySize = 2;
+  const categories = props.effectiveVisibility?.groupCategories ?? [1];
+  const categorySize = 1;
   const units = isLogic ? 'common' : isMeters ? 'meters' : 'pixels';
 
   const selectedNodeId = getSelectedNode?.id;
-  const logicTextData = buildLogicTextLayerData(biCol, selectedNodeId, SVG);
+  const selectedNamespace = getSelectedNode?.parent?.id;
+  const selectedIdFor = (d) => (d.properties?.graph?.id === selectedNamespace ? selectedNodeId : undefined);
+  const logicTextData = buildLogicTextLayerData(biCol, selectedNodeId, SVG, selectedNamespace);
   const gaugeTextColor = textColor ? toRGB4Array(textColor, 1) : ([240, 240, 240, 255] as const);
 
-  const modelMatrix = new Matrix4();
-  const srcGraphId = biCol.graph.id;
-  for (const path of getNsPrefixes(srcGraphId)) {
-    const shift = props.layerShift?.[path];
-    if (shift) {
-      modelMatrix.translate([shift[0], shift[1], 0]);
-    }
-  }
-
   return new TextLayer({
-    id: `${biCol.graph.id}-view-placeholder-text${idSuffix}`,
+    _subLayerProps: positionTextSublayers,
+    id: `graph-nodes-view-placeholder-text${idSuffix}`,
     characterSet: 'auto',
     data: logicTextData.placeholderData,
     visible,
-    modelMatrix,
+    ...nodePresentationProps(props),
     pickable,
     onHover,
     autoHighlight,
@@ -496,18 +523,17 @@ const PlaceholderTextLayer = (props) => {
     contentAlignHorizontal: 'center',
     contentAlignVertical: 'center',
     getSize: (d: any) => logicTextData.placeholderTextSize[d.pointIndex] ?? 0,
-    getFilterCategory: (d: any) => {
-      const { style, layerName } = d.properties || {};
-      return [style?.group?.groupIdx, layerName];
-    },
+    getFilterCategory: nodePresentationProps(props).getFilterCategory,
     updateTriggers: {
+      getFilterValue: props.effectiveVisibility?.key ?? props.getVisLayers.getVisibleNamespaces(),
+      getFilterCategory: props.effectiveVisibility?.groupTrigger ?? props.getVisLayers.getCategories(),
       getText: [biCol?.points?.properties, SVG, resourceRevision],
       getColor: [textColor],
       getContentBox: [selectedNodeId, biCol?.points?.properties, resourceRevision],
       getSize: [selectedNodeId, biCol?.points?.properties, resourceRevision],
     },
     filterCategories: categories,
-    extensions: [new DataFilterExtension({ categorySize })],
+    extensions: [new DataFilterExtension({ categorySize }), ...(props.positionTransform?.extensions ?? [])],
   });
 };
 
@@ -534,34 +560,32 @@ const MainLabelTextLayer = (props) => {
     name: colTypes.Label,
     group: colTypes.Label,
   });
-  const categories = getVisLayers.getCategories();
-  const categorySize = 2;
+  const categories = props.effectiveVisibility?.groupCategories ?? [1];
+  const categorySize = 1;
   const units = isLogic ? 'common' : isMeters ? 'meters' : 'pixels';
 
   const selectedNodeId = getSelectedNode?.id;
-  const logicTextData = buildLogicTextLayerData(biCol, selectedNodeId);
-  const labelData = logicTextData.labelData as LogicTextDatum[] & { attributes?: Record<string, any> };
+  const selectedNamespace = getSelectedNode?.parent?.id;
+  const selectedIdFor = (d) => (d.properties?.graph?.id === selectedNamespace ? selectedNodeId : undefined);
+  const logicTextData = buildLogicTextLayerData(biCol, selectedNodeId, true, selectedNamespace);
+  let labelData = logicTextData.labelData as LogicTextDatum[] & { attributes?: Record<string, any> };
   if (!nodeCards) {
-    labelData.attributes = {
-      getColor: biCol?.points?.attributes?.getColor,
-    };
-  }
-
-  const modelMatrix = new Matrix4();
-  const srcGraphId = biCol.graph.id;
-  for (const path of getNsPrefixes(srcGraphId)) {
-    const shift = props.layerShift?.[path];
-    if (shift) {
-      modelMatrix.translate([shift[0], shift[1], 0]);
+    const colors = biCol?.points?.attributes?.getColor;
+    let cached = labelDataCache.get(logicTextData);
+    if (!cached || cached.colors !== colors) {
+      const data = Object.assign([...labelData], { attributes: { getColor: colors } });
+      cached = { colors, data };
+      labelDataCache.set(logicTextData, cached);
     }
+    labelData = cached.data;
   }
 
   return new TextLayer({
-    id: `${biCol.graph.id}-view-label-text${idSuffix}`,
+    id: `graph-nodes-view-label-text${idSuffix}`,
     characterSet: 'auto',
     data: labelData,
     visible: visible && Labels,
-    modelMatrix,
+    ...nodePresentationProps(props),
     pickable,
     onHover,
     autoHighlight,
@@ -584,18 +608,19 @@ const MainLabelTextLayer = (props) => {
       lineHeight: 1.2,
       parameters: { depthTest: false },
     }),
-    getFilterCategory: (d: any) => {
-      const { style, layerName } = d.properties || {};
-      return [style?.group?.groupIdx, layerName];
-    },
+    getFilterCategory: nodePresentationProps(props).getFilterCategory,
     updateTriggers: {
-      getPosition: [selectedNodeId],
+      getFilterValue: props.effectiveVisibility?.key ?? props.getVisLayers.getVisibleNamespaces(),
+      getFilterCategory: props.effectiveVisibility?.groupTrigger ?? props.getVisLayers.getCategories(),
+      getPosition: [selectedNodeId, selectedNamespace],
       getColor: [biCol?.points?.attributes?.getColor?.value],
     },
     filterCategories: categories,
-    extensions: [new DataFilterExtension({ categorySize })],
+    extensions: [new DataFilterExtension({ categorySize }), ...(props.positionTransform?.extensions ?? [])],
     _subLayerProps: {
+      ...positionTextSublayers,
       characters: {
+        type: PositionMultiIconLayer,
         highlightColor,
       },
     },
@@ -630,7 +655,7 @@ export function getNodeCards(biCol: any): Array<{ d: LogicTextDatum; x: number; 
 }
 
 /** Node cards: the box the layout sized for each label (layout-geometry getLayoutCardBox), edged in the node's kind colour. */
-const NodeCardLayer = (props) => {
+const NodeCardLayer = (props: any): PolygonLayer<any> => {
   const {
     biCol,
     getVisLayers,
@@ -643,27 +668,25 @@ const NodeCardLayer = (props) => {
     highlightColor,
   } = props;
   const cards: ReturnType<typeof getNodeCards> = props.nodeCardData ?? getNodeCards(biCol);
-  const data = cards.map(({ d, x, y, hw: w, hh: h }) => ({
-    ...d,
-    polygon: [
-      [x - w, y - h],
-      [x + w, y - h],
-      [x + w, y + h],
-      [x - w, y + h],
-    ],
-  }));
-  const modelMatrix = new Matrix4();
-  for (const path of getNsPrefixes(biCol.graph.id)) {
-    const shift = props.layerShift?.[path];
-    if (shift) {
-      modelMatrix.translate([shift[0], shift[1], 0]);
-    }
+  let data = cardPolygonCache.get(cards);
+  if (!data) {
+    data = cards.map(({ d, x, y, hw: w, hh: h }) => ({
+      ...d,
+      polygon: [
+        [x - w, y - h],
+        [x + w, y - h],
+        [x + w, y + h],
+        [x - w, y + h],
+      ],
+    }));
+    cardPolygonCache.set(cards, data);
   }
   return new PolygonLayer({
-    id: `${biCol.graph.id}-view-node-card${idSuffix}`,
+    _subLayerProps: { fill: { type: PositionSolidPolygonLayer }, stroke: { type: PositionPathLayer } },
+    id: `graph-nodes-view-node-card${idSuffix}`,
     data,
     visible: visible && isVisible(getVisLayers, { index: null, name: colTypes.Label, group: colTypes.Label }),
-    modelMatrix,
+    ...nodePresentationProps(props),
     pickable,
     onHover,
     autoHighlight,
@@ -677,13 +700,42 @@ const NodeCardLayer = (props) => {
     getLineWidth: 2,
     lineWidthUnits: 'pixels',
     parameters: { depthTest: false },
-    getFilterCategory: (d: any) => {
-      const { style, layerName } = d.properties || {};
-      return [style?.group?.groupIdx, layerName];
-    },
-    filterCategories: getVisLayers.getCategories(),
-    extensions: [new DataFilterExtension({ categorySize: 2 })],
+    getFilterCategory: nodePresentationProps(props).getFilterCategory,
+    filterCategories: props.effectiveVisibility?.groupCategories ?? [1],
+    extensions: [new DataFilterExtension({ categorySize: 1 }), ...(props.positionTransform?.extensions ?? [])],
   });
 };
 
 export { NodesGeojsonLayer, MainLabelTextLayer, NodeCardLayer };
+
+const positionTextSublayers = {
+  characters: { type: PositionMultiIconLayer },
+  background: { type: PositionTextBackgroundLayer },
+};
+
+function nodePresentationProps(props) {
+  const visible = new Set(props.getVisLayers.getVisibleNamespaces());
+
+  const properties = (d, info) =>
+    d?.properties ?? props.biCol?.points?.properties?.[props.biCol?.points?.featureIds?.value?.[info?.index]];
+  return {
+    ...positionTransformProps(props.positionTransform, 'node', props),
+    getFilterValue: (d, info) =>
+      (props.effectiveVisibility?.namespace(properties(d, info)) ?? visible.has(properties(d, info)?.graph?.id))
+        ? 1
+        : 0,
+    getFilterCategory: (d, info) => {
+      const feature = properties(d, info);
+      if (props.effectiveVisibility) return props.effectiveVisibility.groupCategory(feature);
+      const eligible =
+        feature?.style?.group?.groupIdx === undefined ||
+        Array.from(props.getVisLayers.getCategories()[0]).includes(feature.style.group.groupIdx);
+      return eligible ? 1 : 0;
+    },
+    filterRange: [1, 1],
+    updateTriggers: {
+      getFilterValue: props.effectiveVisibility?.key ?? [...visible],
+      getFilterCategory: props.effectiveVisibility?.groupTrigger ?? props.getVisLayers.getCategories(),
+    },
+  };
+}

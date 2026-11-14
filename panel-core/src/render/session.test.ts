@@ -208,10 +208,10 @@ it('retains coherent output on failure, clears immediately during pending work a
   await session.build();
   const frame = session.frame!;
   expect(frame.layers.map((layer) => layer.id)).toEqual([
-    'edges-viewexternal',
-    'edges-arrow-external',
-    'external-view',
-    'external-view-label-text',
+    'edges-viewshared',
+    'edges-arrow-shared',
+    'graph-nodes-view-metrics',
+    'graph-nodes-view-label-text-metrics',
   ]);
   const fail = jest.fn();
   session.configure({
@@ -260,7 +260,7 @@ it('orders instant and full requests together and preserves consecutive bucket i
   const afterEdit = session.frame!;
   await session.instant((base) => ({ base, buckets: { labels: [] } }));
   expect(session.layers.map((layer) => layer.id)).toContain('inserted');
-  expect(session.layers.map((layer) => layer.id)).not.toContain('external-view');
+  expect(session.layers.map((layer) => layer.id)).not.toContain('graph-nodes-view-metrics');
   expect(session.frame!.layers).toEqual(composeRenderLayers(session.frame!.bundle));
   expect(beforeEdit.bundle.nodes).toHaveLength(1);
   expect(afterEdit.bundle.labels).toHaveLength(1);
@@ -607,15 +607,17 @@ it('supports multi-layer namespaces, repeated routes and rich symbols through th
       { namespace: 'site.two', bounds: [40, 0, 60, 20] },
     ],
   });
-  expect(prepared.collections.map((collection) => collection.graph.id)).toEqual(
-    expect.arrayContaining(['site.one', 'site.two'])
+  expect(prepared.collections).toHaveLength(1);
+  expect(prepared.collections[0].points.positions.value).toBe(input.render.positions);
+  expect(new Set((prepared.collections[0].points.properties as any[]).map((feature) => feature.graph.id))).toEqual(
+    new Set(input.render.features.map((feature) => feature.graph?.id))
   );
   expect(prepared.geometry.routed['site.one']).toHaveLength(4);
   expect(prepared.geometry.mappings.slice(0, 4).map((mapping) => mapping?.lineId)).toEqual([0, 1, 2, 3]);
   expect(prepared.geometry.mappings.slice(0, 4).map((mapping) => mapping?.arcId)).toEqual([0, 0, 0, 0]);
   expect(prepared.bounds.features[0].geometry.center).toEqual([15, 20]);
   const bundle = buildPrimaryLayers(input, prepared);
-  const node = bundle.nodes!.find((layer) => layer.id === 'site.one-view')!;
+  const node = bundle.nodes![0];
   const atlas = (node.props as any)._subLayerProps['points-circle'].donutAtlas;
   expect(node.props.pointType).toContain('icon');
   expect(atlas.diagnostics.gaugeRecordCount).toBe(1);
@@ -628,7 +630,7 @@ it('supports multi-layer namespaces, repeated routes and rich symbols through th
   expect(custom.edges!.every((layer) => layer.id.startsWith('edges-arrow-'))).toBe(true);
   const arcInput = { ...input, presentation: { ...input.presentation, isRouted: false } };
   expect(composeRenderLayers(buildPrimaryLayers(arcInput, prepared)).map((layer) => layer.id)).toContain(
-    'edges-arc-basesite.one'
+    'edges-arc-baseshared'
   );
   expect(
     Array.from({ length: input.render.edgeIndex.edgeCount }, (_, ref) => input.render.edgeIndex.getEdge(ref).data)
@@ -680,7 +682,7 @@ it('takes routing from scene visibility without a shell reconfiguration', async 
   controller.scene.setVisibility(routed, false, 'none', []);
   await Promise.resolve();
   expect(session.frame!.input.presentation.isRouted).toBe(false);
-  expect(session.layers.map((layer) => layer.id)).toContain('edges-arc-baseexternal');
+  expect(session.layers.map((layer) => layer.id)).toContain('edges-arc-baseshared');
   session.dispose();
   controller.dispose();
 });
@@ -771,8 +773,8 @@ it('reuses routed label and curve data across selection builds and invalidates a
   };
   const captured = { ...prepared, geometry };
   const base = buildPrimaryLayers(input, captured);
-  const route = (bundle: typeof base) => bundle.labels!.find((layer) => layer.id === 'text-routeLabelsexternal');
-  const curve = (bundle: typeof base) => bundle.edges!.find((layer) => layer.id === 'edges-viewexternal');
+  const route = (bundle: typeof base) => bundle.labels!.find((layer) => layer.id === 'text-routeLabelsshared');
+  const curve = (bundle: typeof base) => bundle.edges!.find((layer) => layer.id === 'edges-viewshared');
   expect((route(base)!.props.data as any[]).length).toBeGreaterThan(0);
   controller.select({ id: 'node-0', namespaceId: 'external' });
   const selected = { ...input, selectedNode: controller.stores.pointStore.getSelectedNode };
@@ -784,10 +786,17 @@ it('reuses routed label and curve data across selection builds and invalidates a
   expect(
     route(buildPrimaryLayers({ ...input, presentation: { ...input.presentation, isDark: true } }, captured))!.props.data
   ).toBe(route(base)!.props.data);
-  const shifted = buildPrimaryLayers({ ...input, layerShift: { external: [100, 50] } }, captured);
-  expect(route(shifted)!.props.data).not.toBe(route(base)!.props.data);
+  const contribution = {
+    update: () => contribution,
+    bounds: (bounds: any) => bounds,
+    routeLabel: ([x, y]: [number, number]): [number, number] => [x, y + 10],
+  };
+  const adapted = buildPrimaryLayers(input, { ...captured, positionState: contribution });
+  expect(route(adapted)!.props.data).not.toBe(route(base)!.props.data);
+  const placement = (route(adapted)!.props.data as any).placement.resolve({ shared: new Map([[0, 0]]) });
+  expect([...placement.values()][0][1]).toBe(10);
   const cardMode = buildPrimaryLayers({ ...input, presentation: { ...input.presentation, nodeCards: true } }, captured);
-  expect(route(cardMode)!.props.data).not.toBe(route(shifted)!.props.data);
+  expect(route(cardMode)!.props.data).not.toBe(route(adapted)!.props.data);
   const changedGroup = {
     ...group,
     controlPoints: Float32Array.from(edgeKeys.flatMap((_, i) => [0, 50 + i * 100, 400, 50 + i * 100, 0, 0, 0, 0])),
@@ -815,5 +824,74 @@ it('reuses routed label and curve data across selection builds and invalidates a
   controller.scene.setVisibility(labelVisibility, false, 'none', []);
   const hidden = { ...captureRenderInput(controller, presentation), render };
   expect(route(buildPrimaryLayers(hidden, captured))).toBeUndefined();
+  controller.dispose();
+});
+
+it.each([10, 300])('assembles a constant number of shared families for %i namespaces', async (count) => {
+  const source = {
+    ...metricGraphSource(
+      'namespaces',
+      Array.from({ length: count }, () => 1)
+    ),
+    nodeId: arrayColumn(
+      'id',
+      Array.from({ length: count }, (_, index) => `node-${index}`)
+    ),
+    target: arrayColumn(
+      'target',
+      Array.from({ length: count }, () => null)
+    ),
+    sourceNamespace: arrayColumn(
+      'namespace',
+      Array.from({ length: count }, (_, index) => `ns-${index}`)
+    ),
+  };
+  const controller = await fixture(metricGraphInput(source));
+  const input = captureRenderInput(controller, { ...presentation, nodeCards: true });
+  const prepared = prepareGraphRender(input);
+  const bundle = buildPrimaryLayers(input, prepared);
+  expect(bundle.nodes!.map((layer) => layer.id)).toEqual(['graph-nodes-view-metrics']);
+  expect(bundle.labels!.map((layer) => layer.id)).toEqual([
+    'graph-nodes-view-node-card-metrics',
+    'graph-nodes-view-label-text-metrics',
+  ]);
+  expect(prepared.collections).toHaveLength(1);
+  for (const index of [0, Math.floor(count / 2), count - 1]) {
+    const session = new PanelRenderSession(controller, { presentation });
+    await session.build();
+    expect(
+      session.resolvePick({ picked: true, index, featureType: 'points', layer: session.frame!.bundle.nodes![0] })
+    ).toMatchObject({ kind: 'node', id: `node-${index}`, namespaceId: `ns-${index}` });
+    session.dispose();
+  }
+  controller.dispose();
+});
+
+it('retains both namespace identities at every hop of a path with repeated local names', async () => {
+  const source = {
+    ...metricGraphSource('route-namespaces', [1, 2, 3, 4]),
+    nodeId: arrayColumn('id', ['A', 'A', 'C', 'D']),
+    target: arrayColumn('target', ['["A","A","C","D"]', null, null, null]),
+    sourceNamespace: arrayColumn('sourceNamespace', ['ns1', 'ns2', 'ns3', 'ns1']),
+    targetNamespace: arrayColumn('targetNamespace', ['ns1', 'ns2', 'ns3', 'ns1']),
+    routeNamespaces: arrayColumn('routeNamespaces', [['ns1', 'ns2', 'ns3', 'ns1'], undefined, undefined, undefined]),
+  };
+  const controller = await fixture(metricGraphInput(source));
+  const input = captureRenderInput(controller, presentation);
+  const prepared = prepareGraphRender(input);
+  const hops = Object.values(prepared.geometry.routed)
+    .flat()
+    .sort((a, b) => a.edgeRef - b.edgeRef);
+  expect(hops.map((hop) => [hop.namespaceSource, hop.namespaceTarget])).toEqual([
+    ['ns1', 'ns2'],
+    ['ns2', 'ns3'],
+    ['ns3', 'ns1'],
+  ]);
+  expect(
+    prepared.geometry.mappings
+      .filter(Boolean)
+      .map((mapping) => mapping!.lineBatchIndex)
+      .sort()
+  ).toEqual([0, 1, 2]);
   controller.dispose();
 });

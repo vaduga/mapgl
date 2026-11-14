@@ -159,7 +159,7 @@ it.each([true, false])(
     const curveGroups = new Map();
     scene.update({ positions, curveGroups, edgeIndex });
     scene.setLayerShift('rack', [4, 5]);
-    scene.publishProjection({ rendererFiltering: 'deck-category-filter' }, positions);
+    scene.publishProjection({ rendererFiltering: 'object-mask' }, positions);
     scene.setLayoutProjected(true);
     const visibility = scene.visibility;
     const projection = scene.projection;

@@ -1,5 +1,6 @@
 import type { DataFrame, Field } from '@grafana/data';
 import type { GraphSource, SourceRevision, ValueColumn } from '@vaduga/mapgl-core/data';
+import { parseNamespaceValue } from './namespaceFields';
 
 export interface GraphSourceFields {
   readonly nodeId: Field;
@@ -61,6 +62,10 @@ export function bindGraphSource({
     const value = position(rowIndex);
     return value ? Object.freeze([value[0], value[1]] as const) : undefined;
   });
+  const sourceNamespace = fields.sourceNamespace && columns.get(fields.sourceNamespace);
+  const targetNamespace = fields.targetNamespace && columns.get(fields.targetNamespace);
+  const namespaceValues =
+    sourceNamespace && Array.from({ length: frame.length }, (_, row) => parseNamespaceValue(sourceNamespace.get(row)));
   return Object.freeze({
     revision,
     key: frame.refId ?? frame.name ?? `source-${sourceIndex}`,
@@ -69,8 +74,27 @@ export function bindGraphSource({
     nodeId: columns.get(fields.nodeId)!,
     target: fields.target && columns.get(fields.target),
     edgeId: fields.edgeId && columns.get(fields.edgeId),
-    sourceNamespace: fields.sourceNamespace && columns.get(fields.sourceNamespace),
-    targetNamespace: fields.targetNamespace && columns.get(fields.targetNamespace),
+    sourceNamespace:
+      sourceNamespace &&
+      Object.freeze({
+        ...sourceNamespace,
+        get: (row: number) => (Array.isArray(namespaceValues![row]) ? namespaceValues![row][0] : namespaceValues![row]),
+      }),
+    targetNamespace:
+      (sourceNamespace || targetNamespace) &&
+      Object.freeze({
+        key: sourceNamespace?.key ?? targetNamespace!.key,
+        length: frame.length,
+        get: (row: number) =>
+          Array.isArray(namespaceValues?.[row]) ? namespaceValues![row].at(-1) : targetNamespace?.get(row),
+      }),
+    routeNamespaces:
+      sourceNamespace &&
+      Object.freeze({
+        key: sourceNamespace.key,
+        length: frame.length,
+        get: (row: number) => (Array.isArray(namespaceValues![row]) ? namespaceValues![row] : undefined),
+      }),
     value: (key: string, rowIndex: number) => byName.get(key)?.get(rowIndex),
     position: (rowIndex: number) => positions[rowIndex],
   });

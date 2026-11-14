@@ -28,13 +28,13 @@ Updates prepare candidate graph decoration, visual buffers and layout before pub
 
 Live metric updates form sparse revision-scoped overlays. They never write native DataFrame cells or packed topology. Query and live updates share the evaluator. Live patches retain unrelated visuals and geometry; query refreshes recompute range-dependent peers. Concurrent metric updates coalesce, and a new accepted query clears previous overlays. Extension edit overlays retain separate persistence and projection ownership.
 
-Extension clustering reads graph, positions, annotations and filters from the provider context, and engine/WASM from its service reader. Jitter consumes prepared position ranges and bounds. The Live update binding resolves saved fields, formats time and patches the neutral controller directly; accepted visuals also synchronize weights in the extension graph. Typed subscription lifecycle methods accept native contexts directly, without a graph-keyed context registry.
+
 
 ## Shared rendering
 
 `PanelRenderSession` is a derived display lifetime over a caller-owned controller. Captured inputs borrow stable scene buffers and topology tables; a prepared frame pairs those inputs with named geometry/mappings and its layer bundle. Scene commands invalidate pending requests before a host effect can run. One sequence coordinates full builds and actual instant edits. Publication installs mappings only after preparation is accepted, without submitting another edit or changing the scene.
 
-Core owns standard primary enumeration, visibility/picking gates, secondary descriptor assembly, composition, focus dimming and transient insertion. Grafana translates native registry records into secondary descriptors. Extended shells may supply private preparation and node/edge/bounds substitutions; private render editing stages one gesture and submits it through the core instant command. Editable callbacks copy changed positions, lines, paths and polygons, and verify their lifetime across asynchronous helper loads. Drawers and drag helpers read accepted renderer mappings; no line/arc/tilt metadata or parallel React cache setters remain.
+Core owns standard primary enumeration, visibility/picking gates, secondary descriptor assembly, composition, focus dimming and transient insertion. Grafana translates native registry records into secondary descriptors. Consumers may supply preparation callbacks, node/edge/bounds substitutions and optional layer bundles through the contribution contracts. Instant updates use the same acceptance and disposal lifecycle as full preparation. Consumers read accepted renderer mappings rather than maintaining parallel render metadata.
 
 Graph-only consumers import `render/graph`, `render/session` and `render/react` directly. Native canvas wrappers, map assets, portals, settings, events, persistence and transport stay with their integration. `render/react` accepts explicit presentation dependencies; frame publication is never such a dependency. Focus/transient changes reuse prepared geometry and collections, while geometry/visibility commands and annotation copies advance the effective scene revision.
 
@@ -50,7 +50,7 @@ Grafana annotations, alert interpretation, time events and annotation tooltips r
 
 The existing Perses repository contains an OSS shell and the public `@vaduga/mapgl-perses-adapter`. The adapter binds JSON query results to neutral sources, owns its controller/worker lifetime and translates semantic actions and viewport policy. It uses the same core render session/default factories as Grafana. Its current MVP is an implementation stage toward near-full OSS Grafana functionality excluding Geomap. Additional data layers, symbols, gauges and graph modes adopt these neutral contracts; this extraction does not add their Perses settings or queries.
 
-A future extended Perses shell can reuse the public Perses adapter and core while supplying private editable factories, paths, comments, cluster layers and engine services. Extended implementations stay in private packages and edition shells. The public adapter must not import private packages or an extended shell. No host-named renderer branch is needed.
+Additional host capabilities can compose the public Perses adapter with the same neutral contribution interfaces. The public adapter remains independent of optional implementations and edition shells.
 
 ## Verification and packaging
 

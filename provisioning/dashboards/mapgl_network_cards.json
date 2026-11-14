@@ -6,7 +6,7 @@
     {
       "type": "vaduga-mapgl-panel",
       "title": "Network map. ELK flow layout",
-      "description": "Demo: TestData CSV in the shape of the Prometheus queries C, A, B, D-G. Boxes are namespaces, and regions outside the cluster. Each card shows \u2191 sent and \u2193 received on its lines. Lines run from the side that opened the connection, with moving pulses; width = bit/s. The number at each end of a line is what that end sent. A red badge mid-line counts 15 s windows with Calico denied traffic in the time range.",
+      "description": "Demo: TestData CSV in the shape of the Prometheus queries C, A, B, D-G. Boxes are namespaces, and regions outside the cluster. Each card shows \u2191 sent and \u2193 received on its lines. Lines run from the side that opened the connection, with moving pulses; width = bit/s. The number at each end of a line is what that end sent. A red badge mid-line counts 15 s windows with Calico denied traffic in the time range. The order-compliance-supervision route starts at shop/order-supervisor, passes through data/audit-relay to persist and forward audit events, and ends at partner-api in outside.EU for external compliance checks. Its src_box array assigns each path node to its namespace through the existing Vertex A namespace selector.",
       "datasource": {
         "type": "grafana-testdata-datasource",
         "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
@@ -20,7 +20,7 @@
             "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
           },
           "scenarioId": "csv_content",
-          "csvContent": "src_id,src_label,src_kind,src_box,src_namespace,src_zone,Value #C\nshop/frontend,frontend,here,shop,shop,,22400000.0\nshop/api,api,here,shop,shop,,36900000.0\nshop/payments,payments,here,shop,shop,,1800000.0\nshop/worker,worker,here,shop,shop,,9700000.0\ndata/postgres,postgres,pod,data,data,,12300000.0\ndata/redis,redis,pod,data,data,,4000000.0\nobject-storage,object-storage,networkset,outside.EU,,EU,6700000.0\npartner-api,partner-api,networkset,outside.EU,,EU,600000.0"
+          "csvContent": "src_id,src_label,src_kind,src_box,src_namespace,src_zone,Value #C\nshop/frontend,frontend,here,shop,shop,,22400000.0\nshop/api,api,here,shop,shop,,36900000.0\nshop/payments,payments,here,shop,shop,,1800000.0\nshop/worker,worker,here,shop,shop,,9700000.0\ndata/postgres,postgres,pod,data,data,,12300000.0\ndata/redis,redis,pod,data,data,,4000000.0\nobject-storage,object-storage,networkset,outside.EU,,EU,6700000.0\npartner-api,partner-api,networkset,outside.EU,,EU,792000.0\nshop/order-supervisor,order-supervisor,here,shop,shop,,192000.0\ndata/audit-relay,audit-relay,pod,data,data,,384000.0"
         },
         {
           "refId": "A",
@@ -29,7 +29,7 @@
             "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
           },
           "scenarioId": "csv_content",
-          "csvContent": "src_id,dst_id,edge_id,src_box,dst_box,Value #A\nshop/worker,object-storage,shop/worker > object-storage,shop,outside.EU,6700000.0\nshop/frontend,shop/api,shop/frontend > shop/api,shop,shop,22400000.0\nshop/api,data/postgres,shop/api > data/postgres,shop,data,9300000.0\nshop/api,data/redis,shop/api > data/redis,shop,data,4000000.0\nshop/api,shop/payments,shop/api > shop/payments,shop,shop,1200000.0\nshop/payments,partner-api,shop/payments > partner-api,shop,outside.EU,600000.0\nshop/worker,data/postgres,shop/worker > data/postgres,shop,data,3000000.0\nshop/worker,partner-api,shop/worker > partner-api,shop,outside.EU,0"
+          "csvContent": "src_id,dst_id,edge_id,src_box,dst_box,Value #A\nshop/worker,object-storage,shop/worker > object-storage,shop,outside.EU,6700000.0\nshop/frontend,shop/api,shop/frontend > shop/api,shop,shop,22400000.0\nshop/api,data/postgres,shop/api > data/postgres,shop,data,9300000.0\nshop/api,data/redis,shop/api > data/redis,shop,data,4000000.0\nshop/api,shop/payments,shop/api > shop/payments,shop,shop,1200000.0\nshop/payments,partner-api,shop/payments > partner-api,shop,outside.EU,600000.0\nshop/worker,data/postgres,shop/worker > data/postgres,shop,data,3000000.0\nshop/worker,partner-api,shop/worker > partner-api,shop,outside.EU,0\nshop/order-supervisor,\"[\"\"shop/order-supervisor\"\",\"\"data/audit-relay\"\",\"\"partner-api\"\"]\",order-compliance-supervision,\"[\"\"shop\"\",\"\"data\"\",\"\"outside.EU\"\"]\",outside.EU,192000.0"
         },
         {
           "refId": "B",
@@ -38,7 +38,7 @@
             "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
           },
           "scenarioId": "csv_content",
-          "csvContent": "src_id,dst_id,edge_id,src_box,dst_box,Value #B\nshop/worker,object-storage,shop/worker > object-storage,shop,outside.EU,0\nshop/frontend,shop/api,shop/frontend > shop/api,shop,shop,0\nshop/api,data/postgres,shop/api > data/postgres,shop,data,0\nshop/api,data/redis,shop/api > data/redis,shop,data,0\nshop/api,shop/payments,shop/api > shop/payments,shop,shop,0\nshop/payments,partner-api,shop/payments > partner-api,shop,outside.EU,0\nshop/worker,data/postgres,shop/worker > data/postgres,shop,data,0\nshop/worker,partner-api,shop/worker > partner-api,shop,outside.EU,12"
+          "csvContent": "src_id,dst_id,edge_id,src_box,dst_box,Value #B\nshop/worker,object-storage,shop/worker > object-storage,shop,outside.EU,0\nshop/frontend,shop/api,shop/frontend > shop/api,shop,shop,0\nshop/api,data/postgres,shop/api > data/postgres,shop,data,0\nshop/api,data/redis,shop/api > data/redis,shop,data,0\nshop/api,shop/payments,shop/api > shop/payments,shop,shop,0\nshop/payments,partner-api,shop/payments > partner-api,shop,outside.EU,0\nshop/worker,data/postgres,shop/worker > data/postgres,shop,data,0\nshop/worker,partner-api,shop/worker > partner-api,shop,outside.EU,12\nshop/order-supervisor,\"[\"\"shop/order-supervisor\"\",\"\"data/audit-relay\"\",\"\"partner-api\"\"]\",order-compliance-supervision,\"[\"\"shop\"\",\"\"data\"\",\"\"outside.EU\"\"]\",outside.EU,0"
         },
         {
           "refId": "D",
@@ -47,7 +47,7 @@
             "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
           },
           "scenarioId": "csv_content",
-          "csvContent": "src_id,dst_id,edge_id,src_box,dst_box,Value #D\nshop/worker,object-storage,shop/worker > object-storage,shop,outside.EU,6500000.0\nshop/frontend,shop/api,shop/frontend > shop/api,shop,shop,3400000.0\nshop/api,data/postgres,shop/api > data/postgres,shop,data,1100000.0\nshop/api,data/redis,shop/api > data/redis,shop,data,400000.0\nshop/api,shop/payments,shop/api > shop/payments,shop,shop,300000.0\nshop/payments,partner-api,shop/payments > partner-api,shop,outside.EU,250000.0\nshop/worker,data/postgres,shop/worker > data/postgres,shop,data,600000.0\nshop/worker,partner-api,shop/worker > partner-api,shop,outside.EU,0"
+          "csvContent": "src_id,dst_id,edge_id,src_box,dst_box,Value #D\nshop/worker,object-storage,shop/worker > object-storage,shop,outside.EU,6500000.0\nshop/frontend,shop/api,shop/frontend > shop/api,shop,shop,3400000.0\nshop/api,data/postgres,shop/api > data/postgres,shop,data,1100000.0\nshop/api,data/redis,shop/api > data/redis,shop,data,400000.0\nshop/api,shop/payments,shop/api > shop/payments,shop,shop,300000.0\nshop/payments,partner-api,shop/payments > partner-api,shop,outside.EU,250000.0\nshop/worker,data/postgres,shop/worker > data/postgres,shop,data,600000.0\nshop/worker,partner-api,shop/worker > partner-api,shop,outside.EU,0\nshop/order-supervisor,\"[\"\"shop/order-supervisor\"\",\"\"data/audit-relay\"\",\"\"partner-api\"\"]\",order-compliance-supervision,\"[\"\"shop\"\",\"\"data\"\",\"\"outside.EU\"\"]\",outside.EU,160000.0"
         },
         {
           "refId": "E",
@@ -56,7 +56,7 @@
             "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
           },
           "scenarioId": "csv_content",
-          "csvContent": "src_id,dst_id,edge_id,src_box,dst_box,Value #E\nshop/worker,object-storage,shop/worker > object-storage,shop,outside.EU,200000.0\nshop/frontend,shop/api,shop/frontend > shop/api,shop,shop,19000000.0\nshop/api,data/postgres,shop/api > data/postgres,shop,data,8199999.999999999\nshop/api,data/redis,shop/api > data/redis,shop,data,3600000.0\nshop/api,shop/payments,shop/api > shop/payments,shop,shop,900000.0\nshop/payments,partner-api,shop/payments > partner-api,shop,outside.EU,350000.0\nshop/worker,data/postgres,shop/worker > data/postgres,shop,data,2400000.0\nshop/worker,partner-api,shop/worker > partner-api,shop,outside.EU,0"
+          "csvContent": "src_id,dst_id,edge_id,src_box,dst_box,Value #E\nshop/worker,object-storage,shop/worker > object-storage,shop,outside.EU,200000.0\nshop/frontend,shop/api,shop/frontend > shop/api,shop,shop,19000000.0\nshop/api,data/postgres,shop/api > data/postgres,shop,data,8199999.999999999\nshop/api,data/redis,shop/api > data/redis,shop,data,3600000.0\nshop/api,shop/payments,shop/api > shop/payments,shop,shop,900000.0\nshop/payments,partner-api,shop/payments > partner-api,shop,outside.EU,350000.0\nshop/worker,data/postgres,shop/worker > data/postgres,shop,data,2400000.0\nshop/worker,partner-api,shop/worker > partner-api,shop,outside.EU,0\nshop/order-supervisor,\"[\"\"shop/order-supervisor\"\",\"\"data/audit-relay\"\",\"\"partner-api\"\"]\",order-compliance-supervision,\"[\"\"shop\"\",\"\"data\"\",\"\"outside.EU\"\"]\",outside.EU,32000.0"
         },
         {
           "refId": "F",
@@ -65,7 +65,7 @@
             "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
           },
           "scenarioId": "csv_content",
-          "csvContent": "src_id,Value #F\nshop/frontend,3400000.0\nshop/api,20800000.0\nshop/payments,1150000.0\nshop/worker,7100000.0\ndata/postgres,10600000.0\ndata/redis,3600000.0\nobject-storage,200000.0\npartner-api,350000.0"
+          "csvContent": "src_id,Value #F\nshop/frontend,3400000.0\nshop/api,20800000.0\nshop/payments,1150000.0\nshop/worker,7100000.0\ndata/postgres,10600000.0\ndata/redis,3600000.0\nobject-storage,200000.0\npartner-api,382000.0\nshop/order-supervisor,160000.0\ndata/audit-relay,192000.0"
         },
         {
           "refId": "G",
@@ -74,7 +74,7 @@
             "uid": "f8b9d80c-0d2f-46c6-8b94-d996a6cfc327"
           },
           "scenarioId": "csv_content",
-          "csvContent": "src_id,Value #G\nshop/frontend,19000000.0\nshop/api,16100000.0\nshop/payments,650000.0\nshop/worker,2600000.0\ndata/postgres,1700000.0\ndata/redis,400000.0\nobject-storage,6500000.0\npartner-api,250000.0"
+          "csvContent": "src_id,Value #G\nshop/frontend,19000000.0\nshop/api,16100000.0\nshop/payments,650000.0\nshop/worker,2600000.0\ndata/postgres,1700000.0\ndata/redis,400000.0\nobject-storage,6500000.0\npartner-api,410000.0\nshop/order-supervisor,32000.0\ndata/audit-relay,192000.0"
         }
       ],
       "transformations": [
@@ -574,8 +574,7 @@
                 },
                 "textConfig": {
                   "fontSize": 10
-                },
-                "animate": true
+                }
               },
               "arcStyle": {
                 "sideA": {

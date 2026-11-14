@@ -1,4 +1,4 @@
-export * from './binaryRanges';
+export * from './nodeColors';
 export * from './data-click';
 export * from './RefreshController';
 export * from './SvgIconManager';

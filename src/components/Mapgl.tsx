@@ -56,6 +56,7 @@ const Mapgl = ({
   const committedRender = panel.scene.render;
   const graph = committedRender.graph;
   const activeGroups = visLayers.getActiveGroups();
+  const annotationsVisible = visLayers.annotationsVisible;
   const getGroupsLegend = useMemo(
     () =>
       createGroupLegend(
@@ -63,9 +64,10 @@ const Mapgl = ({
         committedRender.groups,
         activeGroups,
         Boolean(options.dataLayers.length),
-        Boolean(data.annotations?.length)
+        Boolean(data.annotations?.length),
+        annotationsVisible
       ),
-    [graph, committedRender.groups, visLayers, activeGroups, options.dataLayers.length, data.annotations?.length]
+    [graph, committedRender.groups, visLayers, activeGroups, options.dataLayers.length, data.annotations?.length, annotationsVisible]
   );
   const committedVersion = graphRuntime?.version ?? -1;
   const features = committedRender.features;
@@ -159,9 +161,10 @@ const Mapgl = ({
           theme2,
           isLogic,
           options.common?.isMeters,
-          hasAnnots && !getGroupsLegend.at(-1)?.disabled
+          hasAnnots && annotationsVisible
         ),
         edgeLabels: options.common?.isShowEdgeLabels ?? false,
+        animateAllEdges: options.common?.isShowEdgeLabels ?? false,
         focusNamespace: replaceVariables(options.common?.focusNamespace ?? ''),
         nodeCards: Boolean((options.basemap?.config as { nodeCards?: boolean } | undefined)?.nodeCards),
         onHover: onDeckHover,
@@ -183,7 +186,7 @@ const Mapgl = ({
       panel,
       isLogic,
       hasAnnots,
-      getGroupsLegend,
+      annotationsVisible,
       onDeckHover,
       onSvgIconReady,
       renderPreparation,
@@ -244,15 +247,12 @@ const Mapgl = ({
     );
   }, [options, panel.layers, graphVersion, data, rootStore]);
 
-  const onLabelClick = useNodeLegendClick({
-    scene: panel.scene,
-    hasAnnots,
-    getGroupsLegend,
-  });
+  const onLabelClick = useNodeLegendClick({ scene: panel.scene });
 
   ///// return
   return (
     <GraphDomObservability
+      readRenderDebug={() => ({ deck: deckRef.current?.deck, session: rendererRef.current, controller: panel.controller })}
       className={isLogic ? s.container : `${s.container} ${s.geoContainer}`}
       style={themeVars}
       colors={colors}

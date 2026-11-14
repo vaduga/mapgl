@@ -1,16 +1,41 @@
 import { toRGB4Array, makeColorDarker, makeColorLighter } from '../utils/color';
 import type { Unit } from '@deck.gl/core';
-import { getNsPrefixes } from '../../graph/utils/utils.graph';
 import { colTypes, type RGBAColor } from '../../types/index';
 import AnimatedBlobsLayer from './animated-blobs-layer';
 import GradientArcLayer from './gradient-arc-layer';
 import { DataFilterExtension } from '@deck.gl/extensions';
-import { Matrix4 } from '@math.gl/core';
-import { getEdgeFilterCategories, getEdgeFilterCategory } from '../edgeFilterCategories';
+import { positionTransformProps, withPositionTransform } from '../positionTransform';
+import { edgeFilterProps } from '../edgeFilterCategories';
+
+const arcFlowPresenceCache = new WeakMap<object, { revision: unknown; hasFlow: boolean }>();
+
+function hasDirectionalArcFlow(lineFeatures: any[], revision: unknown): boolean {
+  const cached = arcFlowPresenceCache.get(lineFeatures);
+  if (revision !== undefined && cached?.revision === revision) {
+    return cached.hasFlow;
+  }
+
+  const hasFlow = lineFeatures.some(
+    (feature) =>
+      (feature.properties.arcStyle?.sideA.arrow ?? 0) !== 0 || (feature.properties.arcStyle?.sideB.arrow ?? 0) !== 0
+  );
+  if (revision !== undefined) {
+    arcFlowPresenceCache.set(lineFeatures, { revision, hasFlow });
+  }
+  return hasFlow;
+}
+
+const PositionGradientArcLayer = withPositionTransform(GradientArcLayer, [
+  'instanceSourcePositions',
+  'instanceTargetPositions',
+]);
+const PositionAnimatedBlobsLayer = withPositionTransform(AnimatedBlobsLayer, [
+  'instanceSourcePositions',
+  'instanceTargetPositions',
+]);
 export const MyArcLayer = (props) => {
   const {
-    srcGraphId,
-    layerShift = {},
+    batchId,
     lineFeatures,
     onHover,
     pickable,
@@ -26,13 +51,7 @@ export const MyArcLayer = (props) => {
     usesRendererNamespaceFiltering = false,
     visible,
   } = props;
-
-  const baseCategories = getVisLayers.getCategories();
-  const { categories, categorySize } = getEdgeFilterCategories({
-    baseCategories,
-    filterIncludesSkip: false,
-    usesRendererNamespaceFiltering,
-  });
+  const animateAllEdges = Boolean(props.animateAllEdges);
 
   type BartSegment = {
     properties;
@@ -73,17 +92,11 @@ export const MyArcLayer = (props) => {
     return heightCoef ?? 0.5;
   };
 
-  const modelMatrix = new Matrix4();
-  for (const path of getNsPrefixes(srcGraphId)) {
-    const shift = layerShift[path];
-    if (shift) {
-      modelMatrix.translate([shift[0], shift[1], 0]);
-    }
-  }
-
+  const filter = edgeFilterProps(props.effectiveVisibility);
   const layerProps = {
+    ...filter,
     visible,
-    modelMatrix,
+    ...positionTransformProps(props.positionTransform, 'arc', props),
     highlightColor,
     onHover,
     data: lineFeatures,
@@ -94,16 +107,9 @@ export const MyArcLayer = (props) => {
     getTargetColor: (d: BartSegment) => getColor('sideB', d),
     getSkip: (d) => Number(Boolean(d.skip)),
     getHighlightDepth: (d) => (d.skip ? 1 : 0),
-    getFilterCategory: (d) => {
-      return getEdgeFilterCategory({
-        feature: d,
-        baseCategories,
-        filterIncludesSkip: false,
-        usesRendererNamespaceFiltering,
-      });
-    },
 
     updateTriggers: {
+      ...filter.updateTriggers,
       getLineColor: presentationRevision,
       getTextColor: presentationRevision,
       getFillColor: presentationRevision,
@@ -111,8 +117,8 @@ export const MyArcLayer = (props) => {
       getTargetColor: presentationRevision,
       getWidths: presentationRevision,
     },
-    filterCategories: categories,
-    extensions: [new DataFilterExtension({ categorySize })],
+    filterCategories: filter.filterCategories,
+    extensions: [new DataFilterExtension({ categorySize: 1, filterSize: 0 }), ...(props.positionTransform?.extensions ?? [])],
     // Styles
     widthUnits: units,
     widthScale: 1,
@@ -124,18 +130,20 @@ export const MyArcLayer = (props) => {
   };
 
   return isBase
-    ? new GradientArcLayer({
+    ? new PositionGradientArcLayer({
         ...layerProps,
-        id: colTypes.Edges + '-arc-base' + srcGraphId,
+        id: colTypes.Edges + '-arc-base' + batchId,
       })
-    : new AnimatedBlobsLayer({
+    : new PositionAnimatedBlobsLayer({
         //<BartSegment>
         ...layerProps,
-        id: colTypes.Edges + '-arc-blobs' + srcGraphId,
+        id: colTypes.Edges + '-arc-blobs' + batchId,
         getSourceColor: (d: BartSegment) => getColor('sideA', d, { ignoreSkip: true }),
         getTargetColor: (d: BartSegment) => getColor('sideB', d, { ignoreSkip: true }),
         getSourceArrow: (d: BartSegment) => d.properties.arcStyle?.sideA.arrow ?? 0,
         getTargetArrow: (d: BartSegment) => d.properties.arcStyle?.sideB.arrow ?? 0,
+        animateAllEdges,
+        animate: animateAllEdges && visible !== false && hasDirectionalArcFlow(lineFeatures, presentationRevision),
         getFrequency: (d) => 10,
         animationSpeed: 5,
         tailLength: 0.1,

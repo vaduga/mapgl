@@ -2,16 +2,13 @@ import type { BinaryPointFeature } from '@loaders.gl/schema';
 import { MyGeoJsonLayer } from '../deckLayers/GeoJsonStaticLayer/static-geojson-layer';
 import { MyPathLayer } from '../deckLayers/PathLayer/path-layer';
 import { MyPolygonsLayer } from '../deckLayers/PolygonsLayer/polygons-layer';
-import { getGraphPositionRanges, type Graph } from '../graph/main';
-import { packGraphNodeBinaryRanges, selectGraphNodeFillColors } from '../utils/binaryRanges';
+import { type Graph } from '../graph/main';
 import { emptyBiCol } from '../types/defaults';
-import { splitNsId } from '../graph/utils/utils.graph';
 import type { GraphBiFeatCol } from '../types';
 import type { RenderLayer } from './layers';
 
 export interface GraphBinaryCollectionsInput {
   graphs: readonly Graph[];
-  visibleNamespaces: readonly string[];
   features: readonly unknown[] | undefined;
   positions: Float64Array | undefined;
   colors: Uint8Array | undefined;
@@ -24,7 +21,6 @@ export interface GraphBinaryCollectionsInput {
 
 export function buildGraphBinaryCollections({
   graphs,
-  visibleNamespaces,
   features,
   positions,
   colors,
@@ -38,47 +34,50 @@ export function buildGraphBinaryCollections({
     return [];
   }
 
-  return graphs
-    .filter((graph) => visibleNamespaces.includes(graph.id))
-    .sort((a, b) => splitNsId(a.id).length - splitNsId(b.id).length)
-    .map((graph) => {
-      const positionRanges = getGraphPositionRanges(graph);
-      const packed = packGraphNodeBinaryRanges({ positions, colors, muted, annotations, groupIndices }, positionRanges);
-      const fillColors = selectGraphNodeFillColors(
-        { muted: packed.muted, annotations: packed.annotations },
-        showAnnotations
-      );
-      const featureIds = { value: new Uint16Array(packed.count), size: 1 };
-      const globalFeatureIds = { value: new Uint32Array(packed.count), size: 1 };
-      let offset = 0;
-
-      for (const [start, end] of positionRanges) {
-        for (let index = start; index < end; index++) {
-          globalFeatureIds.value[offset] = offset;
-          featureIds.value[offset++] = index;
-        }
-      }
-
-      return {
-        ...emptyBiCol,
-        shape: 'binary-feature-collection',
-        graph,
-        groupIndices: packed.groupIndices,
-        annots: packed.annotations,
-        points: {
-          type: 'Point',
-          positions: { value: packed.positions, size: 2 },
-          attributes: {
-            getFillColor: { value: fillColors, size: 4, normalized: true },
-            getColor: { value: packed.colors, size: 4, normalized: true },
-          },
-          featureIds,
-          globalFeatureIds,
-          numericProps: {},
-          properties: features,
-        } as unknown as BinaryPointFeature,
-      } as GraphBiFeatCol;
-    });
+  const graph = graphs[0];
+  if (!graph) return [];
+  const byLayer = new Map<string, number[]>();
+  features.forEach((feature: any, ref) => {
+    const name = feature.layerName ?? '';
+    const refs = byLayer.get(name) ?? [];
+    refs.push(ref);
+    byLayer.set(name, refs);
+  });
+  return [...byLayer].map(([dataLayerId, refs]) => {
+    const whole = refs.length === features.length;
+    const select = <T extends Float64Array | Uint8Array>(values: T, size: number): T => {
+      if (whole) return values;
+      const out = new (values.constructor as any)(refs.length * size) as T;
+      refs.forEach((ref, index) => out.set(values.subarray(ref * size, (ref + 1) * size), index * size));
+      return out;
+    };
+    const ids = Uint32Array.from({ length: refs.length }, (_, index) => index);
+    const nodeRefs = Uint32Array.from(refs);
+    const fillMuted = select(muted, 4),
+      fillAnnotations = select(annotations, 4);
+    return {
+      ...emptyBiCol,
+      shape: 'binary-feature-collection',
+      graph,
+      dataLayerId,
+      nodeRefs,
+      groupIndices: select(groupIndices, 1),
+      annots: fillAnnotations,
+      muted: fillMuted,
+      points: {
+        type: 'Point',
+        positions: { value: select(positions, 2), size: 2 },
+        attributes: {
+          getFillColor: { value: showAnnotations ? fillAnnotations : fillMuted, size: 4, normalized: true },
+          getColor: { value: select(colors, 4), size: 4, normalized: true },
+        },
+        featureIds: { value: ids, size: 1 },
+        globalFeatureIds: { value: ids, size: 1 },
+        numericProps: {},
+        properties: whole ? features : refs.map((ref) => features[ref]),
+      } as unknown as BinaryPointFeature,
+    } as GraphBiFeatCol;
+  });
 }
 
 export interface SecondaryRenderDescriptor {

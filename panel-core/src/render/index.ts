@@ -5,3 +5,4 @@ export * from './styles';
 export * from './graph';
 export * from './session';
 export * from './react';
+export * from './effectiveVisibility';

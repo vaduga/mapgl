@@ -32,7 +32,7 @@ For workflow-oriented setup guidance, see [Panel configuration](documentation.md
 - **Vertex A**: source node ID field. This is the main node identity field.
 - **Vertex B**: target node ID or path definition. If set, Mapgl can generate links.
 - **Edge ID**: optional link identity. Use unique values for separate parallel links. Reuse one value only for consecutive, datasource-ordered rows that form a continuous route; each row keeps its user-facing properties on the matching route portion.
-- **Vertex A namespace**: optional source namespace for graph mode.
+- **Vertex A namespace**: optional source namespace field, or an array field assigning namespaces to every path node, for graph mode.
 - **Vertex B namespace**: optional target namespace for graph mode. It remains active when **Vertex A namespace** is unset; the source then uses the default `external` namespace.
 - **Namespace layers separator**: one- or two-symbol delimiter for nested namespace values. The preset values are `.`, `,`, and `-`; custom values are supported and `.` is selected by default.
 - **Search by**: extra fields exposed to panel search.
@@ -123,6 +123,9 @@ Vertex A=A, Vertex B=["A", [15, 55], "B"], Edge ID=geo-route-1
 - The default namespace in graph mode is `external`.
 - **Vertex A namespace** selects or creates the source node namespace.
 - **Vertex B namespace** independently selects the target node namespace. When either namespace field is unset or does not resolve, that side uses the default `external` namespace.
+- **Vertex A namespace** keeps the saved `optional.vertexA_NS` field binding. It accepts scalar strings or arrays (including JSON string arrays). Arrays assign one namespace per path node, including both endpoints; their first and last entries supply A/B namespaces, and ignore **Vertex B namespace** for that row. The editor keeps **Vertex B namespace** visible whenever Vertex B is configured, without scanning field values. A node-only row can use a one-item array. Scalar values retain the existing A/B field behavior.
+- Namespace arrays must match the full path length and contain non-empty namespace names. Malformed arrays are reported as graph-data issues. If any listed namespace is absent from all node records, every path item uses the first entry's namespace; Mapgl reports the fallback and resolves node IDs there using the usual missing-node rules. Namespace validation includes later frames and configured layers.
+- For example, path `["shop/order-supervisor", "data/audit-relay", "partner-api"]` uses `["shop", "data", "outside.EU"]` in the field selected by **Vertex A namespace**.
 - **Namespace layers separator** splits nested namespaces. The default `.` makes `site.core.router` a three-layer namespace; selecting `,` gives the same hierarchy from `site,core,router`.
 - A target node must exist in the resolved target namespace for a link to be created.
 
@@ -417,8 +420,14 @@ Result:
 
 ## Routed curve flow, labels and node cards
 
-- `config.edgeStyle.animate` is a per-layer boolean, default false. Existing `arrow` values remain None `0`, Forward `1`, Reverse `-1`, Both `2`. Animated Both flows outward from the rendered curve's arc-length midpoint; other directions follow logical endpoints, independently of layout orientation. None and hidden/static layers do not request flow redraw.
+- Node rendering uses one batch per originating data layer, with canonical node references retained for picking. Disabling a data layer hides its symbols, cards and labels through the layer's `visible` property.
+- Edge batches stay shared across data layers and namespaces. A routed hop is eligible only when both of that hop's endpoints are effectively visible. A whole-connection arc checks the logical first/last endpoints; intermediate nodes are not additional conditions for that whole connection.
+- Effective endpoint visibility combines the endpoint's own data layer, namespace and group eligibility. Namespace controls hide objects while retaining data-layer and group gates.
+- Node group selections form a union. No group selections means no group restriction. The dedicated Annotations item independently shows or hides the annotation overlay and does not affect node or edge visibility.
+- Data-layer and legend toggles update visibility without topology/layout work or coordinate-buffer regeneration. Ordinary group changes update GPU category selections; annotation overlay changes update annotation styling without changing visibility eligibility.
+
+- `config.edgeStyle.arrow` controls routed flow direction: None `0`, Forward `1`, Reverse `-1`, Both `2`. Focused edges animate by default. `common.isShowEdgeLabels` enables labels and animation on every visible edge with a directional arrow when there is no focus; while focused, only focused edges animate. Both flows outward from the rendered curve's arc-length midpoint; other directions follow logical endpoints, independently of layout orientation.
 - `config.arcStyle.sideA.text` and `.sideB.text` provide source/target label text when `config.showStat2` is enabled. Each side uses its own `textConfig.fontSize` and color; text and color field selections are independent. `config.edgeStyle.text` and its font settings provide the middle label.
-- Focused labels remain visible regardless of `common.isShowEdgeLabels`. That flag controls idle labels; master Label, edge, layer, group and namespace visibility remain authoritative. Focus follows logical edge/hop identity, including parallel connections, without relayout. Focused labels receive declutter priority and a stacked fallback.
+- Focused labels remain visible regardless of `common.isShowEdgeLabels`. That flag controls idle labels; when it is enabled, all eligible edges animate without focus, and focus limits animation to focused edges. Master Label, edge, layer, group and namespace visibility remain authoritative. Focus follows logical edge/hop identity, including parallel connections, without relayout. Focused labels receive declutter priority and a stacked fallback.
 - `basemap.config.layoutEngine` defaults to `MSAGL`; `ELK` selects the independent optional engine. Worker dispatch/transfer utilities do not eagerly execute either engine.
 - `basemap.config.nodeCards` defaults to false and determines both the layout envelope and card rendering. With cards off, label-aware spacing retains circular terminal boundaries. Curve pieces and arrow bases join continuously after restoration.

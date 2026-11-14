@@ -35,7 +35,9 @@ export const expandTooltip = (info: any, panel: any, dataClickProps: any) => {
     if (points && (featureType === 'points' || info.viewport?.id === '3d-scene') && index !== -1) {
       const featureIds = points.featureIds;
       const features = render.features;
-      const idx = featureIds?.value[index];
+      const data = info.sourceLayer?.props?.data?.points ? info.sourceLayer.props.data : deckLayer?.props?.data;
+      const local = featureIds?.value[index];
+      const idx = data?.nodeRefs?.[local] ?? local;
 
       props = (features as BiColProps[])[idx];
       rowIndex = props?.rowIndex;

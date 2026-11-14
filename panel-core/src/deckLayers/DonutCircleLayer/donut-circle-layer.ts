@@ -8,9 +8,8 @@ import { DEFAULT_ARC_OPTIONS, resolveArcOptions, type ArcOptionsConfig } from '.
 
 type DonutCircleLayerAddedProps<DataT> = {
   donutAtlas?: DonutAtlas;
-  getDonutRecord?: Accessor<DataT, number>;
-  getDonutOpacity?: Accessor<DataT, number>;
-  getDonutGaugeValue?: Accessor<DataT, number>;
+  /** Atlas record, focus opacity, gauge fill fraction; packed into one GPU attribute. */
+  getDonutState?: Accessor<DataT, Readonly<[number, number, number]>>;
   /** Per-instance bar width, segment count, spacing, and packed threshold presentation flags. */
   getDonutGaugeOptions?: Accessor<DataT, Readonly<[number, number, number, number]>>;
   /** The local Y axis sign required to keep gauge zero at screen 12 o'clock. */
@@ -24,9 +23,7 @@ export type DonutCircleLayerProps<DataT = unknown> = ScatterplotLayerProps<DataT
 const defaultProps: DefaultProps<DonutCircleLayerProps<any>> = {
   ...ScatterplotLayer.defaultProps,
   donutAtlas: { type: 'object', value: EMPTY_DONUT_ATLAS },
-  getDonutRecord: { type: 'accessor', value: -1 },
-  getDonutOpacity: { type: 'accessor', value: 1 },
-  getDonutGaugeValue: { type: 'accessor', value: -1 },
+  getDonutState: { type: 'accessor', value: [-1, 1, -1] },
   getDonutGaugeOptions: { type: 'accessor', value: [-1, -1, -1, -1] },
   gaugeCoordinateYSign: { type: 'number', value: 1 },
   donutGaugeOptions: { type: 'object', value: DEFAULT_ARC_OPTIONS },
@@ -55,20 +52,10 @@ export class DonutCircleLayer<DataT = any> extends ScatterplotLayer<DataT, Donut
   initializeState() {
     super.initializeState();
     this.getAttributeManager()?.addInstanced({
-      instanceDonutRecords: {
-        size: 1,
-        accessor: 'getDonutRecord',
-        defaultValue: -1,
-      },
-      instanceDonutOpacity: {
-        size: 1,
-        accessor: 'getDonutOpacity',
-        defaultValue: 1,
-      },
-      instanceDonutGaugeValues: {
-        size: 1,
-        accessor: 'getDonutGaugeValue',
-        defaultValue: -1,
+      instanceDonutState: {
+        size: 3,
+        accessor: 'getDonutState',
+        defaultValue: [-1, 1, -1],
       },
       instanceDonutGaugeOptions: {
         size: 4,
@@ -83,7 +70,7 @@ export class DonutCircleLayer<DataT = any> extends ScatterplotLayer<DataT, Donut
     super.updateState(params);
     if (params.props.donutAtlas !== params.oldProps.donutAtlas) {
       this.replaceDonutTexture(params.props.donutAtlas);
-      this.getAttributeManager()?.invalidate('instanceDonutRecords');
+      this.getAttributeManager()?.invalidate('instanceDonutState');
     }
     if (params.props.donutGaugeOptions !== params.oldProps.donutGaugeOptions) {
       this.setNeedsRedraw();

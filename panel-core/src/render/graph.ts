@@ -1,4 +1,5 @@
-import { getNsPrefixes } from '../graph/utils/utils.graph';
+import { captureEffectiveVisibility, type EffectiveVisibility } from './effectiveVisibility';
+import type { PositionTransform } from '../deckLayers/positionTransform';
 import type { Color, PickingInfo } from '@deck.gl/core';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import { PathStyleExtension } from '@deck.gl/extensions';
@@ -24,10 +25,11 @@ import {
   NodeCardLayer,
   getNodeCards,
 } from '../deckLayers/GeoJsonNodesLayer/nodes-geojson-layer';
-import { EdgesGeojsonLayer, getLayoutCurveSegments } from '../deckLayers/GeoJsonEdgesLayer/edges-geojson-layer';
+import { EdgesGeojsonLayer, getSharedLayoutCurveSegments } from '../deckLayers/GeoJsonEdgesLayer/edges-geojson-layer';
 import {
   createRouteLabelDataByGraph,
   getRouteLabelCandidates,
+  getRouteLabelSpotWeight,
   type RouteLabelCandidate,
   type LabelBox,
 } from '../deckLayers/GeoJsonEdgesLayer/route-labels';
@@ -53,6 +55,8 @@ export interface RenderPresentation {
   readonly labels?: boolean;
   /** Edge text stays visible without a focused node. */
   readonly edgeLabels?: boolean;
+  /** Animate every eligible edge without focus. */
+  readonly animateAllEdges?: boolean;
   /** Namespace box drawn highlighted (matched against the box's last label segment). */
   readonly focusNamespace?: string;
   /** Nodes drawn as cards holding their label (the layout sized them so). */
@@ -75,6 +79,7 @@ export interface RenderPresentation {
 export interface CapturedRenderInput {
   readonly generation: number;
   readonly revision: number;
+  readonly translationRevision: number;
   readonly snapshot?: GraphFrameSnapshot;
   readonly render: EffectiveRenderState;
   readonly sourceEdgeIndex: EffectiveRenderState['edgeIndex'];
@@ -85,6 +90,7 @@ export interface CapturedRenderInput {
   readonly projection: EdgeGeometryInput['projection'];
   readonly ready: boolean;
   readonly displayReady: boolean;
+  readonly layoutShift: LayerDragShift;
   readonly layoutIncludesProjection: boolean;
   readonly presentation: RenderPresentation & { readonly isRouted: boolean };
   readonly selectedNode: Node | null;
@@ -92,7 +98,19 @@ export interface CapturedRenderInput {
   readonly selectedEdges: readonly Edge[];
 }
 
+export interface RenderPositionState {
+  readonly node?: PositionTransform;
+  readonly edge?: PositionTransform;
+  readonly geometryKey?: unknown;
+  readonly edgeCoordinates?: EdgeGeometryInput['transformCoordinates'];
+  readonly transformControlPoints?: (key: string, values: Float32Array, offset: number, types: Uint8Array) => void;
+  update(input: CapturedRenderInput): RenderPositionState;
+  bounds(bounds: BoundaryCollection, from: CapturedRenderInput, to: CapturedRenderInput): BoundaryCollection;
+  routeLabel(point: [number, number], feature: any): [number, number];
+}
+
 export interface RenderPreparationOptions {
+  readonly positionState?: (input: CapturedRenderInput) => RenderPositionState | undefined;
   readonly edgeOffsetStrategies?: EdgeGeometryInput['edgeOffsetStrategies'];
   readonly terminalGeometryStrategies?: EdgeGeometryInput['terminalGeometryStrategies'];
   readonly resolveRoute?: EdgeGeometryInput['resolveRoute'];
@@ -109,17 +127,19 @@ export function captureRenderInput(controller: PanelController, presentation: Re
   return {
     generation: scene.version,
     revision: scene.renderRevision,
+    translationRevision: scene.translationRevision,
     snapshot: scene.baseline?.snapshot,
     render: { ...render, edgeIndex: render.edgeIndex.snapshot() },
     sourceEdgeIndex: render.edgeIndex,
     edgeIndexRevision: render.edgeIndex.revision,
     graphs: [render.graph, ...render.graph.subgraphsBreadthFirst()] as Graph[],
     visibility,
-    layerShift: { ...scene.layerShift },
+    layerShift: presentation.isLogic ? { ...scene.layerShift } : {},
     projection: scene.projection,
     ready: scene.ready,
     displayReady: scene.displayReady,
     layoutIncludesProjection: scene.layoutIncludesProjection,
+    layoutShift: presentation.isLogic ? scene.layoutShift : {},
     presentation: {
       ...presentation,
       isRouted: presentation.isRouted ?? visibility.getVisState(null, colTypes.Routed, colTypes.Routed)[0],
@@ -202,6 +222,7 @@ export interface PreparedGraphRender {
   readonly geometry: PreparedEdgeGeometry;
   readonly bounds: BoundaryCollection;
   readonly comments: readonly unknown[];
+  readonly positionState?: RenderPositionState;
   readonly namespaceBoundaries?: readonly NamespaceBoundaryRecord[];
 }
 
@@ -210,6 +231,7 @@ export function prepareGraphRender(
   options: RenderPreparationOptions = {}
 ): PreparedGraphRender {
   const { render, presentation: p, visibility } = input;
+  const positionState = options.positionState?.(input);
   const hidden = p.isLogic && !input.ready && !input.displayReady;
   const geometry = hidden
     ? { routed: {}, arcs: {}, mappings: [] }
@@ -224,6 +246,7 @@ export function prepareGraphRender(
         layout: render,
         layoutReady: input.ready || input.displayReady,
         layoutIncludesProjection: input.layoutIncludesProjection,
+        transformCoordinates: positionState?.edgeCoordinates,
         snapshot: input.snapshot,
         edgeOffsetStrategies: options.edgeOffsetStrategies ?? [],
         terminalGeometryStrategies: options.terminalGeometryStrategies ?? [],
@@ -244,13 +267,13 @@ export function prepareGraphRender(
         }))
       : [];
   return {
+    positionState,
     geometry,
     bounds: createBoundaryCollection(input, boundaries),
     namespaceBoundaries: boundaries,
     comments: hidden ? [] : (render.commentFeatures ?? []),
     collections: buildGraphBinaryCollections({
       graphs: input.graphs,
-      visibleNamespaces: visibility.getVisibleNamespaces(),
       ...render,
       showAnnotations: p.showAnnotations ?? false,
       hide: hidden,
@@ -259,6 +282,7 @@ export function prepareGraphRender(
 }
 
 export interface PrimaryLayerProps {
+  readonly effectiveVisibility?: EffectiveVisibility;
   readonly isLogic: boolean;
   readonly isRouted: boolean;
   readonly isMeters: boolean;
@@ -273,10 +297,13 @@ export interface PrimaryLayerProps {
   readonly resourceRevision?: number;
   readonly presentationRevision: number;
   readonly overlayEnabled?: boolean;
+  readonly edgeLabels?: boolean;
+  readonly animateAllEdges?: boolean;
   readonly getSelectedNode: Node | null;
   readonly getSelectedIdxs: SelectedIndexes;
   readonly getVisLayers: VisLayers;
   readonly usesRendererNamespaceFiltering: boolean;
+  readonly positionTransform?: PositionTransform;
   readonly layerShift: LayerDragShift;
   readonly edgeIndex: EffectiveRenderState['edgeIndex'];
   readonly layoutGeometry: Pick<EffectiveRenderState, 'curveGroups' | 'edgeKeys' | 'edgeIndexes'> & {
@@ -291,7 +318,7 @@ export interface PrimaryFactories {
   ) => LayerFactoryResult;
   readonly edge?: (
     props: PrimaryLayerProps & {
-      srcGraphId: string;
+      batchId: string;
       linesCollection: { type: 'FeatureCollection'; features: PreparedEdgeGeometry['routed'][string] };
       visible: boolean;
     }
@@ -306,11 +333,20 @@ export const normalizeLayers = (result: LayerFactoryResult): RenderLayer[] =>
 const noEdgeOffsetStrategies: NonNullable<EdgeGeometryInput['edgeOffsetStrategies']> = [];
 interface PrimaryGeometryData {
   cards: Map<GraphBiFeatCol, ReturnType<typeof getNodeCards>>;
-  curves: Map<string, ReturnType<typeof getLayoutCurveSegments>>;
+  curves: Map<string, ReturnType<typeof getSharedLayoutCurveSegments>>;
   labels: ReturnType<typeof createRouteLabelDataByGraph>;
 }
 // Selection rebuilds primary presentation, but does not change label geometry.
 // Weak geometry ownership also covers private contributions without retaining old frames.
+const sharedCurveData = new WeakMap<
+  PreparedEdgeGeometry,
+  {
+    inputs: readonly unknown[];
+    segments: ReturnType<typeof getSharedLayoutCurveSegments>;
+    candidates: RouteLabelCandidate[];
+  }
+>();
+const nodeCardDataCache = new WeakMap<GraphBiFeatCol, ReturnType<typeof getNodeCards>>();
 const primaryGeometryData = new WeakMap<
   PreparedEdgeGeometry,
   { inputs: readonly unknown[]; data: PrimaryGeometryData }
@@ -322,20 +358,13 @@ function preparePrimaryGeometryData(
   visible: boolean
 ): PrimaryGeometryData {
   const p = input.presentation;
+  const effective = captureEffectiveVisibility(input);
   const labelsVisible = isVisible(input.visibility, { index: null, name: colTypes.Label, group: colTypes.Label });
   const [activeGroups, visibleNamespaces] = input.visibility.getCategories();
   const groups = new Set(activeGroups),
     namespaces = new Set(visibleNamespaces);
-  const eligible = (properties: any, includeGraph = true) => {
-    const group = properties?.style?.group?.groupIdx;
-    const layer = properties?.layerName;
-    const graph = properties?.graph?.id ?? properties?.featSource?.layerName;
-    return (
-      (group === undefined || groups.has(group)) &&
-      (layer === undefined || namespaces.has(layer)) &&
-      (!includeGraph || graph === undefined || namespaces.has(graph))
-    );
-  };
+  const eligible = (properties: any) => effective.node(properties);
+  const positionState = prepared.positionState?.update(input);
   const inputs = [
     prepared.collections,
     input.render.curveGroups,
@@ -351,7 +380,7 @@ function preparePrimaryGeometryData(
     JSON.stringify([[...activeGroups], visibleNamespaces]),
     visible,
     labelsVisible,
-    JSON.stringify(input.layerShift),
+    positionState,
   ];
   const cached = primaryGeometryData.get(prepared.geometry);
   if (cached && cached.inputs.every((value, index) => value === inputs[index])) {
@@ -360,44 +389,60 @@ function preparePrimaryGeometryData(
   const cards: PrimaryGeometryData['cards'] = new Map();
   const curves: PrimaryGeometryData['curves'] = new Map();
   const obstacles: LabelBox[] = [];
-  const shift = (id: string): [number, number] =>
-    getNsPrefixes(id).reduce<[number, number]>(
-      (sum, path) => {
-        const value = input.layerShift[path];
-        return value ? [sum[0] + value[0], sum[1] + value[1]] : sum;
-      },
-      [0, 0]
-    );
   for (const collection of prepared.collections) {
-    const data = p.labels && p.nodeCards ? getNodeCards(collection) : [];
+    let data = nodeCardDataCache.get(collection);
+    if (!data) {
+      data = getNodeCards(collection);
+      nodeCardDataCache.set(collection, data);
+    }
+    if (!p.labels || !p.nodeCards) data = [];
     cards.set(collection, data);
-    const [dx, dy] = shift(collection.graph.id);
+
     obstacles.push(
       ...data
-        .filter((box) => eligible(box.d.properties, false))
-        .map((box) => ({ ...box, x: box.x + dx, y: box.y + dy }))
+        .filter((box) => eligible(box.d.properties))
+        .map((box) => {
+          const point = positionState?.node?.point([box.x, box.y], box.d.properties?.graph?.id ?? collection.graph.id);
+          return point ? { ...box, x: point[0], y: point[1] } : box;
+        })
     );
   }
   const candidates: Array<RouteLabelCandidate & { srcGraphId: string }> = [];
   if (p.isRouted && p.isLogic) {
-    for (const [srcGraphId, features] of Object.entries(prepared.geometry.routed)) {
+    for (const [srcGraphId, features] of [['shared', sharedFeatures(prepared.geometry.routed)]] as const) {
       if (!features.length) {
         continue;
       }
-      const segments = getLayoutCurveSegments(srcGraphId, features, input.render.edgeIndex, {
-        curveGroups: input.render.curveGroups,
-        edgeKeys: input.render.edgeKeys,
-        edgeIndexes: input.render.edgeIndexes,
-        edgeOffsetStrategies: strategies,
-      });
+      const curveInputs = [
+        input.render.curveGroups,
+        input.render.edgeIndexes,
+        input.render.edgeKeys,
+        strategies,
+        positionState?.geometryKey,
+      ];
+      let baseline = sharedCurveData.get(prepared.geometry);
+      if (!baseline || baseline.inputs.some((value, index) => value !== curveInputs[index])) {
+        const segments = getSharedLayoutCurveSegments(features, input.render.edgeIndex, {
+          transformControlPoints: positionState?.transformControlPoints,
+          curveGroups: input.render.curveGroups,
+          edgeKeys: input.render.edgeKeys,
+          edgeIndexes: input.render.edgeIndexes,
+          edgeOffsetStrategies: strategies,
+        });
+        baseline = { inputs: curveInputs, segments, candidates: getRouteLabelCandidates(segments) };
+        sharedCurveData.set(prepared.geometry, baseline);
+      }
+      const segments = baseline.segments;
       curves.set(srcGraphId, segments);
       if (segments?.length && visible && labelsVisible) {
         candidates.push(
-          ...getRouteLabelCandidates(segments).map((c) => ({
+          ...baseline.candidates.map((c) => ({
             ...c,
             srcGraphId,
-            eligible: eligible(c.feature.properties),
-            shift: shift(srcGraphId),
+            eligible: effective.edge(c.feature),
+            transformSpot: (spot: [number, number]) => {
+              return positionState?.routeLabel(spot, c.feature) ?? spot;
+            },
           }))
         );
       }
@@ -427,6 +472,12 @@ export function buildPrimaryLayers(
   const p = input.presentation;
   const selectedIndexes = new Map(input.selectedIndexes);
   const selectedEdges: Record<string, number[]> = {};
+  const lineOffsets = new Map<string, number>();
+  let lineOffset = 0;
+  for (const [namespace, features] of Object.entries(prepared.geometry.routed)) {
+    lineOffsets.set(namespace, lineOffset);
+    lineOffset += features.length;
+  }
   for (const edge of input.selectedEdges) {
     const ref = input.render.edgeIndex.getEdgeRef(edge);
     if (ref === undefined) {
@@ -437,7 +488,7 @@ export function buildPrimaryLayers(
     for (let edgeRef = start; edgeRef < end; edgeRef++) {
       const mapping = prepared.geometry.mappings[edgeRef];
       if (mapping?.lineId !== undefined) {
-        (selectedEdges[mapping.graphId] ??= []).push(mapping.lineId);
+        (selectedEdges.shared ??= []).push((lineOffsets.get(mapping.graphId) ?? 0) + mapping.lineId);
       }
     }
   }
@@ -446,8 +497,10 @@ export function buildPrimaryLayers(
   if (boundIndex >= 0) {
     selectedIndexes.set(colTypes.Bboxes, [boundIndex]);
   }
+  const positionState = prepared.positionState?.update(input);
   const common: PrimaryLayerProps = {
     ...p,
+    effectiveVisibility: captureEffectiveVisibility(input),
     isDark: p.isDark ?? false,
     isMeters: p.isMeters ?? false,
     getSelectedNode: input.selectedNode,
@@ -455,6 +508,7 @@ export function buildPrimaryLayers(
     getVisLayers: input.visibility,
     presentationRevision,
     usesRendererNamespaceFiltering: input.projection?.rendererFiltering !== 'none',
+    positionTransform: positionState?.node,
     layerShift: input.layerShift,
     edgeIndex: input.render.edgeIndex,
     layoutGeometry: {
@@ -477,17 +531,18 @@ export function buildPrimaryLayers(
     baseEdges: RenderLayer[] = [],
     bounds: RenderLayer[] = [];
   for (const biCol of prepared.collections) {
+    const ownerVisible = showGraph && common.effectiveVisibility!.dataLayer(biCol.dataLayerId);
     const nodeCardData = primaryData.cards.get(biCol) ?? [];
     const props = {
       nodeCardData,
       ...common,
-      biCol,
+      biCol: nodeFillCollection(biCol, Boolean(p.showAnnotations)),
       visible:
-        isVisible(input.visibility, { index: null, name: biCol.graph.id, group: 'graph' }) &&
+        ownerVisible &&
         (!p.nodeVisibilityName ||
           isVisible(input.visibility, { index: null, name: p.nodeVisibilityName, group: p.nodeVisibilityName })),
       pointTypeOverride: p.pointType,
-      idSuffix: p.nodeIdSuffix ?? '',
+      idSuffix: `-${encodeURIComponent(biCol.dataLayerId ?? '')}${p.nodeIdSuffix ?? ''}`,
     };
     nodes.push(...normalizeLayers((factories.node ?? NodesGeojsonLayer)(props)));
     if (p.placeholders) {
@@ -495,42 +550,63 @@ export function buildPrimaryLayers(
     }
     if (p.labels && p.nodeCards) {
       // Same group as the label, so the label draws on top.
-      (p.labelsInNodes ? nodes : labels).push(NodeCardLayer({ ...props, pickable: p.labelPickable ?? p.pickable }));
+      (p.labelsInNodes ? nodes : labels).push(NodeCardLayer({ ...props, visible: ownerVisible, pickable: p.labelPickable ?? p.pickable }));
     }
     if (p.labels) {
       (p.labelsInNodes ? nodes : labels).push(
         MainLabelTextLayer({
           ...props,
-          visible: isVisible(input.visibility, { index: null, name: biCol.graph.id, group: 'graph' }),
+          visible: ownerVisible,
           pickable: p.labelPickable ?? p.pickable,
         })
       );
     }
   }
+  const edgeTransform = positionState?.edge;
   const geometry = p.isRouted ? prepared.geometry.routed : prepared.geometry.arcs;
-  for (const [srcGraphId, features] of Object.entries(geometry)) {
+  for (const [batchId, features] of [['shared', sharedFeatures(geometry)]] as const) {
     if (!features.length) {
       continue;
     }
     if (p.isRouted) {
-      const segments = primaryData.curves.get(srcGraphId);
+      const segments = primaryData.curves.get(batchId);
       const props = {
         ...common,
-        srcGraphId,
+        positionTransform: edgeTransform,
+        batchId,
         visible,
-        linesCollection: { type: 'FeatureCollection' as const, features },
+        linesCollection: sharedCollection(features),
         curveSegments: segments,
       };
       edges.push(...normalizeLayers((factories.edge ?? EdgesGeojsonLayer)(props)), EdgeArrowLayer(props));
     } else {
-      const props = { ...common, srcGraphId, visible, lineFeatures: features };
+      const props = { ...common, positionTransform: edgeTransform, batchId, visible, lineFeatures: features };
       edges.push(MyArcLayer(props));
       baseEdges.push(MyArcLayer({ ...props, isBase: true }));
-      labels.push(LineTextLayer({ ...common, id: srcGraphId, data: features, visible, type: 'arcLabels' }));
+      labels.push(
+        LineTextLayer({
+          ...common,
+          positionTransform: edgeTransform,
+          id: batchId,
+          data: features,
+          visible,
+          effectiveVisibility: common.effectiveVisibility,
+          type: 'arcLabels',
+        })
+      );
     }
   }
-  for (const [srcGraphId, data] of primaryData.labels) {
-    labels.push(LineTextLayer({ ...common, id: srcGraphId, data, visible, type: 'routeLabels' }));
+  for (const [batchId, data] of primaryData.labels) {
+    labels.push(
+      LineTextLayer({
+        ...common,
+        id: batchId,
+        data,
+        visible,
+        effectiveVisibility: common.effectiveVisibility,
+        type: 'routeLabels',
+      })
+    );
   }
   if (p.bounds && prepared.bounds.features.length) {
     const props = { ...common, id: 'bbox-polygons', rects: prepared.bounds, biCols: prepared.collections };
@@ -588,4 +664,47 @@ export function buildPrimaryLayers(
       : {}),
     ...contributions,
   };
+}
+
+const sharedFeatureCache = new WeakMap<object, any[]>();
+function sharedFeatures(geometry: Record<string, any[]>): any[] {
+  let features = sharedFeatureCache.get(geometry);
+  if (!features) {
+    features = Object.values(geometry).flat();
+    sharedFeatureCache.set(geometry, features);
+  }
+  return features;
+}
+
+const collectionHeaders = new WeakMap<object, { type: 'FeatureCollection'; features: any[] }>();
+function sharedCollection(features: any[]) {
+  let collection = collectionHeaders.get(features);
+  if (!collection) {
+    collection = { type: 'FeatureCollection', features };
+    collectionHeaders.set(features, collection);
+  }
+  return collection;
+}
+const fillCollections = new WeakMap<object, Map<boolean, GraphBiFeatCol>>();
+function nodeFillCollection(collection: GraphBiFeatCol, annotations: boolean): GraphBiFeatCol {
+  const colors = annotations ? collection.annots : collection.muted;
+  if (!colors || (collection.points as any).attributes.getFillColor.value === colors) return collection;
+  let variants = fillCollections.get(collection);
+  if (!variants) {
+    variants = new Map();
+    fillCollections.set(collection, variants);
+  }
+  let result = variants.get(annotations);
+  if (!result) {
+    const points = collection.points as any;
+    result = {
+      ...collection,
+      points: {
+        ...points,
+        attributes: { ...points.attributes, getFillColor: { ...points.attributes.getFillColor, value: colors } },
+      },
+    };
+    variants.set(annotations, result!);
+  }
+  return result!;
 }

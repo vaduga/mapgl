@@ -3,7 +3,7 @@ import type { Edge } from '../graph/structs/edge';
 import type { Entity } from '@msagl/core';
 import type { Graph } from '../graph/structs/graph';
 import type { FeatSource } from '../graph/FeatSource';
-import type { BinaryFeatureCollection } from '@loaders.gl/schema';
+import type { BinaryPointFeature, BinaryFeatureCollection } from '@loaders.gl/schema';
 
 export * from './deck';
 
@@ -60,6 +60,11 @@ export type LayerDragShift = {
 
 export type GraphBiFeatCol = BinaryFeatureCollection & {
   graph: Graph;
+  dataLayerId?: string;
+  nodeRefs?: Uint32Array;
+  muted?: Uint8Array;
+  annots?: Uint8Array;
+  points: BinaryPointFeature;
 };
 
 export type BiColProps = {
@@ -117,6 +122,8 @@ export interface Feature<G extends Geometry | null = Geometry, P = BiColProps> {
 
 export interface DeckLine<G extends Geometry | null = Geometry, P = BiColProps> {
   edgeRef: number;
+  namespaceSource?: string;
+  namespaceTarget?: string;
   lineId?: number;
   edgeId: string;
   skip?: boolean;

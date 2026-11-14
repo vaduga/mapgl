@@ -195,25 +195,18 @@ export function createMapglPanelPlugin<
           description: 'Default thresholds',
           defaultValue: true,
         })
-        .addTextInput({
-          category: ['Other'],
-          path: 'common.focusNamespace',
-          name: 'Highlighted namespace',
-          description: 'Dashboard variables work, e.g. $namespace',
-          defaultValue: '',
-        })
-        .addBooleanSwitch({
-          category: ['Other'],
-          path: 'common.isShowEdgeLabels',
-          name: 'Edge labels always on',
-          description: 'Show edge text without focusing a node',
-          defaultValue: false,
-        })
         .addBooleanSwitch({
           category: ['Other'],
           path: 'common.isShowLegend',
           name: 'Groups legend',
           defaultValue: true,
+        })
+        .addBooleanSwitch({
+          category: ['Other'],
+          path: 'common.isShowEdgeLabels',
+          name: 'Edge labels and animation always on',
+          //description: 'Animate all visible arrowed edges until focus narrows animation to focused edges',
+          defaultValue: false,
         })
         .addBooleanSwitch({
           category: ['Other'],
@@ -231,6 +224,13 @@ export function createMapglPanelPlugin<
           name: 'Meters for sizing',
           description: 'Use meters in Geo view (scales with zoom)',
           defaultValue: false,
+        })
+        .addTextInput({
+          category: ['Other'],
+          path: 'common.focusNamespace',
+          name: 'Highlight namespace',
+          description: 'Dashboard variables work, e.g. $namespace',
+          defaultValue: '',
         })
         .addTextInput({
           category: ['Other'],

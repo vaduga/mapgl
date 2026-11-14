@@ -252,22 +252,30 @@ Result:
 
 Use **Edge Styles** when `Vertex B` is configured:
 
-- arrow direction and optional **Animate** flow (off by default)
+- arrow direction and flow animation
 - line width
 - color
 - text for edge labels
 
-**Animate** applies independently to each Markers and links layer's routed curves. Forward moves from source to target, Reverse moves toward the source, and Both moves from the complete curve's midpoint toward both ends. None remains static.
+Arrow direction controls flow direction. Forward moves from source to target, Reverse moves toward the source, and Both moves from the complete curve's midpoint toward both ends. Focused edges animate by default. **Other -> Edge labels and animation always on** keeps labels visible and animates all visible arrowed edges when there is no focus; while focus is active, only focused edges animate.
 
 If you enable **Arc styles**, Mapgl can style side A and side B independently and use a capacity field for metric normalization. Each side has its own **Text label** and **Font size** controls: side A labels the source end and side B the target end. Fixed, Field and Template text can use a different field from the side's color. Grafana units, mappings and decimals still apply. **Edge Styles -> Text label** supplies the middle label in routed and non-routed modes.
 
-Focusing an edge reveals and emphasizes its configured labels even when **Other -> Edge labels always on** is off. Enabling that setting also shows labels without focus. The Label layer and graph/group/edge visibility still apply. Dense focused labels can move or stack to stay visible; blank labels are omitted.
+Focusing an edge reveals and emphasizes its configured labels even when **Other -> Edge labels and animation always on** is off. The setting shows labels without focus. The Label layer and graph/group/edge visibility still apply. Dense focused labels can move or stack to stay visible; blank labels are omitted.
 
 An Arc link tapers continuously from side A's line width at the source to side B's line width at the target.
 
 Field-driven line width uses the same endpoint semantics as node size: Min is rendered at the normalized low end and Max at the normalized high end. A Min value greater than Max creates a descending scale.
 
+For paths crossing several namespaces, select a namespace array field in **Vertex A namespace**. Each array lists namespaces in path order, including both endpoints; JSON string arrays are supported. **Vertex B namespace** remains visible when Vertex B is configured; array rows ignore its value. Existing scalar namespace fields keep their A/B behavior and saved configuration paths.
+
+If an array names an unknown namespace, all path nodes fall back to the first entry's namespace. Ensure those node IDs exist there; invalid array shapes and unresolved nodes appear in graph diagnostics.
+
 ## Inspect nodes and links
+
+Node group legend items toggle independently: click A, then B, to show both groups. Click an item again to remove only that selection. When the final group selection is cleared, all groups are eligible again. Annotations has a separate toggle that only shows or hides the annotation overlay.
+
+Layer and namespace visibility still apply. A connection appears only when both of its endpoints pass those controls and the legend selection.
 
 Hover a node or link to read its displayed data properties. Click it to pin the tooltip so you can copy values, follow configured data links or expand its incoming/outgoing connection lists. Selecting a listed connection inspects that link; hovering it temporarily highlights the relation. Close the tooltip or click empty canvas to dismiss pinned inspection.
 

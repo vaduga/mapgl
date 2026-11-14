@@ -1,5 +1,4 @@
-export { getEdgeFilterCategories, getEdgeFilterCategory } from './edgeFilterCategories';
-export type { EdgeFilterCategories } from './edgeFilterCategories';
+export { edgeFilterProps } from './edgeFilterCategories';
 
 export { MyArcLayer } from './ArcLayer/arc-layer';
 export { default as AnimatedBlobsLayer } from './ArcLayer/animated-blobs-layer';
@@ -109,3 +108,7 @@ export * from './edgeFilterCategories';
 export * from './focus-layers';
 
 export { getArcLabelPosition } from './TextLayer/arc-label-position';
+
+export * from './positionTransform';
+export { getCurveMetrics } from './GeoJsonEdgesLayer/curve-metrics';
+export { getRouteLabelSpotWeight } from './GeoJsonEdgesLayer/route-labels';

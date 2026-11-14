@@ -92,7 +92,8 @@ export function createGroupLegend(
   groups: readonly Rule[],
   activeGroups: Uint8Array,
   hasLayers: boolean,
-  hasAnnotations: boolean
+  hasAnnotations: boolean,
+  annotationsVisible: boolean
 ): VizLegendItem[] {
   if (!hasLayers) {
     return [];
@@ -102,13 +103,12 @@ export function createGroupLegend(
     yAxis: 1,
   }));
   if (hasAnnotations) {
-    const groupIdx = groups.length;
     entries.push({
       color: ALERTING_STATES.Alerting,
       label: ANNOTS_LABEL,
       yAxis: 1,
-      disabled: !activeGroups[groupIdx],
-      data: { rawLabel: ANNOTS_LABEL, groupIdx, hasNodes: false },
+      disabled: !annotationsVisible,
+      data: { rawLabel: ANNOTS_LABEL, annotationToggle: true, hasNodes: false },
     });
   }
   return entries;

@@ -56,7 +56,7 @@ describe('DonutCircleLayer resource lifecycle', () => {
     expect(textures).toHaveLength(1);
     expect(layer.attributeManager.addInstanced).toHaveBeenCalledWith(
       expect.objectContaining({
-        instanceDonutGaugeValues: expect.objectContaining({ accessor: 'getDonutGaugeValue', defaultValue: -1 }),
+        instanceDonutState: expect.objectContaining({ accessor: 'getDonutState', size: 3, defaultValue: [-1, 1, -1] }),
         instanceDonutGaugeOptions: expect.objectContaining({
           size: 4,
           accessor: 'getDonutGaugeOptions',

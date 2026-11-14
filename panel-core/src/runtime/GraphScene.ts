@@ -48,6 +48,7 @@ export class GraphScene {
   revision = 0;
   renderRevision = 0;
   presentationRevision = 0;
+  translationRevision = 0;
   private readonly listeners = new Set<() => void>();
   private transactionDepth = 0;
   private notificationPending = false;
@@ -56,6 +57,7 @@ export class GraphScene {
   private _layerShift: LayerDragShift = {};
   private _projection?: NamespaceProjectionResult;
   private _layoutIncludesProjection = false;
+  private _layoutShift: LayerDragShift = {};
   private _ready = false;
   private _displayReady = false;
   private _view = createGraphFrameViewState({ phase: 'idle', pending: false });
@@ -71,6 +73,9 @@ export class GraphScene {
   }
   get projection() {
     return this._projection;
+  }
+  get layoutShift(): LayerDragShift {
+    return this._layoutShift;
   }
   get layoutIncludesProjection() {
     return this._layoutIncludesProjection;
@@ -124,8 +129,11 @@ export class GraphScene {
     if (generation !== this.generation) {
       return false;
     }
-    this._layerShift = { ...shift };
-    this.changed();
+    this._layerShift = Object.fromEntries(
+      Object.entries(shift).map(([id, value]) => [id, [...value] as [number, number]])
+    );
+    this.translationRevision++;
+    this.changed(false);
     return true;
   }
 
@@ -138,6 +146,9 @@ export class GraphScene {
       return false;
     }
     this._layoutIncludesProjection = projected;
+    this._layoutShift = projected
+      ? Object.fromEntries(Object.entries(this._layerShift).map(([id, shift]) => [id, [...shift] as [number, number]]))
+      : {};
     this.changed();
     return true;
   }
@@ -212,6 +223,7 @@ export class GraphScene {
     });
     this._projection = undefined;
     this._layoutIncludesProjection = false;
+    this._layoutShift = {};
     this._ready = this._displayReady = true;
     this._view = createGraphFrameViewState({
       phase: state.snapshot.nodes.length ? 'ready' : 'empty',
@@ -276,7 +288,17 @@ export class GraphScene {
 
   setActiveGroups(groups: Uint8Array): void {
     this._visibility.setActiveGroups(groups);
-    this.changed();
+    this.invalidatePresentation();
+  }
+
+  toggleGroup(id: number): void {
+    this._visibility.toggleGroup(id);
+    this.invalidatePresentation();
+  }
+
+  toggleAnnotations(): void {
+    this._visibility.setAnnotationsVisible(!this._visibility.annotationsVisible);
+    this.invalidatePresentation();
   }
 
   invalidateGeometry(): void {
@@ -301,7 +323,14 @@ export class GraphScene {
       }
     };
     apply(layer);
-    this.project(strategies);
+    const namespaces = [this.render.graph, ...this.render.graph.subgraphsBreadthFirst()];
+    if (
+      strategies.length &&
+      layer.group !== 'markers' &&
+      (layer.name === 'graph' || namespaces.some((namespace) => namespace.id === layer.name))
+    )
+      this.project(strategies);
+    else this.invalidatePresentation();
   }
 
   project(strategies: NamespaceProjectionStrategy[]): void {
@@ -326,6 +355,7 @@ export class GraphScene {
     this.current = Object.freeze(emptyRender());
     this._projection = undefined;
     this._layoutIncludesProjection = false;
+    this._layoutShift = {};
     this._ready = this._displayReady = false;
     // Visibility belongs to the panel lifetime; the next tree reconciles removed graph layers.
     this._layerShift = {};

@@ -46,7 +46,9 @@ export function resolvePickingFocus(
   const points = info.sourceLayer?.props?.data?.points ?? info.layer?.props?.data?.points;
   let nodePick = false;
   if (points && (info.featureType === 'points' || info.viewport?.id === '3d-scene') && info.index !== -1) {
-    props = scene.render.features[points.featureIds?.value?.[info.index]];
+    const data = info.sourceLayer?.props?.data?.points ? info.sourceLayer.props.data : info.layer?.props?.data;
+    const local = points.featureIds?.value?.[info.index];
+    props = scene.render.features[data?.nodeRefs?.[local] ?? local];
     nodePick = true;
   } else if (info.object?.pointIndex !== undefined) {
     nodePick = true;

@@ -180,7 +180,7 @@ export function genVisLayers(panel: GenVisLayersPanel, props: GenVisLayersProps)
   const routed = resolveRouting(props.replaceVariables, panel.useMockData);
   return createVisibility({
     graph: panel.graph,
-    groupCount: panel.groups.length + (panel.hasAnnots ? 1 : 0),
+    groupCount: panel.groups.length,
     isLogic: panel.isLogic,
     isRouted: routed,
     dataLayers: props.options.dataLayers ?? [],

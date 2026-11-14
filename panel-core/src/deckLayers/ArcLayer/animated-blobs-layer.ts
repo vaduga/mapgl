@@ -10,6 +10,8 @@ type AnimatedBlobsLayerProps<DataT = unknown> = {
   animationSpeed?: number;
   tailLength?: number;
   coef?: number;
+  animate?: boolean;
+  animateAllEdges?: boolean;
 };
 
 const defaultProps: DefaultProps = {
@@ -17,6 +19,8 @@ const defaultProps: DefaultProps = {
   coef: { type: 'number', value: 1.0, min: 0.0, max: 1.0 },
   getSourceArrow: { type: 'accessor', value: 0 },
   getTargetArrow: { type: 'accessor', value: 0 },
+  animate: false,
+  animateAllEdges: false,
 };
 
 export default class AnimatedBlobsLayer<DataT = any> extends GradientArcLayer<DataT, AnimatedBlobsLayerProps<DataT>> {
@@ -58,6 +62,10 @@ export default class AnimatedBlobsLayer<DataT = any> extends GradientArcLayer<Da
       'fs:#main-start': shaders.inject?.['fs:#main-start'] ?? '',
 
       'fs:DECKGL_FILTER_COLOR': `
+    if (arc.flowMode == 0.0 || (arc.flowMode == 2.0 && vHighlightDepth > 0.5)) {
+        discard;
+    }
+
     // Check if both directions are zero, skip processing entirely if true
     if (vArrowDir == 0.0 && vArrow2Dir == 0.0) {
         discard;
@@ -153,7 +161,8 @@ export default class AnimatedBlobsLayer<DataT = any> extends GradientArcLayer<Da
     const cycleDuration = 2; // Speed up the full cycle to 2.5 seconds
 
     const bcoef = (timestamp % cycleDuration) / cycleDuration;
-    const coef = Math.floor(bcoef / stepSize) * stepSize;
+    const coef = this.props.animate ? Math.floor(bcoef / stepSize) * stepSize : -1;
+    const flowMode = this.props.animate ? (this.props.animateAllEdges ? 1 : 2) : 0;
 
     // const bcoef2 = ((timestamp + cycleDuration / 2) % cycleDuration) / cycleDuration;  // Start at the midpoint of the arc
     // const coef2 = Math.floor(bcoef2 / stepSize) * stepSize;  // Step through 0.5, 0.505, 0.51, etc.
@@ -168,13 +177,15 @@ export default class AnimatedBlobsLayer<DataT = any> extends GradientArcLayer<Da
     //super.draw(opts);
 
     this.state.model?.shaderInputs.setProps({
-      arc: { coef }, // Map `coef` to the uniform block
+      arc: { coef, flowMode }, // Map animation state to the uniform block
     });
 
     super.draw({ uniforms });
 
     // By default, the needsRedraw flag is cleared at each render. We want the layer to continue
     // refreshing.
-    this.setNeedsRedraw();
+    if (this.props.animate && this.props.visible) {
+      this.setNeedsRedraw();
+    }
   }
 }

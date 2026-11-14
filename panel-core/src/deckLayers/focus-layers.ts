@@ -8,6 +8,7 @@ import AnimatedBlobsLayer from './ArcLayer/animated-blobs-layer';
 import GradientArcLayer from './ArcLayer/gradient-arc-layer';
 import { getArrowColor } from './ArrowLayer/edge-arrow-layer';
 import { CurveEdgeLayer } from './GeoJsonEdgesLayer/curve-edge-layer';
+import { getCurveFlowDirection } from './GeoJsonEdgesLayer/curve-flow';
 import { makeScopedKey, type ConnectedEdgeIndex } from './GraphHighlighter';
 
 type DimmedGraphLayerOptions = {
@@ -73,7 +74,7 @@ export function getDimmedGraphLayers(layers: Layer[], opts: DimmedGraphLayerOpti
 function getDimmedNodeCircleProps(layer: Layer, connectedNodeIds: Set<string>) {
   const subLayerProps = (layer.props as any)?._subLayerProps;
   const circleProps = subLayerProps?.['points-circle'];
-  if (!circleProps?.getDonutRecord) {
+  if (!circleProps?.getDonutState) {
     return {};
   }
 
@@ -85,14 +86,15 @@ function getDimmedNodeCircleProps(layer: Layer, connectedNodeIds: Set<string>) {
       ...subLayerProps,
       'points-circle': {
         ...circleProps,
-        getDonutOpacity: (d: any, info: any) => {
+        getDonutState: (d: any, info: any) => {
           const featureId = Number.isInteger(info?.index) ? featureIds?.[info.index] : undefined;
           const properties = d?.properties?.locName ? d.properties : pointProperties?.[featureId ?? info?.index];
-          return isConnectedNode(properties, connectedNodeIds) ? 1 : 0.18;
+          const state = getAccessorResult(circleProps.getDonutState, d, info, [-1, 1, -1]);
+          return [state[0], isConnectedNode(properties, connectedNodeIds) ? 1 : 0.18, state[2]];
         },
         updateTriggers: {
           ...circleProps.updateTriggers,
-          getDonutOpacity: highlightTrigger,
+          getDonutState: [circleProps.updateTriggers?.getDonutState, highlightTrigger],
         },
       },
     },
@@ -115,13 +117,14 @@ function isCloneableLayer(layer: unknown): layer is Layer {
 
 function getEdgeDepthsByGraph(connectedEdgeIndexes: ConnectedEdgeIndex[], isRouted: boolean) {
   return connectedEdgeIndexes.reduce<Record<string, Map<number, number>>>(
-    (acc, { graphId, lineId, arcId, arcGraphId, depth }) => {
-      const index = isRouted ? lineId : arcId;
+    (acc, { graphId, lineId, arcId, arcGraphId, lineBatchIndex, arcBatchIndex, depth }) => {
+      const batchIndex = isRouted ? lineBatchIndex : arcBatchIndex;
+      const index = batchIndex ?? (isRouted ? lineId : arcId);
       if (index === undefined) {
         return acc;
       }
 
-      const depths = (acc[isRouted ? graphId : (arcGraphId ?? graphId)] ??= new Map<number, number>());
+      const depths = (acc[batchIndex !== undefined ? 'shared' : isRouted ? graphId : (arcGraphId ?? graphId)] ??= new Map<number, number>());
       const nextDepth = depth ?? 0;
       const prevDepth = depths.get(index);
       if (prevDepth === undefined || nextDepth < prevDepth) {
@@ -160,6 +163,9 @@ function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<
         getHighlightDepth: highlightDepthTrigger,
         getWidth: [curveLayer.props.updateTriggers?.getWidth, highlightDepthTrigger],
       },
+      animate: hasFocusedCurveFlow(curveLayer.props.data, connectedFeatureDepths, curveLayer.props.getFilterCategory),
+      // Focus takes precedence over the global always-on mode.
+      animateAllEdges: false,
     });
   }
 
@@ -183,6 +189,12 @@ function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<
         getHighlightDimOpacity: highlightDepthTrigger,
         getWidths: [arcLayer.props.updateTriggers?.getWidths, highlightDepthTrigger],
       },
+      ...(layer instanceof AnimatedBlobsLayer
+        ? {
+            animate: hasFocusedArcFlow(arcLayer.props.data, connectedFeatureDepths, arcLayer.props.getFilterCategory),
+            animateAllEdges: false,
+          }
+        : {}),
     } as any);
   }
 
@@ -341,6 +353,40 @@ function getDimmedTextColorArray(colors, data: any[], connectedNodeIds: Set<stri
 function getAccessorValue(accessor: any, object: any, info: any, fallback: number): number {
   const value = typeof accessor === 'function' ? accessor(object, info) : accessor;
   return Number.isFinite(value) ? value : fallback;
+}
+
+function hasFocusedCurveFlow(data: any, focused: Map<number, number>, getFilterCategory: any): boolean {
+  const features = data?.features as any[] | undefined;
+  if (!features) {
+    return false;
+  }
+
+  for (const featureIndex of focused.keys()) {
+    const feature = features[featureIndex];
+    if (
+      feature &&
+      (typeof getFilterCategory !== 'function' || getFilterCategory(feature) === 1) &&
+      getCurveFlowDirection(feature)
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function hasFocusedArcFlow(data: any[], focused: Map<number, number>, getFilterCategory: any): boolean {
+  for (const index of focused.keys()) {
+    const feature = data?.[index];
+    if (
+      feature &&
+      (typeof getFilterCategory !== 'function' || getFilterCategory(feature) === 1) &&
+      ((feature?.properties?.arcStyle?.sideA?.arrow ?? 0) !== 0 ||
+        (feature?.properties?.arcStyle?.sideB?.arrow ?? 0) !== 0)
+    ) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function getDimmedNodeBiCol(data, connectedNodeIds: Set<string>) {

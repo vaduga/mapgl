@@ -1,3 +1,4 @@
+import type { PositionTransform } from '../positionTransform';
 import {
   Layer,
   project32,
@@ -46,6 +47,7 @@ export type CurveEdgeLayerData<DataT = any> = Array<CurveEdgeSegment<DataT>> | C
 
 type CurveEdgeLayerProps<DataT> = {
   data: CurveEdgeLayerData<DataT>;
+  positionTransform?: PositionTransform;
   widthUnits?: Unit;
   widthScale?: number;
   widthMinPixels?: number;
@@ -65,6 +67,8 @@ type CurveEdgeLayerProps<DataT> = {
   getFlow?: Accessor<CurveEdgeSegment<DataT>, ArrayLike<number>>;
   dashJustified?: boolean;
   dashGapPickable?: boolean;
+  /** Allow flow animation on every eligible edge instead of focused edges only. */
+  animateAllEdges?: boolean;
   /** Redraw while at least one visible edge has effective directional flow. */
   animate?: boolean;
 } & LayerProps;
@@ -81,6 +85,7 @@ const defaultProps: DefaultProps<CurveEdgeLayerProps<any>> = {
   highlightMaxDepth: { type: 'number', min: 0, value: Number.MAX_SAFE_INTEGER },
   highlightDimOpacity: { type: 'number', min: 0, max: 1, value: 1 },
   skipVisibleMaxDepth: { type: 'number', value: -1 },
+  animateAllEdges: false,
   animate: false,
   getFlow: { type: 'accessor', value: [0, 0, 0, 0] },
   getControlPoints: { type: 'accessor', value: (d: CurveEdgeSegment) => d.controlPoints },
@@ -105,6 +110,7 @@ layout(std140) uniform curveUniforms {
   highp int widthUnits;
   highp int highlightOnly;
   float flowTime;
+  highp int animateAllEdges;
 } curve;
 `,
   fs: `\
@@ -118,6 +124,7 @@ layout(std140) uniform curveUniforms {
   highp int widthUnits;
   highp int highlightOnly;
   float flowTime;
+  highp int animateAllEdges;
 } curve;
 `,
   uniformTypes: {
@@ -130,6 +137,7 @@ layout(std140) uniform curveUniforms {
     widthUnits: 'i32',
     highlightOnly: 'i32',
     flowTime: 'f32',
+    animateAllEdges: 'i32',
   },
 } as const satisfies ShaderModule<{
   widthScale: number;
@@ -141,6 +149,7 @@ layout(std140) uniform curveUniforms {
   widthUnits: number;
   highlightOnly: number;
   flowTime: number;
+  animateAllEdges: number;
 }>;
 
 const pathStyleCompatUniforms = {
@@ -259,6 +268,7 @@ void main(void) {
     interpolateLine(rNext, instancePositions1.xy, instancePositions1.zw, nextPointOnCurve);
   }
 
+
   geometry.worldPosition = vec3(pointOnCurve, 0.0);
   geometry.worldPositionAlt = vec3(nextPointOnCurve, 0.0);
   geometry.uv = positions.xy;
@@ -331,7 +341,11 @@ void main(void) {
   if (curve.highlightOnly == 0 && vHighlightDepth > curve.highlightMaxDepth) {
     fragColor.a *= curve.highlightDimOpacity;
   }
-  if (curve.flowTime >= 0.0 && vFlowDirection != 0.0) {
+  if (
+    curve.flowTime >= 0.0 &&
+    vFlowDirection != 0.0 &&
+    (curve.animateAllEdges != 0 || vHighlightDepth <= curve.highlightMaxDepth)
+  ) {
     float distance = vFlowDirection == 2.0 ? abs(vAlongPixels - vMidPixels) : vAlongPixels * vFlowDirection;
     float phase = fract((distance - curve.flowTime * FLOW_SPEED) / FLOW_PERIOD);
     fragColor.a *= mix(0.45, 1.0, smoothstep(0.0, 0.25, phase) * (1.0 - smoothstep(0.45, 0.7, phase)));
@@ -358,7 +372,7 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
   }
 
   getShaders() {
-    return super.getShaders({ vs, fs, modules: [project32, picking, curveUniforms, pathStyleCompatUniforms] });
+    return super.getShaders({ vs: this.props.positionTransform?.shader(vs, []) ?? vs, fs, modules: [project32, picking, curveUniforms, pathStyleCompatUniforms] });
   }
 
   getBounds(): [number[], number[]] | null {
@@ -474,6 +488,7 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
       highlightMaxDepth,
       highlightDimOpacity,
       skipVisibleMaxDepth,
+      animateAllEdges,
       animate,
     } = this.props;
     const model = this.state.model!;
@@ -489,6 +504,7 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
         highlightDimOpacity,
         skipVisibleMaxDepth,
         flowTime: animate ? (performance.now() / 1000) % 3600 : -1,
+        animateAllEdges: animateAllEdges ? 1 : 0,
       },
       path: {
         widthScale: 1,

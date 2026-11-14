@@ -49,7 +49,6 @@ for (const engine of ['MSAGL', 'ELK']) {
             size: { fixed: 4 },
             color: { fixed: '#808080' },
             arrow,
-            animate: false,
             text: { mode: 'fixed', fixed: 'middle' },
             textConfig: { fontSize: 16 },
           },
@@ -136,7 +135,7 @@ for (const engine of ['MSAGL', 'ELK']) {
   }
 }
 
-test('native Animate defaults off and survives dashboard save', async ({
+test('edge labels and animation always on setting survives dashboard save', async ({
   readProvisionedDashboard,
   request,
   gotoPanelEditPage,
@@ -146,7 +145,7 @@ test('native Animate defaults off and survives dashboard save', async ({
   const fixture: any = await readProvisionedDashboard({ fileName: 'mapgl_unified_graph_e2e.json' });
   const panel = structuredClone(fixture.panels[0]);
   const uid = `animate-save-${Date.now()}`;
-  delete panel.options.dataLayers[0].config.edgeStyle.animate;
+  panel.options.common.isShowEdgeLabels = false;
   expect(
     (
       await request.post('/api/dashboards/db', {
@@ -156,24 +155,24 @@ test('native Animate defaults off and survives dashboard save', async ({
   ).toBe(true);
   try {
     const editor = await gotoPanelEditPage({ dashboard: { uid }, id: String(panel.id) });
-    await editor.getCustomOptions('Data layers').expand();
-    const animate = page.getByLabel('Animate', { exact: true });
-    await expect(animate).not.toBeChecked();
-    await animate.check({ force: true });
-    await expect(animate).toBeChecked();
+    await editor.getCustomOptions('Other').expand();
+    const setting = page.getByLabel('Edge labels and animation always on', { exact: true });
+    await expect(setting).not.toBeChecked();
+    await setting.check({ force: true });
+    await expect(setting).toBeChecked();
     const dashboard = await editor.backToDashboard();
     await dashboard.ctx.page.getByRole('button', { name: 'Save dashboard', exact: true }).click();
     await page.getByRole('button', { name: 'Save', exact: true }).last().click();
     await expect
       .poll(async () => {
         const saved = await request.get(`/api/dashboards/uid/${uid}`);
-        return (await saved.json()).dashboard.panels[0].options.dataLayers[0].config.edgeStyle.animate;
+        return (await saved.json()).dashboard.panels[0].options.common.isShowEdgeLabels;
       })
       .toBe(true);
     await page.reload();
     const reopened = await gotoPanelEditPage({ dashboard: { uid }, id: String(panel.id) });
-    await reopened.getCustomOptions('Data layers').expand();
-    await expect(page.getByLabel('Animate', { exact: true })).toBeChecked();
+    await reopened.getCustomOptions('Other').expand();
+    await expect(page.getByLabel('Edge labels and animation always on', { exact: true })).toBeChecked();
   } finally {
     await request.delete(`/api/dashboards/uid/${uid}`);
   }

@@ -81,6 +81,7 @@ export class PanelRenderSession {
     presentation: string;
     options: PanelRenderOptions['preparation'];
     prepared: PreparedGraphRender;
+    input: CapturedRenderInput;
   };
   private _frame?: DisplayedRenderFrame;
   private _error?: string;
@@ -91,15 +92,33 @@ export class PanelRenderSession {
   private highlighter?: GraphHighlighter;
   private seenRevision: number;
   private seenPresentation: number;
+  private seenTranslation: number;
 
   constructor(
     readonly controller: PanelController,
     options: PanelRenderOptions
   ) {
     this.options = options;
+    this.seenTranslation = controller.scene.translationRevision;
     this.seenRevision = controller.scene.renderRevision;
     this.seenPresentation = controller.scene.presentationRevision;
     this.unsubscribe = controller.scene.subscribe(() => {
+      const translationChanged = this.seenTranslation !== controller.scene.translationRevision;
+      this.seenTranslation = controller.scene.translationRevision;
+      if (
+        translationChanged &&
+        this.seenRevision === controller.scene.renderRevision &&
+        this.seenPresentation === controller.scene.presentationRevision &&
+        this.frame
+      ) {
+        this.invalidate();
+        try {
+          this.publishPositionUpdate();
+        } catch (error) {
+          this.fail(error);
+        }
+        return;
+      }
       if (
         this.seenRevision === controller.scene.renderRevision &&
         this.seenPresentation === controller.scene.presentationRevision
@@ -213,6 +232,7 @@ export class PanelRenderSession {
     return (
       input.generation === this.controller.scene.version &&
       input.revision === this.controller.scene.renderRevision &&
+      input.translationRevision === this.controller.scene.translationRevision &&
       input.sourceEdgeIndex === this.controller.scene.render.edgeIndex &&
       input.edgeIndexRevision === input.sourceEdgeIndex.revision
     );
@@ -249,17 +269,14 @@ export class PanelRenderSession {
     let accepted = false;
     try {
       const preparation = options.preparation;
-      const preparationPresentation = JSON.stringify([
-        input.presentation.isLogic,
-        input.presentation.showAnnotations,
-        input.presentation.bounds,
-      ]);
+      const preparationPresentation = JSON.stringify([input.presentation.isLogic, input.presentation.bounds]);
       let prepared: PreparedGraphRender;
       if (
         this.preparedCache?.revision === input.revision &&
         this.preparedCache.presentation === preparationPresentation &&
         this.preparedCache.options === options.preparation
       ) {
+        this.translateCachedBounds(input);
         prepared = this.preparedCache.prepared;
       } else {
         prepared = prepareGraphRender(input, preparation);
@@ -268,6 +285,7 @@ export class PanelRenderSession {
           presentation: preparationPresentation,
           options: options.preparation,
           prepared,
+          input,
         };
       }
       if (options.extend) {
@@ -307,6 +325,51 @@ export class PanelRenderSession {
     }
     this.publish(frame, highlighter, layers);
     return frame;
+  }
+  private publishPositionUpdate(): void {
+    const base = this.frame!;
+    const input = captureRenderInput(this.controller, this.options.presentation);
+    if (
+      base.input.generation !== input.generation ||
+      base.input.sourceEdgeIndex !== input.sourceEdgeIndex ||
+      base.input.edgeIndexRevision !== input.edgeIndexRevision
+    ) {
+      this.schedule();
+      return;
+    }
+    const prepared = input.presentation.isLogic
+      ? { ...base.prepared, bounds: updateContributedBounds(base.prepared, base.input, input) }
+      : base.prepared;
+    this.translateCachedBounds(input);
+    const bundle = this.assemble(
+      input,
+      prepared,
+      base.extension,
+      this.options.preparation,
+      this.presentationRevision,
+      base.bundle.secondary ?? []
+    );
+    const frame = {
+      ...base,
+      id: this.sequence,
+      input,
+      prepared,
+      bundle,
+      layers: composeRenderLayers(bundle, { nodesBeforeEdges: this.options.nodesBeforeEdges }),
+    };
+    const highlighter = this.createHighlighter(frame);
+    const layers = this.deriveLayers(frame, highlighter);
+    // The existing private lifetime is borrowed, not accepted/disposed again.
+    this.publish(frame, highlighter, layers);
+  }
+  private translateCachedBounds(input: CapturedRenderInput): void {
+    const cache = this.preparedCache;
+    if (!cache || cache.revision !== input.revision || !input.presentation.isLogic) return;
+    // Instant extensions may replace geometry while borrowing core boundaries.
+    // Rebase the cache from its own shift, independently of the displayed edit.
+    const bounds = updateContributedBounds(cache.prepared, cache.input, input);
+    cache.prepared = { ...cache.prepared, bounds };
+    cache.input = input;
   }
   private assemble(
     input: CapturedRenderInput,
@@ -546,4 +609,12 @@ export class PanelRenderSession {
       this.options.onError?.(error);
     }
   }
+}
+
+function updateContributedBounds(
+  prepared: PreparedGraphRender,
+  from: CapturedRenderInput,
+  to: CapturedRenderInput
+): PreparedGraphRender['bounds'] {
+  return prepared.positionState?.bounds(prepared.bounds, from, to) ?? prepared.bounds;
 }

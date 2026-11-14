@@ -106,6 +106,7 @@ function normalizePath(
 ):
   | {
       rawPath: readonly unknown[];
+      nodeCount: number;
       targetId: string;
       targetKey: string;
     }
@@ -129,10 +130,12 @@ function normalizePath(
   }
 
   let itemCount = 0;
+  let nodeCount = 0;
   rawPath.forEach((item) => {
     const id = normalizeId(item);
     if (id) {
       itemCount++;
+      nodeCount++;
       return;
     }
     if (!isLogic && Array.isArray(item) && isFiniteNumber(item[0]) && isFiniteNumber(item[1])) {
@@ -146,6 +149,7 @@ function normalizePath(
 
   return {
     rawPath: Object.freeze(rawPath),
+    nodeCount,
     targetId,
     targetKey: graphNodeKey(targetNamespaceId, targetId),
   };
@@ -180,6 +184,22 @@ export async function normalizeGraphSources(
     return Object.freeze({ ok: false, diagnostics: diagnostics.result() });
   }
   const resolvedLayers = input.layers;
+  // Validate route ownership against all node-contributing namespaces, including
+  // later frames/layers, rather than accepting namespaces declared only by a path.
+  const knownNamespaces = new Set<string>();
+  for (const { options, sources } of resolvedLayers) {
+    const fallback = options.isLogic ? (options.defaultNamespace ?? CMN_NAMESPACE) : CMN_NAMESPACE;
+    for (const source of sources)
+      for (let row = 0; row < source.rowCount; row++) {
+        if (!normalizeId(source.nodeId.get(row))) continue;
+        const namespace = normalizeNamespace(
+          options.isLogic ? fieldValue(source.sourceNamespace, row) : undefined,
+          fallback,
+          options.namespaceSeparator
+        );
+        for (const [id] of namespace.labels) knownNamespaces.add(id);
+      }
+  }
 
   const nodeBuilders = new Map<string, MutableNode>();
   const namespaces = new Set<string>();
@@ -286,13 +306,7 @@ export async function normalizeGraphSources(
           continue;
         }
 
-        const normalizedPath = normalizePath(
-          targetValue,
-          nodeId,
-          sourceNamespaceId,
-          targetNamespaceId,
-          options.isLogic
-        );
+        let normalizedPath = normalizePath(targetValue, nodeId, sourceNamespaceId, targetNamespaceId, options.isLogic);
         if (!normalizedPath) {
           diagnostics.add(
             'invalid-path',
@@ -308,14 +322,14 @@ export async function normalizeGraphSources(
         }
 
         const namespaceValues = options.isLogic ? fieldValue(resolved.routeNamespaces, rowIndex) : undefined;
-        const pathNamespaces = Array.isArray(namespaceValues)
+        let pathNamespaces = Array.isArray(namespaceValues)
           ? namespaceValues.map((value) => normalizeNamespace(value, defaultNamespace, options.namespaceSeparator))
           : undefined;
         if (
           namespaceValues !== undefined &&
           (!Array.isArray(namespaceValues) ||
             !pathNamespaces ||
-            pathNamespaces.length !== normalizedPath.rawPath.length ||
+            pathNamespaces.length !== normalizedPath.nodeCount ||
             !namespaceValues.every((value: unknown) => normalizeId(value) !== undefined) ||
             pathNamespaces[0]?.id !== sourceNamespaceId ||
             pathNamespaces.at(-1)?.id !== targetNamespaceId)
@@ -328,6 +342,20 @@ export async function normalizeGraphSources(
             namespaceValues
           );
           continue;
+        }
+        if (pathNamespaces?.some((namespace) => !knownNamespaces.has(namespace.id))) {
+          diagnostics.add(
+            'invalid-path',
+            'warning',
+            'Route contains an unknown namespace; all path nodes use the first namespace',
+            { ...context, fieldName: resolved.routeNamespaces?.key },
+            namespaceValues
+          );
+          pathNamespaces = pathNamespaces.map(() => pathNamespaces![0]);
+          normalizedPath = {
+            ...normalizedPath,
+            targetKey: graphNodeKey(pathNamespaces[0].id, normalizedPath.targetId),
+          };
         }
         for (const namespace of pathNamespaces ?? []) {
           for (const [id, label] of namespace.labels) namespaceLabels.set(id, label);
@@ -350,13 +378,15 @@ export async function normalizeGraphSources(
                 fieldName: resolved.target?.key,
               },
             });
+            let pathNodeIndex = 0;
             normalizedPath.rawPath.forEach((item, index) => {
               const id = normalizeId(item);
               if (id) {
                 const namespaceId =
-                  pathNamespaces?.[index].id ??
+                  pathNamespaces?.[pathNodeIndex].id ??
                   (index === normalizedPath.rawPath.length - 1 ? targetNamespaceId : sourceNamespaceId);
                 relationBuilder.pushNodeKey(graphNodeKey(namespaceId, id), id);
+                pathNodeIndex++;
                 return;
               }
               if (!options.isLogic && Array.isArray(item) && isFiniteNumber(item[0]) && isFiniteNumber(item[1])) {

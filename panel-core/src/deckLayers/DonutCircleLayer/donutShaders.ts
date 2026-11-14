@@ -72,9 +72,7 @@ export const donutShaders = {
 
 export const donutShaderInjection = {
   'vs:#decl': /* glsl */ `\
-in float instanceDonutRecords;
-in float instanceDonutOpacity;
-in float instanceDonutGaugeValues;
+in vec3 instanceDonutState;
 in vec4 instanceDonutGaugeOptions;
 out float vDonutRecord;
 out float vDonutOpacity;
@@ -82,9 +80,9 @@ out float vDonutGaugeValue;
 out vec4 vDonutGaugeOptions;
 `,
   'vs:#main-end': /* glsl */ `\
-vDonutRecord = instanceDonutRecords;
-vDonutOpacity = instanceDonutOpacity;
-vDonutGaugeValue = instanceDonutGaugeValues;
+vDonutRecord = instanceDonutState.x;
+vDonutOpacity = instanceDonutState.y;
+vDonutGaugeValue = instanceDonutState.z;
 vDonutGaugeOptions = instanceDonutGaugeOptions;
 `,
   'fs:#decl': /* glsl */ `\

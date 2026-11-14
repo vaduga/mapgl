@@ -19,6 +19,8 @@ export type RouteLabel = {
 // Weathermap style: what each end sends, near that end, and the edge text in the middle.
 // Sizes are layout units: labels scale with the graph (text-layer sizeUnits 'common').
 type Spot = [number, number];
+const spotWeights = new WeakMap<Spot, number>();
+export const getRouteLabelSpotWeight = (spot: Spot): number => spotWeights.get(spot) ?? 0.5;
 const END_GAP = 6; // between a line's end and its label
 const LABEL_GAP = 6; // between labels on one line
 const LABEL_PADDING = 4; // text-layer background padding, both sides
@@ -184,7 +186,9 @@ function placeLabels(
 
   const spotAt = (d: number, dy = 0): Spot => {
     const { point } = curveAnchorAt(metric, d);
-    return [point[0], point[1] + dy];
+    const spot: Spot = [point[0], point[1] + dy];
+    spotWeights.set(spot, metric.length ? Math.max(0, Math.min(1, d / metric.length)) : 0);
+    return spot;
   };
   const length = metric.length;
   const [wa, wb, wm] = [a?.width ?? 0, b?.width ?? 0, m?.width ?? 0];
@@ -270,6 +274,7 @@ export function pointAlong(path: number[][], at: number): [number, number] {
 export type ScopedRouteLabelCandidate = RouteLabelCandidate & {
   srcGraphId: string;
   shift?: readonly [number, number];
+  transformSpot?: (spot: Spot) => Spot;
   eligible?: boolean;
 };
 export type FocusedRouteEdges = Readonly<Record<string, ReadonlyMap<number, number>>>;
@@ -314,7 +319,7 @@ export function createRouteLabelDataByGraph(
     }
     data.push(label);
     const [dx, dy] = candidate.shift ?? [0, 0];
-    const item = { ...candidate, label, spots: spots.map(([x, y]) => [x + dx, y + dy] as [number, number]) };
+    const item = { ...candidate, label, spots: spots.map(spot => candidate.transformSpot ? candidate.transformSpot(spot) : [spot[0] + dx, spot[1] + dy] as [number, number]) };
     if (candidate.eligible !== false) {
       let edges = byEdge.get(candidate.srcGraphId);
       if (!edges) {

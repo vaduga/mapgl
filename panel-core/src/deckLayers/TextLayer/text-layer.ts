@@ -1,12 +1,11 @@
+import { edgeFilterProps } from '../edgeFilterCategories';
 import { TextLayer } from '@deck.gl/layers';
 import { EdgeLabelLayer } from './edge-label-layer';
 import { DataFilterExtension } from '@deck.gl/extensions';
 import { toRGB4Array } from '../utils/color';
 import { isVisible } from '../utils/visibility';
 import { BBOX_OUTLINE_COLOR } from '../../types/defaults';
-import { getNsPrefixes } from '../../graph/utils/utils.graph';
 import { colTypes } from '../../types/index';
-import { Matrix4 } from '@math.gl/core';
 
 const LineTextLayer = ({
   id = '',
@@ -17,8 +16,9 @@ const LineTextLayer = ({
   visible = true,
   type = 'nums',
   isLogic = false,
-  layerShift = {},
+  positionTransform = undefined as import('../positionTransform').PositionTransform | undefined,
   edgeLabels = false,
+  effectiveVisibility = undefined as import('../../render/effectiveVisibility').EffectiveVisibility | undefined,
 }) => {
   let units: any = 'pixels';
   switch (type) {
@@ -36,8 +36,9 @@ const LineTextLayer = ({
   // 'arcLabels'
   const cats = getVisLayers.getCategories();
   const add = cats[1];
-  const categories = cats.concat([add]);
-  const categorySize = 3;
+  const categories = [1];
+  const categorySize = 1;
+  const visibleNamespaces = new Set(getVisLayers.getVisibleNamespaces());
 
   const Labels =
     visible &&
@@ -49,22 +50,14 @@ const LineTextLayer = ({
 
   const isEdgeText = type === 'arcLabels' || type === 'routeLabels';
   const isRoute = type === 'routeLabels';
-  const extensions = ['nums', 'bbox'].includes(type) ? [] : [new DataFilterExtension({ categorySize })];
-
-  const modelMatrix = new Matrix4();
-  for (const path of getNsPrefixes(id)) {
-    const shift = layerShift[path];
-    if (shift) {
-      modelMatrix.translate([shift[0], shift[1], 0]);
-    }
-  }
+  const extensions = ['nums', 'bbox'].includes(type) ? [] : [new DataFilterExtension({ categorySize, filterSize: 0 })];
 
   const LabelLayer = isEdgeText ? EdgeLabelLayer : TextLayer;
   return new LabelLayer({
     data,
     characterSet: 'auto',
     visible: Labels,
-    ...(isEdgeText ? { modelMatrix } : {}),
+    ...(isEdgeText ? { positionTransform } : {}),
     ...(isEdgeText ? { parameters: { depthTest: false } } : {}),
     ...(isEdgeText ? { edgeLabelsAlwaysOn: edgeLabels, arcLabels: !isRoute } : {}),
     pickable: false,
@@ -99,12 +92,7 @@ const LineTextLayer = ({
           break;
       }
     },
-    getFilterCategory: (d) => {
-      const { style, layerName, graph, featSource } = (d.feature ?? d).properties || {};
-      const groupIdx = style?.group?.groupIdx;
-      return [groupIdx, layerName, graph?.id ?? featSource?.layerName];
-    },
-    filterCategories: categories,
+    ...edgeFilterProps(effectiveVisibility),
     ...(extensions.length && { extensions }),
     getAngle: (d: any) => {
       return d.angle ?? 0;

@@ -67,12 +67,11 @@ async function visuals(
 
 describe('graph visual stage', () => {
   it.each([
-    { mode: TextDimensionMode.Field, animate: false, arrow: -1, expected: '1.2 kb/s' },
-    { mode: TextDimensionMode.Field, animate: true, arrow: -1, expected: '1.2 kb/s' },
-    { mode: TextDimensionMode.Template, animate: true, arrow: 2, expected: 'sent 1.2 kb/s' },
+    { mode: TextDimensionMode.Field, arrow: -1, expected: '1.2 kb/s' },
+    { mode: TextDimensionMode.Template, arrow: 2, expected: 'sent 1.2 kb/s' },
   ] as const)(
-    'retains independent $mode side text and color after JSON round-trip (Animate=$animate)',
-    async ({ mode, animate, arrow, expected }) => {
+    'retains independent $mode side text and color after JSON round-trip',
+    async ({ mode, arrow, expected }) => {
       const frame = testFrame('FlowLabels', {
         source: ['A', 'B'],
         target: ['B', null],
@@ -84,7 +83,7 @@ describe('graph visual stage', () => {
         JSON.stringify(
           visualConfig({
             showStat2: true,
-            edgeStyle: { ...visualConfig().edgeStyle, animate, arrow },
+            edgeStyle: { ...visualConfig().edgeStyle, arrow },
             arcStyle: {
               sideA: {
                 color: { field: 'load', fixed: 'green' },
@@ -100,15 +99,12 @@ describe('graph visual stage', () => {
         )
       );
       const { state } = await visuals(frame, config);
-      expect(state.edgeUnits[0]!.style).toMatchObject({ animate, arrow });
+      expect(state.edgeUnits[0]!.style).toMatchObject({ arrow });
       expect(state.edgeUnits[0]!.arcStyle).toMatchObject({
         showStat2: true,
         sideA: { text: expected, colorField: 'load', textConfig: { fontSize: 18 } },
         sideB: { text: 'received' },
       });
-      if (!animate) {
-        expect((await visuals(frame, visualConfig())).state.edgeUnits[0]!.style.animate).toBe(false);
-      }
     }
   );
   it('resolves fixed node and edge channels into stage-owned records and buffers', async () => {
@@ -570,10 +566,10 @@ describe('graph visual stage', () => {
     expect(edge.metrics).toMatchObject({ sideA: 50, sideB: 25, capacity: 100 });
     for (const isBase of [true, false]) {
       const layer = MyArcLayer({
-        srcGraphId: 'external',
+        batchId: 'external',
         isBase,
         lineFeatures: [{ properties: edge.feature }],
-        getVisLayers: { getCategories: () => [[], ['external']] },
+        getVisLayers: { getVisibleNamespaces: () => ['external', 'ns'], getCategories: () => [[], ['external']] },
       });
       expect((layer.props.getWidths as Function)({ properties: edge.feature })).toEqual([6, 4]);
     }

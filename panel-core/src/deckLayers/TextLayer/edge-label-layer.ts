@@ -52,6 +52,7 @@ class LabelHighlightExtension extends LayerExtension {
 }
 const highlightExtension = new LabelHighlightExtension();
 type HighlightProps = {
+  positionTransform?: import('../positionTransform').PositionTransform;
   arcLabels?: boolean;
   getIdleVisible?: (d: any) => boolean;
   getHighlightDepth?: number | ((d: any, info: any) => number);
@@ -66,6 +67,7 @@ export class EdgeLabelLayer extends TextLayer<any, HighlightProps> {
     ...TextLayer.defaultProps,
     getHighlightDepth: { type: 'accessor', value: Number.MAX_SAFE_INTEGER },
     arcLabels: false,
+    positionTransform: { type: 'object', value: null, compare: 1 },
     getIdleVisible: { type: 'accessor', value: (d: any) => d.idleVisible ?? !d.skip },
     highlightMaxDepth: -1,
     highlightDimOpacity: 1,
@@ -87,7 +89,7 @@ export class EdgeLabelLayer extends TextLayer<any, HighlightProps> {
       ...(viewport ? { coordinateSystem: 'cartesian', modelMatrix: null } : {}),
       extensions: [...(base.extensions ?? []), highlightExtension],
       getPosition: viewport
-        ? (d: any) => getArcLabelPosition(d, viewport, this.props.modelMatrix)
+        ? (d: any) => getArcLabelPosition(d, viewport, this.props.modelMatrix, this.props.positionTransform)
         : this.props.getPosition,
       getLabelHighlight: (d: any, info: any) => [
         typeof getHighlightDepth === 'function' ? getHighlightDepth(d, info) : getHighlightDepth,
@@ -97,7 +99,7 @@ export class EdgeLabelLayer extends TextLayer<any, HighlightProps> {
         ...base.updateTriggers,
         getLabelHighlight: [this.props.updateTriggers.getHighlightDepth, this.props.updateTriggers.getIdleVisible],
         getPosition: viewport
-          ? [base.updateTriggers?.getPosition, viewport, this.props.modelMatrix]
+          ? [base.updateTriggers?.getPosition, viewport, this.props.modelMatrix, this.props.positionTransform]
           : base.updateTriggers?.getPosition,
       },
     };

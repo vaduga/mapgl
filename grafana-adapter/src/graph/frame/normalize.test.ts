@@ -59,6 +59,96 @@ function recordRows(result: GraphFrameSnapshot, recordRef: number) {
 }
 
 describe('graph frame normalization', () => {
+  it.each([false, true])('counts only node IDs when assigning namespace arrays around coordinates (JSON=%s)', async encoded => {
+    const namespaces = ['shop', 'data', 'outside.EU'];
+    const frame = testFrame('CoordinatesInGraph', {
+      source: ['A', 'B', 'C'],
+      target: ['["A",[104,52],"B",[105,53],"C"]', null, null],
+      sourceNs: [encoded ? JSON.stringify(namespaces) : namespaces, 'data', 'outside.EU'],
+    });
+    const result = await normalizeGraphFrames({ data: { series: [frame] }, options: {
+      ...logicOptions, edgeIdField: undefined, sourceNamespaceField: 'sourceNs',
+    } });
+    const value = snapshot(result);
+    expect(result.diagnostics).toEqual([]);
+    expect(value.relations.recordCount).toBe(1);
+    expect(value.relations.getRecordRouteLength(0)).toBe(3);
+    const start = value.relations.getRecordRouteStart(0);
+    expect(Array.from({ length: 3 }, (_, i) => value.nodes[value.relations.getRouteToken(start + i)])
+      .map(node => [node.id, node.namespaceId])).toEqual([['A', 'shop'], ['B', 'data'], ['C', 'outside.EU']]);
+  });
+
+  it('rejects namespace entries added for coordinate waypoints', async () => {
+    const frame = testFrame('ExtraNamespaces', {
+      source: ['A', 'B'], target: ['["A",[104,52],"B"]', null],
+      sourceNs: ['["shop","shop","data"]', 'data'],
+    });
+    const result = await normalizeGraphFrames({ data: { series: [frame] }, options: {
+      ...logicOptions, edgeIdField: undefined, sourceNamespaceField: 'sourceNs',
+    } });
+    expect(snapshot(result).relations.recordCount).toBe(0);
+    expect(result.diagnostics).toContainEqual(expect.objectContaining({ code: 'invalid-path' }));
+  });
+
+  it.each([false, true])('resolves every namespace in a routed path (JSON string=%s)', async (encoded) => {
+    const namespaces = ['shop', 'data', 'outside.EU'];
+    const frame = testFrame('Supervision', {
+      source: ['shop/order-supervisor', 'data/audit-relay', 'partner-api'],
+      target: ['["shop/order-supervisor","data/audit-relay","partner-api"]', null, null],
+      sourceNs: [encoded ? JSON.stringify(namespaces) : namespaces, 'data', 'outside.EU'],
+      targetNs: ['ignored-for-array', null, null],
+      edgeId: ['order-compliance-supervision', null, null],
+    });
+    const result = await normalizeGraphFrames({
+      data: { series: [frame] },
+      options: {
+        ...logicOptions,
+        sourceNamespaceField: 'sourceNs',
+        targetNamespaceField: 'targetNs',
+      },
+    });
+    const value = snapshot(result);
+    expect(result.diagnostics).toEqual([]);
+    expect(value.relations.recordCount).toBe(1);
+    const start = value.relations.getRecordRouteStart(0);
+    const count = value.relations.getRecordRouteLength(0);
+    expect(
+      Array.from({ length: count }, (_, index) => value.nodes[value.relations.getRouteToken(start + index)]).map(
+        (node) => [node.id, node.namespaceId]
+      )
+    ).toEqual([
+      ['shop/order-supervisor', 'shop'],
+      ['data/audit-relay', 'data'],
+      ['partner-api', 'outside.EU'],
+    ]);
+  });
+
+  it('falls back every path node to the first namespace when any listed namespace is unknown', async () => {
+    const frame = testFrame('Fallback', {
+      source: ['A', 'B', 'C'],
+      target: ['["A","B","C"]', null, null],
+      sourceNs: ['["shop","typo","data"]', 'shop', 'shop'],
+    });
+    const result = await normalizeGraphFrames({
+      data: { series: [frame] },
+      options: {
+        ...logicOptions,
+        edgeIdField: undefined,
+        sourceNamespaceField: 'sourceNs',
+      },
+    });
+    const value = snapshot(result);
+    expect(pathNodeIds(value)).toEqual(['A', 'B', 'C']);
+    expect(value.nodes.map((node) => node.namespaceId)).toEqual(['shop', 'shop', 'shop']);
+    expect(value.namespaces).toEqual(['shop']);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: 'invalid-path',
+        message: 'Route contains an unknown namespace; all path nodes use the first namespace',
+      })
+    );
+  });
+
   it('normalizes node-only rows with logic placeholders', async () => {
     const fixtures = createGraphCompatibilityFixtures();
     const result = snapshot(

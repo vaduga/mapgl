@@ -4,6 +4,8 @@ import { type LayerInfo, type LayerTreeInfo, type VisLayerEntry, VisLayer } from
 export class VisLayers {
   visLayers: VisLayer[] = [];
   activeGroups: Uint8Array = new Uint8Array();
+  selectedGroups: ReadonlySet<number> = new Set();
+  annotationsVisible = true;
 
   snapshot(): VisLayers {
     const copy = new VisLayers();
@@ -22,6 +24,8 @@ export class VisLayers {
       );
     copy.visLayers = this.visLayers.map(clone);
     copy.activeGroups = this.activeGroups.slice();
+    copy.selectedGroups = new Set(this.selectedGroups);
+    copy.annotationsVisible = this.annotationsVisible;
     return copy;
   }
 
@@ -80,6 +84,11 @@ export class VisLayers {
         layer.fold = oldLayer.fold;
       }
     }
+    this.selectedGroups = new Set(
+      [...previous.selectedGroups].filter((id) => id < this.activeGroups.length)
+    );
+    this.annotationsVisible = previous.annotationsVisible;
+    this.refreshGroups();
     // Masks depend on the new ancestry, including newly added children of hidden groups.
     this.setChildVisibility();
   }
@@ -119,6 +128,32 @@ export class VisLayers {
 
   setActiveGroups(groups: Uint8Array): void {
     this.activeGroups = new Uint8Array(groups);
+    if (this.selectedGroups.size) this.refreshGroups();
+  }
+
+  toggleGroup(id: number): void {
+    const next = new Set(this.selectedGroups);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    this.selectedGroups = next;
+    this.refreshGroups();
+  }
+
+  setAnnotationsVisible(visible: boolean): void {
+    this.annotationsVisible = visible;
+  }
+
+  private refreshGroups(): void {
+    if (!this.selectedGroups.size) {
+      this.activeGroups = new Uint8Array(this.activeGroups.length).fill(1);
+      return;
+    }
+    this.activeGroups = this.activeGroups.map((_value, index) => (this.selectedGroups.has(index) ? 1 : 0));
+  }
+
+  passesGroup(group: number | undefined): boolean {
+    if (!this.selectedGroups.size) return group === undefined || this.activeGroups[group] !== 0;
+    return group !== undefined && this.selectedGroups.has(group);
   }
 
   getActiveGroups(): Uint8Array {
@@ -138,6 +173,12 @@ export class VisLayers {
       }
     }
     return new Uint8Array(result);
+  }
+
+  getVisibleGraphNamespaces(): string[] {
+    const out = new Set<string>();
+    for (const layer of this.visLayers) if (layer.group === 'graph') collectVisibleNames(layer, out);
+    return [...out];
   }
 
   getVisibleNamespaces(): string[] {

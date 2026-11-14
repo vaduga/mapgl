@@ -9,7 +9,16 @@ jest.mock('@deck.gl/layers', () => {
     }
   }
 
-  return { GeoJsonLayer: MockLayer, TextLayer: MockLayer };
+  return {
+    GeoJsonLayer: MockLayer,
+    TextLayer: MockLayer,
+    PolygonLayer: MockLayer,
+    IconLayer: MockLayer,
+    PathLayer: MockLayer,
+    SolidPolygonLayer: MockLayer,
+    _MultiIconLayer: MockLayer,
+    _TextBackgroundLayer: MockLayer,
+  };
 });
 
 jest.mock('@deck.gl/extensions', () => {
@@ -55,7 +64,7 @@ const feature = {
   },
 };
 
-function createLayer(overrides: Record<string, any> = {}) {
+function createLayer(overrides: Record<string, any> = {}): any {
   const state = new Map([
     ['circle', [true, false]],
     ['svg', [true, false]],
@@ -72,6 +81,7 @@ function createLayer(overrides: Record<string, any> = {}) {
     },
     getVisLayers: {
       getCategories: () => [[], []],
+      getVisibleNamespaces: () => ['graph'],
       getVisState: (_index: number | null, name: string) => state.get(name),
     },
     options: { common: { isMeters: false } },
@@ -123,6 +133,7 @@ function createPlaceholderLayer(
     },
     getVisLayers: {
       getCategories: () => [[], []],
+      getVisibleNamespaces: () => ['graph'],
       getVisState: (_index: number | null, name: string) => state.get(name),
     },
     getSelectedNode: { id: 'gauge-no-icon' },
@@ -143,7 +154,7 @@ describe('node shader and SVG interaction contract', () => {
 
     expect(layer.props.pickable).toBe(true);
     expect(layer.props.onHover).toBe(onHover);
-    expect(layer.props.getFilterCategory(feature)).toEqual([3, 'nodes']);
+    expect(layer.props.getFilterCategory(feature)).toBe(0);
     expect(circle.pickable).toBe(true);
     expect(circle.extensions).toEqual(
       expect.arrayContaining([expect.any(CollisionFilterExtension), expect.any(DataFilterExtension)])
@@ -165,14 +176,14 @@ describe('node shader and SVG interaction contract', () => {
     expect(iconValue).not.toContain('#ff0000');
     expect(layer.props.iconAtlas).toMatch(/^data:image\/svg\+xml/);
     expect(layer.props.iconMapping[iconValue]).toMatchObject({ width: 30, height: 60, mask: false });
-    expect(circle.getDonutRecord(feature, { index: 0 })).toBe(0);
+    expect(circle.getDonutState(feature, { index: 0 })[0]).toBe(0);
   });
 
   it('resolves the shader donut record for geo-mode nodes', () => {
     const layer = createLayer({ isLogic: false });
     const circle = layer.props._subLayerProps['points-circle'];
 
-    expect(circle.getDonutRecord(feature, { index: 0 })).toBe(0);
+    expect(circle.getDonutState(feature, { index: 0 })[0]).toBe(0);
     expect(circle.gaugeCoordinateYSign).toBe(1);
   });
 
@@ -224,13 +235,13 @@ describe('node shader and SVG interaction contract', () => {
     });
     const circle = layer.props._subLayerProps['points-circle'];
 
-    expect(circle.getDonutRecord(undefined, { index: 0 })).toBe(0);
-    expect(circle.getDonutRecord(undefined, { index: 1 })).toBe(0);
-    expect(circle.getDonutGaugeValue(undefined, { index: 0 })).toBe(0.25);
-    expect(circle.getDonutGaugeValue(undefined, { index: 1 })).toBe(0.75);
+    expect(circle.getDonutState(undefined, { index: 0 })[0]).toBe(0);
+    expect(circle.getDonutState(undefined, { index: 1 })[0]).toBe(0);
+    expect(circle.getDonutState(undefined, { index: 0 })[2]).toBe(0.25);
+    expect(circle.getDonutState(undefined, { index: 1 })[2]).toBe(0.75);
     expect(circle.getDonutGaugeOptions(undefined, { index: 0 })).toEqual([0.7, 24, 0.2, 0]);
     expect(circle.getDonutGaugeOptions(undefined, { index: 1 })).toEqual([0.35, 12, 0.6, 3]);
-    expect(circle.updateTriggers.getDonutGaugeValue).toEqual([undefined]);
+    expect(circle.updateTriggers.getDonutState.at(-1)).toBeUndefined();
     expect(circle.updateTriggers.getDonutGaugeOptions).toEqual([undefined]);
   });
 

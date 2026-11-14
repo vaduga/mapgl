@@ -10,6 +10,7 @@ uniform arcUniforms {
   bool useShortestPath;
   float numSegments;
   float coef;
+  float flowMode;
   //float opacity;
   float widthScale;
   float widthMinPixels;
@@ -23,6 +24,7 @@ export type ArcProps = {
   useShortestPath: boolean;
   numSegments: number;
   coef: number;
+  flowMode: number;
   //opacity: number;
   widthScale: number;
   widthMinPixels: number;
@@ -39,6 +41,7 @@ export const arcUniforms = {
     useShortestPath: 'f32',
     numSegments: 'f32',
     coef: 'f32',
+    flowMode: 'f32',
     //opacity: 'f32',
     widthScale: 'f32',
     widthMinPixels: 'f32',

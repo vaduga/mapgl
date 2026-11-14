@@ -202,7 +202,9 @@ function pickedNodeFeature(state: GraphInteractionState, info: any, properties: 
     points && (info?.featureType === 'points' || info?.viewport?.id === '3d-scene') && info?.index !== -1;
   if (isBinaryPoint) {
     const featureIndex = integer(points.featureIds?.value?.[info.index]);
-    return featureIndex !== undefined ? state.features?.[featureIndex] : undefined;
+    const data = info?.sourceLayer?.props?.data?.points ? info.sourceLayer.props.data : info?.layer?.props?.data;
+    const nodeRef = featureIndex === undefined ? undefined : (data?.nodeRefs?.[featureIndex] ?? featureIndex);
+    return nodeRef !== undefined ? state.features?.[nodeRef] : undefined;
   }
   return properties;
 }

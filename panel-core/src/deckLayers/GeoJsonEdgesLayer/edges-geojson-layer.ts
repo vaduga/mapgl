@@ -1,14 +1,14 @@
+import { getCurveMetrics } from './curve-metrics';
+import { positionTransformProps } from '../positionTransform';
 import { getCurveFlowDirection, getCurveFlowRanges } from './curve-flow';
 import { toRGB4Array } from '../utils/color';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import type { Color } from '@deck.gl/core';
 import type { Feature, Geometry } from 'geojson';
-import { getNsPrefixes } from '../../graph/utils/utils.graph';
 import { type DeckLine, colTypes, type PointFeatureProperties, type RGBAColor } from '../../types/index';
 import { DataFilterExtension, PathStyleExtension } from '@deck.gl/extensions';
-import { Matrix4 } from '@math.gl/core';
 import { CurveEdgeBinaryData, CurveEdgeLayer, type CurveEdgeSegment } from './curve-edge-layer';
-import { getEdgeFilterCategories, getEdgeFilterCategory } from '../edgeFilterCategories';
+import { edgeFilterProps } from '../edgeFilterCategories';
 import { getCurveSegmentHidden } from '../../extension-points/featureContracts';
 import type { GraphEdgeIndex } from '../../graph/GraphEdgeIndex';
 
@@ -134,8 +134,7 @@ export function getLayoutCurveSegments(
 
 export const EdgesGeojsonLayer = (props) => {
   const {
-    srcGraphId,
-    layerShift = {},
+    batchId,
     linesCollection,
     getSelectedIdxs,
     onHover,
@@ -147,32 +146,18 @@ export const EdgesGeojsonLayer = (props) => {
     visible,
     getVisLayers,
     overlayEnabled,
+    animateAllEdges = false,
     layoutGeometry,
     isLogic,
     usesRendererNamespaceFiltering = false,
     edgeIndex,
   } = props;
 
-  const selectedFeatureIndexes = getSelectedIdxs?.get(colTypes.Edges)?.[srcGraphId] ?? [];
+  const selectedFeatureIndexes = getSelectedIdxs?.get(colTypes.Edges)?.[batchId] ?? [];
   const lineFeatures = linesCollection?.features ?? [];
   const curveSegments = isLogic
-    ? (props.curveSegments ?? getLayoutCurveSegments(srcGraphId, lineFeatures, edgeIndex, layoutGeometry))
+    ? (props.curveSegments ?? getLayoutCurveSegments(batchId, lineFeatures, edgeIndex, layoutGeometry))
     : undefined;
-  const baseCategories = getVisLayers.getCategories();
-  const filterIncludesSkip = !isLogic || !curveSegments?.length;
-  const { categories, categorySize } = getEdgeFilterCategories({
-    baseCategories,
-    filterIncludesSkip,
-    usesRendererNamespaceFiltering,
-  });
-
-  const modelMatrix = new Matrix4();
-  for (const path of getNsPrefixes(srcGraphId)) {
-    const shift = layerShift[path];
-    if (shift) {
-      modelMatrix.translate([shift[0], shift[1], 0]);
-    }
-  }
 
   const getLineWidth = (d, info?) => {
     const feature = d.feature ?? d;
@@ -221,13 +206,16 @@ export const EdgesGeojsonLayer = (props) => {
 
   const units = isMeters ? 'meters' : 'pixels';
   const sizeUnits = isLogic ? 'common' : units;
+  const filter = edgeFilterProps(props.effectiveVisibility, !isLogic);
   const commonLayerProps = {
+    ...filter,
     visible,
     highlightColor,
     onHover,
-    id: colTypes.Edges + '-view' + srcGraphId,
-    modelMatrix,
+    id: colTypes.Edges + '-view' + batchId,
+    ...positionTransformProps(props.positionTransform, 'curve', { ...props, curveSegments }),
     updateTriggers: {
+      ...filter.updateTriggers,
       getLineColor: presentationRevision,
       getColor: presentationRevision,
       getTextColor: presentationRevision,
@@ -235,12 +223,12 @@ export const EdgesGeojsonLayer = (props) => {
       getLineWidth: selectedFeatureIndexes,
       getWidth: selectedFeatureIndexes,
     },
-    getFilterCategory: (d) => {
-      const feature = d.feature ?? d;
-      return getEdgeFilterCategory({ feature, baseCategories, filterIncludesSkip, usesRendererNamespaceFiltering });
-    },
-    filterCategories: categories,
-    extensions: [new DataFilterExtension({ categorySize }), pathStyleExtension],
+    filterCategories: filter.filterCategories,
+    extensions: [
+      new DataFilterExtension({ categorySize: 1, filterSize: 0 }),
+      pathStyleExtension,
+      ...(props.positionTransform?.extensions ?? []),
+    ],
   };
 
   const createGeoJsonLineLayer = (data, idSuffix = '') =>
@@ -277,7 +265,9 @@ export const EdgesGeojsonLayer = (props) => {
       widthScale: 1,
       widthMinPixels: 0.1,
       skipVisibleMaxDepth: -1,
+      animateAllEdges,
       animate:
+        animateAllEdges &&
         visible &&
         curveSegments.segmentFeatureIndexes.some((featureIndex, segmentIndex) => {
           if (curveSegments.attributes.getSkip?.value[segmentIndex]) {
@@ -287,13 +277,7 @@ export const EdgesGeojsonLayer = (props) => {
           if (feature.skip || !getCurveFlowDirection(feature)) {
             return false;
           }
-          const category = getEdgeFilterCategory({
-            feature,
-            baseCategories,
-            filterIncludesSkip,
-            usesRendererNamespaceFiltering,
-          });
-          return category.every((value, index) => (categories[index] as unknown[]).includes(value));
+          return filter.getFilterCategory(feature) === 1;
         }),
       getDashArray: getEdgeDashArray,
       dashGapPickable: true,
@@ -307,7 +291,7 @@ export const EdgesGeojsonLayer = (props) => {
   if (isLogic) {
     const emptyCurveLayer = new CurveEdgeLayer({
       ...commonLayerProps,
-      data: createEmptyCurveData(lineFeatures),
+      data: curveSegments ?? createEmptyCurveData(lineFeatures),
       getWidth: getLineWidth,
       getColor: getLineColor,
       widthUnits: sizeUnits,
@@ -324,3 +308,44 @@ export const EdgesGeojsonLayer = (props) => {
 
   return createGeoJsonLineLayer(linesCollection);
 };
+
+/** One binary draw domain for all layout namespaces. Feature indexes remain global. */
+export function getSharedLayoutCurveSegments(
+  features: DeckLine[],
+  edgeIndex: GraphEdgeIndex | undefined,
+  geometry
+): CurveEdgeBinaryData<DeckLine> {
+  const parts = [...(geometry.curveGroups?.keys() ?? [])]
+    .map((id) => ({ id, data: getLayoutCurveSegments(id, features, edgeIndex, geometry)! }))
+    .filter((part) => part.data);
+  const length = parts.reduce((sum, part) => sum + part.data.length, 0);
+  const controlPoints = new Float32Array(length * 8),
+    segments = new Float32Array(length * 2);
+  const types = new Uint8Array(length),
+    skip = new Uint8Array(length),
+    indexes = new Int32Array(length);
+  let offset = 0;
+  for (const { id, data: part } of parts) {
+    controlPoints.set(part.attributes.getControlPoints.value, offset * 8);
+    geometry.transformControlPoints?.(id, controlPoints, offset * 8, part.attributes.getCurveType.value);
+    segments.set(part.attributes.getSegment.value, offset * 2);
+    types.set(part.attributes.getCurveType.value, offset);
+    if (part.attributes.getSkip) skip.set(part.attributes.getSkip.value, offset);
+    indexes.set(part.segmentFeatureIndexes, offset);
+    offset += part.length;
+  }
+  const result = createCurveBinaryData({
+    length,
+    attributes: {
+      getControlPoints: { value: controlPoints, size: 8 },
+      getSegment: { value: segments, size: 2 },
+      getCurveType: { value: types, size: 1 },
+      getSkip: { value: skip, size: 1 },
+    },
+    features: [...features, { skip: true, properties: {} } as DeckLine],
+    segmentFeatureIndexes: indexes,
+  });
+  if (features.some((feature) => getCurveFlowDirection(feature)))
+    result.attributes.getFlow = { value: getCurveFlowRanges(result), size: 4 };
+  return result;
+}

@@ -9,6 +9,8 @@ const GRAPH_E2E_QUERY_FLAG = 'mapglE2E';
 
 export interface GraphDomObservabilityProps {
   children: React.ReactNode;
+  /** Only installed on the DOM node when mapglE2E=1. */
+  readRenderDebug?: () => unknown;
   className: string;
   style?: React.CSSProperties;
   colors: Uint8Array;
@@ -59,6 +61,7 @@ const EnabledGraphDomObservability = React.forwardRef<HTMLDivElement, GraphDomOb
       summary,
       style,
       visibleNamespaces,
+      readRenderDebug,
     },
     ref
   ) {
@@ -92,7 +95,11 @@ const EnabledGraphDomObservability = React.forwardRef<HTMLDivElement, GraphDomOb
     return (
       <div
         className={className}
-        ref={ref}
+        ref={(element) => {
+          if (typeof ref === 'function') ref(element);
+          else if (ref) ref.current = element;
+          if (element && readRenderDebug) Object.defineProperty(element, '__mapglE2E', { value: readRenderDebug, configurable: true });
+        }}
         style={style}
         data-testid="mapgl-graph"
         data-graph-phase={phase}

@@ -169,9 +169,9 @@ export interface NamespaceProjectionResult {
   contractsHiddenNamespaces?: boolean;
   /**
    * Documents the filtering model when projection state is still applied by the renderer.
-   * OSS currently keeps hidden namespace edge filtering in deck.gl DataFilterExtension categories.
+   * OSS filters namespace membership with object masks inside shared batches.
    */
-  rendererFiltering?: 'deck-category-filter' | 'none';
+  rendererFiltering?: 'object-mask' | 'none';
 }
 
 export interface NamespaceProjectionStrategy {
@@ -225,7 +225,6 @@ export interface ProjectedTerminalGeometryContext {
 export interface ProjectedTerminalGeometryResult {
   subPath: CoordRef[];
   pathsCoords: Position[];
-  targetTerminalShift?: Position;
   layoutArrowTips?: TerminalArrowTips;
 }
 

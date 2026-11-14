@@ -124,7 +124,7 @@ export function applyPointJitterStrategies(
 export const defaultNamespaceProjectionStrategy: NamespaceProjectionStrategy = {
   id: 'core.default-namespace-filtering',
   project: () => ({
-    rendererFiltering: 'deck-category-filter',
+    rendererFiltering: 'object-mask',
   }),
 };
 

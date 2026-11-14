@@ -3,11 +3,11 @@ import { DataFilterExtension } from '@deck.gl/extensions';
 import { Geometry } from 'geojson';
 import { getIconAtlasImage, iconMapping } from './arrow-atlas';
 import { toRGB4Array } from '../utils/color';
-import { getNsPrefixes } from '../../graph/utils/utils.graph';
 import { colTypes, type DeckLine, type PointFeatureProperties, type RGBAColor } from '../../types/index';
 import { getEdgeArrowSize, getArrowAngle } from '../../graph/utils/index';
-import { Matrix4 } from '@math.gl/core';
-import { getEdgeFilterCategories, getEdgeFilterCategory } from '../edgeFilterCategories';
+import { positionTransformProps, withPositionTransform } from '../positionTransform';
+const PositionIconLayer = withPositionTransform(IconLayer);
+import { edgeFilterProps } from '../edgeFilterCategories';
 
 type ArrowFeature = DeckLine<Geometry, PointFeatureProperties>;
 type ArrowPlacement = 'start' | 'end';
@@ -139,8 +139,7 @@ export function expandArrowItems(data: ArrowFeature[] = []): ArrowItem[] {
 
 export const EdgeArrowLayer = (props) => {
   const {
-    srcGraphId,
-    layerShift = {},
+    batchId,
     getSelectedIdxs,
     linesCollection,
     isMeters = false,
@@ -155,17 +154,15 @@ export const EdgeArrowLayer = (props) => {
     presentationRevision,
   } = props;
 
-  const selectedFeatureIndexes = getSelectedIdxs?.get(colTypes.Edges)?.[srcGraphId] ?? [];
+  const selectedFeatureIndexes = getSelectedIdxs?.get(colTypes.Edges)?.[batchId] ?? [];
 
-  const baseCategories = getVisLayers.getCategories();
-  const { categories, categorySize } = getEdgeFilterCategories({
-    baseCategories,
-    filterIncludesSkip: false,
-    usesRendererNamespaceFiltering,
-  });
-
+  const filter = edgeFilterProps(props.effectiveVisibility);
   const baseData = Array.isArray(linesCollection) ? linesCollection : (linesCollection?.features ?? []);
-  const arrowData = expandArrowItems(baseData);
+  let arrowData = arrowDataCache.get(baseData);
+  if (!arrowData) {
+    arrowData = expandArrowItems(baseData);
+    arrowDataCache.set(baseData, arrowData);
+  }
   const units = isMeters ? 'meters' : 'pixels';
   const sizeUnits = isLogic ? 'common' : units;
   const sizeConstraintProps =
@@ -176,18 +173,10 @@ export const EdgeArrowLayer = (props) => {
         }
       : {};
 
-  const modelMatrix = new Matrix4();
-  for (const path of getNsPrefixes(srcGraphId)) {
-    const shift = layerShift[path];
-    if (shift) {
-      modelMatrix.translate([shift[0], shift[1], 0]);
-    }
-  }
-
-  return new IconLayer({
-    id: colTypes.Edges + '-arrow-' + srcGraphId,
+  return new PositionIconLayer({
+    id: colTypes.Edges + '-arrow-' + batchId,
     data: arrowData,
-    modelMatrix,
+    ...positionTransformProps(props.positionTransform, 'arrow', props),
     visible,
     pickable: true,
     autoHighlight,
@@ -221,20 +210,16 @@ export const EdgeArrowLayer = (props) => {
     sizeScale: 1,
     ...sizeConstraintProps,
     depthTest: false,
-    getFilterCategory: (d: ArrowItem) =>
-      getEdgeFilterCategory({
-        feature: d.feature,
-        baseCategories,
-        filterIncludesSkip: false,
-        usesRendererNamespaceFiltering,
-      }),
-    filterCategories: categories,
-    extensions: [new DataFilterExtension({ categorySize })],
+    ...filter,
+    extensions: [new DataFilterExtension({ categorySize: 1, filterSize: 0 }), ...(props.positionTransform?.extensions ?? [])],
 
     updateTriggers: {
+      ...filter.updateTriggers,
       getColor: presentationRevision,
       getSize: [presentationRevision, selectedFeatureIndexes],
       getAngle: presentationRevision,
     },
   });
 };
+
+const arrowDataCache = new WeakMap<object, ArrowItem[]>();

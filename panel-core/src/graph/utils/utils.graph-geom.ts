@@ -1,5 +1,6 @@
 import { Position } from 'geojson';
 import { Graph } from '../structs/graph';
+import { getNodeData } from '../structs/graphOps';
 import type { GraphEdgeIndex } from '../GraphEdgeIndex';
 import { BiColProps, CoordRef, DeckLine } from '../../types/index';
 import { CoordsConvert } from './utils.turf';
@@ -33,6 +34,9 @@ export interface EdgeGeometryInput {
   readonly projection?: NamespaceProjectionResult;
   readonly layout: Pick<GraphPanelLayoutState, 'curveGroups' | 'edgeIndexes' | 'arrowTips'>;
   readonly layoutReady: boolean;
+  readonly transformCoordinates?: (key: string, coordinates: Position[], arrowTips: Record<string, Position | undefined>) => {
+    coordinates: Position[]; arrowTips: Record<string, Position | undefined>;
+  };
   readonly layoutIncludesProjection: boolean;
   readonly snapshot?: GraphFrameSnapshot;
   readonly resolveRoute?: (edge: Edge) => { path: CoordRef[]; vertexRefs: ArrayLike<number> } | undefined;
@@ -68,6 +72,8 @@ function getIndexedRoute(input: EdgeGeometryInput, edge: Edge) {
 
 export interface EdgeRenderIndex {
   readonly graphId: string;
+  readonly lineBatchIndex?: number;
+  readonly arcBatchIndex?: number;
   readonly lineId?: number;
   readonly arcId?: number;
   readonly arcGraphId?: string;
@@ -89,7 +95,7 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
   const graphEdgeIndex = input.edgeIndex;
 
   const visibleNamespaces = input.visibleNamespaces;
-  const contractsHiddenNamespaces = input.projection?.contractsHiddenNamespaces ?? input.isLogic;
+  const contractsHiddenNamespaces = input.projection?.contractsHiddenNamespaces ?? false;
   const arcsFeatures: Record<string, any[]> = {};
   const features: Record<string, DeckLine[]> = {};
 
@@ -137,6 +143,8 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
     };
     let sourcePosition: Position | undefined;
     let targetPosition: Position | undefined;
+    let arcSourceNamespace = srcGraph.id,
+      arcTargetNamespace = tarGraph.id;
 
     for (let edgeRef = edgeStart; edgeRef < edgeEnd; edgeRef++) {
       const edge = graphEdgeIndex.getEdge(edgeRef);
@@ -152,13 +160,18 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
       const parPath = indexedRoute.path;
       const findRouteNode = (id: string, index: number) => {
         const record = input.snapshot?.nodes[indexedRoute.vertexRefs[index]];
-        const graph =
-          record?.id === id
-            ? namespaceGraphs.get(record.namespaceId)
-            : index === parPath.length - 1
-              ? tarGraph
-              : srcGraph;
-        return graph?.findNode(id);
+        if (record?.id === id) return namespaceGraphs.get(record.namespaceId)?.findNode(id);
+        // Edited/private routes retain their unit's actual hop identities even
+        // when a snapshot no longer has the route's vertex reference.
+        const [start, end] = graphEdgeIndex.getUnitRange(graphEdgeIndex.getEdgeUnitRef(edgeRef));
+        const ordinal = parPath.slice(0, index + 1).filter((item) => typeof item === 'string').length - 1;
+        const node =
+          ordinal === 0
+            ? graphEdgeIndex.getEdge(start).source
+            : start + ordinal - 1 < end
+              ? graphEdgeIndex.getEdge(start + ordinal - 1).target
+              : undefined;
+        return node?.id === id ? node : undefined;
       };
       const edgeSrcGraph = edge.source.parent as Graph;
       const edgeTarGraph = edge.target.parent as Graph;
@@ -200,16 +213,18 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
       let pathsCoords = CoordsConvert(subPath, indexedRoute.vertexRefs, positions, true);
 
       if (isContracted) {
-        subPath = [subPath[0], subPath.at(-1) as CoordRef];
-        pathsCoords = [pathsCoords[0], pathsCoords.at(-1) as CoordRef];
+        subPath = [edge.source.id, edge.target.id];
+        pathsCoords = [edge.source, edge.target].map((node) => {
+          const ref = getNodeData(node)?.wasmId;
+          if (ref === undefined) throw new Error(`Missing canonical node position: ${node.id}`);
+          return [positions[ref * 2], positions[ref * 2 + 1]];
+        });
       }
-
-      let targetTerminalShift: Position | undefined;
 
       const projectedTerminalsGeometry = getProjectedTerminalGeometry(input.terminalGeometryStrategies, {
         edge,
         positions: input.positions,
-        layerShift,
+        layerShift: input.isLogic ? {} : layerShift,
         srcGraph: edgeSrcGraph,
         tarGraph: edgeTarGraph,
         subPath,
@@ -229,20 +244,25 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
       }
 
       if (projectedTerminalsGeometry) {
-        ({ subPath, pathsCoords, targetTerminalShift, layoutArrowTips } = projectedTerminalsGeometry);
+        ({ subPath, pathsCoords, layoutArrowTips } = projectedTerminalsGeometry);
       }
 
       const [segrPath, segrCoords] = subPath.length
-        ? segregatePath(subPath, pathsCoords, findRouteNode, findRouteNode)
+        ? segregatePath(
+            subPath,
+            pathsCoords,
+            isContracted ? (_id, index) => (index === 0 ? edge.source : edge.target) : findRouteNode,
+            isContracted ? (_id, index) => (index === 0 ? edge.source : edge.target) : findRouteNode
+          )
         : [[], []];
 
       const override = geomOverride.get(edgeRef);
       const renderDecision = renderDecisions.get(edgeRef);
-      const frCoords = segrCoords[segmentOrdinal];
+      const frCoords = segrCoords[isContracted ? 0 : segmentOrdinal];
 
       let coordinates = input.isLogic
         ? (projectedLayoutGeometry ??
-          (targetTerminalShift || isContracted
+          (isContracted
             ? ([...(frCoords ?? pathsCoords)] as Position[])
             : (layoutGeometry ?? ([...pathsCoords] as Position[]))))
         : override && frCoords?.length === 2
@@ -271,7 +291,7 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
       if (hasStartArrow || hasEndArrow || isFirst || isLast) {
         const edgeTerminals = getEdgeTerminals(
           coordinates,
-          targetTerminalShift,
+          undefined,
           hasStartArrow,
           hasEndArrow,
           layoutArrowTips,
@@ -297,8 +317,13 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
       const graphFeatures = (features[edgeSrcGraph.id] ??= []);
       const lineId = graphFeatures.length;
 
+      if (input.transformCoordinates) {
+        ({ coordinates, arrowTips } = input.transformCoordinates(edgeSrcGraph.id, coordinates, arrowTips));
+      }
       const newFeature: DeckLine = {
         edgeRef,
+        namespaceSource: srcProjectionNamespace ?? edgeSrcGraph.id,
+        namespaceTarget: tarProjectionNamespace ?? edgeTarGraph.id,
         lineId,
         edgeId: edge.id,
         skip,
@@ -330,12 +355,14 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
       mappings[edgeRef] = { graphId: edgeSrcGraph.id, lineId };
 
       if (isFirst) {
+        arcSourceNamespace = newFeature.namespaceSource!;
         srcFeatureProps = newFeature.properties;
-        sourcePosition = sourceArrowTip && !isContracted ? sourceArrowTip : coordinates[0];
+        sourcePosition = arrowTips.start && !isContracted ? arrowTips.start : coordinates[0];
       }
 
       if (isLast) {
-        targetPosition = targetArrowTip && !isTarContracted ? targetArrowTip : coordinates.at(-1);
+        arcTargetNamespace = newFeature.namespaceTarget!;
+        targetPosition = arrowTips.end && !isTarContracted ? arrowTips.end : coordinates.at(-1);
       }
     }
 
@@ -350,6 +377,10 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
       tiltDecisions.get(edgeStart)
     );
     if (arcId !== undefined) {
+      Object.assign(arcsFeatures[srcGraph.id][arcId], {
+        namespaceSource: arcSourceNamespace,
+        namespaceTarget: arcTargetNamespace,
+      });
       for (let edgeRef = edgeStart; edgeRef < edgeEnd; edgeRef++) {
         const lineMapping = mappings[edgeRef];
         mappings[edgeRef] = {
@@ -362,6 +393,28 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
     }
   }
 
+  const lineOffsets = new Map<string, number>(),
+    arcOffsets = new Map<string, number>();
+  let offset = 0;
+  for (const [id, lines] of Object.entries(features)) {
+    lineOffsets.set(id, offset);
+    offset += lines.length;
+  }
+  offset = 0;
+  for (const [id, arcs] of Object.entries(arcsFeatures)) {
+    arcOffsets.set(id, offset);
+    offset += arcs.length;
+  }
+  mappings.forEach((mapping, index) => {
+    if (!mapping) return;
+    mappings[index] = {
+      ...mapping,
+      ...(mapping.lineId !== undefined && { lineBatchIndex: lineOffsets.get(mapping.graphId)! + mapping.lineId }),
+      ...(mapping.arcId !== undefined && {
+        arcBatchIndex: arcOffsets.get(mapping.arcGraphId ?? mapping.graphId)! + mapping.arcId,
+      }),
+    };
+  });
   return { routed: features, arcs: arcsFeatures, mappings };
 }
 
@@ -407,7 +460,7 @@ function applyEdgeRenderDecisions({
 }
 
 const pushArcFeature = (
-  input: Pick<EdgeGeometryInput, 'isLogic'>,
+  input: Pick<EdgeGeometryInput, 'isLogic' | 'edgeIndex'>,
   arcsFeatures,
   edge: any,
   srcGraph: Graph,
@@ -423,8 +476,11 @@ const pushArcFeature = (
   const tiltDist = tiltDecision?.tiltDistance;
   const isOutgoing = tiltDecision?.isOutgoingTilt ?? false;
   const arcData = {
+    edgeRef: input.edgeIndex.getEdgeRef(edge),
     sourcePosition,
     targetPosition,
+    namespaceSource: (edge.source.parent as Graph).id,
+    namespaceTarget: (edge.target.parent as Graph).id,
     properties: { ...properties },
     edgeId: edge.id,
     skip: false,

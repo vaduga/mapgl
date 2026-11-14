@@ -160,16 +160,19 @@ export const OptIdentityEditor = ({ context, item }: Props) => {
           )}
 
           {settings.isLogic && !!options.locField && (
-            <Field label="Vertex A namespace">
+            <Field
+              label="Vertex A namespace"
+              description="String, or an array with one namespace per path node (including A and B)."
+            >
               <FieldNamePicker
                 context={context}
                 value={getIdentityOption(options, 'vertexA_NS') ?? ''}
                 onChange={(value) => updateOption('vertexA_NS', value)}
                 item={{
                   settings: {
-                    filter: (field: DataField) => field.type === 'string',
+                    filter: (field: DataField) => field.type === 'string' || field.type === 'other',
                     isClearable: true,
-                    noFieldsMessage: 'No string fields found',
+                    noFieldsMessage: 'No string or namespace array fields found',
                   },
                   id: 'vertex-a-namespace',
                   name: 'Vertex A namespace',
@@ -177,8 +180,8 @@ export const OptIdentityEditor = ({ context, item }: Props) => {
               />
             </Field>
           )}
-          {settings.isLogic && !!options.locField && !!options.parField && (
-            <Field label="Vertex B namespace">
+          {settings.isLogic && !!options.parField && (
+            <Field label="Vertex B namespace" description="Used when the Vertex A namespace value is a string; ignored for namespace arrays.">
               <FieldNamePicker
                 context={context}
                 value={getIdentityOption(options, 'vertexB_NS') ?? ''}
