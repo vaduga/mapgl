@@ -124,7 +124,7 @@ Vertex A=A, Vertex B=["A", [15, 55], "B"], Edge ID=geo-route-1
 - **Vertex A namespace** selects or creates the source node namespace.
 - **Vertex B namespace** independently selects the target node namespace. When either namespace field is unset or does not resolve, that side uses the default `external` namespace.
 - **Vertex A namespace** keeps the saved `optional.vertexA_NS` field binding. It accepts scalar strings or arrays (including JSON string arrays). Arrays assign one namespace per path node, including both endpoints; their first and last entries supply A/B namespaces, and ignore **Vertex B namespace** for that row. The editor keeps **Vertex B namespace** visible whenever Vertex B is configured, without scanning field values. A node-only row can use a one-item array. Scalar values retain the existing A/B field behavior.
-- Namespace arrays must match the full path length and contain non-empty namespace names. Malformed arrays are reported as graph-data issues. If any listed namespace is absent from all node records, every path item uses the first entry's namespace; Mapgl reports the fallback and resolves node IDs there using the usual missing-node rules. Namespace validation includes later frames and configured layers.
+- Namespace arrays must match the number of node IDs in the full path (including both endpoints); coordinate-only waypoints do not consume namespace entries. Arrays must and contain non-empty namespace names. Malformed arrays are reported as graph-data issues. If any listed namespace is absent from all node records, every path item uses the first entry's namespace; Mapgl reports the fallback and resolves node IDs there using the usual missing-node rules. Namespace validation includes later frames and configured layers.
 - For example, path `["shop/order-supervisor", "data/audit-relay", "partner-api"]` uses `["shop", "data", "outside.EU"]` in the field selected by **Vertex A namespace**.
 - **Namespace layers separator** splits nested namespaces. The default `.` makes `site.core.router` a three-layer namespace; selecting `,` gives the same hierarchy from `site,core,router`.
 - A target node must exist in the resolved target namespace for a link to be created.
@@ -421,6 +421,7 @@ Result:
 ## Routed curve flow, labels and node cards
 
 - Node rendering uses one batch per originating data layer, with canonical node references retained for picking. Disabling a data layer hides its symbols, cards and labels through the layer's `visible` property.
+- Namespace count does not increase pickable rendering-layer count for a fixed set of data layers and enabled primitives, avoiding per-namespace deck.gl picking limit.
 - Edge batches stay shared across data layers and namespaces. A routed hop is eligible only when both of that hop's endpoints are effectively visible. A whole-connection arc checks the logical first/last endpoints; intermediate nodes are not additional conditions for that whole connection.
 - Effective endpoint visibility combines the endpoint's own data layer, namespace and group eligibility. Namespace controls hide objects while retaining data-layer and group gates.
 - Node group selections form a union. No group selections means no group restriction. The dedicated Annotations item independently shows or hides the annotation overlay and does not affect node or edge visibility.

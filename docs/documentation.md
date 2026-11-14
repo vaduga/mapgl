@@ -267,7 +267,7 @@ An Arc link tapers continuously from side A's line width at the source to side B
 
 Field-driven line width uses the same endpoint semantics as node size: Min is rendered at the normalized low end and Max at the normalized high end. A Min value greater than Max creates a descending scale.
 
-For paths crossing several namespaces, select a namespace array field in **Vertex A namespace**. Each array lists namespaces in path order, including both endpoints; JSON string arrays are supported. **Vertex B namespace** remains visible when Vertex B is configured; array rows ignore its value. Existing scalar namespace fields keep their A/B behavior and saved configuration paths.
+For paths crossing several namespaces, select a namespace array field in **Vertex A namespace**. Each array lists one namespace per path node in order, including both endpoints; coordinate waypoints do not consume entries. JSON string arrays are supported. **Vertex B namespace** remains visible when Vertex B is configured; array rows ignore its value. Existing scalar namespace fields keep their A/B behavior and saved configuration paths.
 
 If an array names an unknown namespace, all path nodes fall back to the first entry's namespace. Ensure those node IDs exist there; invalid array shapes and unresolved nodes appear in graph diagnostics.
 
