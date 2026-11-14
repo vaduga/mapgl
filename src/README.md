@@ -10,17 +10,18 @@ Start a new panel with a mock node graph to test styles and modes.
 
 ---
 
-### Node graph for metrics and traces
+### Data-driven node graph with dynamic styling
 
 - Layered auto-layout and Geomap view
-- Multistep and parallel edge routing
-- Arc segments on nodes for visualizing multiple metrics
-- TX/RX interface load visualization with dual-metric arcs
-- Ad hoc filtering by layer and node group through the legend
-- WebGL-accelerated rendering for large datasets
-- Dynamic drill-down links to external panels
-- Distributed tracing paths with per-span properties
+- Multi-hop edges and parallel edge routing
+- Multi-metric visualization on nodes and edges
+- Templated node cards and endpoint edge labels
+- Threshold-based styling with node group overrides
+- Interactive filtering by data layer,namespace,and node group
 - Namespace-based subgraphs
+- Dynamic drill-down links to external dashboards
+- Distributed tracing paths with per-span properties
+- WebGL-accelerated rendering for large datasets
 
 ---
 

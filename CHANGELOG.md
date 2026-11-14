@@ -1,7 +1,12 @@
 # Changelog Mapgl
 
+## 2.13.0
+- multi-select in node groups legend filter. Edges are hidden when either endpoint's group is hidden
+- support for inter-namespace multi-hop edges via a per-node namespace array field
+- fix: rendering of large numbers of namespaces without hitting deck.gl's pickable layer limit
+ 
 ## 2.12.0
-- node cards and edge labels on route ends
+- node cards and edge labels on routed edges with flow animation
 - ELK autolayout option for a cross namespace flow.  
 Shout-out to [Emin Aktaş](https://github.com/eminaktas) for contributing!
 

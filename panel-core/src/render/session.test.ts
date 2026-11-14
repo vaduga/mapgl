@@ -143,27 +143,7 @@ it('prepares matching routed/arc indexes without touching graph metadata or borr
   controller.dispose();
 });
 
-it('rejects same-generation visual changes before a host can schedule another build', async () => {
-  const controller = await fixture();
-  const pending = deferred<RenderExtension>();
-  const release = jest.fn(),
-    accept = jest.fn();
-  const startRevision = controller.scene.renderRevision;
-  const session = new PanelRenderSession(controller, {
-    presentation,
-    extend: (input) => (input.revision === startRevision ? pending.promise : new Promise(() => {})),
-  });
-  const build = session.build();
-  controller.scene.update({ colors: controller.scene.render.colors.slice() });
-  pending.resolve({ accept, dispose: release });
-  await build;
-  expect(accept).not.toHaveBeenCalled();
-  expect(release).toHaveBeenCalled();
-  session.dispose();
-  controller.dispose();
-});
-
-it.each(['visibility', 'projection', 'resource', 'edge-index'])(
+it.each(['visual', 'visibility', 'projection', 'resource', 'edge-index'])(
   'rejects a pending candidate after same-generation %s changes',
   async (change) => {
     const controller = await fixture();
@@ -183,7 +163,9 @@ it.each(['visibility', 'projection', 'resource', 'edge-index'])(
     });
     const generation = controller.scene.version;
     const request = session.build();
-    if (change === 'visibility') {
+    if (change === 'visual') {
+      controller.scene.update({ colors: controller.scene.render.colors.slice() });
+    } else if (change === 'visibility') {
       controller.scene.replaceVisibility(controller.scene.visibility.snapshot());
     } else if (change === 'projection') {
       controller.scene.publishProjection(undefined, controller.scene.render.positions.slice());

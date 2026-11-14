@@ -1,6 +1,6 @@
 {
   "name": "vaduga-mapgl-panel",
-  "version": "2.12.0",
+  "version": "2.13.0",
   "description": "Mapgl panel",
   "scripts": {
     "build": "rspack -c ./rspack.config.ts --env production",
