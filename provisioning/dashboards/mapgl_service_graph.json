@@ -434,7 +434,7 @@
                   "min": 2
                 },
                 "text": {
-                  "field": "totalCost",
+                  "field": "linkCost",
                   "fixed": "",
                   "mode": "field"
                 },

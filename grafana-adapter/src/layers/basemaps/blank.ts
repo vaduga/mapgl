@@ -68,7 +68,7 @@ export const orthoLayer: ExtendMapLayerRegistryItem<OrthoConfig> = {
           path: 'config.nodeCards',
           name: 'Node cards',
           description:
-            'For multi-line template text labels',
+            'With multi-line template text labels',
           defaultValue: defaultOrthoConfig.nodeCards,
         })
         .addRadio({

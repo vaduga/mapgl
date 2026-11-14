@@ -99,17 +99,18 @@ const LineTextLayer = ({
     }, //,
     background: type !== 'bbox',
     backgroundBorderRadius: [3, 3, 3, 3],
-    getBackgroundColor: isRoute
+    getBackgroundColor: isEdgeText
       ? (d: any): [number, number, number, number] =>
-          d.kind === 'middle' ? opaque(d.color) : isDark ? [24, 27, 31, 235] : [255, 255, 255, 235]
+          !isRoute ? opaque(d.properties?.edgeStyle?.group?.color ?? d.properties?.edgeStyle?.color)
+            : d.kind === 'middle' ? opaque(d.color) : isDark ? [24, 27, 31, 235] : [255, 255, 255, 235]
       : type === 'bbox'
         ? toRGB4Array(BBOX_OUTLINE_COLOR)
         : isDark
           ? [0, 0, 0, 100]
           : [255, 255, 255, 100],
-    ...(isRoute && {
+    ...(isEdgeText && {
       backgroundPadding: [4, 1],
-      getBorderColor: (d: any) => (d.kind === 'middle' ? [0, 0, 0, 0] : opaque(d.color)),
+      getBorderColor: (d: any) => (!isRoute || d.kind === 'middle' ? [0, 0, 0, 0] : opaque(d.color)),
       getBorderWidth: 1,
       fontWeight: 600,
     }),
@@ -139,7 +140,7 @@ const LineTextLayer = ({
         default:
           const edgeStyle = d.properties?.edgeStyle;
           const fontSize = edgeStyle?.textConfig?.fontSize;
-          return fontSize ?? 13;
+          return fontSize ?? 10;
       }
     },
     getColor: (d: any) => {
@@ -154,7 +155,7 @@ const LineTextLayer = ({
           return d.kind === 'middle' || isDark ? [255, 255, 255, 255] : [30, 30, 30, 255];
           break;
         default: // arc labels
-          return isDark ? [255, 255, 255, 200] : [0, 0, 0, 200];
+          return [255, 255, 255, 255];
       }
     },
   });
