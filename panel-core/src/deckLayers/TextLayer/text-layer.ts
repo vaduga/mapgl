@@ -50,11 +50,18 @@ const LineTextLayer = ({
 
   const isEdgeText = type === 'arcLabels' || type === 'routeLabels';
   const isRoute = type === 'routeLabels';
+  const labelData =
+    type === 'arcLabels'
+      ? data.filter((d: any) => {
+          const text = d.properties?.edgeStyle?.text;
+          return typeof text === 'string' && Boolean(text.trim());
+        })
+      : data;
   const extensions = ['nums', 'bbox'].includes(type) ? [] : [new DataFilterExtension({ categorySize, filterSize: 0 })];
 
   const LabelLayer = isEdgeText ? EdgeLabelLayer : TextLayer;
   return new LabelLayer({
-    data,
+    data: labelData,
     characterSet: 'auto',
     visible: Labels,
     ...(isEdgeText ? { positionTransform } : {}),

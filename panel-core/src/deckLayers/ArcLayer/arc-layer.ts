@@ -1,4 +1,4 @@
-import { toRGB4Array, makeColorDarker, makeColorLighter } from '../utils/color';
+import { toRGB4Array, makeColorDarker, makeColorLighter, multiplyColorOpacity } from '../utils/color';
 import type { Unit } from '@deck.gl/core';
 import { colTypes, type RGBAColor } from '../../types/index';
 import AnimatedBlobsLayer from './animated-blobs-layer';
@@ -67,18 +67,16 @@ export const MyArcLayer = (props) => {
     const { group, color } = arcStyle[dir];
     const opacity = edgeStyle.opacity;
     const c = group?.color ?? color;
-    let muted = [...c] as RGBAColor;
-    muted[3] = opacity !== undefined ? Math.round(opacity * 255) : muted[3];
-
     if (overlayColor && overlayEnabled) {
-      return overlayColor;
+      return multiplyColorOpacity(overlayColor, opacity ?? 1);
     }
 
     const alterColor = (color) => {
       return isDark ? makeColorLighter(color) : makeColorDarker(color);
     };
 
-    return isBase ? muted : (alterColor(muted) as RGBAColor);
+    const colorWithOpacity = multiplyColorOpacity(c, opacity ?? 1);
+    return isBase ? colorWithOpacity : (alterColor(colorWithOpacity) as RGBAColor);
   };
   const units: Unit = isMeters ? 'meters' : 'pixels';
 

@@ -56,6 +56,10 @@ export function makeColorDarker(color: RGBAColor): RGBAColor {
   return color.map((value, index) => (index === 3 ? Math.min(value, 255) : Math.max(value - 45, 0))) as RGBAColor;
 }
 
+export function multiplyColorOpacity(color: RGBAColor, opacity = 1): RGBAColor {
+  return [color[0], color[1], color[2], Math.round((color[3] ?? 255) * opacity)];
+}
+
 export function toRGB4Array(color: string, opacity?: number): RGBAColor {
   if (!color) {
     return [0, 0, 0, 0];

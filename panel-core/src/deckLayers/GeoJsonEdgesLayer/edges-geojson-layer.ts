@@ -1,7 +1,7 @@
 import { getCurveMetrics } from './curve-metrics';
 import { positionTransformProps } from '../positionTransform';
 import { getCurveFlowDirection, getCurveFlowRanges } from './curve-flow';
-import { toRGB4Array } from '../utils/color';
+import { multiplyColorOpacity, toRGB4Array } from '../utils/color';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import type { Color } from '@deck.gl/core';
 import type { Feature, Geometry } from 'geojson';
@@ -185,15 +185,9 @@ export const EdgesGeojsonLayer = (props) => {
     }
     const { color, group, opacity } = edgeStyle;
 
-    if (overlayColor && overlayEnabled) {
-      return overlayColor;
-    }
-
     // group is defined only if nodes/edge metric field match
     const c = group?.color ?? color;
-    const muted = [...c] as RGBAColor;
-    muted[3] = opacity !== undefined ? Math.round(opacity * 255) : muted[3];
-    return muted as [number, number, number];
+    return multiplyColorOpacity(overlayColor && overlayEnabled ? overlayColor : c, opacity ?? 1);
   };
 
   const getEdgeDashArray = (

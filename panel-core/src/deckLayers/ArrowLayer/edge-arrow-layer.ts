@@ -2,7 +2,7 @@ import { IconLayer } from '@deck.gl/layers';
 import { DataFilterExtension } from '@deck.gl/extensions';
 import { Geometry } from 'geojson';
 import { getIconAtlasImage, iconMapping } from './arrow-atlas';
-import { toRGB4Array } from '../utils/color';
+import { multiplyColorOpacity, toRGB4Array } from '../utils/color';
 import { colTypes, type DeckLine, type PointFeatureProperties, type RGBAColor } from '../../types/index';
 import { getEdgeArrowSize, getArrowAngle } from '../../graph/utils/index';
 import { positionTransformProps, withPositionTransform } from '../positionTransform';
@@ -93,14 +93,8 @@ export function getArrowColor(d: ArrowFeature, overlayEnabled = false): RGBAColo
   const { edgeStyle, overlayColor } = d.properties || {};
   const { color, group, opacity } = edgeStyle || {};
 
-  if (overlayColor && overlayEnabled) {
-    return overlayColor;
-  }
-
   const c = group?.color ?? color ?? [0, 0, 0, 255];
-  const muted = [...c] as RGBAColor;
-  muted[3] = opacity !== undefined ? Math.round(opacity * 255) : muted[3];
-  return muted;
+  return multiplyColorOpacity(overlayColor && overlayEnabled ? overlayColor : c, opacity ?? 1);
 }
 
 export function expandArrowItems(data: ArrowFeature[] = []): ArrowItem[] {
