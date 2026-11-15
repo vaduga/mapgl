@@ -422,7 +422,7 @@ Result:
 
 - Node rendering uses one batch per originating data layer, with canonical node references retained for picking. Disabling a data layer hides its symbols, cards and labels through the layer's `visible` property.
 - Namespace count does not increase pickable rendering-layer count for a fixed set of data layers and enabled primitives, avoiding per-namespace deck.gl picking limit.
-- Edge batches stay shared across data layers and namespaces. A routed hop is eligible only when both of that hop's endpoints are effectively visible. A whole-connection arc checks the logical first/last endpoints; intermediate nodes are not additional conditions for that whole connection.
+- Edge batches stay shared across data layers and namespaces. Routed fragments and whole-connection arcs are eligible only when both logical endpoints are effectively visible. Intermediate path nodes do not add visibility conditions.
 - Effective endpoint visibility combines the endpoint's own data layer, namespace and group eligibility. Namespace controls hide objects while retaining data-layer and group gates.
 - Node group selections form a union. No group selections means no group restriction. The dedicated Annotations item independently shows or hides the annotation overlay and does not affect node or edge visibility.
 - Data-layer and legend toggles update visibility without topology/layout work or coordinate-buffer regeneration. Ordinary group changes update GPU category selections; annotation overlay changes update annotation styling without changing visibility eligibility.

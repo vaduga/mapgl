@@ -131,7 +131,7 @@ it('requires both endpoints and keeps annotation overlay visibility independent 
 
 
 
-it('filters hop fragments by their own endpoints without adding intermediate-node conditions to whole-edge arcs', async () => {
+it('filters every fragment and arc by logical endpoints, independently of intermediate node visibility', async () => {
   const controller = await fixture(true);
   const input = () => captureRenderInput(controller, presentation);
   const prepared = prepareGraphRender(input());
@@ -140,7 +140,13 @@ it('filters hop fragments by their own endpoints without adding intermediate-nod
   expect(hops).toHaveLength(2);
   controller.scene.toggleGroup(0);
   const visibility = captureEffectiveVisibility(input());
-  expect(hops.map(visibility.edge)).toEqual([false, false]);
+  expect(hops.map(visibility.edge)).toEqual([true, true]);
   expect(visibility.edge(arc)).toBe(true);
+  hide(controller, 'shop', false);
+  const hidden = captureEffectiveVisibility(input());
+  expect(hops.map(hidden.edge)).toEqual([false, false]);
+  expect(hidden.edge(arc)).toBe(false);
+  hide(controller, 'shop', true);
+  expect(hops.map(captureEffectiveVisibility(input()).edge)).toEqual([true, true]);
   controller.dispose();
 });

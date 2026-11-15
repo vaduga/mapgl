@@ -67,10 +67,9 @@ export function captureEffectiveVisibility(input: CapturedRenderInput): Effectiv
     const ref = feature?.edgeRef;
     if (!Number.isInteger(ref) || ref < 0 || ref >= input.render.edgeIndex.edgeCount) return false;
     const record = input.render.edgeIndex.getEdgeRecordRef(ref);
-    const arc = feature.sourcePosition !== undefined;
     const [start, end] = input.render.edgeIndex.getRecordRange(record);
-    const source = input.render.edgeIndex.getEdge(arc ? start : ref).source;
-    const target = input.render.edgeIndex.getEdge(arc ? end - 1 : ref).target;
+    const source = input.render.edgeIndex.getEdge(start).source;
+    const target = input.render.edgeIndex.getEdge(end - 1).target;
     return nodeVisible(source) && nodeVisible(target);
   };
   const visibility = { key, node, group, groupCategory, groupCategories, groupTrigger, namespace, dataLayer, edge };

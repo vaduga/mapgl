@@ -275,7 +275,7 @@ If an array names an unknown namespace, all path nodes fall back to the first en
 
 Node group legend items toggle independently: click A, then B, to show both groups. Click an item again to remove only that selection. When the final group selection is cleared, all groups are eligible again. Annotations has a separate toggle that only shows or hides the annotation overlay.
 
-Layer and namespace visibility still apply. A connection appears only when both of its endpoints pass those controls and the legend selection.
+Layer and namespace visibility still apply. A connection appears only when both logical endpoints pass those controls and the legend selection. 
 
 Hover a node or link to read its displayed data properties. Click it to pin the tooltip so you can copy values, follow configured data links or expand its incoming/outgoing connection lists. Selecting a listed connection inspects that link; hovering it temporarily highlights the relation. Close the tooltip or click empty canvas to dismiss pinned inspection.
 
