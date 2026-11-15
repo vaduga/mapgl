@@ -4,7 +4,7 @@ import { cloneResolvedGroup, resolveFeatureGroup } from '../../style/groups/grou
 import type { Rule } from '../../style/groups/ruleTypes';
 import { FeatSource, getNodeData, type Graph } from '../main';
 import { colTypes, type BiColProps, type RGBAColor } from '../../types';
-import { toRGB4Array } from '../../deckLayers/utils/color';
+import { multiplyColorOpacity, toRGB4Array } from '../../deckLayers/utils/color';
 import type {
   GraphStyleChannels,
   GraphEdgeUnitVisualRecord,
@@ -441,9 +441,7 @@ export function resolveGraphVisuals(input: GraphVisualInput): GraphStageResult<G
       continue;
     }
     const color = [...group.color] as RGBAColor;
-    const mutedColor = [...color] as RGBAColor;
-    const alpha = mutedColor[3] ?? 255;
-    mutedColor[3] = node.style.opacity !== undefined ? Math.round(alpha * node.style.opacity) : alpha;
+    const mutedColor = multiplyColorOpacity(color, node.style.opacity ?? 1);
     colors.set(color, node.index * 4);
     muted.set(mutedColor, node.index * 4);
     annotations.set(mutedColor, node.index * 4);

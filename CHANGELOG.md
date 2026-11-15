@@ -4,6 +4,7 @@
 - multi-select in node groups legend filter. Edges are hidden when either endpoint's group is hidden
 - support for inter-namespace multi-hop edges via a per-node namespace array field
 - multiply alpha channel and data layer opacity for edge/arc color
+- fix: arc labels correct positioning
 - fix: rendering of large numbers of namespaces without hitting deck.gl's pickable layer limit
  
 ## 2.12.0

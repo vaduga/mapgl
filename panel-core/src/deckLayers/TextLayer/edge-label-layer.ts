@@ -1,7 +1,7 @@
-import { LayerExtension, type Layer, type DefaultProps, type UpdateParameters } from '@deck.gl/core';
+import { LayerExtension, type Layer, type DefaultProps } from '@deck.gl/core';
 import { TextLayer } from '@deck.gl/layers';
 import type { ShaderModule } from '@luma.gl/shadertools';
-import { getArcLabelPosition } from './arc-label-position';
+import { ArcLabelExtension } from './arc-label-extension';
 
 const highlightModule = {
   name: 'edgeLabelHighlight',
@@ -51,6 +51,7 @@ class LabelHighlightExtension extends LayerExtension {
   }
 }
 const highlightExtension = new LabelHighlightExtension();
+const arcLabelExtension = new ArcLabelExtension();
 type HighlightProps = {
   positionTransform?: import('../positionTransform').PositionTransform;
   arcLabels?: boolean;
@@ -73,24 +74,23 @@ export class EdgeLabelLayer extends TextLayer<any, HighlightProps> {
     highlightDimOpacity: 1,
     edgeLabelsAlwaysOn: true,
   };
-  shouldUpdateState(params: UpdateParameters<this>) {
-    return super.shouldUpdateState(params) || Boolean(this.props.arcLabels && params.changeFlags.viewportChanged);
-  }
   getSubLayerProps(props: any) {
     const { getHighlightDepth, getIdleVisible, highlightMaxDepth, highlightDimOpacity, edgeLabelsAlwaysOn } =
       this.props;
     const base = super.getSubLayerProps(props);
-    const viewport = this.props.arcLabels ? this.context.viewport : undefined;
+    const { arcLabels, positionTransform } = this.props;
+    const endpoint = (d: any, side: 'source' | 'target') =>
+      positionTransform
+        ? positionTransform.point(d[`${side}Position`], d[side === 'source' ? 'namespaceSource' : 'namespaceTarget'])
+        : d[`${side}Position`];
     return {
       ...base,
       highlightMaxDepth,
       highlightDimOpacity,
       edgeLabelsAlwaysOn,
-      ...(viewport ? { coordinateSystem: 'cartesian', modelMatrix: null } : {}),
-      extensions: [...(base.extensions ?? []), highlightExtension],
-      getPosition: viewport
-        ? (d: any) => getArcLabelPosition(d, viewport, this.props.modelMatrix, this.props.positionTransform)
-        : this.props.getPosition,
+      extensions: [...(base.extensions ?? []), highlightExtension, ...(arcLabels ? [arcLabelExtension] : [])],
+      getPosition: arcLabels ? (d: any) => endpoint(d, 'source') : this.props.getPosition,
+      ...(arcLabels ? { getArcLabelTarget: (d: any) => endpoint(d, 'target') } : {}),
       getLabelHighlight: (d: any, info: any) => [
         typeof getHighlightDepth === 'function' ? getHighlightDepth(d, info) : getHighlightDepth,
         Number(getIdleVisible!(d)),
@@ -98,9 +98,10 @@ export class EdgeLabelLayer extends TextLayer<any, HighlightProps> {
       updateTriggers: {
         ...base.updateTriggers,
         getLabelHighlight: [this.props.updateTriggers.getHighlightDepth, this.props.updateTriggers.getIdleVisible],
-        getPosition: viewport
-          ? [base.updateTriggers?.getPosition, viewport, this.props.modelMatrix, this.props.positionTransform]
+        getPosition: arcLabels
+          ? [base.updateTriggers?.getPosition, positionTransform]
           : base.updateTriggers?.getPosition,
+        ...(arcLabels ? { getArcLabelTarget: [positionTransform] } : {}),
       },
     };
   }

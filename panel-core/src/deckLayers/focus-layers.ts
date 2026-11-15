@@ -1,5 +1,6 @@
 import type { RouteLabelData } from './GeoJsonEdgesLayer/route-labels';
 import { EdgeLabelLayer } from './TextLayer/edge-label-layer';
+import type { ArcLabelData } from './TextLayer/text-layer';
 import { IconLayer, TextLayer } from '@deck.gl/layers';
 import type { Layer } from '@deck.gl/core';
 import type { RGBAColor } from '../types/index';
@@ -214,7 +215,9 @@ function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<
       highlightMaxDepth: getMaxMapValue(connectedFeatureDepths),
       highlightDimOpacity: 0.18,
       getHighlightDepth: (d: any, info: any) =>
-        connectedFeatureDepths.get(routed ? d.featureIndex : info.index) ?? Number.MAX_SAFE_INTEGER,
+        connectedFeatureDepths.get(
+          routed ? d.featureIndex : ((layer.props.data as ArcLabelData).featureIndexes?.[info.index] ?? info.index)
+        ) ?? Number.MAX_SAFE_INTEGER,
       updateTriggers: {
         ...layer.props.updateTriggers,
         getHighlightDepth: highlightDepthTrigger,

@@ -107,8 +107,6 @@ export * from './TextLayer/text-layer';
 export * from './edgeFilterCategories';
 export * from './focus-layers';
 
-export { getArcLabelPosition } from './TextLayer/arc-label-position';
-
 export * from './positionTransform';
 export { getCurveMetrics } from './GeoJsonEdgesLayer/curve-metrics';
 export { getRouteLabelSpotWeight } from './GeoJsonEdgesLayer/route-labels';

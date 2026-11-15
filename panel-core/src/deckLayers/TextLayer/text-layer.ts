@@ -7,6 +7,25 @@ import { isVisible } from '../utils/visibility';
 import { BBOX_OUTLINE_COLOR } from '../../types/defaults';
 import { colTypes } from '../../types/index';
 
+export type ArcLabelData = any[] & { featureIndexes: number[] };
+const arcLabelDataCache = new WeakMap<any[], ArcLabelData>();
+
+function getArcLabelData(features: any[]): ArcLabelData {
+  let data = arcLabelDataCache.get(features);
+  if (!data) {
+    const featureIndexes: number[] = [];
+    const labels = features.filter((feature, index) => {
+      const text = feature.properties?.edgeStyle?.text;
+      if (typeof text !== 'string' || !text.trim()) return false;
+      featureIndexes.push(index);
+      return true;
+    });
+    data = Object.assign(labels, { featureIndexes });
+    arcLabelDataCache.set(features, data);
+  }
+  return data;
+}
+
 const LineTextLayer = ({
   id = '',
   data,
@@ -50,13 +69,7 @@ const LineTextLayer = ({
 
   const isEdgeText = type === 'arcLabels' || type === 'routeLabels';
   const isRoute = type === 'routeLabels';
-  const labelData =
-    type === 'arcLabels'
-      ? data.filter((d: any) => {
-          const text = d.properties?.edgeStyle?.text;
-          return typeof text === 'string' && Boolean(text.trim());
-        })
-      : data;
+  const labelData = type === 'arcLabels' ? getArcLabelData(data) : data;
   const extensions = ['nums', 'bbox'].includes(type) ? [] : [new DataFilterExtension({ categorySize, filterSize: 0 })];
 
   const LabelLayer = isEdgeText ? EdgeLabelLayer : TextLayer;
