@@ -2,7 +2,7 @@ import type { SourceView, SourceRevision } from '../data/sources';
 import type { Position } from 'geojson';
 import type { Edge, Graph, GraphEdgeIndex, Node } from '../graph/main';
 import type { GraphRowRef } from '../graph/frame/index';
-import type { CoordRef, DeckLine } from '../types/index';
+import type { DeckLine } from '../types/index';
 
 export type MapglEdition = 'oss' | 'extended';
 
@@ -17,7 +17,7 @@ export interface MapglFeatureRegistry {
   pointJitterStrategies: PointJitterStrategy[];
   namespaceProjectionStrategies: NamespaceProjectionStrategy[];
   namespaceBoundaryProviders: NamespaceBoundaryProvider[];
-  projectedTerminalGeometryStrategies: ProjectedTerminalGeometryStrategy[];
+  projectedEdgeVisibilityStrategies: ProjectedEdgeVisibilityStrategy[];
   edgeOffsetStrategies: EdgeOffsetStrategy[];
   clusterLayerProviders: ClusterLayerProvider[];
   derivedVisLayerContributors: DerivedVisLayerContributor[];
@@ -204,33 +204,20 @@ export interface NamespaceBoundaryProvider {
 
 export type TerminalArrowTips = { start?: Position; end?: Position };
 
-export interface ProjectedTerminalGeometryContext {
-  positions?: Float64Array;
-  edge: Edge;
-  layerShift?: Record<string, [number, number]>;
-  srcGraph: Graph;
-  tarGraph: Graph;
+/** Projection-only visibility policy; geometry and translation remain separate. */
+export interface ProjectedEdgeVisibilityContext {
+  srcNamespace: string;
+  tarNamespace: string;
   srcProjectionNamespace?: string;
   tarProjectionNamespace?: string;
-  subPath: CoordRef[];
-  pathsCoords: Position[];
-  layoutArrowTips?: TerminalArrowTips;
-  layoutGeometry?: Position[];
-  layoutIncludesProjection?: boolean;
   isSrcContracted?: boolean;
   isContracted?: boolean;
   isTarContracted?: boolean;
 }
 
-export interface ProjectedTerminalGeometryResult {
-  subPath: CoordRef[];
-  pathsCoords: Position[];
-  layoutArrowTips?: TerminalArrowTips;
-}
-
-export interface ProjectedTerminalGeometryStrategy {
+export interface ProjectedEdgeVisibilityStrategy {
   id: string;
-  project(context: ProjectedTerminalGeometryContext): ProjectedTerminalGeometryResult | null | undefined;
+  isVisible(context: ProjectedEdgeVisibilityContext): boolean;
 }
 
 export type EdgeRenderDecisionType = 'visible' | 'offset' | 'reduced' | 'representative';

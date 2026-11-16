@@ -112,7 +112,7 @@ export interface RenderPositionState {
 export interface RenderPreparationOptions {
   readonly positionState?: (input: CapturedRenderInput) => RenderPositionState | undefined;
   readonly edgeOffsetStrategies?: EdgeGeometryInput['edgeOffsetStrategies'];
-  readonly terminalGeometryStrategies?: EdgeGeometryInput['terminalGeometryStrategies'];
+  readonly projectedEdgeVisibilityStrategies?: EdgeGeometryInput['projectedEdgeVisibilityStrategies'];
   readonly resolveRoute?: EdgeGeometryInput['resolveRoute'];
   readonly boundaryProviders?: readonly NamespaceBoundaryProvider[];
   readonly boundaries?: readonly NamespaceBoundaryRecord[];
@@ -249,7 +249,7 @@ export function prepareGraphRender(
         transformCoordinates: positionState?.edgeCoordinates,
         snapshot: input.snapshot,
         edgeOffsetStrategies: options.edgeOffsetStrategies ?? [],
-        terminalGeometryStrategies: options.terminalGeometryStrategies ?? [],
+        projectedEdgeVisibilityStrategies: options.projectedEdgeVisibilityStrategies ?? [],
         resolveRoute: options.resolveRoute,
       });
   const boundaries =

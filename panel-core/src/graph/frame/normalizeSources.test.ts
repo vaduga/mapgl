@@ -109,7 +109,7 @@ describe('neutral source normalization', () => {
       visibleNamespaces: ['external', 'Entry', 'Domain', 'Store'],
       layerShift: {},
       edgeOffsetStrategies: [],
-      terminalGeometryStrategies: [],
+      projectedEdgeVisibilityStrategies: [],
     });
     expect(geometry.mappings.map((mapping) => mapping!.graphId)).toEqual(['Entry', 'Domain', 'Store']);
     expect(geometry.mappings[1]).toMatchObject({ arcGraphId: 'Entry' });

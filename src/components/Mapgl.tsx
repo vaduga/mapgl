@@ -150,7 +150,7 @@ const Mapgl = ({
     () => ({
       boundaryProviders: panel.featureServices.namespaceBoundaryProviders,
       edgeOffsetStrategies: panel.featureServices.edgeOffsetStrategies,
-      terminalGeometryStrategies: panel.featureServices.projectedTerminalGeometryStrategies,
+      projectedEdgeVisibilityStrategies: panel.featureServices.projectedEdgeVisibilityStrategies,
     }),
     [panel]
   );

@@ -6,7 +6,7 @@ import { BiColProps, CoordRef, DeckLine } from '../../types/index';
 import { CoordsConvert } from './utils.turf';
 import {
   getEdgeRenderDecisions,
-  getProjectedTerminalGeometry,
+  isProjectedEdgeVisible,
   type EdgeRenderDecision,
 } from '../../extension-points/featureContracts';
 import { getArrowAngles, getEdgeTerminals, getContractedGraph, segregatePath } from './utils.graph';
@@ -20,7 +20,7 @@ import type { LayerDragShift } from '../../types';
 import type {
   NamespaceProjectionResult,
   EdgeOffsetStrategy,
-  ProjectedTerminalGeometryStrategy,
+  ProjectedEdgeVisibilityStrategy,
   TerminalArrowTips,
 } from '../../extension-points/contracts';
 
@@ -41,7 +41,7 @@ export interface EdgeGeometryInput {
   readonly snapshot?: GraphFrameSnapshot;
   readonly resolveRoute?: (edge: Edge) => { path: CoordRef[]; vertexRefs: ArrayLike<number> } | undefined;
   readonly edgeOffsetStrategies: readonly EdgeOffsetStrategy[];
-  readonly terminalGeometryStrategies: readonly ProjectedTerminalGeometryStrategy[];
+  readonly projectedEdgeVisibilityStrategies: readonly ProjectedEdgeVisibilityStrategy[];
 }
 const CURVE_TYPE_LINE = 0;
 const CURVE_TYPE_BEZIER = 1;
@@ -221,30 +221,16 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
         });
       }
 
-      const projectedTerminalsGeometry = getProjectedTerminalGeometry(input.terminalGeometryStrategies, {
-        edge,
-        positions: input.positions,
-        layerShift: input.isLogic ? {} : layerShift,
-        srcGraph: edgeSrcGraph,
-        tarGraph: edgeTarGraph,
-        subPath,
-        pathsCoords,
-        layoutArrowTips,
-        layoutGeometry,
-        layoutIncludesProjection: input.layoutIncludesProjection,
+      if (!isProjectedEdgeVisible(input.projectedEdgeVisibilityStrategies, {
+        srcNamespace: edgeSrcGraph.id,
+        tarNamespace: edgeTarGraph.id,
         srcProjectionNamespace,
         tarProjectionNamespace,
         isSrcContracted,
         isContracted,
         isTarContracted,
-      });
-
-      if (projectedTerminalsGeometry === null) {
+      })) {
         continue;
-      }
-
-      if (projectedTerminalsGeometry) {
-        ({ subPath, pathsCoords, layoutArrowTips } = projectedTerminalsGeometry);
       }
 
       const [segrPath, segrCoords] = subPath.length

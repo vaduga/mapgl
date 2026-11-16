@@ -17,9 +17,8 @@ import type {
   NamespaceProjectionStrategy,
   PointJitterStrategy,
   PointJitterStrategyContext,
-  ProjectedTerminalGeometryContext,
-  ProjectedTerminalGeometryResult,
-  ProjectedTerminalGeometryStrategy,
+  ProjectedEdgeVisibilityContext,
+  ProjectedEdgeVisibilityStrategy,
   TooltipEdgeRecord,
   TooltipEdgeSectionContributor,
 } from './contracts';
@@ -34,7 +33,7 @@ export function createDefaultFeatureRegistry(): MapglFeatureRegistry {
     pointJitterStrategies: [noopPointJitterStrategy],
     namespaceProjectionStrategies: [defaultNamespaceProjectionStrategy],
     namespaceBoundaryProviders: [defaultNamespaceBoundaryProvider],
-    projectedTerminalGeometryStrategies: [],
+    projectedEdgeVisibilityStrategies: [],
     edgeOffsetStrategies: [defaultEdgeOffsetStrategy],
     clusterLayerProviders: [],
     derivedVisLayerContributors: [],
@@ -190,18 +189,11 @@ export function getNamespaceBoundaries(
   return Array.from(byNamespace.values());
 }
 
-export function getProjectedTerminalGeometry(
-  strategies: readonly ProjectedTerminalGeometryStrategy[],
-  context: ProjectedTerminalGeometryContext
-): ProjectedTerminalGeometryResult | null | undefined {
-  for (const strategy of strategies) {
-    const result = strategy.project(context);
-    if (result !== undefined) {
-      return result;
-    }
-  }
-
-  return undefined;
+export function isProjectedEdgeVisible(
+  strategies: readonly ProjectedEdgeVisibilityStrategy[],
+  context: ProjectedEdgeVisibilityContext
+): boolean {
+  return strategies.every((strategy) => strategy.isVisible(context));
 }
 
 export function getCurveSegmentHidden(

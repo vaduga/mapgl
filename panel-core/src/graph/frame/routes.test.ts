@@ -56,7 +56,7 @@ it('renders and highlights a multi-hop relation with endpoint arrows and one adj
     layoutReady: false,
     layoutIncludesProjection: false,
     edgeOffsetStrategies: [],
-    terminalGeometryStrategies: [],
+    projectedEdgeVisibilityStrategies: [],
     isLogic: false,
     layerShift: {},
     projection: { contractsHiddenNamespaces: false },
