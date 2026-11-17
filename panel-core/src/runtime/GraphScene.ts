@@ -329,8 +329,8 @@ export class GraphScene {
       layer.group !== 'markers' &&
       (layer.name === 'graph' || namespaces.some((namespace) => namespace.id === layer.name))
     )
-      this.project(strategies);
-    else this.invalidatePresentation();
+      {this.project(strategies);}
+    else {this.invalidatePresentation();}
   }
 
   project(strategies: NamespaceProjectionStrategy[]): void {

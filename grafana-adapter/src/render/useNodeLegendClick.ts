@@ -11,7 +11,7 @@ export function useNodeLegendClick({ scene }: { scene: GraphScene }) {
         return;
       }
       const id = clickItem.data?.groupIdx;
-      if (id !== undefined) scene.toggleGroup(id);
+      if (id !== undefined) {scene.toggleGroup(id);}
     },
     [scene]
   );

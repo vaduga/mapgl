@@ -16,7 +16,7 @@ function getArcLabelData(features: any[]): ArcLabelData {
     const featureIndexes: number[] = [];
     const labels = features.filter((feature, index) => {
       const text = feature.properties?.edgeStyle?.text;
-      if (typeof text !== 'string' || !text.trim()) return false;
+      if (typeof text !== 'string' || !text.trim()) {return false;}
       featureIndexes.push(index);
       return true;
     });

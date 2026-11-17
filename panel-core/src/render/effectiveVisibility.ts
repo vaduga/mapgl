@@ -27,7 +27,7 @@ export function captureEffectiveVisibility(input: CapturedRenderInput): Effectiv
     input.projection?.rendererFiltering,
   ]);
   const previous = cache.get(input.render.features);
-  if (previous?.key === key && previous.edgeIndex === input.render.edgeIndex) return previous.visibility;
+  if (previous?.key === key && previous.edgeIndex === input.render.edgeIndex) {return previous.visibility;}
   const names = new Set(vis.getVisibleGraphNamespaces());
   const layers = vis.getLayerTree().flatMap((layer) => (layer.group === 'markers' ? layer.children : []));
   const dataLayer = (id: string | undefined) => {
@@ -65,7 +65,7 @@ export function captureEffectiveVisibility(input: CapturedRenderInput): Effectiv
   };
   const edge = (feature: any) => {
     const ref = feature?.edgeRef;
-    if (!Number.isInteger(ref) || ref < 0 || ref >= input.render.edgeIndex.edgeCount) return false;
+    if (!Number.isInteger(ref) || ref < 0 || ref >= input.render.edgeIndex.edgeCount) {return false;}
     const record = input.render.edgeIndex.getEdgeRecordRef(ref);
     const [start, end] = input.render.edgeIndex.getRecordRange(record);
     const source = input.render.edgeIndex.getEdge(start).source;

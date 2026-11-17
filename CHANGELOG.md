@@ -1,13 +1,13 @@
 # Changelog Mapgl
+## 2.13.1
+- MSAGLJS lib update with improved routing
 
 ## 2.13.0
 - multi-select in node groups legend filter. Edges are hidden when either endpoint's group is hidden
 - support for inter-namespace multi-hop edges via a per-node namespace array field
 - multiply alpha channel and data layer opacity for edge/arc color
 - fix: arc labels correct positioning
-- fix: rendering of large numbers of namespaces without hitting deck.gl's pickable layer limit
- 
-## 2.12.0
+- fix: rendering of large numbers of namespaces without hitting deck.gl's pickable layer limit 
 - node cards and edge labels on routed edges with flow animation
 - ELK autolayout option for a cross namespace flow.  
 Shout-out to [Emin Aktaş](https://github.com/eminaktas) for contributing!

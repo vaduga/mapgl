@@ -1,5 +1,5 @@
 {
-  "version": "2.12.0",
+  "version": "2.13.1",
   "type": "module",
   "license": "GPL-3.0",
   "files": [
@@ -108,7 +108,7 @@
     "@types/geojson": "7946.0.16"
   },
   "dependencies": {
-    "@grafana/e2e-selectors": "13.3.0",
+    "@grafana/e2e-selectors": "13.3.1",
     "@hello-pangea/dnd": "18.0.1",
     "@rc-component/slider": "1.2.1",
     "@react-aria/dialog": "3.6.1",
@@ -116,7 +116,7 @@
     "@react-aria/overlays": "3.32.1",
     "arquero": "8.0.3",
     "lodash": "4.18.1",
-    "react-inlinesvg": "4.5.0",
+    "react-inlinesvg": "4.6.0",
     "react-virtualized-auto-sizer": "2.0.4",
     "react-window": "1.8.11",
     "uuid": "14.0.3"

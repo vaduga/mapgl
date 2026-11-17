@@ -190,15 +190,15 @@ export async function normalizeGraphSources(
   for (const { options, sources } of resolvedLayers) {
     const fallback = options.isLogic ? (options.defaultNamespace ?? CMN_NAMESPACE) : CMN_NAMESPACE;
     for (const source of sources)
-      for (let row = 0; row < source.rowCount; row++) {
-        if (!normalizeId(source.nodeId.get(row))) continue;
+      {for (let row = 0; row < source.rowCount; row++) {
+        if (!normalizeId(source.nodeId.get(row))) {continue;}
         const namespace = normalizeNamespace(
           options.isLogic ? fieldValue(source.sourceNamespace, row) : undefined,
           fallback,
           options.namespaceSeparator
         );
-        for (const [id] of namespace.labels) knownNamespaces.add(id);
-      }
+        for (const [id] of namespace.labels) {knownNamespaces.add(id);}
+      }}
   }
 
   const nodeBuilders = new Map<string, MutableNode>();
@@ -359,7 +359,7 @@ export async function normalizeGraphSources(
           };
         }
         for (const namespace of pathNamespaces ?? []) {
-          for (const [id, label] of namespace.labels) namespaceLabels.set(id, label);
+          for (const [id, label] of namespace.labels) {namespaceLabels.set(id, label);}
         }
 
         const explicitValue = normalizeId(fieldValue(resolved.edgeId, rowIndex));

@@ -214,7 +214,7 @@ it('declutters only focused labels when idle labels are hidden, without resampli
     kind: 'middle' as const,
     color: [0, 0, 0, 255],
     feature: { properties: {} } as any,
-    spots: [[0, 0]] as [number, number][],
+    spots: [[0, 0]] as Array<[number, number]>,
     hw: 10,
     hh: 7,
   }));

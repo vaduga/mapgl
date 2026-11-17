@@ -160,7 +160,7 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
       const parPath = indexedRoute.path;
       const findRouteNode = (id: string, index: number) => {
         const record = input.snapshot?.nodes[indexedRoute.vertexRefs[index]];
-        if (record?.id === id) return namespaceGraphs.get(record.namespaceId)?.findNode(id);
+        if (record?.id === id) {return namespaceGraphs.get(record.namespaceId)?.findNode(id);}
         // Edited/private routes retain their unit's actual hop identities even
         // when a snapshot no longer has the route's vertex reference.
         const [start, end] = graphEdgeIndex.getUnitRange(graphEdgeIndex.getEdgeUnitRef(edgeRef));
@@ -216,7 +216,7 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
         subPath = [edge.source.id, edge.target.id];
         pathsCoords = [edge.source, edge.target].map((node) => {
           const ref = getNodeData(node)?.wasmId;
-          if (ref === undefined) throw new Error(`Missing canonical node position: ${node.id}`);
+          if (ref === undefined) {throw new Error(`Missing canonical node position: ${node.id}`);}
           return [positions[ref * 2], positions[ref * 2 + 1]];
         });
       }
@@ -392,7 +392,7 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
     offset += arcs.length;
   }
   mappings.forEach((mapping, index) => {
-    if (!mapping) return;
+    if (!mapping) {return;}
     mappings[index] = {
       ...mapping,
       ...(mapping.lineId !== undefined && { lineBatchIndex: lineOffsets.get(mapping.graphId)! + mapping.lineId }),

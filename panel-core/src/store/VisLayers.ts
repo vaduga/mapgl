@@ -128,13 +128,13 @@ export class VisLayers {
 
   setActiveGroups(groups: Uint8Array): void {
     this.activeGroups = new Uint8Array(groups);
-    if (this.selectedGroups.size) this.refreshGroups();
+    if (this.selectedGroups.size) {this.refreshGroups();}
   }
 
   toggleGroup(id: number): void {
     const next = new Set(this.selectedGroups);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
+    if (next.has(id)) {next.delete(id);}
+    else {next.add(id);}
     this.selectedGroups = next;
     this.refreshGroups();
   }
@@ -152,7 +152,7 @@ export class VisLayers {
   }
 
   passesGroup(group: number | undefined): boolean {
-    if (!this.selectedGroups.size) return group === undefined || this.activeGroups[group] !== 0;
+    if (!this.selectedGroups.size) {return group === undefined || this.activeGroups[group] !== 0;}
     return group !== undefined && this.selectedGroups.has(group);
   }
 
@@ -177,7 +177,7 @@ export class VisLayers {
 
   getVisibleGraphNamespaces(): string[] {
     const out = new Set<string>();
-    for (const layer of this.visLayers) if (layer.group === 'graph') collectVisibleNames(layer, out);
+    for (const layer of this.visLayers) {if (layer.group === 'graph') {collectVisibleNames(layer, out);}}
     return [...out];
   }
 

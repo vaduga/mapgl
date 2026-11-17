@@ -19,6 +19,11 @@ module.exports = (async () => {
     },
     ...grafanaConfig,
     {
+      rules: {
+        '@stylistic/type-annotation-spacing': ['error', { after: true, before: false }],
+      },
+    },
+    {
       name: 'mapgl/defaults',
       files: [
         'src/**/*.{ts,tsx,js,jsx}',

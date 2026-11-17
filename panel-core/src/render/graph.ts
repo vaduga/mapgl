@@ -395,7 +395,7 @@ function preparePrimaryGeometryData(
       data = getNodeCards(collection);
       nodeCardDataCache.set(collection, data);
     }
-    if (!p.labels || !p.nodeCards) data = [];
+    if (!p.labels || !p.nodeCards) {data = [];}
     cards.set(collection, data);
 
     obstacles.push(
@@ -688,7 +688,7 @@ function sharedCollection(features: any[]) {
 const fillCollections = new WeakMap<object, Map<boolean, GraphBiFeatCol>>();
 function nodeFillCollection(collection: GraphBiFeatCol, annotations: boolean): GraphBiFeatCol {
   const colors = annotations ? collection.annots : collection.muted;
-  if (!colors || (collection.points as any).attributes.getFillColor.value === colors) return collection;
+  if (!colors || (collection.points as any).attributes.getFillColor.value === colors) {return collection;}
   let variants = fillCollections.get(collection);
   if (!variants) {
     variants = new Map();

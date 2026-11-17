@@ -364,7 +364,7 @@ export class PanelRenderSession {
   }
   private translateCachedBounds(input: CapturedRenderInput): void {
     const cache = this.preparedCache;
-    if (!cache || cache.revision !== input.revision || !input.presentation.isLogic) return;
+    if (!cache || cache.revision !== input.revision || !input.presentation.isLogic) {return;}
     // Instant extensions may replace geometry while borrowing core boundaries.
     // Rebase the cache from its own shift, independently of the displayed edit.
     const bounds = updateContributedBounds(cache.prepared, cache.input, input);

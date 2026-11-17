@@ -105,7 +105,7 @@ const buildLogicTextLayerData = (
 ): LogicTextLayerData => {
   const key = JSON.stringify([selectedNodeId, selectedNamespace, iconLayerVisible]);
   const cached = logicTextCache.get(biCol);
-  if (cached?.key === key) return cached.data;
+  if (cached?.key === key) {return cached.data;}
   const featureIds = biCol?.points?.featureIds?.value;
   const positions = biCol?.points?.positions?.value;
   const properties = biCol?.points?.properties;
@@ -726,7 +726,7 @@ function nodePresentationProps(props) {
         : 0,
     getFilterCategory: (d, info) => {
       const feature = properties(d, info);
-      if (props.effectiveVisibility) return props.effectiveVisibility.groupCategory(feature);
+      if (props.effectiveVisibility) {return props.effectiveVisibility.groupCategory(feature);}
       const eligible =
         feature?.style?.group?.groupIdx === undefined ||
         Array.from(props.getVisLayers.getCategories()[0]).includes(feature.style.group.groupIdx);

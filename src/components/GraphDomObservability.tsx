@@ -96,9 +96,9 @@ const EnabledGraphDomObservability = React.forwardRef<HTMLDivElement, GraphDomOb
       <div
         className={className}
         ref={(element) => {
-          if (typeof ref === 'function') ref(element);
-          else if (ref) ref.current = element;
-          if (element && readRenderDebug) Object.defineProperty(element, '__mapglE2E', { value: readRenderDebug, configurable: true });
+          if (typeof ref === 'function') {ref(element);}
+          else if (ref) {ref.current = element;}
+          if (element && readRenderDebug) {Object.defineProperty(element, '__mapglE2E', { value: readRenderDebug, configurable: true });}
         }}
         style={style}
         data-testid="mapgl-graph"

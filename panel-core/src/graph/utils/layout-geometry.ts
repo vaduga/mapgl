@@ -66,11 +66,11 @@ const cardBoxes = new WeakMap<object, { text: string | undefined; fontSize: numb
 export function getLayoutCardBox(
   style: { text?: string; textConfig?: { fontSize?: number } } | undefined
 ): LayoutNodeBox | undefined {
-  if (!style) return undefined;
+  if (!style) {return undefined;}
   const text = style.text;
   const fontSize = style.textConfig?.fontSize ?? DEFAULT_LABEL_FONT_SIZE;
   const cached = cardBoxes.get(style);
-  if (cached && cached.text === text && cached.fontSize === fontSize) return cached.box;
+  if (cached && cached.text === text && cached.fontSize === fontSize) {return cached.box;}
   const lines = text?.trim().split('\n');
   const box = lines?.[0]
     ? {

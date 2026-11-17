@@ -35,10 +35,10 @@ describe('neutral source normalization', () => {
       const normalized = await normalizeGraphSources({
         layers: [{ options: { isLogic: true }, sources: [graphSource] }],
       });
-      if (!normalized.ok) throw new Error('normalization failed');
+      if (!normalized.ok) {throw new Error('normalization failed');}
       const snapshot = normalized.value;
       const built = buildGraphFromSnapshot(snapshot);
-      if (!built.ok) throw new Error('build failed');
+      if (!built.ok) {throw new Error('build failed');}
       expect(snapshot.diagnostics).toEqual([]);
       expect([...built.value.edgeIndex.getRecordVertexView(0)].map((ref) => snapshot.nodes[ref].key)).toEqual([
         JSON.stringify(['Entry', 'A']),
@@ -72,7 +72,7 @@ describe('neutral source normalization', () => {
     const normalized = await normalizeGraphSources({
       layers: [{ options: { isLogic: true }, sources: [graphSource] }],
     });
-    if (!normalized.ok) throw new Error('normalization failed');
+    if (!normalized.ok) {throw new Error('normalization failed');}
     const snapshot = normalized.value;
     expect(snapshot.nodes.map((node) => [node.id, node.namespaceId])).toEqual([
       ['A', 'Entry'],
@@ -84,7 +84,7 @@ describe('neutral source normalization', () => {
     expect(snapshot.relations.getRecordId(0)).toBe('cross-route');
     expect(snapshot.diagnostics).toEqual([]);
     const built = buildGraphFromSnapshot(snapshot);
-    if (!built.ok) throw new Error('build failed');
+    if (!built.ok) {throw new Error('build failed');}
     expect([...built.value.edgeIndex.getRecordVertexView(0)]).toEqual([0, 1, 2, 3]);
     expect(built.value.edgeIndex.edgeCount).toBe(3);
     const request = createLayoutRequest({ graph: built.value.graph, positionsLength: snapshot.positions.length });
@@ -151,7 +151,7 @@ describe('neutral source normalization', () => {
       routeNamespaces: arrayColumn('routeNs', [undefined, undefined, undefined, values]),
     };
     const result = await normalizeGraphSources({ layers: [{ options: { isLogic: true }, sources: [graphSource] }] });
-    if (!result.ok) throw new Error('normalization failed');
+    if (!result.ok) {throw new Error('normalization failed');}
     expect(result.value.relations.recordCount).toBe(0);
     expect(result.diagnostics[0].code).toBe('invalid-path');
   });

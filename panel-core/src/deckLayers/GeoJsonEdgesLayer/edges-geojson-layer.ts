@@ -324,7 +324,7 @@ export function getSharedLayoutCurveSegments(
     geometry.transformControlPoints?.(id, controlPoints, offset * 8, part.attributes.getCurveType.value);
     segments.set(part.attributes.getSegment.value, offset * 2);
     types.set(part.attributes.getCurveType.value, offset);
-    if (part.attributes.getSkip) skip.set(part.attributes.getSkip.value, offset);
+    if (part.attributes.getSkip) {skip.set(part.attributes.getSkip.value, offset);}
     indexes.set(part.segmentFeatureIndexes, offset);
     offset += part.length;
   }
@@ -340,6 +340,6 @@ export function getSharedLayoutCurveSegments(
     segmentFeatureIndexes: indexes,
   });
   if (features.some((feature) => getCurveFlowDirection(feature)))
-    result.attributes.getFlow = { value: getCurveFlowRanges(result), size: 4 };
+    {result.attributes.getFlow = { value: getCurveFlowRanges(result), size: 4 };}
   return result;
 }

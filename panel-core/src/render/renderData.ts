@@ -35,7 +35,7 @@ export function buildGraphBinaryCollections({
   }
 
   const graph = graphs[0];
-  if (!graph) return [];
+  if (!graph) {return [];}
   const byLayer = new Map<string, number[]>();
   features.forEach((feature: any, ref) => {
     const name = feature.layerName ?? '';
@@ -46,7 +46,7 @@ export function buildGraphBinaryCollections({
   return [...byLayer].map(([dataLayerId, refs]) => {
     const whole = refs.length === features.length;
     const select = <T extends Float64Array | Uint8Array>(values: T, size: number): T => {
-      if (whole) return values;
+      if (whole) {return values;}
       const out = new (values.constructor as any)(refs.length * size) as T;
       refs.forEach((ref, index) => out.set(values.subarray(ref * size, (ref + 1) * size), index * size));
       return out;
