@@ -1,10 +1,19 @@
-import { AutoSizeInput, IconButton, InlineField, MultiSelect, Select, useStyles2, useTheme2 } from '@grafana/ui';
+import {
+  AutoSizeInput,
+  Combobox,
+  IconButton,
+  InlineField,
+  MultiSelect,
+  Select,
+  useStyles2,
+  useTheme2,
+} from '@grafana/ui';
 import { OverField, Rule } from '@vaduga/mapgl-core/style';
 import React, { ReactNode, useEffect, useState } from 'react';
-import { FieldType, GrafanaTheme2, SelectableValue } from '@grafana/data';
+import { DataFrame, FieldType, getFieldDisplayName, GrafanaTheme2, SelectableValue } from '@grafana/data';
 import { css } from '@emotion/css';
-import { FieldNamePicker } from '../../grafana_core/ui/components/MatchersUI/FieldNamePicker';
 import { RuleOption } from './RuleItem';
+import { t } from '@vaduga/mapgl-core/utils/i18n';
 import { useFieldDisplayNames } from '../../grafana_core/ui/components/MatchersUI/utils';
 
 interface OverrideFieldProps {
@@ -55,21 +64,37 @@ export const OverrideField: React.FC<OverrideFieldProps> = (options: OverrideFie
   }, [tOptions]);
 
   if (hasData) {
-    const dataFields = options.context.data
-      .flatMap((frame) => frame.fields)
-      .map((field) => ({
-        label: field.name,
-        value: field.name,
-        type: field.type,
-      }));
-
-    const thresField = {
-      label: 'threshold',
-      value: 'thrColor',
-      type: 'enum',
-    };
-
-    const fields = [thresField, ...dataFields];
+    const frames: DataFrame[] = options.context.data;
+    const fieldOptions = [{ value: 'threshold', label: 'threshold', name: 'thrColor', type: FieldType.enum }];
+    const seen = new Set(['thrColor']);
+    for (const frame of frames) {
+      for (const field of frame.fields) {
+        const { name, type } = field;
+        if (seen.has(name)) {
+          continue;
+        }
+        seen.add(name);
+        const label = getFieldDisplayName(field, frame, frames);
+        fieldOptions.push({ value: `display:${name}`, label, name, type });
+        if (label !== name) {
+          fieldOptions.push({
+            value: `base:${name}`,
+            label: t('grafana-ui.matchers.labels.base-field-name', '{{name}} (base field name)', { name }),
+            name,
+            type,
+          });
+        }
+      }
+    }
+    const selectedName = options.overrideField.name;
+    const selectedField = fieldOptions.find((field) => field.name === selectedName);
+    const missingField =
+      selectedName && !selectedField
+        ? {
+            value: `missing:${selectedName}`,
+            label: t('grafana-ui.matchers.labels.not-found', '{{name}} (not found)', { name: selectedName }),
+          }
+        : undefined;
     const isThresField = options.overrideField.name === 'thrColor' && options.overrideField.type === 'enum';
 
     const thrColors = Array.isArray(options.overrideField.value) ? options.overrideField.value : [];
@@ -106,14 +131,14 @@ export const OverrideField: React.FC<OverrideFieldProps> = (options: OverrideFie
     return (
       <>
         <InlineField shrink label={'prop ' + (options.index + 1)}>
-          <FieldNamePicker
-            context={options.context}
-            options={[thresField]}
-            item={options.context.item}
-            value={options.overrideField.name}
-            onChange={(v) => {
-              if (typeof v === 'string') {
-                options.nameTypeSetter(options.index, v, fields.find((el) => el.value === v)?.type ?? FieldType.string);
+          <Combobox
+            options={missingField ? [...fieldOptions, missingField] : fieldOptions}
+            value={selectedField ?? missingField}
+            placeholder={t('grafana-ui.matchers-ui.field-name-picker.placeholder', 'Select field')}
+            onChange={({ value }) => {
+              const field = fieldOptions.find((option) => option.value === value);
+              if (field) {
+                options.nameTypeSetter(options.index, field.name, field.type);
               }
             }}
           />

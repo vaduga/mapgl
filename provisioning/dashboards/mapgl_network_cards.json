@@ -87,6 +87,19 @@
           "options": {
             "excludeByName": {
               "Time": true
+            },
+            "renameByName": {
+              "Value #B": "denied (15 s windows)",
+              "Value #A": "link bit/s",
+              "Value #C": "node total",
+              "Value #D": "sent by source",
+              "Value #E": "sent by destination",
+              "Value #F": "sent",
+              "Value #G": "received",
+              "src_label": "name",
+              "src_namespace": "namespace",
+              "src_zone": "region",
+              "src_kind": "node kind"
             }
           }
         }
@@ -118,10 +131,6 @@
               "options": "Value #B"
             },
             "properties": [
-              {
-                "id": "displayName",
-                "value": "denied (15 s windows)"
-              },
               {
                 "id": "color",
                 "value": {
@@ -170,10 +179,6 @@
             },
             "properties": [
               {
-                "id": "displayName",
-                "value": "link bit/s"
-              },
-              {
                 "id": "unit",
                 "value": "bps"
               }
@@ -186,10 +191,6 @@
             },
             "properties": [
               {
-                "id": "displayName",
-                "value": "node total"
-              },
-              {
                 "id": "unit",
                 "value": "bps"
               }
@@ -201,10 +202,6 @@
               "options": "Value #D"
             },
             "properties": [
-              {
-                "id": "displayName",
-                "value": "sent by source"
-              },
               {
                 "id": "unit",
                 "value": "bps"
@@ -267,10 +264,6 @@
             },
             "properties": [
               {
-                "id": "displayName",
-                "value": "sent by destination"
-              },
-              {
                 "id": "unit",
                 "value": "bps"
               },
@@ -332,10 +325,6 @@
             },
             "properties": [
               {
-                "id": "displayName",
-                "value": "sent"
-              },
-              {
                 "id": "unit",
                 "value": "bps"
               },
@@ -382,10 +371,6 @@
             },
             "properties": [
               {
-                "id": "displayName",
-                "value": "received"
-              },
-              {
                 "id": "unit",
                 "value": "bps"
               },
@@ -422,42 +407,6 @@
                     }
                   ]
                 }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "src_label"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "name"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "src_namespace"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "namespace"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "src_zone"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "region"
               }
             ]
           }
