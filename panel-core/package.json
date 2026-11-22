@@ -220,9 +220,9 @@
     "@deck.gl/layers": "^9.4.0",
     "@deck.gl/react": "^9.4.0",
     "@emotion/css": "11.13.5",
+    "maplibre-gl": "^6.11.2",
     "mobx": "^7.0.5",
-    "react": "^18.0.0 || ^19.0.0",
-    "maplibre-gl": "^6.11.2"
+    "react": "^18.0.0 || ^19.0.0"
   },
   "dependencies": {
     "@deck.gl/extensions": "9.4.1",
