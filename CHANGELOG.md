@@ -2,6 +2,7 @@
 
 ## 2.13.2
 - node tag filtering, with per-group and shared legends
+- fix: graph panning doesn't trigger Grafana drawer in Edit mode
 ## 2.13.1
 - MSAGLJS lib update with improved routing
 

@@ -266,6 +266,8 @@ const Mapgl = ({
       summary={panel.scene.view.summary}
       visibleNamespaces={visLayers.getCategories()[1]}
       ref={containerRef}
+      // Keep map gestures from opening Grafana's panel edit sidebar on pointer down.
+      onPointerDown={(event) => event.stopPropagation()}
       onInspectNode={(index, feature) => {
         const pickingInfo = {
           picked: true,
