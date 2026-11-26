@@ -287,7 +287,12 @@ export class PointStore {
     this.graphHighlighter.setGraph(graph.graph, { edgeIndex: graph.edgeIndex, mappings: this.renderMappings });
 
     const nextGraphId = graphId ?? null;
-    if (this.focusedEdgeId === edgeId && this.focusedEdgeGraphId === nextGraphId && !this.focusedNodeId) {
+    if (
+      this.focusedEdgeId === edgeId &&
+      this.focusedEdgeGraphId === nextGraphId &&
+      !this.focusedNodeId &&
+      !this.focusedEdges.length
+    ) {
       return;
     }
 

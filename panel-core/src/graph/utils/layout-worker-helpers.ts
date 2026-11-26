@@ -38,8 +38,6 @@ import { DEFAULT_LAYOUT_NODE_RADIUS } from './layout-geometry';
 const CURVE_TYPE_LINE = 0;
 const CURVE_TYPE_BEZIER = 1;
 const CURVE_TYPE_ARC = 2;
-const MAX_CURVE_RESOLUTION = 64;
-const MIN_CURVE_RESOLUTION = 12;
 const DEFAULT_LAYER_SEPARATION = 60;
 const DEFAULT_NODE_SEPARATION = 40;
 
@@ -50,7 +48,7 @@ export type SnapshotNode = Node & {
   graphId?: string;
 };
 export type SnapshotEdge = CoreEdge & { id?: string; sourceGraphId?: string; targetGraphId?: string };
-import type { CurveSegment } from './layout-result';
+import { curveResolutionForLength, pushCurveSegments, type CurveSegment } from './layout-result';
 export { createCurveGroups, type CurveSegment } from './layout-result';
 
 export type LayoutSettings = {
@@ -189,7 +187,7 @@ export function addCurveSegments(segments: CurveSegment[], curve, originX = 0, o
     return;
   }
   if (curve instanceof LineSegment) {
-    pushSegment(
+    pushCurveSegments(
       segments,
       CURVE_TYPE_LINE,
       [...pointToArray(curve.start, originX, originY), ...pointToArray(curve.end, originX, originY), 0, 0, 0, 0],
@@ -199,11 +197,11 @@ export function addCurveSegments(segments: CurveSegment[], curve, originX = 0, o
   }
   if (curve instanceof BezierSeg) {
     const controlPoints = [0, 1, 2, 3].flatMap((index) => pointToArray(curve.B(index), originX, originY));
-    pushSegment(segments, CURVE_TYPE_BEZIER, controlPoints, curveResolution(curve));
+    pushCurveSegments(segments, CURVE_TYPE_BEZIER, controlPoints, curveResolution(curve));
     return;
   }
   if (curve instanceof Ellipse) {
-    pushSegment(
+    pushCurveSegments(
       segments,
       CURVE_TYPE_ARC,
       [
@@ -221,7 +219,7 @@ export function addCurveSegments(segments: CurveSegment[], curve, originX = 0, o
   if (curve instanceof Polyline) {
     const points = Array.from(curve).map((point) => pointToArray(point, originX, originY));
     for (let index = 0; index < points.length - 1; index++) {
-      pushSegment(segments, CURVE_TYPE_LINE, [...points[index], ...points[index + 1], 0, 0, 0, 0], 1);
+      pushCurveSegments(segments, CURVE_TYPE_LINE, [...points[index], ...points[index + 1], 0, 0, 0, 0], 1);
     }
   }
 }
@@ -244,20 +242,6 @@ function getPositiveNumber(value: number | undefined, fallback: number): number 
   return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : fallback;
 }
 
-function pushSegment(
-  segments: CurveSegment[],
-  type: number,
-  controlPoints: number[],
-  resolution: number,
-  range: [number, number] = [0, 1]
-): void {
-  const res = Math.max(1, Math.ceil(resolution));
-  const step = (range[1] - range[0]) / res;
-  for (let index = 0; index < res; index++) {
-    segments.push({ type, controlPoints, segment: [range[0] + step * index, step] });
-  }
-}
-
 function pointToArray(point, originX = 0, originY = 0): [number, number] {
   return [point.x - originX, point.y - originY];
 }
@@ -267,5 +251,5 @@ function curveResolution(curve): number {
     return 1;
   }
   const length = typeof curve.length === 'number' && Number.isFinite(curve.length) ? curve.length : 0;
-  return Math.max(MIN_CURVE_RESOLUTION, Math.min(MAX_CURVE_RESOLUTION, Math.ceil(length / 20)));
+  return curveResolutionForLength(length);
 }

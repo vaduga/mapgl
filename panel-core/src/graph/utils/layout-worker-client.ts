@@ -24,12 +24,16 @@ export type LayoutArrowTips = {
 
 export interface GraphLayoutRequestInput {
   readonly signal?: AbortSignal;
+  readonly fixedPlacement?: LayoutRequest['fixedPlacement'];
+  readonly retainPlacement?: boolean;
   readonly graph: Graph;
   readonly positionsLength: number;
   readonly autolayout?: AutolayoutOptions;
 }
 
 export interface GraphLayoutWorkerResult {
+  readonly updatedNamespaceGeometry?: true;
+  readonly placement?: LayoutRequest['fixedPlacement'];
   readonly engine?: LayoutEngineConfig;
   readonly routing: EdgeRoutingConfig;
   readonly positions: Float64Array;
@@ -67,6 +71,7 @@ export class LayoutWorkerClient {
   private readonly pending = new Map<
     number,
     {
+      retainPlacement?: boolean;
       edgeIndexes: Map<string, number>;
       edgeKeys: string[];
       resolve(result: GraphLayoutWorkerResult | undefined): void;
@@ -75,11 +80,12 @@ export class LayoutWorkerClient {
   >();
   constructor(private readonly createWorker: LayoutWorkerFactory) {}
   requestLayout(input: GraphLayoutRequestInput): Promise<GraphLayoutWorkerResult | undefined> {
-    return this.post(createLayoutRequest(input), input.signal);
+    return this.post(createLayoutRequest(input), input.signal, input.retainPlacement);
   }
   post<T extends Pick<LayoutRequest, 'requestId' | 'edges'>>(
     request: T,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    retainPlacement?: boolean
   ): Promise<GraphLayoutWorkerResult | undefined> {
     if (this.disposed || signal?.aborted) {
       return Promise.resolve(undefined);
@@ -101,6 +107,8 @@ export class LayoutWorkerClient {
           }
           if ('positions' in data && 'arrows' in data) {
             pending.resolve({
+              placement: pending.retainPlacement ? { layout: data, edgeKeys: pending.edgeKeys } : undefined,
+              updatedNamespaceGeometry: data.updatedNamespaceGeometry,
               engine: data.engine,
               routing: data.routing,
               positions: data.positions,
@@ -140,7 +148,12 @@ export class LayoutWorkerClient {
         reject(error);
       };
       signal?.addEventListener('abort', cancel, { once: true });
-      this.pending.set(request.requestId, { ...createEdgeIndex(request), resolve: finish, reject: fail });
+      this.pending.set(request.requestId, {
+        ...createEdgeIndex(request),
+        retainPlacement,
+        resolve: finish,
+        reject: fail,
+      });
       try {
         worker.postMessage(request);
       } catch (error) {
@@ -210,7 +223,9 @@ export function createLayoutRequest(input: GraphLayoutRequestInput): LayoutReque
   return {
     requestId: ++nextRequestId,
     operation: 'layout',
+    ...(input.fixedPlacement && { fixedPlacement: input.fixedPlacement }),
     engine: autolayout.layoutEngine ?? 'MSAGL',
+    ...(input.retainPlacement && { placementOnly: true }),
     cards: autolayout.nodeCards ?? false,
     routing: autolayout.edgeRouting ?? 'Splines',
     direction: autolayout.layoutDirection ?? DEFAULT_LAYOUT_DIRECTION,
@@ -250,7 +265,9 @@ function collectNodes(root: Graph, cards: boolean): LayoutNodeSnapshot[] {
         id: node.id,
         graphId: graph.id,
         wasmId: nodeData.wasmId,
-        radius: getLayoutNodeRadius(nodeData.feature?.style?.size),
+        namespacePort: nodeData.namespacePort,
+        ...(nodeData.namespacePortSide && { namespacePortSide: nodeData.namespacePortSide }),
+        radius: nodeData.namespacePort ? 0.01 : getLayoutNodeRadius(nodeData.feature?.style?.size),
         ...(cards ? getLayoutCardBox(nodeData.feature?.style) : getLayoutNodeBox(nodeData.feature?.style)),
       });
     }

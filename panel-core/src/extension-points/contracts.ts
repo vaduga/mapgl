@@ -14,9 +14,7 @@ export interface MapglPanelFeature {
 export interface MapglFeatureRegistry {
   tooltipEdgeSections: TooltipEdgeSectionContributor[];
   runtimeSubscriptionProviders: RuntimeSubscriptionProvider[];
-  pointJitterStrategies: PointJitterStrategy[];
   namespaceProjectionStrategies: NamespaceProjectionStrategy[];
-  namespaceBoundaryProviders: NamespaceBoundaryProvider[];
   projectedEdgeVisibilityStrategies: ProjectedEdgeVisibilityStrategy[];
   edgeOffsetStrategies: EdgeOffsetStrategy[];
   clusterLayerProviders: ClusterLayerProvider[];
@@ -132,21 +130,6 @@ export interface RuntimeSubscriptionProvider<C extends RuntimeSubscriptionContex
   start(context: C): RuntimeSubscription<C> | Promise<RuntimeSubscription<C>>;
 }
 
-export interface PointJitterStrategyContext {
-  graph: Graph;
-  positions: Float64Array;
-  visibleNamespaces?: Set<string>;
-  options?: unknown;
-  spatialIndex?: unknown;
-  bounds?: [minX: number, minY: number, maxX: number, maxY: number];
-  zoom?: number;
-}
-
-export interface PointJitterStrategy {
-  id: string;
-  apply(context: PointJitterStrategyContext): Float64Array | void;
-}
-
 export interface NamespaceProjectionContext {
   graph: Graph;
   edgeIndex?: GraphEdgeIndex;
@@ -156,22 +139,9 @@ export interface NamespaceProjectionContext {
   layerShift?: Record<string, [number, number]>;
 }
 
-export interface ProjectedEdge {
-  edge: Edge;
-  sourcePosition?: [number, number];
-  targetPosition?: [number, number];
-  visible: boolean;
-}
-
 export interface NamespaceProjectionResult {
-  edges?: ProjectedEdge[];
-  positions?: Float64Array;
+  /** Keep crossings eligible to terminate at a contracted namespace. */
   contractsHiddenNamespaces?: boolean;
-  /**
-   * Documents the filtering model when projection state is still applied by the renderer.
-   * OSS filters namespace membership with object masks inside shared batches.
-   */
-  rendererFiltering?: 'object-mask' | 'none';
 }
 
 export interface NamespaceProjectionStrategy {
@@ -180,10 +150,8 @@ export interface NamespaceProjectionStrategy {
 }
 
 export interface NamespaceBoundaryContext {
-  nodeCards?: boolean;
   graph: Graph;
   visibleNamespaces: Set<string>;
-  positions: Float64Array;
   layoutGraphBounds?: ReadonlyMap<string, unknown>;
   layerShift?: Record<string, [number, number]>;
   padding?: number;
@@ -194,12 +162,6 @@ export interface NamespaceBoundaryContext {
 export interface NamespaceBoundaryRecord {
   namespace: string;
   bounds: [minX: number, minY: number, maxX: number, maxY: number];
-  polygon?: unknown;
-}
-
-export interface NamespaceBoundaryProvider {
-  id: string;
-  getBoundaries(context: NamespaceBoundaryContext): NamespaceBoundaryRecord[];
 }
 
 export type TerminalArrowTips = { start?: Position; end?: Position };
@@ -226,6 +188,7 @@ export interface EdgeRenderDecision {
   edge: Edge;
   type: EdgeRenderDecisionType;
   representativeEdgeId?: string;
+  namespaceCarrierId?: string;
   coordinates?: [[number, number], [number, number]];
   offsetIndex?: number;
   offsetCount?: number;
@@ -236,7 +199,6 @@ export interface EdgeRenderDecision {
 export interface EdgeOffsetStrategyContext {
   graph: Graph;
   edgeIndex?: GraphEdgeIndex;
-  projectedEdges?: ProjectedEdge[];
   positions: Float64Array;
   visibleNamespaces?: Set<string>;
 }
@@ -257,8 +219,6 @@ export interface ClusterLayerProviderContext {
   positions: Float64Array;
   visibleNamespaces?: Set<string>;
   namespaceBoundaries?: NamespaceBoundaryRecord[];
-  projectedEdges?: ProjectedEdge[];
-  namespaceProjection?: NamespaceProjectionResult;
   annotations?: unknown;
   groupFilters?: { groupIndices: Uint8Array; activeGroups: Uint8Array; activeGroupIndexes: Uint8Array };
   layerProps?: unknown;

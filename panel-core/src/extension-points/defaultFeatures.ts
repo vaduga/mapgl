@@ -10,13 +10,10 @@ import type {
   EdgeRenderDecision,
   MapglFeatureRegistry,
   NamespaceBoundaryContext,
-  NamespaceBoundaryProvider,
   NamespaceBoundaryRecord,
   NamespaceProjectionContext,
   NamespaceProjectionResult,
   NamespaceProjectionStrategy,
-  PointJitterStrategy,
-  PointJitterStrategyContext,
   ProjectedEdgeVisibilityContext,
   ProjectedEdgeVisibilityStrategy,
   TooltipEdgeRecord,
@@ -30,9 +27,7 @@ export function createDefaultFeatureRegistry(): MapglFeatureRegistry {
   return {
     tooltipEdgeSections: [adjacentEdgeTooltipSectionContributor],
     runtimeSubscriptionProviders: [noopRuntimeSubscriptionProvider],
-    pointJitterStrategies: [noopPointJitterStrategy],
     namespaceProjectionStrategies: [defaultNamespaceProjectionStrategy],
-    namespaceBoundaryProviders: [defaultNamespaceBoundaryProvider],
     projectedEdgeVisibilityStrategies: [],
     edgeOffsetStrategies: [defaultEdgeOffsetStrategy],
     clusterLayerProviders: [],
@@ -99,31 +94,10 @@ function dedupeTooltipEdges(edges: Edge[]): Edge[] {
   });
 }
 
-export const noopPointJitterStrategy: PointJitterStrategy = {
-  id: 'core.noop-point-jitter',
-  apply: () => undefined,
-};
-
-export function applyPointJitterStrategies(
-  strategies: PointJitterStrategy[],
-  context: PointJitterStrategyContext
-): Float64Array {
-  let positions = context.positions;
-
-  for (const strategy of strategies) {
-    const nextPositions = strategy.apply({ ...context, positions });
-    if (nextPositions) {
-      positions = nextPositions;
-    }
-  }
-
-  return positions;
-}
-
 export const defaultNamespaceProjectionStrategy: NamespaceProjectionStrategy = {
   id: 'core.default-namespace-filtering',
   project: () => ({
-    rendererFiltering: 'object-mask',
+    contractsHiddenNamespaces: false,
   }),
 };
 
@@ -134,10 +108,7 @@ export function applyNamespaceProjectionStrategies(
   return strategies.reduce<NamespaceProjectionResult>((acc, strategy) => {
     const result = strategy.project(context);
     return {
-      edges: result.edges ?? acc.edges,
-      positions: result.positions ?? acc.positions,
       contractsHiddenNamespaces: result.contractsHiddenNamespaces ?? acc.contractsHiddenNamespaces,
-      rendererFiltering: result.rendererFiltering ?? acc.rendererFiltering,
     };
   }, {});
 }
@@ -149,44 +120,28 @@ type LayoutGraphBoundsLike = {
   maxY: number;
 };
 
-export const defaultNamespaceBoundaryProvider: NamespaceBoundaryProvider = {
-  id: 'core.msagl-layout-bounds',
-  getBoundaries: ({ graph, layoutGraphBounds, layerShift, applyLayerShift, includeRoot }) => {
-    if (!layoutGraphBounds) {
-      return [];
-    }
-
-    const namespaces = (includeRoot ? [graph] : []).concat(Array.from(graph.subgraphsBreadthFirst()) as Graph[]);
-    return namespaces.reduce<NamespaceBoundaryRecord[]>((records, namespace) => {
-      const bounds = layoutGraphBounds.get(namespace.id) as LayoutGraphBoundsLike | undefined;
-      if (!bounds) {
-        return records;
-      }
-
-      const [dx, dy] = applyLayerShift ? inheritedShift(namespace.id, layerShift ?? {}) : [0, 0];
-
-      records.push({
-        namespace: namespace.id,
-        bounds: [bounds.minX + dx, bounds.minY + dy, bounds.maxX + dx, bounds.maxY + dy],
-      });
-      return records;
-    }, []);
-  },
-};
-
-export function getNamespaceBoundaries(
-  providers: NamespaceBoundaryProvider[],
-  context: NamespaceBoundaryContext
+export function getLayoutNamespaceBoundaries(
+  { graph, layoutGraphBounds, layerShift, applyLayerShift, includeRoot }: NamespaceBoundaryContext
 ): NamespaceBoundaryRecord[] {
-  const byNamespace = new Map<string, NamespaceBoundaryRecord>();
-
-  for (const provider of providers) {
-    for (const boundary of provider.getBoundaries(context)) {
-      byNamespace.set(boundary.namespace, boundary);
-    }
+  if (!layoutGraphBounds) {
+    return [];
   }
 
-  return Array.from(byNamespace.values());
+  const namespaces = (includeRoot ? [graph] : []).concat(Array.from(graph.subgraphsBreadthFirst()) as Graph[]);
+  return namespaces.reduce<NamespaceBoundaryRecord[]>((records, namespace) => {
+    const bounds = layoutGraphBounds.get(namespace.id) as LayoutGraphBoundsLike | undefined;
+    if (!bounds) {
+      return records;
+    }
+
+    const [dx, dy] = applyLayerShift ? inheritedShift(namespace.id, layerShift ?? {}) : [0, 0];
+
+    records.push({
+      namespace: namespace.id,
+      bounds: [bounds.minX + dx, bounds.minY + dy, bounds.maxX + dx, bounds.maxY + dy],
+    });
+    return records;
+  }, []);
 }
 
 export function isProjectedEdgeVisible(

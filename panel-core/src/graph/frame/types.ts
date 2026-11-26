@@ -168,6 +168,7 @@ export interface GraphBuildOptions extends GraphLayerBuildOptions {
 }
 
 export interface GraphBuiltState {
+  readonly buildOptions?: GraphBuildOptions;
   readonly graph: Graph;
   readonly edgeIndex: GraphEdgeIndex;
   readonly positions: Float64Array;

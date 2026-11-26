@@ -155,14 +155,14 @@ export class GraphScene {
 
   publishProjection(
     projection: NamespaceProjectionResult | undefined,
-    positions = projection?.positions ?? this.current.positions,
     generation = this.generation
   ): boolean {
     if (generation !== this.generation) {
       return false;
     }
     this._projection = projection;
-    return this.update({ positions }, generation);
+    this.changed();
+    return true;
   }
 
   get render(): EffectiveRenderState {

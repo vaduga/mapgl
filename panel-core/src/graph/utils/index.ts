@@ -30,3 +30,4 @@ export * from './layout-geometry';
 export * from './utils.graph-geom';
 export * from './utils.graph';
 export * from './utils.turf';
+export { SOURCE_ARROW_FLAG, TARGET_ARROW_FLAG } from './layout-worker-types';

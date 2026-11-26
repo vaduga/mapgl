@@ -17,6 +17,7 @@ import { PACKED_INVALID_REF } from './packedRelations';
 import { applyGraphVisualState } from './visualState';
 
 export interface GraphPanelLayoutState {
+  readonly placement?: GraphLayoutRequestInput['fixedPlacement'];
   readonly positions: Float64Array;
   readonly graphBounds: ReadonlyMap<string, LayoutGraphResult>;
   readonly curveGroups: ReadonlyMap<string, LayoutCurveGroup>;
@@ -52,7 +53,7 @@ function unchangedLayoutState(positions: Float64Array): GraphPanelLayoutState {
 }
 
 export async function resolveGraphPanelLayout(
-  context: GraphPipelineLayoutContext,
+  context: GraphPipelineLayoutContext<GraphPanelLayoutState>,
   basemap: GraphLayoutConfig | undefined,
   requestLayout: (input: GraphLayoutRequestInput) => Promise<GraphLayoutWorkerResult | undefined>
 ): Promise<GraphPanelLayoutState> {
@@ -64,6 +65,8 @@ export async function resolveGraphPanelLayout(
 
   const result = await requestLayout({
     graph: context.graph.graph,
+    retainPlacement: context.capturePlacement,
+    fixedPlacement: context.placement?.placement,
     positionsLength: context.graph.positions.length,
     autolayout: basemap?.config as AutolayoutOptions | undefined,
   });
@@ -107,6 +110,7 @@ export function createGraphLayoutSignature(basemap?: GraphLayoutConfig): string 
   const config = basemap?.config as
     | {
         layoutEngine?: unknown;
+        portRouting?: unknown;
         nodeCards?: unknown;
         edgeRouting?: unknown;
         layoutDirection?: unknown;
@@ -116,6 +120,7 @@ export function createGraphLayoutSignature(basemap?: GraphLayoutConfig): string 
     | undefined;
   return JSON.stringify({
     layoutEngine: config?.layoutEngine ?? null,
+    portRouting: config?.portRouting === true,
     nodeCards: config?.nodeCards ?? null,
     edgeRouting: config?.edgeRouting ?? null,
     layoutDirection: config?.layoutDirection ?? null,

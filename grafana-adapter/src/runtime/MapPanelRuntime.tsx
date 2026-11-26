@@ -43,7 +43,7 @@ import {
 } from '@vaduga/mapgl-core/graph/frame';
 import { bumpGraphVersion, Graph, GraphEdgeIndex, resetGraph } from '@vaduga/mapgl-core/graph/main';
 import { LayoutWorkerClient } from '@vaduga/mapgl-core/graph/utils/layout-worker-client';
-import { GraphScene, type CommitScene } from '@vaduga/mapgl-core/runtime';
+import { GraphScene, type CommitScene, type PanelControllerStages } from '@vaduga/mapgl-core/runtime';
 import { defViewState } from '@vaduga/mapgl-core/types/defaults';
 import * as React from 'react';
 import { Component } from 'react';
@@ -92,15 +92,32 @@ export abstract class MapPanelRuntime<
           transformView: this.createSelectionHooks().selectionView,
         }),
         layout: (context) =>
-          resolveGraphPanelLayout(context, this.normalizedOptions.basemap, (input) =>
+          resolveGraphPanelLayout(context, this.layoutBasemap, (input) =>
             this.layoutWorker.requestLayout({ ...input, signal: context.signal })
           ),
         render: createGraphPanelRenderState,
+        ...this.graphPipelineStages(),
         commitGraph: (state, commitScene) => this.commitGraphState(state, commitScene),
         commitVisuals: (state) => this.bindMarkerFeatureSources(state),
       },
       this.scene
     );
+  protected get layoutBasemap() {
+    const basemap = this.normalizedOptions.basemap;
+    const config = basemap?.config;
+    if (!config) return basemap;
+    const { layoutEngine, nodeCards, edgeRouting, layoutDirection, layerSeparation, nodeSeparation } = config;
+    return { ...basemap, config: { layoutEngine, nodeCards, edgeRouting, layoutDirection, layerSeparation, nodeSeparation } };
+  }
+
+  protected graphPipelineStages(): Partial<PanelControllerStages> {
+    return {};
+  }
+
+  protected configureGraphInput(input: ReturnType<typeof createMarkersLayersPipelineInput>) {
+    return input;
+  }
+
   protected graphPipeline = this.createGraphPipeline();
   get controller() {
     return this.graphPipeline.controller;
@@ -484,18 +501,20 @@ export abstract class MapPanelRuntime<
     let result: Awaited<ReturnType<GrafanaGraphPipeline['run']>>;
     try {
       result = await this.graphPipeline.run(
-        createMarkersLayersPipelineInput({
-          data,
-          layers: markerLayers.map((layer) => ({
-            layer: layer.options,
-            layerIndex: Math.max(0, layers.indexOf(layer) - 1),
-          })),
-          theme: this.theme2,
-          isLogic: this.isLogic,
-          useMockData: this.useMockData,
-          layoutSignature: createGraphLayoutSignature(this.normalizedOptions.basemap),
-          groupIndexOffset: 0,
-        })
+        this.configureGraphInput(
+          createMarkersLayersPipelineInput({
+            data,
+            layers: markerLayers.map((layer) => ({
+              layer: layer.options,
+              layerIndex: Math.max(0, layers.indexOf(layer) - 1),
+            })),
+            theme: this.theme2,
+            isLogic: this.isLogic,
+            useMockData: this.useMockData,
+            layoutSignature: createGraphLayoutSignature(this.layoutBasemap),
+            groupIndexOffset: 0,
+          })
+        )
       );
     } catch (error) {
       if (!isCurrent()) {

@@ -269,7 +269,7 @@ export class PanelRenderSession {
     let accepted = false;
     try {
       const preparation = options.preparation;
-      const preparationPresentation = JSON.stringify([input.presentation.isLogic, input.presentation.bounds]);
+      const preparationPresentation = JSON.stringify([input.presentation.isLogic, input.presentation.isRouted, input.presentation.bounds]);
       let prepared: PreparedGraphRender;
       if (
         this.preparedCache?.revision === input.revision &&
@@ -364,7 +364,9 @@ export class PanelRenderSession {
   }
   private translateCachedBounds(input: CapturedRenderInput): void {
     const cache = this.preparedCache;
-    if (!cache || cache.revision !== input.revision || !input.presentation.isLogic) {return;}
+    if (!cache || cache.revision !== input.revision || !input.presentation.isLogic) {
+      return;
+    }
     // Instant extensions may replace geometry while borrowing core boundaries.
     // Rebase the cache from its own shift, independently of the displayed edit.
     const bounds = updateContributedBounds(cache.prepared, cache.input, input);
@@ -579,6 +581,13 @@ export class PanelRenderSession {
     );
     if (!key) {
       return;
+    }
+    if (info.object?.namespaceCarrierId) {
+      return frame.prepared.geometry.namespaceCarriers?.some(
+        (carrier) => carrier.edgeId === key.id && carrier.namespaceSource === key.namespaceId
+      )
+        ? key
+        : undefined;
     }
     const current = this.controller.scene.render.graph;
     const graph = ([current, ...current.subgraphsBreadthFirst()] as Graph[]).find(

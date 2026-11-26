@@ -1,3 +1,4 @@
+import { evalCurvePoint } from './layout-result';
 import { Position } from 'geojson';
 import { Graph } from '../structs/graph';
 import { getNodeData } from '../structs/graphOps';
@@ -29,13 +30,19 @@ export interface EdgeGeometryInput {
   readonly edgeIndex: GraphEdgeIndex;
   readonly positions: Float64Array;
   readonly isLogic: boolean;
+  readonly isRouted?: boolean;
   readonly visibleNamespaces: readonly string[];
   readonly layerShift: LayerDragShift;
   readonly projection?: NamespaceProjectionResult;
   readonly layout: Pick<GraphPanelLayoutState, 'curveGroups' | 'edgeIndexes' | 'arrowTips'>;
   readonly layoutReady: boolean;
-  readonly transformCoordinates?: (key: string, coordinates: Position[], arrowTips: Record<string, Position | undefined>) => {
-    coordinates: Position[]; arrowTips: Record<string, Position | undefined>;
+  readonly transformCoordinates?: (
+    key: string,
+    coordinates: Position[],
+    arrowTips: Record<string, Position | undefined>
+  ) => {
+    coordinates: Position[];
+    arrowTips: Record<string, Position | undefined>;
   };
   readonly layoutIncludesProjection: boolean;
   readonly snapshot?: GraphFrameSnapshot;
@@ -43,11 +50,20 @@ export interface EdgeGeometryInput {
   readonly edgeOffsetStrategies: readonly EdgeOffsetStrategy[];
   readonly projectedEdgeVisibilityStrategies: readonly ProjectedEdgeVisibilityStrategy[];
 }
-const CURVE_TYPE_LINE = 0;
-const CURVE_TYPE_BEZIER = 1;
-const CURVE_TYPE_ARC = 2;
 
 function getIndexedRoute(input: EdgeGeometryInput, edge: Edge) {
+  if (input.isLogic && edge.data?.namespacePortPath) {
+    const [start, end] = input.edgeIndex.getUnitRange(edge.data.unitRef);
+    const nodes = [input.edgeIndex.getEdge(start).source];
+    for (let ref = start; ref < end; ref++) {
+      nodes.push(input.edgeIndex.getEdge(ref).target);
+    }
+    return {
+      path: nodes.map((node) => node.id),
+      vertexRefs: Int32Array.from(nodes, (node) => getNodeData(node)?.wasmId ?? -1),
+    };
+  }
+
   const providedRoute = input.resolveRoute?.(edge);
   if (providedRoute) {
     return providedRoute;
@@ -82,6 +98,7 @@ export interface EdgeRenderIndex {
 /** Packed edge references map to indexes in this candidate, never to graph metadata. */
 export interface PreparedEdgeGeometry {
   readonly routed: Record<string, DeckLine[]>;
+  readonly namespaceCarriers?: readonly DeckLine[];
   readonly arcs: Record<string, any[]>;
   readonly mappings: ReadonlyArray<EdgeRenderIndex | undefined>;
 }
@@ -90,12 +107,14 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
   const mappings: Array<EdgeRenderIndex | undefined> = new Array(input.edgeIndex.edgeCount);
   const skippedEdges = new Set<number>();
   const geomOverride: Map<number, Position[]> = new Map();
+  const namespaceCarriers: DeckLine[] = [];
   const renderDecisions: Map<number, EdgeRenderDecision> = new Map();
   const tiltDecisions: Map<number, Pick<EdgeRenderDecision, 'tiltDistance' | 'isOutgoingTilt'>> = new Map();
   const graphEdgeIndex = input.edgeIndex;
 
   const visibleNamespaces = input.visibleNamespaces;
-  const contractsHiddenNamespaces = input.projection?.contractsHiddenNamespaces ?? false;
+  const logicalArcs = input.isLogic && input.isRouted === false;
+  const contractsHiddenNamespaces = !logicalArcs && Boolean(input.projection?.contractsHiddenNamespaces);
   const arcsFeatures: Record<string, any[]> = {};
   const features: Record<string, DeckLine[]> = {};
 
@@ -110,7 +129,6 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
     decisions: getEdgeRenderDecisions(input.edgeOffsetStrategies, {
       graph: input.graph,
       edgeIndex: graphEdgeIndex,
-      projectedEdges: input.projection?.edges,
       positions,
       visibleNamespaces: new Set(visibleNamespaces),
     }),
@@ -160,7 +178,9 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
       const parPath = indexedRoute.path;
       const findRouteNode = (id: string, index: number) => {
         const record = input.snapshot?.nodes[indexedRoute.vertexRefs[index]];
-        if (record?.id === id) {return namespaceGraphs.get(record.namespaceId)?.findNode(id);}
+        if (record?.id === id) {
+          return namespaceGraphs.get(record.namespaceId)?.findNode(id);
+        }
         // Edited/private routes retain their unit's actual hop identities even
         // when a snapshot no longer has the route's vertex reference.
         const [start, end] = graphEdgeIndex.getUnitRange(graphEdgeIndex.getEdgeUnitRef(edgeRef));
@@ -216,20 +236,24 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
         subPath = [edge.source.id, edge.target.id];
         pathsCoords = [edge.source, edge.target].map((node) => {
           const ref = getNodeData(node)?.wasmId;
-          if (ref === undefined) {throw new Error(`Missing canonical node position: ${node.id}`);}
+          if (ref === undefined) {
+            throw new Error(`Missing canonical node position: ${node.id}`);
+          }
           return [positions[ref * 2], positions[ref * 2 + 1]];
         });
       }
 
-      if (!isProjectedEdgeVisible(input.projectedEdgeVisibilityStrategies, {
-        srcNamespace: edgeSrcGraph.id,
-        tarNamespace: edgeTarGraph.id,
-        srcProjectionNamespace,
-        tarProjectionNamespace,
-        isSrcContracted,
-        isContracted,
-        isTarContracted,
-      })) {
+      if (
+        !isProjectedEdgeVisible(input.projectedEdgeVisibilityStrategies, {
+          srcNamespace: edgeSrcGraph.id,
+          tarNamespace: edgeTarGraph.id,
+          srcProjectionNamespace,
+          tarProjectionNamespace,
+          isSrcContracted,
+          isContracted,
+          isTarContracted,
+        })
+      ) {
         continue;
       }
 
@@ -322,6 +346,10 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
         rowIndex: dataRecord?.rowIndex,
         properties: {
           ...(dataRecord ?? {}),
+          ...(edgeData?.labelGroup !== undefined && {
+            labelGroup: edgeData.labelGroup,
+            labelGroupOrder: edgeData.labelGroupOrder,
+          }),
           locName,
           segrPath,
           ...(renderDecision
@@ -337,6 +365,21 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
         },
       };
 
+      if (input.isLogic && renderDecision?.namespaceCarrierId) {
+        const route = getLayoutTerminalGeometry(edge, input, true);
+        const carrierCoordinates = route
+          ? (input.transformCoordinates?.(edgeSrcGraph.id, route, {}).coordinates ?? route)
+          : coordinates;
+        namespaceCarriers.push({
+          ...newFeature,
+          edgeId: renderDecision.namespaceCarrierId,
+          namespaceCarrierId: renderDecision.namespaceCarrierId,
+          skip: false,
+          hideArrowheads: true,
+          geometry: { type: 'LineString', coordinates: carrierCoordinates },
+        });
+      }
+
       graphFeatures.push(newFeature);
       mappings[edgeRef] = { graphId: edgeSrcGraph.id, lineId };
 
@@ -350,6 +393,27 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
         arcTargetNamespace = newFeature.namespaceTarget!;
         targetPosition = arrowTips.end && !isTarContracted ? arrowTips.end : coordinates.at(-1);
       }
+    }
+
+    if (logicalArcs) {
+      const nodePosition = (node: typeof source, namespace: string): Position | undefined => {
+        const ref = getNodeData(node)?.wasmId;
+        if (ref === undefined) return;
+        const point = [positions[ref * 2], positions[ref * 2 + 1]];
+        if (!point.every(Number.isFinite)) return;
+        return input.transformCoordinates?.(namespace, [point], {}).coordinates[0] ?? point;
+      };
+      arcSourceNamespace = srcGraph.id;
+      arcTargetNamespace = tarGraph.id;
+      sourcePosition = nodePosition(source, arcSourceNamespace);
+      targetPosition = nodePosition(target, arcTargetNamespace);
+      const { representativeEdgeId, ...properties } = srcFeatureProps as Partial<BiColProps> & { representativeEdgeId?: string };
+      srcFeatureProps = {
+        ...properties,
+        segrPath: sourcePosition && targetPosition
+          ? segregatePath([source, target], [sourcePosition, targetPosition], () => source, () => target)[0]
+          : undefined,
+      };
     }
 
     const arcId = pushArcFeature(
@@ -392,7 +456,9 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
     offset += arcs.length;
   }
   mappings.forEach((mapping, index) => {
-    if (!mapping) {return;}
+    if (!mapping) {
+      return;
+    }
     mappings[index] = {
       ...mapping,
       ...(mapping.lineId !== undefined && { lineBatchIndex: lineOffsets.get(mapping.graphId)! + mapping.lineId }),
@@ -401,7 +467,7 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
       }),
     };
   });
-  return { routed: features, arcs: arcsFeatures, mappings };
+  return { routed: features, arcs: arcsFeatures, mappings, ...(namespaceCarriers.length && { namespaceCarriers }) };
 }
 
 function applyEdgeRenderDecisions({
@@ -500,7 +566,7 @@ function getLayoutArrowLengths(edge: any): { start?: number; end?: number } {
   );
 }
 
-function getLayoutTerminalGeometry(edge: Edge, input: EdgeGeometryInput): Position[] | undefined {
+function getLayoutTerminalGeometry(edge: Edge, input: EdgeGeometryInput, fullRoute = false): Position[] | undefined {
   if (!input.layoutReady) {
     return undefined;
   }
@@ -524,6 +590,18 @@ function getLayoutTerminalGeometry(edge: Edge, input: EdgeGeometryInput): Positi
   }
 
   const first = getLayoutSegmentEndpoints(group, start);
+  if (fullRoute) {
+    const path = [first[0]];
+    for (let i = start; i < end; i++) {
+      const steps = group.types[i] === 0 ? 1 : 24;
+      const t0 = group.segments[i * 2];
+      const dt = group.segments[i * 2 + 1];
+      for (let step = 1; step <= steps; step++) {
+        path.push(evalCurvePoint(group.types[i], group.controlPoints, i, t0 + dt * step / steps));
+      }
+    }
+    return path;
+  }
   if (end === start + 1) {
     return first;
   }
@@ -540,34 +618,4 @@ function getLayoutSegmentEndpoints(group: any, segmentIndex: number): [Position,
     evalCurvePoint(group.types[segmentIndex], group.controlPoints, segmentIndex, t0),
     evalCurvePoint(group.types[segmentIndex], group.controlPoints, segmentIndex, t1),
   ];
-}
-
-function evalCurvePoint(type: number, controlPoints: Float32Array, segmentIndex: number, t: number): Position {
-  const offset = segmentIndex * 8;
-  const x0 = controlPoints[offset];
-  const y0 = controlPoints[offset + 1];
-  const x1 = controlPoints[offset + 2];
-  const y1 = controlPoints[offset + 3];
-  const x2 = controlPoints[offset + 4];
-  const y2 = controlPoints[offset + 5];
-  const x3 = controlPoints[offset + 6];
-  const y3 = controlPoints[offset + 7];
-
-  if (type === CURVE_TYPE_BEZIER) {
-    const t2 = t * t;
-    const t3 = t2 * t;
-    const cx = (x1 - x0) * 3;
-    const cy = (y1 - y0) * 3;
-    const ex = (x2 - x1) * 3 - cx;
-    const ey = (y2 - y1) * 3 - cy;
-    const lx = x3 - x0 - cx - ex;
-    const ly = y3 - y0 - cy - ey;
-    return [lx * t3 + ex * t2 + cx * t + x0, ly * t3 + ey * t2 + cy * t + y0];
-  }
-
-  if (type === CURVE_TYPE_ARC) {
-    return [x0 + Math.cos(t) * x1 + Math.sin(t) * x2, y0 + Math.cos(t) * y1 + Math.sin(t) * y2];
-  }
-
-  return [x0 + (x1 - x0) * t, y0 + (y1 - y0) * t];
 }

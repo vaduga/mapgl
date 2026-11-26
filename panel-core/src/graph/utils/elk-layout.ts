@@ -1,8 +1,9 @@
 import ELK from 'elkjs/lib/elk.bundled.js';
 import type { ElkExtendedEdge, ElkNode, ElkPoint } from 'elkjs/lib/elk-api';
+import { roundedPolyline } from './rounded-polyline';
 import { NS_PADDING } from '../../types/defaults';
 import { DEFAULT_LAYOUT_NODE_RADIUS } from './layout-geometry';
-import { createCurveGroups, type CurveSegment } from './layout-result';
+import { createCurveGroups, curveResolutionForLength, pushCurveSegments, type CurveSegment } from './layout-result';
 import {
   nodeKey,
   type LayoutArrowResult,
@@ -17,8 +18,7 @@ import {
 
 const BOX_TITLE = 22; // room above a box's nodes for its title
 const BEZIER = 1;
-const LINE = 0;
-const CURVE_STEPS = 16;
+const MAX_CORNER_RADIUS = 8;
 const SOURCE_ARROW_FLAG = 1;
 const TARGET_ARROW_FLAG = 2;
 
@@ -31,6 +31,10 @@ let elk: InstanceType<typeof ELK> | undefined;
 
 export async function getElkLayoutResult(request: LayoutRequest): Promise<LayoutResult> {
   elk ??= createElk();
+  if (request.compoundPorts?.size) {
+    const laid = await elk.layout(buildElkGraph(request, true));
+    return { ...toLayoutResult(request, laid, true), nativeNamespacePorts: true };
+  }
   const laid = await elk.layout(buildElkGraph(request));
   return toLayoutResult(request, laid);
 }
@@ -55,7 +59,8 @@ function createElk(): InstanceType<typeof ELK> {
   }
 }
 
-export function buildElkGraph(request: LayoutRequest): ElkNode {
+export function buildElkGraph(request: LayoutRequest, nativePorts = false): ElkNode {
+  const edgeRouting = request.routing === 'Rectilinear' ? 'ORTHOGONAL' : 'SPLINES';
   const padding = `[top=${NS_PADDING + BOX_TITLE},left=${NS_PADDING},bottom=${NS_PADDING},right=${NS_PADDING}]`;
   const spacing = {
     'elk.layered.spacing.nodeNodeBetweenLayers': String(request.layerSeparation),
@@ -66,8 +71,9 @@ export function buildElkGraph(request: LayoutRequest): ElkNode {
     layoutOptions: {
       'elk.algorithm': 'layered',
       'elk.direction': DIRECTION[request.direction] ?? 'RIGHT',
-      'elk.hierarchyHandling': 'INCLUDE_CHILDREN',
-      'elk.edgeRouting': request.routing === 'Rectilinear' ? 'ORTHOGONAL' : 'SPLINES',
+      'elk.hierarchyHandling': nativePorts ? 'SEPARATE_CHILDREN' : 'INCLUDE_CHILDREN',
+      ...(nativePorts && { 'elk.json.edgeCoords': 'ROOT' }),
+      'elk.edgeRouting': edgeRouting,
       ...spacing,
       'elk.spacing.componentComponent': String(request.nodeSeparation),
       'elk.layered.considerModelOrder.strategy': 'NODES_AND_EDGES',
@@ -90,7 +96,7 @@ export function buildElkGraph(request: LayoutRequest): ElkNode {
     // Spacing is read per box, not inherited from the root.
     const box: ElkNode = {
       id: graphElkId(graph.id),
-      layoutOptions: { 'elk.padding': padding, ...spacing },
+      layoutOptions: { 'elk.padding': padding, 'elk.edgeRouting': edgeRouting, ...spacing },
       children: [],
     };
     graphs.set(graph.id, box);
@@ -106,6 +112,23 @@ export function buildElkGraph(request: LayoutRequest): ElkNode {
   for (const node of request.nodes) {
     const parent = graphs.get(node.graphId);
     if (!parent) {
+      continue;
+    }
+    const side = nativePorts && request.compoundPorts?.get(nodeKey(node.graphId, node.id));
+    if (side && parent !== root) {
+      const id = nodeElkId(node.graphId, node.id);
+      // ELK determines the ratio from the input dimensions, then applies it to the final box.
+      parent.width = 100;
+      parent.height = 100;
+      parent.layoutOptions!['elk.portConstraints'] = 'FIXED_RATIO';
+      (parent.ports ??= []).push({
+        id,
+        width: 0,
+        height: 0,
+        x: side === 'EAST' ? 100 : side === 'WEST' ? 0 : 50,
+        y: side === 'SOUTH' ? 100 : side === 'NORTH' ? 0 : 50,
+        layoutOptions: { 'elk.port.side': side },
+      });
       continue;
     }
     const size = (node.radius ?? DEFAULT_LAYOUT_NODE_RADIUS) * 2;
@@ -125,23 +148,34 @@ export function buildElkGraph(request: LayoutRequest): ElkNode {
     });
   }
   const known = new Set(request.nodes.map((node) => nodeElkId(node.graphId, node.id)));
+  const parents = new Map(nativePorts ? request.graphs.map((graph) => [graph.id, graph.parentId]) : []);
   request.edges.forEach((edge, index) => {
     const source = nodeElkId(edge.sourceGraphId, edge.sourceId);
     const target = nodeElkId(edge.targetGraphId, edge.targetId);
     if (source !== target && known.has(source) && known.has(target)) {
-      root.edges!.push({ id: `e${index}`, sources: [source], targets: [target] });
+      const ownerId = edge.sourceGraphId === edge.targetGraphId ? edge.sourceGraphId : parents.get(edge.sourceGraphId);
+      const owner = nativePorts && ownerId ? (graphs.get(ownerId) ?? root) : root;
+      (owner.edges ??= []).push({ id: `e${index}`, sources: [source], targets: [target] });
     }
   });
   return root;
 }
 
-function toLayoutResult(request: LayoutRequest, laid: ElkNode): LayoutResult {
+function toLayoutResult(request: LayoutRequest, laid: ElkNode, rootEdgeCoords = false): LayoutResult {
   const offsets = new Map<string, Point>(); // absolute top-left of every ELK node
   const boxes = new Map<string, Box>();
   const walk = (node: ElkNode, parent: Point) => {
     const at = { x: parent.x + (node.x ?? 0), y: parent.y + (node.y ?? 0) };
     offsets.set(node.id, at);
     boxes.set(node.id, { ...at, width: node.width ?? 0, height: node.height ?? 0 });
+    node.ports?.forEach((port) =>
+      boxes.set(port.id, {
+        x: at.x + (port.x ?? 0),
+        y: at.y + (port.y ?? 0),
+        width: port.width ?? 0,
+        height: port.height ?? 0,
+      })
+    );
     node.children?.forEach((child) => walk(child, at));
   };
   walk(laid, { x: -(laid.x ?? 0), y: -(laid.y ?? 0) });
@@ -192,7 +226,7 @@ function toLayoutResult(request: LayoutRequest, laid: ElkNode): LayoutResult {
     if (!laidEdge || !section) {
       return;
     }
-    const origin = offsets.get((laidEdge as { container?: string }).container ?? laid.id) ?? { x: 0, y: 0 };
+    const origin = offsets.get(rootEdgeCoords ? laid.id : (laidEdge.container ?? laid.id)) ?? { x: 0, y: 0 };
     const abs = (p: ElkPoint): Point => ({ x: p.x + origin.x, y: p.y + origin.y });
     const points = [section.startPoint, ...(section.bendPoints ?? []), section.endPoint].map(abs);
     const sourceId = nodeElkId(edge.sourceGraphId, edge.sourceId);
@@ -211,7 +245,11 @@ function toLayoutResult(request: LayoutRequest, laid: ElkNode): LayoutResult {
       const last = points.length - 1;
       points[last] = moveTowards(points[last], points[last - 1], edge.targetArrowLength);
     }
-    segmentsByEdge[index] = toSegments(points, request.routing !== 'Rectilinear');
+    const cornerRadius = Math.min(MAX_CORNER_RADIUS, request.nodeSeparation / 4);
+    segmentsByEdge[index] =
+      request.routing === 'Rectilinear'
+        ? roundedPolyline(points, cornerRadius)
+        : toSplineSegments(points, cornerRadius);
     const flag = (edge.sourceArrowLength ? SOURCE_ARROW_FLAG : 0) | (edge.targetArrowLength ? TARGET_ARROW_FLAG : 0);
     if (flag) {
       arrowEdges.push(index);
@@ -239,20 +277,25 @@ function toLayoutResult(request: LayoutRequest, laid: ElkNode): LayoutResult {
 }
 
 /** ELK spline sections are cubic Béziers when the points after the start come in threes; else a polyline. */
-function toSegments(points: Point[], splines: boolean): CurveSegment[] {
-  const xy = (p: Point) => [p.x, p.y];
-  const segments: CurveSegment[] = [];
-  if (splines && (points.length - 1) % 3 === 0) {
-    for (let i = 0; i + 3 < points.length; i += 3) {
-      const controlPoints = [points[i], points[i + 1], points[i + 2], points[i + 3]].flatMap(xy);
-      for (let step = 0; step < CURVE_STEPS; step++) {
-        segments.push({ type: BEZIER, controlPoints, segment: [step / CURVE_STEPS, 1 / CURVE_STEPS] });
-      }
-    }
-    return segments;
+function toSplineSegments(points: Point[], cornerRadius: number): CurveSegment[] {
+  if ((points.length - 1) % 3 !== 0) {
+    // A compound route can concatenate legs and insert hierarchy joins. Its
+    // flattened point list may no longer describe a single cubic chain.
+    return roundedPolyline(points, cornerRadius);
   }
-  for (let i = 0; i + 1 < points.length; i++) {
-    segments.push({ type: LINE, controlPoints: [...xy(points[i]), ...xy(points[i + 1]), 0, 0, 0, 0], segment: [0, 1] });
+
+  const segments: CurveSegment[] = [];
+  for (let i = 0; i + 3 < points.length; i += 3) {
+    const cubic = points.slice(i, i + 4);
+    const length = cubic
+      .slice(1)
+      .reduce((sum, point, j) => sum + Math.hypot(point.x - cubic[j].x, point.y - cubic[j].y), 0);
+    pushCurveSegments(
+      segments,
+      BEZIER,
+      cubic.flatMap(({ x, y }) => [x, y]),
+      curveResolutionForLength(length)
+    );
   }
   return segments;
 }

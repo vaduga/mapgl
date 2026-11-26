@@ -25,6 +25,7 @@ interface RegistrySelectInfo {
 export interface CreateMapLayerRegistryOptions {
   basemapLayers?: Array<ExtendMapLayerRegistryItem<any>>;
   dataLayers?: Array<ExtendMapLayerRegistryItem<any>>;
+  orthoBaseMapLayer?: ExtendMapLayerRegistryItem<any>;
   defaultBaseMapLayer?: ExtendMapLayerRegistryItem<any>;
   getServerBaseLayerConfig?: () => ExtendMapLayerOptions | undefined;
   hasAlphaPanels?: boolean;
@@ -33,6 +34,7 @@ export interface CreateMapLayerRegistryOptions {
 export function createMapLayerRegistry(options: CreateMapLayerRegistryOptions = {}) {
   const basemapLayers = options.basemapLayers ?? defaultBasemapLayers;
   const dataLayers = options.dataLayers ?? [];
+  const orthoBaseMapLayer = options.orthoBaseMapLayer ?? orthoLayer;
 
   const defaultBaseLayer: ExtendMapLayerRegistryItem<any> = {
     id: DEFAULT_BASEMAP_CONFIG.type,
@@ -59,7 +61,7 @@ export function createMapLayerRegistry(options: CreateMapLayerRegistryOptions = 
   };
 
   const mapLayerRegistry = new Registry<ExtendMapLayerRegistryItem<any>>(() => [
-    orthoLayer,
+    orthoBaseMapLayer,
     defaultBaseLayer,
     ...basemapLayers,
     ...dataLayers,
@@ -105,7 +107,7 @@ export function createMapLayerRegistry(options: CreateMapLayerRegistryOptions = 
 
   const getLayersOptions = (basemap: boolean, current?: string): RegistrySelectInfo => {
     if (basemap) {
-      return getLayersSelection([orthoLayer, defaultBaseLayer, ...basemapLayers], current);
+      return getLayersSelection([orthoBaseMapLayer, defaultBaseLayer, ...basemapLayers], current);
     }
 
     return getLayersSelection([...dataLayers], current);
