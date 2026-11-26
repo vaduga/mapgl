@@ -109,7 +109,7 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
   const geomOverride: Map<number, Position[]> = new Map();
   const namespaceCarriers: DeckLine[] = [];
   const renderDecisions: Map<number, EdgeRenderDecision> = new Map();
-  const tiltDecisions: Map<number, Pick<EdgeRenderDecision, 'tiltDistance' | 'isOutgoingTilt'>> = new Map();
+  const arcDecisions: Map<number, NonNullable<EdgeRenderDecision['arc']>> = new Map();
   const graphEdgeIndex = input.edgeIndex;
 
   const visibleNamespaces = input.visibleNamespaces;
@@ -136,7 +136,7 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
     skippedEdges,
     geomOverride,
     renderDecisions,
-    tiltDecisions,
+    arcDecisions,
     applyGeometryOverrides: !input.isLogic,
   });
 
@@ -405,8 +405,10 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
       };
       arcSourceNamespace = srcGraph.id;
       arcTargetNamespace = tarGraph.id;
-      sourcePosition = nodePosition(source, arcSourceNamespace);
-      targetPosition = nodePosition(target, arcTargetNamespace);
+      const hadContractedTerminal = Boolean(input.projection?.contractsHiddenNamespaces &&
+        (!visibleNamespaces.includes(srcGraph.id) || !visibleNamespaces.includes(tarGraph.id)));
+      if (!sourcePosition || hadContractedTerminal) sourcePosition = nodePosition(source, arcSourceNamespace);
+      if (!targetPosition || hadContractedTerminal) targetPosition = nodePosition(target, arcTargetNamespace);
       const { representativeEdgeId, ...properties } = srcFeatureProps as Partial<BiColProps> & { representativeEdgeId?: string };
       srcFeatureProps = {
         ...properties,
@@ -424,10 +426,11 @@ export function getEdgesGeometry(input: EdgeGeometryInput): PreparedEdgeGeometry
       sourcePosition,
       targetPosition,
       srcFeatureProps,
-      tiltDecisions.get(edgeStart)
+      arcDecisions.get(edgeStart)
     );
     if (arcId !== undefined) {
-      Object.assign(arcsFeatures[srcGraph.id][arcId], {
+      const arc = arcsFeatures[srcGraph.id][arcId];
+      Object.assign(arc, {
         namespaceSource: arcSourceNamespace,
         namespaceTarget: arcTargetNamespace,
       });
@@ -476,7 +479,7 @@ function applyEdgeRenderDecisions({
   skippedEdges,
   geomOverride,
   renderDecisions,
-  tiltDecisions,
+  arcDecisions,
   applyGeometryOverrides,
 }: {
   decisions: EdgeRenderDecision[];
@@ -484,7 +487,7 @@ function applyEdgeRenderDecisions({
   skippedEdges: Set<number>;
   geomOverride: Map<number, Position[]>;
   renderDecisions: Map<number, EdgeRenderDecision>;
-  tiltDecisions: Map<number, Pick<EdgeRenderDecision, 'tiltDistance' | 'isOutgoingTilt'>>;
+  arcDecisions: Map<number, NonNullable<EdgeRenderDecision['arc']>>;
   applyGeometryOverrides: boolean;
 }) {
   decisions.forEach((decision) => {
@@ -494,12 +497,7 @@ function applyEdgeRenderDecisions({
     }
 
     renderDecisions.set(edgeRef, decision);
-    if (decision.tiltDistance !== undefined) {
-      tiltDecisions.set(edgeRef, {
-        tiltDistance: decision.tiltDistance,
-        isOutgoingTilt: decision.isOutgoingTilt,
-      });
-    }
+    if (decision.arc) arcDecisions.set(edgeRef, decision.arc);
     if (decision.type === 'reduced') {
       skippedEdges.add(edgeRef);
       return;
@@ -512,42 +510,29 @@ function applyEdgeRenderDecisions({
 }
 
 const pushArcFeature = (
-  input: Pick<EdgeGeometryInput, 'isLogic' | 'edgeIndex'>,
+  input: Pick<EdgeGeometryInput, 'edgeIndex'>,
   arcsFeatures,
   edge: any,
   srcGraph: Graph,
   sourcePosition: Position | undefined,
   targetPosition: Position | undefined,
   properties: Partial<BiColProps>,
-  tiltDecision?: Pick<EdgeRenderDecision, 'tiltDistance' | 'isOutgoingTilt'>
+  arcDecision?: NonNullable<EdgeRenderDecision['arc']>
 ) => {
   if (!sourcePosition || !targetPosition) {
     return;
   }
 
-  const tiltDist = tiltDecision?.tiltDistance;
-  const isOutgoing = tiltDecision?.isOutgoingTilt ?? false;
   const arcData = {
     edgeRef: input.edgeIndex.getEdgeRef(edge),
     sourcePosition,
     targetPosition,
     namespaceSource: (edge.source.parent as Graph).id,
     namespaceTarget: (edge.target.parent as Graph).id,
-    properties: { ...properties },
+    properties: { ...properties, tilt: arcDecision?.tilt ?? 0 },
     edgeId: edge.id,
-    skip: false,
+    skip: arcDecision?.skip ?? false,
   };
-
-  if (tiltDist !== undefined) {
-    if (tiltDist === 0) {
-      arcData.skip = true;
-    } else if (!input.isLogic) {
-      const dist = tiltDist / 1;
-      const tiltIncrement = properties.arcStyle?.arcConfig.tiltIncrement;
-      const tilt = dist * tiltIncrement * (isOutgoing ? 1 : -1);
-      arcData.properties.tilt = tilt;
-    }
-  }
 
   if (!arcsFeatures[srcGraph.id]) {
     arcsFeatures[srcGraph.id] = [];

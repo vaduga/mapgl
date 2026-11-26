@@ -192,8 +192,7 @@ export interface EdgeRenderDecision {
   coordinates?: [[number, number], [number, number]];
   offsetIndex?: number;
   offsetCount?: number;
-  tiltDistance?: number;
-  isOutgoingTilt?: boolean;
+  arc?: { tilt?: number; skip?: boolean };
 }
 
 export interface EdgeOffsetStrategyContext {
