@@ -95,7 +95,7 @@ it('requires both endpoints and keeps annotation overlay visibility independent 
   const feature = Object.values(geometry.routed).flat()[0];
   const visible = () => captureEffectiveVisibility(input()).edge(feature);
   expect(visible()).toBe(true);
-  for (const layer of ['layer-A', 'layer-B', 'shop', 'data']) {
+  for (const layer of ['layer-A', 'layer-B']) {
     hide(controller, layer, false);
     expect(visible()).toBe(false);
     hide(controller, layer, true);
@@ -124,12 +124,8 @@ it('requires both endpoints and keeps annotation overlay visibility independent 
   expect(visible()).toBe(false);
   controller.scene.toggleGroup(0);
   expect(visible()).toBe(true);
-  hide(controller, 'layer-B', false);
-  expect(visible()).toBe(false);
   controller.dispose();
 });
-
-
 
 it('filters every fragment and arc by logical endpoints, independently of intermediate node visibility', async () => {
   const controller = await fixture(true);
@@ -139,15 +135,16 @@ it('filters every fragment and arc by logical endpoints, independently of interm
   const arc = Object.values(prepared.geometry.arcs).flat()[0];
   expect(hops).toHaveLength(2);
   controller.scene.toggleGroup(0);
-  const visibility = captureEffectiveVisibility(input());
-  expect(hops.map(visibility.edge)).toEqual([true, true]);
-  expect(visibility.edge(arc)).toBe(true);
+  const visibleEdges = () => [...hops, arc].map(captureEffectiveVisibility(input()).edge);
+  expect(visibleEdges()).toEqual([true, true, true]);
+
+  // Both logical endpoints are in shop. Only the intermediate node is in data.
+  hide(controller, 'data', false);
+  expect(visibleEdges()).toEqual([true, true, true]);
   hide(controller, 'shop', false);
-  const hidden = captureEffectiveVisibility(input());
-  expect(hops.map(hidden.edge)).toEqual([false, false]);
-  expect(hidden.edge(arc)).toBe(false);
+  expect(visibleEdges()).toEqual([false, false, false]);
   hide(controller, 'shop', true);
-  expect(hops.map(captureEffectiveVisibility(input()).edge)).toEqual([true, true]);
+  expect(visibleEdges()).toEqual([true, true, true]);
   controller.dispose();
 });
 

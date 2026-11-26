@@ -1,4 +1,4 @@
-import { createLayoutDispatcher } from './layout-dispatch';
+import { createLayoutDispatcher, dispatchLayout } from './layout-dispatch';
 import type { LayoutRequest, LayoutResult } from './layout-worker-types';
 import { LayoutWorkerClient } from './layout-worker-client';
 
