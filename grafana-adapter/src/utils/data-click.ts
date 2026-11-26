@@ -70,6 +70,15 @@ export const expandTooltip = (info: any, panel: any, dataClickProps: any) => {
         return;
       }
     }
+    if (object?.namespacePort || (object?.namespaceCarrierId && graphInteraction?.kind === 'edge')) {
+      panel.controller.stores.pointStore.focus(
+        object.namespaceCarrierId
+          ? { kind: 'edge', id: object.namespaceCarrierId, namespaceId: object.namespaceSource }
+          : undefined
+      );
+      setTooltipObject({ ...info, graphInteraction, object: { ...object, graphInteraction } });
+      return;
+    }
     const edgeRef = graphInteraction?.kind === 'edge' ? graphInteraction.edgeRef : undefined;
     const indexedEdge =
       edgeRef !== undefined && edgeRef < (render.edgeIndex?.edgeCount ?? 0)

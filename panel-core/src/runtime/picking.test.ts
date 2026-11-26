@@ -35,6 +35,16 @@ it('resolves binary node and runtime edge picks and rejects picks from replaced 
       object: { edgeId: edge.id, edgeRef: scene.render.edgeIndex.getEdgeRef(edge) },
     })
   ).toMatchObject({ kind: 'edge', id: edge.id });
+  expect(
+    resolvePickingFocus(scene, {
+      picked: true,
+      object: {
+        edgeId: 'carrier',
+        graphFocus: { kind: 'edge', id: 'carrier', namespaceId: 'source' },
+        edgeRef: scene.render.edgeIndex.getEdgeRef(edge),
+      },
+    })
+  ).toEqual({ kind: 'edge', id: 'carrier', namespaceId: 'source' });
   const oldFeature = { ...scene.render.features[1], graphFrame: { key: record.key, primaryRow: record.primaryRow } };
   await controller.update(metricGraphInput(metricGraphSource('second', [100, 0])));
   expect(

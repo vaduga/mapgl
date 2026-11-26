@@ -9,6 +9,7 @@ import { type DataFrame, type Field, FieldType, type InterpolateFunction } from 
 import { SortOrder, TooltipDisplayMode } from '@grafana/schema';
 import {
   GraphTooltip,
+  type GraphTooltipProps,
   TooltipView,
   type TooltipContent,
   type TooltipInspection,
@@ -16,7 +17,6 @@ import {
 } from '@vaduga/mapgl-core/components/Tooltips/GraphTooltip';
 import type { PanelController } from '@vaduga/mapgl-core/runtime';
 import type { DisplayedRenderFrame } from '@vaduga/mapgl-core/render/session';
-import type { MapglFeatureServices } from '@vaduga/mapgl-core/featureContracts';
 import { blankHoverInfo } from '@vaduga/mapgl-core/types/defaults';
 import { colTypes } from '@vaduga/mapgl-core/types';
 import { getGrafanaAnnotations } from '../../types/annotations';
@@ -34,7 +34,7 @@ export interface GrafanaTooltipProps {
   controller: PanelController;
   frame?: DisplayedRenderFrame;
   sourceResolver?: Pick<GrafanaSourceResolver, 'resolve'>;
-  featureServices?: Pick<MapglFeatureServices, 'tooltipEdgeSections'>;
+  featureServices?: GraphTooltipProps['featureServices'];
   data: { series: DataFrame[] };
   info: any;
   setHoverInfo(info: any): void;
@@ -86,16 +86,19 @@ function TooltipBase({
     </VizTooltipContainer>
   );
   const content = (feature: Record<string, any>, inspection?: TooltipInspection): TooltipContent | undefined => {
-    const interaction = inspection?.interaction;
-    const row =
-      interaction && sourceResolver
-        ? resolveGraphInteractionRow(sourceResolver as GrafanaSourceResolver, interaction)
-        : undefined;
     const layerName = feature.layerName ?? feature.featSource?.layerName;
     const layer = dataLayers.find((layer) => layer.name === layerName);
     if ((layer?.isShowTooltip ?? activeInfo?.layer?.props?.isShowTooltip) === false) {
       return undefined;
     }
+    if (inspection?.headerOnly) {
+      return {};
+    }
+    const interaction = inspection?.interaction;
+    const row =
+      interaction && sourceResolver
+        ? resolveGraphInteractionRow(sourceResolver as GrafanaSourceResolver, interaction)
+        : undefined;
     const visibleFields = layer?.displayProperties ?? activeInfo?.layer?.props?.displayProperties;
     const displayProps = visibleFields?.length ? [...visibleFields, ...baseProps] : [...baseProps];
     if (feature.isComment) {

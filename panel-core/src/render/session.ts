@@ -32,6 +32,7 @@ export interface RenderExtension {
   readonly dispose?: () => void;
 }
 export interface PanelRenderOptions {
+  readonly tooltipInspections?: readonly import('../components/Tooltips/graphTooltipModel').TooltipInspectionContributor[];
   readonly presentation: RenderPresentation;
   readonly preparation?: RenderPreparationOptions;
   readonly secondary?: (input: CapturedRenderInput) => readonly RenderLayer[];
@@ -538,6 +539,7 @@ export class PanelRenderSession {
       layers = getDimmedGraphLayers(layers, {
         connectedNodeIds: highlighter.getConnectedNodeIds(),
         connectedEdgeIndexes: highlighter.getConnectedEdgeIndexes(),
+        focusedEdgeId: points.focusedEdgeId,
         isRouted: p.isRouted,
       });
     }
@@ -559,7 +561,8 @@ export class PanelRenderSession {
           render: frame.input.render,
           isRouted: frame.input.presentation.isRouted,
         },
-        retained.target
+        retained.target,
+        this.options.tooltipInspections
       );
       if (inspection) {
         store.focus(tooltipFocus(inspection));
