@@ -3,10 +3,8 @@
 ## 2.13.2
 - node tag filtering, with per-group and shared legends
 - fix: graph panning doesn't trigger Grafana drawer in Edit mode
-## 2.13.1
-- MSAGLJS lib update with improved routing
 
-## 2.13.0
+## 2.13.1
 - multi-select in node groups legend filter. Edges are hidden when either endpoint's group is hidden
 - support for inter-namespace multi-hop edges via a per-node namespace array field
 - multiply alpha channel and data layer opacity for edge/arc color

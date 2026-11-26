@@ -398,6 +398,7 @@
           },
           {
             "config": {
+              "tags": "model",
               "arcConfig": {
                 "capacity": {
                   "fixed": 1

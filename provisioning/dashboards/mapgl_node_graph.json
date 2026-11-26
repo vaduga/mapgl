@@ -303,6 +303,7 @@
           },
           {
             "config": {
+              "tags": "model",
               "arcConfig": {
                 "capacity": {
                   "fixed": 1
@@ -774,6 +775,7 @@
           },
           {
             "config": {
+              "tags": "model",
               "arcConfig": {
                 "capacity": {
                   "fixed": 1

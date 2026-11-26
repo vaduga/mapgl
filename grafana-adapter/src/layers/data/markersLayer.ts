@@ -93,6 +93,13 @@ export function createMarkersLayer({
               category: ['Node Groups'],
               defaultValue: defaultOptions.style.useGroups,
             })
+            .addCustomEditor({
+              category: ['Node Groups'],
+              id: 'config.groups',
+              path: 'config.groups',
+              name: 'Legend label, SVG icon, color override',
+              editor: GroupsEditor,
+            })
             .addFieldNamePicker({
               path: 'config.tags',
               name: 'Tag filtering',
@@ -104,13 +111,6 @@ export function createMarkersLayer({
                 isClearable: true,
               },
               showIf: (opts) => Boolean(opts.config?.style?.useGroups ?? defaultOptions.style.useGroups),
-            })
-            .addCustomEditor({
-              category: ['Node Groups'],
-              id: 'config.groups',
-              path: 'config.groups',
-              name: 'Legend label, SVG icon, color override',
-              editor: GroupsEditor,
             })
             .addCustomEditor({
               id: 'config.edgeStyle',
