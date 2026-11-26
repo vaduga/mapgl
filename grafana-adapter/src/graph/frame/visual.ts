@@ -188,6 +188,7 @@ export function compileGraphVisualConfig(
     arcConfig: config.arcConfig,
     groupIndexOffset: config.groupIndexOffset,
     showStat2: config.showStat2,
+    tags: config.tags,
     groups: config.groups?.map((rule) => ({
       ...rule,
       color: rule.color ? resolveColor(rule.color) : rule.color,

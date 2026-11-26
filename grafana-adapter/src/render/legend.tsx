@@ -6,6 +6,7 @@ import { PositionTracker } from '@vaduga/mapgl-core/components';
 import { StateTime } from '../components/Geocoder/StateTime';
 
 interface LegendStackProps {
+  tags?: React.ReactNode;
   edgeLegend: VizLegendItem[];
   nodeLegend: VizLegendItem[];
   hasAnnotations: boolean;
@@ -17,6 +18,7 @@ interface LegendStackProps {
 }
 
 export function LegendStack({
+  tags,
   edgeLegend,
   nodeLegend,
   hasAnnotations,
@@ -26,7 +28,7 @@ export function LegendStack({
   onNodeLabelClick,
   classes,
 }: LegendStackProps) {
-  if (!showEdgeLegend && !showNodeLegend) {
+  if (!tags && !showEdgeLegend && !showNodeLegend) {
     return null;
   }
 
@@ -35,6 +37,7 @@ export function LegendStack({
   );
   return (
     <div className={classes.legendStack}>
+      {tags}
       {showEdgeLegend && !isRouted && edgeLegend.length > 0 && (
         <div className={classes.edgeLegend}>
           <VizLegend

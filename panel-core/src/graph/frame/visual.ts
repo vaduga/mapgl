@@ -167,6 +167,25 @@ function resolvedNodeStyle(
   };
 }
 
+function normalizeTags(value: unknown): string[] | string[][] {
+  if (Array.isArray(value) && value.some(Array.isArray)) {
+    return value.map((axis) => normalizeTagAxis(axis));
+  }
+  return normalizeTagAxis(value);
+}
+
+function normalizeTagAxis(value: unknown): string[] {
+  const entries = Array.isArray(value) ? value : [value];
+  const tags = new Set<string>();
+  for (const entry of entries) {
+    const tag = typeof entry === 'string' ? entry.trim() : '';
+    if (tag) {
+      tags.add(tag);
+    }
+  }
+  return [...tags];
+}
+
 function nodeVisual(
   input: LayerVisualInput,
   record: GraphNodeRecord,
@@ -207,6 +226,9 @@ function nodeVisual(
     featSource,
     graph: node.parent as Graph,
     locName: record.id,
+    tags: input.config.tags
+      ? normalizeTags(rowValue(frame, record.primaryRow.rowIndex, input.config.tags))
+      : undefined,
     ...(resolved.thresholdColor !== undefined && { thrColor: resolved.thresholdColor }),
     style,
     edgeStyle: {},

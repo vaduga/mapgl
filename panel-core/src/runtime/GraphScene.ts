@@ -9,7 +9,7 @@ import type { GraphPanelPipelineState, GraphPanelRenderState } from '../graph/fr
 import { createGraphFrameViewState } from '../graph/frame/visualState';
 import { Graph, GraphEdgeIndex } from '../graph/main';
 import type { LayerTreeInfo } from '../store/visLayer';
-import { VisLayers } from '../store/VisLayers';
+import { VisLayers, type TagLegendGroup, type TagAxes } from '../store/VisLayers';
 import type { Rule } from '../style/groups/ruleTypes';
 import type { BiColProps, LayerDragShift } from '../types';
 import { CMN_NAMESPACE } from '../types/defaults';
@@ -224,6 +224,7 @@ export class GraphScene {
     this._projection = undefined;
     this._layoutIncludesProjection = false;
     this._layoutShift = {};
+    this.reconcileTags();
     this._ready = this._displayReady = true;
     this._view = createGraphFrameViewState({
       phase: state.snapshot.nodes.length ? 'ready' : 'empty',
@@ -260,6 +261,7 @@ export class GraphScene {
       groups: [...visual.groups],
       featureSources: visual.featureSources,
     });
+    this.reconcileTags();
     this._view = createGraphFrameViewState({
       phase: state.snapshot.nodes.length ? 'ready' : 'empty',
       pending: false,
@@ -276,6 +278,9 @@ export class GraphScene {
       return false;
     }
     this.current = Object.freeze({ ...this.current, ...changes });
+    if (changes.features) {
+      this.reconcileTags();
+    }
     this.changed();
     return true;
   }
@@ -294,6 +299,46 @@ export class GraphScene {
   toggleGroup(id: number): void {
     this._visibility.toggleGroup(id);
     this.invalidatePresentation();
+  }
+
+  toggleTag(group: TagLegendGroup, tag: string, axis = 0): void {
+    if (!this._visibility.getTagLegendRows(this.current.features, true).get(group)?.get(axis)?.has(tag)) {
+      return;
+    }
+    const selections = new Map(this._visibility.selectedTags);
+    const axes = new Map(selections.get(group));
+    const selected = new Set(axes.get(axis));
+    if (selected.has(tag)) selected.delete(tag);
+    else selected.add(tag);
+    if (selected.size) axes.set(axis, selected);
+    else axes.delete(axis);
+    if (axes.size) selections.set(group, axes);
+    else selections.delete(group);
+    this._visibility.selectedTags = selections;
+    this.invalidatePresentation();
+  }
+
+  resetTags(group: TagLegendGroup): void {
+    const selections = new Map(this._visibility.selectedTags);
+    if (selections.delete(group)) {
+      this._visibility.selectedTags = selections;
+      this.invalidatePresentation();
+    }
+  }
+
+  private reconcileTags(): void {
+    if (!this._visibility.selectedTags.size) return;
+    const available = this._visibility.getTagLegendRows(this.current.features);
+    const selections = new Map<TagLegendGroup, TagAxes>();
+    for (const [group, axes] of this._visibility.selectedTags) {
+      const selectedAxes = new Map<number, ReadonlySet<string>>();
+      for (const [axis, tags] of axes) {
+        const selected = new Set([...tags].filter((tag) => available.get(group)?.get(axis)?.has(tag)));
+        if (selected.size) selectedAxes.set(axis, selected);
+      }
+      if (selectedAxes.size) selections.set(group, selectedAxes);
+    }
+    this._visibility.selectedTags = selections;
   }
 
   toggleAnnotations(): void {

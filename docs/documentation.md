@@ -248,6 +248,10 @@ Result:
 - the same critical router gets the **red color** from `Critical`
 - a non-router critical node still stays **red** because thresholds already resolved it red
 
+### Node tags
+
+In **Markers and links → Node Groups**, enable **Apply** and map **Tags** to a field containing a `string` or `string[]`. The legend lists tags by visible node group; tags shared between groups appear once in **Shared**. Tag selections filter nodes alongside node-group visibility; reset a row to clear its selection. Links and arcs remain visible only when both endpoints pass node filters. Layers without a **Tags** mapping do not contribute legend items and pass the tag filter.
+
 ## Edge styles
 
 Use **Edge Styles** when `Vertex B` is configured:

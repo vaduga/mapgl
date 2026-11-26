@@ -1,4 +1,7 @@
 # Changelog Mapgl
+
+## 2.13.2
+- node tag filtering, with per-group and shared legends
 ## 2.13.1
 - MSAGLJS lib update with improved routing
 

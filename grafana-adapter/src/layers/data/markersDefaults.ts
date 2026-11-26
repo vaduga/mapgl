@@ -27,6 +27,7 @@ export interface MarkersConfig {
     capacity: { field?: string; fixed: number };
   };
   groups?: Rule[];
+  tags?: string;
   showStat2?: boolean;
 }
 

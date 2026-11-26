@@ -48,6 +48,7 @@ import {
   getResolvedUserIconBoxSize,
 } from './nodeGeometry';
 import { colTypes } from '../../types/index';
+import type { EffectiveVisibility } from '../../render/effectiveVisibility';
 import { resolveArcOptions } from '../../style/types';
 
 const PositionDonutLayer = withPositionTransform(DonutCircleLayer);
@@ -187,8 +188,7 @@ const NodesGeojsonLayer = (props: any): GeoJsonLayer<any> => {
   const { circle: Circle, svg: SVG, labels: Labels } = getNodeLayerVisibility(getVisLayers);
 
   const units = isLogic ? 'common' : isMeters ? 'meters' : 'pixels';
-  const categories = props.effectiveVisibility?.groupCategories ?? [1];
-  const categorySize = 1;
+  const { categories, categorySize } = nodeFilterCategories(props.effectiveVisibility);
   const isPlaceholderTextMode = logicTextMode === 'placeholder';
   const isLabelTextMode = logicTextMode === 'label';
   const selectedNodeId = getSelectedNode?.id;
@@ -484,8 +484,7 @@ const PlaceholderTextLayer = (props) => {
     idSuffix = '',
   } = props;
   const { svg: SVG } = getNodeLayerVisibility(getVisLayers);
-  const categories = props.effectiveVisibility?.groupCategories ?? [1];
-  const categorySize = 1;
+  const { categories, categorySize } = nodeFilterCategories(props.effectiveVisibility);
   const units = isLogic ? 'common' : isMeters ? 'meters' : 'pixels';
 
   const selectedNodeId = getSelectedNode?.id;
@@ -560,8 +559,7 @@ const MainLabelTextLayer = (props) => {
     name: colTypes.Label,
     group: colTypes.Label,
   });
-  const categories = props.effectiveVisibility?.groupCategories ?? [1];
-  const categorySize = 1;
+  const { categories, categorySize } = nodeFilterCategories(props.effectiveVisibility);
   const units = isLogic ? 'common' : isMeters ? 'meters' : 'pixels';
 
   const selectedNodeId = getSelectedNode?.id;
@@ -681,6 +679,7 @@ const NodeCardLayer = (props: any): PolygonLayer<any> => {
     }));
     cardPolygonCache.set(cards, data);
   }
+  const { categories, categorySize } = nodeFilterCategories(props.effectiveVisibility);
   return new PolygonLayer({
     _subLayerProps: { fill: { type: PositionSolidPolygonLayer }, stroke: { type: PositionPathLayer } },
     id: `graph-nodes-view-node-card${idSuffix}`,
@@ -700,9 +699,8 @@ const NodeCardLayer = (props: any): PolygonLayer<any> => {
     getLineWidth: 2,
     lineWidthUnits: 'pixels',
     parameters: { depthTest: false },
-    getFilterCategory: nodePresentationProps(props).getFilterCategory,
-    filterCategories: props.effectiveVisibility?.groupCategories ?? [1],
-    extensions: [new DataFilterExtension({ categorySize: 1 }), ...(props.positionTransform?.extensions ?? [])],
+    filterCategories: categories,
+    extensions: [new DataFilterExtension({ categorySize }), ...(props.positionTransform?.extensions ?? [])],
   });
 };
 
@@ -712,6 +710,12 @@ const positionTextSublayers = {
   characters: { type: PositionMultiIconLayer },
   background: { type: PositionTextBackgroundLayer },
 };
+
+function nodeFilterCategories(visibility: EffectiveVisibility | undefined) {
+  return visibility
+    ? { categories: [visibility.groupCategories, [1]], categorySize: 2 as const }
+    : { categories: [1], categorySize: 1 as const };
+}
 
 function nodePresentationProps(props) {
   const visible = new Set(props.getVisLayers.getVisibleNamespaces());
@@ -726,7 +730,10 @@ function nodePresentationProps(props) {
         : 0,
     getFilterCategory: (d, info) => {
       const feature = properties(d, info);
-      if (props.effectiveVisibility) {return props.effectiveVisibility.groupCategory(feature);}
+      const visibility = props.effectiveVisibility;
+      if (visibility) {
+        return [visibility.groupCategory(feature), Number(visibility.tag(feature))];
+      }
       const eligible =
         feature?.style?.group?.groupIdx === undefined ||
         Array.from(props.getVisLayers.getCategories()[0]).includes(feature.style.group.groupIdx);

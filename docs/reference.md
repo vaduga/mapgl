@@ -242,6 +242,10 @@ Priority rule of thumb:
 - a matching user-created group with an explicit color is preferred over internal threshold groups for color
 - internal threshold groups preserve Grafana threshold color as the fallback
 
+## Node tag filtering
+
+When `config.style.useGroups` is enabled and `config.tags` names a dataframe field, a `string` or `string[]` value is normalized into the node's `tags` array. Nodes without tag data pass the tag filter. Edges and arcs remain visible only when both endpoints pass all node filters.
+
 ## Node group matching
 
 Each node group can match on:

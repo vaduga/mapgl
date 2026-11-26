@@ -66,6 +66,22 @@ async function visuals(
 }
 
 describe('graph visual stage', () => {
+  it('stores normalized node tags as arrays in JSON', async () => {
+    const frame = testFrame('Tags', {
+      source: ['A', 'B', 'C', 'A'],
+      target: [null, null, null, 'B'],
+      ownership: [' core ', ['public', 'core', 'public', '', 42], null, 'edge-only'],
+    });
+    const { state } = await visuals(frame, visualConfig({ tags: 'ownership' }));
+    expect(state.features.map((feature) => JSON.parse(JSON.stringify({ tags: feature.tags })).tags)).toEqual([
+      ['core'],
+      ['public', 'core'],
+      [],
+    ]);
+    const unmapped = await visuals(frame, visualConfig());
+    expect(unmapped.state.features.every((feature) => feature.tags === undefined)).toBe(true);
+  });
+
   it.each([
     { mode: TextDimensionMode.Field, arrow: -1, expected: '1.2 kb/s' },
     { mode: TextDimensionMode.Template, arrow: 2, expected: 'sent 1.2 kb/s' },

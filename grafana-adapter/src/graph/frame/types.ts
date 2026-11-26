@@ -61,6 +61,7 @@ export interface GrafanaGraphVisualConfig {
   };
   readonly arcConfig: GraphArcConfig;
   readonly groups?: readonly Rule[];
+  readonly tags?: string;
   readonly groupIndexOffset?: number;
   readonly showStat2?: boolean;
 }

@@ -1,10 +1,63 @@
+import type { BiColProps } from '../types/index';
 import { colTypes } from '../types/index';
 import { type LayerInfo, type LayerTreeInfo, type VisLayerEntry, VisLayer } from './visLayer';
+
+export type TagLegendGroup = number | undefined | 'shared';
+export type TagAxes = ReadonlyMap<number, ReadonlySet<string>>;
+
+export function getTagAxes(tags: NonNullable<BiColProps['tags']>): readonly (readonly string[])[] {
+  return typeof tags[0] === 'string' ? [tags as readonly string[]] : tags as readonly (readonly string[])[];
+}
+
+// The scene replaces the feature array when it commits new tags or group assignments.
+const tagClassifications = new WeakMap<readonly BiColProps[], ReturnType<typeof classifyTags>>();
+
+function getTagClassification(features: readonly BiColProps[]) {
+  let classification = tagClassifications.get(features);
+  if (!classification) {
+    classification = classifyTags(features);
+    tagClassifications.set(features, classification);
+  }
+  return classification;
+}
+
+function classifyTags(features: readonly BiColProps[]) {
+  const groups = new Map<number | undefined, Map<number, Set<string>>>();
+  for (const feature of features) {
+    if (!feature.tags?.length) continue;
+    const group = feature.style?.group?.groupIdx;
+    const axes = groups.get(group) ?? new Map<number, Set<string>>();
+    getTagAxes(feature.tags).forEach((tags, axis) => {
+      if (!tags.length) return;
+      const values = axes.get(axis) ?? new Set<string>();
+      for (const tag of tags) values.add(tag);
+      axes.set(axis, values);
+    });
+    groups.set(group, axes);
+  }
+
+  const seen = new Map<number, Set<string>>();
+  const shared = new Map<number, Set<string>>();
+  for (const axes of groups.values()) {
+    for (const [axis, tags] of axes) {
+      const previous = seen.get(axis) ?? new Set<string>();
+      const common = shared.get(axis) ?? new Set<string>();
+      for (const tag of tags) {
+        if (previous.has(tag)) common.add(tag);
+        previous.add(tag);
+      }
+      seen.set(axis, previous);
+      shared.set(axis, common);
+    }
+  }
+  return { groups, shared };
+}
 
 export class VisLayers {
   visLayers: VisLayer[] = [];
   activeGroups: Uint8Array = new Uint8Array();
   selectedGroups: ReadonlySet<number> = new Set();
+  selectedTags: ReadonlyMap<TagLegendGroup, TagAxes> = new Map();
   annotationsVisible = true;
 
   snapshot(): VisLayers {
@@ -25,6 +78,7 @@ export class VisLayers {
     copy.visLayers = this.visLayers.map(clone);
     copy.activeGroups = this.activeGroups.slice();
     copy.selectedGroups = new Set(this.selectedGroups);
+    copy.selectedTags = new Map(this.selectedTags);
     copy.annotationsVisible = this.annotationsVisible;
     return copy;
   }
@@ -87,6 +141,7 @@ export class VisLayers {
     this.selectedGroups = new Set(
       [...previous.selectedGroups].filter((id) => id < this.activeGroups.length)
     );
+    this.selectedTags = previous.selectedTags;
     this.annotationsVisible = previous.annotationsVisible;
     this.refreshGroups();
     // Masks depend on the new ancestry, including newly added children of hidden groups.
@@ -154,6 +209,29 @@ export class VisLayers {
   passesGroup(group: number | undefined): boolean {
     if (!this.selectedGroups.size) {return group === undefined || this.activeGroups[group] !== 0;}
     return group !== undefined && this.selectedGroups.has(group);
+  }
+
+  getTagLegendRows(features: readonly BiColProps[], activeOnly = false): Map<TagLegendGroup, TagAxes> {
+    const { groups, shared } = getTagClassification(features);
+    const rows = new Map<TagLegendGroup, Map<number, Set<string>>>();
+    const visibleShared = new Map<number, Set<string>>();
+    for (const [group, axes] of groups) {
+      if (activeOnly && !this.passesGroup(group)) continue;
+      const exclusive = new Map<number, Set<string>>();
+      for (const [axis, tags] of axes) {
+        const common = visibleShared.get(axis) ?? new Set<string>();
+        const unique = new Set<string>();
+        for (const tag of tags) {
+          if (shared.get(axis)?.has(tag)) common.add(tag);
+          else unique.add(tag);
+        }
+        if (common.size) visibleShared.set(axis, common);
+        if (unique.size) exclusive.set(axis, unique);
+      }
+      if (exclusive.size) rows.set(group, exclusive);
+    }
+    if (visibleShared.size) rows.set('shared', visibleShared);
+    return rows;
   }
 
   getActiveGroups(): Uint8Array {

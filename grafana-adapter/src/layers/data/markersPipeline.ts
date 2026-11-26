@@ -134,6 +134,7 @@ export function createMarkersPipelineInput(options: MarkersPipelineOptions): Gra
           arcStyle: config.arcStyle,
           arcConfig: config.arcConfig,
           groups: config.style.useGroups ? config.groups : undefined,
+          tags: config.style.useGroups ? config.tags : undefined,
           groupIndexOffset: options.groupIndexOffset,
           showStat2: config.showStat2,
         },

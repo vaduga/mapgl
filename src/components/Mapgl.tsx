@@ -1,4 +1,4 @@
-import { LayerSwitcher, MapglViewport } from '@vaduga/mapgl-core/components';
+import { LayerSwitcher, MapglViewport, TagLegend } from '@vaduga/mapgl-core/components';
 import { getStyles, buildSecondaryLayers, useDelayedHover, useSvgIconRefresh } from '@vaduga/mapgl-core/render';
 import { usePanelRenderSession } from '@vaduga/mapgl-core/render/react';
 import type { DisplayedRenderFrame, PanelRenderOptions, PanelRenderSession } from '@vaduga/mapgl-core/render/session';
@@ -306,6 +306,7 @@ const Mapgl = ({
       />
 
       <LegendStack
+        tags={<TagLegend scene={panel.scene} className={s.tagLegend} />}
         edgeLegend={edgeLegend}
         nodeLegend={getGroupsLegend}
         hasAnnotations={hasAnnots}

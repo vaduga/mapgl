@@ -213,6 +213,7 @@ export interface GraphVisualConfig {
   readonly sideB: (sourceIndex: number) => GraphStyleChannels;
   readonly arcConfig: GraphArcConfig;
   readonly groups?: readonly Rule[];
+  readonly tags?: string;
   readonly groupIndexOffset?: number;
   readonly showStat2?: boolean;
 }

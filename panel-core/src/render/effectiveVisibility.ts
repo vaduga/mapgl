@@ -1,3 +1,5 @@
+import { getTagAxes } from '../store/VisLayers';
+import type { BiColProps } from '../types';
 import { getNodeData } from '../graph/main';
 import type { CapturedRenderInput } from './graph';
 
@@ -7,6 +9,7 @@ export interface EffectiveVisibility {
   readonly groupCategories: number[];
   readonly groupCategory: (properties: any) => number;
   readonly groupTrigger: string;
+  readonly tag: (properties: { tags?: BiColProps['tags']; style?: { group?: { groupIdx?: number } } } | undefined) => boolean;
   readonly node: (properties: any) => boolean;
   readonly group: (properties: any) => boolean;
   readonly namespace: (properties: any) => boolean;
@@ -24,6 +27,7 @@ export function captureEffectiveVisibility(input: CapturedRenderInput): Effectiv
     vis.getLayerTree(),
     [...vis.getActiveGroups()],
     [...(vis.selectedGroups ?? [])],
+    Array.from(vis.selectedTags, ([group, axes]) => [group, Array.from(axes, ([axis, tags]) => [axis, [...tags]])]),
     input.projection?.rendererFiltering,
   ]);
   const previous = cache.get(input.render.features);
@@ -40,24 +44,44 @@ export function captureEffectiveVisibility(input: CapturedRenderInput): Effectiv
   const groupId = (properties: any) => properties?.style?.group?.groupIdx ?? -1;
   const groups = [...new Set(input.render.features.map(groupId))];
   // The usual multi-group path changes only category uniforms, not attributes.
-  // Large group domains use a bounded boolean category to stay within Deck's 128-category budget.
-  const booleanGroups = groups.length > 128;
+  // Two Deck category channels allow 64 distinct values per channel.
+  const sharedSelection = vis.selectedTags.get('shared');
+  const availableShared = sharedSelection && vis.getTagLegendRows(input.render.features, true).get('shared');
+  const sharedAxes = new Map<number, Set<string>>();
+  for (const [axis, tags] of sharedSelection ?? []) {
+    const available = new Set([...tags].filter((tag) => availableShared?.get(axis)?.has(tag)));
+    if (available.size) sharedAxes.set(axis, available);
+  }
+  const tagFilterActive = vis.selectedTags.size > 0;
+  const booleanGroups = groups.length > 64;
+  const tag: EffectiveVisibility['tag'] = (properties) => {
+    if (properties?.tags === undefined) return true;
+    const axes = getTagAxes(properties.tags);
+    const local = vis.selectedTags.get(properties.style?.group?.groupIdx);
+    for (const [axis, tags] of sharedAxes) {
+      if (!axes[axis]?.some((value) => tags.has(value) || local?.get(axis)?.has(value))) return false;
+    }
+    for (const [axis, tags] of local ?? []) {
+      if (!sharedAxes.has(axis) && !axes[axis]?.some((value) => tags.has(value))) return false;
+    }
+    return true;
+  };
   const groupCategory = booleanGroups ? (properties: any) => Number(group(properties)) : groupId;
   const groupCategories = booleanGroups ? [1] : groups.filter((id) => vis.passesGroup(id === -1 ? undefined : id));
-  const groupTrigger = booleanGroups ? key : 'node-groups';
+  const groupTrigger = tagFilterActive || booleanGroups ? key : 'node-groups';
   const namespace = (properties: any) => {
     const id = properties?.graph?.id;
     return id === undefined || names.has(id);
   };
-  const passesLayerAndGroup = (properties: any) =>
-    !!properties && dataLayer(properties.layerName) && group(properties);
-  const node = (properties: any) => passesLayerAndGroup(properties) && namespace(properties);
+  const passesNodeFilters = (properties: any) =>
+    !!properties && dataLayer(properties.layerName) && group(properties) && tag(properties);
+  const node = (properties: any) => passesNodeFilters(properties) && namespace(properties);
   const contracted = input.projection?.rendererFiltering === 'none';
   const values = new Uint8Array(input.render.features.length);
   input.render.features.forEach((properties, index) => {
     // Pro hides original node symbols/cards, but an edge may still terminate
-    // at that namespace's contracted anchor. Its data-layer/group gates remain.
-    values[index] = Number(passesLayerAndGroup(properties) && (contracted || namespace(properties)));
+    // at that namespace's contracted anchor. Its data-layer, group and tag gates remain.
+    values[index] = Number(passesNodeFilters(properties) && (contracted || namespace(properties)));
   });
   const nodeVisible = (endpoint: any) => {
     const ref = getNodeData(endpoint)?.wasmId;
@@ -72,7 +96,7 @@ export function captureEffectiveVisibility(input: CapturedRenderInput): Effectiv
     const target = input.render.edgeIndex.getEdge(end - 1).target;
     return nodeVisible(source) && nodeVisible(target);
   };
-  const visibility = { key, node, group, groupCategory, groupCategories, groupTrigger, namespace, dataLayer, edge };
+  const visibility = { key, node, group, groupCategory, groupCategories, groupTrigger, tag, namespace, dataLayer, edge };
   cache.set(input.render.features, {
     key,
     edgeIndex: input.render.edgeIndex,

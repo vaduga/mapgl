@@ -7,3 +7,4 @@ export type { LayerSwitcherInlineControl, LayerSwitcherBindings, LayerSwitcherPr
 export { PositionTracker } from './Geocoder/PositionTracker';
 export * from './Tooltips/tooltipEdgeSections';
 export * from './Geocoder/PositionTracker';
+export { TagLegend } from './TagLegend';

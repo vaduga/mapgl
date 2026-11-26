@@ -18,6 +18,16 @@ const data = {
 } as PanelData;
 
 describe('markers graph pipeline adapter', () => {
+  it.each([true, false])('enables the Tags field mapping only when useGroups is true (%s)', (useGroups) => {
+    const layer = createDefaultMarkersConfig();
+    layer.config!.tags = 'ownership';
+    layer.config!.style.useGroups = useGroups;
+
+    const input = createMarkersPipelineInput({ data, layer, theme: createTheme(), isLogic: true, useMockData: false });
+
+    expect(input.layers[0].visualConfig.tags).toBe(useGroups ? 'ownership' : undefined);
+  });
+
   it('maps existing saved layer fields and partial visual options without migration', async () => {
     const layer = {
       ...createDefaultMarkersConfig(),

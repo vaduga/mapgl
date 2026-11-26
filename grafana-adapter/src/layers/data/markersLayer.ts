@@ -93,6 +93,18 @@ export function createMarkersLayer({
               category: ['Node Groups'],
               defaultValue: defaultOptions.style.useGroups,
             })
+            .addFieldNamePicker({
+              path: 'config.tags',
+              name: 'Tag filtering',
+              category: ['Node Groups'],
+              description:
+                'Field with a tag or an array of tags',
+              settings: {
+                filter: (field: Field) => field.type === FieldType.string || field.type === FieldType.other,
+                isClearable: true,
+              },
+              showIf: (opts) => Boolean(opts.config?.style?.useGroups ?? defaultOptions.style.useGroups),
+            })
             .addCustomEditor({
               category: ['Node Groups'],
               id: 'config.groups',

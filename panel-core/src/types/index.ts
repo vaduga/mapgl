@@ -70,6 +70,7 @@ export type GraphBiFeatCol = BinaryFeatureCollection & {
 export type BiColProps = {
   id: number;
   locName: string;
+  tags?: readonly string[] | readonly (readonly string[])[];
   layerName: string;
   layerIdx?: number;
   entity?: Entity;
