@@ -148,7 +148,6 @@ const Mapgl = ({
 
   const renderPreparation = useMemo(
     () => ({
-      boundaryProviders: panel.featureServices.namespaceBoundaryProviders,
       edgeOffsetStrategies: panel.featureServices.edgeOffsetStrategies,
       projectedEdgeVisibilityStrategies: panel.featureServices.projectedEdgeVisibilityStrategies,
     }),

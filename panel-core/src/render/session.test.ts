@@ -168,7 +168,7 @@ it.each(['visual', 'visibility', 'projection', 'resource', 'edge-index'])(
     } else if (change === 'visibility') {
       controller.scene.replaceVisibility(controller.scene.visibility.snapshot());
     } else if (change === 'projection') {
-      controller.scene.publishProjection(undefined, controller.scene.render.positions.slice());
+      controller.scene.publishProjection({ contractsHiddenNamespaces: true });
     } else if (change === 'resource') {
       controller.scene.invalidatePresentation();
     } else {

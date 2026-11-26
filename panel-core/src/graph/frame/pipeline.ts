@@ -44,7 +44,9 @@ export function graphPipelineSources(input: GraphPipelineInput): ReadonlyArray<i
   ];
 }
 
-export interface GraphPipelineLayoutContext {
+export interface GraphPipelineLayoutContext<TLayoutState = unknown> {
+  readonly capturePlacement?: boolean;
+  readonly placement?: TLayoutState;
   readonly input: GraphPipelineInput;
   readonly snapshot: GraphFrameSnapshot;
   readonly graph: GraphBuiltState;
@@ -53,7 +55,7 @@ export interface GraphPipelineLayoutContext {
   readonly signal?: AbortSignal;
 }
 
-export interface GraphPipelineRenderContext<TLayoutState> extends GraphPipelineLayoutContext {
+export interface GraphPipelineRenderContext<TLayoutState> extends GraphPipelineLayoutContext<TLayoutState> {
   readonly layout: GraphLayoutStage<TLayoutState>;
 }
 
@@ -65,7 +67,12 @@ export interface GraphPipelineStages<TLayoutState, TRenderState> {
     options?: GraphBuildOptions
   ) => Awaitable<GraphStageResult<GraphBuiltState>>;
   readonly resolveVisuals?: (input: GraphVisualInput) => Awaitable<GraphStageResult<GraphVisualState>>;
-  readonly layout: (context: GraphPipelineLayoutContext) => Awaitable<TLayoutState>;
+  readonly refineLayout?: (options: GraphBuildOptions) => {
+    readonly initialOptions: GraphBuildOptions;
+    readonly reuseVisuals?: boolean;
+    readonly finalOptions: (placement: TLayoutState) => GraphBuildOptions | undefined;
+  } | undefined;
+  readonly layout: (context: GraphPipelineLayoutContext<TLayoutState>) => Awaitable<TLayoutState>;
   readonly render: (context: GraphPipelineRenderContext<TLayoutState>) => Awaitable<TRenderState>;
   readonly commit?: (
     state: GraphCommittedRuntimeState<GraphBuiltState, GraphVisualState, TLayoutState, TRenderState>
@@ -120,9 +127,12 @@ export class GraphFramePipeline<TLayoutState, TRenderState> {
       const buildSignature = graphBuildSignature(snapshot, graphOptions);
       const reusableGraph =
         !this.stages.isolateGraph && this.committedBuildSignature === buildSignature ? this.committed : undefined;
+      const refinement = this.stages.refineLayout?.(graphOptions);
+      const initialOptions = refinement?.initialOptions ?? graphOptions;
+      const build = this.stages.buildGraph ?? buildGraphFromSnapshot;
       let graphResult = reusableGraph
         ? success(reusableGraph.graph.state, normalized.diagnostics, normalized.empty)
-        : await (this.stages.buildGraph ?? buildGraphFromSnapshot)(snapshot, graphOptions);
+        : await build(snapshot, initialOptions);
       if (!graphResult.ok) {
         return graphResult;
       }
@@ -147,7 +157,7 @@ export class GraphFramePipeline<TLayoutState, TRenderState> {
       const layoutSignature = graphLayoutSignature(snapshot, input, visualResult.value, graphOptions);
       const reusableLayout = this.committedLayoutSignature === layoutSignature ? this.committed : undefined;
       if (reusableGraph && !reusableLayout) {
-        graphResult = await (this.stages.buildGraph ?? buildGraphFromSnapshot)(snapshot, graphOptions);
+        graphResult = await build(snapshot, initialOptions);
         if (!graphResult.ok || !isCurrent()) {
           return graphResult.ok ? undefined : graphResult;
         }
@@ -161,29 +171,52 @@ export class GraphFramePipeline<TLayoutState, TRenderState> {
           return visualResult.ok ? undefined : visualResult;
         }
       }
+      const layoutContext = {
+        input,
+        snapshot,
+        graph: graphResult.value,
+        visual: visualResult.value,
+        isCurrent,
+        signal: isCurrent.signal,
+      };
+      let layoutState = reusableLayout
+        ? reusableLayout.layout.state
+        : await this.stages.layout({ ...layoutContext, capturePlacement: Boolean(refinement) });
+      if (!isCurrent()) return undefined;
+
+      if (refinement && (!reusableLayout || !reusableGraph)) {
+        const finalOptions = refinement.finalOptions(layoutState);
+        if (finalOptions) {
+          const expanded = await build(snapshot, finalOptions);
+          if (!expanded.ok || !isCurrent()) return expanded.ok ? undefined : expanded;
+          const visuals = refinement.reuseVisuals ? visualResult : await resolveVisuals({
+            sources: graphPipelineSources(input),
+            snapshot,
+            graph: expanded.value,
+            configs: layerInputs.map((layer) => layer.visualConfig),
+          });
+          if (!visuals.ok || !isCurrent()) return visuals.ok ? undefined : visuals;
+          graphResult = expanded;
+          visualResult = visuals;
+          if (!reusableLayout) {
+            layoutState = await this.stages.layout({
+              ...layoutContext,
+              graph: expanded.value,
+              visual: visuals.value,
+              placement: layoutState,
+            });
+          }
+        }
+      }
+      if (!isCurrent()) return undefined;
+
       const graph = Object.freeze({ snapshot, state: graphResult.value });
       const visual = Object.freeze({ snapshot, state: visualResult.value });
-      const layout: GraphLayoutStage<TLayoutState> = reusableLayout
-        ? Object.freeze({
-            signature: layoutSignature,
-            state: reusableLayout.layout.state,
-            reused: true,
-          })
-        : Object.freeze({
-            signature: layoutSignature,
-            state: await this.stages.layout({
-              input,
-              snapshot,
-              graph: graphResult.value,
-              visual: visualResult.value,
-              isCurrent,
-              signal: isCurrent.signal,
-            }),
-            reused: false,
-          });
-      if (!isCurrent()) {
-        return undefined;
-      }
+      const layout: GraphLayoutStage<TLayoutState> = Object.freeze({
+        signature: layoutSignature,
+        state: layoutState,
+        reused: Boolean(reusableLayout),
+      });
 
       const renderState = await this.stages.render({
         input,

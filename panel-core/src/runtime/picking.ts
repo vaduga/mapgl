@@ -10,6 +10,9 @@ export function resolvePickingFocus(
   if (!info?.picked) {
     return undefined;
   }
+  if (info.object?.graphFocus !== undefined) {
+    return info.object.graphFocus ?? undefined;
+  }
   const state = {
     snapshot: scene.baseline?.snapshot,
     graph: { edgeIndex: scene.render.edgeIndex },

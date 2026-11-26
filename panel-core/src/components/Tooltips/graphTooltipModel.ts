@@ -17,6 +17,7 @@ export interface GraphTooltipTarget {
   readonly key: string;
   readonly id: string;
   readonly namespaceId: string;
+  readonly contributor?: { readonly id: string; readonly key: string };
   readonly hop?: {
     readonly unit: number;
     readonly ordinal: number;
@@ -44,6 +45,16 @@ export interface TooltipInspection {
   readonly edgeRef?: number;
   readonly feature: Record<string, any>;
   readonly isRouted: boolean;
+  readonly focusOverride?: FocusRef | null;
+  readonly headerOnly?: boolean;
+  readonly hideOriginalEdge?: boolean;
+  readonly adjacentEdges?: import('../../extension-points/contracts').TooltipAdjacentEdges;
+}
+
+export interface TooltipInspectionContributor {
+  readonly id: string;
+  inspect(scene: TooltipScene, info: unknown): TooltipInspection | undefined;
+  rebind(scene: TooltipScene, target: GraphTooltipTarget): TooltipInspection | undefined;
 }
 
 const nodeKey = (node: Node) => JSON.stringify([(node.parent as Graph | undefined)?.id, node.id]);
@@ -98,9 +109,17 @@ function inputState(scene: TooltipScene) {
 }
 
 /** Decode only against the scene which produced the displayed pick. */
-export function inspectGraphTooltip(scene: TooltipScene, info: any): TooltipInspection | undefined {
+export function inspectGraphTooltip(
+  scene: TooltipScene,
+  info: any,
+  contributors: readonly TooltipInspectionContributor[] = []
+): TooltipInspection | undefined {
   if (!info) {
     return;
+  }
+  for (const contributor of contributors) {
+    const inspection = contributor.inspect(scene, info);
+    if (inspection) return inspection;
   }
   const interaction = resolveGraphInteraction(inputState(scene), info);
   const root = scene.render.graph;
@@ -167,7 +186,14 @@ export function inspectGraphTooltip(scene: TooltipScene, info: any): TooltipInsp
 }
 
 /** Stable keys are rebound; old numeric references are never retained across frames. */
-export function rebindGraphTooltip(scene: TooltipScene, target: GraphTooltipTarget): TooltipInspection | undefined {
+export function rebindGraphTooltip(
+  scene: TooltipScene,
+  target: GraphTooltipTarget,
+  contributors: readonly TooltipInspectionContributor[] = []
+): TooltipInspection | undefined {
+  if (target.contributor) {
+    return contributors.find(({ id }) => id === target.contributor?.id)?.rebind(scene, target);
+  }
   const snapshot = scene.snapshot;
   if (snapshot && target.kind === 'node') {
     const record = snapshot.nodeByKey.get(target.key);
@@ -197,7 +223,11 @@ export function rebindGraphTooltip(scene: TooltipScene, target: GraphTooltipTarg
       }
     }
     return inspectGraphTooltip(scene, {
-      object: { edgeId: target.id, edgeRef, properties: { graphFrame: { key: target.key } } },
+      object: {
+        edgeId: target.id,
+        edgeRef,
+        properties: { graphFrame: { key: target.key } },
+      },
     });
   }
   const root = scene.render.graph;
@@ -210,7 +240,8 @@ export function rebindGraphTooltip(scene: TooltipScene, target: GraphTooltipTarg
 }
 
 /** Runtime focus uses the fragment ID/namespace; public selection keeps the logical target. */
-export function tooltipFocus(inspection: TooltipInspection): FocusRef {
+export function tooltipFocus(inspection: TooltipInspection): FocusRef | undefined {
+  if (inspection.focusOverride !== undefined) return inspection.focusOverride ?? undefined;
   return inspection.edge
     ? { kind: 'edge', id: inspection.edge.id, namespaceId: String((inspection.edge.source.parent as Graph).id) }
     : { kind: 'node', id: inspection.target.id, namespaceId: inspection.target.namespaceId };

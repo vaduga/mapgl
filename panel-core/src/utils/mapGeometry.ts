@@ -1,5 +1,5 @@
 import type { Graph } from '../graph/main';
-import { defaultNamespaceBoundaryProvider, type NamespaceBoundaryRecord } from '../extension-points/featureContracts';
+import { getLayoutNamespaceBoundaries, type NamespaceBoundaryRecord } from '../extension-points/featureContracts';
 export interface FitLayer {
   isBasemap?: boolean;
   options?: { name?: string };
@@ -192,10 +192,9 @@ export function getLayerFitBounds(
 
 export function getLogicFitBounds(input: ViewportFitInput, visNamespaces: string[]): Bounds | undefined {
   const visibleNamespaces = new Set(visNamespaces);
-  const namespaceBoundaries = defaultNamespaceBoundaryProvider.getBoundaries({
+  const namespaceBoundaries = getLayoutNamespaceBoundaries({
     graph: input.graph,
     visibleNamespaces,
-    positions: input.positions,
     layoutGraphBounds: input.layoutGraphBounds,
     layerShift: input.layerShift,
     padding: 0,

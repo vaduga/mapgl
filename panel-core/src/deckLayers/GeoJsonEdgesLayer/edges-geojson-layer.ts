@@ -20,7 +20,7 @@ type EdgePathStyleLayerProps = {
   dashJustified?: boolean;
 };
 
-const EDGE_DASH_ARRAY = [4, 2] as const;
+const EDGE_DASH_ARRAY = [8, 4] as const;
 const SOLID_EDGE_DASH_ARRAY = [0, 0] as const;
 const pathStyleExtension = new PathStyleExtension({ dash: true });
 

@@ -6,12 +6,12 @@ import { PathStyleExtension } from '@deck.gl/extensions';
 import type { PanelController } from '../runtime/PanelController';
 import type { EffectiveRenderState } from '../runtime/GraphScene';
 import type { GraphFrameSnapshot } from '../graph/frame/types';
-import { getGraphNsLabel, type Graph, type Node, type Edge } from '../graph/main';
+import { getGraphNsLabel, getNodeData, type Graph, type Node, type Edge } from '../graph/main';
 import { getEdgesGeometry, type EdgeGeometryInput, type PreparedEdgeGeometry } from '../graph/utils/utils.graph-geom';
 import {
-  getNamespaceBoundaries,
+  getLayoutNamespaceBoundaries,
   type NamespaceBoundaryRecord,
-  type NamespaceBoundaryProvider,
+  type NamespaceBoundaryContext,
 } from '../extension-points/featureContracts';
 import type { VisLayers } from '../store/VisLayers';
 import type { SelectedIndexes } from '../store/PointStore';
@@ -114,7 +114,7 @@ export interface RenderPreparationOptions {
   readonly edgeOffsetStrategies?: EdgeGeometryInput['edgeOffsetStrategies'];
   readonly projectedEdgeVisibilityStrategies?: EdgeGeometryInput['projectedEdgeVisibilityStrategies'];
   readonly resolveRoute?: EdgeGeometryInput['resolveRoute'];
-  readonly boundaryProviders?: readonly NamespaceBoundaryProvider[];
+  readonly getBoundaries?: (context: NamespaceBoundaryContext) => NamespaceBoundaryRecord[];
   readonly boundaries?: readonly NamespaceBoundaryRecord[];
   readonly includeRootBounds?: boolean;
   readonly applyBoundaryShift?: boolean;
@@ -224,6 +224,7 @@ export interface PreparedGraphRender {
   readonly comments: readonly unknown[];
   readonly positionState?: RenderPositionState;
   readonly namespaceBoundaries?: readonly NamespaceBoundaryRecord[];
+  readonly curveGroups?: EffectiveRenderState['curveGroups'];
 }
 
 export function prepareGraphRender(
@@ -240,6 +241,7 @@ export function prepareGraphRender(
         edgeIndex: render.edgeIndex,
         positions: render.positions,
         isLogic: p.isLogic,
+        isRouted: p.isRouted,
         visibleNamespaces: visibility.getVisibleNamespaces(),
         layerShift: input.layerShift,
         projection: input.projection,
@@ -252,13 +254,11 @@ export function prepareGraphRender(
         projectedEdgeVisibilityStrategies: options.projectedEdgeVisibilityStrategies ?? [],
         resolveRoute: options.resolveRoute,
       });
-  const boundaries =
+  const computedBoundaries =
     p.bounds && p.isLogic && input.ready
       ? (options.boundaries ??
-        getNamespaceBoundaries([...(options.boundaryProviders ?? [])], {
+        (options.getBoundaries ?? getLayoutNamespaceBoundaries)({
           graph: render.graph,
-          positions: render.positions,
-          nodeCards: p.nodeCards,
           visibleNamespaces: new Set(visibility.getVisibleNamespaces()),
           layoutGraphBounds: render.graphBounds,
           layerShift: input.layerShift,
@@ -266,6 +266,9 @@ export function prepareGraphRender(
           applyLayerShift: options.applyBoundaryShift,
         }))
       : [];
+  const boundaries = p.isRouted ? computedBoundaries : computedBoundaries.filter(({ namespace }) =>
+    visibility.getVisibleGraphNamespaces().includes(namespace)
+  );
   return {
     positionState,
     geometry,
@@ -313,6 +316,13 @@ export interface PrimaryLayerProps {
 
 export type LayerFactoryResult = RenderLayer | readonly RenderLayer[] | null | undefined;
 export interface PrimaryFactories {
+  readonly additionalLayers?: (
+    input: CapturedRenderInput,
+    prepared: PreparedGraphRender,
+    props: PrimaryLayerProps,
+    positions: ReturnType<NonNullable<PreparedGraphRender['positionState']>['update']> | undefined,
+    visible: boolean
+  ) => { nodes: RenderLayer[]; edges: RenderLayer[] };
   readonly node?: (
     props: PrimaryLayerProps & { biCol: GraphBiFeatCol; visible: boolean; pointTypeOverride?: string; idSuffix: string }
   ) => LayerFactoryResult;
@@ -360,10 +370,7 @@ function preparePrimaryGeometryData(
   const p = input.presentation;
   const effective = captureEffectiveVisibility(input);
   const labelsVisible = isVisible(input.visibility, { index: null, name: colTypes.Label, group: colTypes.Label });
-  const [activeGroups, visibleNamespaces] = input.visibility.getCategories();
-  const groups = new Set(activeGroups),
-    namespaces = new Set(visibleNamespaces);
-  const eligible = (properties: any) => effective.node(properties);
+  const eligible = effective.node;
   const positionState = prepared.positionState?.update(input);
   const inputs = [
     prepared.collections,
@@ -377,7 +384,7 @@ function preparePrimaryGeometryData(
     p.labels,
     p.nodeCards,
     p.edgeLabels,
-    JSON.stringify([[...activeGroups], visibleNamespaces]),
+    effective.key,
     visible,
     labelsVisible,
     positionState,
@@ -395,7 +402,9 @@ function preparePrimaryGeometryData(
       data = getNodeCards(collection);
       nodeCardDataCache.set(collection, data);
     }
-    if (!p.labels || !p.nodeCards) {data = [];}
+    if (!p.labels || !p.nodeCards) {
+      data = [];
+    }
     cards.set(collection, data);
 
     obstacles.push(
@@ -469,6 +478,9 @@ export function buildPrimaryLayers(
     presentationRevision?: number;
   } = {}
 ): RenderLayerBundle {
+  if (prepared.curveGroups) {
+    input = { ...input, render: { ...input.render, curveGroups: prepared.curveGroups } };
+  }
   const p = input.presentation;
   const selectedIndexes = new Map(input.selectedIndexes);
   const selectedEdges: Record<string, number[]> = {};
@@ -507,7 +519,7 @@ export function buildPrimaryLayers(
     getSelectedIdxs: selectedIndexes,
     getVisLayers: input.visibility,
     presentationRevision,
-    usesRendererNamespaceFiltering: input.projection?.rendererFiltering !== 'none',
+    usesRendererNamespaceFiltering: !p.isRouted || !input.projection?.contractsHiddenNamespaces,
     positionTransform: positionState?.node,
     layerShift: input.layerShift,
     edgeIndex: input.render.edgeIndex,
@@ -550,7 +562,9 @@ export function buildPrimaryLayers(
     }
     if (p.labels && p.nodeCards) {
       // Same group as the label, so the label draws on top.
-      (p.labelsInNodes ? nodes : labels).push(NodeCardLayer({ ...props, visible: ownerVisible, pickable: p.labelPickable ?? p.pickable }));
+      (p.labelsInNodes ? nodes : labels).push(
+        NodeCardLayer({ ...props, visible: ownerVisible, pickable: p.labelPickable ?? p.pickable })
+      );
     }
     if (p.labels) {
       (p.labelsInNodes ? nodes : labels).push(
@@ -561,6 +575,11 @@ export function buildPrimaryLayers(
         })
       );
     }
+  }
+  const extra = factories.additionalLayers?.(input, prepared, common, positionState, visible);
+  if (extra) {
+    nodes.push(...extra.nodes);
+    edges.push(...extra.edges);
   }
   const edgeTransform = positionState?.edge;
   const geometry = p.isRouted ? prepared.geometry.routed : prepared.geometry.arcs;
@@ -688,7 +707,9 @@ function sharedCollection(features: any[]) {
 const fillCollections = new WeakMap<object, Map<boolean, GraphBiFeatCol>>();
 function nodeFillCollection(collection: GraphBiFeatCol, annotations: boolean): GraphBiFeatCol {
   const colors = annotations ? collection.annots : collection.muted;
-  if (!colors || (collection.points as any).attributes.getFillColor.value === colors) {return collection;}
+  if (!colors || (collection.points as any).attributes.getFillColor.value === colors) {
+    return collection;
+  }
   let variants = fillCollections.get(collection);
   if (!variants) {
     variants = new Map();

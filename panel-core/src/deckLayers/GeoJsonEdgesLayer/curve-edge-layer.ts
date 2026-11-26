@@ -49,8 +49,11 @@ type CurveEdgeLayerProps<DataT> = {
   data: CurveEdgeLayerData<DataT>;
   positionTransform?: PositionTransform;
   widthUnits?: Unit;
+  /** Units of cumulative flow distances; defaults to stroke width units. */
+  flowUnits?: Unit;
   widthScale?: number;
   widthMinPixels?: number;
+  focusedWidthMinPixels?: number;
   widthMaxPixels?: number;
   highlightOnly?: boolean;
   highlightMaxDepth?: number;
@@ -80,6 +83,7 @@ const defaultProps: DefaultProps<CurveEdgeLayerProps<any>> = {
   widthUnits: 'pixels',
   widthScale: { type: 'number', min: 0, value: 1 },
   widthMinPixels: { type: 'number', min: 0, value: 0 },
+  focusedWidthMinPixels: { type: 'number', min: 0, value: 0 },
   widthMaxPixels: { type: 'number', min: 0, value: Number.MAX_SAFE_INTEGER },
   highlightOnly: false,
   highlightMaxDepth: { type: 'number', min: 0, value: Number.MAX_SAFE_INTEGER },
@@ -103,12 +107,14 @@ const curveUniforms = {
 layout(std140) uniform curveUniforms {
   float widthScale;
   float widthMinPixels;
+  float focusedWidthMinPixels;
   float widthMaxPixels;
   float highlightMaxDepth;
   float highlightDimOpacity;
   float skipVisibleMaxDepth;
   highp int widthUnits;
   highp int highlightOnly;
+  highp int flowUnits;
   float flowTime;
   highp int animateAllEdges;
 } curve;
@@ -117,12 +123,14 @@ layout(std140) uniform curveUniforms {
 layout(std140) uniform curveUniforms {
   float widthScale;
   float widthMinPixels;
+  float focusedWidthMinPixels;
   float widthMaxPixels;
   float highlightMaxDepth;
   float highlightDimOpacity;
   float skipVisibleMaxDepth;
   highp int widthUnits;
   highp int highlightOnly;
+  highp int flowUnits;
   float flowTime;
   highp int animateAllEdges;
 } curve;
@@ -130,17 +138,20 @@ layout(std140) uniform curveUniforms {
   uniformTypes: {
     widthScale: 'f32',
     widthMinPixels: 'f32',
+    focusedWidthMinPixels: 'f32',
     widthMaxPixels: 'f32',
     highlightMaxDepth: 'f32',
     highlightDimOpacity: 'f32',
     skipVisibleMaxDepth: 'f32',
     widthUnits: 'i32',
     highlightOnly: 'i32',
+    flowUnits: 'i32',
     flowTime: 'f32',
     animateAllEdges: 'i32',
   },
 } as const satisfies ShaderModule<{
   widthScale: number;
+  focusedWidthMinPixels: number;
   widthMinPixels: number;
   widthMaxPixels: number;
   highlightMaxDepth: number;
@@ -148,6 +159,7 @@ layout(std140) uniform curveUniforms {
   skipVisibleMaxDepth: number;
   widthUnits: number;
   highlightOnly: number;
+  flowUnits: number;
   flowTime: number;
   animateAllEdges: number;
 }>;
@@ -282,6 +294,9 @@ void main(void) {
     curve.widthMinPixels,
     curve.widthMaxPixels
   );
+  if (instanceHighlightDepth <= curve.highlightMaxDepth) {
+    widthPixels = max(widthPixels, curve.focusedWidthMinPixels);
+  }
   // PathStyleExtension's Deck.gl 9.4 vertex injection expects the PathLayer
   // half-width variable. This custom layer already extrudes in screen space.
   vec2 width = vec2(widthPixels / 2.0);
@@ -291,8 +306,8 @@ void main(void) {
   float segmentLengthPixels = length((nextNdc - currNdc) * project.viewportSize * 0.5);
   vPathLength = segmentLengthPixels / halfWidthPixels;
   vPathPosition = vec2(positions.y, positions.x * vPathLength);
-  vAlongPixels = project_size_to_pixel(mix(instanceFlow.x, instanceFlow.y, positions.x), curve.widthUnits);
-  vMidPixels = project_size_to_pixel(instanceFlow.z * 0.5, curve.widthUnits);
+  vAlongPixels = project_size_to_pixel(mix(instanceFlow.x, instanceFlow.y, positions.x), curve.flowUnits);
+  vMidPixels = project_size_to_pixel(instanceFlow.z * 0.5, curve.flowUnits);
   vFlowDirection = instanceFlow.w;
 
   vec3 offset = vec3(getExtrusionOffset(next.xy - curr.xy, positions.y, widthPixels), 0.0);
@@ -495,6 +510,7 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
 
     model.shaderInputs.setProps({
       curve: {
+        focusedWidthMinPixels: this.props.focusedWidthMinPixels,
         widthUnits: UNIT[widthUnits],
         widthScale,
         widthMinPixels,
@@ -503,6 +519,7 @@ export class CurveEdgeLayer<DataT = any> extends Layer<Required<CurveEdgeLayerPr
         highlightMaxDepth,
         highlightDimOpacity,
         skipVisibleMaxDepth,
+        flowUnits: UNIT[this.props.flowUnits ?? widthUnits],
         flowTime: animate ? (performance.now() / 1000) % 3600 : -1,
         animateAllEdges: animateAllEdges ? 1 : 0,
       },

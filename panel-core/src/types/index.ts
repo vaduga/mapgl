@@ -103,6 +103,8 @@ export type BiColProps = {
 };
 
 export type NodeData = {
+  namespacePort?: boolean;
+  namespacePortSide?: 'EAST' | 'SOUTH' | 'WEST' | 'NORTH';
   wasmId: number;
   idx?: number;
   feature?: BiColProps;
@@ -127,6 +129,7 @@ export interface DeckLine<G extends Geometry | null = Geometry, P = BiColProps> 
   namespaceTarget?: string;
   lineId?: number;
   edgeId: string;
+  namespaceCarrierId?: string;
   skip?: boolean;
   hideArrowheads?: boolean;
   type: 'Feature';

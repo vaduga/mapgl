@@ -15,6 +15,7 @@ import { makeScopedKey, type ConnectedEdgeIndex } from './GraphHighlighter';
 type DimmedGraphLayerOptions = {
   connectedNodeIds: Set<string>;
   connectedEdgeIndexes?: ConnectedEdgeIndex[];
+  focusedEdgeId?: string | null;
   isRouted?: boolean;
 };
 
@@ -25,7 +26,10 @@ export function getDimmedGraphLayers(layers: Layer[], opts: DimmedGraphLayerOpti
   const edgeDepthsByGraph =
     opts instanceof Set ? {} : getEdgeDepthsByGraph(opts.connectedEdgeIndexes ?? [], Boolean(opts.isRouted));
 
+  const focusedEdgeId = opts instanceof Set ? undefined : opts.focusedEdgeId;
   return flattenDeckLayers(layers).map((layer) => {
+    const custom = layer as Layer & { applyEdgeFocus?: (edgeId?: string | null) => Layer };
+    if (custom.applyEdgeFocus) return custom.applyEdgeFocus(focusedEdgeId);
     if ((layer?.id ?? '').startsWith('icon-cluster')) {
       return layer.clone({ opacity: 0.18 });
     }
@@ -125,7 +129,8 @@ function getEdgeDepthsByGraph(connectedEdgeIndexes: ConnectedEdgeIndex[], isRout
         return acc;
       }
 
-      const depths = (acc[batchIndex !== undefined ? 'shared' : isRouted ? graphId : (arcGraphId ?? graphId)] ??= new Map<number, number>());
+      const depths = (acc[batchIndex !== undefined ? 'shared' : isRouted ? graphId : (arcGraphId ?? graphId)] ??=
+        new Map<number, number>());
       const nextDepth = depth ?? 0;
       const prevDepth = depths.get(index);
       if (prevDepth === undefined || nextDepth < prevDepth) {
@@ -151,6 +156,7 @@ function getDimmedEdgeLayer(layer: Layer, edgeDepthsByGraph: Record<string, Map<
     const curveLayer = layer as any;
     return curveLayer.clone({
       highlightOnly: false,
+      focusedWidthMinPixels: 3.9,
       highlightMaxDepth: getMaxMapValue(connectedFeatureDepths),
       highlightDimOpacity: 0.18,
       skipVisibleMaxDepth: getMaxMapValue(connectedFeatureDepths),

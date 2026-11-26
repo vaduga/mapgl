@@ -23,12 +23,13 @@ const cache = new WeakMap<
 
 export function captureEffectiveVisibility(input: CapturedRenderInput): EffectiveVisibility {
   const vis = input.visibility;
+  const contracted = input.presentation.isRouted && Boolean(input.projection?.contractsHiddenNamespaces);
   const key = JSON.stringify([
     vis.getLayerTree(),
     [...vis.getActiveGroups()],
     [...(vis.selectedGroups ?? [])],
     Array.from(vis.selectedTags, ([group, axes]) => [group, Array.from(axes, ([axis, tags]) => [axis, [...tags]])]),
-    input.projection?.rendererFiltering,
+    contracted,
   ]);
   const previous = cache.get(input.render.features);
   if (previous?.key === key && previous.edgeIndex === input.render.edgeIndex) {return previous.visibility;}
@@ -76,7 +77,6 @@ export function captureEffectiveVisibility(input: CapturedRenderInput): Effectiv
   const passesNodeFilters = (properties: any) =>
     !!properties && dataLayer(properties.layerName) && group(properties) && tag(properties);
   const node = (properties: any) => passesNodeFilters(properties) && namespace(properties);
-  const contracted = input.projection?.rendererFiltering === 'none';
   const values = new Uint8Array(input.render.features.length);
   input.render.features.forEach((properties, index) => {
     // Pro hides original node symbols/cards, but an edge may still terminate

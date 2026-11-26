@@ -21,6 +21,7 @@ export interface GraphDomObservabilityProps {
   layoutDirection?: unknown;
   nodes?: readonly GraphNodeRecord[];
   onInspectNode(index: number, feature: any): void;
+  onPointerDown?: React.PointerEventHandler<HTMLDivElement>;
   phase: string;
   summary?: GraphFrameSnapshotSummary;
   visibleNamespaces: readonly string[];
@@ -34,7 +35,7 @@ export const GraphDomObservability = React.forwardRef<HTMLDivElement, GraphDomOb
   function GraphDomObservability(props, ref) {
     if (!isEnabled()) {
       return (
-        <div className={props.className} ref={ref} style={props.style}>
+        <div className={props.className} ref={ref} style={props.style} onPointerDown={props.onPointerDown}>
           {props.children}
         </div>
       );
@@ -57,6 +58,7 @@ const EnabledGraphDomObservability = React.forwardRef<HTMLDivElement, GraphDomOb
       layoutDirection,
       nodes,
       onInspectNode,
+      onPointerDown,
       phase,
       summary,
       style,
@@ -101,6 +103,7 @@ const EnabledGraphDomObservability = React.forwardRef<HTMLDivElement, GraphDomOb
           if (element && readRenderDebug) {Object.defineProperty(element, '__mapglE2E', { value: readRenderDebug, configurable: true });}
         }}
         style={style}
+        onPointerDown={onPointerDown}
         data-testid="mapgl-graph"
         data-graph-phase={phase}
         data-graph-node-count={summary?.nodeCount ?? 0}

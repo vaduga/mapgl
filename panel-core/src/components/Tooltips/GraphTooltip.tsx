@@ -1,7 +1,8 @@
+import type { TooltipInspectionContributor } from './graphTooltipModel';
 import React, { useEffect, useState, type ReactNode } from 'react';
 import { reaction } from 'mobx';
 import type { PanelController } from '../../runtime/PanelController';
-import type { Graph } from '../../graph/main';
+import type { Edge, Graph } from '../../graph/main';
 import { getMapglFeatureServices } from '../../extension-points/featureServices';
 import type {
   MapglFeatureServices,
@@ -25,7 +26,14 @@ import { TooltipView, type TooltipFrameProps, type TooltipPresentation } from '.
 import type { TooltipContent } from './TooltipContent';
 
 function sameTarget(a: GraphTooltipTarget, b: GraphTooltipTarget) {
-  return a.kind === b.kind && a.key === b.key && a.hop?.unit === b.hop?.unit && a.hop?.ordinal === b.hop?.ordinal;
+  return (
+    a.kind === b.kind &&
+    a.key === b.key &&
+    a.contributor?.id === b.contributor?.id &&
+    a.contributor?.key === b.contributor?.key &&
+    a.hop?.unit === b.hop?.unit &&
+    a.hop?.ordinal === b.hop?.ordinal
+  );
 }
 
 export interface GraphTooltipProps {
@@ -35,7 +43,8 @@ export interface GraphTooltipProps {
   readonly info?: unknown;
   readonly dark?: boolean;
   readonly isRouted?: boolean;
-  readonly featureServices?: Pick<MapglFeatureServices, 'tooltipEdgeSections'>;
+  readonly featureServices?: Pick<MapglFeatureServices, 'tooltipEdgeSections'> &
+    { readonly tooltipInspections?: readonly TooltipInspectionContributor[] };
   readonly getContent: (inspection: TooltipInspection) => TooltipContent | undefined;
   readonly renderActions?: (inspection: TooltipInspection) => ReactNode;
   readonly onSelect?: (inspection: TooltipInspection) => void;
@@ -78,13 +87,14 @@ export function GraphTooltip({
     render: controller.scene.render,
     isRouted,
   };
+  const inspections = featureServices?.tooltipInspections;
   const pinnedPick: any = (info as any)?.mapglPinned ? info : store.getTooltipObject;
   const seed =
     pinnedPick && typeof pinnedPick === 'object' && dismissed.has(pinnedPick)
       ? undefined
-      : inspectGraphTooltip(scene, pinnedPick);
+      : inspectGraphTooltip(scene, pinnedPick, inspections);
   const retained = store.graphTooltip;
-  const pinnedInspection = retained ? rebindGraphTooltip(scene, retained.target) : seed;
+  const pinnedInspection = retained ? rebindGraphTooltip(scene, retained.target, inspections) : seed;
   const visiblePin = retained?.closed ? undefined : pinnedInspection;
   const hoverPick = info as any;
   const hovered =
@@ -93,7 +103,7 @@ export function GraphTooltip({
     hoverPick.picked !== false &&
     hoverPick.index !== -1 &&
     !(typeof hoverPick === 'object' && dismissed.has(hoverPick))
-      ? inspectGraphTooltip(scene, hoverPick)
+      ? inspectGraphTooltip(scene, hoverPick, inspections)
       : undefined;
   const hoverOverride = hovered && (!visiblePin || !sameTarget(hovered.target, visiblePin.target));
   const inspection = hoverOverride ? hovered : visiblePin;
@@ -129,7 +139,8 @@ export function GraphTooltip({
   if (!content) {
     return null;
   }
-  const context = !hoverOverride && retained?.context ? rebindGraphTooltip(scene, retained.context) : inspection;
+  const context =
+    !hoverOverride && retained?.context ? rebindGraphTooltip(scene, retained.context, inspections) : inspection;
   const sections = graphTooltipSections(
     scene,
     context ?? inspection,
@@ -141,7 +152,9 @@ export function GraphTooltip({
     store.getisEdgeListed && (!retained?.section || retained.section.id === section.id) && listDirection === direction;
   const restoreFocus = () => {
     const retainedTarget = store.graphTooltip?.target;
-    const retainedInspection = retainedTarget ? rebindGraphTooltip(scene, retainedTarget) : pinnedInspection;
+    const retainedInspection = retainedTarget
+      ? rebindGraphTooltip(scene, retainedTarget, inspections)
+      : pinnedInspection;
     store.focus(tooltipFocus(retainedInspection ?? inspection));
   };
   const selectRecord = (record: TooltipEdgeRecord) => {
@@ -184,7 +197,7 @@ export function GraphTooltip({
       actions={renderActions?.(inspection)}
       renderFrame={renderFrame}
       originalEdge={
-        context?.edge
+        context?.edge && !context.hideOriginalEdge
           ? {
               id: context.target.key,
               edge: context.edge,
@@ -245,7 +258,8 @@ export function graphTooltipSections(
   highlighter: GraphHighlighter,
   contributors: TooltipEdgeSectionContributor[]
 ) {
-  highlighter.setGraph(scene.render.graph, { edgeIndex: scene.render.edgeIndex });
+  const edgeIndex = scene.render.edgeIndex;
+  highlighter.setGraph(scene.render.graph, { edgeIndex });
   return getTooltipEdgeSections(contributors, {
     graph: inspection.graph,
     edgeIndex: scene.render.edgeIndex,
@@ -254,10 +268,10 @@ export function graphTooltipSections(
     feature: inspection.feature,
     adjacentEdges: inspection.edge
       ? undefined
-      : {
+      : (inspection.adjacentEdges ?? {
           incoming: highlighter.getInEdges(inspection.node),
           outgoing: highlighter.getOutEdges(inspection.node),
-        },
+        }),
   });
 }
 
@@ -273,3 +287,4 @@ export {
   type TooltipInspection,
   type TooltipScene,
 } from './graphTooltipModel';
+export type { TooltipInspectionContributor } from './graphTooltipModel';

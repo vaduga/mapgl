@@ -50,7 +50,8 @@ function createUnitEdges(
   recordRef: number,
   unitRef: number,
   unitOffset: number,
-  graphByNamespace: ReadonlyMap<string, Graph>
+  graphByNamespace: ReadonlyMap<string, Graph>,
+  expandHop?: (source: Node, target: Node, offset: number) => Node[]
 ) {
   const { relations } = snapshot;
   const routeStart = relations.getUnitRouteStart(unitRef);
@@ -64,18 +65,35 @@ function createUnitEdges(
   }
   const row = relations.getUnitRow(unitRef);
   const recordId = relations.getRecordId(recordRef);
+  const path: Node[] = [];
+  const segmentSuffixes: string[] = [];
+  for (const [ordinal, ref] of nodeRefs.entries()) {
+    const record = snapshot.nodes[ref];
+    const node = record && graphByNamespace.get(record.namespaceId)?.findNode(record.id);
+    if (!node) {
+      return [];
+    }
+    const previous = path.at(-1);
+    if (previous) {
+      const ports = previous.parent !== node.parent ? (expandHop?.(previous, node, path.length - 1) ?? []) : [];
+      path.push(...ports);
+      const hop = ordinal - 1;
+      for (let fragment = 0; fragment <= ports.length; fragment++) {
+        segmentSuffixes.push(fragment === 0 ? (hop === 0 ? '' : `--${hop}`) : `--hop-${hop}-port-${fragment}`);
+      }
+    }
+    path.push(node);
+  }
+
   const edges: Edge[] = [];
 
-  for (let segmentIndex = 0; segmentIndex + 1 < nodeRefs.length; segmentIndex++) {
-    const source = snapshot.nodes[nodeRefs[segmentIndex]];
-    const target = snapshot.nodes[nodeRefs[segmentIndex + 1]];
-    const sourceGraph = graphByNamespace.get(source?.namespaceId ?? '');
-    const targetGraph = graphByNamespace.get(target?.namespaceId ?? '');
-    if (!sourceGraph || !targetGraph) {
-      continue;
-    }
+  for (let segmentIndex = 0; segmentIndex + 1 < path.length; segmentIndex++) {
+    const source = path[segmentIndex];
+    const target = path[segmentIndex + 1];
+    const sourceGraph = source.parent as Graph;
+    const targetGraph = target.parent as Graph;
 
-    const segmentSuffix = segmentIndex ? `--${segmentIndex}` : '';
+    const segmentSuffix = segmentSuffixes[segmentIndex];
     const unitSuffix = unitOffset ? `--dup-${unitOffset}` : '';
     const edge = setEdge(sourceGraph, `${recordId}${unitSuffix}${segmentSuffix}`, source.id, target.id, targetGraph);
     if (!edge) {
@@ -87,14 +105,9 @@ function createUnitEdges(
         frameRefId: row.sourceKey,
         rowIndex: row.rowIndex,
       },
+      namespacePortPath: path.length !== nodeRefs.length,
       arrowPlacement:
-        nodeRefs.length === 2
-          ? 'both'
-          : segmentIndex === 0
-            ? 'start'
-            : segmentIndex === nodeRefs.length - 2
-              ? 'end'
-              : 'none',
+        path.length === 2 ? 'both' : segmentIndex === 0 ? 'start' : segmentIndex === path.length - 2 ? 'end' : 'none',
     });
     edges.push(edge);
   }
@@ -102,9 +115,12 @@ function createUnitEdges(
   return edges;
 }
 
+type AddPathNode = (owner: Graph, id: string, data: Partial<NodeData>) => Node;
+
 export function buildGraphFromSnapshot(
   snapshot: GraphFrameSnapshot,
-  options: GraphBuildOptions = {}
+  options: GraphBuildOptions = {},
+  expandHop?: (source: Node, target: Node, layer: GraphBuildOptions | undefined, addNode: AddPathNode, unitRef: number, offset: number) => Node[]
 ): GraphStageResult<GraphBuiltState> {
   const graph = new Graph(CMN_NAMESPACE);
   const graphByNamespace = new Map<string, Graph>([[CMN_NAMESPACE, graph]]);
@@ -112,7 +128,7 @@ export function buildGraphFromSnapshot(
     ensureNamespace(graph, graphByNamespace, namespaceId, snapshot.namespaceLabels);
   }
 
-  const positions = snapshot.positions.slice();
+  let positions = snapshot.positions.slice();
   const nodeByKey = new Map<string, Node>();
   const localNodeCounts = new Map<Graph, number>();
   const positionRanges: Array<{ namespaceId: string; start: number; end: number }> = [];
@@ -149,12 +165,17 @@ export function buildGraphFromSnapshot(
     }
   });
 
-  for (const [namespaceId, namespaceGraph] of graphByNamespace) {
-    setGraphPositionRanges(
-      namespaceGraph,
-      positionRanges.filter((range) => range.namespaceId === namespaceId).map(({ start, end }) => [start, end])
-    );
-  }
+  let addedNodeCount = 0;
+  const addNode: AddPathNode = (namespace, id, data) => {
+    const node = new Node(id);
+    const wasmId = positions.length / 2 + addedNodeCount++;
+    const idx = localNodeCounts.get(namespace) ?? 0;
+    setNodeData(node, { ...data, wasmId, idx });
+    namespace.addNode(node);
+    localNodeCounts.set(namespace, idx + 1);
+    positionRanges.push({ namespaceId: namespace.id, start: wasmId, end: wasmId + 1 });
+    return node;
+  };
 
   const edgeIndex = new GraphEdgeIndex();
   for (let recordRef = 0; recordRef < snapshot.relations.recordCount; recordRef++) {
@@ -168,7 +189,14 @@ export function buildGraphFromSnapshot(
       unitRef: unitStart + unitOffset,
       edges:
         unitOffset < runtimeUnitCount
-          ? createUnitEdges(snapshot, recordRef, unitStart + unitOffset, unitOffset, graphByNamespace)
+          ? createUnitEdges(
+              snapshot,
+              recordRef,
+              unitStart + unitOffset,
+              unitOffset,
+              graphByNamespace,
+              expandHop && ((source, target, offset) => expandHop(source, target, layerOptions, addNode, unitStart + unitOffset, offset))
+            )
           : [],
     }));
     const routeStart = snapshot.relations.getRecordRouteStart(recordRef);
@@ -198,7 +226,20 @@ export function buildGraphFromSnapshot(
   }
   edgeIndex.finalize();
 
+  if (addedNodeCount) {
+    const expanded = new Float64Array(positions.length + addedNodeCount * 2);
+    expanded.set(positions);
+    positions = expanded;
+  }
+  for (const [namespaceId, namespaceGraph] of graphByNamespace) {
+    setGraphPositionRanges(
+      namespaceGraph,
+      positionRanges.filter((range) => range.namespaceId === namespaceId).map(({ start, end }) => [start, end])
+    );
+  }
+
   const state: GraphBuiltState = Object.freeze({
+    buildOptions: options,
     graph,
     edgeIndex,
     positions,

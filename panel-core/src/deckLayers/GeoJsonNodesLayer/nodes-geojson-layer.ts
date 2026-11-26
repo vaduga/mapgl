@@ -680,12 +680,13 @@ const NodeCardLayer = (props: any): PolygonLayer<any> => {
     cardPolygonCache.set(cards, data);
   }
   const { categories, categorySize } = nodeFilterCategories(props.effectiveVisibility);
+  const presentation = nodePresentationProps(props);
   return new PolygonLayer({
     _subLayerProps: { fill: { type: PositionSolidPolygonLayer }, stroke: { type: PositionPathLayer } },
     id: `graph-nodes-view-node-card${idSuffix}`,
     data,
     visible: visible && isVisible(getVisLayers, { index: null, name: colTypes.Label, group: colTypes.Label }),
-    ...nodePresentationProps(props),
+    ...presentation,
     pickable,
     onHover,
     autoHighlight,
@@ -699,6 +700,12 @@ const NodeCardLayer = (props: any): PolygonLayer<any> => {
     getLineWidth: 2,
     lineWidthUnits: 'pixels',
     parameters: { depthTest: false },
+    updateTriggers: {
+      ...presentation.updateTriggers,
+      // Deck compares only triggers present on the incoming layer when focus clears.
+      getFillColor: [isDark],
+      getLineColor: [],
+    },
     filterCategories: categories,
     extensions: [new DataFilterExtension({ categorySize }), ...(props.positionTransform?.extensions ?? [])],
   });

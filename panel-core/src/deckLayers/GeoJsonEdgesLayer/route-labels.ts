@@ -117,8 +117,23 @@ export function getRouteLabelCandidates(segments: CurveEdgeBinaryData<DeckLine>)
     return value;
   };
   const hasText = (text: unknown) => typeof text === 'string' && Boolean(text.trim());
+  const groups = new Map<unknown, number[]>();
+  segments.features.forEach((feature, index) => {
+    const properties = feature?.properties as Record<string, unknown> | undefined;
+    if (properties?.labelGroup === undefined) return;
+    const indexes = groups.get(properties.labelGroup) ?? [];
+    indexes.push(index);
+    groups.set(properties.labelGroup, indexes);
+  });
+  for (const indexes of groups.values()) {
+    indexes.sort((a, b) =>
+      Number((segments.features[a].properties as any).labelGroupOrder) -
+      Number((segments.features[b].properties as any).labelGroupOrder)
+    );
+  }
   for (let featureIndex = 0; featureIndex < segments.features.length; featureIndex++) {
     const feature = segments.features[featureIndex];
+    if (feature?.properties && 'hideLabels' in feature.properties && feature.properties.hideLabels) continue;
     const { edgeStyle, arcStyle } = feature?.properties ?? {};
     if (
       !hasText(edgeStyle?.text) &&
@@ -126,7 +141,23 @@ export function getRouteLabelCandidates(segments: CurveEdgeBinaryData<DeckLine>)
     ) {
       continue;
     }
-    const metric = getCurveMetrics(segments, featureIndex);
+    const group = groups.get((feature.properties as any)?.labelGroup);
+    if (group && group[0] !== featureIndex) continue;
+    const metric = group ? {
+      length: 0,
+      intervals: [] as CurveMetric['intervals'],
+      ranges: new Map<number, [number, number]>(),
+    } : getCurveMetrics(segments, featureIndex);
+    if (group) {
+      for (const index of group) {
+        const part = getCurveMetrics(segments, index);
+        const offset = metric.length;
+        metric.intervals.push(...part.intervals.map((interval) => ({
+          ...interval, start: interval.start + offset, end: interval.end + offset,
+        })));
+        metric.length += part.length;
+      }
+    }
     if (metric.intervals.length) {
       labels.push(...placeLabels(feature, metric, featureIndex, width));
     }

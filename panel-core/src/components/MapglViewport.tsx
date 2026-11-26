@@ -21,7 +21,7 @@ export interface MapglViewportProps {
   onMapLoad: () => void;
   onClick: (info: any) => void;
   classes: Record<string, string>;
-  host?: { controlled: boolean; onViewStateChange?: (change: any) => void };
+  host?: { controlled: boolean; onViewStateChange?: (change: any) => void; onAfterRender?: () => void };
   inertia?: boolean;
 }
 
@@ -84,7 +84,8 @@ export function MapglViewport({
       layers={renderedLayers}
       initialViewState={host?.controlled ? null : deckViewState}
       viewState={host?.controlled ? deckViewState : null}
-      onViewStateChange={host?.controlled ? host.onViewStateChange : undefined}
+      onViewStateChange={host?.onViewStateChange}
+      onAfterRender={host?.onAfterRender ?? (() => {})}
       eventRecognizerOptions={{
         click: { interval: 0 },
       }}

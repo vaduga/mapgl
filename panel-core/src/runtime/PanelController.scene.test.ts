@@ -100,7 +100,7 @@ it('coordinates loading, effective commit, retained failure and reconnect withou
   expect(scene.layerShift).toEqual({});
   expect(scene.setLayerShift('rack', [30, 40], generation)).toBe(false);
   expect(scene.setReadiness(true, true, generation)).toBe(false);
-  expect(scene.publishProjection({ rendererFiltering: 'none' }, lastRender.positions, generation)).toBe(false);
+  expect(scene.publishProjection({ contractsHiddenNamespaces: true }, generation)).toBe(false);
   controller.dispose();
   dispose();
 });
@@ -159,7 +159,7 @@ it.each([true, false])(
     const curveGroups = new Map();
     scene.update({ positions, curveGroups, edgeIndex });
     scene.setLayerShift('rack', [4, 5]);
-    scene.publishProjection({ rendererFiltering: 'object-mask' }, positions);
+    scene.publishProjection({ contractsHiddenNamespaces: false });
     scene.setLayoutProjected(true);
     const visibility = scene.visibility;
     const projection = scene.projection;

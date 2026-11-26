@@ -1,5 +1,5 @@
 import { EdgeLabelLayer } from './TextLayer/edge-label-layer';
-import { PolygonLayer } from '@deck.gl/layers';
+import { PathLayer, PolygonLayer } from '@deck.gl/layers';
 import { getDimmedGraphLayers } from './focus-layers';
 import { makeScopedKey } from './GraphHighlighter';
 import {
@@ -109,4 +109,18 @@ it('retains skipped arc text for GPU focus promotion and marks it idle-hidden', 
   expect(focused.props.data).toBe(base.props.data);
   const props = (focused as EdgeLabelLayer).getSubLayerProps({ id: 'characters' });
   expect(props.getLabelHighlight(arc, { index: 0 })).toEqual([0, 0]);
+});
+
+it('passes the focused edge to a layer with custom focus styling', () => {
+  const base = new PathLayer({ id: 'extension-path' });
+  const focused = base.clone({ opacity: 0.9 });
+  const applyEdgeFocus = jest.fn(() => focused);
+  Object.assign(base, { applyEdgeFocus });
+  expect(
+    getDimmedGraphLayers([base], {
+      connectedNodeIds: new Set(),
+      focusedEdgeId: 'edge-a',
+    })
+  ).toEqual([focused]);
+  expect(applyEdgeFocus).toHaveBeenCalledWith('edge-a');
 });

@@ -7,6 +7,8 @@ export type LayoutNodeSnapshot = {
   graphId: string;
   wasmId: number;
   radius?: number;
+  namespacePort?: boolean;
+  namespacePortSide?: 'EAST' | 'SOUTH' | 'WEST' | 'NORTH';
   /** Card dimensions, or the label envelope used by ELK. MSAGL uses these only with cards enabled. */
   width?: number;
   height?: number;
@@ -32,6 +34,7 @@ type LayoutRequestBase = {
   engine?: LayoutEngineConfig;
   /** Nodes are cards: their width/height box, edges end on its border (no circle). */
   cards?: boolean;
+  placementOnly?: boolean;
   routing: EdgeRoutingConfig;
   direction: LayoutDirectionConfig;
   layerSeparation: number;
@@ -45,6 +48,8 @@ type LayoutRequestBase = {
 
 export type LayoutPassRequest = LayoutRequestBase & {
   operation: 'layout';
+  compoundPorts?: ReadonlyMap<string, 'EAST' | 'WEST' | 'NORTH' | 'SOUTH'>;
+  fixedPlacement?: { layout: LayoutResult; edgeKeys: readonly string[] };
 };
 
 export type LayoutRequest = LayoutPassRequest;
@@ -82,6 +87,8 @@ export type LayoutResult = {
   positions: Float64Array;
   arrows: LayoutArrowResult;
   curveGroups?: LayoutCurveGroup[];
+  nativeNamespacePorts?: true;
+  updatedNamespaceGeometry?: true;
 };
 
 export const SOURCE_ARROW_FLAG = 1;
