@@ -4,7 +4,7 @@ import { Graph } from '../../graph/main';
 import { VisLayers } from '../../store/VisLayers';
 import { GraphScene } from '../../runtime/index';
 import type { NamespaceProjectionStrategy } from '../../extension-points/contracts';
-import LayerSwitcher, { type LayerSwitcherBindings } from './LayerSwitcher';
+import LayerSwitcher, { type LayerSwitcherBindings, type LayerSwitcherInlineControl } from './LayerSwitcher';
 
 jest.mock('@deck.gl/widgets', () => ({
   _Tooltip: ({ children }: { children: unknown }) => children,
@@ -27,20 +27,19 @@ function panel() {
   return { ...owner, scene, strategies };
 }
 
-it('publishes a strategy buffer before requesting rendering', () => {
+it('publishes the projection result before requesting rendering', () => {
   const owner = panel();
-  const positions = new Float64Array([1, 2]);
   owner.strategies.push({
-    id: 'synthetic-buffer',
-    project: () => ({ positions }),
+    id: 'synthetic-projection',
+    project: () => ({ contractsHiddenNamespaces: true }),
   });
-  const refresh = jest.fn(() => owner.scene.render.positions);
+  const refresh = jest.fn(() => owner.scene.projection);
   render(<LayerSwitcher label="layers" bindings={owner} onRefresh={refresh} />);
   fireEvent.click(screen.getByRole('button', { name: 'layers' }));
 
   fireEvent.click(screen.getByRole('checkbox', { name: 'rack' }));
-  expect(owner.scene.render.positions).toBe(positions);
-  expect(refresh.mock.results[0].value).toBe(positions);
+  expect(owner.scene.projection?.contractsHiddenNamespaces).toBe(true);
+  expect(refresh.mock.results[0].value).toBe(owner.scene.projection);
 });
 
 it('retains positions when the namespace strategy only changes renderer filtering', () => {

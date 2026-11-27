@@ -115,7 +115,7 @@ const LayerSwitcher = ({
     if (panelVisible) {
       renderPanel();
     }
-  }, [panelVisible, visLayers, inlineControls]);
+  }, [panelVisible, visLayers, bindings, inlineControls]);
 
   return (
     <div className={[styles.root, hiddenClassName, panelVisible ? 'shown' : '', className].filter(Boolean).join(' ')}>

@@ -44,7 +44,7 @@ export interface GrafanaTooltipProps {
   dataLayers: any[];
   replaceVariables?: InterpolateFunction;
   renderAlternateContent?(context: TooltipAlternateContext): ReactNode;
-  renderActions?(): ReactNode;
+  renderActions?(inspection?: TooltipInspection): ReactNode;
   isEditHandle?(object: any): boolean;
 }
 
