@@ -49,7 +49,13 @@ export function createGetLayerEditor({ mapLayerRegistry, getLayersOptions }: Lay
             instanceState: opts.state,
           };
         },
-        getValue: (path: string) => lodashGet(opts.state.options, path),
+        getValue: (path: string) => {
+          const options = opts.state.options;
+          const value = lodashGet(options, path);
+          if (value !== undefined || !opts.basemaps || options.type !== ORTHO_BASEMAP_CONFIG.type) return value;
+          const layer = mapLayerRegistry.getIfExists(options.type);
+          return lodashGet({ config: layer?.defaultOptions }, path);
+        },
         onChange: (path: string, value: string) => {
           const { state } = opts;
           const { options } = state;
