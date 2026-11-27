@@ -242,6 +242,15 @@ export class GraphScene {
     }
     this._baseline = state;
     const visual = state.render.state;
+    const annotations = visual.annotations.slice();
+    // Runtime overlays belong to the scene, while the metric pipeline only
+    // knows the underlying group colors. Retain overlays in the same commit.
+    for (const node of state.visual.state.nodes) {
+      if (node.feature.overlayColor) {
+        const offset = node.index * 4;
+        annotations.set(this.current.annotations.subarray(offset, offset + 4), offset);
+      }
+    }
     const previousGroupCount = this.current.groups.length;
     if (visual.groups.length > previousGroupCount) {
       const active = this._visibility.getActiveGroups();
@@ -256,7 +265,7 @@ export class GraphScene {
       features: [...visual.features],
       colors: visual.colors,
       muted: visual.muted,
-      annotations: visual.annotations,
+      annotations,
       groupIndices: visual.groupIndices,
       groups: [...visual.groups],
       featureSources: visual.featureSources,
