@@ -837,6 +837,9 @@ it.each([10, 300])('assembles a constant number of shared families for %i namesp
     'graph-nodes-view-node-card-metrics',
     'graph-nodes-view-label-text-metrics',
   ]);
+  expect(bundle.labels!.map((layer) => layer.props.pickable)).toEqual([true, false]);
+  const plainInput = captureRenderInput(controller, { ...presentation, nodeCards: false });
+  expect(buildPrimaryLayers(plainInput, prepareGraphRender(plainInput)).labels![0].props.pickable).toBe(true);
   expect(prepared.collections).toHaveLength(1);
   for (const index of [0, Math.floor(count / 2), count - 1]) {
     const session = new PanelRenderSession(controller, { presentation });

@@ -584,7 +584,8 @@ const MainLabelTextLayer = (props) => {
     data: labelData,
     visible: visible && Labels,
     ...nodePresentationProps(props),
-    pickable,
+    // The card polygon owns picking across its whole label.
+    pickable: !nodeCards && pickable,
     onHover,
     autoHighlight,
     highlightColor,

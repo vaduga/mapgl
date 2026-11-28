@@ -1,8 +1,11 @@
 # Changelog Mapgl
 
+## 2.13.3
+- fix(ux): node cards don't flicker on hover; show default values in panel config 
+
 ## 2.13.2
 - node tag filtering, with per-group and shared legends
-- fix: graph panning doesn't trigger Grafana drawer in Edit mode
+- fix(ux): graph panning doesn't trigger Grafana drawer in Edit mode
 
 ## 2.13.1
 - multi-select in node groups legend filter. Edges are hidden when either endpoint's group is hidden
